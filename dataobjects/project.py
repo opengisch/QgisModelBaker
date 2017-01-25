@@ -37,6 +37,7 @@ class Project(object):
 
         legend = list()
         for layer in self.layers:
+            pass
             
 
     def load(self, definition):

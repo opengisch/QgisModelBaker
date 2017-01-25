@@ -44,13 +44,14 @@ def main(argv):
     generator = generator_module.Generator(args.uri)
 
     available_layers = generator.layers()
+    relations = generator.relations()
+
+    project = Project()
+    project.layers = available_layers
+    project.relations = relations
 
     qgis_project = QgsProject.instance()
-
-    project = Project(qgis_project)
-    project.layers = available_layers
-
-    project.create(args.out)
+    project.create(args.out, qgis_project)
 
     QgsApplication.exitQgis()
 

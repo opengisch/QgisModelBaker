@@ -77,3 +77,6 @@ class PostgresCreator:
             layers.append(Layer('postgres', data_source_uri))
 
         return layers
+
+    def relations(self, layers):
+        return layers
