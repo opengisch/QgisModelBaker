@@ -62,5 +62,10 @@ class Project(object):
         else:
             qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
+        for relation in self.relations:
+            rel = relation.create()
+            assert rel.isValid()
+            qgis_project.relationManager().addRelation(rel)
+
         qgis_project.write(path)
         print('Project written to {}'.format(path))

@@ -9,5 +9,10 @@ IGNORED_TABLES = [
     't_ili2db_dataset',
     't_ili2db_attrname',
     't_ili2db_basket',
-    't_ili2db_settings'
+    't_ili2db_settings',
+    't_ili2db_import',
+    't_ili2db_inheritance',
+    't_ili2db_model',
+    't_ili2db_classname',
+    't_ili2db_import_basket'
 ]

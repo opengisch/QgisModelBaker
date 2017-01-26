@@ -20,11 +20,12 @@
 
 from qgis.core import QgsVectorLayer, QgsDataSourceUri
 
-class Layer:
 
+class Layer:
     def __init__(self, provider, uri):
         self.provider = provider
         self.uri = uri
+        self.__layer = None
 
     def dump(self):
         definition = dict()
@@ -38,7 +39,11 @@ class Layer:
         self.uri = definition['uri']
 
     def create(self):
-        print(self.uri)
-        layer = QgsVectorLayer(self.uri, QgsDataSourceUri(self.uri).table(), self.provider)
-        print('done')
-        return layer
+        if not self.__layer:
+            layer_name = self.table_name()
+            print(' ==> Creating layer "{}"'.format(layer_name))
+            self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+        return self.__layer
+
+    def table_name(self):
+        return QgsDataSourceUri(self.uri).table()

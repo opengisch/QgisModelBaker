@@ -66,21 +66,28 @@ class PostgresCreator:
             if record['tablename'] in IGNORED_TABLES:
                 continue
 
-            # 'service=\'pg_qgep\' key=\'obj_id\' srid=21781 type=CompoundCurve table="qgep"."vw_qgep_reach" (progression_geometry) sql='
-            data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
-                uri=self.uri,
-                primary_key=record['primary_key'],
-                srid=record['srid'],
-                type=record['type'],
-                schema=record['schemaname'],
-                table=record['tablename'],
-                geometry_column=record['geometry_column']
-            )
+            if record['geometry_column']:
+                # 'service=\'pg_qgep\' key=\'obj_id\' srid=21781 type=CompoundCurve table="qgep"."vw_qgep_reach" (progression_geometry) sql='
+                data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
+                    uri=self.uri,
+                    primary_key=record['primary_key'],
+                    srid=record['srid'],
+                    type=record['type'],
+                    schema=record['schemaname'],
+                    table=record['tablename'],
+                    geometry_column=record['geometry_column']
+                )
+            else:
+                data_source_uri = '{uri} key={primary_key} table="{schema}"."{table}"'.format(
+                    uri=self.uri,
+                    primary_key=record['primary_key'],
+                    schema=record['schemaname'],
+                    table=record['tablename']
+                )
 
             layers.append(Layer('postgres', data_source_uri))
 
         return layers
 
     def relations(self, layers):
-        #PostgresRelation.find_relations()
-        return layers
+        return PostgresRelation.find_relations(layers, self.conn)
