@@ -39,12 +39,17 @@ def main(argv):
     app = QgsApplication([], True)
     QgsApplication.initQgis()
 
+    def debug_log_message(message, tag, level):
+        print('{}({}): {}'.format(tag, level, message))
+
+    QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
+
     generator_module = importlib.import_module('generator.' + args.generator)
 
     generator = generator_module.Generator(args.uri)
 
     available_layers = generator.layers()
-    relations = generator.relations()
+    relations = generator.relations(available_layers)
 
     project = Project()
     project.layers = available_layers
