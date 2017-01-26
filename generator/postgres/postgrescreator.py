@@ -22,12 +22,15 @@ import psycopg2
 import psycopg2.extras
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES
 
+from qgis.core import QgsProviderRegistry
 from dataobjects.layers import Layer
+from .relations import PostgresRelation
 
 
 class PostgresCreator:
 
     def __init__(self, uri):
+        assert 'postgres' in QgsProviderRegistry.instance().providerList(), 'postgres provider not found in {}. Is the QGIS_PREFIX_PATH properly set?'.format(QgsProviderRegistry.instance().providerList())
         self.uri = uri
         self.conn = psycopg2.connect(uri)
 
@@ -79,4 +82,5 @@ class PostgresCreator:
         return layers
 
     def relations(self, layers):
+        #PostgresRelation.find_relations()
         return layers
