@@ -19,6 +19,7 @@
 """
 from dataobjects import Layer
 from qgis.core import QgsCoordinateReferenceSystem
+from qgis.gui import QgsMapCanvas
 
 
 class Project(object):
@@ -33,11 +34,21 @@ class Project(object):
 
     def dump(self):
         definition = dict()
-        definition['crs'] = self.crs
+        definition['crs'] = self.crs.toWkt()
 
         legend = list()
         for layer in self.layers:
-            pass
+            legend.append(layer.dump())
+
+        relations = list()
+
+        for relation in self.relations:
+            relations.append(relation.dump())
+
+        definition['legend'] = legend
+        definition['relations'] = relations
+
+        return definition
             
 
     def load(self, definition):
@@ -66,6 +77,10 @@ class Project(object):
             rel = relation.create()
             assert rel.isValid()
             qgis_project.relationManager().addRelation(rel)
+
+        map_canvas = QgsMapCanvas()
+        map_canvas.setDestinationCrs(self.crs)
+        qgis_project.setCrs(self.crs)
 
         qgis_project.write(path)
         print('Project written to {}'.format(path))

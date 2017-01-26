@@ -23,6 +23,7 @@ import argparse
 import importlib
 import qgis
 from dataobjects.project import Project
+import yaml
 
 from qgis.core import QgsProject, QgsApplication
 
@@ -57,6 +58,11 @@ def main(argv):
 
     qgis_project = QgsProject.instance()
     project.create(args.out, qgis_project)
+
+    yamlfile = args.out + '.yaml'
+    with open(yamlfile, 'w') as f:
+        f.write(yaml.dump(project.dump(), default_flow_style = False))
+        print('Project template written to {}'.format(yamlfile))
 
     QgsApplication.exitQgis()
 

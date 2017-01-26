@@ -11,9 +11,9 @@ class Relation(object):
 
     def dump(self):
         definition = dict()
-        definition['referencingLayer'] = self.referencing_layer.id()
+        definition['referencingLayer'] = self.referencing_layer
         definition['referencingField'] = self.referencing_field
-        definition['referencedLayer'] = self.referenced_layer.id()
+        definition['referencedLayer'] = self.referenced_layer
         definition['referencedField'] = self.referenced_field
 
         return definition
