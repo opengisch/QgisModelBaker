@@ -63,3 +63,4 @@ class Project(object):
             qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
         qgis_project.write(path)
+        print('Project written to {}'.format(path))
