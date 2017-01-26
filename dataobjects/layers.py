@@ -20,7 +20,6 @@
 
 from qgis.core import QgsVectorLayer, QgsDataSourceUri
 
-
 class Layer:
 
     def __init__(self, provider, uri):
@@ -39,6 +38,7 @@ class Layer:
         self.uri = definition['uri']
 
     def create(self):
-        layer = QgsVectorLayer(self.uri, QgsDataSourceUri(
-            self.uri).table(), self.provider)
+        print(self.uri)
+        layer = QgsVectorLayer(self.uri, QgsDataSourceUri(self.uri).table(), self.provider)
+        print('done')
         return layer
