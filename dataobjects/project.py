@@ -17,9 +17,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from dataobjects import Layer
+from dataobjects.layers import Layer
+from dataobjects.relations import Relation
 from qgis.core import QgsCoordinateReferenceSystem
-from qgis.gui import QgsMapCanvas
 
 
 class Project(object):
@@ -28,6 +28,7 @@ class Project(object):
         self.crs = None
         self.name = 'Not set'
         self.layers = list()
+        self.relations = list()
 
     def add_layer(self, layer):
         self.layers.append(layer)
@@ -49,16 +50,21 @@ class Project(object):
         definition['relations'] = relations
 
         return definition
-            
+
 
     def load(self, definition):
         self.crs = definition['crs']
 
-        self.layers=list()
-        for layer_definition in definition['layers']:
-            layer = Layer()
-            layer.load(layer_definition)
+        self.layers = list()
+        for layer_definition in definition['legend']:
+            layer = Layer(layer_definition['provider'], layer_definition['uri'])
             self.layers.append(layer)
+
+        self.relations = list()
+        for relation_definition in definition['relations']:
+            relation = Relation()
+            relation.load(relation_definition)
+            self.relations.append(relation)
 
     def create(self, path, qgis_project):
         for layer in self.layers:
@@ -71,16 +77,12 @@ class Project(object):
         if isinstance(self.crs, QgsCoordinateReferenceSystem):
             qgis_project.setCrs(self.crs)
         else:
-            qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+            qgis_project.setCrs(QgsCoordinateReferenceSystem(self.crs))
 
         for relation in self.relations:
-            rel = relation.create()
+            rel = relation.create(self.layers)
             assert rel.isValid()
             qgis_project.relationManager().addRelation(rel)
-
-        map_canvas = QgsMapCanvas()
-        map_canvas.setDestinationCrs(self.crs)
-        qgis_project.setCrs(self.crs)
 
         qgis_project.write(path)
         print('Project written to {}'.format(path))
