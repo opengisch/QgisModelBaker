@@ -1,0 +1,2 @@
+java -jar ili2pg.jar --schemaimport --dbhost localhost --dbusr mkuhn --dbdatabase buildings --dbschema buildings --importTid --nameByTopic --createEnumTabs --smart1Inheritance --coalesceMultiSurface --createGeomIdx --createFk ../Buildings_V1-07937/Buildings_V1.ili
+java -jar ili2pg.jar --schemaimport --dbhost localhost --dbusr mkuhn --dbdatabase buildings --dbschema buildings --importTid --nameByTopic --createEnumTabs --createEnumColAsItfCode --createNumChecks --smart1Inheritance --coalesceMultiSurface --createGeomIdx --createFk ../Buildings_V1-07937/Buildings_V1.ili

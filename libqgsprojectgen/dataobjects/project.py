@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from dataobjects import Layer
+from libqgsprojectgen.dataobjects import Layer
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.gui import QgsMapCanvas
 

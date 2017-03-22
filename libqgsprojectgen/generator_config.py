@@ -2,9 +2,9 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 2015-05-20
+        begin                : 30/01/17
         git sha              : :%H$
-        copyright            : (C) 2015 by OPENGIS.ch
+        copyright            : (C) 2017 by OPENGIS.ch
         email                : info@opengis.ch
  ***************************************************************************/
 
@@ -18,9 +18,6 @@
  ***************************************************************************/
 """
 
-from .qgs_project_generator import QgsProjectGeneratorPlugin
-
-def classFactory(iface):
-    return QgsProjectGeneratorPlugin(iface)
-
-
+class GeneratorConfig(object):
+    def __init__(self):
+        self.generator = 'postgres'
