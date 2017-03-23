@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from libqgsprojectgen.dataobjects import Layer
+from metaproject.libqgsprojectgen.dataobjects import Layer
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.gui import QgsMapCanvas
 
@@ -82,5 +82,5 @@ class Project(object):
         map_canvas.setDestinationCrs(self.crs)
         qgis_project.setCrs(self.crs)
 
-        qgis_project.write(path)
-        print('Project written to {}'.format(path))
+        if path:
+            qgis_project.write(path)

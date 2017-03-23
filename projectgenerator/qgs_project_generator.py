@@ -39,8 +39,8 @@ class QgsProjectGeneratorPlugin(QObject):
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
 
     def unload(self):
-        self.iface.removePluginDatabaseMenu(self.__menu_action)
-        del self.__menu_action
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
+        del self.__generate_action
 
     def show_generate_dialog(self):
         dlg = GenerateProjectDialog()

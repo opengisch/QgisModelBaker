@@ -1,0 +1,1707 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>ili2db-Anleitung</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7614 2013-02-21 15:55:51Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="ili2db-anleitung">
+<h1 class="title">ili2db-Anleitung</h1>
+
+<div class="section" id="uberblick">
+<h1>Überblick</h1>
+<p>Ili2pg bzw. ili2gpkg ist ein in Java erstelltes Programm, das eine
+Interlis-Transferdatei (itf oder xtf) einem Interlis-Modell entsprechend
+(ili) mittels 1:1-Transfer in eine Datenbank (PostgreSQL/Postgis bzw.
+GeoPackage) schreibt oder aus der Datenbank mittels einem 1:1-Transfer
+eine solche Transferdatei erstellt. Folgende Funktionen sind möglich:</p>
+<ul class="simple">
+<li>1:1-Umwandlung einer Modelldatei in ein Datenbankschema.</li>
+<li>1:1-Import einer beliebigen Transferdatei mit dazugehöriger
+Modelldatei in eine Datenbank.</li>
+<li>1:1-Export von Datenbanktabellen in eine Interlis-Transferdatei.</li>
+<li>1:1-Export von Datenbanktabellen in eine GML-Transferdatei <a class="footnote-reference" href="#id6" id="id1">[1]</a>.</li>
+</ul>
+<div class="section" id="import-in-die-datenbank">
+<h2>1:1-Import in die Datenbank</h2>
+<p>Der 1:1-Import schreibt alle Objekte (im Sinne der eigentlichen Daten)
+der Interlis-Transferdatei in die Datenbank. Falls die Tabellen in der
+Datenbank resp. im Schema noch nicht existieren, werden die Tabellen und
+falls nötig das Schema beim Import angelegt.</p>
+<p>Es besteht die Möglichkeit ein Schema mit leeren Tabellen aus dem
+Interlis-Modell in der Datenbank zu erstellen (nur PostGIS).</p>
+<p>Area- und Surface-Geometrien können bei Interlis 1 optional polygoniert
+werden.</p>
+<p>Kreisbögen werden als Kreisbögen importiert und somit nicht segmentiert
+oder können optional auch segmentiert werden.</p>
+<p>Attribute vom Interlis-Datentyp „Enumeration“ können wahlweise auch
+zusätzlich als Text importiert werden (z.B. BB-Art 0 = „Gebaeude“).</p>
+<p>Den Geometrien kann mittels Parameter ein EPSG-Code zugewiesen werden.
+Die Geometrie-Attribute können optional indexiert werden.</p>
+</div>
+<div class="section" id="export-aus-der-datenbank">
+<h2>1:1-Export aus der Datenbank</h2>
+<p>Der 1:1-Export schreibt alle Tabellen eines Interlis-Modells in eine
+Interlis-Transferdatei.</p>
+<p>Geometrien vom Typ Area und Surface werden bei Interlis 1 während dem
+Export in Linien umgewandelt.</p>
+</div>
+<div class="section" id="laufzeitanforderungen">
+<h2>Laufzeitanforderungen</h2>
+<p>Das Programm setzt Java 1.6 voraus.</p>
+<p><strong>PostGIS:</strong> Als Datenbank muss mindestens PostgreSQL 8.3 und PostGIS
+1.5 vorhanden sein. Falls das Interlis Datenmodell INTERLIS.UUIDOID als
+OID verwendet, wird die Funktion uuid_generate_v4() verwendet.
+Dazu muss die PostgreSQL-Erweiterung uuid-ossp konfiguriert sein
+(<tt class="docutils literal">CREATE EXTENSION <span class="pre">&quot;uuid-ossp&quot;;</span></tt>).</p>
+</div>
+<div class="section" id="lizenz">
+<h2>Lizenz</h2>
+<p>GNU Lesser General Public License</p>
+</div>
+</div>
+<div class="section" id="funktionsweise">
+<h1>Funktionsweise</h1>
+<p>In den folgenden Abschnitten wird die Funktionsweise anhand einzelner
+Anwendungsfälle beispielhaft beschrieben. Die detaillierte Beschreibung
+einzelner Funktionen ist im Kapitel „Referenz“ zu finden.</p>
+<div class="section" id="import-funktionen">
+<h2>Import-Funktionen</h2>
+<div class="section" id="fall-1">
+<h3>Fall 1</h3>
+<p>Die Tabellen existieren nicht und sollen in der Datenbank angelegt
+werden.</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--schemaimport</span> <span class="pre">--dbdatabase</span> mogis
+<span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo path/to/dm01av.ili</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--schemaimport</span> <span class="pre">--dbfile</span>
+mogis.gpkg path/to/dm01av.ili</tt></p>
+<p>Es werden keine Daten importiert, sondern nur die leeren Tabellen
+angelegt.</p>
+<p><strong>PostGIS:</strong> Die leeren Tabellen werden im Default-Schema des Benutzers
+julia angelegt. Die Geometrie-Spalten werden in der Tabelle
+public.geometry_columns registriert.</p>
+<p>Als Host wird der lokale Rechner angenommen und für die Verbindung zur
+Datenbank der Standard-Port.</p>
+<p><strong>GeoPackage:</strong> Die Geometrie-Spalten werden in den Tabellen
+gpkg_contents und gpkg_geometry_columns registriert.</p>
+<p>Falls die Datei mogis.gpkg noch nicht existiert, wird sie erzeugt und
+mit den für GeoPackage nötigen Metatabellen initialisiert.</p>
+</div>
+<div class="section" id="fall-2-nur-postgis">
+<h3>Fall 2 (nur PostGIS)</h3>
+<p>Das gewünschte Schema und die Tabellen existieren nicht und es soll das
+DB-Schema und -Datenmodell angelegt werden:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--schemaimport</span> <span class="pre">--dbdatabase</span> mogis
+<span class="pre">--dbschema</span> dm01av <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo path/to/dm01av.ili</tt></p>
+<p>Es werden keine Daten importiert, sondern nur das Schema dm01av und die
+leeren Tabellen angelegt. Die Geometrie-Spalten werden in der Tabelle
+public.geometry_columns registriert.</p>
+</div>
+<div class="section" id="fall-3">
+<h3>Fall 3</h3>
+<p>Die Tabellen existieren nicht und sollen in der Datenbank angelegt
+werden und die Daten sollen importiert werden:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--dbhost</span> ofaioi4531 <span class="pre">--dbport</span>
+5432 <span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo <span class="pre">--log</span>
+path/to/logfile path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--dbfile</span> mogis.gpkg
+<span class="pre">--log</span> path/to/logfile path/to/260100.itf</tt></p>
+<p>Alle Tabellen werden in der Datenbank erstellt und das Itf 260100.itf
+importiert. Die Geometrie-Spalten werden registriert. Als Primary-Key
+wird ein zusätzliches Attribut erstellt (t_id). Zusätzlich wir ein
+t_basket Attribut erstellt. Dieses zeigt als Fremdschlüssel auf eine
+Meta-Hilfstabelle (Importdatum, Benutzer, Modellname, Pfad der
+Itf-Datei).</p>
+<p>Die Aufzähltypen werden in Lookup-Tables abgebildet.</p>
+<p>Es wird ein Logfile angelegt. Dieses enthält Zeitpunkt des Imports, Name
+des Benutzers, Datenbankparameter (ohne Passwort), Name (ganzer Pfade)
+der Ili- und Itf-Datei, sämtliche Namen der importierten Tabellen inkl.
+Anzahl der importierten Elemente pro Tabelle. Allfällige Fehlermeldungen
+(bei Importabbruch) werden auch in die Logdatei geschrieben.</p>
+</div>
+<div class="section" id="fall-4">
+<h3>Fall 4</h3>
+<p>Die Tabellen existieren bereits und der Inhalt der Tabellen soll
+erweitert werden:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span>
+julia <span class="pre">--dbpwd</span> romeo path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--dbfile</span> mogis.gpkg
+path/to/260100.itf</tt></p>
+<p>Das Itf 260100.itf wird importiert und die Daten den bereits vorhanden
+Tabellen hinzugefügt. Die Tabellen können zusätzliche Attribute
+enthalten (z.B. bfsnr, datum etc.), welche beim Import leer bleiben.</p>
+</div>
+<div class="section" id="fall-5">
+<h3>Fall 5</h3>
+<p>Die Tabellen existieren bereits und der Inhalt der Tabellen soll durch
+den Inhalt des itf ersetzt werden:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--deleteData</span> <span class="pre">--dbdatabase</span>
+mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--deleteData</span> <span class="pre">--dbfile</span>
+mogis.gpkg path/to/260100.itf</tt></p>
+<p>Das Itf 260100.itf wird importiert und die bestehenden Daten in den
+bereits vorhanden Tabellen gelöscht. Die Tabellen können zusätzliche
+Attribute enthalten (z.B. bfsnr, datum etc.), welche beim Import leer
+bleiben.</p>
+</div>
+<div class="section" id="fall-6">
+<h3>Fall 6</h3>
+<p>Enumerations werden zusätzlich als Textattribut hinzugefügt:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--createEnumTxtCol</span>
+<span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--createEnumTxtCol</span>
+<span class="pre">--dbfile</span> mogis.gpkg path/to/260100.itf</tt></p>
+<p>Das Itf wird in die Datenbank importiert. Zusätzlich werden die
+Attribute vom Typ Enumeration in ihrer Textrepräsentation (Attribut
+„art“ = 0 ⇒ „art_txt“ = „Gebaeude“) hinzugefügt.</p>
+</div>
+<div class="section" id="fall-7">
+<h3>Fall 7</h3>
+<p>Den Geometrien wird ein spezieller SRS (Spatial Reference System)
+Identifikator hinzugefügt:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--defaultSrsAuth</span> epsg
+<span class="pre">--defaultSrsCode</span> 2056 <span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo
+path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--defaultSrsAuth</span> epsg
+<span class="pre">--defaultSrsCode</span> 2056 <span class="pre">--dbfile</span> mogis.gpkg path/to/260100.itf</tt></p>
+<p>Das Itf wird in die Datenbank importiert. Zusätzlich wird jeder
+Geometrie eine SRS-ID</p>
+<p>(EPSG-Code 2056) hinzugefügt. Ebenfalls wird derselbe Identifikator für
+die Registrierung der Geometriespalten in den Metatabellen der Datenbank
+benutzt.</p>
+</div>
+<div class="section" id="fall-8">
+<h3>Fall 8</h3>
+<p>Geometrien werden indexiert:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--import</span> <span class="pre">--createGeomIdx</span> <span class="pre">--dbdatabase</span>
+mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo path/to/260100.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--import</span> <span class="pre">--createGeomIdx</span> <span class="pre">--dbfile</span>
+mogis.gpkg path/to/260100.itf</tt></p>
+<p>Das Itf wird in die Datenbank importiert. Die Geometrien werden
+indexiert.</p>
+</div>
+<div class="section" id="fall-9">
+<h3>Fall 9</h3>
+<p>Tauchen beim Import des Itf Fehler auf (z. B. mangelnde
+Modellkonformität oder verletzte Constraints in der DB), bricht der
+Import ab und keine Daten werden importiert. D.h. der Import in die
+Datenbank ist ein einzelner Commit.</p>
+</div>
+</div>
+<div class="section" id="export-funktionen">
+<h2>Export-Funktionen</h2>
+<div class="section" id="id2">
+<h3>Fall 1</h3>
+<p>Die Tabellen werden aus der Datenbank in eine Interlis 1-Transfer-Datei
+geschrieben:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--export</span> <span class="pre">--models</span> DM01AV <span class="pre">--dbhost</span>
+ofaioi4531 <span class="pre">--dbport</span> 5432 <span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo
+path/to/output.itf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--export</span> <span class="pre">--models</span> DM01AV <span class="pre">--dbfile</span>
+mogis.gpkg path/to/output.itf</tt></p>
+<p>Die Tabellen werden dem Interlis-Modell DM01AV entsprechend in die
+Interlis 1-Transferdatei output.itf geschrieben. Fehlende Tabellen in
+der Datenbank werden dementsprechend als leere Tabellen oder gar nicht
+(gemäss Definition im Datenmodell) in die Datei geschrieben. Fehlende
+Attribute in einer Datenbanktabelle werden mit einem „&#64;“ substituiert.</p>
+<p>Anhand des Parameters --models wird definiert, welche Daten exportiert
+werden. Alternativ kann auch der Parameter --topics oder --baskets
+verwendet werden, um die zu exportierenden Daten auszuwählen. Einer
+dieser Parameter muss also zwingend beim Export angegeben werden.</p>
+</div>
+<div class="section" id="fall-2">
+<h3>Fall 2</h3>
+<p>Die Tabellen werden aus der Datenbank in eine Interlis 2-Transfer-Datei
+geschrieben:</p>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar <span class="pre">--export</span> <span class="pre">--models</span> DM01AV <span class="pre">--dbhost</span>
+ofaioi4531 <span class="pre">--dbport</span> 5432 <span class="pre">--dbdatabase</span> mogis <span class="pre">--dbusr</span> julia <span class="pre">--dbpwd</span> romeo
+path/to/output.xtf</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar <span class="pre">--export</span> <span class="pre">--models</span> DM01AV <span class="pre">--dbfile</span>
+mogis.gpkg path/to/output.xtf</tt></p>
+<p>Die Tabellen werden dem Interlis-Modell DM01AV entsprechend in das die
+Interlis 2-Transferdatei output.xtf geschrieben. Fehlende Tabellen und
+Attribute in der Datenbank werden gar nicht in die Datei geschrieben.</p>
+<p>Anhand des Parameters --models wird definiert, welche Daten exportiert
+werden. Alternativ kann auch der Parameter --topics oder --baskets
+verwendet werden, um die zu exportierenden Daten auszuwählen. Einer
+dieser Parameter muss also zwingend beim Export angegeben werden.</p>
+</div>
+</div>
+</div>
+<div class="section" id="referenz">
+<h1>Referenz</h1>
+<p>In den folgenden Abschnitten werden einzelne Aspekte detailliert, aber
+isoliert, beschrieben. Die Funktionsweise als Ganzes wird anhand
+einzelner Anwendungsfälle beispielhaft im Kapitel „Funktionsweise“
+(weiter oben) beschrieben.</p>
+<div class="section" id="aufruf-syntax">
+<h2>Aufruf-Syntax</h2>
+<p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar [Options] [file]</tt></p>
+<p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar [Options] [file]</tt></p>
+<p>Optionen:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="94%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Option</th>
+<th class="head">Beschreibung</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>--import</td>
+<td><p class="first">Importiert Daten aus einer Transferdatei in die Datenbank.</p>
+<p>Die Tabellen werden implizit auch angelegt, falls sie noch nicht vorhanden sind (siehe Kapitel Abbildungsregeln). Falls die Tabellen in der Datenbank schon vorhanden sind, können sie zusätzliche Spalten enthalten (z.B. bfsnr, datum etc.), welche beim Import leer bleiben.</p>
+<p>Falls beim Import ein Datensatz-Identifikator (--dataset) definiert wird, darf dieser Datensatz-Identifikator in der Datenbank noch nicht vorhanden sein. Um die bestehenden Daten zu ersetzen, kann die Option --replace verwendet werden.</p>
+<p class="last">TODO Die Tabellen sind schon vorhanden (und entsprechen (nicht) der ili-Klasse)</p>
+</td>
+</tr>
+<tr><td>--update</td>
+<td>Aktualisiert die Daten in der Datenbank anhand einer Transferdatei, d.h. neue Objekte werden eingefügt, bestehende Objekte werden aktualisiert und in der Transferdatei nicht mehr vorhandene Objekte werden gelöscht. Diese Funktion bedingt, dass das Datenbankschema mit der Option --createBasketCol erstellt wurde, und dass die Klassen und Topics eine stabile OID haben.</td>
+</tr>
+<tr><td>--replace</td>
+<td>Ersetzt die Daten in der Datenbank anhand eines Datensatz-Identifikators (--dataset) mit den Daten aus einer Transferdatei. Diese Funktion bedingt, dass das Datenbankschema mit der Option --createBasketCol erstellt wurde.</td>
+</tr>
+<tr><td>--delete</td>
+<td>Löscht die Daten in der Datenbank anhand eines Datensatz-Identifikators (--dataset). Diese Funktion bedingt, dass das Datenbankschema mit der Option --createBasketCol erstellt wurde.</td>
+</tr>
+<tr><td>--export</td>
+<td><p class="first">Exportiert Daten aus der Datenbank in eine Transferdatei.</p>
+<p>Mit dem Parameter --models, --topics, --baskets oder --dataset wird definiert, welche Daten exportiert werden.</p>
+<p>Ob die Daten im Interlis 1-, Interlis 2- oder GML-Format geschrieben werden, ergibt sich aus der Dateinamenserweiterung der Ausgabedatei. Für eine Interlis 1-Transferdatei muss die Erweiterung .itf verwendet werden. Für eine GML-Transferdatei muss die Erweiterung .gml verwendet werden.</p>
+<p class="last">Die Optionen --topics und --baskets bedingen, dass das Datenbankschema mit der Option --createBasketCol erstellt wurde.</p>
+</td>
+</tr>
+<tr><td>--schemaimport</td>
+<td>Erstellt die Tabellenstruktur in der Datenbank (siehe Kapitel Abbildungsregeln).</td>
+</tr>
+<tr><td>--validConfig filename</td>
+<td>Name der Konfigurationsdatei, die für die Validierung verwendet werden soll.</td>
+</tr>
+<tr><td>--disableValidation</td>
+<td>Schaltet die Validierung der Daten aus.</td>
+</tr>
+<tr><td>--dbhost host</td>
+<td><strong>PostGIS:</strong> Der hostname der Datenbank. Default ist localhost.</td>
+</tr>
+<tr><td>--dbport port</td>
+<td><strong>PostGIS:</strong> Die Port-Nummer, unter der die Datenbank angesprochen warden kann. Default ist 5432.</td>
+</tr>
+<tr><td>--dbdatabase database</td>
+<td><strong>PostGIS:</strong> Der Name der Datenbank.</td>
+</tr>
+<tr><td>--dbusr username</td>
+<td><p class="first"><strong>PostGIS:</strong> Der Benutzername für den Datenbankzugang und Einträge in Metatabellen.</p>
+<p class="last"><strong>GeoPackage:</strong> Der Benutzername für Einträge in Metatabellen.</p>
+</td>
+</tr>
+<tr><td>--dbpwd password</td>
+<td><strong>PostGIS:</strong> Das Passwort für den Datenbankzugriff.</td>
+</tr>
+<tr><td>--dbschema schema</td>
+<td><strong>PostGIS:</strong> Definiert den Namen des Datenbank-Schemas. Default ist kein Wert, d.h. das aktuelle Schema des Benutzers der mit –user definiert wird.</td>
+</tr>
+<tr><td>--dbfile filename</td>
+<td><strong>GeoPackage:</strong> Name der GeoPackage-Datei.</td>
+</tr>
+<tr><td>--deleteData</td>
+<td>bei einem Datenimport (--import) werden alle Daten in den existierenden/benutzten Tabellen gelöscht (Mit DELETE, die Tabellenstruktur bleibt unverändert).</td>
+</tr>
+<tr><td>--defaultSrsAuth auth</td>
+<td>SRS Authority für Geometriespalten, wo sich dieser Wert nicht ermitteln lässt (für ili1 und ili2.3 immer der Fall). Default ist EPSG</td>
+</tr>
+<tr><td>--defaultSrsCode code</td>
+<td>SRS Code für Geometriespalten, wo sich dieser Wert nicht ermitteln lässt (für ili1 und ili2.3 immer der Fall). Default ist 21781</td>
+</tr>
+<tr><td>--modeldir path</td>
+<td><p class="first">Dateipfade, die Modell-Dateien (ili-Dateien) enthalten. Mehrere Pfade können durch Semikolon ‚;‘ getrennt werden. Es sind auch URLs von Modell-Repositories möglich. Default ist</p>
+<p>%ILI_FROM_DB;%XTF_DIR;http://models.interlis.ch/;%JAR_DIR</p>
+<p>%ILI_FROM_DB ist ein Platzhalter für die in der Datenbank vorhandenen Modelle (in der Tabelle t_ili2db_model).</p>
+<p>%XTF_DIR ist ein Platzhalter für das Verzeichnis mit der Transferdatei.</p>
+<p>%JAR_DIR ist ein Platzhalter für das Verzeichnis des ili2db Programms (ili2pg.jar bzw. ili2gpkg.jar Datei).</p>
+<p>Der erste Modellname (Hauptmodell), zu dem ili2db die ili-Datei sucht, ist nicht von der INTERLIS-Sprachversion abhängig. Es wird in folgender Reihenfolge nach einer ili-Datei gesucht: zuerst INTERLIS 2.3, dann 1.0 und zuletzt 2.2.</p>
+<p class="last">Beim Auflösen eines IMPORTs wird die INTERLIS Sprachversion des Hauptmodells berücksichtigt, so dass also z.B. das Modell Units für ili2.2 oder ili2.3 unterschieden wird.</p>
+</td>
+</tr>
+<tr><td>--models modelname</td>
+<td>Namen des Modells (nicht zwingend identisch mit dem Dateinamen!), für das die Tabellenstruktur in der Datenbank erstellt werden soll. Mehrere Modellnamen können durch Semikolon ‚;‘ getrennt werden. Normalerweise muss der Namen nicht angegeben werden, und das Programm ermittelt den Wert automatisch aus den Daten. Wird beim --schemaimport nur eine ili-Datei als file angegeben, wird der Name des letzten Modells aus dieser ili-Datei als modelname genommen.</td>
+</tr>
+<tr><td>--dataset name</td>
+<td>Name/Identifikator des Datensatzes (Kurzform für mehrere BIDs). Kann z.B. eine BFSNr oder ein Kantonskürzel sein. Bedingt die Option --createBasketCol.</td>
+</tr>
+<tr><td>--baskets BID</td>
+<td>BID der Baskets, die importiert oder exportiert werden sollen. Mehrere BIDs können durch Semikolon ‚;‘ getrennt werden.</td>
+</tr>
+<tr><td>--topics topicname</td>
+<td>Topic-Namen der Baskets, die importiert oder exportiert werden sollen. Mehrere Namen können durch Semikolon ‚;‘ getrennt werden. Falls der Topic-Name in verschiedenen Modellen vorkommt, muss der qualifizierte Topic-Name verwendet werden.</td>
+</tr>
+<tr><td>--createscript filename</td>
+<td>Erstellt zusätzlich zur Tabellenstruktur in der Datenbank ein SQL-Skript um die Tabellenstruktur unabhängig vom Programm erstellen zu können. Das Skript wird zusätzlich zu den Tabellen in der Datenbank erzeugt, d.h. es ist nicht möglich, nur das Skript zu erstellen (ohne Datenbank).</td>
+</tr>
+<tr><td>--dropscript filename</td>
+<td>Erstellt ein SQL-Skript um die Tabellenstruktur unabhängig vom Programm löschen zu können.</td>
+</tr>
+<tr><td>--noSmartMapping</td>
+<td>Alle strukturellen Abbildungsoptimierungen werden ausgeschaltet. (s.a. --smart1Inheritance, --coalesceCatalogueRef, --coalesceMultiSurface, --expandMultilingual)</td>
+</tr>
+<tr><td>--smart1Inheritance</td>
+<td>Bildet die Vererbungshierarchie mit einer dymamischen Strategie ab. Für Klassen, die referenziert werden und deren Basisklassen nicht mit einer NewClass-Strategie abgebildet werden, wird die NewClass-Strategie verwendet. Abstrakte Klassen werden mit einer SubClass-Strategie abgebildet. Konkrete Klassen, ohne Basisklasse oder deren direkte Basisklassen mit einer SubClass-Strategie abgebildet werden, werden mit einer NewClass-Strategie abgebildet. Alle anderen Klassen werden mit einer SuperClass-Strategie abgebildet.</td>
+</tr>
+<tr><td>--smart2Inheritance</td>
+<td>Bildet die Vererbungshierarchie mit einer dymamischen Strategie ab. Abstrakte Klassen werden mit einer SubClass-Strategie abgebildet. Konkrete Klassen werden mit einer NewAndSubClass-Strategie abgebildet.</td>
+</tr>
+<tr><td>--coalesceCatalogueRef</td>
+<td>Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp CHBase:CatalogueReference oder CHBase:MandatoryCatalogueReference ist und die ausser „Reference“ keine weiteren Attribute haben, werden direkt mit einem Fremdschlüssel auf die Ziel-Tabelle (die die konkrete CHBase:Item Klasse realisiert) abgebildet, d.h. kein Record in der Tabelle für die Struktur mit dem „Reference“ Attribut.</td>
+</tr>
+<tr><td>--coalesceMultiSurface</td>
+<td>Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp CHBase:MultiSurface ist und die ausser „Surfaces“ keine weiteren Attribute haben, werden direkt als Spalte mit dem Typ MULTISURFACE (oder MULTIPOLYGON, falls --strokeArcs) abgebildet.</td>
+</tr>
+<tr><td>--expandMultilingual</td>
+<td>Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp LocalisationCH_V1.MultilingualText oder LocalisationCH_V1.MultilingualMText ist und die ausser „LocalisedText“ keine weiteren Attribute haben, werden direkt als Spalten in der Tabelle des Strukturattributes abgebildet, d.h. keine Records in den Tabellen für die Multilingual-Strukturen.</td>
+</tr>
+<tr><td>--createGeomIdx</td>
+<td>Erstellt für jede Geometriespalte in der Datenbank einen räumlichen Index. (siehe Kapitel Abbildungsregeln/Geometrieattribute)</td>
+</tr>
+<tr><td>--createEnumColAsItfCode</td>
+<td>Bildet bei Aufzählungsattributen den Aufzählungswert als ITF-Code ab. Diese Option ist nur zulässig, wenn im Modell keine Erweiterungen von Aufzählungen vorkommen. Ohne diese Option wird der XTF-Code als Aufzählwert in der Datenbank verwendet. (siehe Kapitel Abbildungsregeln/Aufzählungen)</td>
+</tr>
+<tr><td>--createEnumTxtCol</td>
+<td>Erstellt für Aufzählungsattribute eine zusätzliche Spalte mit dem Namen des Aufzählwertes. (siehe Kapitel Abbildungsregeln/Aufzählungen)</td>
+</tr>
+<tr><td>--createEnumTabs</td>
+<td>Erstellt pro Aufzählungsdefinition eine Tabelle mit den einzelnen Aufzählwerten. (siehe Kapitel Abbildungsregeln/Aufzählungen)</td>
+</tr>
+<tr><td>--createSingleEnumTab</td>
+<td>Erstellt eine einzige Tablle mit allen Aufzählwerten aller Aufzählungsdefinitionen. (siehe Kapitel Abbildungsregeln/Aufzählungen)</td>
+</tr>
+<tr><td>--beautifyEnumDispName</td>
+<td>Verschönert den Anzeigetext für das Aufzählelement. Beim Import wird die Spalte mit dem XTF-Code ohne Untersstriche befüllt (&quot;Strasse befestigt&quot; statt &quot;Strasse_befestigt&quot;) (siehe Kapitel Abbildungsregeln/Aufzählungen)</td>
+</tr>
+<tr><td>--createStdCols</td>
+<td>Erstellt in jeder Tabelle zusätzliche Metadatenspalten T_User, T_CreateDate, T_LastChange. (siehe Kapitel Abbildungsregeln/Tabellen)</td>
+</tr>
+<tr><td>--t_id_Name name</td>
+<td>Definiert den Namen für die interne technische Schlüsselspalte in jeder Tabelle (nicht zu verwechseln mit dem externen Transferidentifikator). Default ist T_Id. (siehe Kapitel Abbildungsregeln/Tabellen)</td>
+</tr>
+<tr><td>--idSeqMin zahl</td>
+<td><strong>PostGIS:</strong> Definiert den Minimalwert für den Generator der internen technischen Schlüssel</td>
+</tr>
+<tr><td>--idSeqMax zahl</td>
+<td><strong>PostGIS:</strong> Definiert den Maximalwert für den Generator der internen technischen Schlüssel</td>
+</tr>
+<tr><td>--createTypeDiscriminator</td>
+<td>Erstellt für jede Tabelle (auch wenn das Modell keine Vererbung benutzt) eine Spalte für den Typdiskriminator. Für Klassen mit Vererbung wird die Spalte immer erstellt. (siehe Kapitel Abbildungsregeln/Tabellen)</td>
+</tr>
+<tr><td>--structWithGenericRef</td>
+<td>Erstellt generische Spalten für den Fremdschlüssel bei Tabellen die Interlis-Strukturen abbilden. Ohne diese Option wird pro Strukturattribut eine Spalte erstellt (in der Tabelle, die die Struktur abbildet). (siehe Kapitel Abbildungsregeln/Strukturen)</td>
+</tr>
+<tr><td>--disableNameOptimization</td>
+<td>Schaltet die Nutzung von unqualifizierten Klassennamen aus. Für alle Tabellennamen werden qualifizierte Interlis-Klassennamen (Model.Topic.Class) verwendet (und in einen gültigen Tabellennamen abgebildet). (siehe Kapitel Abbildungsregeln/Namenskonventionen)</td>
+</tr>
+<tr><td>--nameByTopic</td>
+<td>Für alle Tabellennamen werden teilweise qualifizierte Interlis-Klassennamen (Topic.Class) verwendet (und in einen gültigen Tabellennamen abgebildet). (siehe Kapitel Abbildungsregeln/Namenskonventionen)</td>
+</tr>
+<tr><td>--maxNameLength length</td>
+<td>Definiert die maximale Länge der Namen für Datenbankelemente (Tabellennamen, Spaltennamen , usw.) Default ist 60. Ist der Interlis-Name länger, wird er gekürzt. (siehe Kapitel Abbildungsregeln/Namenskonventionen)</td>
+</tr>
+<tr><td>--sqlEnableNull</td>
+<td>Erstellt keine NOT NULL Anweisungen bei Spalten die Interlis-Attribute abbilden. (siehe Kapitel Abbildungsregeln/Attribute)</td>
+</tr>
+<tr><td>--strokeArcs</td>
+<td>Segmentiert Kreisbogen beim Datenimport. Der Radius geht somit verloren. Die Kreisbogen werden so segmentiert, dass die Abweichung der erzeugten Geraden kleiner als die Koordinatengenauigkeit der Stützpunkte ist.</td>
+</tr>
+<tr><td>--oneGeomPerTable</td>
+<td><strong>PostGIS:</strong> Erzeugt Hilfstabellen, falls in einer Klasse/Tabelle mehr als ein Geometrie-Attribut ist, so dass pro Tabelle in der Datenbank nur eine Geometriespalte ist.</td>
+</tr>
+<tr><td>--skipPolygonBuilding</td>
+<td>Bei ITF-Dateien werden die Linientabellen gelesen, so wie sie in der ITF-Datei sind, d.h. es werden keine Polygon gebildet.</td>
+</tr>
+<tr><td>--skipPolygonBuildingErrors</td>
+<td>Bei ITF-Dateien werden aus den Linientabellen Polygone gebildet, aber Fehler werden ignoriert (aber trotzdem rapportiert).</td>
+</tr>
+<tr><td>--keepAreaRef</td>
+<td>Bei ITF-Dateien wird für AREA Attribute der Gebietsreferenzpunkt als zusätzliche Spalte in der Tabelle eingefügt.</td>
+</tr>
+<tr><td>--importTid</td>
+<td>Liest die Transferidentifikation (aus der Transferdatei) in eine zusätzliche Spalte T_Ili_Tid. (siehe Kapitel Abbildungsregeln/Tabellen)</td>
+</tr>
+<tr><td>--createBasketCol</td>
+<td>Erstellt in jeder Tabelle eine zusätzlich Spalte T_basket um den Behälter identifizieren zu können. (siehe Kapitel Abbildungsregeln/Metadaten)</td>
+</tr>
+<tr><td>--createFk</td>
+<td>Erzeugt eine Fremdschlüsselbedingung bei Spalten die Records in anderen Tabellen referenzieren.</td>
+</tr>
+<tr><td>--createFkIdx</td>
+<td>Erstellt für jede Fremdschlüsselpalte in der Datenbank einen Index. Kann auch ohne die Option --createFk benutzt werden.</td>
+</tr>
+<tr><td>--createUnique</td>
+<td>Erstellt für INTERLIS-UNIQUE-Constraints in der Datenbank UNIQUE Bedingungen (sofern abbildbar).</td>
+</tr>
+<tr><td>--createNumChecks</td>
+<td>Erstellt für numerische Datentypen CHECK-Constraints in der Datenbank.</td>
+</tr>
+<tr><td>--ILIGML20</td>
+<td>Verwendet beim Export eCH-0118-2.0 als Transferformat.</td>
+</tr>
+<tr><td>--log filename</td>
+<td>Schreibt die log-Meldungen in eine Datei.</td>
+</tr>
+<tr><td>--proxy host</td>
+<td>Definiert den Name des Hosts der als Proxy für den Zugriff auf Modell-Repositories benutzt werden soll.</td>
+</tr>
+<tr><td>--proxyPort port</td>
+<td>Port auf dem Proxy.</td>
+</tr>
+<tr><td>--gui</td>
+<td>Startet ein einfaches GUI.</td>
+</tr>
+<tr><td>--trace</td>
+<td>Erzeugt zusätzliche Log-Meldungen (wichtig für Programm-Fehleranalysen)</td>
+</tr>
+<tr><td>--help</td>
+<td>Zeigt einen kurzen Hilfetext an.</td>
+</tr>
+<tr><td>--version</td>
+<td>Zeigt die Version des Programmes an.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="abbildungsregeln">
+<h2>Abbildungsregeln</h2>
+<div class="section" id="klassen-strukturen">
+<h3>Klassen/Strukturen</h3>
+<p>Je nach Programmoption, werden Klassen unterschiedlich abgebildet. Die
+Abbildungsregeln für den Tabellennamen sind im Abschnitt
+Namenskonventionen beschrieben.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="6%" />
+<col width="8%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Nummer</th>
+<th class="head">Beispiel INTERLIS</th>
+<th class="head">Beispiel SQL</th>
+<th class="head">Kommentare</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><pre class="first last literal-block">
+CLASS A=
+END A;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+  T_Id integer PRIMARY KEY
+);
+</pre>
+</td>
+<td><p class="first">Für jede Klasse wird eine Tabelle erstellt.</p>
+<p class="last">Jede Tabelle hat mindestens eine Spalte T_Id. Diese Spalte ist der Datenbank interne Primärschlüssel (und nicht die TID aus der Transferdatei).</p>
+</td>
+</tr>
+<tr><td>2</td>
+<td><pre class="first last literal-block">
+CLASS A =
+END A;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+ T_Id integer PRIMARY KEY,
+ T_Type varchar(60) NOT NULL
+);
+</pre>
+</td>
+<td><p class="first">Mit der Option --createTypeDiscriminator erhält jede Tabelle (die eine Klasse oder Struktur repräsentiert, die keine Basisklasse hat) eine zusätzliche Spalte T_Type. Diese Spalte enthält den konkreten Klassenname (der SQL-Name des qualifizierten INTERLIS-Klassennamens <a class="footnote-reference" href="#id7" id="id3">[2]</a>) des Objektes jedes einzelnen Records.</p>
+<p class="last">Tabellen für Klassen die eine Basisklasse haben, erhalten diese Spalte nicht.</p>
+</td>
+</tr>
+<tr><td>3</td>
+<td><pre class="first last literal-block">
+CLASS A =
+END A;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+ T_Id integer PRIMARY KEY,
+ T_LastChange timestamp NOT NULL,
+ T_CreateDate timestamp NOT NULL,
+ T_User varchar(40) NOT NULL
+);
+</pre>
+</td>
+<td>Mit der Option --createStdCols erhalten alle Tabellen drei zusätzliche Spalten für den Zeitpunkt der letzten Änderung, den Zeitpunkt der Erstellung und den Benutzer, der die letzte Änderung durchgeführt hat. Diese Spalten müssen durch die Applikation nachgeführt werden, und werden typischerweise für die Implementierung eines optimistischen Lockings benötigt/benutzt.</td>
+</tr>
+<tr><td>4</td>
+<td><pre class="first last literal-block">
+CLASS A =
+END A;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+ T_Id integer PRIMARY KEY,
+ T_Ili_Tid varchar(200) NULL
+);
+</pre>
+</td>
+<td><p class="first">Mit der Option --importTid erhält jedes Tabelle (die eine Klasse repräsentiert, die keine Basisklasse hat) eine zusätzliche Spalte T_Ili_Tid. Diese Spalte enthält die TID aus der Transferdatei.</p>
+<p class="last">Diese Spalte ist NICHT der Datenbank interne Primärschlüssel.</p>
+</td>
+</tr>
+<tr><td>5</td>
+<td><pre class="first last literal-block">
+CLASS A =
+END A;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+ oidname integer PRIMARY KEY
+);
+</pre>
+</td>
+<td>Mit der Option --t_id_Name oidname wird der Namen der Spalte für den Datenbank internen Primärschlüssel (nicht die Spalte für die TID aus der Transferdatei) festgelegt.</td>
+</tr>
+<tr><td>6</td>
+<td><pre class="first last literal-block">
+STRUCTURE C =
+END C;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE C (
+ T_Id integer PRIMARY KEY,
+ T_seq integer NOT NULL
+);
+</pre>
+</td>
+<td><p class="first">Strukturen werden im Allgemeinen abgebildet wie Klassen.</p>
+<p>Die Strukturtabelle enthält zusätzlich eine Spalte T_seq, die die Reihenfolge der Strukturelement festlegt.</p>
+<p class="last">Da Strukturelemente keine TID haben, erhalten sie auch mit der Option --importTid kein Spalte T_Ili_Tid.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="vererbung">
+<h3>Vererbung</h3>
+<p>Im allgemeinen lässt sich Vererbung nach drei unterschidlichen
+Strategien abbilden:</p>
+<dl class="docutils">
+<dt>NewClass</dt>
+<dd>Diese Strategie ist für jede Klasse möglich. Bei dieser
+Strategie wird für eine Klasse eine neue Tabelle angelegt, ein
+Interlis-Objekt verteilt sich somit auf Records in mehreren Tabellen.</dd>
+<dt>SuperClass</dt>
+<dd>Diese Strategie ist nur für Klassen mit einer Super-Klasse
+möglich. Bei dieser Strategie wird für die Klasse keine neue Tabelle
+angelegt, d.h. die Attribute der Klasse werden als weitere Spalten in
+der Tabelle der Super-Klasse ergänzt.</dd>
+<dt>SubClass</dt>
+<dd>Diese Strategie ist nur für Klassen mit mindestens einer
+Sub-Klasse möglich. Bei dieser Strategie wird für eine Klasse keine neue
+Tabelle angelegt, d.h. die Attribute der Klasse werden als weitere
+Spalten in den Tabellen der Sub-Klassen ergänzt.</dd>
+</dl>
+<p>ili2db bildet die Vererbung nach einer je nach Klasse unterschiedlichen
+Strategie (--smart1Inheritance oder --smart2Inheritance) oder für alle
+Klassen einheitlich nach der NewClass-Strategie (--noSmartMapping) ab.</p>
+<p>Bei --smart1Inheritance wird wie folgt abgebildet: Fuer Klassen, die
+referenziert werden und deren Basisklassen nicht mit einer
+NewClass-Strategie abgebildet werden, wird die NewClass-Strategie
+verwendet. Abstrakte Klassen werden mit einer SubClass-Strategie
+abgebildet. Konkrete Klassen, ohne Basisklasse oder deren direkte
+Basisklassen mit einer SubClass-Strategie abgebildet werden, werden mit
+einer NewClass-Strategie abgebildet. Alle anderen Klassen werden mit
+einer SuperClass-Strategie abgebildet.</p>
+<p>Bei --smart2Inheritance wird wie folgt abgebildet: Abstrakte Klassen werden
+mit einer SubClass-Strategie abgebildet.
+Konkrete Klassen werden mit einer NewAndSubClass-Strategie abgebildet.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="15%" />
+<col width="19%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Nummer</th>
+<th class="head">Beispiel INTERLIS</th>
+<th class="head">Beispiel SQL</th>
+<th class="head">Kommentare</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><pre class="first last literal-block">
+CLASS A =
+ Attribut_1 : TEXT*20;
+END A;
+
+
+
+CLASS B EXTENDS A =
+ Attribut_2 : TEST*20;
+END B;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE A (
+ T_Id integer PRIMARY KEY,
+ T_Type varchar(60) NOT NULL,
+ Attribut_1 varchar(20)
+);
+
+CREATE TABLE B (
+ T_Id integer PRIMARY KEY,
+ Attribut_2 varchar(20)
+);
+</pre>
+</td>
+<td>Bei --noSmartMapping wird für jede Klasse eine Tabelle erstellt. Ein Objekt A ergibt
+ein Record in Tabellen A.
+Ein Objekt B ergibt je ein Record in Tabellen A und B. Die T_Id ist bei beiden Records identisch.</td>
+</tr>
+<tr><td>2</td>
+<td><pre class="first last literal-block">
+CLASS A (ABSTRACT) =
+ Attribut_1 : TEXT*20;
+END A;
+
+
+
+CLASS B EXTENDS A =
+ Attribut_2 : TEST*20;
+END B;
+
+
+
+
+
+CLASS C EXTENDS B =
+ Attribut_3 : TEST*20;
+END C;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE B (
+ T_Id integer PRIMARY KEY,
+ T_Type varchar(60) NOT NULL,
+ Attribut_1 varchar(20),
+ Attribut_2 varchar(20),
+ Attribut_3 varchar(20)
+);
+</pre>
+</td>
+<td>Bei --smart1Inheritance wird für abstrakte Klassen (A) keine Tabelle erstellt (ausser sie wird
+referenziert). Für die allgemeinste konkrete Klasse (B) wird eine Tabelle erstellt.
+Für erweiterte konkrete Klassen (C), die eine konkrete Klasse erweitern,
+wird keine eigene Tabelle erstellt.</td>
+</tr>
+<tr><td>3</td>
+<td><pre class="first last literal-block">
+CLASS A (ABSTRACT) =
+ Attribut_1 : TEXT*20;
+END A;
+
+
+
+CLASS B EXTENDS A =
+ Attribut_2 : TEST*20;
+END B;
+
+
+
+
+CLASS C EXTENDS B =
+ Attribut_3 : TEST*20;
+END B;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE B (
+ T_Id integer PRIMARY KEY,
+ T_Type varchar(60) NOT NULL,
+ Attribut_1 varchar(20),
+ Attribut_2 varchar(20)
+);
+
+CREATE TABLE C (
+ T_Id integer PRIMARY KEY,
+ T_Type varchar(60) NOT NULL,
+ Attribut_1 varchar(20),
+ Attribut_2 varchar(20),
+ Attribut_3 varchar(20)
+);
+</pre>
+</td>
+<td>Bei --smart2Inheritance wird für abstrakte Klassen (A) keine Tabelle erstellt (auch nicht, wenn sie
+referenziert wird). Für konkrete Klassen (B und C) wird je eine vollständige Tabelle erstellt
+(inkl. geerbte Attribute).</td>
+</tr>
+</tbody>
+</table>
+<p>EXTENDED Attribute ergeben keine Spalte, nur die Basis-Definition des
+Attributs ergibt eine Spalte.</p>
+</div>
+<div class="section" id="attribute-allgemein">
+<h3>Attribute (allgemein)</h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="32%" />
+<col width="19%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Nummer</th>
+<th class="head">Beispiel INTERLIS</th>
+<th class="head">Beispiel SQL</th>
+<th class="head">Kommentare</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><pre class="first last literal-block">
+textLimited : TEXT*10;
+textUnlimited : TEXT;
+mtextLimited : MTEXT*10;
+mtextUnlimited : MTEXT;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+textLimited varchar(10) NULL
+textUnlimited text NULL
+mtextLimited varchar(10) NULL
+mtextUnlimited text NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2</td>
+<td><pre class="first last literal-block">
+aufzaehlung : (null, eins, zwei,
+   drei, mehr (
+         vier, fuenf, sechs, sieben, acht ,neun, zehn)
+   );
+</pre>
+</td>
+<td><pre class="first last literal-block">
+aufzaehlung varchar(255) NULL
+</pre>
+</td>
+<td>Je nach Option, sind andere Abbildungen möglich. Siehe Kapitel Aufzählungen.</td>
+</tr>
+<tr><td>3</td>
+<td><pre class="first last literal-block">
+horizAlignment : HALIGNMENT;
+vertAlignment : VALIGNMENT;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+horizAlignment varchar(255) NULL
+vertAlignment varchar(255) NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4</td>
+<td><pre class="first last literal-block">
+aBoolean : BOOLEAN;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+aBoolean boolean NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5</td>
+<td><pre class="first last literal-block">
+numericInt : 0 .. 10;
+numericDec : 0.0 .. 10.0;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+numericInt integer NULL
+numericDec decimal(4,1) NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>6</td>
+<td><pre class="first last literal-block">
+aTime : INTERLIS.XMLTime;
+aDate : INTERLIS.XMLDate;
+aDateTime : INTERLIS.XMLDateTime;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+aTime time NULL
+aDate date NULL
+aDateTime timestamp NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>7</td>
+<td><pre class="first last literal-block">
+aOid : OID TEXT*30;
+aUuid : INTERLIS.UUIDOID;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+aOid varchar(255) NULL
+aUuid uuid NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>8</td>
+<td><pre class="first last literal-block">
+aClass : CLASS;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+aClass varchar(255) NULL
+</pre>
+</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="beziehungen-referenzattribute">
+<h3>Beziehungen/Referenzattribute</h3>
+<p>TODO</p>
+</div>
+<div class="section" id="geometrieattribute-allgemein">
+<h3>Geometrieattribute (allgemein)</h3>
+<p>TODO</p>
+</div>
+<div class="section" id="surface-area-itf-xtf">
+<h3>SURFACE/AREA/ITF/XTF</h3>
+<p>TODO</p>
+</div>
+<div class="section" id="strukturattribute">
+<h3>Strukturattribute</h3>
+<p>Strukturen werden im Allgemeinen abgebildet wie Klassen (siehe Kapitel zu der Abbildung von Klassen). Strukturattribute (also wenn eine Struktur
+als Attributstyp verwendet wird, z.B. bei BAG OF oder LIST OF) werden unabhängig von der Kardinalität durch einen Fremdschlüssel bei
+der Tabelle der Struktur abgebildet. Bei gewissen Strukturen wird bei Smart-Mapping eine alternative Abbildung verwendet.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="8%" />
+<col width="12%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Nummer</th>
+<th class="head">Beispiel INTERLIS</th>
+<th class="head">Beispiel SQL</th>
+<th class="head">Kommentare</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><pre class="first last literal-block">
+STRUCTURE C =
+END C;
+
+
+
+
+
+CLASS D =
+ attr1 : LIST OF C;
+ attr2 : LIST OF C;
+END D;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE C (
+ T_Id integer PRIMARY KEY,
+ T_seq integer NOT NULL,
+ D_attr1 integer,
+ D_attr2 integer
+);
+
+CREATE TABLE D (
+ T_Id integer PRIMARY KEY
+);
+</pre>
+</td>
+<td><p class="first">Für jedes Strukturattribut wird in der Tabelle der Struktur eine Spalte für den Fremdschlüssel erstellt. Der Name der Spalte ist der qualifizierte INTERLIS-Attributnamen <a class="footnote-reference" href="#id8" id="id4">[3]</a>.</p>
+<p class="last">Die Strukturtabelle enthält zusätzlich eine Spalte T_seq die die Reihenfolge der Strukturelement festlegt.</p>
+</td>
+</tr>
+<tr><td>2</td>
+<td><pre class="first last literal-block">
+STRUCTURE C =
+END C;
+
+
+
+
+
+
+CLASS D =
+ attr1 : LIST OF C;
+END D;
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE C (
+ T_Id integer PRIMARY KEY,
+ T_seq integer NOT NULL,
+ T_ParentId integer NOT NULL
+ T_ParentType varchar(60) NOT NULL
+ T_ParentAttr varchar(60) NOT NULL
+);
+
+CREATE TABLE D (
+ T_Id integer PRIMARY KEY
+);
+</pre>
+</td>
+<td><p class="first">Mit der Option --structWithGenericRef werden statt für jedes Strukturattribut eine Spalte nur drei Standardspalten T_ParentId, T_ParentType, T_ParentAttr angelegt. Diese drei Spalten bilden zusammen einen generischen Fremdschlüssel.</p>
+<p>T_ParentId ist die t_id des Objektes, das das Strukturelement enthält.</p>
+<p>T_ParentType ist die konkrete Klasse (der SQL-Name des qualifizierten INTERLIS-Klassennamens <a class="footnote-reference" href="#id9" id="id5">[4]</a>) des Objektes, das das Strukturelement enthält.</p>
+<p class="last">T_ParentAttr ist der Strukturattributname (der SQL-Name des unqualifizierten INTERLIS-Attributnamens) in der Klasse des Objektes, das das Strukturelement enthält.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Beispiel XML:</p>
+<pre class="literal-block">
+|&lt;BspTable.TopicA.D TID=&quot;2&quot;&gt;
+|  &lt;attr1&gt;
+|    &lt;BspTable.TopicA.C&gt;
+|    &lt;/BspTable.TopicA.C&gt;
+|    &lt;BspTable.TopicA.C&gt;
+|    &lt;/BspTable.TopicA.C&gt;
+|  &lt;/attr1&gt;
+|  &lt;attr2&gt;
+|    &lt;BspTable.TopicA.C&gt;
+|    &lt;/BspTable.TopicA.C&gt;
+|  &lt;/attr2&gt;
+|&lt;/BspTable.TopicA.D&gt;
+</pre>
+<p>Beispiel für Abbildungsvariante 1:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="21%" />
+<col width="26%" />
+<col width="26%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tabelle C</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>t_id</td>
+<td>t_seq</td>
+<td>D_attr1</td>
+<td>D_attr2</td>
+</tr>
+<tr><td>7</td>
+<td>0</td>
+<td>6</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>8</td>
+<td>1</td>
+<td>6</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>9</td>
+<td>0</td>
+<td>&nbsp;</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tabelle D</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>t_id</td>
+<td>T_Ili_Tid</td>
+</tr>
+<tr><td>6</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>Beispiel für Abbildungsvariante 2:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="14%" />
+<col width="21%" />
+<col width="24%" />
+<col width="24%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tabelle C</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>t_id</td>
+<td>t_seq</td>
+<td>t_parentid</td>
+<td>t_parenttype</td>
+<td>t_parentattr</td>
+</tr>
+<tr><td>7</td>
+<td>0</td>
+<td>6</td>
+<td>D</td>
+<td>attr1</td>
+</tr>
+<tr><td>8</td>
+<td>1</td>
+<td>6</td>
+<td>D</td>
+<td>attr1</td>
+</tr>
+<tr><td>9</td>
+<td>0</td>
+<td>6</td>
+<td>D</td>
+<td>attr2</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tabelle D</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>t_id</td>
+<td>T_Ili_Tid</td>
+</tr>
+<tr><td>6</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>Bei den folgenden Strukturen wird bei Smart-Mapping für die Strukturattribute eine alternative Abbildung verwendet:</p>
+<ul class="simple">
+<li>Strukturen mit dem Interlis Metaattribut ili2db.mapping=MultiSurface</li>
+<li>GeometryCHLV03_V1.MultiSurface</li>
+<li>GeometryCHLV95_V1.MultiSurface</li>
+<li>CatalogueObjects_V1.Catalogues.CatalogueReference</li>
+<li>CatalogueObjects_V1.Catalogues.MandatoryCatalogueReference</li>
+<li>LocalisationCH_V1.MultilingualMText</li>
+<li>LocalisationCH_V1.MultilingualText</li>
+</ul>
+</div>
+<div class="section" id="aufzahlungen">
+<h3>Aufzählungen</h3>
+<p>Für die Abbildung von Aufzählungen gibt es zwei Varianten und verschiedene Optionen.</p>
+<ul class="simple">
+<li>Variante 1 bei der der Aufzählwert als XTF-Code gespeichert wird</li>
+<li>Variante 2 bei der der Aufzählwert als ITF-Code gespeichert wird</li>
+<li>Optional kann eine zusätzliche Spalte erzeugt werden, die den Anzeigtext enthalten kann</li>
+<li>Optional können zusätzliche Tabellen erzeugt werden, die alle Aufzählwerte enthalten.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="32%" />
+<col width="19%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Nummer</th>
+<th class="head">Beispiel INTERLIS</th>
+<th class="head">Beispiel SQL</th>
+<th class="head">Kommentare</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td><pre class="first last literal-block">
+farbe : (rot, blau, gruen);
+</pre>
+</td>
+<td><pre class="first last literal-block">
+farbe varchar(255) NULL
+</pre>
+</td>
+<td>Default-Abbilung. Der XTF-Code (der Code wie er in der XTF-Transferdatei steht)
+wird als Aufzählwert in der Datenbank verwendet. Im Beispiel also:
+rot, blau oder gruen</td>
+</tr>
+<tr><td>2</td>
+<td><pre class="first last literal-block">
+farbe : (rot, blau, gruen);
+</pre>
+</td>
+<td><pre class="first last literal-block">
+farbe integer NULL
+</pre>
+</td>
+<td>Abbilung mit der Option <tt class="docutils literal"><span class="pre">--createEnumColAsItfCode</span></tt>. Der ITF-Code (der Code
+wie er in der ITF-Transferdatei steht) wird als Aufzählwert in der Datenbank
+verwendet. Im Beispiel also: 0, 1 oder 2. Diese Option ist nur zulässig, wenn im
+Modell keine Erweiterungen von Aufzählungen vorkommen.</td>
+</tr>
+<tr><td>3</td>
+<td><pre class="first last literal-block">
+farbe : (rot, blau, gruen);
+</pre>
+</td>
+<td><pre class="first last literal-block">
+farbe varchar(255) NULL,
+farbe_txt varchar(255) NULL
+</pre>
+</td>
+<td>Abbilung mit der Option <tt class="docutils literal"><span class="pre">--createEnumTxtCol</span></tt>. Es wird eine zusätzliche Spalte
+mit dem Attributnamen+``_txt`` erstellt (Im Besipiel <tt class="docutils literal">art_txt</tt>).
+Die zusätzliche Spalte kann einen beliebigen Wert enthalten, der als Anzeigetext
+gedacht ist. Beim Import wird die Spalte mit dem XTF-Code befüllt.
+Die Option kann bei Variante 1 oder 2 benutzt werden.</td>
+</tr>
+<tr><td>4</td>
+<td><pre class="first last literal-block">
+DOMAIN
+  Farbe : (rot, blau, gruen);
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE Farbe (
+ itfCode integer PRIMARY KEY,
+ iliCode varchar(1024) NOT NULL,
+ seq integer NULL,
+ dispName varchar(250) NOT NULL,
+ inactive boolean NOT NULL
+);
+</pre>
+</td>
+<td><p class="first">Abbildung mit der Option <tt class="docutils literal"><span class="pre">--createEnumTabs</span></tt>. Es wird pro Aufzählungsdefinition
+eine Tabelle mit den einzelnen Aufzählwerten erstellt.</p>
+<p>itfCode ist der ITF-Code des Aufzählwertes.</p>
+<p>iliCode ist der qualifizierte Elementnamen (=XTF-Code) des Aufzählwertes.</p>
+<p>seq Definiert die Reihenfolge der Aufzählelemente.</p>
+<p>dispName definiert den Anzeigetext für das Aufzählelement. Beim Import wird die
+Spalte mit dem XTF-Code befüllt.</p>
+<p class="last">inactive TRUE um einen Aufzählwert für die Erfassung auszublenden, ohne dass
+er gelöscht werden muss. Wird beim Import mit FALSE befüllt.</p>
+</td>
+</tr>
+<tr><td>5</td>
+<td><pre class="first last literal-block">
+DOMAIN
+  Farbe : (rot, blau, gruen);
+</pre>
+</td>
+<td><pre class="first last literal-block">
+CREATE TABLE T_ILI2DB_ENUM (
+ thisClass varchar(1024) NOT NULL,
+ baseClass varchar(1024) NOT NULL,
+ itfCode integer NOT NULL,
+ iliCode varchar(1024) NOT NULL,
+ seq integer NULL,
+ dispName varchar(250) NOT NULL,
+ inactive boolean NOT NULL
+);
+</pre>
+</td>
+<td><p class="first">Abbildung mit der Option <tt class="docutils literal"><span class="pre">--createSingleEnumTab</span></tt>. Es wird
+eine einzige Tabelle für die Aufzählwerte aller Aufzählungen erstellt.</p>
+<p>thisClass ist der qualifizierte Namen der Aufzählungsdefinition.</p>
+<p>baseClass ist der qualifizierte Namen der Basis-Aufzählungsdefinition</p>
+<p>itfCode ist der ITF-Code des Aufzählwertes.</p>
+<p>iliCode ist der qualifizierte Elementnamen (=XTF-Code) des Aufzählwertes.</p>
+<p>seq Definiert die Reihenfolge der Aufzählelemente.</p>
+<p>dispName definiert den Anzeigetext für das Aufzählelement. Beim Import wird die
+Spalte mit dem XTF-Code befüllt.</p>
+<p class="last">inactive TRUE um einen Aufzählwert für die Erfassung auszublenden, ohne dass
+er gelöscht werden muss. Wird beim Import mit FALSE befüllt.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="metadaten">
+<h3>Metadaten</h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tabelle</th>
+<th class="head">Beschreibung</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>t_ili2db_attrname</td>
+<td>Abbildung von Attributnamen</td>
+</tr>
+<tr><td>t_ili2db_basket</td>
+<td>In der Datenbank vorhandene Baskets. Wird benötigt, wenn die Option --createBasketCol verwendet wird.</td>
+</tr>
+<tr><td>t_ili2db_classname</td>
+<td>Abbildung der qualifizierten Interlis Klassennamen auf Sql-Namen. Nicht aus jedem Eintrag gibt es eine Datenbank-Tabelle, je nach Abbildungsart der Interlis-Klasse wird der Sql-Name nur als Inhalt der Spalte t_type verwendet.</td>
+</tr>
+<tr><td>t_ili2db_dataset</td>
+<td>In der Datenbank vorhandene Datensätze (Sammlung von Baskets). Wird benötigt, wenn die Option --createBasketCol verwendet wird.</td>
+</tr>
+<tr><td>t_ili2db_import</td>
+<td>Nicht mehr verwenden, wird entfernt. Wird beim Export nicht benötigt.</td>
+</tr>
+<tr><td>t_ili2db_import_basket</td>
+<td>Nicht mehr verwenden, wird entfernt. Wird beim Export nicht benötigt.</td>
+</tr>
+<tr><td>t_ili2db_import_object</td>
+<td>Nicht mehr verwenden, wird entfernt. Wird beim Export nicht benötigt.</td>
+</tr>
+<tr><td>t_ili2db_inheritance</td>
+<td>Abbildung der Interlis Klassen Vererbungshierarchie (in der Tabellen sind die qualifizierten Interlis Klassennamen). Wird beim Export nicht benötigt.</td>
+</tr>
+<tr><td>t_ili2db_enum</td>
+<td>Aufzählwerte, falls die Option --createSingleEnumTab verwendet wird. Wird beim Export nicht benötigt.</td>
+</tr>
+<tr><td>t_ili2db_model</td>
+<td>Modelle, die beim Import benötigt wurden (so dass der Export mit denselben Modellen erfolgen kann).</td>
+</tr>
+<tr><td>t_ili2db_settings</td>
+<td>Programmeinstellungen für ili2db</td>
+</tr>
+<tr><td>t_ili2db_trafo</td>
+<td>Konfiguration der semantischen Abbildung (insb. der Vererbung)</td>
+</tr>
+<tr><td>t_key_object</td>
+<td>Hilfstabelle für den ID-Generator. Wird beim Export nicht benötigt.</td>
+</tr>
+</tbody>
+</table>
+<p>TODO</p>
+</div>
+<div class="section" id="namenskonvention">
+<h3>Namenskonvention</h3>
+<p>Die Abbildung der Klassennamen in Tabellennamen erfolgt nach drei
+möglichen Strategien:</p>
+<dl class="docutils">
+<dt>Unqualifiziert</dt>
+<dd>Es wird der Klassennamen verwendet (ohne voranstellen
+von Topic- und/oder Model-Namen). Falls der Name schon benutzt ist, wird
+der voll qualifizierte Name verwendet.</dd>
+<dt>Mit Topic qualifiziert</dt>
+<dd>Dem unqualifizierten Klassennamen wird der
+Topic-Name vorangestellt. Falls der Name schon benutzt ist, wird der
+voll qualifizierte Name verwendet.</dd>
+<dt>Voll qualifiziert</dt>
+<dd>Der Tabellenname wird aus Model-, Topic- und
+Klassenname zusammengesetzt.</dd>
+</dl>
+<p>Falls der Tabellenname zu lang ist, wird er gekürzt, in dem die Vokale
+entfernt werden (ausser die ersten beiden und letzten beiden
+Buchstaben). Falls er danach immer noch zu lang ist, werden in der der
+Mitte des Namens Buchstaben entfernt.</p>
+<p>Falls der Tabellenname nun einem SQL-Schlüsselwort entspricht, wird er
+um ein führeneds ‚a‘ ergänzt.</p>
+<p>Falls der Tabellenname nun nicht eindeutig ist, wird er um eine Ziffer
+ergänzt: ‚0‘, ‚1‘, usw. bis er eindeutig ist.</p>
+<p>Die automatische Namensabbildung kann übersteuert werden, indem vor dem
+ersten Import entsprechende Einträge in der Tabelle t_ili2db_classname
+gemacht werden.</p>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>GML 3.2; die verwendeten Kodierungsregeln entsprechen eCH-0118-1.0</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Der SQL-Name ergibt sich aus den Namenskonventionen. Die konkrete
+Übersetzung ist in der Tabelle T_ILI2DB_CLASSNAME hinterlegt.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>Der SQL-Name ergibt sich aus den Namenskonventionen. Die konkrete
+Übersetzung ist in der Tabelle T_ILI2DB_ATTRNAME hinterlegt.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>Der SQL-Name ergibt sich aus den Namenskonventionen. Die konkrete
+Übersetzung ist in der Tabelle T_ILI2DB_CLASSNAME hinterlegt.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
