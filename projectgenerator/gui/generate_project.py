@@ -1,3 +1,4 @@
+from projectgenerator.utils.qt_utils import make_file_selector
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
@@ -19,6 +20,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
+        self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
 
         self.restore_configuration()
 
