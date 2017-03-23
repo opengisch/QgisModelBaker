@@ -13,6 +13,20 @@ class Configuration(object):
         self.schema = ''
         self.password = ''
         self.ilifile = ''
+        self.port = ''
+
+    @property
+    def uri(self):
+        uri =[]
+        uri += ['dbname={}'.format(self.database)]
+        uri += ['user={}'.format(self.user)]
+        if self.password:
+            uri += ['password={}'.format(self.password)]
+        uri += ['host={}'.format(self.host)]
+        if self.port:
+            uri += ['port={}'.format(self.port)]
+
+        return ' '.join(uri)
 
 class Importer(QObject):
     SUCCESS = 0
@@ -82,3 +96,4 @@ class Importer(QObject):
                 pass
 
         self.process_finished.emit(proc.returncode, result)
+        return result

@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .gui.generate_project import GenerateProjectDialog
+from projectgenerator.gui.generate_project import GenerateProjectDialog
 from qgis.PyQt.QtWidgets import QAction, QMenu
 from qgis.PyQt.QtCore import QObject
 
@@ -30,7 +30,6 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__configure_action = None
 
     def initGui(self):
-        menu = QMenu()
         self.__generate_action = QAction(self.tr('Generate'))
         self.__configure_action = QAction(self.tr('Settings'))
 
@@ -45,6 +44,3 @@ class QgsProjectGeneratorPlugin(QObject):
     def show_generate_dialog(self):
         dlg = GenerateProjectDialog()
         dlg.exec_()
-
-    def show_settings_dialog(self):
-        pass

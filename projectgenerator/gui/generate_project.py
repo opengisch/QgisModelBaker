@@ -37,24 +37,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.save_configuration(configuration)
 
-        importer.stdout.connect(self.on_stdout)
+        importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.on_stderr)
         importer.process_started.connect(self.on_process_started)
         importer.process_finished.connect(self.on_process_finished)
-        importer.run()
+        if importer.run() == iliimporter.Importer.SUCCESS:
+            generator = Generator(configuration.uri)
+            available_layers = generator.layers()
+            relations = generator.relations(available_layers)
 
-        generator = Generator()
-        available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+            project = Project()
+            project.layers = available_layers
+            project.relations = relations
 
-        project = Project()
-        project.layers = available_layers
-        project.relations = relations
+            qgis_project = QgsProject.instance()
+            project.layer_added.connect(self.print_info)
+            project.create(None, qgis_project)
 
-        qgis_project = QgsProject.instance()
-        project.create(args.out, qgis_project)
-
-    def on_stdout(self, text):
+    def print_info(self, text):
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 

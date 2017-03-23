@@ -21,7 +21,7 @@
 import psycopg2
 import psycopg2.extras
 
-from metaproject.libqgsprojectgen.dataobjects.layers import Layer
+from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from qgis.core import QgsProviderRegistry
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES
 from .relations import PostgresRelation

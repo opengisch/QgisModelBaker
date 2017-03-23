@@ -1,6 +1,6 @@
 import psycopg2
 
-from metaproject.libqgsprojectgen.dataobjects.relations import Relation
+from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
 
 class PostgresRelation(Relation):
     pass
