@@ -5,3 +5,4 @@ version=0.1
 qgisMinimumVersion=2.99
 author=OPENGIS.ch GmbH
 email=info@opengis.ch
+about=Creates QGIS Projects from Interlis files
