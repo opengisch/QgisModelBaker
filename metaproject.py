@@ -57,7 +57,7 @@ def main(argv):
     project.relations = relations
 
     qgis_project = QgsProject.instance()
-    project.create(args.out, qgis_project)
+    project.create(args.out + '.qgs', qgis_project)
 
     yamlfile = args.out + '.yaml'
     with open(yamlfile, 'w') as f:
@@ -66,6 +66,39 @@ def main(argv):
 
     QgsApplication.exitQgis()
 
+def yaml2qgs(argv):
+    parser = argparse.ArgumentParser('Generate QGIS project from a YAML file.')
+    parser.add_argument("--yaml", type=str, help='Path to input YAML. (Example: /home/qgis/my_yaml.yaml)')
+    parser.add_argument("out", type=str, help='Path to the generated dataobjects. (Example: /home/qgis/my_project)')
+
+    args = parser.parse_args()
+
+    # Initialize qgis libraries
+    app = QgsApplication([], True)
+    QgsApplication.initQgis()
+
+    def debug_log_message(message, tag, level):
+        #print('{}({}): {}'.format(tag, level, message))
+        pass
+
+    QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
+
+    with open(args.yaml) as f:
+        yamlfile = f.read()
+
+    if not yamlfile:
+        return
+
+    definition = yaml.load(yamlfile)
+    project = Project()
+    project.load(definition)
+
+    qgis_project = QgsProject.instance()
+    project.create(args.out + '.qgs', qgis_project)
+
+    QgsApplication.exitQgis()
+
 if __name__ == "__main__":
     # execute only if run as a script
     main(sys.argv[1:])
+    #yaml2qgs(sys.argv[1:])

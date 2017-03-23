@@ -29,8 +29,8 @@ class PostgresRelation(Relation):
             print ('Checking relation')
             if record['referencing_table_name'] in mapped_layers.keys() and record['referenced_table_name'] in mapped_layers.keys():
                 relation = Relation()
-                relation.referencing_layer = mapped_layers[record['referencing_table_name']]
-                relation.referenced_layer = mapped_layers[record['referenced_table_name']]
+                relation.referencing_layer = mapped_layers[record['referencing_table_name']].inner_id
+                relation.referenced_layer = mapped_layers[record['referenced_table_name']].inner_id
                 relation.referencing_field = record['referencing_column_name']
                 relation.referenced_field = record['referenced_column_name']
                 relation.name = record['constraint_name']

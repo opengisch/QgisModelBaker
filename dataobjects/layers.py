@@ -22,21 +22,24 @@ from qgis.core import QgsVectorLayer, QgsDataSourceUri
 
 
 class Layer:
-    def __init__(self, provider, uri):
+    def __init__(self, provider, uri, id=None):
         self.provider = provider
         self.uri = uri
+        self.inner_id = self.inner_id() if id is None else id
         self.__layer = None
 
     def dump(self):
         definition = dict()
         definition['provider'] = self.provider
         definition['uri'] = self.uri
+        definition['innerId'] = self.inner_id
 
         return definition
 
     def load(self, definition):
         self.provider = definition['provider']
         self.uri = definition['uri']
+        self.inner_id = definition['innerId']
 
     def create(self):
         if not self.__layer:
@@ -47,3 +50,12 @@ class Layer:
 
     def table_name(self):
         return QgsDataSourceUri(self.uri).table()
+
+    def inner_id(self):
+        dsu = QgsDataSourceUri(self.uri)
+        return "${}.{}".format(dsu.schema(),dsu.table())
+
+    def id(self):
+        if not self.__layer:
+            self.create()
+        return self.__layer.id()
