@@ -9,3 +9,5 @@ email=info@opengis.ch
 about=Creates QGIS Projects from Interlis files
 tracker=https://github.com/opengisch/projectgenerator/issues
 repository=https://github.com/opengisch/projectgenerator
+experimental=True
+deprecated=False
