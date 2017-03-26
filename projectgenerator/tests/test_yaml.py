@@ -2,7 +2,7 @@ import nose2
 from nose2.compat import unittest
 import yaml
 
-from yamltools.loader import InheritanceLoader
+from projectgenerator.yamltools.loader import InheritanceLoader
 
 
 class YamlInheritanceTest(unittest.TestCase):
