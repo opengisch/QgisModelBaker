@@ -32,6 +32,7 @@ class Project(QObject):
         self.crs = None
         self.name = 'Not set'
         self.layers = list()
+        self.auto_transaction = True
 
     def add_layer(self, layer):
         self.layers.append(layer)
@@ -39,6 +40,7 @@ class Project(QObject):
     def dump(self):
         definition = dict()
         definition['crs'] = self.crs.toWkt()
+        definition['auto_transaction'] = self.auto_transaction
 
         legend = list()
         for layer in self.layers:
@@ -56,6 +58,7 @@ class Project(QObject):
 
     def load(self, definition):
         self.crs = definition['crs']
+        self.auto_transaction = definition['auto_transaction']
 
         self.layers = list()
         for layer_definition in definition['layers']:
@@ -65,6 +68,7 @@ class Project(QObject):
 
 
     def create(self, path, qgis_project):
+        qgis_project.setAutoTransaction(self.auto_transaction)
         for layer in self.layers:
             qgis_layer = layer.create()
             self.layer_added.emit(qgis_layer.id())
