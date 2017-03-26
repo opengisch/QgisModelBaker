@@ -67,7 +67,7 @@ def main(parameters, arguments):
     data = json.dumps({"tag_name": parameters.release})
     conn.request('POST', '/repos/{repo_slug}/releases'.format(repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
     response = conn.getresponse()
-    release = json.load(response)
+    release = json.loads(response.read().decode())
     print(release)
 
     conn = http.client.HTTPSConnection('uploads.github.com')
@@ -75,7 +75,7 @@ def main(parameters, arguments):
     url='{}?name={}'.format(release['upload_url'][:-13], filename)
     print('Upload to {}'.format(url))
 
-    with open(filename, 'r') as f:
+    with open(filename, 'rb') as f:
         conn.request('POST', url, f, headers)
 
     print(conn.getresponse().read())
