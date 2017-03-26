@@ -1,7 +1,7 @@
 [general]
 name=QgsProjectGenerator
 description=QGIS Project Generator
-version=0.1.2
+version=0.1.3
 qgisMinimumVersion=2.99
 qgisMaximumVersion=3.99
 author=OPENGIS.ch GmbH
