@@ -18,13 +18,13 @@
  ***************************************************************************/
 """
 
-import sys
 import argparse
 import importlib
-import qgis
-from dataobjects.project import Project
+import sys
+
 import yaml
 
+from libqgsprojectgen.dataobjects.project import Project
 from qgis.core import QgsProject, QgsApplication
 
 

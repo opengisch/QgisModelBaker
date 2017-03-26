@@ -17,14 +17,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from dataobjects import Layer
+
+from projectgenerator.libqgsprojectgen.dataobjects import Layer
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.gui import QgsMapCanvas
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
-class Project(object):
+class Project(QObject):
+    layer_added = pyqtSignal(str)
 
     def __init__(self):
+        QObject.__init__(self)
         self.crs = None
         self.name = 'Not set'
         self.layers = list()
@@ -63,6 +67,7 @@ class Project(object):
     def create(self, path, qgis_project):
         for layer in self.layers:
             qgis_layer = layer.create()
+            self.layer_added.emit(qgis_layer.id())
             if not self.crs and qgis_layer.isSpatial():
                 self.crs = qgis_layer.crs()
 
@@ -82,5 +87,5 @@ class Project(object):
         map_canvas.setDestinationCrs(self.crs)
         qgis_project.setCrs(self.crs)
 
-        qgis_project.write(path)
-        print('Project written to {}'.format(path))
+        if path:
+            qgis_project.write(path)

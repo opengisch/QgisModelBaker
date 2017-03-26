@@ -20,10 +20,10 @@
 
 import psycopg2
 import psycopg2.extras
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES
 
+from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from qgis.core import QgsProviderRegistry
-from dataobjects.layers import Layer
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES
 from .relations import PostgresRelation
 
 

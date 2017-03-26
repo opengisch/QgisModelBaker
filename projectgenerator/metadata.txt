@@ -1,0 +1,11 @@
+[general]
+name=QgsProjectGenerator
+description=QGIS Project Generator
+version=0.1
+qgisMinimumVersion=2.99
+qgisMaximumVersion=3.99
+author=OPENGIS.ch GmbH
+email=info@opengis.ch
+about=Creates QGIS Projects from Interlis files
+tracker=https://github.com/opengisch/projectgenerator/issues
+repository=https://github.com/opengisch/projectgenerator

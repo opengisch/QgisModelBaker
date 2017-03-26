@@ -27,8 +27,8 @@ class Relation(object):
     def create(self):
         print('Creating relation')
         relation = QgsRelation()
-        relation.setRelationId(self.name)
-        relation.setRelationName(self.name)
+        relation.setId(self.name)
+        relation.setName(self.name)
         relation.setReferencingLayer(self.referencing_layer.create().id())
         relation.setReferencedLayer(self.referenced_layer.create().id())
         relation.addFieldPair( self.referencing_field, self.referenced_field)
