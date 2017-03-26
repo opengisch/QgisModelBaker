@@ -11,7 +11,7 @@ import sys
 import getpass
 import xmlrpc.client
 import json
-import httplib
+import http.client
 import os
 from optparse import OptionParser
 
@@ -58,7 +58,7 @@ def main(parameters, arguments):
         print("Fault code: %d" % err.faultCode)
         print("Fault string: %s" % err.faultString)
 
-    conn = httplib.HTTPSConnection('api.github.com')
+    conn = http.client.HTTPSConnection('api.github.com')
     headers = {
       'User-Agent' : 'Deploy-Script',
       'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
@@ -70,7 +70,7 @@ def main(parameters, arguments):
     release = json.load(response)
     print(release)
 
-    conn = httplib.HTTPSConnection('uploads.github.com')
+    conn = http.client.HTTPSConnection('uploads.github.com')
     headers['Content-Type'] = 'application/zip'
     url='{}?name={}'.format(release['upload_url'][:-13], filename)
     print('Upload to {}'.format(url))
