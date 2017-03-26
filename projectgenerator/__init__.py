@@ -18,9 +18,8 @@
  ***************************************************************************/
 """
 
-from .qgs_project_generator import QgsProjectGeneratorPlugin
-
 def classFactory(iface):
+    from .qgs_project_generator import QgsProjectGeneratorPlugin
     return QgsProjectGeneratorPlugin(iface)
 
 
