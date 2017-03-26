@@ -17,4 +17,4 @@ echo -e " \e[33mExporting plugin version ${TRAVIS_TAG} from folder ${PLUGIN_NAME
 git archive --prefix=${PLUGIN_NAME}/ -o package.zip ${TRAVIS_TAG}:${PLUGIN_NAME}
 
 echo -e " \e[33mUploading plugin as ${OSGEO_USERNAME}"
-./scripts/ci/plugin_upload.py -u "${OSGEO_USERNAME}" -w "${OSGEO_PASSWORD}" package.zip
+./scripts/ci/plugin_upload.py -u "${OSGEO_USERNAME}" -w "${OSGEO_PASSWORD}" -r"${TRAVIS_TAG}" package.zip

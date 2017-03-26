@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # coding=utf-8
 """This script uploads a plugin package on the server.
         Authors: A. Pasotti, V. Picavet
@@ -10,6 +10,9 @@ from future import standard_library
 import sys
 import getpass
 import xmlrpc.client
+import json
+import httplib
+import os
 from optparse import OptionParser
 
 standard_library.install_aliases()
@@ -21,13 +24,13 @@ PORT = '443'
 ENDPOINT = '/plugins/RPC2/'
 VERBOSE = False
 
-
 def main(parameters, arguments):
     """Main entry point.
 
     :param parameters: Command line parameters.
     :param arguments: Command line arguments.
     """
+    filename = arguments[0]
     address = "{protocol}://{username}:{password}@{server}:{port}{endpoint}".format(
         protocol=PROTOCOL,
         username=parameters.username,
@@ -35,12 +38,11 @@ def main(parameters, arguments):
         server=parameters.server,
         port=parameters.port,
         endpoint=ENDPOINT)
-    print("Connecting to: %s" % hide_password(address))
 
     server = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
 
     try:
-        with open(arguments[0], 'rb') as handle:
+        with open(filename, 'rb') as handle:
             plugin_id, version_id = server.plugin.upload(
                 xmlrpc.client.Binary(handle.read()))
         print("Plugin ID: %s" % plugin_id)
@@ -56,6 +58,27 @@ def main(parameters, arguments):
         print("Fault code: %d" % err.faultCode)
         print("Fault string: %s" % err.faultString)
 
+    conn = httplib.HTTPSConnection('api.github.com')
+    headers = {
+      'User-Agent' : 'Deploy-Script',
+      'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
+    }
+
+    data = json.dumps({"tag_name": parameters.release})
+    conn.request('POST', '/repos/{repo_slug}/releases'.format(repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
+    response = conn.getresponse()
+    release = json.load(response)
+    print(release)
+
+    conn = httplib.HTTPSConnection('uploads.github.com')
+    headers['Content-Type'] = 'application/zip'
+    url='{}?name={}'.format(release['upload_url'][:-13], filename)
+    print('Upload to {}'.format(url))
+
+    with open(filename, 'r') as f:
+        conn.request('POST', url, f, headers)
+
+    print(conn.getresponse().read())
 
 def hide_password(url, start=6):
     """Returns the http url with password part replaced with '*'.
@@ -88,6 +111,9 @@ if __name__ == "__main__":
     parser.add_option(
         "-s", "--server", dest="server",
         help="Specify server name", metavar="plugins.qgis.org")
+    parser.add_option(
+        "-r", "--release", dest="release",
+        help="Specify the release name", metavar="plugins.qgis.org")
     options, args = parser.parse_args()
     if len(args) != 1:
         print("Please specify zip file.\n")
