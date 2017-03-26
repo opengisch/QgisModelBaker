@@ -2,8 +2,14 @@ import subprocess
 import os
 
 import re
+import tempfile
+import zipfile
 
+from projectgenerator.libili2pg.downloader import Downloader
 from qgis.PyQt.QtCore import QObject, pyqtSignal
+
+ILI2PG_VERSION='3.6.2'
+ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
 
 class Configuration(object):
     def __init__(self):
@@ -45,13 +51,29 @@ class Importer(QObject):
 
     def run(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
+        ili2pg_dir = 'ili2pg-{}'.format(ILI2PG_VERSION)
 
-        ili2pg_file = os.path.join(dir_path, 'bin', 'ili2pg.jar')
+        ili2pg_file = os.path.join(dir_path, 'bin', ili2pg_dir, 'ili2pg.jar')
         if not os.path.isfile(ili2pg_file):
-            self.stderr.emit(
-                'File "{}" not found. Please download and extract http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-3.6.2.zip.'.format(
-                    ili2pg_file))
-            os.mkdir(os.path.join(dir_path, 'bin'))
+            try:
+                os.mkdir(os.path.join(dir_path, 'bin'))
+            except FileExistsError:
+                pass
+
+            self.stdout.emit('Downloading ili2pg ...')
+
+            downloader = Downloader()
+            tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
+            downloader.download(ILI2PG_URL, tmpfile.name)
+            with zipfile.ZipFile(tmpfile.name, "r") as z:
+                z.extractall(os.path.join(dir_path, 'bin'))
+
+            if not os.path.isfile(ili2pg_file):
+                self.stderr.emit(
+                    'File "{file}" not found. Please download and extract http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{version}.zip.'.format(
+                        file=ili2pg_file,
+                        version=ILI2PG_VERSION))
+
 
         args = ["java"]
         args += ["-jar", ili2pg_file]
