@@ -107,7 +107,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.ili_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/ilifile'))
-        self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host'))
+        self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
