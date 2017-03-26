@@ -21,40 +21,49 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
         self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
+        self.type_combo_box.clear()
+        self.type_combo_box.addItem(self.tr('Interlis'), 'ili')
+        self.type_combo_box.addItem(self.tr('Postgis'), 'pg')
+        self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.restore_configuration()
 
     def accepted(self):
-        importer = iliimporter.Importer()
         configuration = iliimporter.Configuration()
 
-        configuration.ilifile = self.ili_file_line_edit.text()
         configuration.host = self.pg_host_line_edit.text()
         configuration.user = self.pg_user_line_edit.text()
         configuration.database = self.pg_database_line_edit.text()
         configuration.schema = self.pg_schema_line_edit.text()
         configuration.password = self.pg_password_line_edit.text()
 
-        importer.configuration = configuration
+        if self.type_combo_box.currentData() == 'ili':
+            configuration.ilifile = self.ili_file_line_edit.text()
 
-        self.save_configuration(configuration)
+            importer = iliimporter.Importer()
 
-        importer.stdout.connect(self.print_info)
-        importer.stderr.connect(self.on_stderr)
-        importer.process_started.connect(self.on_process_started)
-        importer.process_finished.connect(self.on_process_finished)
-        if importer.run() == iliimporter.Importer.SUCCESS:
-            generator = Generator(configuration.uri)
-            available_layers = generator.layers()
-            relations = generator.relations(available_layers)
+            importer.configuration = configuration
 
-            project = Project()
-            project.layers = available_layers
-            project.relations = relations
+            self.save_configuration(configuration)
 
-            qgis_project = QgsProject.instance()
-            project.layer_added.connect(self.print_info)
-            project.create(None, qgis_project)
+            importer.stdout.connect(self.print_info)
+            importer.stderr.connect(self.on_stderr)
+            importer.process_started.connect(self.on_process_started)
+            importer.process_finished.connect(self.on_process_finished)
+            if importer.run() != iliimporter.Importer.SUCCESS:
+                return
+
+        generator = Generator(configuration.uri)
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+
+        qgis_project = QgsProject.instance()
+        project.layer_added.connect(self.print_info)
+        project.create(None, qgis_project)
 
     def print_info(self, text):
         self.txtStdout.append(text)
@@ -92,6 +101,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
         settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
         settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
+        settings.setValue('QgsProjectGenerator/importtype', self.type_combo_box.currentData())
 
     def restore_configuration(self):
         settings = QSettings()
@@ -102,6 +112,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
+        self.type_changed()
 
     def disable(self):
         self.pg_config.setEnabled(False)
@@ -112,3 +124,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_config.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
+
+    def type_changed(self):
+        if self.type_combo_box.currentData() == 'ili':
+            self.ili_config.show()
+        else:
+            self.ili_config.hide()

@@ -53,16 +53,16 @@ class Project(QObject):
         definition['relations'] = relations
 
         return definition
-            
 
     def load(self, definition):
         self.crs = definition['crs']
 
-        self.layers=list()
+        self.layers = list()
         for layer_definition in definition['layers']:
             layer = Layer()
             layer.load(layer_definition)
             self.layers.append(layer)
+
 
     def create(self, path, qgis_project):
         for layer in self.layers:
