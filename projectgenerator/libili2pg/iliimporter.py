@@ -5,11 +5,13 @@ import re
 import tempfile
 import zipfile
 
-from projectgenerator.libili2pg.downloader import Downloader
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-ILI2PG_VERSION='3.6.2'
+from projectgenerator.utils.qt_utils import download_file
+
+ILI2PG_VERSION = '3.6.2'
 ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
+
 
 class Configuration(object):
     def __init__(self):
@@ -23,7 +25,7 @@ class Configuration(object):
 
     @property
     def uri(self):
-        uri =[]
+        uri = []
         uri += ['dbname={}'.format(self.database)]
         uri += ['user={}'.format(self.user)]
         if self.password:
@@ -33,6 +35,7 @@ class Configuration(object):
             uri += ['port={}'.format(self.port)]
 
         return ' '.join(uri)
+
 
 class Importer(QObject):
     SUCCESS = 0
@@ -60,20 +63,24 @@ class Importer(QObject):
             except FileExistsError:
                 pass
 
-            self.stdout.emit('Downloading ili2pg ...')
-
-            downloader = Downloader()
             tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
-            downloader.download(ILI2PG_URL, tmpfile.name)
-            with zipfile.ZipFile(tmpfile.name, "r") as z:
-                z.extractall(os.path.join(dir_path, 'bin'))
+
+            self.stdout.emit(self.tr('Downloading ili2pg version {version}...'.format(ILI2PG_VERSION)))
+            download_file(ILI2PG_URL, tmpfile.name, on_progress=lambda received, total: self.stdout.emit('.'))
+
+            try:
+                with zipfile.ZipFile(tmpfile.name, "r") as z:
+                    z.extractall(os.path.join(dir_path, 'bin'))
+            except zipfile.BadZipFile:
+                # We will realize soon enough that the files were not extracted
+                pass
 
             if not os.path.isfile(ili2pg_file):
                 self.stderr.emit(
-                    'File "{file}" not found. Please download and extract http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{version}.zip.'.format(
-                        file=ili2pg_file,
-                        version=ILI2PG_VERSION))
-
+                    self.tr(
+                        'File "{file}" not found. Please download and extract <a href="{ili2pg_url}">{ili2pg_url}</a>.'.format(
+                            file=ili2pg_file,
+                            ili2pg_url=ILI2PG_URL)))
 
         args = ["java"]
         args += ["-jar", ili2pg_file]
