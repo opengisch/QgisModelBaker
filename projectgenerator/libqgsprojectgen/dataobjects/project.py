@@ -18,9 +18,9 @@
  ***************************************************************************/
 """
 
-from projectgenerator.libqgsprojectgen.dataobjects import Layer
-from qgis.core import QgsCoordinateReferenceSystem
-from qgis.gui import QgsMapCanvas
+from .layers import Layer
+from .legend import LegendGroup
+from qgis.core import QgsCoordinateReferenceSystem, QgsProject
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
@@ -32,6 +32,7 @@ class Project(QObject):
         self.crs = None
         self.name = 'Not set'
         self.layers = list()
+        self.legend = LegendGroup()
         self.auto_transaction = True
 
     def add_layer(self, layer):
@@ -66,8 +67,7 @@ class Project(QObject):
             layer.load(layer_definition)
             self.layers.append(layer)
 
-
-    def create(self, path, qgis_project):
+    def create(self, path: str, qgis_project: QgsProject):
         qgis_project.setAutoTransaction(self.auto_transaction)
         for layer in self.layers:
             qgis_layer = layer.create()
@@ -87,9 +87,10 @@ class Project(QObject):
             assert rel.isValid()
             qgis_project.relationManager().addRelation(rel)
 
-        map_canvas = QgsMapCanvas()
-        map_canvas.setDestinationCrs(self.crs)
         qgis_project.setCrs(self.crs)
+
+        if self.legend:
+            self.legend.create(qgis_project)
 
         if path:
             qgis_project.write(path)

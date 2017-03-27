@@ -56,10 +56,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         generator = Generator(configuration.uri)
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
 
         project = Project()
         project.layers = available_layers
         project.relations = relations
+        project.legend = legend
 
         qgis_project = QgsProject.instance()
         project.layer_added.connect(self.print_info)

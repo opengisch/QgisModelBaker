@@ -18,12 +18,12 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsProject
 
 class LegendGroup(object):
-
-    def __init__(self, name=None, items=list()):
+    def __init__(self, name=None):
         self.name = name
-        self.items = items
+        self.items = list()
 
     def dump(self):
         definition = list()
@@ -31,8 +31,32 @@ class LegendGroup(object):
             definition.append(item.dump())
         return definition
 
-    def load(self, definition):
-        pass
+    def append(self, item):
+        self.items.append(item)
 
-    def create(self):
-        pass
+    def __getitem__(self, item):
+        for i in self.items:
+            try:
+                if i.name == item:
+                    return i
+            except AttributeError:
+                if i.table_name == item:
+                    return i
+
+        raise KeyError(item)
+
+    def load(self, definition):
+        self.items = definition
+
+    def create(self, qgis_project: QgsProject, group=None):
+        if not group:
+            group = qgis_project.layerTreeRoot()
+
+        for item in self.items:
+            if isinstance(item, LegendGroup):
+                subgroup = group.addGroup(item.name)
+                item.create(qgis_project, subgroup)
+            else:
+                node = qgis_project.layerTreeRoot().findLayer(item.real_id)
+                group.addChildNode(node.clone())
+                node.parent().removeChildNode(node)

@@ -40,10 +40,21 @@ class Layer:
 
     def create(self):
         if not self.__layer:
-            layer_name = self.table_name()
-            print(' ==> Creating layer "{}"'.format(layer_name))
+            layer_name = self.table_name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
         return self.__layer
 
+    @property
+    def real_id(self):
+        if self.__layer:
+            return self.__layer.id()
+        else:
+            return None
+
+    @property
     def table_name(self):
         return QgsDataSourceUri(self.uri).table()
+
+    @property
+    def geometry_column(self):
+        return QgsDataSourceUri(self.uri).geometryColumn()

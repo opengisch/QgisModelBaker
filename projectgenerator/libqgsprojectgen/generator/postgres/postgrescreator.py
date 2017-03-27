@@ -21,6 +21,7 @@
 import psycopg2
 import psycopg2.extras
 
+from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
 from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from qgis.core import QgsProviderRegistry
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES
@@ -28,9 +29,9 @@ from .relations import PostgresRelation
 
 
 class PostgresCreator:
-
     def __init__(self, uri):
-        assert 'postgres' in QgsProviderRegistry.instance().providerList(), 'postgres provider not found in {}. Is the QGIS_PREFIX_PATH properly set?'.format(QgsProviderRegistry.instance().providerList())
+        assert 'postgres' in QgsProviderRegistry.instance().providerList(), 'postgres provider not found in {}. Is the QGIS_PREFIX_PATH properly set?'.format(
+            QgsProviderRegistry.instance().providerList())
         self.uri = uri
         self.conn = psycopg2.connect(uri)
 
@@ -91,3 +92,18 @@ class PostgresCreator:
 
     def relations(self, layers):
         return PostgresRelation.find_relations(layers, self.conn)
+
+    def legend(self, layers):
+        legend = LegendGroup('root')
+
+        tables = LegendGroup('tables')
+
+        for layer in layers:
+            if layer.geometry_column:
+                legend.append(layer)
+            else:
+                tables.append(layer)
+
+        legend.append(tables)
+
+        return legend

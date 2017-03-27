@@ -8,7 +8,7 @@ class PostgresRelation(Relation):
     @classmethod
     def find_relations(cls, layers, conn):
 
-        mapped_layers = {layer.table_name() : layer for layer in layers}
+        mapped_layers = {layer.table_name : layer for layer in layers}
 
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 

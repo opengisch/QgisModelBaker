@@ -25,7 +25,6 @@ class Relation(object):
         self.referenced_field = definition['referencedField']
 
     def create(self):
-        print('Creating relation')
         relation = QgsRelation()
         relation.setId(self.name)
         relation.setName(self.name)
