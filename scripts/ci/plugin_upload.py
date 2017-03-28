@@ -64,7 +64,13 @@ def main(parameters, arguments):
       'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
     }
 
-    data = json.dumps({"tag_name": parameters.release})
+    raw_data = {
+        "tag_name": parameters.release
+        }
+    if parameters.changelog:
+        with open(parameters.changelog, 'r') as cl:
+            raw_data['body'] = cl.read()
+    data = json.dumps(raw_data)
     conn.request('POST', '/repos/{repo_slug}/releases'.format(repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
     response = conn.getresponse()
     release = json.loads(response.read().decode())
@@ -113,7 +119,10 @@ if __name__ == "__main__":
         help="Specify server name", metavar="plugins.qgis.org")
     parser.add_option(
         "-r", "--release", dest="release",
-        help="Specify the release name", metavar="plugins.qgis.org")
+        help="Specify the release name", metavar="v1.0.0")
+    parser.add_option(
+        "-c", "--changelog", dest="changelog",
+        help="Specify the changelog file", metavar="/tmp/changelog")
     options, args = parser.parse_args()
     if len(args) != 1:
         print("Please specify zip file.\n")

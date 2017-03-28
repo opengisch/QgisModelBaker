@@ -14,5 +14,8 @@ fi
 echo -e " \e[33mExporting plugin version ${TRAVIS_TAG} from folder ${PLUGIN_NAME}"
 git archive --prefix=${PLUGIN_NAME}/ -o $PLUGIN_NAME-$METADATA_VERSION.zip ${TRAVIS_TAG}:${PLUGIN_NAME}
 
+echo "## Changes in version $METADATA_VERSION" > /tmp/changelog 
+git log HEAD^...$(git describe --abbrev=0 --tags HEAD^) --pretty=format:"### %s%n%n%b" >> /tmp/changelog
+
 echo -e " \e[33mUploading plugin as ${OSGEO_USERNAME}"
-./scripts/ci/plugin_upload.py -u "${OSGEO_USERNAME}" -w "${OSGEO_PASSWORD}" -r "${TRAVIS_TAG}" $PLUGIN_NAME-$METADATA_VERSION.zip
+./scripts/ci/plugin_upload.py -u "${OSGEO_USERNAME}" -w "${OSGEO_PASSWORD}" -r "${TRAVIS_TAG}" $PLUGIN_NAME-$METADATA_VERSION.zip -c /tmp/changelog
