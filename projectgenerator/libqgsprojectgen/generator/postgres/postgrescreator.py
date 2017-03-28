@@ -23,7 +23,7 @@ import psycopg2.extras
 
 from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
 from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
-from qgis.core import QgsProviderRegistry
+from qgis.core import QgsProviderRegistry, QgsWkbTypes
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES
 from .relations import PostgresRelation
 
@@ -98,11 +98,29 @@ class PostgresCreator:
 
         tables = LegendGroup('tables')
 
+        point_layers = []
+        line_layers = []
+        polygon_layers = []
+
         for layer in layers:
             if layer.geometry_column:
-                legend.append(layer)
+                geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
+                if geometry_type == QgsWkbTypes.PointGeometry:
+                    point_layers.append(layer)
+                elif geometry_type == QgsWkbTypes.LineGeometry:
+                    line_layers.append(layer)
+                elif geometry_type == QgsWkbTypes.PolygonGeometry:
+                    polygon_layers.append(layer)
+
             else:
                 tables.append(layer)
+
+        for l in point_layers:
+            legend.append(l)
+        for l in line_layers:
+            legend.append(l)
+        for l in polygon_layers:
+            legend.append(l)
 
         legend.append(tables)
 

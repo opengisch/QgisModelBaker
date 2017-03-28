@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsVectorLayer, QgsDataSourceUri
+from qgis.core import QgsVectorLayer, QgsDataSourceUri, QgsWkbTypes
 
 
 class Layer:
@@ -58,3 +58,7 @@ class Layer:
     @property
     def geometry_column(self):
         return QgsDataSourceUri(self.uri).geometryColumn()
+
+    @property
+    def wkb_type(self) -> QgsWkbTypes.Type:
+        return QgsDataSourceUri(self.uri).wkbType()
