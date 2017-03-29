@@ -30,8 +30,8 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__configure_action = None
 
     def initGui(self):
-        self.__generate_action = QAction(self.tr('Generate'))
-        self.__configure_action = QAction(self.tr('Settings'))
+        self.__generate_action = QAction(self.tr('Generate'), None)
+        self.__configure_action = QAction(self.tr('Settings'), None)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
 
