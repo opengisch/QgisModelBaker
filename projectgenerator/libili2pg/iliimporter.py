@@ -9,7 +9,7 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from projectgenerator.utils.qt_utils import download_file
 
-ILI2PG_VERSION = '3.6.2'
+ILI2PG_VERSION = '3.7.0'
 ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
 
 
@@ -65,7 +65,7 @@ class Importer(QObject):
 
             tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
 
-            self.stdout.emit(self.tr('Downloading ili2pg version {version}...'.format(ILI2PG_VERSION)))
+            self.stdout.emit(self.tr('Downloading ili2pg version {}...'.format(ILI2PG_VERSION)))
             download_file(ILI2PG_URL, tmpfile.name, on_progress=lambda received, total: self.stdout.emit('.'))
 
             try:
