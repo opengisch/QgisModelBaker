@@ -36,6 +36,8 @@ class Configuration(object):
 
         return ' '.join(uri)
 
+class JavaNotFoundError(FileNotFoundError):
+    pass
 
 class Importer(QObject):
     SUCCESS = 0
@@ -82,8 +84,7 @@ class Importer(QObject):
                             file=ili2pg_file,
                             ili2pg_url=ILI2PG_URL)))
 
-        args = ["java"]
-        args += ["-jar", ili2pg_file]
+        args = ["-jar", ili2pg_file]
         args += ["--schemaimport"]
         args += ["--dbhost", self.configuration.host]
         args += ["--dbusr", self.configuration.user]
@@ -102,10 +103,30 @@ class Importer(QObject):
         args += ["--createFk"]
         args += [self.configuration.ilifile]
 
-        proc = subprocess.Popen(args,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE
-                                )
+        if self.configuration.java_path:
+            # A java path is configured: respect it no mather what
+            java_paths = [self.configuration.java_path]
+        else:
+            # By default try JAVA_HOME and PATH
+            java_paths = []
+            if 'JAVA_HOME' in os.environ:
+                java_paths += [os.path.join(os.environ['JAVA_HOME'], 'java')]
+            java_paths += ['java']
+
+        proc = None
+        for java_path in java_paths:
+            try:
+                proc = subprocess.Popen([java_path] + args,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE
+                                    )
+            except FileNotFoundError as e:
+                pass
+            if proc:
+                break
+
+        if not proc:
+            raise JavaNotFoundError()
 
         self.process_started.emit(' '.join(proc.args))
 

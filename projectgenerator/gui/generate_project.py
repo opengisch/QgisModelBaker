@@ -1,5 +1,29 @@
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+                              -------------------
+        begin                : 29/03/17
+        git sha              : :%H$
+        copyright            : (C) 2017 by OPENGIS.ch
+        email                : info@opengis.ch
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+import os
+
+from projectgenerator.gui.config import ConfigDialog
+from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector
-from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 from qgis.core import QgsProject
@@ -25,21 +49,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('Interlis'), 'ili')
         self.type_combo_box.addItem(self.tr('Postgis'), 'pg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
+        self.txtStdout.anchorClicked.connect(self.link_activated)
+
+        self.text = ''
 
         self.restore_configuration()
 
     def accepted(self):
-        configuration = iliimporter.Configuration()
-
-        configuration.host = self.pg_host_line_edit.text()
-        configuration.user = self.pg_user_line_edit.text()
-        configuration.database = self.pg_database_line_edit.text()
-        configuration.schema = self.pg_schema_line_edit.text()
-        configuration.password = self.pg_password_line_edit.text()
+        configuration = self.updated_configuration()
 
         if self.type_combo_box.currentData() == 'ili':
-            configuration.ilifile = self.ili_file_line_edit.text()
-
             importer = iliimporter.Importer()
 
             importer.configuration = configuration
@@ -50,7 +69,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             importer.stderr.connect(self.on_stderr)
             importer.process_started.connect(self.on_process_started)
             importer.process_finished.connect(self.on_process_finished)
-            if importer.run() != iliimporter.Importer.SUCCESS:
+
+            try:
+                if importer.run() != iliimporter.Importer.SUCCESS:
+                    return
+            except JavaNotFoundError:
+                self.txtStdout.setTextColor(QColor('#000000'))
+                self.txtStdout.clear()
+                self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 return
 
         generator = Generator(configuration.uri)
@@ -68,20 +94,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         project.create(None, qgis_project)
 
     def print_info(self, text):
+        self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#aa2222'))
         self.txtStdout.append(text)
-        self.txtStdout.setTextColor(QColor('#000000'))
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
         self.disable()
-        self.txtStdout.setTextColor(QColor('#777777'))
-        self.txtStdout.setText(command)
         self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
+        self.txtStdout.setText(command)
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
@@ -93,7 +119,19 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
             self.enable()
-        self.txtStdout.setTextColor(QColor('#000000'))
+
+    def updated_configuration(self):
+        configuration = iliimporter.Configuration()
+
+        configuration.host = self.pg_host_line_edit.text()
+        configuration.user = self.pg_user_line_edit.text()
+        configuration.database = self.pg_database_line_edit.text()
+        configuration.schema = self.pg_schema_line_edit.text()
+        configuration.password = self.pg_password_line_edit.text()
+        configuration.ilifile = self.ili_file_line_edit.text()
+        configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
+
+        return configuration
 
     def save_configuration(self, configuration):
         settings = QSettings()
@@ -132,3 +170,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_config.show()
         else:
             self.ili_config.hide()
+
+    def link_activated(self, link):
+        if link.url() == '#configure':
+            configuraton = self.updated_configuration()
+            cfg = ConfigDialog(configuraton)
+            if cfg.exec_():
+                # That's quite ugly
+                QSettings().setValue('QgsProjectGenerator/java_path', configuraton.java_path)
+
+        else:
+            QDesktopServices.openUrl(link)
