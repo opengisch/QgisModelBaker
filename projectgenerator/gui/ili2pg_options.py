@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
+from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog
@@ -41,16 +41,23 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
     def accepted(self):
+        """ Save settings before accepting the dialog """
         self.save_configuration()
-        self.done(1) # Accepted!
+        self.done(1)
 
     def select_crs(self):
+        """ Open a dialog to select CRS """
         crsSelector = QgsProjectionSelectionDialog(self)
         crsSelector.setCrs(QgsCoordinateReferenceSystem(self.crs, type=QgsCoordinateReferenceSystem.PostgisCrsId))
         res = crsSelector.exec()
         if res:
             self.crs = int(crsSelector.crs().authid().split(':')[1])
-            self.crs_label.setText('EPSG {}'.format(self.crs))
+            self.set_crs_label()
+
+    def set_crs_label(self):
+        """ Update EPSG label and tooltip """
+        self.crs_label.setText('EPSG {}'.format(self.crs))
+        self.crs_label.setToolTip(QgsCoordinateReferenceSystem(self.crs, type=QgsCoordinateReferenceSystem.PostgisCrsId).description())
 
     def get_inheritance_type(self):
         if self.no_smart_radio_button.isChecked():
@@ -73,7 +80,7 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.crs = settings.value('QgsProjectGenerator/ili2pg/epsg', 21781)
-        self.crs_label.setText('EPSG {}'.format(self.crs))
+        self.set_crs_label()
         self.enum_col_as_itf_code.setChecked(settings.value('QgsProjectGenerator/ili2pg/createEnumColAsItfCode', True))
         self.name_by_topic.setChecked(settings.value('QgsProjectGenerator/ili2pg/nameByTopic', True))
         self.import_tid.setChecked(settings.value('QgsProjectGenerator/ili2pg/importTid', True))
@@ -85,7 +92,4 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-
-
-
 

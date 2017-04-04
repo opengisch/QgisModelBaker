@@ -27,7 +27,7 @@ class Configuration(object):
         self.importTid = True
         self.coalesceMultiSurface = True
         self.inheritance = 'smart1'
-        self.epsg = 21781
+        self.epsg = 21781 # Default EPSG code in ili2pg
 
     @property
     def uri(self):
