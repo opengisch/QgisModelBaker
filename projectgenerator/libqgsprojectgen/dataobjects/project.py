@@ -85,7 +85,7 @@ class Project(QObject):
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
-            #qgis_project.relationManager().addRelation(rel)
+            qgis_project.relationManager().addRelation(rel)
 
         qgis_project.setCrs(self.crs)
 
