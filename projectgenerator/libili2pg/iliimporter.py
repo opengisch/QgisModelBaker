@@ -22,6 +22,12 @@ class Configuration(object):
         self.password = ''
         self.ilifile = ''
         self.port = ''
+        self.createEnumColAsItfCode = True
+        self.nameByTopic = True
+        self.importTid = True
+        self.coalesceMultiSurface = True
+        self.inheritance = 'smart1'
+        self.epsg = 21781
 
     @property
     def uri(self):
@@ -92,15 +98,26 @@ class Importer(QObject):
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-        args += ["--importTid"]
-        args += ["--nameByTopic"]
+        if self.configuration.importTid:
+            args += ["--importTid"]
+        if self.configuration.nameByTopic:
+            args += ["--nameByTopic"]
         args += ["--createEnumTabs"]
-        args += ["--createEnumColAsItfCode"]
+        if self.configuration.createEnumColAsItfCode:
+            args += ["--createEnumColAsItfCode"]
         args += ["--createNumChecks"]
-        args += ["--smart1Inheritance"]
-        args += ["--coalesceMultiSurface"]
+        if self.configuration.inheritance == 'noSmart':
+            args += ["--noSmartInheritance"]
+        elif self.configuration.inheritance == 'smart1':
+            args += ["--smart1Inheritance"]
+        else:
+            args += ["--smart2Inheritance"]
+        if self.configuration.coalesceMultiSurface:
+            args += ["--coalesceMultiSurface"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
+        if self.configuration.epsg and self.configuration.epsg != 21781:
+            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
         args += [self.configuration.ilifile]
 
         if self.configuration.java_path:

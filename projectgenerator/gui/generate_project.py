@@ -21,6 +21,7 @@
 import os
 
 from projectgenerator.gui.config import ConfigDialog
+from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
@@ -45,6 +46,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
         self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
+        self.ili2pg_options = Ili2pgOptionsDialog()
+        self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('Interlis'), 'ili')
         self.type_combo_box.addItem(self.tr('Postgis'), 'pg')
@@ -129,6 +132,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text()
+        configuration.createEnumColAsItfCode = self.ili2pg_options.enum_col_as_itf_code.isChecked()
+        configuration.epsg = self.ili2pg_options.crs
+        configuration.nameByTopic = self.ili2pg_options.name_by_topic.isChecked()
+        configuration.importTid = self.ili2pg_options.import_tid.isChecked()
+        configuration.coalesceMultiSurface = self.ili2pg_options.coalesce_multi_surface.isChecked()
+        configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
 
         return configuration

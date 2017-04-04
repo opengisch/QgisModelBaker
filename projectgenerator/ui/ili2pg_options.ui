@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Ili2pgOptions</class>
+ <widget class="QDialog" name="Ili2pgOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>319</width>
+    <height>324</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ili2pg Options</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="coalesce_multi_surface">
+     <property name="toolTip">
+      <string>Structure attributes whose maximum cardinality is 1 whose base type is CHBase: MultiSurface and which
+have no further attributes other than &quot;Surfaces&quot; are mapped directly as a column with the type
+MULTISURFACE (or MULTIPOLYGON, if ­­strokeArcs).</string>
+     </property>
+     <property name="text">
+      <string>coalesceMultiSurface</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="import_tid">
+     <property name="toolTip">
+      <string>Reads the transfer identification (from the transfer file) into an additional column T_Ili_Tid.</string>
+     </property>
+     <property name="text">
+      <string>importTid</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="crs_label">
+       <property name="text">
+        <string>EPSG 21781</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="crs_selection_button">
+       <property name="maximumSize">
+        <size>
+         <width>90</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="enum_col_as_itf_code">
+     <property name="toolTip">
+      <string>Creates the enumerated value as an ITF code for enumeration attributes. This option is only allowed if there
+are no extensions of enumerations in the model. Without this option, the XTF code is used as a count in the
+database.</string>
+     </property>
+     <property name="text">
+      <string>createEnumColAsItfCode</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QGroupBox" name="inheritance_group_box">
+     <property name="title">
+      <string>Inheritance type</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="no_smart_radio_button">
+        <property name="toolTip">
+         <string>All structural image optimizations are disabled.</string>
+        </property>
+        <property name="text">
+         <string>noSmartMapping</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="smart1_radio_button">
+        <property name="toolTip">
+         <string>Form the inheritance hierarchy with a dymamic strategy. The NewClass strategy is used for classes that are
+referenced and whose base classes are not mapped using a NewClass strategy. Abstract classes are mapped
+using a SubClass strategy. Concrete classes, without a base class or their direct base classes with a SubClass
+strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
+        </property>
+        <property name="text">
+         <string>smart1Inheritance</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="smart2_radio_button">
+        <property name="toolTip">
+         <string>Form the inheritance hierarchy with a dymamic strategy. Abstract classes are mapped using a SubClass
+strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
+        </property>
+        <property name="text">
+         <string>smart2Inheritance</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="name_by_topic">
+     <property name="toolTip">
+      <string>For all table names, partially qualified Interlis class names (Topic.Class) are used (and displayed in a valid
+table name).</string>
+     </property>
+     <property name="text">
+      <string>nameByTopic</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Ili2pgOptions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Ili2pgOptions</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
