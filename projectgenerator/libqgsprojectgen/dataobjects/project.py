@@ -85,17 +85,13 @@ class Project(QObject):
         else:
             qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
-        qgis_relations = list()
+        qgis_relations = list(qgis_project.relationManager().relations().values())
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
             qgis_relations.append(rel)
 
-        if qgis_project.relationManager().relations():
-            for qgis_relation in qgis_relations:
-                qgis_project.relationManager().addRelation(qgis_relation)
-        else:
-            qgis_project.relationManager().setRelations(qgis_relations)
+        qgis_project.relationManager().setRelations(qgis_relations)
 
         qgis_project.setCrs(self.crs)
 
