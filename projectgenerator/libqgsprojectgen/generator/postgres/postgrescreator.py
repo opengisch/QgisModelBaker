@@ -92,6 +92,20 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
+            constraints_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            # Get all 'c'heck constraints for this table
+            constraints_cur.execute("""
+                                    SELECT consrc, regexp_matches(consrc, '\(\((.*) >= ([\d\.]+)\) AND \((.*) <= ([\d\.]+)\)\)')
+                                    FROM pg_constraint
+                                    WHERE conrelid = '{schame}.{table}'::regclass
+                                    AND contype = 'c'
+            """.format(schema=record['schemaname'], table=record['tablename']))
+
+            for constraint in constraints_cur:
+                # Check if this really affects us
+                pass
+
             layers.append(Layer('postgres', data_source_uri))
 
         return layers
