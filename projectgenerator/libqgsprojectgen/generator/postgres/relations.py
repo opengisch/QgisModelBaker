@@ -26,7 +26,6 @@ class PostgresRelation(Relation):
         relations = list()
 
         for record in cur:
-            print ('Checking relation')
             if record['referencing_table_name'] in mapped_layers.keys() and record['referenced_table_name'] in mapped_layers.keys():
                 relation = Relation()
                 relation.referencing_layer = mapped_layers[record['referencing_table_name']]

@@ -26,6 +26,7 @@ class Layer:
         self.provider = provider
         self.uri = uri
         self.__layer = None
+        self.fields = list()
 
     def dump(self):
         definition = dict()
@@ -42,6 +43,14 @@ class Layer:
         if not self.__layer:
             layer_name = self.table_name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+
+        for field in self.fields:
+            field.create(self)
+
+        return self.__layer
+
+    @property
+    def layer(self):
         return self.__layer
 
     @property

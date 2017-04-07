@@ -16,3 +16,12 @@ IGNORED_TABLES = [
     't_ili2db_classname',
     't_ili2db_import_basket'
 ]
+
+IGNORED_FIELDNAMES = [
+    't_id',
+    't_seq'
+]
+
+READONLY_FIELDNAMES = [
+    't_ili_tid'
+]

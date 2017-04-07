@@ -20,11 +20,13 @@
 
 import psycopg2
 import psycopg2.extras
+import re
 
+from projectgenerator.libqgsprojectgen.dataobjects import Field
 from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
 from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from qgis.core import QgsProviderRegistry, QgsWkbTypes
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from .relations import PostgresRelation
 
 
@@ -92,7 +94,66 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layers.append(Layer('postgres', data_source_uri))
+            layer = Layer('postgres', data_source_uri)
+
+            # Get all fields for this table
+            fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            fields_cur.execute("""
+            SELECT
+  c.column_name,
+  pgd.description AS comment
+FROM pg_catalog.pg_statio_all_tables st
+LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
+LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
+WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::regclass;
+            """.format(schema=record['schemaname'], table=record['tablename']))
+
+            # Get all 'c'heck constraints for this table
+            constraints_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            constraints_cur.execute("""
+            SELECT
+              consrc,
+              regexp_matches(consrc, '\(\((.*) >= ([\d\.]+)\) AND \((.*) <= ([\d\.]+)\)\)') AS check_details
+            FROM pg_constraint
+            WHERE conrelid = '{schema}.{table}'::regclass
+            AND contype = 'c'
+            """.format(schema=record['schemaname'], table=record['tablename']))
+
+            # Create a mapping in the form of
+            #
+            # fieldname: (min, max)
+            constraint_mapping = dict()
+            for constraint in constraints_cur:
+                constraint_mapping[constraint['check_details'][0]] = (constraint['check_details'][1], constraint['check_details'][3])
+
+            re_iliname = re.compile('^@iliname (.*)$')
+            for fielddef in fields_cur:
+                column_name = fielddef['column_name']
+                comment = fielddef['comment']
+                m = re_iliname.match(comment) if comment else None
+                alias = None
+                if m:
+                    alias = m.group(1)
+
+                field = Field(column_name)
+                field.alias = alias
+
+                if column_name in IGNORED_FIELDNAMES:
+                    field.widget = 'Hidden'
+                print(column_name)
+
+                if column_name in READONLY_FIELDNAMES:
+                    field.read_only = True
+
+                if column_name in constraint_mapping:
+                    field.widget = 'Range'
+                    field.widget_config['Min'] = constraint_mapping[column_name][0]
+                    field.widget_config['Max'] = constraint_mapping[column_name][1]
+
+                layer.fields.append(field)
+
+
+            layers.append(layer)
 
         return layers
 
