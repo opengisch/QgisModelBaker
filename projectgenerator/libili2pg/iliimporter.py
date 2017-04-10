@@ -22,10 +22,6 @@ class Configuration(object):
         self.password = ''
         self.ilifile = ''
         self.port = ''
-        self.createEnumColAsItfCode = True
-        self.nameByTopic = True
-        self.importTid = True
-        self.coalesceMultiSurface = True
         self.inheritance = 'smart1'
         self.epsg = 21781 # Default EPSG code in ili2pg
 
@@ -98,25 +94,17 @@ class Importer(QObject):
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-        if self.configuration.importTid:
-            args += ["--importTid"]
-        if self.configuration.nameByTopic:
-            args += ["--nameByTopic"]
         args += ["--createEnumTabs"]
-        if self.configuration.createEnumColAsItfCode:
-            args += ["--createEnumColAsItfCode"]
         args += ["--createNumChecks"]
-        if self.configuration.inheritance == 'noSmart':
-            args += ["--noSmartInheritance"]
-        elif self.configuration.inheritance == 'smart1':
+        args += ["--coalesceMultiSurface"]
+        args += ["--createGeomIdx"]
+        args += ["--createFk"]
+        if self.configuration.inheritance == 'smart1':
             args += ["--smart1Inheritance"]
         else:
             args += ["--smart2Inheritance"]
-        if self.configuration.coalesceMultiSurface:
-            args += ["--coalesceMultiSurface"]
-        args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        if self.configuration.epsg and self.configuration.epsg != 21781:
+
+        if self.configuration.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
         args += [self.configuration.ilifile]
 
