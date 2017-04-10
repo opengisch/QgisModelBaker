@@ -36,10 +36,10 @@
           <string>PostgreSQL</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="pg_user_line_edit">
-            <property name="placeholderText">
-             <string>Database Username</string>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>User</string>
             </property>
            </widget>
           </item>
@@ -53,13 +53,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>User</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="2" rowspan="2">
            <widget class="QLineEdit" name="pg_host_line_edit">
             <property name="text">
@@ -67,14 +60,14 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
+          <item row="9" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Password</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
+          <item row="9" column="2">
            <widget class="QLineEdit" name="pg_password_line_edit">
             <property name="echoMode">
              <enum>QLineEdit::Password</enum>
@@ -102,6 +95,13 @@
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QLineEdit" name="pg_user_line_edit">
+            <property name="placeholderText">
+             <string>Database Username</string>
             </property>
            </widget>
           </item>
@@ -211,11 +211,15 @@
  </widget>
  <tabstops>
   <tabstop>type_combo_box</tabstop>
+  <tabstop>ili_file_line_edit</tabstop>
+  <tabstop>ili_file_browse_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
-  <tabstop>pg_user_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
   <tabstop>pg_schema_line_edit</tabstop>
+  <tabstop>pg_user_line_edit</tabstop>
   <tabstop>pg_password_line_edit</tabstop>
+  <tabstop>txtStdout</tabstop>
+  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
