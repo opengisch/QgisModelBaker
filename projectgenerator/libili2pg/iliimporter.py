@@ -22,6 +22,8 @@ class Configuration(object):
         self.password = ''
         self.ilifile = ''
         self.port = ''
+        self.inheritance = 'smart1'
+        self.epsg = 21781 # Default EPSG code in ili2pg
 
     @property
     def uri(self):
@@ -92,15 +94,18 @@ class Importer(QObject):
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-        args += ["--importTid"]
-        args += ["--nameByTopic"]
         args += ["--createEnumTabs"]
-        args += ["--createEnumColAsItfCode"]
         args += ["--createNumChecks"]
-        args += ["--smart1Inheritance"]
         args += ["--coalesceMultiSurface"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
+        if self.configuration.inheritance == 'smart1':
+            args += ["--smart1Inheritance"]
+        else:
+            args += ["--smart2Inheritance"]
+
+        if self.configuration.epsg != 21781:
+            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
         args += [self.configuration.ilifile]
 
         if self.configuration.java_path:

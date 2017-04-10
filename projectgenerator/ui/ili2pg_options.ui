@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Ili2pgOptions</class>
+ <widget class="QDialog" name="Ili2pgOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>319</width>
+    <height>152</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ili2pg Options</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="inheritance_group_box">
+     <property name="title">
+      <string>Inheritance type</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="smart1_radio_button">
+        <property name="toolTip">
+         <string>Form the inheritance hierarchy with a dymamic strategy. The NewClass strategy is used for classes that are
+referenced and whose base classes are not mapped using a NewClass strategy. Abstract classes are mapped
+using a SubClass strategy. Concrete classes, without a base class or their direct base classes with a SubClass
+strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
+        </property>
+        <property name="text">
+         <string>smart1Inheritance</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="smart2_radio_button">
+        <property name="toolTip">
+         <string>Form the inheritance hierarchy with a dymamic strategy. Abstract classes are mapped using a SubClass
+strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
+        </property>
+        <property name="text">
+         <string>smart2Inheritance</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Ili2pgOptions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Ili2pgOptions</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
