@@ -69,23 +69,29 @@ class Project(QObject):
 
     def create(self, path: str, qgis_project: QgsProject):
         qgis_project.setAutoTransaction(self.auto_transaction)
+        qgis_layers = list()
         for layer in self.layers:
             qgis_layer = layer.create()
             self.layer_added.emit(qgis_layer.id())
             if not self.crs and qgis_layer.isSpatial():
                 self.crs = qgis_layer.crs()
 
-            qgis_project.addMapLayer(qgis_layer)
+            qgis_layers.append(qgis_layer)
+
+        qgis_project.addMapLayers(qgis_layers)
 
         if isinstance(self.crs, QgsCoordinateReferenceSystem):
             qgis_project.setCrs(self.crs)
         else:
             qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
+        qgis_relations = list(qgis_project.relationManager().relations().values())
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
-            qgis_project.relationManager().addRelation(rel)
+            qgis_relations.append(rel)
+
+        qgis_project.relationManager().setRelations(qgis_relations)
 
         qgis_project.setCrs(self.crs)
 
