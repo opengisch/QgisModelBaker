@@ -27,7 +27,8 @@ from projectgenerator.utils.qt_utils import make_file_selector
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsCoordinateReferenceSystem
+from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
 from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
@@ -46,6 +47,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
         self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
+        self.epsg = 21781 # Default EPSG code in ili2pg
+        self.crs_selection_button.clicked.connect(self.select_crs)
         self.ili2pg_options = Ili2pgOptionsDialog()
         self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
         self.type_combo_box.clear()
@@ -132,11 +135,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text()
-        configuration.createEnumColAsItfCode = self.ili2pg_options.enum_col_as_itf_code.isChecked()
-        configuration.epsg = self.ili2pg_options.crs
-        configuration.nameByTopic = self.ili2pg_options.name_by_topic.isChecked()
-        configuration.importTid = self.ili2pg_options.import_tid.isChecked()
-        configuration.coalesceMultiSurface = self.ili2pg_options.coalesce_multi_surface.isChecked()
+        configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
 
@@ -145,6 +144,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/ilifile', configuration.ilifile)
+        settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.epsg)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
@@ -156,6 +156,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.ili_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/ilifile'))
+        self.epsg = settings.value('QgsProjectGenerator/ili2pg/epsg', 21781)
+        self.update_crs_info()
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
@@ -190,3 +192,18 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         else:
             QDesktopServices.openUrl(link)
+
+    def select_crs(self):
+        """ Open a dialog to select CRS """
+        crsSelector = QgsProjectionSelectionDialog(self)
+        crsSelector.setCrs(QgsCoordinateReferenceSystem(self.epsg, type=QgsCoordinateReferenceSystem.PostgisCrsId))
+        res = crsSelector.exec()
+        if res:
+            self.epsg = int(crsSelector.crs().authid().split(':')[1])
+            self.update_crs_info()
+
+    def update_crs_info(self):
+        """ Update CRS selection button's label and tooltip """
+        self.crs_selection_button.setText('EPSG:{}'.format(self.epsg))
+        self.crs_selection_button.setToolTip('Current CRS: {}'.format(QgsCoordinateReferenceSystem(self.epsg, type=QgsCoordinateReferenceSystem.PostgisCrsId).description()))
+
