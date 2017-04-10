@@ -29,10 +29,11 @@ from .relations import PostgresRelation
 
 
 class PostgresCreator:
-    def __init__(self, uri):
+    def __init__(self, uri, schema):
         assert 'postgres' in QgsProviderRegistry.instance().providerList(), 'postgres provider not found in {}. Is the QGIS_PREFIX_PATH properly set?'.format(
             QgsProviderRegistry.instance().providerList())
         self.uri = uri
+        self.schema = schema
         self.conn = psycopg2.connect(uri)
 
     def layers(self):
@@ -61,7 +62,12 @@ class PostgresCreator:
         layers = list()
 
         for record in cur:
-            if record['schemaname'] in IGNORED_SCHEMAS:
+            # When in PostGIS mode, leaving schema blank should load tables from
+            # all schemas, except the ignored ones
+            if self.schema:
+                if record['schemaname'] != self.schema:
+                    continue
+            elif record['schemaname'] in IGNORED_SCHEMAS:
                 continue
 
             if record['tablename'] in IGNORED_TABLES:
