@@ -29,7 +29,6 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.inheritance = 'smart1'
 
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
