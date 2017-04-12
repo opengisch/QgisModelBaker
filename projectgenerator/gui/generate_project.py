@@ -47,8 +47,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
         self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
-        self.epsg = 21781 # Default EPSG code in ili2pg
-        self.crs_selection_button.clicked.connect(self.select_crs)
+        self.crs = QgsCoordinateReferenceSystem()
         self.ili2pg_options = Ili2pgOptionsDialog()
         self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
         self.type_combo_box.clear()
@@ -56,6 +55,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('Postgis'), 'pg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
+        self.crsSelector.crsChanged.connect(self.crs_changed)
 
         self.text = ''
 
@@ -127,6 +127,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.enable()
 
     def updated_configuration(self):
+        """
+        Get the configuration that is updated with the user configuration changes on the dialog.
+        :return: Configuration
+        """
         configuration = iliimporter.Configuration()
 
         configuration.host = self.pg_host_line_edit.text()
@@ -135,7 +139,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text()
-        configuration.epsg = self.epsg
+        authid = self.crsSelector.crs().authid()
+        configuration.epsg = int(authid[5:])
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
 
@@ -144,7 +149,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/ilifile', configuration.ilifile)
-        settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.epsg)
+        settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.crs.epsg)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
@@ -156,7 +161,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.ili_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/ilifile'))
-        self.epsg = settings.value('QgsProjectGenerator/ili2pg/epsg', 21781)
+        self.crs = QgsCoordinateReferenceSystem(settings.value('QgsProjectGenerator/ili2pg/epsg', 21781))
         self.update_crs_info()
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
@@ -193,17 +198,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         else:
             QDesktopServices.openUrl(link)
 
-    def select_crs(self):
-        """ Open a dialog to select CRS """
-        crsSelector = QgsProjectionSelectionDialog(self)
-        crsSelector.setCrs(QgsCoordinateReferenceSystem(self.epsg, type=QgsCoordinateReferenceSystem.PostgisCrsId))
-        res = crsSelector.exec()
-        if res:
-            self.epsg = int(crsSelector.crs().authid().split(':')[1])
-            self.update_crs_info()
-
     def update_crs_info(self):
-        """ Update CRS selection button's label and tooltip """
-        self.crs_selection_button.setText('EPSG:{}'.format(self.epsg))
-        self.crs_selection_button.setToolTip('Current CRS: {}'.format(QgsCoordinateReferenceSystem(self.epsg, type=QgsCoordinateReferenceSystem.PostgisCrsId).description()))
+        self.crsSelector.setCrs(self.crs)
 
+    def crs_changed(self):
+        if self.crsSelector.crs().authid()[:5] != 'EPSG:':
+            self.crs_label.setStyleSheet('color: orange')
+            self.crs_label.setToolTip(self.tr('Please select an EPSG Coordinate Reference System'))
+        else:
+            self.crs_label.setStyleSheet('')
+            self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
