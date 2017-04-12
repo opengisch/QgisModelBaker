@@ -139,8 +139,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text()
-        authid = self.crsSelector.crs().authid()
-        configuration.epsg = int(authid[5:])
+        configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
 
@@ -149,7 +148,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/ilifile', configuration.ilifile)
-        settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.crs.epsg)
+        settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.epsg)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
@@ -170,6 +169,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
         self.type_changed()
+        self.crs_changed()
 
     def disable(self):
         self.pg_config.setEnabled(False)
@@ -205,6 +205,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.crsSelector.crs().authid()[:5] != 'EPSG:':
             self.crs_label.setStyleSheet('color: orange')
             self.crs_label.setToolTip(self.tr('Please select an EPSG Coordinate Reference System'))
+            self.epsg = 21781
         else:
             self.crs_label.setStyleSheet('')
             self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
+            authid = self.crsSelector.crs().authid()
+            self.epsg = int(authid[5:])
