@@ -9,7 +9,7 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from projectgenerator.utils.qt_utils import download_file
 
-ILI2PG_VERSION = '3.7.0'
+ILI2PG_VERSION = '3.8.0'
 ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
 
 

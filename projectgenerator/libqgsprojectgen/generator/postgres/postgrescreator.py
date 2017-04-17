@@ -105,7 +105,7 @@ class PostgresCreator:
 FROM pg_catalog.pg_statio_all_tables st
 LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
 LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::regclass;
+WHERE st.relid = '{schema}.{table}'::regclass;
             """.format(schema=record['schemaname'], table=record['tablename']))
 
             # Get all 'c'heck constraints for this table
@@ -140,7 +140,6 @@ WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::reg
 
                 if column_name in IGNORED_FIELDNAMES:
                     field.widget = 'Hidden'
-                print(column_name)
 
                 if column_name in READONLY_FIELDNAMES:
                     field.read_only = True

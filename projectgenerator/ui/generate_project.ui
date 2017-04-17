@@ -233,6 +233,7 @@
   <tabstop>type_combo_box</tabstop>
   <tabstop>ili_file_line_edit</tabstop>
   <tabstop>ili_file_browse_button</tabstop>
+  <tabstop>crsSelector</tabstop>
   <tabstop>ili2pg_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
