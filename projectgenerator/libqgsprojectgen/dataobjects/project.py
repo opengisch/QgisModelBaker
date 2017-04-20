@@ -78,7 +78,7 @@ class Project(QObject):
 
             qgis_layers.append(qgis_layer)
 
-        qgis_project.addMapLayers(qgis_layers, False)
+        qgis_project.addMapLayers(qgis_layers, not self.legend)
 
         if isinstance(self.crs, QgsCoordinateReferenceSystem):
             qgis_project.setCrs(self.crs)
@@ -95,7 +95,8 @@ class Project(QObject):
 
         qgis_project.setCrs(self.crs)
 
-        self.legend.create(qgis_project)
+        if self.legend:
+            self.legend.create(qgis_project)
 
         if path:
             qgis_project.write(path)
