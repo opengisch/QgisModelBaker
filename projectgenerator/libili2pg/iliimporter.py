@@ -1,11 +1,12 @@
-import subprocess
 import os
 
 import re
 import tempfile
 import zipfile
 
-from qgis.PyQt.QtCore import QObject, pyqtSignal
+import functools
+
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
 from projectgenerator.utils.qt_utils import download_file
 
@@ -23,7 +24,7 @@ class Configuration(object):
         self.ilifile = ''
         self.port = ''
         self.inheritance = 'smart1'
-        self.epsg = 21781 # Default EPSG code in ili2pg
+        self.epsg = 21781  # Default EPSG code in ili2pg
 
     @property
     def uri(self):
@@ -38,8 +39,10 @@ class Configuration(object):
 
         return ' '.join(uri)
 
+
 class JavaNotFoundError(FileNotFoundError):
     pass
+
 
 class Importer(QObject):
     SUCCESS = 0
@@ -50,6 +53,9 @@ class Importer(QObject):
     stderr = pyqtSignal(str)
     process_started = pyqtSignal(str)
     process_finished = pyqtSignal(int, int)
+
+    __done_pattern = None
+    __result = None
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -120,35 +126,41 @@ class Importer(QObject):
 
         proc = None
         for java_path in java_paths:
-            try:
-                proc = subprocess.Popen([java_path] + args,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE
-                                    )
-            except FileNotFoundError as e:
-                pass
-            if proc:
+            proc = QProcess()
+            proc.readyReadStandardError.connect(functools.partial(self.stderr_ready, proc=proc))
+            proc.readyReadStandardOutput.connect(functools.partial(self.stdout_ready, proc=proc))
+
+            proc.start(java_path, args)
+
+            if not proc.waitForStarted():
+                proc = None
+            else:
                 break
 
         if not proc:
             raise JavaNotFoundError()
 
-        self.process_started.emit(' '.join(proc.args))
+        self.process_started.emit(java_path + ' ' + ' '.join(args))
 
-        done_pattern = re.compile(r"Info: ...done")
+        self.__result = Importer.ERROR
 
-        result = Importer.ERROR
-        finished = False
-        while not finished:
-            try:
-                output = proc.communicate(timeout=2)
-                self.stdout.emit(output[1].decode())
-                self.stderr.emit(output[0].decode())
-                if done_pattern.search(output[1].decode()):
-                    result = Importer.SUCCESS
-                finished = True
-            except subprocess.TimeoutExpired:
-                pass
+        loop = QEventLoop()
+        proc.finished.connect(loop.exit)
+        loop.exec()
 
-        self.process_finished.emit(proc.returncode, result)
-        return result
+        self.process_finished.emit(proc.exitCode(), self.__result)
+        return self.__result
+
+    def stderr_ready(self, proc):
+        text = bytes(proc.readAllStandardError()).decode()
+        if not self.__done_pattern:
+            self.__done_pattern = re.compile(r"Info: ...done")
+        if self.__done_pattern.search(text):
+            self.__result = Importer.SUCCESS
+
+        self.stderr.emit(text)
+        pass
+
+    def stdout_ready(self, proc):
+        text = bytes(proc.readAllStandardOutput()).decode()
+        self.stdout.emit(text)
