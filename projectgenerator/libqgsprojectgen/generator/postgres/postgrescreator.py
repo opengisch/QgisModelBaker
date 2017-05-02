@@ -157,7 +157,7 @@ WHERE st.relid = '{schema}.{table}'::regclass;
         return layers
 
     def relations(self, layers):
-        return PostgresRelation.find_relations(layers, self.conn)
+        return PostgresRelation.find_relations(layers, self.conn, self.schema)
 
     def legend(self, layers):
         legend = LegendGroup('root')
