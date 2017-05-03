@@ -85,6 +85,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 return
 
+            configuration.schema = configuration.schema or configuration.database
+
         generator = Generator(configuration.uri, configuration.schema)
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
