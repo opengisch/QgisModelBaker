@@ -121,7 +121,9 @@ class Importer(QObject):
             # By default try JAVA_HOME and PATH
             java_paths = []
             if 'JAVA_HOME' in os.environ:
-                java_paths += [os.path.join(os.environ['JAVA_HOME'], 'java')]
+                paths = os.environ['JAVA_HOME'].split(";")
+                for path in paths:
+                    java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
             java_paths += ['java']
 
         proc = None
