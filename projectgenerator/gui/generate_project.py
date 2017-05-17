@@ -64,6 +64,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
+        if not configuration.host:
+            self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
+            return
+        if not configuration.database:
+            self.txtStdout.setText(self.tr('Please set a database before creating the project.'))
+            return
+
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
 
@@ -135,12 +142,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         """
         configuration = iliimporter.Configuration()
 
-        configuration.host = self.pg_host_line_edit.text()
-        configuration.user = self.pg_user_line_edit.text()
-        configuration.database = self.pg_database_line_edit.text()
-        configuration.schema = self.pg_schema_line_edit.text()
+        configuration.host = self.pg_host_line_edit.text().strip()
+        configuration.user = self.pg_user_line_edit.text().strip()
+        configuration.database = self.pg_database_line_edit.text().strip()
+        configuration.schema = self.pg_schema_line_edit.text().strip()
         configuration.password = self.pg_password_line_edit.text()
-        configuration.ilifile = self.ili_file_line_edit.text()
+        configuration.ilifile = self.ili_file_line_edit.text().strip()
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
