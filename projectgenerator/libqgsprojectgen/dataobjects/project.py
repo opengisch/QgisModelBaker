@@ -80,10 +80,12 @@ class Project(QObject):
 
         qgis_project.addMapLayers(qgis_layers, not self.legend)
 
-        if isinstance(self.crs, QgsCoordinateReferenceSystem):
-            qgis_project.setCrs(self.crs)
-        else:
-            qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+        if self.crs:
+            if isinstance(self.crs, QgsCoordinateReferenceSystem):
+                qgis_project.setCrs(self.crs)
+            else:
+                qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+
 
         qgis_relations = list(qgis_project.relationManager().relations().values())
         for relation in self.relations:
@@ -92,8 +94,6 @@ class Project(QObject):
             qgis_relations.append(rel)
 
         qgis_project.relationManager().setRelations(qgis_relations)
-
-        qgis_project.setCrs(self.crs)
 
         if self.legend:
             self.legend.create(qgis_project)
