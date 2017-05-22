@@ -20,7 +20,7 @@
 
 from .layers import Layer
 from .legend import LegendGroup
-from qgis.core import QgsCoordinateReferenceSystem, QgsProject
+from qgis.core import QgsCoordinateReferenceSystem, QgsProject, QgsEditorWidgetSetup
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
@@ -87,10 +87,21 @@ class Project(QObject):
                 qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
         qgis_relations = list(qgis_project.relationManager().relations().values())
+        dict_domains = {layer.real_id: layer.is_domain for layer in self.layers}
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
             qgis_relations.append(rel)
+
+            if dict_domains[rel.referencedLayerId()]:
+                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
+                        'Relation': rel.id(),
+                        'ShowForm': False,
+                        'OrderByValue': True
+                    }
+                )
+                referencing_layer = rel.referencingLayer()
+                referencing_layer.setEditorWidgetSetup(rel.referencingFields()[0], editor_widget_setup)
 
         qgis_project.relationManager().setRelations(qgis_relations)
 
