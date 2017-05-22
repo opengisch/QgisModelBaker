@@ -46,6 +46,8 @@ class Layer:
         if not self.__layer:
             layer_name = self.table_name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+            if self.is_domain:
+                self.__layer.setReadOnly()
 
         for field in self.fields:
             field.create(self)

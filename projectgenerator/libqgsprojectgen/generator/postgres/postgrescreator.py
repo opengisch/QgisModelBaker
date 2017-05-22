@@ -187,7 +187,7 @@ WHERE st.relid = '{schema}.{table}'::regclass;
     def legend(self, layers):
         legend = LegendGroup('root')
         tables = LegendGroup('tables')
-        domains = LegendGroup('domains')
+        domains = LegendGroup('domains', False)
 
         point_layers = []
         line_layers = []
@@ -217,6 +217,7 @@ WHERE st.relid = '{schema}.{table}'::regclass;
             legend.append(l)
 
         legend.append(tables)
-        legend.append(domains)
+        if not domains.is_empty():
+            legend.append(domains)
 
         return legend
