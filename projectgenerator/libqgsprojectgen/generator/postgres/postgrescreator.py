@@ -39,6 +39,29 @@ class PostgresCreator:
         self.conn = psycopg2.connect(uri)
 
     def layers(self):
+        bMetadataTable = False
+        is_domain_field = ''
+        domain_left_join = ''
+        schema_where = ''
+
+        if self.schema:
+            # Do we have t_ili2db_table_prop
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT
+                          count(tablename)
+                        FROM pg_catalog.pg_tables
+                        WHERE schemaname = '{}' and tablename = 't_ili2db_table_prop'
+            """.format(self.schema))
+            bMetadataTable = bool(cur.fetchone()[0])
+
+            if bMetadataTable:
+                is_domain_field = "p.setting AS is_domain,"
+                domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
+                              ON p.tablename = tbls.tablename
+                              AND p.tag = 'is_domain'""".format(self.schema)
+            schema_where = "AND schemaname = '{}'".format(self.schema)
+
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         cur.execute("""
@@ -48,6 +71,7 @@ class PostgresCreator:
                       a.attname AS primary_key,
                       g.f_geometry_column AS geometry_column,
                       g.srid AS srid,
+                      {is_domain_field}
                       g.type AS type
                     FROM pg_catalog.pg_tables tbls
                     LEFT JOIN pg_index i
@@ -55,11 +79,12 @@ class PostgresCreator:
                     LEFT JOIN pg_attribute a
                       ON a.attrelid = i.indrelid
                       AND a.attnum = ANY(i.indkey)
+                    {domain_left_join}
                     LEFT JOIN public.geometry_columns g
                       ON g.f_table_schema = tbls.schemaname
                       AND g.f_table_name = tbls.tablename
-                    WHERE i.indisprimary
-        """)
+                    WHERE i.indisprimary {schema_where}
+        """.format(is_domain_field = is_domain_field, domain_left_join = domain_left_join, schema_where = schema_where))
 
         layers = list()
 
@@ -94,7 +119,7 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layer = Layer('postgres', data_source_uri)
+            layer = Layer('postgres', data_source_uri, bool(record['is_domain']) if 'is_domain' in record else False)
 
             # Get all fields for this table
             fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
