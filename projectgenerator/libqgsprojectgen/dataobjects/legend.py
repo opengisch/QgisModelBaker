@@ -21,9 +21,10 @@
 from qgis.core import QgsProject
 
 class LegendGroup(object):
-    def __init__(self, name=None):
+    def __init__(self, name=None, expanded=True):
         self.name = name
         self.items = list()
+        self.expanded = expanded
 
     def dump(self):
         definition = list()
@@ -55,7 +56,11 @@ class LegendGroup(object):
         for item in self.items:
             if isinstance(item, LegendGroup):
                 subgroup = group.addGroup(item.name)
+                subgroup.setExpanded(item.expanded)
                 item.create(qgis_project, subgroup)
             else:
                 layer = qgis_project.mapLayer(item.real_id)
                 group.addLayer(layer)
+
+    def is_empty(self):
+        return not bool(self.items)
