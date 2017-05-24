@@ -29,6 +29,7 @@ from qgis.PyQt.QtCore import (
     QEventLoop,
     QUrl
 )
+from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
@@ -89,3 +90,21 @@ def download_file(url, filename, on_progress=None):
         raise NetworkError(reply.error(), reply.errorMessage)
     else:
         return filename
+
+
+class Validators(QObject):
+    def validate_line_edits(self, *args, **kwargs):
+        """
+        Validate line edits and set their color to indicate validation state.
+        """
+        senderObj = self.sender()
+        validator = senderObj.validator()
+        state = validator.validate(senderObj.text().strip(), 0)[0]
+        if state == QValidator.Acceptable:
+            color = '#fff' # White
+        elif state == QValidator.Intermediate:
+            color = '#ffd356' # Light orange
+        else:
+            color = '#f6989d' # Red
+        senderObj.setStyleSheet('QLineEdit {{ background-color: {} }}'.format(color))
+
