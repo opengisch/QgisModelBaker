@@ -20,13 +20,15 @@
 
 import os
 
+from psycopg2 import OperationalError
+
 from projectgenerator.gui.config import ConfigDialog
 from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_file_selector
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
+from projectgenerator.utils.qt_utils import make_file_selector, Validators
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
@@ -57,27 +59,50 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
 
-        self.text = ''
-
         self.restore_configuration()
+
+        self.validators = Validators()
+        regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
+        validator = QRegExpValidator(regexp)
+        self.pg_host_line_edit.setValidator(validator)
+        self.pg_database_line_edit.setValidator(validator)
+        self.pg_user_line_edit.setValidator(validator)
+        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
+        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+
 
     def accepted(self):
         configuration = self.updated_configuration()
 
         if not configuration.host:
             self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
+            self.pg_host_line_edit.setFocus()
             return
         if not configuration.database:
             self.txtStdout.setText(self.tr('Please set a database before creating the project.'))
+            self.pg_database_line_edit.setFocus()
             return
+        if not configuration.user:
+            self.txtStdout.setText(self.tr('Please set a database user before creating the project.'))
+            self.pg_user_line_edit.setFocus()
+            return
+
+        try:
+            generator = Generator(configuration.uri, configuration.schema)
+        except OperationalError:
+            self.txtStdout.setText(self.tr('There was an error connecting to the database. Check connection parameters.'))
+            return
+
+        self.save_configuration(configuration)
 
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
 
             importer.configuration = configuration
-
-            self.save_configuration(configuration)
-
             importer.stdout.connect(self.print_info)
             importer.stderr.connect(self.on_stderr)
             importer.process_started.connect(self.on_process_started)
@@ -94,7 +119,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             configuration.schema = configuration.schema or configuration.database
 
-        generator = Generator(configuration.uri, configuration.schema)
+        self.txtStdout.clear()
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
         legend = generator.legend(available_layers)
@@ -220,3 +245,5 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
             authid = self.crsSelector.crs().authid()
             self.epsg = int(authid[5:])
+
+
