@@ -25,8 +25,8 @@ from psycopg2 import OperationalError
 from projectgenerator.gui.config import ConfigDialog
 from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_file_selector, Validators
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
+from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
@@ -64,20 +64,29 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
         validator = QRegExpValidator(regexp)
+        fileValidator = FileValidator()
+
         self.pg_host_line_edit.setValidator(validator)
         self.pg_database_line_edit.setValidator(validator)
         self.pg_user_line_edit.setValidator(validator)
+        self.ili_file_line_edit.setValidator(fileValidator)
+
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
         self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-
+        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
 
     def accepted(self):
         configuration = self.updated_configuration()
 
+        if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable:
+            self.txtStdout.setText(self.tr('Please set a valid INTERLIS file before creating the project.'))
+            self.ili_file_line_edit.setFocus()
+            return
         if not configuration.host:
             self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
             self.pg_host_line_edit.setFocus()
