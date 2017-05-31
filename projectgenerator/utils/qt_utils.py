@@ -19,6 +19,7 @@
  ***************************************************************************/
 """
 
+import os.path
 import inspect
 from qgis.PyQt.QtWidgets import QFileDialog
 from qgis.PyQt.QtCore import (
@@ -33,6 +34,7 @@ from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
+
 
 def selectFolder(line_edit_widget, title, file_filter, parent):
     filename, matched_filter = QFileDialog.getOpenFileName(parent, title, line_edit_widget.text(), file_filter)
@@ -107,4 +109,15 @@ class Validators(QObject):
         else:
             color = '#f6989d' # Red
         senderObj.setStyleSheet('QLineEdit {{ background-color: {} }}'.format(color))
+
+
+class FileValidator(QValidator):
+    """
+    Validator for file line edits
+    """
+    def validate(self, text, pos):
+        if not text or not os.path.isfile(text) or not text.endswith('.ili'):
+            return (QValidator.Intermediate, text, pos)
+        else:
+            return (QValidator.Acceptable, text, pos)
 
