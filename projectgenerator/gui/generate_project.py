@@ -22,7 +22,7 @@ import os
 
 from projectgenerator.gui.config import ConfigDialog
 from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
-from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
+from projectgenerator.libili2pg.ili2pg_config import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
@@ -133,7 +133,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         Get the configuration that is updated with the user configuration changes on the dialog.
         :return: Configuration
         """
-        configuration = iliimporter.Configuration()
+        configuration = iliimporter.ImportConfiguration()
 
         configuration.host = self.pg_host_line_edit.text()
         configuration.user = self.pg_user_line_edit.text()

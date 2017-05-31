@@ -2,7 +2,6 @@
 
 """
 /***************************************************************************
- QFieldSync
                               -------------------
         begin                : 2016
         copyright            : (C) 2016 by OPENGIS.ch
@@ -33,13 +32,27 @@ from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
 
-def selectFolder(line_edit_widget, title, file_filter, parent):
+
+def selectFileName(line_edit_widget, title, file_filter, parent):
     filename, matched_filter = QFileDialog.getOpenFileName(parent, title, line_edit_widget.text(), file_filter)
     line_edit_widget.setText(filename)
 
-
 def make_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'), file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None):
-    return partial(selectFolder, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+    return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+
+def selectFileNameToSave(line_edit_widget, title, file_filter, parent):
+    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
+    line_edit_widget.setText(filename if filename.endswith('.xtf') else filename + '.xtf')
+
+def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'), file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None):
+    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+
+def selectFolder(line_edit_widget, title, parent):
+    foldername = QFileDialog.getExistingDirectory(parent, title, line_edit_widget.text())
+    line_edit_widget.setText(foldername)
+
+def make_folder_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open Folder'), parent=None):
+    return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
 
 class NetworkError(RuntimeError):
