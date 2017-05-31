@@ -22,6 +22,7 @@ import locale
 from PyQt5.QtCore import QSettings
 
 from projectgenerator.gui.generate_project import GenerateProjectDialog
+from projectgenerator.gui.export import ExportDialog
 from qgis.PyQt.QtWidgets import QAction, QMenu
 from qgis.PyQt.QtCore import QObject
 
@@ -34,6 +35,7 @@ class QgsProjectGeneratorPlugin(QObject):
         QObject.__init__(self)
         self.iface = iface
         self.__generate_action = None
+        self.__export_action = None
         self.__configure_action = None
         if locale.getlocale() == (None, None):
             locale.setlocale(locale.LC_ALL, '')
@@ -45,10 +47,12 @@ class QgsProjectGeneratorPlugin(QObject):
 
     def initGui(self):
         self.__generate_action = QAction(self.tr('Generate'), None)
+        self.__export_action = QAction(self.tr('Export'), None)
         self.__configure_action = QAction(self.tr('Settings'), None)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
+        self.__export_action.triggered.connect(self.show_export_dialog)
 
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
@@ -57,6 +61,7 @@ class QgsProjectGeneratorPlugin(QObject):
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
         del self.__generate_action
+        del self.__export_action
 
     def show_generate_dialog(self):
         dlg = GenerateProjectDialog(self.ili2db_configuration)
@@ -68,3 +73,7 @@ class QgsProjectGeneratorPlugin(QObject):
             settings = QSettings()
             settings.beginGroup('QgsProjectGenerator/ili2db')
             self.ili2db_configuration.save(settings)
+
+    def show_export_dialog(self):
+        dlg = ExportDialog()
+        dlg.exec_()
