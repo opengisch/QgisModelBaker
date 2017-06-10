@@ -43,7 +43,7 @@ class Layer:
         self.is_domain = definition['isdomain']
 
     def create(self):
-        if not self.__layer:
+        if self.__layer is None:
             layer_name = self.table_name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
             if self.is_domain:
