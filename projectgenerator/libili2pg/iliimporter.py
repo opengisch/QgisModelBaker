@@ -62,6 +62,9 @@ class Importer(QObject):
         self.filename = None
         self.configuration = Configuration()
         self.encoding = locale.getlocale()[1]
+        # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
+        if not self.encoding:
+            self.encoding = 'UTF8'
 
     def run(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
