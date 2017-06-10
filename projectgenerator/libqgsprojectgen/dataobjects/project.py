@@ -93,7 +93,7 @@ class Project(QObject):
             assert rel.isValid()
             qgis_relations.append(rel)
 
-            if dict_domains[rel.referencedLayerId()]:
+            if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
                         'Relation': rel.id(),
                         'ShowForm': False,
