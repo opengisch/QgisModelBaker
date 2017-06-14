@@ -82,7 +82,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         configuration = self.updated_configuration()
-
+        
+        self.disable()
+        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
+       
         if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable:
             self.txtStdout.setText(self.tr('Please set a valid INTERLIS file before creating the project.'))
             self.ili_file_line_edit.setFocus()
@@ -141,6 +145,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         project.layer_added.connect(self.print_info)
         project.create(None, qgis_project)
 
+        self.buttonBox.clear()
+        self.buttonBox.setEnabled(True)
+        self.buttonBox.addButton(QDialogButtonBox.Close)
+        
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.append(text)
@@ -152,21 +160,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
-        self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.clear()
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()
-
+ 
     def on_process_finished(self, exit_code, result):
         self.txtStdout.setTextColor(QColor('#777777'))
         self.txtStdout.append('Finished ({})'.format(exit_code))
-        if result == iliimporter.Importer.SUCCESS:
-            self.buttonBox.clear()
-            self.buttonBox.setEnabled(True)
-            self.buttonBox.addButton(QDialogButtonBox.Close)
-        else:
-            self.enable()
 
     def updated_configuration(self):
         """
@@ -253,5 +252,3 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
             authid = self.crsSelector.crs().authid()
             self.epsg = int(authid[5:])
-
-
