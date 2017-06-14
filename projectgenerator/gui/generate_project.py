@@ -128,7 +128,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             configuration.schema = configuration.schema or configuration.database
 
-        self.txtStdout.clear()
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
         legend = generator.legend(available_layers)
