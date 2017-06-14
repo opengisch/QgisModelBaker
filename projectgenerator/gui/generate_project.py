@@ -27,8 +27,8 @@ from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
@@ -82,7 +82,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         configuration = self.updated_configuration()
-        
+
+        cursor = QApplication.overrideCursor()
+        if cursor is None or cursor == 0:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+        elif cursor.shape() != Qt.WaitCursor:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+
         self.disable()
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.clear()
@@ -149,6 +155,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
         self.buttonBox.addButton(QDialogButtonBox.Close)
         
+        QApplication.restoreOverrideCursor()
+
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.append(text)
