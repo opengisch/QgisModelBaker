@@ -83,16 +83,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        cursor = QApplication.overrideCursor()
-        if cursor is None or cursor == 0:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
-        elif cursor.shape() != Qt.WaitCursor:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
-
-        self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.clear()
-       
         if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable:
             self.txtStdout.setText(self.tr('Please set a valid INTERLIS file before creating the project.'))
             self.ili_file_line_edit.setFocus()
@@ -117,6 +107,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             return
 
         self.save_configuration(configuration)
+
+        cursor = QApplication.overrideCursor()
+        if cursor is None or cursor == 0:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+        elif cursor.shape() != Qt.WaitCursor:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+
+        self.disable()
+        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
 
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
