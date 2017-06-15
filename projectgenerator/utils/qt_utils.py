@@ -89,7 +89,7 @@ def download_file(url, filename, on_progress=None):
     reply.deleteLater()
 
     if reply.error():
-        raise NetworkError(reply.error(), reply.errorMessage)
+        raise NetworkError(reply.error(), reply.errorString())
     else:
         return filename
 
