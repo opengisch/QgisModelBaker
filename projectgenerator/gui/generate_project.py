@@ -26,6 +26,7 @@ from psycopg2 import OperationalError
 
 from projectgenerator.gui.config import ConfigDialog
 from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
+from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
@@ -43,7 +44,7 @@ DIALOG_UI = get_ui_class('generate_project.ui')
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
-    def __init__(self, parent=None):
+    def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.buttonBox.accepted.disconnect()
@@ -61,6 +62,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
+        self.base_configuration = base_config
 
         self.restore_configuration()
 
@@ -82,7 +84,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
-        self.ilicache = IliCache()
+        self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.refresh()
 
@@ -180,7 +182,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         Get the configuration that is updated with the user configuration changes on the dialog.
         :return: Configuration
         """
-        configuration = iliimporter.Configuration()
+        configuration = ImportConfiguration()
 
         configuration.host = self.pg_host_line_edit.text().strip()
         configuration.user = self.pg_user_line_edit.text().strip()
@@ -192,6 +194,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
+        configuration.base_configuration = self.base_configuration
 
         return configuration
 

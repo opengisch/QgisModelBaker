@@ -17,10 +17,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+import glob
 import logging
 import os
 import urllib.parse
 import xml.etree.ElementTree as ET
+
+import re
 
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -33,13 +36,23 @@ class IliCache(QObject):
 
     models_changed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, configuration):
         QObject.__init__(self)
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
+        self.base_configuration = configuration
 
     def refresh(self):
-        self.download_repository('http://models.interlis.ch')
+        for directory in self.base_configuration.model_directories:
+            self.process_model_directory(directory)
+
+    def process_model_directory(self, path):
+        if path[0] == '%':
+            pass
+        elif os.path.isdir(path):
+            self.process_local_ili_folder(path)
+        else:
+            self.download_repository(path)
 
     def download_repository(self, url):
         '''
@@ -99,6 +112,32 @@ class IliCache(QObject):
                 repo_models.append(model)
 
             self.repositories[netloc] = sorted(repo_models, key=lambda m: m['version'], reverse=True)
+        self.models_changed.emit()
+
+    def process_local_ili_folder(self, path):
+        '''
+        Parses all .ili files in the given ``path`` (non-recursively)
+        '''
+        model = dict()
+        models = list()
+        re_model = re.compile('\s*MODEL\s*([\w\d_-]+)\s.*')
+        re_model_version = re.compile('VERSION "([\w\d_-]+)".*')
+
+        for ilifile in glob.iglob(os.path.join(path, '*.ili')):
+            with open(ilifile, 'r') as file:
+                for line in file:
+                    result = re_model.search(line)
+                    if result:
+                        model = dict()
+                        model['name'] = result[1]
+                        models += [model]
+
+                    result = re_model_version.search(line)
+                    if result:
+                        model['version'] = result[1]
+
+        print(repr(models[0]['name']))
+        self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
 
     @property
