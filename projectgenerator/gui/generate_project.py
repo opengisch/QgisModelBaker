@@ -24,7 +24,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCompleter
 from psycopg2 import OperationalError
 
-from projectgenerator.gui.config import ConfigDialog
+from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
@@ -69,7 +69,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
         validator = QRegExpValidator(regexp)
-        fileValidator = FileValidator()
+        fileValidator = FileValidator(pattern='*.ili')
 
         self.pg_host_line_edit.setValidator(validator)
         self.pg_database_line_edit.setValidator(validator)
@@ -242,11 +242,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def link_activated(self, link):
         if link.url() == '#configure':
-            configuraton = self.updated_configuration()
-            cfg = ConfigDialog(configuraton)
+            cfg = OptionsDialog(self.base_configuration)
             if cfg.exec_():
-                # That's quite ugly
-                QSettings().setValue('QgsProjectGenerator/java_path', configuraton.java_path)
+                settings = QSettings()
+                settings.beginGroup('QgsProjectGenerator/ili2db')
+                self.base_configuration.save(settings)
 
         else:
             QDesktopServices.openUrl(link)

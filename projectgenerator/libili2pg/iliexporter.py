@@ -49,6 +49,9 @@ class Exporter(QObject):
         self.filename = None
         self.configuration = ExportConfiguration()
         self.encoding = locale.getlocale()[1]
+        # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
+        if not self.encoding:
+            self.encoding = 'UTF8'
 
     def run(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -89,8 +92,7 @@ class Exporter(QObject):
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
 
-        args += ["--modeldir", self.configuration.ilifolder]
-        args += ["--models", self.configuration.ilimodels]
+        args += self.configuration.base_configuration.to_ili2db_args()
         args += [self.configuration.xtffile]
 
         if self.configuration.java_path:

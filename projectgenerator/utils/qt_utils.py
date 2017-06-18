@@ -33,6 +33,7 @@ from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
+import fnmatch
 
 
 def selectFileName(line_edit_widget, title, file_filter, parent):
@@ -131,12 +132,24 @@ class Validators(QObject):
 
 
 class FileValidator(QValidator):
+    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False):
+        QValidator.__init__(self, parent)
+        self.pattern = pattern
+        self.is_executable = is_executable
+        self.allow_empty = allow_empty
+
     """
     Validator for file line edits
     """
     def validate(self, text, pos):
-        if not text or not os.path.isfile(text) or not text.endswith('.ili'):
-            return (QValidator.Intermediate, text, pos)
+        if self.allow_empty and not text.strip():
+            return QValidator.Acceptable, text, pos
+
+        if not text \
+                or not os.path.isfile(text) \
+                or not fnmatch.fnmatch(text, self.pattern) \
+                or (self.is_executable and not os.access(text, os.X_OK)):
+            return QValidator.Intermediate, text, pos
         else:
-            return (QValidator.Acceptable, text, pos)
+            return QValidator.Acceptable, text, pos
 

@@ -55,6 +55,7 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__export_action.triggered.connect(self.show_export_dialog)
 
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
 
     def unload(self):
@@ -75,5 +76,5 @@ class QgsProjectGeneratorPlugin(QObject):
             self.ili2db_configuration.save(settings)
 
     def show_export_dialog(self):
-        dlg = ExportDialog()
+        dlg = ExportDialog(self.ili2db_configuration)
         dlg.exec_()

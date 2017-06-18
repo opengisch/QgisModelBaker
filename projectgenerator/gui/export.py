@@ -33,7 +33,7 @@ DIALOG_UI = get_ui_class('export.ui')
 
 
 class ExportDialog(QDialog, DIALOG_UI):
-    def __init__(self, parent=None):
+    def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.buttonBox.accepted.disconnect()
@@ -42,8 +42,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
         self.xtf_file_browse_button.clicked.connect(make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'), file_filter=self.tr('XTF Transfer File (*.xtf)')))
-        self.folder_browse_button.clicked.connect(make_folder_selector(self.ili_folder_line_edit, title=self.tr('Export Interlis Data')))
 
+        self.base_configuration = base_config
         self.restore_configuration()
 
     def accepted(self):
@@ -109,17 +109,15 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text().strip()
         configuration.password = self.pg_password_line_edit.text()
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilifolder = self.ili_folder_line_edit.text().strip()
         configuration.ilimodels = self.ili_model_line_edit.text().strip()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
+        configuration.base_configuration = self.base_configuration
 
         return configuration
 
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/xtffile', configuration.xtffile)
-        settings.setValue('QgsProjectGenerator/ili2pg/ilifolder', configuration.ilifolder)
-        settings.setValue('QgsProjectGenerator/ili2pg/ilimodels', configuration.ilimodels)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
@@ -130,8 +128,6 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.xtf_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/xtffile'))
-        self.ili_folder_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/ilifolder'))
-        self.ili_model_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/ilimodels'))
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))

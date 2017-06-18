@@ -24,7 +24,16 @@
        <item row="0" column="1">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
            <number>0</number>
           </property>
          </layout>
@@ -121,14 +130,17 @@
           <string>Interlis</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="2" column="0">
+          <item row="0" column="2" colspan="2">
+           <widget class="QLineEdit" name="xtf_file_line_edit"/>
+          </item>
+          <item row="1" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Models</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="2" column="2">
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -141,10 +153,13 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_7">
+          <item row="1" column="2" colspan="2">
+           <widget class="QLineEdit" name="ili_model_line_edit"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>Models dir</string>
+             <string>XTF File</string>
             </property>
            </widget>
           </item>
@@ -154,29 +169,6 @@
              <string>...</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>XTF File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" colspan="2">
-           <widget class="QLineEdit" name="xtf_file_line_edit"/>
-          </item>
-          <item row="2" column="2" colspan="2">
-           <widget class="QLineEdit" name="ili_model_line_edit"/>
-          </item>
-          <item row="1" column="4">
-           <widget class="QToolButton" name="folder_browse_button">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2" colspan="2">
-           <widget class="QLineEdit" name="ili_folder_line_edit"/>
           </item>
          </layout>
         </widget>
@@ -208,8 +200,6 @@
  <tabstops>
   <tabstop>xtf_file_line_edit</tabstop>
   <tabstop>xtf_file_browse_button</tabstop>
-  <tabstop>ili_folder_line_edit</tabstop>
-  <tabstop>folder_browse_button</tabstop>
   <tabstop>ili_model_line_edit</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
@@ -255,4 +245,3 @@
   </connection>
  </connections>
 </ui>
-
