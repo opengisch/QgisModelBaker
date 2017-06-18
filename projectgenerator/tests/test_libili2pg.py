@@ -1,15 +1,21 @@
-import qgis
-import nose2
+try:
+    import qgis
+    from qgis.testing import unittest, start_app
+    start_app()
+    from projectgenerator.libili2pg import ilicache
+except ImportError:
+    # As long as we don't deploy qgis on travis, there's nothing we can do... sorry
+    from nose2.compat import unittest
+    pass
+
 import os
-from qgis.testing import unittest, start_app
+import nose2
 
-start_app()
 
-from projectgenerator.libili2pg import ilicache
 import tempfile
 
 class IliCacheTest(unittest.TestCase):
-    @unittest.skipIf('TRAVIS' in os.environ)
+    @unittest.skipIf('TRAVIS' in os.environ, 'Enable this test as soon as qgis is available on travis')
     def test_refresh(self):
         ic = ilicache.IliCache()
         ic.cache_path = tempfile.mkdtemp()
