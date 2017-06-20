@@ -94,7 +94,7 @@ class IliCache(QObject):
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
-            QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(file=file, exception=str(e))))
+            QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
             if subsite:
@@ -109,7 +109,7 @@ class IliCache(QObject):
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
-            QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(file=file, exception=str(e))))
+            QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
 
         self.repositories[netloc] = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliRepository09.RepositoryIndex'):
