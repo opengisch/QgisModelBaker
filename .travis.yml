@@ -7,6 +7,7 @@ script:
 - nose2
 
 after_success:
+- scripts/ci/update-translations.sh
 - scripts/ci/deploy.sh
 
 env:
