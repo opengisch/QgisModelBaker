@@ -8,6 +8,7 @@ import functools
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
+from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.utils.qt_utils import download_file
 
 ILI2PG_VERSION = '3.8.1'
@@ -22,6 +23,7 @@ class Configuration(object):
         self.schema = ''
         self.password = ''
         self.ilifile = ''
+        self.ilimodels = ''
         self.port = ''
         self.inheritance = 'smart1'
         self.epsg = 21781  # Default EPSG code in ili2pg
@@ -60,7 +62,7 @@ class Importer(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.filename = None
-        self.configuration = Configuration()
+        self.configuration = ImportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
@@ -116,7 +118,14 @@ class Importer(QObject):
 
         if self.configuration.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
-        args += [self.configuration.ilifile]
+
+        if self.configuration.ilimodels:
+            args += ['--models', self.configuration.ilimodels]
+
+        if self.configuration.ilifile:
+            args += [self.configuration.ilifile]
+
+        args += self.configuration.base_configuration.to_ili2db_args()
 
         if self.configuration.java_path:
             # A java path is configured: respect it no mather what

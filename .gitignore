@@ -1,3 +1,4 @@
 .idea
 __pycache__
 projectgenerator/libili2pg/bin
+*.orig

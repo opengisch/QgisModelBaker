@@ -51,7 +51,7 @@ class NetworkError(RuntimeError):
         self.error_code = error_code
 
 
-def download_file(url, filename, on_progress=None):
+def download_file(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
     """
     Will download the file from url to a local filename.
     The method will only return once it's finished.
@@ -72,26 +72,33 @@ def download_file(url, filename, on_progress=None):
         on_progress(bytes_received, bytes_total)
 
     def finished():
-        print('Download finished {} ({})'.format(filename, reply.error()))
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
         file.write(reply.readAll())
         file.close()
+        if reply.error() and on_error:
+            on_error(reply.error(), reply.errorString())
+        elif not reply.error() and on_success:
+            on_success()
+
+        if on_finished:
+            on_finished()
+        reply.deleteLater()
 
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
 
     reply.finished.connect(finished)
 
-    loop = QEventLoop()
-    reply.finished.connect(loop.quit)
-    loop.exec_()
-    reply.deleteLater()
+    if not on_finished and not on_success:
+        loop = QEventLoop()
+        reply.finished.connect(loop.quit)
+        loop.exec_()
 
-    if reply.error():
-        raise NetworkError(reply.error(), reply.errorMessage)
-    else:
-        return filename
+        if reply.error():
+            raise NetworkError(reply.error(), reply.errorString())
+        else:
+            return filename
 
 
 class Validators(QObject):
