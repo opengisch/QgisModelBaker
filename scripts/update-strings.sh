@@ -4,23 +4,24 @@ LOCALES=$*
 # Get newest .py files so we don't update strings unnecessarily
 
 CHANGED_FILES=0
-PYTHON_FILES=`find -E . -regex ".*\.(ui|py)$" -type f`
+PYTHON_FILES=`find projectgenerator/ -regextype sed -regex ".*\.\(py\|ui\)$" -type f`
 for PYTHON_FILE in $PYTHON_FILES
 do
   CHANGED=$(stat -c %Y $PYTHON_FILE)
-  echo "$PYTHON_FILE $CHANGED"
   if [ ${CHANGED} -gt ${CHANGED_FILES} ]
   then
     CHANGED_FILES=${CHANGED}
   fi
 done
 
+mkdir -p i18n
+
 # Qt translation stuff
 # for .ts file
 UPDATE=false
 for LOCALE in ${LOCALES}
 do
-  TRANSLATION_FILE="projectgenerator/i18n/projectgenerator_$LOCALE.ts"
+  TRANSLATION_FILE="i18n/projectgenerator_$LOCALE.ts"
   if [ ! -f ${TRANSLATION_FILE} ]
   then
     # Force translation string collection as we have a new language file
@@ -41,16 +42,15 @@ done
 if [ ${UPDATE} == true ]
 # retrieve all python files
 then
-  print ${PYTHON_FILES}
   # update .ts
   echo "Please provide translations by editing the translation files below:"
   for LOCALE in ${LOCALES}
   do
     # Note we don't use pylupdate with qt .pro file approach as it is flakey
     # about what is made available.
-    pylupdate5 -noobsolete ${PYTHON_FILES} -ts projectgenerator/i18n/projectgenerator_${LOCALE}.ts
+    pylupdate5 -noobsolete ${PYTHON_FILES} -ts i18n/projectgenerator_${LOCALE}.ts
   done
 else
-  echo "No need to edit any translation files (.ts) because no python files"
+  echo "No need to edit any translation files (.ts) because no no python file"
   echo "has been updated since the last update translation. "
 fi
