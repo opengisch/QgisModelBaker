@@ -59,7 +59,7 @@ class PostgresCreator:
                 is_domain_field = "p.setting AS is_domain,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
-                              AND p.tag = 'is_domain'""".format(self.schema)
+                              AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(self.schema)
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -119,7 +119,7 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layer = Layer('postgres', data_source_uri, bool(record['is_domain']) if 'is_domain' in record else False)
+            layer = Layer('postgres', data_source_uri, record['is_domain'] == 'ENUM' or record['is_domain'] == 'CATALOGUE' if 'is_domain' in record else False)
 
             # Get all fields for this table
             fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
