@@ -13,7 +13,14 @@ METADATA_VERSION=v1.0
 #
 #echo -e " \e[33mExporting plugin version ${TRAVIS_TAG} from folder ${PLUGIN_NAME}"
 git archive --prefix=${PLUGIN_NAME}/ -o $PLUGIN_NAME-$METADATA_VERSION.zip HEAD projectgenerator #${TRAVIS_TAG}:${PLUGIN_NAME}
-zip -ur $PLUGIN_NAME-$METADATA_VERSION.zip projectgenerator/i18n
+
+
+mkdir -p /tmp/projectgenerator/i18n
+mv i18n/*.qm /tmp/projectgenerator/i18n
+DIR=`pwd`
+pushd /tmp
+zip -ur $DIR/$PLUGIN_NAME-$METADATA_VERSION.zip projectgenerator
+popd
 
 echo "## Changes in version $METADATA_VERSION" > /tmp/changelog 
 git log HEAD^...$(git describe --abbrev=0 --tags HEAD^) --pretty=format:"### %s%n%n%b" >> /tmp/changelog
