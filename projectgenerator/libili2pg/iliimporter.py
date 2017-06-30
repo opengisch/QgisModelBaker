@@ -115,8 +115,11 @@ class Importer(QObject):
         args += ["--createFk"]
         if self.configuration.inheritance == 'smart1':
             args += ["--smart1Inheritance"]
-        else:
+        elif self.configuration.inheritance == 'smart2':
             args += ["--smart2Inheritance"]
+        else:
+            args += ["--noSmartMapping"]
+
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
             args += ["--proxy", proxy.hostName()]
