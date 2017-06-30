@@ -59,7 +59,7 @@ class PostgresCreator:
                 is_domain_field = "p.setting AS is_domain,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
-                              AND p.tag = 'is_domain'""".format(self.schema)
+                              AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(self.schema)
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -119,19 +119,24 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layer = Layer('postgres', data_source_uri, bool(record['is_domain']) if 'is_domain' in record else False)
+            layer = Layer('postgres', data_source_uri, record['is_domain'] == 'ENUM' or record['is_domain'] == 'CATALOGUE' if 'is_domain' in record else False)
 
             # Get all fields for this table
             fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             fields_cur.execute("""
-            SELECT
-  c.column_name,
-  pgd.description AS comment
-FROM pg_catalog.pg_statio_all_tables st
-LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
-LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-WHERE st.relid = '{schema}.{table}'::regclass;
+                SELECT
+                  c.column_name,
+                  pgd.description AS comment,
+                  unit.setting AS unit,
+                  txttype.setting AS texttype
+                FROM pg_catalog.pg_statio_all_tables st
+                LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
+                LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
+                LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columname AND unit.tag = 'ch.ehi.ili2db.unit'
+                LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columname AND txttype.tag = 'ch.ehi.ili2db.textKind'
+                WHERE st.relid = '{schema}.{table}'::regclass;
             """.format(schema=record['schemaname'], table=record['tablename']))
+
 
             # Get all 'c'heck constraints for this table
             constraints_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -173,9 +178,13 @@ WHERE st.relid = '{schema}.{table}'::regclass;
                     field.widget = 'Range'
                     field.widget_config['Min'] = constraint_mapping[column_name][0]
                     field.widget_config['Max'] = constraint_mapping[column_name][1]
+                    field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+
+                if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
+                    field.widget = 'TextEdit'
+                    field.widget_config['IsMultiline'] = True
 
                 layer.fields.append(field)
-
 
             layers.append(layer)
 

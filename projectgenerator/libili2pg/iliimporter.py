@@ -13,7 +13,7 @@ from qgis.core import QgsNetworkAccessManager
 from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.utils.qt_utils import download_file
 
-ILI2PG_VERSION = '3.8.1'
+ILI2PG_VERSION = '3.9.1'
 ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
 
 
@@ -113,6 +113,8 @@ class Importer(QObject):
         args += ["--coalesceMultiSurface"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
+        args += ["--setupPgExt"]
+        args += ["--createMetaInfo"]
         if self.configuration.inheritance == 'smart1':
             args += ["--smart1Inheritance"]
         elif self.configuration.inheritance == 'smart2':
