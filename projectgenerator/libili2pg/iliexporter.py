@@ -2,10 +2,10 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 23/03/17
+        begin                : 30/05/17
         git sha              : :%H$
-        copyright            : (C) 2017 by OPENGIS.ch
-        email                : info@opengis.ch
+        copyright            : (C) 2017 by Germán Carrillo
+        email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 
 /***************************************************************************
@@ -22,19 +22,16 @@ import os
 import re
 import tempfile
 import zipfile
-import locale
 import functools
+import locale
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
-from qgis.PyQt.QtNetwork import QNetworkProxy
-from qgis.core import QgsNetworkAccessManager
 
-from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.utils.qt_utils import download_file
-from .ili2pg_config import ImportConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
+from .ili2pg_config import ExportConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
 
 
-class Importer(QObject):
+class Exporter(QObject):
     SUCCESS = 0
     # TODO: Insert more codes?
     ERROR = 1000
@@ -50,7 +47,7 @@ class Importer(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.filename = None
-        self.configuration = ImportConfiguration()
+        self.configuration = ExportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
@@ -87,40 +84,16 @@ class Importer(QObject):
                             ili2pg_url=ILI2PG_URL)))
 
         args = ["-jar", ili2pg_file]
-        args += ["--schemaimport"]
+        args += ["--export"]
         args += ["--dbhost", self.configuration.host]
         args += ["--dbusr", self.configuration.user]
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-        args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
-        args += ["--coalesceMultiSurface"]
-        args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        if self.configuration.inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
-        elif self.configuration.inheritance == 'smart2':
-            args += ["--smart2Inheritance"]
-        else:
-            args += ["--noSmartMapping"]
-
-        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
-        if proxy.type() == QNetworkProxy.HttpProxy:
-            args += ["--proxy", proxy.hostName()]
-            args += ["--proxyPort", str(proxy.port())]
-
-        if self.configuration.epsg != 21781:
-            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
-
-        if self.configuration.ilimodels:
-            args += ['--models', self.configuration.ilimodels]
-
-        if self.configuration.ilifile:
-            args += [self.configuration.ilifile]
 
         args += self.configuration.base_configuration.to_ili2db_args()
+        args += [self.configuration.xtffile]
 
         if self.configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -129,7 +102,7 @@ class Importer(QObject):
             # By default try JAVA_HOME and PATH
             java_paths = []
             if 'JAVA_HOME' in os.environ:
-                paths = os.environ['JAVA_HOME'].split(os.pathsep)
+                paths = os.environ['JAVA_HOME'].split(";")
                 for path in paths:
                     java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
             java_paths += ['java']
@@ -152,7 +125,7 @@ class Importer(QObject):
 
         self.process_started.emit(java_path + ' ' + ' '.join(args))
 
-        self.__result = Importer.ERROR
+        self.__result = Exporter.ERROR
 
         loop = QEventLoop()
         proc.finished.connect(loop.exit)
@@ -164,12 +137,13 @@ class Importer(QObject):
     def stderr_ready(self, proc):
         text = bytes(proc.readAllStandardError()).decode(self.encoding)
         if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: ...done")
+            self.__done_pattern = re.compile(r"Info: ...export done")
         if self.__done_pattern.search(text):
-            self.__result = Importer.SUCCESS
+            self.__result = Exporter.SUCCESS
 
         self.stderr.emit(text)
 
     def stdout_ready(self, proc):
         text = bytes(proc.readAllStandardOutput()).decode(self.encoding)
         self.stdout.emit(text)
+
