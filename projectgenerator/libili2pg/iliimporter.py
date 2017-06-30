@@ -7,6 +7,8 @@ import locale
 import functools
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
+from qgis.PyQt.QtNetwork import QNetworkProxy
+from qgis.core import QgsNetworkAccessManager
 
 from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.utils.qt_utils import download_file
@@ -115,6 +117,10 @@ class Importer(QObject):
             args += ["--smart1Inheritance"]
         else:
             args += ["--smart2Inheritance"]
+        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
+        if proxy.type() == QNetworkProxy.HttpProxy:
+            args += ["--proxy", proxy.hostName()]
+            args += ["--proxyPort", str(proxy.port())]
 
         if self.configuration.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
