@@ -95,6 +95,8 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
+            return
+
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
             if subsite:
@@ -110,6 +112,7 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
+            return
 
         self.repositories[netloc] = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliRepository09.RepositoryIndex'):
@@ -130,7 +133,7 @@ class IliCache(QObject):
         model = dict()
         models = list()
         re_model = re.compile('\s*MODEL\s*([\w\d_-]+)\s.*')
-        re_model_version = re.compile('VERSION "([\w\d_-]+)".*')
+        re_model_version = re.compile('VERSION "([ \w\d\._-]+)".*')
 
         for ilifile in glob.iglob(os.path.join(path, '*.ili')):
             with open(ilifile, 'r') as file:
@@ -138,12 +141,13 @@ class IliCache(QObject):
                     result = re_model.search(line)
                     if result:
                         model = dict()
-                        model['name'] = result[1]
+                        model['name'] = result.group(1)
+                        model['version'] = ''
                         models += [model]
 
                     result = re_model_version.search(line)
                     if result:
-                        model['version'] = result[1]
+                        model['version'] = result.group(1)
 
         print(repr(models[0]['name']))
         self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
