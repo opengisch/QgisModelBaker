@@ -244,8 +244,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def type_changed(self):
         if self.type_combo_box.currentData() == 'ili':
             self.ili_config.show()
+            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to create a default schema]")
         else:
             self.ili_config.hide()
+            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to load all schemas in the database]")
 
     def link_activated(self, link):
         if link.url() == '#configure':
