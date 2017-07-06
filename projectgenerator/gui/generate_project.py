@@ -31,8 +31,8 @@ from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
@@ -91,11 +91,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable \
-                and not self.ili_models_line_edit.text():
-            self.txtStdout.setText(self.tr('Please set a valid INTERLIS file or model before creating the project.'))
-            self.ili_file_line_edit.setFocus()
-            return
+        if self.type_combo_box.currentData() == 'ili':
+            if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable \
+                    and not self.ili_models_line_edit.text():
+                self.txtStdout.setText(self.tr('Please set a valid INTERLIS file or model before creating the project.'))
+                self.ili_file_line_edit.setFocus()
+                return
         if not configuration.host:
             self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
             self.pg_host_line_edit.setFocus()
@@ -117,6 +118,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.save_configuration(configuration)
 
+        QApplication.setOverrideCursor( Qt.WaitCursor )
+        self.disable()
+        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
+
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
 
@@ -128,11 +134,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             try:
                 if importer.run() != iliimporter.Importer.SUCCESS:
+                    self.enable()
+                    QApplication.restoreOverrideCursor()
                     return
             except JavaNotFoundError:
                 self.txtStdout.setTextColor(QColor('#000000'))
                 self.txtStdout.clear()
                 self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                self.enable()
+                QApplication.restoreOverrideCursor()
                 return
 
             configuration.schema = configuration.schema or configuration.database
@@ -150,6 +160,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         project.layer_added.connect(self.print_info)
         project.create(None, qgis_project)
 
+        self.buttonBox.clear()
+        self.buttonBox.setEnabled(True)
+        self.buttonBox.addButton(QDialogButtonBox.Close)
+        
+        QApplication.restoreOverrideCursor()
+
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.append(text)
@@ -161,21 +177,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
-        self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.clear()
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()
-
+ 
     def on_process_finished(self, exit_code, result):
         self.txtStdout.setTextColor(QColor('#777777'))
         self.txtStdout.append('Finished ({})'.format(exit_code))
-        if result == iliimporter.Importer.SUCCESS:
-            self.buttonBox.clear()
-            self.buttonBox.setEnabled(True)
-            self.buttonBox.addButton(QDialogButtonBox.Close)
-        else:
-            self.enable()
 
     def updated_configuration(self):
         """
