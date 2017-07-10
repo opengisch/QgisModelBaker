@@ -154,7 +154,7 @@
            </spacer>
           </item>
           <item row="1" column="2" colspan="2">
-           <widget class="QLineEdit" name="ili_model_line_edit"/>
+           <widget class="QLineEdit" name="ili_models_line_edit"/>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
@@ -200,7 +200,7 @@
  <tabstops>
   <tabstop>xtf_file_line_edit</tabstop>
   <tabstop>xtf_file_browse_button</tabstop>
-  <tabstop>ili_model_line_edit</tabstop>
+  <tabstop>ili_models_line_edit</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
   <tabstop>pg_schema_line_edit</tabstop>
