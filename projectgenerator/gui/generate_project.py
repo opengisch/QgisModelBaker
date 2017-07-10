@@ -163,7 +163,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.setEnabled(True)
         self.buttonBox.addButton(QDialogButtonBox.Close)
-        
+
         QApplication.restoreOverrideCursor()
 
     def print_info(self, text):
@@ -179,7 +179,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_started(self, command):
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()
- 
+
     def on_process_finished(self, exit_code, result):
         self.txtStdout.setTextColor(QColor('#777777'))
         self.txtStdout.append('Finished ({})'.format(exit_code))
@@ -194,7 +194,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.host = self.pg_host_line_edit.text().strip()
         configuration.user = self.pg_user_line_edit.text().strip()
         configuration.database = self.pg_database_line_edit.text().strip()
-        configuration.schema = self.pg_schema_line_edit.text().strip()
+        configuration.schema = self.pg_schema_line_edit.text().strip().lower()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text().strip()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
