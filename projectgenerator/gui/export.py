@@ -122,7 +122,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text().strip()
         configuration.password = self.pg_password_line_edit.text()
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilimodels = self.ili_model_line_edit.text().strip()
+        configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
         configuration.base_configuration = self.base_configuration
 

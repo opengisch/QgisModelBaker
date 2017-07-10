@@ -96,7 +96,7 @@ class Exporter(QObject):
 
         if self.configuration.ilimodels:
             args += ['--models', self.configuration.ilimodels]
-        
+
         args += [self.configuration.xtffile]
 
         if self.configuration.java_path:

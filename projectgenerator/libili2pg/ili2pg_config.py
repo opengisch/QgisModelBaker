@@ -67,6 +67,7 @@ class ImportConfiguration(object):
         self.schema = ''
         self.password = ''
         self.port = ''
+        self.ilimodels = ''
 
         self.base_configuration = BaseConfiguration()
 
@@ -93,6 +94,7 @@ class ExportConfiguration(object):
         self.schema = ''
         self.password = ''
         self.port = ''
+        self.ilimodels = ''
 
         self.base_configuration = BaseConfiguration()
 
