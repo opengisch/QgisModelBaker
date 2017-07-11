@@ -141,7 +141,7 @@ class IliCache(QObject):
                 try:
                     fileModels = self.parse_ili_file(ilifile, "latin1")
                     self.iface.messageBar().pushWarning(self.tr('Project Generator'),
-                        self.tr('Could not parse ili file `{}` with UTF-8 encoding. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                        self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                 except UnicodeDecodeError:
                     self.iface.messageBar().pushCritical(self.tr('Project Generator'),
                         self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
