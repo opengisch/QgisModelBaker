@@ -44,9 +44,10 @@ DIALOG_UI = get_ui_class('generate_project.ui')
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
-    def __init__(self, base_config, parent=None):
+    def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.iface = iface
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
@@ -84,7 +85,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
-        self.ilicache = IliCache(base_config)
+        self.ilicache = IliCache(self.iface, base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.refresh()
 

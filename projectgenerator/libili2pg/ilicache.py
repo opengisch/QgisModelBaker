@@ -28,6 +28,7 @@ import re
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 from PyQt5.QtCore import QObject, pyqtSignal
 from qgis.core import QgsMessageLog
+from qgis.gui import QgsMessageBar
 
 
 class IliCache(QObject):
@@ -37,8 +38,9 @@ class IliCache(QObject):
 
     models_changed = pyqtSignal()
 
-    def __init__(self, configuration):
+    def __init__(self, iface, configuration):
         QObject.__init__(self)
+        self.iface = iface
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
         self.base_configuration = configuration
@@ -138,7 +140,11 @@ class IliCache(QObject):
             except UnicodeDecodeError:
                 try:
                     fileModels = self.parse_ili_file(ilifile, "latin1")
+                    self.iface.messageBar().pushWarning(self.tr('Project Generator'),
+                        self.tr('Could not parse ili file `{}` with UTF-8 encoding. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                 except UnicodeDecodeError:
+                    self.iface.messageBar().pushCritical(self.tr('Project Generator'),
+                        self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                     QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
 
             models.extend(fileModels)

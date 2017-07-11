@@ -59,7 +59,7 @@ class QgsProjectGeneratorPlugin(QObject):
         del self.__generate_action
 
     def show_generate_dialog(self):
-        dlg = GenerateProjectDialog(self.ili2db_configuration)
+        dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
         dlg.exec_()
 
     def show_options_dialog(self):
