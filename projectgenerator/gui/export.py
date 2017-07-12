@@ -19,12 +19,16 @@
 """
 
 import os
+from PyQt5.QtCore import Qt
+
+from PyQt5.QtWidgets import QCompleter
 
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_save_file_selector, make_folder_selector
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings
+from projectgenerator.libili2pg.ilicache import IliCache
+from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, make_folder_selector
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
 from qgis.core import QgsProject
 from ..utils import get_ui_class
 from ..libili2pg import iliexporter, ili2pg_config
@@ -46,8 +50,31 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.base_configuration = base_config
         self.restore_configuration()
 
+        self.validators = Validators()
+        regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
+        validator = QRegExpValidator(regexp)
+
+        self.pg_host_line_edit.setValidator(validator)
+        self.pg_database_line_edit.setValidator(validator)
+        self.pg_user_line_edit.setValidator(validator)
+
+        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
+        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.ilicache = IliCache(base_config)
+        self.ilicache.models_changed.connect(self.update_models_completer)
+        self.ilicache.refresh()
+
     def accepted(self):
         configuration = self.updated_configuration()
+
+        QApplication.setOverrideCursor( Qt.WaitCursor )
+        self.disable()
+        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
 
         exporter = iliexporter.Exporter()
 
@@ -62,12 +89,22 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         try:
             if exporter.run() != iliexporter.Exporter.SUCCESS:
+                self.enable()
+                QApplication.restoreOverrideCursor()
                 return
         except JavaNotFoundError:
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
             self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+            self.enable()
+            QApplication.restoreOverrideCursor()
             return
+
+        self.buttonBox.clear()
+        self.buttonBox.setEnabled(True)
+        self.buttonBox.addButton(QDialogButtonBox.Close)
+
+        QApplication.restoreOverrideCursor()
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
@@ -155,3 +192,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         else:
             QDesktopServices.openUrl(link)
 
+    def update_models_completer(self):
+        completer = QCompleter(self.ilicache.model_names)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.ili_models_line_edit.setCompleter(completer)
