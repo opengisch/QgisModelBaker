@@ -22,12 +22,12 @@ import os
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_save_file_selector
 from projectgenerator.libili2pg.ilicache import IliCache
-from qgis.gui import QgsMessageBar
-from qgis.PyQt.QtGui import QColor, QDesktopServices
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QCompleter, QSizePolicy, QGridLayout
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
+from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, make_folder_selector
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
+from qgis.core import QgsProject
 from ..utils import get_ui_class
 from ..libili2pg import iliexporter, ili2pg_config
 
@@ -48,19 +48,31 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.base_configuration = base_config
         self.restore_configuration()
 
-        self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.txtStdout.setLayout(QGridLayout())
-        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
-        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+        self.validators = Validators()
+        regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
+        validator = QRegExpValidator(regexp)
 
+        self.pg_host_line_edit.setValidator(validator)
+        self.pg_database_line_edit.setValidator(validator)
+        self.pg_user_line_edit.setValidator(validator)
+
+        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
+        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
-        self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
     def accepted(self):
         configuration = self.updated_configuration()
+
+        QApplication.setOverrideCursor( Qt.WaitCursor )
+        self.disable()
+        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.clear()
 
         exporter = iliexporter.Exporter()
 
@@ -75,12 +87,22 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         try:
             if exporter.run() != iliexporter.Exporter.SUCCESS:
+                self.enable()
+                QApplication.restoreOverrideCursor()
                 return
         except JavaNotFoundError:
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
             self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+            self.enable()
+            QApplication.restoreOverrideCursor()
             return
+
+        self.buttonBox.clear()
+        self.buttonBox.setEnabled(True)
+        self.buttonBox.addButton(QDialogButtonBox.Close)
+
+        QApplication.restoreOverrideCursor()
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
@@ -171,10 +193,4 @@ class ExportDialog(QDialog, DIALOG_UI):
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.ili_model_line_edit.setCompleter(completer)
-
-    def show_message(self, level, message):
-        if level == QgsMessageBar.WARNING:
-            self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
-        elif level == QgsMessageBar.CRITICAL:
-            self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+        self.ili_models_line_edit.setCompleter(completer)
