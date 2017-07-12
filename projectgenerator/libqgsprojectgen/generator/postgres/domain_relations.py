@@ -56,9 +56,8 @@ class DomainRelation(Relation):
         for record in cur:
             models[record['modelname'].split("{")[0]] = record['content']
         # TODO To get info from base classes we might need to discover a dependency tree right here
-        print("models:",models)
         for k,v in models.items():
-            models_info.update(self.parse_model(v, domains))
+            models_info.update(self.parse_model(v, list(domains_ili_pg.keys())))
         print("Classes with domain attrs:",len(models_info))
 
         # Map class ili name with its correspondent pg name
@@ -77,7 +76,7 @@ class DomainRelation(Relation):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         all_attrs = list()
         for c, dict_attr_domain in models_info.items():
-            all_attrs.extend(list[dict_attr_domain.keys()])
+            all_attrs.extend(list(dict_attr_domain.keys()))
         attr_names = "'" + "','".join(all_attrs) + "'"
         cur.execute("""SELECT iliname, sqlname
                        FROM {schema}.t_ili2db_attrname
@@ -91,16 +90,18 @@ class DomainRelation(Relation):
         # Create relations
         relations = list()
         for iliclass, dict_attr_domain in models_info.items():
-            for iliattr, ilidomain in dict_attr_domain:
+            for iliattr, ilidomain in dict_attr_domain.items():
                 if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili_pg:
-                    relation = Relation()
-                    relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
-                    relation.referenced_layer = mapped_layers[classes_ili_pg[ilidomain]]
-                    relation.referencing_field = attrs_ili_pg[iliattr]
-                    relation.referenced_field = 'itfcode'
-                    #relation.name = record['constraint_name']
+                    if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers:
+                        # Might be that due to ORM mapping, a class is not in mapped_layers
+                        relation = Relation()
+                        relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
+                        relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
+                        relation.referencing_field = attrs_ili_pg[iliattr]
+                        relation.referenced_field = 'itfcode'
+                        relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],attrs_ili_pg[iliattr],domains_ili_pg[ilidomain],'itfcode')
 
-                    relations.append(relation)
+                        relations.append(relation)
 
         print("final_models_info:",models_info)
         print("Num of Relations:",len(relations))
@@ -124,30 +125,33 @@ class DomainRelation(Relation):
                 result = re_model.search(line)
                 if result:
                     current_model = result.group(1)
-                    re_end_model = re.compile('\s*END\s*{}\..*'.format(current_model)) # END TopicName; # FIX
+                    re_end_model = re.compile('.*END\s*{}\..*'.format(current_model)) # END TopicName;
             else: # The is a current_model
                 if not current_topic:
                   result = re_topic.search(line)
                   if result:
                       current_topic = result.group(1)
-                      re_end_topic = re.compile('\s*END\s*{}\s*;.*'.format(current_topic)) # END TopicName;
+                      print("Topic encontrada",current_topic)
+                      re_end_topic = re.compile('\s*END\s*{};.*'.format(current_topic)) # END TopicName;
 
                       local_names = self.extract_local_names_from_domains(domains, current_model, current_topic)
                       domains_with_local = [name for name_list in local_names.values() for name in name_list] + domains
-
+                      print("domains_with_local:",domains_with_local)
                       continue
                 else: # There is a current_topic
                     if not current_class: # Go for classes
                         result = re_class.search(line)
                         if result:
                             current_class = result.group(1)
+                            print("Class encontrada",current_class)
                             attributes = dict()
                             re_end_class = re.compile('\s*END\s*{}*;.*'.format(current_class))  # END ClassName;
                             continue
                     else: # There is a current_class, go for attributes
-                        attribute = {res.group(1):d for d in domains_with_local for res in [re.search('\s*([\w\d_-]+).*:.*\s{};'.format(d),line)] if res}
+                        attribute = {res.group(1):d for d in domains_with_local for res in [re.search('\s*([\w\d_-]+).*:.*\s{}.*'.format(d),line)] if res}
 
                         if attribute:
+                            print("MATCH:",attribute)
                             old_key = list(attribute.keys())[0] # Not qualified name
                             new_key = "{}.{}.{}.{}".format(current_model, current_topic, current_class, old_key) # Fully qualified name
                             attr_value = list(attribute.values())[0]
@@ -164,6 +168,7 @@ class DomainRelation(Relation):
                         if result:
                             if attributes:
                                 models_info.update({'{}.{}.{}'.format(current_model,current_topic,current_class) : attributes})
+                            print("END Class encontrada",current_class)
                             current_class = ''
                             continue
 
