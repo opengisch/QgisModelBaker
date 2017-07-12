@@ -195,12 +195,10 @@ class PostgresCreator:
         relations =  PostgresRelation.find_relations(layers, self.conn, self.schema)
         # Automatic domain generation
         # We won't need this when https://github.com/claeis/ili2db/issues/19 is solved!
-        domains = [layer.table_name for layer in layers if layer.is_domain]
-        if domains:
-            domain_relations = DomainRelation.find_domain_relations(domains, self.conn, self.schema)
-            relations.update(domain_relations)
+        domainRelation = DomainRelation()
+        domain_relations = domainRelation.find_domain_relations(layers, self.conn, self.schema)
 
-        return relations
+        return relations + domain_relations
 
     def legend(self, layers):
         legend = LegendGroup('root')
