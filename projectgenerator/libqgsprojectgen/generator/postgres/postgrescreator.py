@@ -28,6 +28,7 @@ from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from qgis.core import QgsProviderRegistry, QgsWkbTypes
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from .relations import PostgresRelation
+from .domain_relations import DomainRelation
 
 
 class PostgresCreator:
@@ -191,7 +192,15 @@ class PostgresCreator:
         return layers
 
     def relations(self, layers):
-        return PostgresRelation.find_relations(layers, self.conn, self.schema)
+        relations =  PostgresRelation.find_relations(layers, self.conn, self.schema)
+        # Automatic domain generation
+        # We won't need this when https://github.com/claeis/ili2db/issues/19 is solved!
+        domains = [layer.table_name for layer in layers if layer.is_domain]
+        if domains:
+            domain_relations = DomainRelation.find_domain_relations(domains, self.conn, self.schema)
+            relations.update(domain_relations)
+
+        return relations
 
     def legend(self, layers):
         legend = LegendGroup('root')
