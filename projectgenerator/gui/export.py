@@ -71,6 +71,19 @@ class ExportDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
+        if not configuration.host:
+            self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
+            self.pg_host_line_edit.setFocus()
+            return
+        if not configuration.database:
+            self.txtStdout.setText(self.tr('Please set a database before creating the project.'))
+            self.pg_database_line_edit.setFocus()
+            return
+        if not configuration.user:
+            self.txtStdout.setText(self.tr('Please set a database user before creating the project.'))
+            self.pg_user_line_edit.setFocus()
+            return
+
         QApplication.setOverrideCursor( Qt.WaitCursor )
         self.disable()
         self.txtStdout.setTextColor(QColor('#000000'))
