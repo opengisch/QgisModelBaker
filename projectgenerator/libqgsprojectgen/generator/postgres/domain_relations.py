@@ -52,12 +52,15 @@ class DomainRelation(Relation):
                        FROM {schema}.t_ili2db_model
                     """.format(schema=schema))
         models = dict()
+
         models_info = dict()
+        extended_classes = dict()
         for record in cur:
             models[record['modelname'].split("{")[0]] = record['content']
-        # TODO To get info from base classes we might need to discover a dependency tree right here
         for k,v in models.items():
-            models_info.update(self.parse_model(v, list(domains_ili_pg.keys())))
+            parsed = self.parse_model(v, list(domains_ili_pg.keys()))
+            models_info.update(parsed[0])
+            extended_classes.update(parsed[1])
         print("Classes with domain attrs:",len(models_info))
 
         # Map class ili name with its correspondent pg name
@@ -72,54 +75,76 @@ class DomainRelation(Relation):
             classes_ili_pg[record['iliname']] = record['sqlname']
         print("classes_ili_pg:",classes_ili_pg)
 
-        # Map attr ili name with its correspondent pg name
+
+        # Now deal with extended classes
+        models_info_with_ext = {}
+        for iliclass in models_info:
+  	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes)
+        for iliclass in extended_classes:
+            if iliclass not in models_info_with_ext:
+                # Take into account classes which only inherit attrs with domains, but don't have their own nor EXTEND attrs
+      	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes)
+
+
+        # Map attr ili name and owner (pg class name) with its correspondent attr pg name
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         all_attrs = list()
-        for c, dict_attr_domain in models_info.items():
+        for c, dict_attr_domain in models_info_with_ext.items():
             all_attrs.extend(list(dict_attr_domain.keys()))
         attr_names = "'" + "','".join(all_attrs) + "'"
-        cur.execute("""SELECT iliname, sqlname
+        cur.execute("""SELECT iliname, sqlname, owner
                        FROM {schema}.t_ili2db_attrname
                        WHERE iliname IN ({attr_names})
                     """.format(schema=schema, attr_names=attr_names))
-        attrs_ili_pg = dict()
+        attrs_ili_pg_owner = dict()
         for record in cur:
-            attrs_ili_pg[record['iliname']] = record['sqlname']
-        print("attrs_ili_pg:",attrs_ili_pg)
+            if record['owner'] in attrs_ili_pg_owner:
+                attrs_ili_pg_owner[record['owner']].update({record['iliname'] : record['sqlname']})
+            else:
+                attrs_ili_pg_owner[record['owner']] = {record['iliname'] : record['sqlname']}
+        print("attrs_ili_pg_owner:",attrs_ili_pg_owner)
 
         # Create relations
         relations = list()
-        for iliclass, dict_attr_domain in models_info.items():
+        attrs_ili = [k for v in attrs_ili_pg_owner.values() for k in v]
+        for iliclass, dict_attr_domain in models_info_with_ext.items():
             for iliattr, ilidomain in dict_attr_domain.items():
-                if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili_pg:
+                if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili:
                     if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers:
                         # Might be that due to ORM mapping, a class is not in mapped_layers
                         relation = Relation()
                         relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
                         relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
-                        relation.referencing_field = attrs_ili_pg[iliattr]
+                        relation.referencing_field = attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr]
                         relation.referenced_field = 'itfcode'
-                        relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],attrs_ili_pg[iliattr],domains_ili_pg[ilidomain],'itfcode')
+                        relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],domains_ili_pg[ilidomain],'itfcode')
 
                         relations.append(relation)
 
+
         print("final_models_info:",models_info)
+        print("extended_classes:",extended_classes)
         print("Num of Relations:",len(relations))
         return relations
+
 
     def parse_model(self, model_content, domains):
         re_model = re.compile('\s*MODEL\s*([\w\d_-]+).*') # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
         re_topic = re.compile('\s*TOPIC\s*([\w\d_-]+).*') # TOPIC Catastro_Registro [=]
         re_class = re.compile('\s*CLASS\s*([\w\d_-]+).*') # CLASS ClassName [=]
+        re_class_extends = re.compile('\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*') # EXTENDS BaseClassName =
         re_end_class = None  # END ClassName;
-        re_end_topic = None # END TopicName;
-        re_end_model = None # END ModelName;
+        re_end_topic = None  # END TopicName;
+        re_end_model = None  # END ModelName;
 
         current_model = ''
         current_topic = ''
         current_class = ''
         attributes = dict()
         models_info = dict()
+        extended_classes = dict()
+        bClassJustFound = False # Flag to search for EXTENDS classes
+
         for line in model_content.splitlines():
             if not current_model:
                 result = re_model.search(line)
@@ -145,9 +170,18 @@ class DomainRelation(Relation):
                             current_class = result.group(1)
                             print("Class encontrada",current_class)
                             attributes = dict()
-                            re_end_class = re.compile('\s*END\s*{}*;.*'.format(current_class))  # END ClassName;
+                            re_end_class = re.compile('\s*END\s*{};.*'.format(current_class))  # END ClassName;
+                            bClassJustFound = True
                             continue
                     else: # There is a current_class, go for attributes
+                        if bClassJustFound: # Search for extended classes
+                            bClassJustFound = False
+                            result = re_class_extends.search(line)
+                            if result:
+                                extended_classes["{}.{}.{}".format(current_model, current_topic, current_class)] = self.make_full_qualified(result.group(1),'class',current_model,current_topic)
+                                print("EXTENDS->",self.make_full_qualified(result.group(1),'class',current_model,current_topic))
+                                continue
+
                         attribute = {res.group(1):d for d in domains_with_local for res in [re.search('\s*([\w\d_-]+).*:.*\s{}.*'.format(d),line)] if res}
 
                         if attribute:
@@ -180,7 +214,7 @@ class DomainRelation(Relation):
                 if result:
                     current_model = ''
 
-        return models_info
+        return [models_info, extended_classes]
 
     def extract_local_names_from_domains(self, domains, current_model, current_topic):
         """
@@ -205,6 +239,31 @@ class DomainRelation(Relation):
                 if local_names_list:
                     local_names[domain] = local_names_list
         return local_names
+
+    def make_full_qualified(self, name, level, current_model, current_topic, current_class=None):
+        parents = [current_model, current_topic, current_class]
+        len_parents = len(parents)
+        name_parts = name.split(".")
+        if level=='class': # 3 levels (even 2, but not handling that case yet)
+            name_parts = parents[0:len_parents-len(name_parts)] + name_parts
+
+        return ".".join(name_parts)
+
+    def get_ext_dom_attrs(self, iliclass, models_info, extended_classes):
+        """
+        Returns a dict for input iliclass with its original attr:domain pairs
+        plus all inherited attr:domain pairs
+        """
+        if iliclass in extended_classes: # Does current class have parents?
+            parents_domain_attrS = self.get_ext_dom_attrs(extended_classes[iliclass], models_info, extended_classes) # Recursion
+        else:
+            return models_info[iliclass] if iliclass in models_info else {}
+        all_attrs = models_info[iliclass] if iliclass in models_info else {}
+        for parents_domain_attr, domain in parents_domain_attrS.items():
+            # smart2Inheritance: Omit already existing attrs(they are extended already)
+            if parents_domain_attr not in all_attrs:
+	              all_attrs[parents_domain_attr] = domain
+        return all_attrs
 
 
 # TODO
