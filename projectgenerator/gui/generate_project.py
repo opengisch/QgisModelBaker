@@ -18,7 +18,8 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtWidgets import QCompleter
+import os
+
 from psycopg2 import OperationalError
 
 from projectgenerator.gui.options import OptionsDialog
@@ -27,11 +28,11 @@ from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QRegExpValidator, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QSizePolicy, QGridLayout
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
-from qgis.gui import QgsProjectionSelectionDialog, QgsMessageBar
+from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
 from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
