@@ -269,4 +269,4 @@ class DomainRelation(Relation):
 # TODO
 # Not yet supported:
 #   Classes that don't belong to a topic but directly to the model
-#   Classes that extend other classes don't get base class attributes
+#   smart1Inheritance
