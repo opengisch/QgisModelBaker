@@ -23,10 +23,10 @@ import os
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
-from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, make_folder_selector
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
+from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, NonEmptyStringValidator, make_folder_selector
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from qgis.core import QgsProject
 from ..utils import get_ui_class
 from ..libili2pg import iliexporter, ili2pg_config
@@ -49,14 +49,13 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.validators = Validators()
-        regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
-        validator = QRegExpValidator(regexp)
+        nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.xtf', allow_non_existing=True)
 
-        self.ili_models_line_edit.setValidator(validator)
-        self.pg_host_line_edit.setValidator(validator)
-        self.pg_database_line_edit.setValidator(validator)
-        self.pg_user_line_edit.setValidator(validator)
+        self.ili_models_line_edit.setValidator(nonEmptyValidator)
+        self.pg_host_line_edit.setValidator(nonEmptyValidator)
+        self.pg_database_line_edit.setValidator(nonEmptyValidator)
+        self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
 
         self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)

@@ -154,3 +154,13 @@ class FileValidator(QValidator):
         else:
             return QValidator.Acceptable, text, pos
 
+
+class NonEmptyStringValidator(QValidator):
+    def __init__(self, parent=None):
+        QValidator.__init__(self, parent)
+
+    def validate(self, text, pos):
+        if not text.strip():
+          return QValidator.Intermediate, text, pos
+
+        return QValidator.Acceptable, text, pos

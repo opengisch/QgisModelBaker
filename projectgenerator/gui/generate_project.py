@@ -27,10 +27,10 @@ from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
+from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator, NonEmptyStringValidator
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog
 from ..utils import get_ui_class
@@ -72,13 +72,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.validators = Validators()
-        regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
-        validator = QRegExpValidator(regexp)
+        nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.ili')
 
-        self.pg_host_line_edit.setValidator(validator)
-        self.pg_database_line_edit.setValidator(validator)
-        self.pg_user_line_edit.setValidator(validator)
+        self.pg_host_line_edit.setValidator(nonEmptyValidator)
+        self.pg_database_line_edit.setValidator(nonEmptyValidator)
+        self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
