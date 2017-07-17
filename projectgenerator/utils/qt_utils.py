@@ -132,11 +132,12 @@ class Validators(QObject):
 
 
 class FileValidator(QValidator):
-    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False):
+    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False, allow_non_existing=False):
         QValidator.__init__(self, parent)
         self.pattern = pattern
         self.is_executable = is_executable
         self.allow_empty = allow_empty
+        self.allow_non_existing = allow_non_existing
 
     """
     Validator for file line edits
@@ -146,7 +147,7 @@ class FileValidator(QValidator):
             return QValidator.Acceptable, text, pos
 
         if not text \
-                or not os.path.isfile(text) \
+                or (not self.allow_non_existing and not os.path.isfile(text)) \
                 or not fnmatch.fnmatch(text, self.pattern) \
                 or (self.is_executable and not os.access(text, os.X_OK)):
             return QValidator.Intermediate, text, pos
