@@ -19,16 +19,13 @@
 """
 
 import os
-from PyQt5.QtCore import Qt
-
-from PyQt5.QtWidgets import QCompleter
 
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, make_folder_selector
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject
 from ..utils import get_ui_class
 from ..libili2pg import iliexporter, ili2pg_config
