@@ -22,8 +22,8 @@ import os
 
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
-from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, make_folder_selector
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator
+from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, make_folder_selector
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject
@@ -50,17 +50,24 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         regexp = QRegExp("[a-zA-Z_0-9]+") # Non empty string
         validator = QRegExpValidator(regexp)
+        fileValidator = FileValidator(pattern='*.xtf', allow_non_existing=True)
 
+        self.ili_models_line_edit.setValidator(validator)
         self.pg_host_line_edit.setValidator(validator)
         self.pg_database_line_edit.setValidator(validator)
         self.pg_user_line_edit.setValidator(validator)
+        self.xtf_file_line_edit.setValidator(fileValidator)
 
+        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
         self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.refresh()
@@ -68,16 +75,24 @@ class ExportDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
+        if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
+            self.txtStdout.setText(self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+            self.xtf_file_line_edit.setFocus()
+            return
+        if not configuration.ilimodels:
+            self.txtStdout.setText(self.tr('Please set a model before exporting data.'))
+            self.ili_models_line_edit.setFocus()
+            return
         if not configuration.host:
-            self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
+            self.txtStdout.setText(self.tr('Please set a host before exporting data.'))
             self.pg_host_line_edit.setFocus()
             return
         if not configuration.database:
-            self.txtStdout.setText(self.tr('Please set a database before creating the project.'))
+            self.txtStdout.setText(self.tr('Please set a database before exporting data.'))
             self.pg_database_line_edit.setFocus()
             return
         if not configuration.user:
-            self.txtStdout.setText(self.tr('Please set a database user before creating the project.'))
+            self.txtStdout.setText(self.tr('Please set a database user before exporting data.'))
             self.pg_user_line_edit.setFocus()
             return
 
