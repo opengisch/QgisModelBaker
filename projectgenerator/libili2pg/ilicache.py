@@ -37,10 +37,10 @@ class IliCache(QObject):
     }
 
     models_changed = pyqtSignal()
+    new_message = pyqtSignal(int, str)
 
-    def __init__(self, iface, configuration):
+    def __init__(self, configuration):
         QObject.__init__(self)
-        self.iface = iface
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
         self.base_configuration = configuration
@@ -140,10 +140,10 @@ class IliCache(QObject):
             except UnicodeDecodeError:
                 try:
                     fileModels = self.parse_ili_file(ilifile, "latin1")
-                    self.iface.messageBar().pushWarning(self.tr('Project Generator'),
+                    self.new_message.emit(QgsMessageBar.WARNING,
                         self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                 except UnicodeDecodeError:
-                    self.iface.messageBar().pushCritical(self.tr('Project Generator'),
+                    self.new_message.emit(QgsMessageBar.CRITICAL,
                         self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                     QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
 

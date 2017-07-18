@@ -34,7 +34,7 @@ from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, Q
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
-from qgis.gui import QgsProjectionSelectionDialog
+from qgis.gui import QgsProjectionSelectionDialog, QgsMessageBar
 from ..utils import get_ui_class
 from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
@@ -85,8 +85,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
-        self.ilicache = IliCache(self.iface, base_config)
+        self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
+        self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
     def accepted(self):
@@ -279,3 +280,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
+
+    def show_message(self, level, message):
+        if level == QgsMessageBar.WARNING:
+            self.iface.messageBar().pushWarning(self.tr('Project Generator'), message)
+        elif level == QgsMessageBar.CRITICAL:
+            self.iface.messageBar().pushCritical(self.tr('Project Generator'), message)
