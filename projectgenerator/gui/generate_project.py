@@ -34,7 +34,7 @@ from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, Q
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
-from qgis.gui import QgsProjectionSelectionDialog
+from qgis.gui import QgsProjectionSelectionDialog, QgsMessageBar
 from ..utils import get_ui_class
 from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
@@ -44,9 +44,10 @@ DIALOG_UI = get_ui_class('generate_project.ui')
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
-    def __init__(self, base_config, parent=None):
+    def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.iface = iface
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
@@ -86,6 +87,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
+        self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
     def accepted(self):
@@ -163,7 +165,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.setEnabled(True)
         self.buttonBox.addButton(QDialogButtonBox.Close)
-        
+
         QApplication.restoreOverrideCursor()
 
     def print_info(self, text):
@@ -179,7 +181,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_started(self, command):
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()
- 
+
     def on_process_finished(self, exit_code, result):
         self.txtStdout.setTextColor(QColor('#777777'))
         self.txtStdout.append('Finished ({})'.format(exit_code))
@@ -194,7 +196,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.host = self.pg_host_line_edit.text().strip()
         configuration.user = self.pg_user_line_edit.text().strip()
         configuration.database = self.pg_database_line_edit.text().strip()
-        configuration.schema = self.pg_schema_line_edit.text().strip()
+        configuration.schema = self.pg_schema_line_edit.text().strip().lower()
         configuration.password = self.pg_password_line_edit.text()
         configuration.ilifile = self.ili_file_line_edit.text().strip()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
@@ -244,8 +246,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def type_changed(self):
         if self.type_combo_box.currentData() == 'ili':
             self.ili_config.show()
+            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to create a default schema]")
         else:
             self.ili_config.hide()
+            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to load all schemas in the database]")
 
     def link_activated(self, link):
         if link.url() == '#configure':
@@ -276,3 +280,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
+
+    def show_message(self, level, message):
+        if level == QgsMessageBar.WARNING:
+            self.iface.messageBar().pushWarning(self.tr('Project Generator'), message)
+        elif level == QgsMessageBar.CRITICAL:
+            self.iface.messageBar().pushCritical(self.tr('Project Generator'), message)
