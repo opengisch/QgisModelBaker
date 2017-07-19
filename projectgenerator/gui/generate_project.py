@@ -31,7 +31,7 @@ from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QSizePolicy, QGridLayout
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsProjectionSelectionDialog, QgsMessageBar
@@ -65,6 +65,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crsSelector.crsChanged.connect(self.crs_changed)
         self.base_configuration = base_config
 
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.txtStdout.setLayout(QGridLayout())
+        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
+        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+
         self.restore_configuration()
 
         self.validators = Validators()
@@ -89,6 +95,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
+
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -283,6 +290,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def show_message(self, level, message):
         if level == QgsMessageBar.WARNING:
-            self.iface.messageBar().pushWarning(self.tr('Project Generator'), message)
+            self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
         elif level == QgsMessageBar.CRITICAL:
-            self.iface.messageBar().pushCritical(self.tr('Project Generator'), message)
+            self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
