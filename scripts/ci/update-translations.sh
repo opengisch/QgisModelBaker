@@ -7,4 +7,6 @@ then
   ./scripts/push-transifex-translations.sh
   ./scripts/pull-transifex-translations.sh
   ./scripts/compile-strings.sh i18n/*.ts
+else
+  echo "Translation not done. We only use transifex if TRAVIS_BRANCH is master (currently ${TRAVIS_BRANCH}) and TRAVIS_SECURE_ENV_VARS is true (currently ${TRAVIS_SECURE_ENV_VARS})."
 fi
