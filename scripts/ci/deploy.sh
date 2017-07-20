@@ -31,7 +31,7 @@ tar -xf ${PLUGIN_NAME}-${RELEASE_VERSION}.tar -C ${TEMPDIR}
 mv i18n/*.qm ${TEMPDIR}/${PLUGIN_NAME}/${PLUGIN_NAME}/i18n
 DIR=`pwd`
 pushd ${TEMPDIR}/${PLUGIN_NAME}
-zip -r ${DIR}/${PLUGIN_NAME}-${RELEASE_VERSION}.zip ${TEMPDIR}/${PLUGIN_NAME}/${PLUGIN_NAME}
+zip -r ${DIR}/${PLUGIN_NAME}-${RELEASE_VERSION}.zip ${PLUGIN_NAME}
 popd
 
 echo "## Changes in version $RELEASE_VERSION" > /tmp/changelog 
