@@ -20,16 +20,18 @@ then
   exit -1
 fi
 
-# Zip up all the static files from the git directory
+# Tar up all the static files from the git directory
 echo -e " \e[33mExporting plugin version ${TRAVIS_TAG} from folder ${PLUGIN_NAME}"
-git archive --prefix=${PLUGIN_NAME}/ -o $PLUGIN_NAME-$RELEASE_VERSION.zip HEAD projectgenerator #${TRAVIS_TAG}:${PLUGIN_NAME}
+git archive --prefix=${PLUGIN_NAME}/ -o $PLUGIN_NAME-$RELEASE_VERSION.tar HEAD ${PLUGIN_NAME} #${TRAVIS_TAG}:${PLUGIN_NAME}
 
-# Add all the generated files from the build
-mkdir -p /tmp/projectgenerator/i18n
-mv i18n/*.qm /tmp/projectgenerator/i18n
+# Extract to a temporary location
+TEMPDIR=/tmp/build-${PLUGIN_NAME}
+mkdir -p ${TEMPDIR}/${PLUGIN_NAME}/${PLUGIN_NAME}/i18n
+tar -xf ${PLUGIN_NAME}-${RELEASE_VERSION}.tar -C ${TEMPDIR}
+mv i18n/*.qm ${TEMPDIR}/${PLUGIN_NAME}/${PLUGIN_NAME}/i18n
 DIR=`pwd`
-pushd /tmp
-zip -ur $DIR/$PLUGIN_NAME-$RELEASE_VERSION.zip projectgenerator
+pushd ${TEMPDIR}/projectgenerator
+zip -r ${PLUGIN_NAME}-${RELEASE_VERSION}.zip ${TEMPDIR}/${PLUGIN_NAME}/${PLUGIN_NAME}
 popd
 
 echo "## Changes in version $RELEASE_VERSION" > /tmp/changelog 
