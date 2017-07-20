@@ -13,7 +13,7 @@ fi
 ./scripts/ci/update-translations.sh
 
 # Bail out if this is not a release
-if [ -z ${RELEASE_VERSION}+x ];
+if [ -z ${RELEASE_VERSION+x} ];
 then
   echo -e "\e[31mVersion tag in metadata ($METADATA_VERSION) and in git tag ($TRAVIS_TAG) do not match.\e[0m"
   echo -e "\e[31mThis will not be deployed.\e[0m"
