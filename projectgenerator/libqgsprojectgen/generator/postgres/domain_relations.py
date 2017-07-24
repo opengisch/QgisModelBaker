@@ -111,7 +111,7 @@ class DomainRelation(Relation):
         for iliclass, dict_attr_domain in models_info_with_ext.items():
             for iliattr, ilidomain in dict_attr_domain.items():
                 if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili:
-                    if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers:
+                    if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers and classes_ili_pg[iliclass] in attrs_ili_pg_owner:
                         # Might be that due to ORM mapping, a class is not in mapped_layers
                         relation = Relation()
                         relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
