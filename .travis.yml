@@ -2,6 +2,14 @@ language: python
 python:
   - "3.3"
 
+dist: trusty
+
+addons:
+  apt:
+    packages:
+    - pyqt5-dev-tools
+    - qttools5-dev-tools
+
 install: "pip install -r requirements.txt"
 script:
 - nose2

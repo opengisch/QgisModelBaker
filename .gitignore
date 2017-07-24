@@ -2,3 +2,4 @@
 __pycache__
 projectgenerator/libili2pg/bin
 *.orig
+i18n

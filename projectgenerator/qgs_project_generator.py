@@ -18,12 +18,11 @@
  ***************************************************************************/
 """
 import locale
-
-from PyQt5.QtCore import QSettings
+import os
 
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from qgis.PyQt.QtWidgets import QAction, QMenu
-from qgis.PyQt.QtCore import QObject
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.ili2pg_config import BaseConfiguration
@@ -33,10 +32,18 @@ class QgsProjectGeneratorPlugin(QObject):
     def __init__(self, iface):
         QObject.__init__(self)
         self.iface = iface
+        self.plugin_dir = os.path.dirname(__file__)
         self.__generate_action = None
         self.__configure_action = None
         if locale.getlocale() == (None, None):
             locale.setlocale(locale.LC_ALL, '')
+
+        # initialize translation
+        qgis_locale = QLocale(QSettings().value('locale/userLocale'))
+        locale_path = os.path.join(self.plugin_dir, 'i18n')
+        self.translator = QTranslator()
+        self.translator.load(qgis_locale, 'projectgenerator', '_', locale_path)
+        QCoreApplication.installTranslator(self.translator)
 
         self.ili2db_configuration = BaseConfiguration()
         settings = QSettings()
@@ -59,7 +66,7 @@ class QgsProjectGeneratorPlugin(QObject):
         del self.__generate_action
 
     def show_generate_dialog(self):
-        dlg = GenerateProjectDialog(self.ili2db_configuration)
+        dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
         dlg.exec_()
 
     def show_options_dialog(self):

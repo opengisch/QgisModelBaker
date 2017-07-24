@@ -28,6 +28,7 @@ import re
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 from PyQt5.QtCore import QObject, pyqtSignal
 from qgis.core import QgsMessageLog
+from qgis.gui import QgsMessageBar
 
 
 class IliCache(QObject):
@@ -36,6 +37,7 @@ class IliCache(QObject):
     }
 
     models_changed = pyqtSignal()
+    new_message = pyqtSignal(int, str)
 
     def __init__(self, configuration):
         QObject.__init__(self)
@@ -130,28 +132,47 @@ class IliCache(QObject):
         '''
         Parses all .ili files in the given ``path`` (non-recursively)
         '''
-        model = dict()
+        models = list()
+        fileModels = list()
+        for ilifile in glob.iglob(os.path.join(path, '*.ili')):
+            try:
+                fileModels = self.parse_ili_file(ilifile, "utf-8")
+            except UnicodeDecodeError:
+                try:
+                    fileModels = self.parse_ili_file(ilifile, "latin1")
+                    self.new_message.emit(QgsMessageBar.WARNING,
+                        self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                except UnicodeDecodeError:
+                    self.new_message.emit(QgsMessageBar.CRITICAL,
+                        self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                    QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
+
+            models.extend(fileModels)
+
+        self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
+        self.models_changed.emit()
+
+    def parse_ili_file(self, ilipath, encoding):
+        '''
+        Parses an ili file returning models and version data
+        '''
         models = list()
         re_model = re.compile('\s*MODEL\s*([\w\d_-]+)\s.*')
         re_model_version = re.compile('VERSION "([ \w\d\._-]+)".*')
+        with open(ilipath, 'r', encoding=encoding) as file:
+            for line in file:
+                result = re_model.search(line)
+                if result:
+                    model = dict()
+                    model['name'] = result.group(1)
+                    model['version'] = ''
+                    models += [model]
 
-        for ilifile in glob.iglob(os.path.join(path, '*.ili')):
-            with open(ilifile, 'r') as file:
-                for line in file:
-                    result = re_model.search(line)
-                    if result:
-                        model = dict()
-                        model['name'] = result.group(1)
-                        model['version'] = ''
-                        models += [model]
+                result = re_model_version.search(line)
+                if result:
+                    model['version'] = result.group(1)
 
-                    result = re_model_version.search(line)
-                    if result:
-                        model['version'] = result.group(1)
-
-        print(repr(models[0]['name']))
-        self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
-        self.models_changed.emit()
+        return models
 
     @property
     def model_names(self):
