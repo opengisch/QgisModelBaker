@@ -32,12 +32,13 @@ from .domain_relations import DomainRelation
 
 
 class PostgresCreator:
-    def __init__(self, uri, schema):
+    def __init__(self, uri, schema, inheritance):
         assert 'postgres' in QgsProviderRegistry.instance().providerList(), 'postgres provider not found in {}. Is the QGIS_PREFIX_PATH properly set?'.format(
             QgsProviderRegistry.instance().providerList())
         self.uri = uri
         self.schema = schema
         self.conn = psycopg2.connect(uri)
+        self.inheritance = inheritance
 
     def layers(self):
         bMetadataTable = False
@@ -196,7 +197,7 @@ class PostgresCreator:
         # Automatic domain generation
         # We won't need this when https://github.com/claeis/ili2db/issues/19 is solved!
         domainRelation = DomainRelation()
-        domain_relations = domainRelation.find_domain_relations(layers, self.conn, self.schema)
+        domain_relations = domainRelation.find_domain_relations(layers, self.conn, self.schema, self.inheritance)
 
         return relations + domain_relations
 

@@ -24,11 +24,11 @@ from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
 
 class DomainRelation(Relation):
     def __init__(self):
-        pass
+        self.debug = False
 
-    def find_domain_relations(self, layers, conn, schema):
+    def find_domain_relations(self, layers, conn, schema, inheritance):
         domains = [layer.table_name for layer in layers if layer.is_domain]
-        print("domains:",domains)
+        if self.debug: print("domains:",domains)
         if not domains:
             return []
 
@@ -44,7 +44,7 @@ class DomainRelation(Relation):
         domains_ili_pg = dict()
         for record in cur:
             domains_ili_pg[record['iliname']] = record['sqlname']
-        print("domains_ili_pg:",domains_ili_pg)
+        if self.debug: print("domains_ili_pg:",domains_ili_pg)
 
         # Get MODELS
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -61,7 +61,7 @@ class DomainRelation(Relation):
             parsed = self.parse_model(v, list(domains_ili_pg.keys()))
             models_info.update(parsed[0])
             extended_classes.update(parsed[1])
-        print("Classes with domain attrs:",len(models_info))
+        if self.debug: print("Classes with domain attrs:",len(models_info))
 
         # Map class ili name with its correspondent pg name
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -73,17 +73,18 @@ class DomainRelation(Relation):
         classes_ili_pg = dict()
         for record in cur:
             classes_ili_pg[record['iliname']] = record['sqlname']
-        print("classes_ili_pg:",classes_ili_pg)
+        if self.debug: print("classes_ili_pg:",classes_ili_pg)
 
 
         # Now deal with extended classes
         models_info_with_ext = {}
         for iliclass in models_info:
-  	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes)
+  	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes, inheritance)
         for iliclass in extended_classes:
             if iliclass not in models_info_with_ext:
                 # Take into account classes which only inherit attrs with domains, but don't have their own nor EXTEND attrs
-      	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes)
+                # Only relevant for smart2Inheritance, since for smart1Inheritance this will return an empty dict {}
+      	        models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes, inheritance)
 
 
         # Map attr ili name and owner (pg class name) with its correspondent attr pg name
@@ -102,7 +103,7 @@ class DomainRelation(Relation):
                 attrs_ili_pg_owner[record['owner']].update({record['iliname'] : record['sqlname']})
             else:
                 attrs_ili_pg_owner[record['owner']] = {record['iliname'] : record['sqlname']}
-        print("attrs_ili_pg_owner:",attrs_ili_pg_owner)
+        if self.debug: print("attrs_ili_pg_owner:",attrs_ili_pg_owner)
 
         # Create relations
         relations = list()
@@ -119,12 +120,13 @@ class DomainRelation(Relation):
                         relation.referenced_field = 'ilicode'
                         relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],domains_ili_pg[ilidomain],'ilicode')
 
+                        if self.debug: print("Relation:",relation.name)
                         relations.append(relation)
 
 
-        print("final_models_info:",models_info)
-        print("extended_classes:",extended_classes)
-        print("Num of Relations:",len(relations))
+        if self.debug: print("final_models_info:",models_info)
+        if self.debug: print("extended_classes:",extended_classes)
+        if self.debug: print("Num of Relations:",len(relations))
         return relations
 
 
@@ -156,19 +158,19 @@ class DomainRelation(Relation):
                   result = re_topic.search(line)
                   if result:
                       current_topic = result.group(1)
-                      print("Topic encontrada",current_topic)
+                      if self.debug: print("Topic encontrada",current_topic)
                       re_end_topic = re.compile('\s*END\s*{};.*'.format(current_topic)) # END TopicName;
 
                       local_names = self.extract_local_names_from_domains(domains, current_model, current_topic)
                       domains_with_local = [name for name_list in local_names.values() for name in name_list] + domains
-                      print("domains_with_local:",domains_with_local)
+                      if self.debug: print("domains_with_local:",domains_with_local)
                       continue
                 else: # There is a current_topic
                     if not current_class: # Go for classes
                         result = re_class.search(line)
                         if result:
                             current_class = result.group(1)
-                            print("Class encontrada",current_class)
+                            if self.debug: print("Class encontrada",current_class)
                             attributes = dict()
                             re_end_class = re.compile('\s*END\s*{};.*'.format(current_class))  # END ClassName;
                             bClassJustFound = True
@@ -179,13 +181,13 @@ class DomainRelation(Relation):
                             result = re_class_extends.search(line)
                             if result:
                                 extended_classes["{}.{}.{}".format(current_model, current_topic, current_class)] = self.make_full_qualified(result.group(1),'class',current_model,current_topic)
-                                print("EXTENDS->",self.make_full_qualified(result.group(1),'class',current_model,current_topic))
+                                if self.debug: print("EXTENDS->",self.make_full_qualified(result.group(1),'class',current_model,current_topic))
                                 continue
 
                         attribute = {res.group(1):d for d in domains_with_local for res in [re.search('\s*([\w\d_-]+).*:.*\s{}.*'.format(d),line)] if res}
 
                         if attribute:
-                            print("MATCH:",attribute)
+                            if self.debug: print("MATCH:",attribute)
                             old_key = list(attribute.keys())[0] # Not qualified name
                             new_key = "{}.{}.{}.{}".format(current_model, current_topic, current_class, old_key) # Fully qualified name
                             attr_value = list(attribute.values())[0]
@@ -202,7 +204,7 @@ class DomainRelation(Relation):
                         if result:
                             if attributes:
                                 models_info.update({'{}.{}.{}'.format(current_model,current_topic,current_class) : attributes})
-                            print("END Class encontrada",current_class)
+                            if self.debug: print("END Class encontrada",current_class)
                             current_class = ''
                             continue
 
@@ -249,24 +251,53 @@ class DomainRelation(Relation):
 
         return ".".join(name_parts)
 
-    def get_ext_dom_attrs(self, iliclass, models_info, extended_classes):
+    def get_ext_dom_attrs(self, iliclass, models_info, extended_classes, inheritance):
+        if inheritance == 'smart1':
+            return self.get_ext_dom_attrs_smart1(iliclass, models_info, extended_classes)
+        elif inheritance == 'smart2':
+            return self.get_ext_dom_attrs_smart2(iliclass, models_info, extended_classes)
+        else: # No smart inheritance?
+            return {}
+
+    def get_ext_dom_attrs_smart1(self, iliclass, models_info, extended_classes):
+        """
+        Returns a dict for input iliclass with its original attr:domain pairs
+        plus all attr:domain pairs from children classes
+        """
+        children_domain_attrS = dict()
+        if iliclass in extended_classes.values(): # Does current class have children?
+            for child, parent in extended_classes.items(): # Top-bottom, we might find several children
+                if parent == iliclass:
+                    children_domain_attrS.update( self.get_ext_dom_attrs_smart1(child, models_info, extended_classes) )# Recursion
+                    # In the last line, if two children share an atributte that is not in parent, the latest class visited will overwrite previously visited classes
+        else:
+            return models_info[iliclass] if iliclass in models_info else {}
+        all_attrs = models_info[iliclass] if iliclass in models_info else {}
+
+        for children_domain_attr, domain in children_domain_attrS.items():
+            # smart1Inheritance: Pass child class attributes to parents, but don't overwrite extended attrs
+            if children_domain_attr not in all_attrs:
+                all_attrs[children_domain_attr] = domain
+        return all_attrs
+
+
+    def get_ext_dom_attrs_smart2(self, iliclass, models_info, extended_classes):
         """
         Returns a dict for input iliclass with its original attr:domain pairs
         plus all inherited attr:domain pairs
         """
         if iliclass in extended_classes: # Does current class have parents?
-            parents_domain_attrS = self.get_ext_dom_attrs(extended_classes[iliclass], models_info, extended_classes) # Recursion
+            parents_domain_attrS = self.get_ext_dom_attrs_smart2(extended_classes[iliclass], models_info, extended_classes) # Recursion
         else:
             return models_info[iliclass] if iliclass in models_info else {}
         all_attrs = models_info[iliclass] if iliclass in models_info else {}
-        for parents_domain_attr, domain in parents_domain_attrS.items():
-            # smart2Inheritance: Omit already existing attrs(they are extended already)
-            if parents_domain_attr not in all_attrs:
-	              all_attrs[parents_domain_attr] = domain
-        return all_attrs
 
+        for parents_domain_attr, domain in parents_domain_attrS.items():
+            # smart2Inheritance: Pass parent attributes to child, but omit already existing attrs (they are extended already)
+            if parents_domain_attr not in all_attrs:
+                all_attrs[parents_domain_attr] = domain
+        return all_attrs
 
 # TODO
 # Not yet supported:
 #   Classes that don't belong to a topic but directly to the model
-#   smart1Inheritance

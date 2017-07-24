@@ -111,7 +111,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             return
 
         try:
-            generator = Generator(configuration.uri, configuration.schema)
+            generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
         except OperationalError:
             self.txtStdout.setText(self.tr('There was an error connecting to the database. Check connection parameters.'))
             return
@@ -163,7 +163,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.setEnabled(True)
         self.buttonBox.addButton(QDialogButtonBox.Close)
-        
+
         QApplication.restoreOverrideCursor()
 
     def print_info(self, text):
@@ -179,7 +179,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_started(self, command):
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()
- 
+
     def on_process_finished(self, exit_code, result):
         self.txtStdout.setTextColor(QColor('#777777'))
         self.txtStdout.append('Finished ({})'.format(exit_code))
