@@ -253,7 +253,13 @@ class DomainRelation(Relation):
 
     def get_ext_dom_attrs(self, iliclass, models_info, extended_classes, inheritance):
         if inheritance == 'smart1':
-            return self.get_ext_dom_attrs_smart1(iliclass, models_info, extended_classes)
+            # Use smart 2 first to get domain attributes from parents (we really need them) and only then use smart 1
+            tmp_models_info = models_info
+            if iliclass in tmp_models_info:
+                tmp_models_info[iliclass].update( self.get_ext_dom_attrs_smart2(iliclass, models_info, extended_classes) )
+            else:
+                tmp_models_info[iliclass] = self.get_ext_dom_attrs_smart2(iliclass, models_info, extended_classes)
+            return self.get_ext_dom_attrs_smart1(iliclass, tmp_models_info, extended_classes)
         elif inheritance == 'smart2':
             return self.get_ext_dom_attrs_smart2(iliclass, models_info, extended_classes)
         else: # No smart inheritance?
