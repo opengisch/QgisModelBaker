@@ -28,11 +28,11 @@ from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator, NonEmptyStringValidator
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QSizePolicy, QGridLayout
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
-from qgis.gui import QgsProjectionSelectionDialog
+from qgis.gui import QgsMessageBar
 from ..utils import get_ui_class
 from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
