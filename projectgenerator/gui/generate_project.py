@@ -18,10 +18,7 @@
  ***************************************************************************/
 """
 
-import os
-from PyQt5.QtCore import Qt
-
-from PyQt5.QtWidgets import QCompleter
+from qgis.PyQt.QtWidgets import QCompleter
 from psycopg2 import OperationalError
 
 from projectgenerator.gui.options import OptionsDialog
@@ -30,7 +27,7 @@ from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QRegExpValidator, QValidator
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QRegExpValidator, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QSizePolicy, QGridLayout
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QRegExp, Qt
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem

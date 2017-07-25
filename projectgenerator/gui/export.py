@@ -20,12 +20,14 @@
 
 import os
 
+from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_save_file_selector, make_folder_selector
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings
-from qgis.core import QgsProject
+from projectgenerator.utils.qt_utils import make_save_file_selector
+from projectgenerator.libili2pg.ilicache import IliCache
+from qgis.gui import QgsMessageBar
+from qgis.PyQt.QtGui import QColor, QDesktopServices
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QCompleter, QSizePolicy, QGridLayout
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from ..utils import get_ui_class
 from ..libili2pg import iliexporter, ili2pg_config
 
@@ -45,6 +47,17 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.base_configuration = base_config
         self.restore_configuration()
+
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.txtStdout.setLayout(QGridLayout())
+        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
+        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+
+        self.ilicache = IliCache(base_config)
+        self.ilicache.models_changed.connect(self.update_models_completer)
+        self.ilicache.new_message.connect(self.show_message)
+        self.ilicache.refresh()
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -146,12 +159,22 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def link_activated(self, link):
         if link.url() == '#configure':
-            configuraton = self.updated_configuration()
-            cfg = ConfigDialog(configuraton)
+            cfg = OptionsDialog(self.base_configuration)
             if cfg.exec_():
-                # That's quite ugly
-                QSettings().setValue('QgsProjectGenerator/java_path', configuraton.java_path)
+                settings = QSettings()
+                settings.beginGroup('QgsProjectGenerator/ili2db')
+                self.base_configuration.save(settings)
 
         else:
             QDesktopServices.openUrl(link)
 
+    def update_models_completer(self):
+        completer = QCompleter(self.ilicache.model_names)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.ili_model_line_edit.setCompleter(completer)
+
+    def show_message(self, level, message):
+        if level == QgsMessageBar.WARNING:
+            self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
+        elif level == QgsMessageBar.CRITICAL:
+            self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
