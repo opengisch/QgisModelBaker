@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InterlisExport</class>
+ <widget class="QDialog" name="InterlisExport">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>718</width>
+    <height>674</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Export Interlis</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="page">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="pg_config">
+         <property name="title">
+          <string>PostgreSQL</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>User</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLineEdit" name="pg_schema_line_edit">
+            <property name="placeholderText">
+             <string>[Leave empty to load all schemas in the database]</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Schema</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" rowspan="2">
+           <widget class="QLineEdit" name="pg_host_line_edit">
+            <property name="text">
+             <string>localhost</string>
+            </property>
+            <property name="placeholderText">
+             <string>Database Hostname</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QLineEdit" name="pg_password_line_edit">
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+            <property name="placeholderText">
+             <string>[Leave empty to use system password]</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" rowspan="2" colspan="2">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Host</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLineEdit" name="pg_database_line_edit">
+            <property name="placeholderText">
+             <string>Database Name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QLineEdit" name="pg_user_line_edit">
+            <property name="placeholderText">
+             <string>Database Username</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="ili_config">
+         <property name="title">
+          <string>Interlis</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="2" colspan="2">
+           <widget class="QLineEdit" name="xtf_file_line_edit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Models</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>3</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="2" colspan="2">
+           <widget class="QLineEdit" name="ili_model_line_edit"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>XTF File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QToolButton" name="xtf_file_browse_button">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QTextBrowser" name="txtStdout">
+         <property name="openLinks">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_2"/>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>xtf_file_line_edit</tabstop>
+  <tabstop>xtf_file_browse_button</tabstop>
+  <tabstop>ili_model_line_edit</tabstop>
+  <tabstop>pg_host_line_edit</tabstop>
+  <tabstop>pg_database_line_edit</tabstop>
+  <tabstop>pg_schema_line_edit</tabstop>
+  <tabstop>pg_user_line_edit</tabstop>
+  <tabstop>pg_password_line_edit</tabstop>
+  <tabstop>txtStdout</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>InterlisExport</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>InterlisExport</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

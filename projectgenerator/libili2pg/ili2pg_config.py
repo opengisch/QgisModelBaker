@@ -26,6 +26,7 @@ class BaseConfiguration(object):
     def __init__(self):
         self.custom_model_directories_enabled = False
         self.custom_model_directories = ''
+        self.java_path = ''
 
     def save(self, settings):
         settings.setValue('CustomModelDirectoriesEnabled', self.custom_model_directories_enabled)

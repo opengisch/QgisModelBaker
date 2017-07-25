@@ -2,7 +2,6 @@
 
 """
 /***************************************************************************
- QFieldSync
                               -------------------
         begin                : 2016
         copyright            : (C) 2016 by OPENGIS.ch
@@ -34,15 +33,29 @@ from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
+import fnmatch
 
 
-def selectFolder(line_edit_widget, title, file_filter, parent):
+def selectFileName(line_edit_widget, title, file_filter, parent):
     filename, matched_filter = QFileDialog.getOpenFileName(parent, title, line_edit_widget.text(), file_filter)
     line_edit_widget.setText(filename)
 
-
 def make_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'), file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None):
-    return partial(selectFolder, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+    return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+
+def selectFileNameToSave(line_edit_widget, title, file_filter, parent):
+    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
+    line_edit_widget.setText(filename if filename.endswith('.xtf') else filename + '.xtf')
+
+def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'), file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None):
+    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+
+def selectFolder(line_edit_widget, title, parent):
+    foldername = QFileDialog.getExistingDirectory(parent, title, line_edit_widget.text())
+    line_edit_widget.setText(foldername)
+
+def make_folder_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open Folder'), parent=None):
+    return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
 
 class NetworkError(RuntimeError):
@@ -119,12 +132,24 @@ class Validators(QObject):
 
 
 class FileValidator(QValidator):
+    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False):
+        QValidator.__init__(self, parent)
+        self.pattern = pattern
+        self.is_executable = is_executable
+        self.allow_empty = allow_empty
+
     """
     Validator for file line edits
     """
     def validate(self, text, pos):
-        if not text or not os.path.isfile(text) or not text.endswith('.ili'):
-            return (QValidator.Intermediate, text, pos)
+        if self.allow_empty and not text.strip():
+            return QValidator.Acceptable, text, pos
+
+        if not text \
+                or not os.path.isfile(text) \
+                or not fnmatch.fnmatch(text, self.pattern) \
+                or (self.is_executable and not os.access(text, os.X_OK)):
+            return QValidator.Intermediate, text, pos
         else:
-            return (QValidator.Acceptable, text, pos)
+            return QValidator.Acceptable, text, pos
 
