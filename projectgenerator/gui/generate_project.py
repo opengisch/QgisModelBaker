@@ -117,7 +117,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             return
 
         try:
-            generator = Generator(configuration.uri, configuration.schema)
+            generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
         except OperationalError:
             self.txtStdout.setText(self.tr('There was an error connecting to the database. Check connection parameters.'))
             return
