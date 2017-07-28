@@ -51,7 +51,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
-        self.ili_file_browse_button.clicked.connect(make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'), file_filter=self.tr('Interlis Model File (*.ili)')))
+        self.ili_file_browse_button.clicked.connect(
+            make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
+                               file_filter=self.tr('Interlis Model File (*.ili)')))
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2pg_options = Ili2pgOptionsDialog()
         self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
@@ -93,14 +95,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
-
     def accepted(self):
         configuration = self.updated_configuration()
 
         if self.type_combo_box.currentData() == 'ili':
             if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable \
                     and not self.ili_models_line_edit.text():
-                self.txtStdout.setText(self.tr('Please set a valid INTERLIS file or model before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a valid INTERLIS file or model before creating the project.'))
                 self.ili_file_line_edit.setFocus()
                 return
         if not configuration.host:
@@ -119,12 +121,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         try:
             generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
         except OperationalError:
-            self.txtStdout.setText(self.tr('There was an error connecting to the database. Check connection parameters.'))
+            self.txtStdout.setText(
+                self.tr('There was an error connecting to the database. Check connection parameters.'))
             return
 
         self.save_configuration(configuration)
 
-        QApplication.setOverrideCursor( Qt.WaitCursor )
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         self.disable()
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.clear()
@@ -146,7 +149,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             except JavaNotFoundError:
                 self.txtStdout.setTextColor(QColor('#000000'))
                 self.txtStdout.clear()
-                self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                self.txtStdout.setText(self.tr(
+                    'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 self.enable()
                 QApplication.restoreOverrideCursor()
                 return
@@ -233,7 +237,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
-        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
+        self.type_combo_box.setCurrentIndex(
+            self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
         self.type_changed()
         self.crs_changed()
 
