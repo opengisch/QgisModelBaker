@@ -4,15 +4,15 @@
 
 # Projectgenerator
 
-This is a QGIS plugin to quickly generate QGIS projects from an existing model
-with a few mouseclicks.
+This is a QGIS plugin to quickly generate [QGIS](https://www.qgis.org) projects
+from an existing model with a few mouseclicks.
 
-Configuring QGIS layers and forms manually is a tedious process.
+Configuring QGIS layers and forms manually is a tedious and error prone process.
 This plugin loads database schemas with various meta information to preconfigure the
 layer tree, widget configuration, relations and more.
 
-Interlis models contain more information than a plain database schema. This
-plugin uses ili2pg to import an Interlis model into a PostGIS database and uses
+[Interlis](https://en.wikipedia.org/wiki/Interlis) models contain more information than a plain database schema. This
+plugin uses [ili2pg](https://github.com/claeis/ili2db#ili2db---importsexports-interlis-transfer-files-to-a-sql-db) to import an Interlis model into a PostGIS database and uses
 the additional meta information to configure the user interface even better.
 
 ## Translating the plugin
