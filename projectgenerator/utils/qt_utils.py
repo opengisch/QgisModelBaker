@@ -182,9 +182,7 @@ class OverrideCursor():
         self.cursor = cursor
 
     def __enter__(self):
-        print('Starting override cursor')
         QApplication.setOverrideCursor(self.cursor)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print('Restoring override cursor')
         QApplication.restoreOverrideCursor()
