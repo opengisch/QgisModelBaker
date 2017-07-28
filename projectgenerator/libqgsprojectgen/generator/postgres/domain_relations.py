@@ -119,7 +119,11 @@ class DomainRelation(Relation):
                         relation = Relation()
                         relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
                         relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
-                        relation.referencing_field = attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr]
+                        try:
+                            relation.referencing_field = attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr]
+                        except KeyError:
+                            if self.debug: print("Could not find {iliattr} in {classes}".format(iliattr=iliattr, classes=classes_ili_pg))
+                            continue
                         relation.referenced_field = 'ilicode'
                         relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
                                                              attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],
