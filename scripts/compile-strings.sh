@@ -4,4 +4,4 @@ then
   echo "$LRELEASE is not set, defaulting to lrelease"
   LRELEASE=lrelease
 fi
-$LRELEASE $1
+$LRELEASE $*
