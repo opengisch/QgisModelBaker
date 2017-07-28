@@ -27,7 +27,8 @@ from projectgenerator.gui.ili2pg_options import Ili2pgOptionsDialog
 from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
 from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.libili2pg.iliimporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator, NonEmptyStringValidator
+from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator, NonEmptyStringValidator, \
+    OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QSizePolicy, QGridLayout
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
@@ -39,7 +40,6 @@ from ..libqgsprojectgen.generator.postgres import Generator
 from ..libqgsprojectgen.dataobjects import Project
 
 DIALOG_UI = get_ui_class('generate_project.ui')
-
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
     def __init__(self, iface, base_config, parent=None):
@@ -75,12 +75,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
-        fileValidator = FileValidator(pattern='*.ili')
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
-        self.ili_file_line_edit.setValidator(fileValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -88,8 +86,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
@@ -99,8 +95,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration = self.updated_configuration()
 
         if self.type_combo_box.currentData() == 'ili':
-            if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable \
-                    and not self.ili_models_line_edit.text():
+            if not self.ili_file_line_edit.text() and not self.ili_models_line_edit.text():
                 self.txtStdout.setText(
                     self.tr('Please set a valid INTERLIS file or model before creating the project.'))
                 self.ili_file_line_edit.setFocus()
@@ -127,54 +122,50 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.save_configuration(configuration)
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.clear()
+        with OverrideCursor(Qt.WaitCursor):
+            self.disable()
+            self.txtStdout.setTextColor(QColor('#000000'))
+            self.txtStdout.clear()
 
-        if self.type_combo_box.currentData() == 'ili':
-            importer = iliimporter.Importer()
+            if self.type_combo_box.currentData() == 'ili':
+                importer = iliimporter.Importer()
 
-            importer.configuration = configuration
-            importer.stdout.connect(self.print_info)
-            importer.stderr.connect(self.on_stderr)
-            importer.process_started.connect(self.on_process_started)
-            importer.process_finished.connect(self.on_process_finished)
+                importer.configuration = configuration
+                importer.stdout.connect(self.print_info)
+                importer.stderr.connect(self.on_stderr)
+                importer.process_started.connect(self.on_process_started)
+                importer.process_finished.connect(self.on_process_finished)
 
-            try:
-                if importer.run() != iliimporter.Importer.SUCCESS:
+                try:
+                    if importer.run() != iliimporter.Importer.SUCCESS:
+                        self.enable()
+                        return
+                except JavaNotFoundError:
+                    self.txtStdout.setTextColor(QColor('#000000'))
+                    self.txtStdout.clear()
+                    self.txtStdout.setText(self.tr(
+                        'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                     self.enable()
-                    QApplication.restoreOverrideCursor()
                     return
-            except JavaNotFoundError:
-                self.txtStdout.setTextColor(QColor('#000000'))
-                self.txtStdout.clear()
-                self.txtStdout.setText(self.tr(
-                    'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
-                self.enable()
-                QApplication.restoreOverrideCursor()
-                return
 
-            configuration.schema = configuration.schema or configuration.database
+                configuration.schema = configuration.schema or configuration.database
 
-        available_layers = generator.layers()
-        relations = generator.relations(available_layers)
-        legend = generator.legend(available_layers)
+            available_layers = generator.layers()
+            relations = generator.relations(available_layers)
+            legend = generator.legend(available_layers)
 
-        project = Project()
-        project.layers = available_layers
-        project.relations = relations
-        project.legend = legend
+            project = Project()
+            project.layers = available_layers
+            project.relations = relations
+            project.legend = legend
 
-        qgis_project = QgsProject.instance()
-        project.layer_added.connect(self.print_info)
-        project.create(None, qgis_project)
+            qgis_project = QgsProject.instance()
+            project.layer_added.connect(self.print_info)
+            project.create(None, qgis_project)
 
-        self.buttonBox.clear()
-        self.buttonBox.setEnabled(True)
-        self.buttonBox.addButton(QDialogButtonBox.Close)
-
-        QApplication.restoreOverrideCursor()
+            self.buttonBox.clear()
+            self.buttonBox.setEnabled(True)
+            self.buttonBox.addButton(QDialogButtonBox.Close)
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))

@@ -23,7 +23,8 @@ import os
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
-from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, NonEmptyStringValidator, make_folder_selector
+from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, NonEmptyStringValidator, \
+    make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
@@ -43,7 +44,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
-        self.xtf_file_browse_button.clicked.connect(make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'), file_filter=self.tr('XTF Transfer File (*.xtf)')))
+        self.xtf_file_browse_button.clicked.connect(
+            make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
+                                    file_filter=self.tr('XTF Transfer File (*.xtf)')))
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -96,40 +99,37 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.pg_user_line_edit.setFocus()
             return
 
-        QApplication.setOverrideCursor( Qt.WaitCursor )
-        self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.clear()
-
-        exporter = iliexporter.Exporter()
-
-        exporter.configuration = configuration
-
-        self.save_configuration(configuration)
-
-        exporter.stdout.connect(self.print_info)
-        exporter.stderr.connect(self.on_stderr)
-        exporter.process_started.connect(self.on_process_started)
-        exporter.process_finished.connect(self.on_process_finished)
-
-        try:
-            if exporter.run() != iliexporter.Exporter.SUCCESS:
-                self.enable()
-                QApplication.restoreOverrideCursor()
-                return
-        except JavaNotFoundError:
+        with OverrideCursor(Qt.WaitCursor):
+            self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
-            self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
-            self.enable()
-            QApplication.restoreOverrideCursor()
-            return
 
-        self.buttonBox.clear()
-        self.buttonBox.setEnabled(True)
-        self.buttonBox.addButton(QDialogButtonBox.Close)
+            exporter = iliexporter.Exporter()
 
-        QApplication.restoreOverrideCursor()
+            exporter.configuration = configuration
+
+            self.save_configuration(configuration)
+
+            exporter.stdout.connect(self.print_info)
+            exporter.stderr.connect(self.on_stderr)
+            exporter.process_started.connect(self.on_process_started)
+            exporter.process_finished.connect(self.on_process_finished)
+
+            try:
+                if exporter.run() != iliexporter.Exporter.SUCCESS:
+                    self.enable()
+                    return
+            except JavaNotFoundError:
+                self.txtStdout.setTextColor(QColor('#000000'))
+                self.txtStdout.clear()
+                self.txtStdout.setText(self.tr(
+                    'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                self.enable()
+                return
+
+            self.buttonBox.clear()
+            self.buttonBox.setEnabled(True)
+            self.buttonBox.addButton(QDialogButtonBox.Close)
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
