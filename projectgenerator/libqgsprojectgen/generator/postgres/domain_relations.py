@@ -115,22 +115,19 @@ class DomainRelation(Relation):
                 if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili:
                     if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers and \
                                     classes_ili_pg[iliclass] in attrs_ili_pg_owner:
-                        # Might be that due to ORM mapping, a class is not in mapped_layers
-                        relation = Relation()
-                        relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
-                        relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
-                        try:
+                        if iliattr in attrs_ili_pg_owner[classes_ili_pg[iliclass]]:
+                            # Might be that due to ORM mapping, a class is not in mapped_layers
+                            relation = Relation()
+                            relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
+                            relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
                             relation.referencing_field = attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr]
-                        except KeyError:
-                            if self.debug: print("Could not find {iliattr} in {classes}".format(iliattr=iliattr, classes=classes_ili_pg))
-                            continue
-                        relation.referenced_field = 'ilicode'
-                        relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
-                                                             attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],
-                                                             domains_ili_pg[ilidomain], 'ilicode')
+                            relation.referenced_field = 'ilicode'
+                            relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
+                                                                 attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],
+                                                                 domains_ili_pg[ilidomain], 'ilicode')
 
-                        if self.debug: print("Relation:", relation.name)
-                        relations.append(relation)
+                            if self.debug: print("Relation:", relation.name)
+                            relations.append(relation)
 
         if self.debug: print("final_models_info:", models_info)
         if self.debug: print("extended_classes:", extended_classes)
