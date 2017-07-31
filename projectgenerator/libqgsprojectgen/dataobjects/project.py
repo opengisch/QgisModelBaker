@@ -97,7 +97,8 @@ class Project(QObject):
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
                         'Relation': rel.id(),
                         'ShowForm': False,
-                        'OrderByValue': True
+                        'OrderByValue': True,
+                        'ShowOpenFormButton': False
                     }
                 )
                 referencing_layer = rel.referencingLayer()
