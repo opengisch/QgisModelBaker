@@ -145,7 +145,11 @@
            </widget>
           </item>
           <item row="3" column="1" colspan="3">
-           <widget class="QgsProjectionSelectionWidget" name="crsSelector" native="true"/>
+           <widget class="QgsProjectionSelectionWidget" name="crsSelector" native="true">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+           </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="crs_label">
@@ -241,6 +245,9 @@
  </customwidgets>
  <tabstops>
   <tabstop>type_combo_box</tabstop>
+  <tabstop>ili_models_line_edit</tabstop>
+  <tabstop>ili_file_line_edit</tabstop>
+  <tabstop>ili_file_browse_button</tabstop>
   <tabstop>crsSelector</tabstop>
   <tabstop>ili2pg_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
@@ -249,7 +256,6 @@
   <tabstop>pg_user_line_edit</tabstop>
   <tabstop>pg_password_line_edit</tabstop>
   <tabstop>txtStdout</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
