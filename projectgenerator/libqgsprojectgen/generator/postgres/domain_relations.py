@@ -195,7 +195,7 @@ class DomainRelation(Relation):
                                 continue
 
                         attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search('\s*([\w\d_-]+).*:.*\s{}.*'.format(d), line)] if res}
+                                     [re.search('\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
 
                         if attribute:
                             if self.debug: print("MATCH:", attribute)
