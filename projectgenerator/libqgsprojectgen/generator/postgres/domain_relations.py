@@ -66,8 +66,10 @@ class DomainRelation(Relation):
         if self.debug: print("Classes with domain attrs:", len(models_info))
 
         # Map class ili name with its correspondent pg name
+        # Take into account classes with domain attrs and those that extend other classes,
+        #   because parent classes might have domain attrs that will be transfered to children
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        class_names = "'" + "','".join(list(models_info.keys())) + "'"
+        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
         cur.execute("""SELECT *
                        FROM {schema}.t_ili2db_classname
                        WHERE iliname IN ({class_names})
@@ -129,7 +131,7 @@ class DomainRelation(Relation):
                             if self.debug: print("Relation:", relation.name)
                             relations.append(relation)
 
-        if self.debug: print("final_models_info:", models_info)
+        if self.debug: print("final_models_info:", models_info_with_ext)
         if self.debug: print("extended_classes:", extended_classes)
         if self.debug: print("Num of Relations:", len(relations))
         return relations
