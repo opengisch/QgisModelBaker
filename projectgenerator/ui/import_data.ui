@@ -161,6 +161,13 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="chk_delete_data">
+            <property name="text">
+             <string>Delete existing data in affected tables</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

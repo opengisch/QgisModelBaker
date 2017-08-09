@@ -28,7 +28,7 @@ import locale
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
 from projectgenerator.utils.qt_utils import download_file
-from .ili2pg_config import ExportConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
+from .ili2pg_config import ImportDataConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
 
 
 class DataImporter(QObject):
@@ -47,7 +47,7 @@ class DataImporter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.filename = None
-        self.configuration = ExportConfiguration() # Also valid for basic data import
+        self.configuration = ImportDataConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
@@ -85,14 +85,14 @@ class DataImporter(QObject):
 
         args = ["-jar", ili2pg_file]
         args += ["--import"]
+        if self.configuration.delete_data:
+            args += ["--deleteData"]
         args += ["--dbhost", self.configuration.host]
         args += ["--dbusr", self.configuration.user]
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-
-        #args += self.configuration.base_configuration.to_ili2db_args()
 
         if self.configuration.ilimodels:
             args += ['--models', self.configuration.ilimodels]

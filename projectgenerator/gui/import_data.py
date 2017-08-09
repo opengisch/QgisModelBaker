@@ -171,6 +171,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.schema = self.pg_schema_line_edit.text().strip()
         configuration.password = self.pg_password_line_edit.text()
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
+        configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
         configuration.base_configuration = self.base_configuration
@@ -180,6 +181,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/xtffile', configuration.xtffile)
+        settings.setValue('QgsProjectGenerator/ili2pg/deleteData', configuration.delete_data)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
@@ -190,6 +192,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         settings = QSettings()
 
         self.xtf_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/xtffile'))
+        self.chk_delete_data.setChecked(settings.value('QgsProjectGenerator/ili2pg/deleteData', False, bool))
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
