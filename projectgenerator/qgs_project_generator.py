@@ -22,6 +22,7 @@ import os
 
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from projectgenerator.gui.export import ExportDialog
+from projectgenerator.gui.import_data import ImportDataDialog
 from qgis.PyQt.QtWidgets import QAction, QMenu
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication
 
@@ -36,6 +37,7 @@ class QgsProjectGeneratorPlugin(QObject):
         self.plugin_dir = os.path.dirname(__file__)
         self.__generate_action = None
         self.__export_action = None
+        self.__importdata_action = None
         self.__configure_action = None
         if locale.getlocale() == (None, None):
             locale.setlocale(locale.LC_ALL, '')
@@ -55,21 +57,28 @@ class QgsProjectGeneratorPlugin(QObject):
     def initGui(self):
         self.__generate_action = QAction(self.tr('Generate'), None)
         self.__export_action = QAction(self.tr('Export'), None)
+        self.__importdata_action = QAction(self.tr('Import Data'), None)
         self.__configure_action = QAction(self.tr('Settings'), None)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
+        self.__importdata_action.triggered.connect(self.show_importdata_dialog)
         self.__export_action.triggered.connect(self.show_export_dialog)
 
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
 
     def unload(self):
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__export_action)
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
         del self.__generate_action
         del self.__export_action
+        del self.__importdata_action
+        del self.__configure_action
 
     def show_generate_dialog(self):
         dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
@@ -85,3 +94,8 @@ class QgsProjectGeneratorPlugin(QObject):
     def show_export_dialog(self):
         dlg = ExportDialog(self.ili2db_configuration)
         dlg.exec_()
+
+    def show_importdata_dialog(self):
+        dlg = ImportDataDialog(self.ili2db_configuration)
+        dlg.exec_()
+
