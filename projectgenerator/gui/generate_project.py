@@ -115,6 +115,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         try:
             generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
+            print('uri: {} schema: {} inheritance: {}'.format(configuration.uri, configuration.schema, configuration.inheritance))
         except OperationalError:
             self.txtStdout.setText(
                 self.tr('There was an error connecting to the database. Check connection parameters.'))
@@ -158,6 +159,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.layers = available_layers
             project.relations = relations
             project.legend = legend
+            project.post_generate()
 
             qgis_project = QgsProject.instance()
             project.layer_added.connect(self.print_info)
@@ -246,10 +248,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def type_changed(self):
         if self.type_combo_box.currentData() == 'ili':
             self.ili_config.show()
-            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to create a default schema]")
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
         else:
             self.ili_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText("[Leave empty to load all schemas in the database]")
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
 
     def link_activated(self, link):
         if link.url() == '#configure':

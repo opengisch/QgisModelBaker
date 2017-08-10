@@ -17,7 +17,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+from typing import List
 
+from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
 from .layers import Layer
 from .legend import LegendGroup
 from qgis.core import QgsCoordinateReferenceSystem, QgsProject, QgsEditorWidgetSetup
@@ -31,9 +33,10 @@ class Project(QObject):
         QObject.__init__(self)
         self.crs = None
         self.name = 'Not set'
-        self.layers = list()
+        self.layers = List[Layer]
         self.legend = LegendGroup()
         self.auto_transaction = True
+        self.relations = List[Relation]
 
     def add_layer(self, layer):
         self.layers.append(layer)
@@ -106,8 +109,15 @@ class Project(QObject):
 
         qgis_project.relationManager().setRelations(qgis_relations)
 
+        for layer in self.layers:
+            layer.create_form(qgis_project)
+
         if self.legend:
             self.legend.create(qgis_project)
 
         if path:
             qgis_project.write(path)
+
+    def post_generate(self):
+        for layer in self.layers:
+            layer.post_generate(self)

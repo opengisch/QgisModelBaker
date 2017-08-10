@@ -2,7 +2,7 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 2017-04-12
+        begin                : 09/08/17
         git sha              : :%H$
         copyright            : (C) 2017 by OPENGIS.ch
         email                : info@opengis.ch
@@ -18,33 +18,4 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsEditorWidgetSetup
-
-class Field:
-    def __init__(self, name):
-        self.name = name
-        self.alias = None
-        self.read_only = False
-        self.widget = None
-        self.widget_config = dict()
-
-    def dump(self):
-        definition = dict()
-        if self.alias:
-            definition['alias'] = self.alias
-
-        return definition
-
-    def load(self, definition):
-        if 'alias' in definition:
-            self.alias = definition['alias']
-
-    def create(self, layer):
-        field_idx = layer.layer.fields().indexOf(self.name)
-
-        if self.alias:
-            layer.layer.setFieldAlias(field_idx, self.alias)
-
-        if self.widget:
-            setup = QgsEditorWidgetSetup(self.widget, self.widget_config)
-            layer.layer.setEditorWidgetSetup(field_idx, setup)
+from projectgenerator.qgs_project_generator import QgsProjectGeneratorPlugin
