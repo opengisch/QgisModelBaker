@@ -25,7 +25,9 @@ import zipfile
 import functools
 import locale
 
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop, QSettings
+from qgis.PyQt.QtNetwork import QNetworkProxy
+from qgis.core import QgsNetworkAccessManager
 
 from projectgenerator.utils.qt_utils import download_file
 from .ili2pg_config import ImportDataConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
@@ -94,10 +96,43 @@ class DataImporter(QObject):
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
 
+        args += self.configuration.base_configuration.to_ili2db_args()
+
         if self.configuration.ilimodels:
             args += ['--models', self.configuration.ilimodels]
 
+        # Use our default schema-import parameters and get others from QSettings.
+        # They're used by ili2db in case the schema doesn't exist. If it exists,
+        # this doesn't have any effect on the import.
+        args += ["--createEnumTabs"]
+        args += ["--createNumChecks"]
+        args += ["--coalesceMultiSurface"]
+        args += ["--createGeomIdx"]
+        args += ["--createFk"]
+        args += ["--setupPgExt"]
+        args += ["--createMetaInfo"]
+
+        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
+        if proxy.type() == QNetworkProxy.HttpProxy:
+            args += ["--proxy", proxy.hostName()]
+            args += ["--proxyPort", str(proxy.port())]
+
+        settings = QSettings()
+        epsg = settings.value('QgsProjectGenerator/ili2pg/epsg')
+        if epsg:
+            args += ["--defaultSrsCode", "{}".format(epsg)]
+
+        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance')
+        if inheritance == 'smart1':
+            args += ["--smart1Inheritance"]
+        elif inheritance == 'smart2':
+            args += ["--smart2Inheritance"]
+        else:
+            args += ["--noSmartMapping"]
+
+
         args += [self.configuration.xtffile]
+
 
         if self.configuration.java_path:
             # A java path is configured: respect it no mather what
