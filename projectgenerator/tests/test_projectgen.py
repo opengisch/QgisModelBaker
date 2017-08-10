@@ -19,9 +19,9 @@
 """
 
 try:
+    import os
     import qgis
     import nose2
-    import os
 
     from projectgenerator.libqgsprojectgen.dataobjects import Project
     from qgis.testing import unittest, start_app
