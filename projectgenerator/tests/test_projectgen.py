@@ -18,18 +18,25 @@
  ***************************************************************************/
 """
 
-import qgis
-import nose2
+try:
+    import qgis
+    import nose2
+    import os
 
-from projectgenerator.libqgsprojectgen.dataobjects import Project
-from qgis.testing import unittest, start_app
-from qgis.core import QgsProject, QgsEditFormConfig
-from projectgenerator.libqgsprojectgen.generator.postgres import Generator
+    from projectgenerator.libqgsprojectgen.dataobjects import Project
+    from qgis.testing import unittest, start_app
+    from qgis.core import QgsProject, QgsEditFormConfig
+    from projectgenerator.libqgsprojectgen.generator.postgres import Generator
 
-start_app()
+    start_app()
+except ImportError:
+    # As long as we don't deploy qgis on travis, there's nothing we can do... sorry
+    from nose2.compat import unittest
+    pass
 
 
 class TestProjectGen(unittest.TestCase):
+    @unittest.skipIf('TRAVIS' in os.environ, 'Enable this test as soon as qgis is available on travis')
     def test_kbs(self):
         generator = Generator('dbname=interlis user=mkuhn host=localhost', 'kbs22', 'smart1')
 
