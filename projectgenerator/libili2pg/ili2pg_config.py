@@ -31,10 +31,12 @@ class BaseConfiguration(object):
     def save(self, settings):
         settings.setValue('CustomModelDirectoriesEnabled', self.custom_model_directories_enabled)
         settings.setValue('CustomModelDirectories', self.custom_model_directories)
+        settings.setValue('JavaPath', self.java_path)
 
     def restore(self, settings):
         self.custom_model_directories_enabled = settings.value('CustomModelDirectoriesEnabled', False, bool)
         self.custom_model_directories = settings.value('CustomModelDirectories', '', str)
+        self.java_path = settings.value('JavaPath', '', str)
 
     def to_ili2db_args(self):
         args = []

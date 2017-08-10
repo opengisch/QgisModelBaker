@@ -124,9 +124,9 @@ class Importer(QObject):
         if self.configuration.ilifile:
             args += [self.configuration.ilifile]
 
-        if self.configuration.java_path:
+        if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
-            java_paths = [self.configuration.java_path]
+            java_paths = [self.configuration.base_configuration.java_path]
         else:
             # By default try JAVA_HOME and PATH
             java_paths = []
