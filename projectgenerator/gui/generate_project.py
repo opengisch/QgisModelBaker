@@ -201,7 +201,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
-        configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
         configuration.base_configuration = self.base_configuration
 
         return configuration
