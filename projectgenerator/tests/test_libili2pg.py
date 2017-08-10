@@ -1,3 +1,5 @@
+from projectgenerator.libili2pg.ili2pg_config import BaseConfiguration
+
 try:
     import qgis
     from qgis.testing import unittest, start_app
@@ -17,7 +19,8 @@ import tempfile
 class IliCacheTest(unittest.TestCase):
     @unittest.skipIf('TRAVIS' in os.environ, 'Enable this test as soon as qgis is available on travis')
     def test_refresh(self):
-        ic = ilicache.IliCache()
+        config = BaseConfiguration()
+        ic = ilicache.IliCache(config)
         ic.cache_path = tempfile.mkdtemp()
         ic.refresh()
 
