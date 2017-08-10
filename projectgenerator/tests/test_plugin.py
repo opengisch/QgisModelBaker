@@ -18,4 +18,10 @@
  ***************************************************************************/
 """
 
-from projectgenerator.qgs_project_generator import QgsProjectGeneratorPlugin
+try:
+    import os
+    from projectgenerator.qgs_project_generator import QgsProjectGeneratorPlugin
+except ImportError as e:
+    # As long as we don't deploy qgis on travis, there's nothing we can do... sorry
+    if not 'TRAVIS' in os.environ:
+        raise e
