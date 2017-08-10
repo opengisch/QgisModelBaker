@@ -62,6 +62,11 @@ class Layer(object):
         self.__layer.setEditFormConfig(edit_form)
 
     def post_generate(self, project):
+        '''
+        Will be called when the whole project has been generated and
+        therefore all relations are available and the form
+        can also be generated.
+        '''
         has_tabs = False
         for relation in project.relations:
             if relation.referencing_layer == self:
@@ -77,11 +82,16 @@ class Layer(object):
             self.__form.add_element(tab)
 
             for relation in project.relations:
-                if relation.referencing_layer == self:
-                    tab = FormTab(relation.referenced_layer.name)
-                    widget = FormRelationWidget(relation.referenced_layer.name, relation)
+                if relation.referenced_layer == self:
+                    tab = FormTab(relation.referencing_layer.name)
+                    widget = FormRelationWidget(relation.referencing_layer.name, relation)
                     tab.addChild(widget)
                     self.__form.add_element(tab)
+        else:
+            for field in self.fields:
+                if field.widget != 'Hidden':
+                    widget = FormFieldWidget(field.alias, field.name)
+                    self.__form.add_element(widget)
 
     @property
     def layer(self):
@@ -89,6 +99,9 @@ class Layer(object):
 
     @property
     def real_id(self):
+        '''
+        The layer id. Only valid after creating the layer.
+        '''
         if self.__layer:
             return self.__layer.id()
         else:
@@ -96,16 +109,28 @@ class Layer(object):
 
     @property
     def table_name(self):
+        '''
+        This layers table name in the data provider
+        '''
         return QgsDataSourceUri(self.uri).table()
 
     @property
     def geometry_column(self):
+        '''
+        The main geometry column for this layer. In explicit, the one that is shown on the map canvas.
+        '''
         return QgsDataSourceUri(self.uri).geometryColumn()
 
     @property
     def wkb_type(self) -> QgsWkbTypes.Type:
+        '''
+        The geometries WKB type
+        '''
         return QgsDataSourceUri(self.uri).wkbType()
 
     @property
     def name(self) -> str:
+        '''
+        A human readable name for this layer, to be used in the legend and similar places
+        '''
         return self.table_name
