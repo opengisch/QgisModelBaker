@@ -94,8 +94,6 @@ class Exporter(QObject):
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
 
-        args += self.configuration.base_configuration.to_ili2db_args()
-
         if self.configuration.ilimodels:
             args += ['--models', self.configuration.ilimodels]
 
