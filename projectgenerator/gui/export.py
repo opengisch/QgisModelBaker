@@ -151,7 +151,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def on_process_finished(self, exit_code, result):
         color = '#004905' if exit_code == 0 else '#aa2222'
         self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append('Finished ({})'.format(exit_code))
+        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
         if result == iliexporter.Exporter.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
