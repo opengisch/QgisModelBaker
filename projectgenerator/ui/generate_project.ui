@@ -24,16 +24,7 @@
        <item row="0" column="1">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
          </layout>
@@ -118,6 +109,20 @@
            <widget class="QLineEdit" name="pg_user_line_edit">
             <property name="placeholderText">
              <string>Database Username</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="pg_port_line_edit">
+            <property name="placeholderText">
+             <string>[Leave empty to use standard port 5432]</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Port</string>
             </property>
            </widget>
           </item>
@@ -251,6 +256,7 @@
   <tabstop>crsSelector</tabstop>
   <tabstop>ili2pg_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
+  <tabstop>pg_port_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
   <tabstop>pg_schema_line_edit</tabstop>
   <tabstop>pg_user_line_edit</tabstop>
