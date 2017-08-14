@@ -137,7 +137,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#aa2222'))
+        self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
@@ -149,7 +149,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        self.txtStdout.setTextColor(QColor('#777777'))
+        color = '#004905' if exit_code == 0 else '#aa2222'
+        self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append('Finished ({})'.format(exit_code))
         if result == iliexporter.Exporter.SUCCESS:
             self.buttonBox.clear()
