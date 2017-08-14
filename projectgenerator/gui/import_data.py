@@ -173,7 +173,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
-        configuration.java_path = QSettings().value('QgsProjectGenerator/java_path', '')
         configuration.base_configuration = self.base_configuration
 
         return configuration
