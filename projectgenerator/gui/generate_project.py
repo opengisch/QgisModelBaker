@@ -195,6 +195,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration = ImportConfiguration()
 
         configuration.host = self.pg_host_line_edit.text().strip()
+        configuration.port = self.pg_port_line_edit.text().strip()
         configuration.user = self.pg_user_line_edit.text().strip()
         configuration.database = self.pg_database_line_edit.text().strip()
         configuration.schema = self.pg_schema_line_edit.text().strip().lower()
@@ -212,6 +213,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings.setValue('QgsProjectGenerator/ili2pg/ilifile', configuration.ilifile)
         settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.epsg)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
+        settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
         settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
@@ -225,6 +227,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crs = QgsCoordinateReferenceSystem(settings.value('QgsProjectGenerator/ili2pg/epsg', 21781, int))
         self.update_crs_info()
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_port_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/port'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))

@@ -89,6 +89,8 @@ class Importer(QObject):
         args = ["-jar", ili2pg_file]
         args += ["--schemaimport"]
         args += ["--dbhost", self.configuration.host]
+        if self.configuration.port:
+            args += ["--dbport", self.configuration.port]
         args += ["--dbusr", self.configuration.user]
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
