@@ -34,7 +34,7 @@ class Form(object):
         return self.__elements
 
     def create(self, layer):
-        edit_form_config = QgsEditFormConfig()
+        edit_form_config = layer.editFormConfig()
         root_container = edit_form_config.invisibleRootContainer()
         for element in self.__elements:
             root_container.addChildElement(element.create(root_container, layer))
