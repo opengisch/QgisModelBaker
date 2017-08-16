@@ -20,6 +20,7 @@
 
 from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
+from projectgenerator.gui.custom_models_dir import CustomModelsDir
 from qgis.PyQt.QtWidgets import QDialog
 
 from projectgenerator.utils.qt_utils import FileValidator, Validators
@@ -39,8 +40,14 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         self.java_path_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.buttonBox.accepted.connect(self.accepted)
+        self.custom_models_dir_button.clicked.connect(self.show_custom_models_dir)
 
     def accepted(self):
         self.configuration.custom_model_directories = self.custom_model_directories_line_edit.text()
         self.configuration.custom_model_directories_enabled = self.custom_model_directories_box.isChecked()
         self.configuration.java_path = self.java_path_line_edit.text().strip()
+
+    def show_custom_models_dir(self):
+        custom_model_dir=self.custom_model_directories_line_edit.text
+        dlg = CustomModelsDir(custom_model_dir,self)
+        dlg.exec_()
