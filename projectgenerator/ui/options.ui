@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>403</width>
+    <height>237</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -38,7 +46,7 @@
       <attribute name="title">
        <string>Interlis</string>
       </attribute>
-      <layout class="QFormLayout" name="formLayout">
+      <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0" colspan="2">
         <widget class="QgsCollapsibleGroupBox" name="custom_model_directories_box">
          <property name="title">
@@ -47,11 +55,19 @@
          <property name="checkable">
           <bool>true</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
+         <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QLineEdit" name="custom_model_directories_line_edit">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLineEdit" name="custom_model_directories_line_edit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Directories which contain Interlis Models (ili files). Several paths can be separated with a semicolon `;`. It is also possible to specify URL's of model repositories.&lt;/p&gt;
 &lt;dl&gt;
 &lt;dt&gt;%ILI_FROM_DB&lt;/dt&gt;&lt;dd&gt;is a placeholder for the models in the database (in the table &lt;code&gt;t_ili2db_model&lt;/code&gt;).
@@ -60,13 +76,25 @@
 &lt;dd&gt;is a placeholder for the directory with a transfer file.&lt;/dd&gt;
 &lt;dt&gt;%JAR_DIR&lt;/dt&gt;&lt;dd&gt;is a placeholder for the directory with the ili2db application (ili2pg.jar / ili2gpkg.jar).&lt;/dd&gt;&lt;/dl&gt;
 &lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="placeholderText">
-             <string>%ILI_FROM_DB;%XTF_DIR;http://models.interlis.ch/;%JAR_DIR</string>
-            </property>
-           </widget>
+              </property>
+              <property name="placeholderText">
+               <string>%ILI_FROM_DB;%XTF_DIR;http://models.interlis.ch/;%JAR_DIR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="custom_models_dir_button">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
+         <zorder></zorder>
+         <zorder>customModelsDirButton</zorder>
+         <zorder></zorder>
         </widget>
        </item>
        <item row="1" column="0">
@@ -118,6 +146,17 @@
     </widget>
    </item>
   </layout>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>2</width>
+     <height>2</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout"/>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
