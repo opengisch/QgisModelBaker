@@ -113,6 +113,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_user_line_edit.setFocus()
             return
 
+        configuration.schema = configuration.schema or 'public'
         try:
             generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
             print('uri: {} schema: {} inheritance: {}'.format(configuration.uri, configuration.schema, configuration.inheritance))
@@ -148,8 +149,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                     self.enable()
                     return
-
-                configuration.schema = configuration.schema or configuration.database
 
             available_layers = generator.layers()
             relations = generator.relations(available_layers)
@@ -250,7 +249,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
         else:
             self.ili_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load the default schema 'public']"))
 
     def link_activated(self, link):
         if link.url() == '#configure':
