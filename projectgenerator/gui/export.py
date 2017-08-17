@@ -137,7 +137,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#aa2222'))
+        self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
@@ -149,8 +149,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        self.txtStdout.setTextColor(QColor('#777777'))
-        self.txtStdout.append('Finished ({})'.format(exit_code))
+        color = '#004905' if exit_code == 0 else '#aa2222'
+        self.txtStdout.setTextColor(QColor(color))
+        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
         if result == iliexporter.Exporter.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -166,6 +167,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration = ili2pg_config.ExportConfiguration()
 
         configuration.host = self.pg_host_line_edit.text().strip()
+        configuration.port = self.pg_port_line_edit.text().strip()
         configuration.user = self.pg_user_line_edit.text().strip()
         configuration.database = self.pg_database_line_edit.text().strip()
         configuration.schema = self.pg_schema_line_edit.text().strip()
@@ -180,6 +182,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings = QSettings()
         settings.setValue('QgsProjectGenerator/ili2pg/xtffile', configuration.xtffile)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
+        settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
         settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
         settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
@@ -190,6 +193,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.xtf_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/xtffile'))
         self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_port_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/port'))
         self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
