@@ -36,6 +36,7 @@ class Form(object):
     def create(self, layer):
         edit_form_config = layer.editFormConfig()
         root_container = edit_form_config.invisibleRootContainer()
+        root_container.clear()
         for element in self.__elements:
             root_container.addChildElement(element.create(root_container, layer))
         edit_form_config.setLayout(QgsEditFormConfig.TabLayout)
