@@ -135,8 +135,8 @@ class PostgresCreator:
                 FROM pg_catalog.pg_statio_all_tables st
                 LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
                 LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-                LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columname AND unit.tag = 'ch.ehi.ili2db.unit'
-                LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columname AND txttype.tag = 'ch.ehi.ili2db.textKind'
+                LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columnname AND unit.tag = 'ch.ehi.ili2db.unit'
+                LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columnname AND txttype.tag = 'ch.ehi.ili2db.textKind'
                 WHERE st.relid = '{schema}.{table}'::regclass;
             """.format(schema=record['schemaname'], table=record['tablename']))
 

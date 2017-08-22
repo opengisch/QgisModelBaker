@@ -19,7 +19,7 @@
 """
 from qgis.PyQt.QtCore import QObject
 
-ILI2PG_VERSION = '3.9.1'
+ILI2PG_VERSION = '3.10.6'
 ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
 
 class BaseConfiguration(object):
