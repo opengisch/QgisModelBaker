@@ -90,6 +90,8 @@ class DataImporter(QObject):
         if self.configuration.delete_data:
             args += ["--deleteData"]
         args += ["--dbhost", self.configuration.host]
+        if self.configuration.port:
+            args += ["--dbport", self.configuration.port]
         args += ["--dbusr", self.configuration.user]
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]

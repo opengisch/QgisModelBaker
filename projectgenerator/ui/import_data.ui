@@ -36,21 +36,21 @@
           <string>PostgreSQL</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="6" column="0">
+          <item row="7" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>User</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="5" column="2">
            <widget class="QLineEdit" name="pg_schema_line_edit">
             <property name="placeholderText">
              <string>[Leave empty to load all schemas in the database]</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>Schema</string>
@@ -67,14 +67,14 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
+          <item row="10" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Password</string>
             </property>
            </widget>
           </item>
-          <item row="9" column="2">
+          <item row="10" column="2">
            <widget class="QLineEdit" name="pg_password_line_edit">
             <property name="echoMode">
              <enum>QLineEdit::Password</enum>
@@ -91,24 +91,38 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="4" column="2">
            <widget class="QLineEdit" name="pg_database_line_edit">
             <property name="placeholderText">
              <string>Database Name</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Database</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
+          <item row="7" column="2">
            <widget class="QLineEdit" name="pg_user_line_edit">
             <property name="placeholderText">
              <string>Database Username</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="pg_port_line_edit">
+            <property name="placeholderText">
+             <string>[Leave empty to use standard port 5432]</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Port</string>
             </property>
            </widget>
           </item>
@@ -199,7 +213,9 @@
   <tabstop>xtf_file_line_edit</tabstop>
   <tabstop>xtf_file_browse_button</tabstop>
   <tabstop>ili_models_line_edit</tabstop>
+  <tabstop>chk_delete_data</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
+  <tabstop>pg_port_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
   <tabstop>pg_schema_line_edit</tabstop>
   <tabstop>pg_user_line_edit</tabstop>
