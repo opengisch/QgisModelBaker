@@ -79,23 +79,23 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration = self.updated_configuration()
 
         if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
-            self.txtStdout.setText(self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+            self.txtStdout.setText(self.tr('Please set a valid INTERLIS XTF file before importing data.'))
             self.xtf_file_line_edit.setFocus()
             return
         if not configuration.ilimodels:
-            self.txtStdout.setText(self.tr('Please set a model before exporting data.'))
+            self.txtStdout.setText(self.tr('Please set a model before importing data.'))
             self.ili_models_line_edit.setFocus()
             return
         if not configuration.host:
-            self.txtStdout.setText(self.tr('Please set a host before exporting data.'))
+            self.txtStdout.setText(self.tr('Please set a host before importing data.'))
             self.pg_host_line_edit.setFocus()
             return
         if not configuration.database:
-            self.txtStdout.setText(self.tr('Please set a database before exporting data.'))
+            self.txtStdout.setText(self.tr('Please set a database before importing data.'))
             self.pg_database_line_edit.setFocus()
             return
         if not configuration.user:
-            self.txtStdout.setText(self.tr('Please set a database user before exporting data.'))
+            self.txtStdout.setText(self.tr('Please set a database user before importing data.'))
             self.pg_user_line_edit.setFocus()
             return
 
@@ -137,7 +137,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#aa2222'))
+        self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
@@ -149,7 +149,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        self.txtStdout.setTextColor(QColor('#777777'))
+        color = '#004905' if exit_code == 0 else '#aa2222'
+        self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append('Finished ({})'.format(exit_code))
         if result == ilidataimporter.DataImporter.SUCCESS:
             self.buttonBox.clear()
@@ -163,7 +164,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         Get the configuration that is updated with the user configuration changes on the dialog.
         :return: Configuration
         """
-        configuration = ili2pg_config.ExportConfiguration() # Also valid for basic data import
+        configuration = ili2pg_config.ImportDataConfiguration()
 
         configuration.host = self.pg_host_line_edit.text().strip()
         configuration.port = self.pg_port_line_edit.text().strip()

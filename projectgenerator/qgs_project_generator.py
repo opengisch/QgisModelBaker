@@ -66,14 +66,14 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__export_action.triggered.connect(self.show_export_dialog)
 
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
 
     def unload(self):
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
         del self.__generate_action
         del self.__export_action
