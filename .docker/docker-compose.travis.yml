@@ -1,0 +1,14 @@
+version: '3'
+services:
+  postgres:
+    image: kartoza/postgis:9.5-2.2
+    environment:
+      - ALLOW_IP_RANGE="172.18.0.0/16"
+
+  qgis:
+    tty: true
+    image: qgis/qgis
+    volumes:
+      - ${TRAVIS_BUILD_DIR}:/usr/src
+    links:
+      - postgres
