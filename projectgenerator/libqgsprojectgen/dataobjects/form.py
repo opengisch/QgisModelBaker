@@ -85,7 +85,7 @@ class FormFieldWidget(object):
 
     def create(self, parent, layer):
         index = layer.fields().indexOf(self.field_name)
-        widget = QgsAttributeEditorField(self.name, index, parent)
+        widget = QgsAttributeEditorField(self.field_name, index, parent)
         return widget
 
 
