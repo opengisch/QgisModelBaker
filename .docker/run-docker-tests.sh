@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-cd /usr/src/projectgenerator
+pushd /usr/src
 xvfb-run nose2-3
+popd
