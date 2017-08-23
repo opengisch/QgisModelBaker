@@ -129,6 +129,7 @@ class PostgresCreator:
             fields_cur.execute("""
                 SELECT
                   c.column_name,
+                  c.data_type,
                   pgd.description AS comment,
                   unit.setting AS unit,
                   txttype.setting AS texttype
@@ -186,6 +187,17 @@ class PostgresCreator:
                 if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
                     field.widget = 'TextEdit'
                     field.widget_config['IsMultiline'] = True
+
+                if 'time' in fielddef['data_type'] or 'date' in fielddef['data_type']:
+                    field.widget = 'DateTime'
+                    field.widget_config['calendar_popup'] = True
+                    # timestamps don't need further configuration
+                    if 'time' in fielddef['data_type'] and not 'timestamp' in fielddef['data_type']:
+                        field.widget_config['field_format'] = 'HH:mm:ss'
+                        field.widget_config['display_format'] = 'HH:mm:ss'
+                    elif 'date' in fielddef['data_type']:
+                        field.widget_config['field_format'] = 'yyyy-MM-dd'
+                        field.widget_config['display_format'] = 'yyyy-MM-dd'
 
                 layer.fields.append(field)
 
