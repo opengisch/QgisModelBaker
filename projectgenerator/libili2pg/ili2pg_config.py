@@ -101,6 +101,21 @@ class ExportConfiguration(object):
         self.base_configuration = BaseConfiguration()
 
 
+class ImportDataConfiguration(object):
+    def __init__(self):
+        self.xtffile = ''
+        self.host = ''
+        self.user = ''
+        self.database = ''
+        self.schema = ''
+        self.password = ''
+        self.port = ''
+        self.ilimodels = ''
+        self.delete_data = False
+
+        self.base_configuration = BaseConfiguration()
+
+
 class JavaNotFoundError(FileNotFoundError):
     pass
 
