@@ -1,3 +1,6 @@
+install:
+- docker build .docker
+
 script:
 - docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
