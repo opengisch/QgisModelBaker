@@ -17,6 +17,7 @@
 #***************************************************************************
 
 set -e
+sleep 10 # Wait for postgres container to become available
 pushd /usr/src
 xvfb-run nose2-3
 popd
