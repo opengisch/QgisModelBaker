@@ -22,7 +22,9 @@ import os
 import qgis
 import nose2
 
+from projectgenerator.libili2pg import iliimporter
 from projectgenerator.libqgsprojectgen.dataobjects import Project
+from projectgenerator.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from projectgenerator.libqgsprojectgen.generator.postgres import Generator
@@ -32,7 +34,15 @@ start_app()
 
 class TestProjectGen(unittest.TestCase):
     def test_kbs(self):
-        generator = Generator('dbname=gis user=docker password=docker host=postgres', 'kbs22', 'smart1')
+        importer = iliimporter.Importer()
+        importer.configuration = iliimporter_config()
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.schema = 'kbs'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('dbname=gis user=docker password=docker host=postgres', 'kbs', 'smart1')
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -55,30 +65,35 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(edit_form_config.layout(), QgsEditFormConfig.TabLayout)
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['Katasternummer',
-                                              'URL_Standort',
-                                              'Standorttyp',
-                                              'InBetrieb',
-                                              'Nachsorge',
-                                              'StatusAltlV',
-                                              'Ersteintrag',
-                                              'LetzteAnpassung',
-                                              'URL_KbS_Auszug',
-                                              'bemerkung',
-                                              'bemerkung_de',
+                self.assertEqual(fields, set(['bemerkung_en',
+                                              'Geo_Lage_Polygon',
                                               'bemerkung_fr',
+                                              'Nachsorge',
+                                              'zustaendigkeitkataster',
+                                              'InBetrieb',
+                                              'URL_KbS_Auszug',
+                                              'StatusAltlV',
+                                              'Katasternummer',
+                                              'Ersteintrag',
+                                              'bemerkung',
                                               'bemerkung_rm',
                                               'bemerkung_it',
-                                              'bemerkung_en',
-                                              'zustaendigkeitkataster',
-                                              'Geo_Lage_Polygon',
-                                              'Geo_Lage_Punkt']))
+                                              'bemerkung_de',
+                                              'LetzteAnpassung',
+                                              'Geo_Lage_Punkt',
+                                              'URL_Standort',
+                                              'Standorttyp']))
 
                 self.assertEqual(tabs[1].name(), 'zustaendigkeitkataster') # This might need to be adjustet if we get better names
 
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
 
+    def print_info(self, text):
+        print(text)
+
+    def print_error(self, text):
+        print(text)
 
 if __name__ == '__main__':
     nose2.main()
