@@ -6,8 +6,8 @@ services:
       - ALLOW_IP_RANGE="172.18.0.0/16"
 
   qgis:
+    build: .
     tty: true
-    image: qgis/qgis
     volumes:
       - ${TRAVIS_BUILD_DIR}:/usr/src
     links:
