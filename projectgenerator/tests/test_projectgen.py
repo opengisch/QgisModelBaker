@@ -65,24 +65,24 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(edit_form_config.layout(), QgsEditFormConfig.TabLayout)
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['bemerkung_en',
-                                              'Geo_Lage_Polygon',
-                                              'bemerkung_fr',
-                                              'Nachsorge',
+                self.assertEqual(fields, set(['letzteanpassung',
                                               'zustaendigkeitkataster',
-                                              'InBetrieb',
-                                              'URL_KbS_Auszug',
-                                              'StatusAltlV',
-                                              'Katasternummer',
-                                              'Ersteintrag',
-                                              'bemerkung',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'bemerkung_en',
                                               'bemerkung_rm',
+                                              'katasternummer',
                                               'bemerkung_it',
-                                              'bemerkung_de',
-                                              'LetzteAnpassung',
-                                              'Geo_Lage_Punkt',
-                                              'URL_Standort',
-                                              'Standorttyp']))
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'bemerkung_fr',
+                                              'standorttyp',
+                                              'bemerkung',
+                                              'geo_lage_punkt',
+                                              'bemerkung_de']))
 
                 self.assertEqual(tabs[1].name(), 'deponietyp_') # This might need to be adjustet if we get better names
 
