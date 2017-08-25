@@ -56,8 +56,8 @@ class QgsProjectGeneratorPlugin(QObject):
 
     def initGui(self):
         self.__generate_action = QAction(self.tr('Generate'), None)
-        self.__export_action = QAction(self.tr('Export'), None)
-        self.__importdata_action = QAction(self.tr('Import Data'), None)
+        self.__export_action = QAction(self.tr('Export Interlis Transfer File (.xtf)'), None)
+        self.__importdata_action = QAction(self.tr('Import Interlis Transfer File (.xtf)'), None)
         self.__configure_action = QAction(self.tr('Settings'), None)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
