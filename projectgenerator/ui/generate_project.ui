@@ -135,28 +135,28 @@
           <string>Interlis</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="4" column="2" colspan="2">
+          <item row="4" column="3" colspan="2">
            <widget class="QPushButton" name="ili2pg_options_button">
             <property name="text">
              <string>Advanced Options</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="1">
            <widget class="QLabel" name="label_7">
             <property name="text">
              <string>Model</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1" colspan="3">
+          <item row="3" column="2" colspan="3">
            <widget class="QgsProjectionSelectionWidget" name="crsSelector" native="true">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="3" column="1">
            <widget class="QLabel" name="crs_label">
             <property name="toolTip">
              <string>Coordinate Reference System</string>
@@ -166,27 +166,31 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="3">
-           <widget class="QLineEdit" name="ili_models_line_edit"/>
-          </item>
-          <item row="2" column="0">
+          <item row="2" column="1">
            <widget class="QLabel" name="label">
             <property name="text">
              <string>Interlis File</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="3">
+          <item row="2" column="4">
            <widget class="QToolButton" name="ili_file_browse_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="ili_file_line_edit"/>
+          <item row="2" column="2" colspan="2">
+           <widget class="QLineEdit" name="ili_file_line_edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="2">
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -198,6 +202,26 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radio_button_1">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="3">
+           <widget class="QLineEdit" name="ili_models_line_edit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radio_button_2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

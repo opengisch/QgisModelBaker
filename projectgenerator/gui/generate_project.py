@@ -79,6 +79,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
+        self.ili_models_line_edit.setValidator(nonEmptyValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -86,10 +87,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(self.ili_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
+        self.radio_button_1.toggled.connect(self.radio1_clicked)
+        self.radio_button_2.toggled.connect(self.radio2_clicked)
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -291,3 +296,29 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
         elif level == QgsMessageBar.CRITICAL:
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+
+    def radio1_clicked(self, enabled):
+        if enabled:
+            self.ili_models_line_edit.setEnabled(True)
+            nonEmptyValidator = NonEmptyStringValidator()
+            self.ili_models_line_edit.setValidator(nonEmptyValidator)
+            self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
+            self.ili_models_line_edit.textChanged.emit(self.ili_file_line_edit.text())
+            self.ili_file_line_edit.setEnabled(False)
+            self.ili_file_browse_button.setEnabled(False)
+            self.ili_file_line_edit.setText("")
+            self.ili_file_line_edit.setValidator(None)
+            self.ili_file_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#fff'))
+
+    def radio2_clicked(self, enabled):
+        if enabled:
+            self.ili_file_line_edit.setEnabled(True)
+            self.ili_file_browse_button.setEnabled(True)
+            self.ili_models_line_edit.setEnabled(False)
+            self.ili_models_line_edit.setText("")
+            self.ili_models_line_edit.setValidator(None)
+            self.ili_models_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#fff'))
+            fileValidator = FileValidator(pattern='*.ili')
+            self.ili_file_line_edit.setValidator(fileValidator)
+            self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+            self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
