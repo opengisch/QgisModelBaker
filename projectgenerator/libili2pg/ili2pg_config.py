@@ -38,10 +38,11 @@ class BaseConfiguration(object):
         self.custom_model_directories = settings.value('CustomModelDirectories', '', str)
         self.java_path = settings.value('JavaPath', '', str)
 
-    def to_ili2db_args(self):
+    def to_ili2db_args(self, export_modeldir=True):
         args = []
-        if self.custom_model_directories_enabled and self.custom_model_directories:
-            args += ['--modeldir', self.custom_model_directories]
+        if export_modeldir:
+            if self.custom_model_directories_enabled and self.custom_model_directories:
+                args += ['--modeldir', self.custom_model_directories]
         return args
 
     @property
