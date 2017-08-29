@@ -236,7 +236,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
         settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
         settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
-        settings.setValue('QgsProjectGenerator/ili2pg/modelenabled', self.model_radio_button.isChecked())
+        settings.setValue('QgsProjectGenerator/ili2db/UseModels', self.model_radio_button.isChecked())
         settings.setValue('QgsProjectGenerator/importtype', self.type_combo_box.currentData())
 
     def restore_configuration(self):
@@ -257,7 +257,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_changed()
         self.crs_changed()
 
-        checked_radio = settings.value('QgsProjectGenerator/ili2pg/modelenabled', True, bool)
+        checked_radio = settings.value('QgsProjectGenerator/ili2db/UseModels', True, bool)
         self.model_radio_button.setChecked(True) if checked_radio else self.interlis_file_radio_button.setChecked(True)
 
     def disable(self):
