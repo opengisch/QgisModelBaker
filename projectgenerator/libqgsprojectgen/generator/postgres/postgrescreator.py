@@ -25,8 +25,8 @@ import re
 from projectgenerator.libqgsprojectgen.dataobjects import Field
 from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
 from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
-from qgis.core import QgsProviderRegistry, QgsWkbTypes
-from qgis.PyQt.QtCore import QCoreApplication
+from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
+from qgis.PyQt.QtCore import QCoreApplication, QLocale
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from .relations import PostgresRelation
 from .domain_relations import DomainRelation
@@ -203,13 +203,17 @@ class PostgresCreator:
                 if 'time' in fielddef['data_type'] or 'date' in fielddef['data_type']:
                     field.widget = 'DateTime'
                     field.widget_config['calendar_popup'] = True
-                    # timestamps don't need further configuration
+
+                    dateFormat = QLocale(QgsApplication.instance().locale()).dateFormat(QLocale.ShortFormat)
+                    timeFormat = QLocale(QgsApplication.instance().locale()).timeFormat(QLocale.ShortFormat)
+                    dateTimeFormat = QLocale(QgsApplication.instance().locale()).dateTimeFormat(QLocale.ShortFormat)
+
                     if 'time' in fielddef['data_type'] and not 'timestamp' in fielddef['data_type']:
-                        field.widget_config['field_format'] = 'HH:mm:ss'
-                        field.widget_config['display_format'] = 'HH:mm:ss'
+                        field.widget_config['display_format'] = timeFormat
+                    elif 'timestamp' in fielddef['data_type']:
+                        field.widget_config['display_format'] = dateTimeFormat
                     elif 'date' in fielddef['data_type']:
-                        field.widget_config['field_format'] = 'yyyy-MM-dd'
-                        field.widget_config['display_format'] = 'yyyy-MM-dd'
+                        field.widget_config['display_format'] = dateFormat
 
                 layer.fields.append(field)
 
