@@ -23,9 +23,10 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 
 class Layer(object):
-    def __init__(self, provider, uri, is_domain=False):
+    def __init__(self, provider, uri, alias='', is_domain=False):
         self.provider = provider
         self.uri = uri
+        self.alias = alias
         self.__layer = None
         self.fields = list()
         self.is_domain = is_domain
@@ -47,7 +48,7 @@ class Layer(object):
 
     def create(self):
         if self.__layer is None:
-            layer_name = self.name
+            layer_name = self.alias or self.name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
             if self.is_domain:
                 self.__layer.setReadOnly()

@@ -60,9 +60,13 @@ class PostgresCreator:
 
             if bMetadataTable:
                 is_domain_field = "p.setting AS is_domain,"
+                table_alias = "alias.setting AS table_alias,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
                               AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(self.schema)
+                alias_left_join = """LEFT JOIN {}.t_ili2db_table_prop alias
+                              ON alias.tablename = tbls.tablename
+                              AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -75,6 +79,7 @@ class PostgresCreator:
                       g.f_geometry_column AS geometry_column,
                       g.srid AS srid,
                       {is_domain_field}
+                      {table_alias}
                       g.type AS type
                     FROM pg_catalog.pg_tables tbls
                     LEFT JOIN pg_index i
@@ -83,11 +88,14 @@ class PostgresCreator:
                       ON a.attrelid = i.indrelid
                       AND a.attnum = ANY(i.indkey)
                     {domain_left_join}
+                    {alias_left_join}
                     LEFT JOIN public.geometry_columns g
                       ON g.f_table_schema = tbls.schemaname
                       AND g.f_table_name = tbls.tablename
                     WHERE i.indisprimary {schema_where}
-        """.format(is_domain_field = is_domain_field, domain_left_join = domain_left_join, schema_where = schema_where))
+        """.format(is_domain_field = is_domain_field, table_alias = table_alias,
+                   domain_left_join = domain_left_join, alias_left_join = alias_left_join,
+                   schema_where = schema_where))
 
         layers = list()
 
@@ -122,7 +130,9 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layer = Layer('postgres', data_source_uri, record['is_domain'] == 'ENUM' or record['is_domain'] == 'CATALOGUE' if 'is_domain' in record else False)
+            alias = record['table_alias'] if 'table_alias' in record else ''
+            is_domain = record['is_domain'] == 'ENUM' or record['is_domain'] == 'CATALOGUE' if 'is_domain' in record else False
+            layer = Layer('postgres', data_source_uri, alias, is_domain)
 
             # Get all fields for this table
             fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -131,12 +141,14 @@ class PostgresCreator:
                   c.column_name,
                   pgd.description AS comment,
                   unit.setting AS unit,
-                  txttype.setting AS texttype
+                  txttype.setting AS texttype,
+                  alias.setting AS column_alias
                 FROM pg_catalog.pg_statio_all_tables st
                 LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
                 LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
                 LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columnname AND unit.tag = 'ch.ehi.ili2db.unit'
                 LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columnname AND txttype.tag = 'ch.ehi.ili2db.textKind'
+                LEFT JOIN {schema}.t_ili2db_column_prop alias ON c.table_name=alias.tablename AND c.column_name=alias.columnname AND alias.tag = 'ch.ehi.ili2db.dispName'
                 WHERE st.relid = '{schema}.{table}'::regclass;
             """.format(schema=record['schemaname'], table=record['tablename']))
 
@@ -164,8 +176,8 @@ class PostgresCreator:
                 column_name = fielddef['column_name']
                 comment = fielddef['comment']
                 m = re_iliname.match(comment) if comment else None
-                alias = None
-                if m:
+                alias = fielddef['column_alias']
+                if m and not alias:
                     alias = m.group(1)
 
                 field = Field(column_name)
