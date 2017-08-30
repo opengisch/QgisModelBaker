@@ -95,7 +95,7 @@ class Importer(QObject):
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
-        args += ["--dbschema", self.configuration.schema or self.configuration.database]
+        args += ["--dbschema", self.configuration.schema or 'public']
         args += ["--createEnumTabs"]
         args += ["--createNumChecks"]
         args += ["--coalesceMultiSurface"]

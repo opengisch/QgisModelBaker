@@ -92,7 +92,7 @@ class Exporter(QObject):
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
-        args += ["--dbschema", self.configuration.schema or self.configuration.database]
+        args += ["--dbschema", self.configuration.schema or 'public']
 
         args += self.configuration.base_configuration.to_ili2db_args(False)
 
