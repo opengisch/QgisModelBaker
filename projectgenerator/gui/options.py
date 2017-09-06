@@ -39,6 +39,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.java_path_line_edit.setValidator(FileValidator(is_executable=True, allow_empty=True))
         self.validators = Validators()
         self.java_path_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili2db_logfile_path.setText(configuration.logfile_path)
+        self.ili2db_logfile_search_button.clicked.connect(qt_utils.make_file_selector(self.ili2db_logfile_path, self.tr('Select java application.'), self.tr('java (*)')))
+        self.ili2db_enable_debugging.setChecked(self.configuration.debugging_enabled)
         self.buttonBox.accepted.connect(self.accepted)
         self.custom_models_dir_button.clicked.connect(self.show_custom_model_dir)
 
@@ -46,6 +49,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.configuration.custom_model_directories = self.custom_model_directories_line_edit.text()
         self.configuration.custom_model_directories_enabled = self.custom_model_directories_box.isChecked()
         self.configuration.java_path = self.java_path_line_edit.text().strip()
+        self.configuration.logfile_path = self.ili2db_logfile_path.text()
+        self.configuration.debugging_enabled = self.ili2db_enable_debugging.isChecked()
 
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)

@@ -27,22 +27,31 @@ class BaseConfiguration(object):
         self.custom_model_directories_enabled = False
         self.custom_model_directories = ''
         self.java_path = ''
+        self.logfile_path = ''
+        self.debugging_enabled = False
 
     def save(self, settings):
         settings.setValue('CustomModelDirectoriesEnabled', self.custom_model_directories_enabled)
         settings.setValue('CustomModelDirectories', self.custom_model_directories)
         settings.setValue('JavaPath', self.java_path)
+        settings.setValue('LogfilePath', self.logfile_path)
+        settings.setValue('DebuggingEnabled', self.debugging_enabled)
 
     def restore(self, settings):
         self.custom_model_directories_enabled = settings.value('CustomModelDirectoriesEnabled', False, bool)
         self.custom_model_directories = settings.value('CustomModelDirectories', '', str)
         self.java_path = settings.value('JavaPath', '', str)
+        self.debugging_enabled = settings.value('DebuggingEnabled', False, bool)
+        self.logfile_path = settings.value('LogfilePath', '', str)
 
     def to_ili2db_args(self, export_modeldir=True):
         args = []
         if export_modeldir:
             if self.custom_model_directories_enabled and self.custom_model_directories:
                 args += ['--modeldir', self.custom_model_directories]
+        args += ['--trace']
+        if self.logfile_path:
+            args += ['--log', self.logfile_path]
         return args
 
     @property

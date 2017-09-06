@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>237</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -47,6 +47,33 @@
        <string>Interlis</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="java_path_line_edit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>If this is left empty, %PATH and %JAVA_HOME is searched</string>
+           </property>
+           <property name="placeholderText">
+            <string>[By default %PATH and %JAVA_HOME is searched]</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="java_path_search_button">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QgsCollapsibleGroupBox" name="custom_model_directories_box">
          <property name="title">
@@ -93,8 +120,6 @@
           </item>
          </layout>
          <zorder></zorder>
-         <zorder>customModelsDirButton</zorder>
-         <zorder></zorder>
         </widget>
        </item>
        <item row="1" column="0">
@@ -104,32 +129,31 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLineEdit" name="java_path_line_edit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>If this is left empty, %PATH and %JAVA_HOME is searched</string>
-           </property>
-           <property name="placeholderText">
-            <string>[By default %PATH and %JAVA_HOME is searched]</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="java_path_search_button">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="ili2db_enable_debugging">
+         <property name="title">
+          <string>Debug</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLineEdit" name="ili2db_logfile_path">
+            <property name="placeholderText">
+             <string>Log file</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="ili2db_logfile_search_button">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -146,7 +170,7 @@
     </widget>
    </item>
   </layout>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
