@@ -19,7 +19,8 @@ IGNORED_TABLES = [
 
 IGNORED_FIELDNAMES = [
     't_id',
-    't_seq'
+    't_seq',
+    't_basket'
 ]
 
 READONLY_FIELDNAMES = [
