@@ -76,6 +76,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
 
+        self.ili_models_line_edit.setValidator(nonEmptyValidator)
+        fileValidator = FileValidator(pattern='*.ili')
+        self.ili_file_line_edit.setValidator(fileValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
@@ -86,20 +89,31 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.model_radio_toggled(self.model_radio_button.isChecked())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
+        self.model_radio_button.toggled.connect(self.model_radio_toggled)
 
     def accepted(self):
         configuration = self.updated_configuration()
 
         if self.type_combo_box.currentData() == 'ili':
-            if not self.ili_file_line_edit.text() and not self.ili_models_line_edit.text():
-                self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file or model before creating the project.'))
-                self.ili_file_line_edit.setFocus()
-                return
+            if self.model_radio_button.isChecked():
+                if not configuration.ilimodels:
+                    self.txtStdout.setText(
+                        self.tr('Please set a valid model before creating the project.'))
+                    self.ili_models_line_edit.setFocus()
+                    return
+            else:
+                if not self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] == QValidator.Acceptable:
+                    self.txtStdout.setText(
+                        self.tr('Please set a valid INTERLIS file before creating the project.'))
+                    self.ili_file_line_edit.setFocus()
+                    return
         if not configuration.host:
             self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
             self.pg_host_line_edit.setFocus()
@@ -201,17 +215,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.database = self.pg_database_line_edit.text().strip()
         configuration.schema = self.pg_schema_line_edit.text().strip().lower()
         configuration.password = self.pg_password_line_edit.text()
-        configuration.ilifile = self.ili_file_line_edit.text().strip()
-        configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        if self.model_radio_button.isChecked():
+            configuration.base_configuration = self.base_configuration
+            configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        else:
+            configuration.ilifile = self.ili_file_line_edit.text().strip()
+
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
-        configuration.base_configuration = self.base_configuration
 
         return configuration
 
     def save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue('QgsProjectGenerator/ili2pg/ilifile', configuration.ilifile)
+        settings.setValue('QgsProjectGenerator/ili2pg/ilifile', self.ili_file_line_edit.text().strip())
         settings.setValue('QgsProjectGenerator/ili2pg/epsg', self.epsg)
         settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
         settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
@@ -219,6 +236,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
         settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
         settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
+        settings.setValue('QgsProjectGenerator/ili2db/UseModels', self.model_radio_button.isChecked())
         settings.setValue('QgsProjectGenerator/importtype', self.type_combo_box.currentData())
 
     def restore_configuration(self):
@@ -233,10 +251,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
         self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
+
         self.type_combo_box.setCurrentIndex(
             self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
         self.type_changed()
         self.crs_changed()
+
+        checked_radio = settings.value('QgsProjectGenerator/ili2db/UseModels', True, bool)
+        self.model_radio_button.setChecked(True) if checked_radio else self.interlis_file_radio_button.setChecked(True)
 
     def disable(self):
         self.pg_config.setEnabled(False)
@@ -291,3 +313,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
         elif level == QgsMessageBar.CRITICAL:
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+
+    def model_radio_toggled(self, enabled):
+        self.ili_models_line_edit.setEnabled(enabled)
+        self.ili_file_line_edit.setEnabled(not enabled)
+        self.ili_file_browse_button.setEnabled(not enabled)
+
+        if enabled: # Using models line edit
+            self.ili_file_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#fff'))
+            self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+        else: # Using interlis file line edit
+            self.ili_models_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#fff'))
+            self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
+
