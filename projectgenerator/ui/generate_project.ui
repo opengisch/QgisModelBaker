@@ -142,18 +142,13 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Model</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="1" colspan="3">
            <widget class="QgsProjectionSelectionWidget" name="crsSelector" native="true">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
+            <zorder>label_7</zorder>
+            <zorder>ili_models_line_edit</zorder>
            </widget>
           </item>
           <item row="3" column="0">
@@ -165,26 +160,6 @@
              <string>CRS</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="1" colspan="3">
-           <widget class="QLineEdit" name="ili_models_line_edit"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Interlis File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QToolButton" name="ili_file_browse_button">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="ili_file_line_edit"/>
           </item>
           <item row="4" column="1">
            <spacer name="horizontalSpacer">
@@ -198,6 +173,33 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Model</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
+           <widget class="QLineEdit" name="ili_models_line_edit"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Interlis File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="ili_file_browse_button">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QLineEdit" name="ili_file_line_edit"/>
           </item>
          </layout>
         </widget>
@@ -251,8 +253,6 @@
  <tabstops>
   <tabstop>type_combo_box</tabstop>
   <tabstop>ili_models_line_edit</tabstop>
-  <tabstop>ili_file_line_edit</tabstop>
-  <tabstop>ili_file_browse_button</tabstop>
   <tabstop>crsSelector</tabstop>
   <tabstop>ili2pg_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
