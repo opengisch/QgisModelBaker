@@ -142,7 +142,7 @@ class Validators(QObject):
 
 
 class FileValidator(QValidator):
-    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False, allow_non_existing=False):
+    def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=True, allow_non_existing=False):
         QValidator.__init__(self, parent)
         self.pattern = pattern
         self.is_executable = is_executable

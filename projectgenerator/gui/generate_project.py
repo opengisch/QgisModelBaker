@@ -77,10 +77,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
+        fileValidator = FileValidator(pattern='*.ili')
 
+        self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
+        self.ili_file_line_edit.setValidator(fileValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -88,6 +91,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
