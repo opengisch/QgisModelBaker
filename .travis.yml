@@ -1,12 +1,16 @@
+language: python
+python:
+  - 3.5
+
 install:
-- pip install -r requirements.txt
-- docker build .docker
+  - pip install -r requirements.txt
+  - docker build .docker
 
 script:
-- docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
+  - docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
 after_success:
-- scripts/ci/deploy.sh
+  - scripts/ci/deploy.sh
 
 env:
   global:
