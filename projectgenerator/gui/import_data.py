@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-import os
+import os, webbrowser
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.ilidataimporter import JavaNotFoundError
@@ -44,6 +44,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(self.tr('Import Data'), QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton(QDialogButtonBox.Help)
+        self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_file_selector(self.xtf_file_line_edit, title=self.tr('Open XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf)')))
@@ -227,3 +229,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
+
+    def help_requested(self):
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")

@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import webbrowser
 
 from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
@@ -43,6 +44,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.ili2db_logfile_search_button.clicked.connect(qt_utils.make_file_selector(self.ili2db_logfile_path, self.tr('Select java application.'), self.tr('java (*)')))
         self.ili2db_enable_debugging.setChecked(self.configuration.debugging_enabled)
         self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.helpRequested.connect(self.help_requested)
         self.custom_models_dir_button.clicked.connect(self.show_custom_model_dir)
 
     def accepted(self):
@@ -55,3 +57,6 @@ class OptionsDialog(QDialog, DIALOG_UI):
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)
         dlg.exec_()
+
+    def help_requested(self):
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")
