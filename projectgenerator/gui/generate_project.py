@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-import os
+import os, webbrowser
 
 from psycopg2 import OperationalError
 
@@ -54,6 +54,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili)')))
+        self.buttonBox.addButton(QDialogButtonBox.Help)
+        self.buttonBox.helpRequested.connect(self.help_requested)
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2pg_options = Ili2pgOptionsDialog()
         self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
@@ -291,3 +293,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
         elif level == QgsMessageBar.CRITICAL:
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+
+    def help_requested(self):
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")
