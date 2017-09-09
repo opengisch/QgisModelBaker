@@ -77,7 +77,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
-        fileValidator = FileValidator(pattern='*.ili')
+        fileValidator = FileValidator(pattern='*.ili', allow_empty=True)
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
