@@ -97,13 +97,15 @@ class Importer(QObject):
         if self.configuration.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
 
-        args += self.configuration.base_configuration.to_ili2db_args()
-
         if self.configuration.ilimodels:
             args += ['--models', self.configuration.ilimodels]
 
         if self.configuration.ilifile:
+            # Valid ili file, don't pass --modelDir (it can cause ili2db errors)
+            args += self.configuration.base_configuration.to_ili2db_args(export_modeldir=False)
             args += [self.configuration.ilifile]
+        else:
+            args += self.configuration.base_configuration.to_ili2db_args()
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what

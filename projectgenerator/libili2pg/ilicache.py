@@ -39,15 +39,19 @@ class IliCache(QObject):
     models_changed = pyqtSignal()
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, configuration):
+    def __init__(self, configuration=None, single_ili_file=None):
         QObject.__init__(self)
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
         self.base_configuration = configuration
+        self.single_ili_file = single_ili_file
 
     def refresh(self):
-        for directory in self.base_configuration.model_directories:
-            self.process_model_directory(directory)
+        if not self.base_configuration is None:
+            for directory in self.base_configuration.model_directories:
+                self.process_model_directory(directory)
+        else:
+            self.process_single_ili_file()
 
     def process_model_directory(self, path):
         if path[0] == '%':
@@ -56,6 +60,11 @@ class IliCache(QObject):
             self.process_local_ili_folder(path)
         else:
             self.download_repository(path)
+
+    def process_single_ili_file(self):
+        models = self.process_ili_file(self.single_ili_file)
+        self.repositories["no_repo"] = sorted(models, key=lambda m: m['version'], reverse=True)
+        self.models_changed.emit()
 
     def download_repository(self, url):
         '''
@@ -135,22 +144,28 @@ class IliCache(QObject):
         models = list()
         fileModels = list()
         for ilifile in glob.iglob(os.path.join(path, '*.ili')):
-            try:
-                fileModels = self.parse_ili_file(ilifile, "utf-8")
-            except UnicodeDecodeError:
-                try:
-                    fileModels = self.parse_ili_file(ilifile, "latin1")
-                    self.new_message.emit(QgsMessageBar.WARNING,
-                        self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
-                except UnicodeDecodeError:
-                    self.new_message.emit(QgsMessageBar.CRITICAL,
-                        self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
-                    QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
-
+            fileModels = self.process_ili_file(ilifile)
             models.extend(fileModels)
 
         self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
+
+    def process_ili_file(self, ilifile):
+        fileModels = list()
+        try:
+            fileModels = self.parse_ili_file(ilifile, "utf-8")
+        except UnicodeDecodeError:
+            try:
+                fileModels = self.parse_ili_file(ilifile, "latin1")
+                self.new_message.emit(QgsMessageBar.WARNING,
+                    self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+            except UnicodeDecodeError:
+                self.new_message.emit(QgsMessageBar.CRITICAL,
+                    self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
+                fileModels = list()
+
+        return fileModels
 
     def parse_ili_file(self, ilipath, encoding):
         '''
