@@ -90,21 +90,35 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
+        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_file_line_edit.textChanged.connect(self.ili_file_changed)
+        self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
+
     def accepted(self):
         configuration = self.updated_configuration()
 
         if self.type_combo_box.currentData() == 'ili':
-            if not self.ili_file_line_edit.text() and not self.ili_models_line_edit.text():
+            if not self.ili_file_line_edit.text().strip():
+                if not self.ili_models_line_edit.text().strip():
+                    self.txtStdout.setText(
+                        self.tr('Please set a valid INTERLIS model before creating the project.'))
+                    self.ili_models_line_edit.setFocus()
+                    return
+
+            if self.ili_file_line_edit.text().strip() and \
+                   self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file or model before creating the project.'))
+                    self.tr('Please set a valid INTERLIS file before creating the project.'))
                 self.ili_file_line_edit.setFocus()
                 return
+
         if not configuration.host:
             self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
             self.pg_host_line_edit.setFocus()
@@ -206,11 +220,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.database = self.pg_database_line_edit.text().strip()
         configuration.schema = self.pg_schema_line_edit.text().strip().lower()
         configuration.password = self.pg_password_line_edit.text()
-        configuration.ilifile = self.ili_file_line_edit.text().strip()
-        configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2pg_options.get_inheritance_type()
+
         configuration.base_configuration = self.base_configuration
+        if self.ili_file_line_edit.text().strip():
+            configuration.ilifile = self.ili_file_line_edit.text().strip()
+
+        if self.ili_models_line_edit.text().strip():
+            configuration.ilimodels = self.ili_models_line_edit.text().strip()
 
         return configuration
 
@@ -286,8 +304,28 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             authid = self.crsSelector.crs().authid()
             self.epsg = int(authid[5:])
 
+    def ili_file_changed(self):
+        # If ili file is valid, models is optional
+        if self.ili_file_line_edit.text().strip() and \
+               self.ili_file_line_edit.validator().validate(self.ili_file_line_edit.text().strip(), 0)[0] == QValidator.Acceptable:
+            self.ili_models_line_edit.setValidator(None)
+            self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+
+            # Update completer to show only models in given ili file
+            self.iliFileCache = IliCache(single_ili_file=self.ili_file_line_edit.text().strip())
+            self.iliFileCache.models_changed.connect(self.update_models_completer)
+            self.iliFileCache.new_message.connect(self.show_message)
+            self.iliFileCache.refresh()
+        else:
+            nonEmptyValidator = NonEmptyStringValidator()
+            self.ili_models_line_edit.setValidator(nonEmptyValidator)
+            self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+
+            # Update completer to show repository models in models dir
+            self.ilicache.models_changed.emit()
+
     def update_models_completer(self):
-        completer = QCompleter(self.ilicache.model_names)
+        completer = QCompleter(self.sender().model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
 

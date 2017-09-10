@@ -131,13 +131,16 @@ class Validators(QObject):
         """
         senderObj = self.sender()
         validator = senderObj.validator()
-        state = validator.validate(senderObj.text().strip(), 0)[0]
-        if state == QValidator.Acceptable:
+        if validator is None:
             color = '#fff'  # White
-        elif state == QValidator.Intermediate:
-            color = '#ffd356'  # Light orange
         else:
-            color = '#f6989d'  # Red
+            state = validator.validate(senderObj.text().strip(), 0)[0]
+            if state == QValidator.Acceptable:
+                color = '#fff'  # White
+            elif state == QValidator.Intermediate:
+                color = '#ffd356'  # Light orange
+            else:
+                color = '#f6989d'  # Red
         senderObj.setStyleSheet('QLineEdit {{ background-color: {} }}'.format(color))
 
 
