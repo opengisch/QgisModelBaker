@@ -228,4 +228,4 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setCompleter(completer)
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")

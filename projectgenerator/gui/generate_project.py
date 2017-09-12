@@ -295,4 +295,4 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")

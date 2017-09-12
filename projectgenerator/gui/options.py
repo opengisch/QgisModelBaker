@@ -59,4 +59,4 @@ class OptionsDialog(QDialog, DIALOG_UI):
         dlg.exec_()
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/")
+        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#plugin-configuration")
