@@ -4,4 +4,6 @@ MAINTAINER Matthias Kuhn <matthias@opengis.ch>
 RUN apt-get update && \
     apt-get -y install default-jre 
 
+ENV LANG=C.UTF-8
+
 WORKDIR /
