@@ -20,18 +20,15 @@
 import os
 
 import re
-import tempfile
-import zipfile
 import locale
 import functools
 
+from projectgenerator.libili2pg.ili2dbutils import get_ili2pg_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
 
-from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration
-from projectgenerator.utils.qt_utils import download_file
-from .ili2pg_config import ImportConfiguration, JavaNotFoundError, ILI2PG_VERSION, ILI2PG_URL
+from .ili2pg_config import ImportConfiguration, JavaNotFoundError
 
 
 class Importer(QObject):
@@ -57,36 +54,11 @@ class Importer(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        ili2pg_dir = 'ili2pg-{}'.format(ILI2PG_VERSION)
+        ili2pg_bin = get_ili2pg_bin(self.stdout, self.stderr)
+        if not ili2pg_bin:
+            return
 
-        ili2pg_file = os.path.join(dir_path, 'bin', ili2pg_dir, 'ili2pg.jar')
-        if not os.path.isfile(ili2pg_file):
-            try:
-                os.mkdir(os.path.join(dir_path, 'bin'))
-            except FileExistsError:
-                pass
-
-            tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
-
-            self.stdout.emit(self.tr('Downloading ili2pg version {}...'.format(ILI2PG_VERSION)))
-            download_file(ILI2PG_URL, tmpfile.name, on_progress=lambda received, total: self.stdout.emit('.'))
-
-            try:
-                with zipfile.ZipFile(tmpfile.name, "r") as z:
-                    z.extractall(os.path.join(dir_path, 'bin'))
-            except zipfile.BadZipFile:
-                # We will realize soon enough that the files were not extracted
-                pass
-
-            if not os.path.isfile(ili2pg_file):
-                self.stderr.emit(
-                    self.tr(
-                        'File "{file}" not found. Please download and extract <a href="{ili2pg_url}">{ili2pg_url}</a>.'.format(
-                            file=ili2pg_file,
-                            ili2pg_url=ILI2PG_URL)))
-
-        args = ["-jar", ili2pg_file]
+        args = ["-jar", ili2pg_bin]
         args += ["--schemaimport"]
         args += ["--dbhost", self.configuration.host]
         if self.configuration.port:
