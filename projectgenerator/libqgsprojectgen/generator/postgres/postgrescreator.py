@@ -46,6 +46,8 @@ class PostgresCreator:
         is_domain_field = ''
         domain_left_join = ''
         schema_where = ''
+        table_alias = ''
+        alias_left_join = ''
 
         if self.schema:
             # Do we have t_ili2db_table_prop
