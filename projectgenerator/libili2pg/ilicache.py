@@ -126,15 +126,15 @@ class IliCache(QObject):
             return
 
         self.repositories[netloc] = list()
+        repo_models = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliRepository09.RepositoryIndex'):
-            repo_models = list()
             for model_metadata in repo.findall('ili23:IliRepository09.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
                 model['version'] = model_metadata.find('ili23:Version', self.ns).text
                 repo_models.append(model)
 
-            self.repositories[netloc] = sorted(repo_models, key=lambda m: m['version'], reverse=True)
+        self.repositories[netloc] = sorted(repo_models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
 
     def process_local_ili_folder(self, path):
