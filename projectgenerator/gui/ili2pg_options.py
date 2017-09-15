@@ -52,7 +52,7 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
 
     def restore_configuration(self):
         settings = QSettings()
-        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart1')
+        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart2')
         if inheritance == 'smart1':
             self.smart1_radio_button.setChecked(True)
         else:

@@ -95,7 +95,7 @@ class DataImporter(QObject):
         if epsg:
             args += ["--defaultSrsCode", "{}".format(epsg)]
 
-        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance')
+        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart2')
         if inheritance == 'smart1':
             args += ["--smart1Inheritance"]
         elif inheritance == 'smart2':
