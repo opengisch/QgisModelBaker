@@ -7,13 +7,56 @@
     <x>0</x>
     <y>0</y>
     <width>718</width>
-    <height>674</height>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Generate Project</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>88</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Source</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="type_combo_box">
+     <item>
+      <property name="text">
+       <string>Interlis (PostGIS)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Interlis (GeoPackage)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PostGIS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>GeoPackage</string>
+      </property>
+     </item>
+    </widget>
+   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
@@ -21,15 +64,6 @@
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
-        <widget class="QWidget" name="widget" native="true">
-         <layout class="QGridLayout" name="gridLayout_2">
-          <property name="margin">
-           <number>0</number>
-          </property>
-         </layout>
-        </widget>
-       </item>
        <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="pg_config">
          <property name="title">
@@ -57,16 +91,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QLineEdit" name="pg_host_line_edit">
-            <property name="text">
-             <string>localhost</string>
-            </property>
-            <property name="placeholderText">
-             <string>Database Hostname</string>
-            </property>
-           </widget>
-          </item>
           <item row="9" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
@@ -81,13 +105,6 @@
             </property>
             <property name="placeholderText">
              <string>[Leave empty to use system password]</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" rowspan="2" colspan="2">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Host</string>
             </property>
            </widget>
           </item>
@@ -126,6 +143,31 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Host</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="pg_host_line_edit"/>
+            <property name="text">
+             <string>localhost</string>
+            </property>
+            <property name="placeholderText">
+             <string>Database Hostname</string>
+            </property>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="margin">
+           <number>0</number>
+          </property>
          </layout>
         </widget>
        </item>
@@ -143,12 +185,10 @@
            </widget>
           </item>
           <item row="3" column="1" colspan="3">
-           <widget class="QgsProjectionSelectionWidget" name="crsSelector" native="true">
+           <widget class="QgsProjectionSelectionWidget" name="crsSelector">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
-            <zorder>label_7</zorder>
-            <zorder>ili_models_line_edit</zorder>
            </widget>
           </item>
           <item row="3" column="0">
@@ -208,40 +248,52 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="6" column="0">
         <widget class="QTextBrowser" name="txtStdout">
          <property name="openLinks">
           <bool>false</bool>
          </property>
         </widget>
        </item>
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="gpkg_config">
+         <property name="title">
+          <string>GeoPackage</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Database File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="geopackage_file"/>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="geopackage_browse_button">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page_2"/>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="type_combo_box">
-     <item>
-      <property name="text">
-       <string>Interlis</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Postgis</string>
-      </property>
-     </item>
     </widget>
    </item>
   </layout>

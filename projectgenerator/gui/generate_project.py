@@ -60,8 +60,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili2pg_options = Ili2pgOptionsDialog()
         self.ili2pg_options_button.clicked.connect(self.ili2pg_options.open)
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(self.tr('Interlis'), 'ili')
-        self.type_combo_box.addItem(self.tr('Postgis'), 'pg')
+        self.type_combo_box.addItem(self.tr('Interlis (PostGIS)'), 'ili2pg')
+        self.type_combo_box.addItem(self.tr('Interlis (GeoPackage)'), 'ili2gpkg')
+        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
+        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
@@ -106,7 +108,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        if self.type_combo_box.currentData() == 'ili':
+        if self.type_combo_box.currentData() == 'ili2pg':
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
@@ -149,7 +151,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
 
-            if self.type_combo_box.currentData() == 'ili':
+            if self.type_combo_box.currentData() == 'ili2pg':
                 importer = iliimporter.Importer()
 
                 importer.configuration = configuration
@@ -274,12 +276,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
-        if self.type_combo_box.currentData() == 'ili':
+        if self.type_combo_box.currentData() == 'ili2pg':
             self.ili_config.show()
+            self.pg_config.show()
+            self.gpkg_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
-        else:
+        elif self.type_combo_box.currentData() == 'pg':
             self.ili_config.hide()
+            self.pg_config.show()
+            self.gpkg_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
+        elif self.type_combo_box.currentData() == 'gpkg':
+            self.ili_config.hide()
+            self.pg_config.hide()
+            self.gpkg_config.show()
+        elif self.type_combo_box.currentData() == 'ili2gpkg':
+            self.ili_config.show()
+            self.pg_config.hide()
+            self.gpkg_config.show()
 
     def link_activated(self, link):
         if link.url() == '#configure':
