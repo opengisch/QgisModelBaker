@@ -3,7 +3,7 @@ services:
   postgres:
     image: kartoza/postgis:9.5-2.2
     environment:
-      - ALLOW_IP_RANGE="172.18.0.0/16"
+      - ALLOW_IP_RANGE="172.0.0.0/8"
 
   qgis:
     build: .
