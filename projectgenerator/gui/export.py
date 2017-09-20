@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-import os, webbrowser
+import os, webbrowser, os.path
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.iliexporter import JavaNotFoundError
@@ -26,7 +26,7 @@ from projectgenerator.libili2pg.ilicache import IliCache
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, FileValidator, NonEmptyStringValidator, \
     make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from qgis.core import QgsProject
 from ..utils import get_ui_class
@@ -100,6 +100,16 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.txtStdout.setText(self.tr('Please set a database user before exporting data.'))
             self.pg_user_line_edit.setFocus()
             return
+
+        if os.path.isfile(self.xtf_file_line_edit.text()):
+            self.msg = QMessageBox()
+            self.msg.setIcon(QMessageBox.Warning)
+            self.msg.setText(self.xtf_file_line_edit.text()+" "+self.tr("already exist. Do you want to replace it?"))
+            self.msg.setWindowTitle(self.tr("Export To XTF"))
+            self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box = self.msg.exec_()
+            if msg_box == QMessageBox.No:
+                return
 
         with OverrideCursor(Qt.WaitCursor):
             self.disable()
