@@ -17,7 +17,13 @@
 #***************************************************************************
 
 set -e
-sleep 10 # Wait for postgres container to become available
+# rationale: Wait for postgres container to become available
+while ! PGPASSWORD='docker' psql -h postgres -U docker -p 5432 -l &> /dev/null
+do
+  echo "Wait a moment while loading the database."
+  sleep 2
+done
+
 pushd /usr/src
 xvfb-run nose2-3
 popd
