@@ -106,7 +106,6 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         # If xtf browser was opened and the file exists, the user already chose to overwrite the file
         if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
-            self.xtf_browser_was_opened = False
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
             self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip()) + self.tr(" already exists.\nDo you want to replace it?"))
