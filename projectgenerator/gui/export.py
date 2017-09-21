@@ -49,6 +49,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf)')))
+        self.xtf_file_browse_button.clicked.connect(self.xtf_browser_opened_to_true)
+        self.xtf_browser_was_opened = False
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -72,6 +74,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.connect(self.xtf_browser_opened_to_false)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
@@ -101,11 +104,13 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.pg_user_line_edit.setFocus()
             return
 
-        if os.path.isfile(self.xtf_file_line_edit.text()):
+        # If xtf browser was opened and the file exists, the user already chose to overwrite the file
+        if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
+            self.xtf_browser_was_opened = False
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
-            self.msg.setText(self.xtf_file_line_edit.text()+" "+self.tr("already exist. Do you want to replace it?"))
-            self.msg.setWindowTitle(self.tr("Export To XTF"))
+            self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip()) + self.tr(" already exists.\nDo you want to replace it?"))
+            self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
             self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box = self.msg.exec_()
             if msg_box == QMessageBox.No:
@@ -239,3 +244,15 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def help_requested(self):
         webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+
+    def xtf_browser_opened_to_true(self):
+        """
+        Slot. Sets a flag to true to eventually avoid asking a user whether to overwrite a file.
+        """
+        self.xtf_browser_was_opened = True
+
+    def xtf_browser_opened_to_false(self):
+        """
+        Slot. Sets a flag to false to eventually ask a user whether to overwrite a file.
+        """
+        self.xtf_browser_was_opened = False
