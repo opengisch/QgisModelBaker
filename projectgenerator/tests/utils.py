@@ -19,7 +19,7 @@
 """
 import os
 
-from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration, BaseConfiguration
+from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration, BaseConfiguration
 
 
 def iliimporter_config():

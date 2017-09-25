@@ -22,7 +22,7 @@ import os
 import qgis
 import nose2
 
-from projectgenerator.libili2pg import iliimporter
+from projectgenerator.libili2db import iliimporter
 from projectgenerator.libqgsprojectgen.dataobjects import Project
 from projectgenerator.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
@@ -35,6 +35,7 @@ start_app()
 class TestProjectGen(unittest.TestCase):
     def test_kbs(self):
         importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config()
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.schema = 'kbs'

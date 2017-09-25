@@ -1,5 +1,5 @@
 .idea
 __pycache__
-projectgenerator/libili2pg/bin
+/projectgenerator/libili2db/bin
 *.orig
 i18n
