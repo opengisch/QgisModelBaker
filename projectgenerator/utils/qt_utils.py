@@ -51,7 +51,7 @@ def make_file_selector(widget, title=QCoreApplication.translate('projectgenerato
 
 def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension):
     filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
-    line_edit_widget.setText(filename if filename.endswith(extension) else filename + extension)
+    line_edit_widget.setText(filename if filename.endswith(extension) else (filename + extension if filename else ''))
 
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),

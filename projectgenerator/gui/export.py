@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-import os, webbrowser
+import os, webbrowser, os.path
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
@@ -26,7 +26,7 @@ from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
 from qgis.core import QgsProject
 from ..utils import get_ui_class
@@ -49,6 +49,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf)'), extension='.xtf'))
+        self.xtf_file_browse_button.clicked.connect(self.xtf_browser_opened_to_true)
+        self.xtf_browser_was_opened = False
+
         self.gpkg_file_browse_button.clicked.connect(
             make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
                                file_filter=self.tr('GeoPackage Database (*.gpkg)')))
@@ -81,6 +84,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.connect(self.xtf_browser_opened_to_false)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
         self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
@@ -117,6 +121,17 @@ class ExportDialog(QDialog, DIALOG_UI):
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(self.tr('Please set an existing database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
+                return
+
+        # If xtf browser was opened and the file exists, the user already chose to overwrite the file
+        if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
+            self.msg = QMessageBox()
+            self.msg.setIcon(QMessageBox.Warning)
+            self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip()) + self.tr(" already exists.\nDo you want to replace it?"))
+            self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
+            self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box = self.msg.exec_()
+            if msg_box == QMessageBox.No:
                 return
 
         with OverrideCursor(Qt.WaitCursor):
@@ -274,3 +289,15 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def help_requested(self):
         webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+
+    def xtf_browser_opened_to_true(self):
+        """
+        Slot. Sets a flag to true to eventually avoid asking a user whether to overwrite a file.
+        """
+        self.xtf_browser_was_opened = True
+
+    def xtf_browser_opened_to_false(self):
+        """
+        Slot. Sets a flag to false to eventually ask a user whether to overwrite a file.
+        """
+        self.xtf_browser_was_opened = False
