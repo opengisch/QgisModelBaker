@@ -1,0 +1,56 @@
+INTERLIS 2.3;
+
+TYPE MODEL ISO19107_V1_MAGNABOG (en)
+AT "http://www.swisslm.ch/models"
+VERSION "2016-03-07"  =
+
+  DOMAIN
+
+    GM_Point2D = COORD 165000.000 .. 1806900.000 [INTERLIS.m], 23000.000 .. 1984900.000 [INTERLIS.m] ,ROTATION 2 -> 1;
+
+    GM_Curve2D = POLYLINE WITH (ARCS,STRAIGHTS) VERTEX GM_Point2D WITHOUT OVERLAPS>0.001;
+
+    GM_Surface2D = SURFACE WITH (ARCS,STRAIGHTS) VERTEX GM_Point2D WITHOUT OVERLAPS>0.001;
+
+    GM_Point3D = COORD 165000.000 .. 1806900.000 [INTERLIS.m], 23000.000 .. 1984900.000 [INTERLIS.m], -1000.000 .. 6000.000 [INTERLIS.m] ,ROTATION 2 -> 1;
+
+    GM_Curve3D = POLYLINE WITH (ARCS,STRAIGHTS) VERTEX GM_Point3D WITHOUT OVERLAPS>0.001;
+
+    GM_Surface3D = SURFACE WITH (ARCS,STRAIGHTS) VERTEX GM_Point3D WITHOUT OVERLAPS>0.001;
+
+  STRUCTURE GM_Geometry2DListValue (ABSTRACT) =
+  END GM_Geometry2DListValue;
+
+  STRUCTURE GM_Curve2DListValue =
+    value : MANDATORY GM_Curve2D;
+  END GM_Curve2DListValue;
+
+  STRUCTURE GM_Surface2DListValue =
+    value : MANDATORY GM_Curve2D;
+  END GM_Surface2DListValue;
+
+  STRUCTURE GM_MultiCurve2D =
+    geometry : LIST {1..*} OF ISO19107_V1_MAGNABOG.GM_Curve2DListValue;
+  END GM_MultiCurve2D;
+
+  STRUCTURE GM_MultiSurface2D =
+    geometry : LIST {1..*} OF ISO19107_V1_MAGNABOG.GM_Surface2DListValue;
+  END GM_MultiSurface2D;
+
+  STRUCTURE GM_Curve3DListValue =
+    value : MANDATORY GM_Curve3D;
+  END GM_Curve3DListValue;
+
+  STRUCTURE GM_Surface3DListValue =
+    value : MANDATORY GM_Curve3D;
+  END GM_Surface3DListValue;
+
+  STRUCTURE GM_MultiCurve3D =
+    geometry : LIST {1..*} OF ISO19107_V1_MAGNABOG.GM_Curve3DListValue;
+  END GM_MultiCurve3D;
+
+  STRUCTURE GM_MultiSurface3D =
+    geometry : LIST {1..*} OF ISO19107_V1_MAGNABOG.GM_Surface3DListValue;
+  END GM_MultiSurface3D;
+
+END ISO19107_V1_MAGNABOG.
