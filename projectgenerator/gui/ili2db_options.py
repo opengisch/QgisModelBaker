@@ -22,10 +22,10 @@ from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
 from ..utils import get_ui_class
 
-DIALOG_UI = get_ui_class('ili2pg_options.ui')
+DIALOG_UI = get_ui_class('ili2db_options.ui')
 
 
-class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
+class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -48,11 +48,11 @@ class Ili2pgOptionsDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self):
         settings = QSettings()
-        settings.setValue('QgsProjectGenerator/ili2pg/inheritance', self.get_inheritance_type())
+        settings.setValue('QgsProjectGenerator/ili2db/inheritance', self.get_inheritance_type())
 
     def restore_configuration(self):
         settings = QSettings()
-        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart2')
+        inheritance = settings.value('QgsProjectGenerator/ili2db/inheritance', 'smart2')
         if inheritance == 'smart1':
             self.smart1_radio_button.setChecked(True)
         else:

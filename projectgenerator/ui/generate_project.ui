@@ -151,13 +151,14 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="pg_host_line_edit"/>
+           <widget class="QLineEdit" name="pg_host_line_edit">
             <property name="text">
              <string>localhost</string>
             </property>
             <property name="placeholderText">
              <string>Database Hostname</string>
             </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -178,7 +179,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="4" column="2" colspan="2">
-           <widget class="QPushButton" name="ili2pg_options_button">
+           <widget class="QPushButton" name="ili2db_options_button">
             <property name="text">
              <string>Advanced Options</string>
             </property>
@@ -269,10 +270,10 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="geopackage_file"/>
+           <widget class="QLineEdit" name="gpkg_file_line_edit"/>
           </item>
           <item row="0" column="3">
-           <widget class="QToolButton" name="geopackage_browse_button">
+           <widget class="QToolButton" name="gpkg_file_browse_button">
             <property name="text">
              <string>...</string>
             </property>
@@ -312,13 +313,15 @@
   <tabstop>ili_file_browse_button</tabstop>
   <tabstop>ili_models_line_edit</tabstop>
   <tabstop>crsSelector</tabstop>
-  <tabstop>ili2pg_options_button</tabstop>
+  <tabstop>ili2db_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_port_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
   <tabstop>pg_schema_line_edit</tabstop>
   <tabstop>pg_user_line_edit</tabstop>
   <tabstop>pg_password_line_edit</tabstop>
+  <tabstop>gpkg_file_line_edit</tabstop>
+  <tabstop>gpkg_file_browse_button</tabstop>
   <tabstop>txtStdout</tabstop>
  </tabstops>
  <resources/>

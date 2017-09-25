@@ -49,14 +49,14 @@ def make_file_selector(widget, title=QCoreApplication.translate('projectgenerato
     return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
 
 
-def selectFileNameToSave(line_edit_widget, title, file_filter, parent):
+def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension):
     filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
-    line_edit_widget.setText(filename if filename.endswith('.xtf') else filename + '.xtf')
+    line_edit_widget.setText(filename if filename.endswith(extension) else filename + extension)
 
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),
-                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None):
-    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
+                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None, extension=''):
+    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent, extension=extension)
 
 
 def selectFolder(line_edit_widget, title, parent):
