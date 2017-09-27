@@ -45,12 +45,14 @@ class TestExport(unittest.TestCase):
         exporter.configuration.base_configuration.custom_model_directories_enabled = testdata_path(
             'ilimodels/CIAF_LADM')
         exporter.configuration.ilimodels = 'CIAF_LADM'
-        obtained_xtf_path = os.path.join(self.basetestpath, 'tmp_test_ciaf_ladm.xtf')
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_ciaf_ladm.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
-        self.compare_xtfs(testdata_path('xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         print(text)
@@ -74,18 +76,22 @@ class TestExport(unittest.TestCase):
 
         for topic in datasection_children:
             tmp_topic = tmp_datasection.find(topic.tag)
+            print("INFO topic, tmp_topic:", topic.tag,
+                  tmp_topic if tmp_topic is None else tmp_topic.tag)
             self.assertIsNotNone(tmp_topic)
-            print("INFO topic, tmp_topic:", topic.tag, tmp_topic.tag)
             classes = list(topic)
             for _class in classes:
                 tmp_class = tmp_topic.find(_class.tag)
+                print("INFO class, tmp_class:", _class.tag,
+                      tmp_class if tmp_class is None else tmp_class.tag)
                 self.assertIsNotNone(tmp_class)
-                print("INFO class, tmp_class:", _class.tag, tmp_class.tag)
                 for attribute in _class:
                     tmp_attribute = tmp_class.find(attribute.tag)
                     self.assertIsNotNone(tmp_attribute)
-                    print("INFO attribute.tag, tmp_attribute.tag:", attribute.tag, tmp_attribute.tag)
-                    print("INFO attribute.text, tmp_attribute.text:", attribute.text, tmp_attribute.text)
+                    print("INFO attribute.tag, tmp_attribute.tag:", attribute.tag,
+                          tmp_attribute if tmp_attribute is None else tmp_attribute.tag)
+                    print("INFO attribute.text, tmp_attribute.text:", attribute.text,
+                          tmp_attribute if tmp_attribute is None else tmp_attribute.text)
                     if attribute.tag not in ignored_attributes:
                         self.assertEquals(attribute.text, tmp_attribute.text)
 
@@ -93,6 +99,7 @@ class TestExport(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests"""
         shutil.rmtree(cls.basetestpath, True)
+
 
 if __name__ == '__main__':
     nose2.main()
