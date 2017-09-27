@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    ##/##/17
+    begin                :    25/09/17
     git sha              :    :%H$
-    copyright            :    (C) 2017 by OPENGIS.ch
-    email                :    info@opengis.ch
+    copyright            :    (C) 2017 by Germán Carrillo
+    email                :    gcarrillo@linuxmail.org
  ***************************************************************************/
 
 /***************************************************************************
@@ -18,21 +18,26 @@
 """
 
 import os
+import shutil
+import tempfile
 import qgis
 import nose2
 import xml.etree.ElementTree as ET
 
 from projectgenerator.libili2db import iliexporter
-from projectgenerator.libqgsprojectgen.dataobjects import Project
-from projectgenerator.tests.utils import iliexporter_config, testdata_path, rm_file
+from projectgenerator.tests.utils import iliexporter_config, testdata_path
 from qgis.testing import unittest, start_app
-from qgis.core import QgsProject, QgsEditFormConfig
-from projectgenerator.libqgsprojectgen.generator.postgres import Generator
 
 start_app()
 
 
 class TestExport(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """Run before all tests"""
+        cls.basetestpath = tempfile.mkdtemp()
+
     def test_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool_name = 'ili2gpkg'
@@ -40,14 +45,12 @@ class TestExport(unittest.TestCase):
         exporter.configuration.base_configuration.custom_model_directories_enabled = testdata_path(
             'ilimodels/CIAF_LADM')
         exporter.configuration.ilimodels = 'CIAF_LADM'
-        exporter.configuration.xtffile = testdata_path(
-            'xtf/tmp_test_ciaf_ladm.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, 'tmp_test_ciaf_ladm.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
-        self.compare_xtfs(testdata_path('xtf/test_ciaf_ladm.xtf'),
-                          testdata_path('xtf/tmp_test_ciaf_ladm.xtf'))
-        rm_file(testdata_path('xtf/tmp_test_ciaf_ladm.xtf'))
+        self.compare_xtfs(testdata_path('xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         print(text)
@@ -86,6 +89,10 @@ class TestExport(unittest.TestCase):
                     if attribute.tag not in ignored_attributes:
                         self.assertEquals(attribute.text, tmp_attribute.text)
 
+    @classmethod
+    def tearDownClass(cls):
+        """Run after all tests"""
+        shutil.rmtree(cls.basetestpath, True)
 
 if __name__ == '__main__':
     nose2.main()
