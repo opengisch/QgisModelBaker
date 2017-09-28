@@ -36,7 +36,7 @@ class TestProjectGen(unittest.TestCase):
     def test_kbs(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config()
+        importer.configuration = iliimporter_config(importer.tool_name, None)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.schema = 'kbs'
         importer.stdout.connect(self.print_info)
