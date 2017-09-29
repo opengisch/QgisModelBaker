@@ -34,7 +34,7 @@ from qgis.testing import unittest, start_app
 start_app()
 
 
-class TestExport(unittest.TestCase):
+class TestImport(unittest.TestCase):
 
     def test_import_postgis(self):
         # First we need a dbfile with empty tables

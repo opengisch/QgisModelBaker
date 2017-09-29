@@ -18,14 +18,15 @@
 """
 
 import os
+import datetime
 import shutil
 import tempfile
 import qgis
 import nose2
 import xml.etree.ElementTree as ET
 
-from projectgenerator.libili2db import iliexporter
-from projectgenerator.tests.utils import iliexporter_config, testdata_path
+from projectgenerator.libili2db import iliexporter, iliimporter
+from projectgenerator.tests.utils import iliimporter_config, iliexporter_config, testdata_path
 from qgis.testing import unittest, start_app
 
 start_app()
@@ -53,6 +54,33 @@ class TestExport(unittest.TestCase):
         self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+
+    def test_export_empty_schema(self):
+        # First we need a dbfile with empty tables
+        importer_e = iliimporter.Importer()
+        importer_e.tool_name = 'ili2pg'
+        importer_e.configuration = iliimporter_config(importer_e.tool_name, 'ilimodels/CIAF_LADM')
+        importer_e.configuration.ilimodels = 'CIAF_LADM'
+        importer_e.configuration.schema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer_e.configuration.epsg = 3116
+        importer_e.configuration.inheritance = 'smart2'
+        importer_e.stdout.connect(self.print_info)
+        importer_e.stderr.connect(self.print_error)
+        self.assertEquals(importer_e.run(), iliimporter.Importer.SUCCESS)
+
+        exporter_e = iliexporter.Exporter()
+        exporter_e.tool_name = 'ili2pg'
+        exporter_e.configuration = iliexporter_config(exporter_e.tool_name)
+        exporter_e.configuration.ilimodels = 'CIAF_LADM'
+        exporter_e.configuration.schema = importer_e.configuration.schema
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_ciaf_ladm_empty.xtf')
+        exporter_e.configuration.xtffile = obtained_xtf_path
+        exporter_e.stdout.connect(self.print_info)
+        exporter_e.stderr.connect(self.print_error)
+        self.assertEquals(exporter_e.run(), iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         print(text)
