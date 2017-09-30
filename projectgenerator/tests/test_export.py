@@ -21,12 +21,16 @@ import os
 import datetime
 import shutil
 import tempfile
-import qgis
 import nose2
 import xml.etree.ElementTree as ET
 
-from projectgenerator.libili2db import iliexporter, iliimporter
-from projectgenerator.tests.utils import iliimporter_config, iliexporter_config, testdata_path
+from projectgenerator.libili2db import (iliexporter,
+                                        iliimporter,
+                                        ilidataimporter)
+from projectgenerator.tests.utils import (iliimporter_config,
+                                          iliexporter_config,
+                                          ilidataimporter_config,
+                                          testdata_path)
 from qgis.testing import unittest, start_app
 
 start_app()
@@ -36,18 +40,16 @@ class TestExport(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Run before all tests"""
+        """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
     def test_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool_name = 'ili2gpkg'
         exporter.configuration = iliexporter_config(exporter.tool_name)
-        exporter.configuration.base_configuration.custom_model_directories_enabled = testdata_path(
-            'ilimodels/CIAF_LADM')
         exporter.configuration.ilimodels = 'CIAF_LADM'
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm.xtf')
+            self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
@@ -55,11 +57,13 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    def test_export_empty_schema(self):
+    def _test_export_postgis_empty_schema(self):
+        # This test passes without --createBasketCol option in schemaimport 
         # First we need a dbfile with empty tables
         importer_e = iliimporter.Importer()
         importer_e.tool_name = 'ili2pg'
-        importer_e.configuration = iliimporter_config(importer_e.tool_name, 'ilimodels/CIAF_LADM')
+        importer_e.configuration = iliimporter_config(importer_e.tool_name,
+                                                      'ilimodels/CIAF_LADM')
         importer_e.configuration.ilimodels = 'CIAF_LADM'
         importer_e.configuration.schema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
         importer_e.configuration.epsg = 3116
@@ -81,6 +85,45 @@ class TestExport(unittest.TestCase):
         self.assertEquals(exporter_e.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
+
+    def test_export_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name,
+                                                    'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+
+        # Import data
+        dataImporter = ilidataimporter.DataImporter()
+        dataImporter.tool_name = 'ili2pg'
+        dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+        dataImporter.configuration.schema = importer.configuration.schema
+        dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+
+        # Export
+        exporter = iliexporter.Exporter()
+        exporter.tool_name = 'ili2pg'
+        exporter.configuration = iliexporter_config(exporter.tool_name)
+        exporter.configuration.ilimodels = 'CIAF_LADM'
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
+        exporter.stdout.connect(self.print_info)
+        exporter.stderr.connect(self.print_error)
+        self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         print(text)
@@ -125,7 +168,7 @@ class TestExport(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Run after all tests"""
+        """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
 
 

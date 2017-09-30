@@ -17,15 +17,11 @@
  ***************************************************************************/
 """
 
-import os
 import datetime
 import shutil
-import tempfile
-import qgis
 import nose2
 import psycopg2
 import psycopg2.extras
-import xml.etree.ElementTree as ET
 
 from projectgenerator.libili2db import iliimporter, ilidataimporter
 from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
@@ -37,7 +33,7 @@ start_app()
 class TestImport(unittest.TestCase):
 
     def test_import_postgis(self):
-        # First we need a dbfile with empty tables
+        # Schema Import
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
@@ -49,7 +45,7 @@ class TestImport(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
 
-        # Now import data
+        # Import data
         dataImporter = ilidataimporter.DataImporter()
         dataImporter.tool_name = 'ili2pg'
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
@@ -60,7 +56,7 @@ class TestImport(unittest.TestCase):
         dataImporter.stderr.connect(self.print_error)
         self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
 
-        # Now check expected data is there in the database schema
+        # Check expected data is there in the database schema
         conn = psycopg2.connect(importer.configuration.uri)
 
         # Expected predio data
@@ -70,7 +66,7 @@ class TestImport(unittest.TestCase):
                 FROM {}.predio
             """.format(importer.configuration.schema))
         record = next(cursor)
-        print("#####",record)
+        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEquals(record[0], 'Unidad_Derecho')
         self.assertEquals(record[1], 'POLYGON((1000257.42555766 1002020.37570978,1000437.68843915 1002196.49461698,1000275.4718973 1002428.18956643,1000072.2500615 1002291.5386724,1000158.57171943 1002164.91352262,1000159.94153032 1002163.12799749,1000257.42555766 1002020.37570978))')
@@ -84,7 +80,7 @@ class TestImport(unittest.TestCase):
                 FROM {}.persona
             """.format(importer.configuration.schema))
         record = next(cursor)
-        print("#####",record)
+        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEquals(record[0], '1234354656')
         self.assertEquals(record[1], 'Pepito Perez')
@@ -97,7 +93,7 @@ class TestImport(unittest.TestCase):
                 FROM {}.derecho
             """.format(importer.configuration.schema))
         record = next(cursor)
-        print("#####",record)
+        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEquals(record[0], 'Posesion')
         self.assertEquals(record[1], persona_id) # FK persona
