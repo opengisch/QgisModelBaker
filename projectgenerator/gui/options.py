@@ -23,6 +23,7 @@ from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
 from projectgenerator.gui.custom_model_dir import CustomModelDirDialog
 from qgis.PyQt.QtWidgets import QDialog
+from qgis.PyQt.QtCore import QLocale, QSettings
 
 from projectgenerator.utils.qt_utils import FileValidator, Validators
 
@@ -59,4 +60,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         dlg.exec_()
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#plugin-configuration")
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#plugin-configuration".format(os_language))
+        else:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#plugin-configuration")

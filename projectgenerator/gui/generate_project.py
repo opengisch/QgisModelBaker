@@ -31,7 +31,7 @@ from projectgenerator.utils.qt_utils import make_file_selector, Validators, File
     OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QSizePolicy, QGridLayout
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale
 from qgis.core import QgsProject, QgsCoordinateReferenceSystem
 from qgis.gui import QgsMessageBar
 from ..utils import get_ui_class
@@ -338,4 +338,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#generate-project".format(os_language))
+        else:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
