@@ -22,7 +22,11 @@ jobs:
       env:
         QGIS_TEST_VERSION="2.99-alpha"
       script: docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
+
     - stage: deploy
+      # if: tag IS present
+      install:
+        - pip install -r requirements.txt
       script: scripts/ci/deploy.sh
 
 env:
