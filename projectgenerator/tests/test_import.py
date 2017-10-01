@@ -17,8 +17,10 @@
  ***************************************************************************/
 """
 
+import os
 import datetime
 import shutil
+import tempfile
 import nose2
 import psycopg2
 import psycopg2.extras
@@ -26,11 +28,17 @@ import psycopg2.extras
 from projectgenerator.libili2db import iliimporter, ilidataimporter
 from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
+from qgis.PyQt.QtSql import QSqlDatabase
 
 start_app()
 
 
 class TestImport(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """Run before all tests."""
+        cls.basetestpath = tempfile.mkdtemp()
 
     def test_import_postgis(self):
         # Schema Import
@@ -99,12 +107,77 @@ class TestImport(unittest.TestCase):
         self.assertEquals(record[1], persona_id) # FK persona
         self.assertEquals(record[2], predio_id) # FK predio
 
+    def test_import_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+
+        # Import data
+        dataImporter = ilidataimporter.DataImporter()
+        dataImporter.tool_name = 'ili2gpkg'
+        dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+        dataImporter.configuration.dbfile = importer.configuration.dbfile
+        dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+
+        # Check expected data is there in the database schema
+        db = QSqlDatabase.addDatabase("QSQLITE")
+        db.setDatabaseName(importer.configuration.dbfile)
+        self.assertTrue(db.open())
+        count = 0
+
+        # Expected predio data
+        predio_id = None
+        query = db.exec_("select tipo, t_id from predio")
+        while query.next():
+            count += 1
+            record = query.record()
+            self.assertEquals(record.value(0), 'Unidad_Derecho')
+            predio_id = record.value(1)
+
+        # Expected persona data
+        persona_id = None
+        query = db.exec_("select documento_numero, nombre, t_id from persona")
+        while query.next():
+            count += 1
+            record = query.record()
+            self.assertEquals(record.value(0), '1234354656')
+            self.assertEquals(record.value(1), 'Pepito Perez')
+            persona_id = record.value(2)
+
+        # Expected derecho data
+        query = db.exec_("select tipo, interesado, unidad from derecho")
+        while query.next():
+            count += 1
+            record = query.record()
+            self.assertEquals(record.value(0), 'Posesion')
+            self.assertEquals(record.value(1), persona_id)
+            self.assertEquals(record.value(2), predio_id)
+
+        self.assertEquals(count, 3)
+
     def print_info(self, text):
         print(text)
 
     def print_error(self, text):
         print(text)
 
+    @classmethod
+    def tearDownClass(cls):
+        """Run after all tests."""
+        shutil.rmtree(cls.basetestpath, True)
 
 if __name__ == '__main__':
     nose2.main()
