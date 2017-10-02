@@ -58,7 +58,7 @@ class TestExport(unittest.TestCase):
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def _test_export_postgis_empty_schema(self):
-        # This test passes without --createBasketCol option in schemaimport 
+        # This test passes without --createBasketCol option in schemaimport
         # First we need a dbfile with empty tables
         importer_e = iliimporter.Importer()
         importer_e.tool_name = 'ili2pg'
@@ -116,6 +116,7 @@ class TestExport(unittest.TestCase):
         exporter.tool_name = 'ili2pg'
         exporter.configuration = iliexporter_config(exporter.tool_name)
         exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.schema = importer.configuration.schema
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
