@@ -41,7 +41,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.schema = 'kbs'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator('dbname=gis user=docker password=docker host=postgres', 'kbs', 'smart1')
 

@@ -53,7 +53,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -70,7 +70,7 @@ class TestExport(unittest.TestCase):
         importer_e.configuration.inheritance = 'smart2'
         importer_e.stdout.connect(self.print_info)
         importer_e.stderr.connect(self.print_error)
-        self.assertEquals(importer_e.run(), iliimporter.Importer.SUCCESS)
+        self.assertEqual(importer_e.run(), iliimporter.Importer.SUCCESS)
 
         exporter_e = iliexporter.Exporter()
         exporter_e.tool_name = 'ili2pg'
@@ -82,7 +82,7 @@ class TestExport(unittest.TestCase):
         exporter_e.configuration.xtffile = obtained_xtf_path
         exporter_e.stdout.connect(self.print_info)
         exporter_e.stderr.connect(self.print_error)
-        self.assertEquals(exporter_e.run(), iliexporter.Exporter.SUCCESS)
+        self.assertEqual(exporter_e.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -98,7 +98,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
         dataImporter = ilidataimporter.DataImporter()
@@ -109,7 +109,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
 
         # Export
         exporter = iliexporter.Exporter()
@@ -122,7 +122,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEquals(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -143,7 +143,7 @@ class TestExport(unittest.TestCase):
         datasection_children = list(datasection)
         tmp_datasection_children = list(tmp_datasection)
 
-        self.assertEquals(len(datasection_children),
+        self.assertEqual(len(datasection_children),
                           len(tmp_datasection_children))
 
         for topic in datasection_children:
@@ -165,7 +165,7 @@ class TestExport(unittest.TestCase):
                           tmp_attribute.text if hasattr(tmp_attribute, 'text') else tmp_attribute)
                     self.assertIsNotNone(tmp_attribute)
                     if attribute.tag not in ignored_attributes:
-                        self.assertEquals(attribute.text, tmp_attribute.text)
+                        self.assertEqual(attribute.text, tmp_attribute.text)
 
     @classmethod
     def tearDownClass(cls):

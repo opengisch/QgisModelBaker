@@ -28,7 +28,7 @@ import psycopg2.extras
 from projectgenerator.libili2db import iliimporter, ilidataimporter
 from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
-from qgis.PyQt.QtSql import QSqlDatabase
+from qgis import utils
 
 start_app()
 
@@ -51,7 +51,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
         dataImporter = ilidataimporter.DataImporter()
@@ -62,7 +62,7 @@ class TestImport(unittest.TestCase):
         dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
 
         # Check expected data is there in the database schema
         conn = psycopg2.connect(importer.configuration.uri)
@@ -76,9 +76,9 @@ class TestImport(unittest.TestCase):
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)
-        self.assertEquals(record[0], 'Unidad_Derecho')
-        self.assertEquals(record[1], 'POLYGON((1000257.42555766 1002020.37570978,1000437.68843915 1002196.49461698,1000275.4718973 1002428.18956643,1000072.2500615 1002291.5386724,1000158.57171943 1002164.91352262,1000159.94153032 1002163.12799749,1000257.42555766 1002020.37570978))')
-        self.assertEquals(record[2], 3116)
+        self.assertEqual(record[0], 'Unidad_Derecho')
+        self.assertEqual(record[1], 'POLYGON((1000257.42555766 1002020.37570978,1000437.68843915 1002196.49461698,1000275.4718973 1002428.18956643,1000072.2500615 1002291.5386724,1000158.57171943 1002164.91352262,1000159.94153032 1002163.12799749,1000257.42555766 1002020.37570978))')
+        self.assertEqual(record[2], 3116)
         predio_id = record[3]
 
         # Expected persona data
@@ -90,8 +90,8 @@ class TestImport(unittest.TestCase):
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)
-        self.assertEquals(record[0], '1234354656')
-        self.assertEquals(record[1], 'Pepito Perez')
+        self.assertEqual(record[0], '1234354656')
+        self.assertEqual(record[1], 'Pepito Perez')
         persona_id = record[2]
 
         # Expected derecho data
@@ -103,9 +103,9 @@ class TestImport(unittest.TestCase):
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)
-        self.assertEquals(record[0], 'Posesion')
-        self.assertEquals(record[1], persona_id) # FK persona
-        self.assertEquals(record[2], predio_id) # FK predio
+        self.assertEqual(record[0], 'Posesion')
+        self.assertEqual(record[1], persona_id) # FK persona
+        self.assertEqual(record[2], predio_id) # FK predio
 
     def test_import_geopackage(self):
         # Schema Import
@@ -119,7 +119,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEquals(importer.run(), iliimporter.Importer.SUCCESS)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
         dataImporter = ilidataimporter.DataImporter()
@@ -130,43 +130,42 @@ class TestImport(unittest.TestCase):
         dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEquals(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
 
         # Check expected data is there in the database schema
-        db = QSqlDatabase.addDatabase("QSQLITE")
-        db.setDatabaseName(importer.configuration.dbfile)
-        self.assertTrue(db.open())
+        conn = utils.spatialite_connect(importer.configuration.dbfile)
+        cursor = conn.cursor()
         count = 0
 
         # Expected predio data
         predio_id = None
-        query = db.exec_("select tipo, t_id from predio")
-        while query.next():
+        cursor.execute("SELECT tipo, st_srid(geometria), t_id FROM predio")
+        for record in cursor:
             count += 1
-            record = query.record()
-            self.assertEquals(record.value(0), 'Unidad_Derecho')
-            predio_id = record.value(1)
+            self.assertEqual(record[0], 'Unidad_Derecho')
+            self.assertEqual(record[1], 3116)
+            predio_id = record[2]
 
         # Expected persona data
         persona_id = None
-        query = db.exec_("select documento_numero, nombre, t_id from persona")
-        while query.next():
+        cursor.execute("select documento_numero, nombre, t_id from persona")
+        for record in cursor:
             count += 1
-            record = query.record()
-            self.assertEquals(record.value(0), '1234354656')
-            self.assertEquals(record.value(1), 'Pepito Perez')
-            persona_id = record.value(2)
+            self.assertEqual(record[0], '1234354656')
+            self.assertEqual(record[1], 'Pepito Perez')
+            persona_id = record[2]
 
         # Expected derecho data
-        query = db.exec_("select tipo, interesado, unidad from derecho")
-        while query.next():
+        cursor.execute("select tipo, interesado, unidad from derecho")
+        for record in cursor:
             count += 1
-            record = query.record()
-            self.assertEquals(record.value(0), 'Posesion')
-            self.assertEquals(record.value(1), persona_id)
-            self.assertEquals(record.value(2), predio_id)
+            self.assertEqual(record[0], 'Posesion')
+            self.assertEqual(record[1], persona_id)
+            self.assertEqual(record[2], predio_id)
 
-        self.assertEquals(count, 3)
+        self.assertEqual(count, 3)
+        cursor.close()
+        conn.close()
 
     def print_info(self, text):
         print(text)
