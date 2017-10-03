@@ -20,8 +20,6 @@
 
 import webbrowser
 
-import re
-
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.ilidataimporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
