@@ -18,24 +18,46 @@
  ***************************************************************************/
 """
 
-import os, webbrowser
+import webbrowser
+
+import re
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2pg.ilidataimporter import JavaNotFoundError
 from projectgenerator.libili2pg.ilicache import IliCache
-from projectgenerator.utils.qt_utils import make_file_selector, Validators, FileValidator, NonEmptyStringValidator, \
-    make_folder_selector, OverrideCursor
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
-from qgis.core import QgsProject
+from projectgenerator.utils.qt_utils import (
+    make_file_selector,
+    Validators,
+    FileValidator,
+    NonEmptyStringValidator,
+    OverrideCursor
+)
+from qgis.PyQt.QtGui import (
+    QColor,
+    QDesktopServices,
+    QValidator
+)
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QCompleter
+)
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QSettings,
+    Qt
+)
 from ..utils import get_ui_class
-from ..libili2pg import ilidataimporter, ili2pg_config
+from ..libili2pg import (
+    ilidataimporter,
+    ili2pg_config
+)
 
 DIALOG_UI = get_ui_class('import_data.ui')
 
 
 class ImportDataDialog(QDialog, DIALOG_UI):
+
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -43,12 +65,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(self.tr('Import Data'), QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton(
+            self.tr('Import Data'), QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_file_selector(self.xtf_file_line_edit, title=self.tr('Open XTF Transfer File'),
-                                    file_filter=self.tr('XTF Transfer File (*.xtf)')))
+                               file_filter=self.tr('XTF Transfer File (*.xtf)')))
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -63,16 +86,24 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
 
-        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
-        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(
+            self.ili_models_line_edit.text())
+        self.pg_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
-        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
-        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(
+            self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.emit(
+            self.xtf_file_line_edit.text())
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.refresh()
@@ -81,23 +112,28 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration = self.updated_configuration()
 
         if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
-            self.txtStdout.setText(self.tr('Please set a valid INTERLIS XTF file before importing data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a valid INTERLIS XTF file before importing data.'))
             self.xtf_file_line_edit.setFocus()
             return
         if not configuration.ilimodels:
-            self.txtStdout.setText(self.tr('Please set a model before importing data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a model before importing data.'))
             self.ili_models_line_edit.setFocus()
             return
         if not configuration.host:
-            self.txtStdout.setText(self.tr('Please set a host before importing data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a host before importing data.'))
             self.pg_host_line_edit.setFocus()
             return
         if not configuration.database:
-            self.txtStdout.setText(self.tr('Please set a database before importing data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a database before importing data.'))
             self.pg_database_line_edit.setFocus()
             return
         if not configuration.user:
-            self.txtStdout.setText(self.tr('Please set a database user before importing data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a database user before importing data.'))
             self.pg_user_line_edit.setFocus()
             return
 
@@ -183,26 +219,42 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue('QgsProjectGenerator/ili2pg/xtffile_import', configuration.xtffile)
-        settings.setValue('QgsProjectGenerator/ili2pg/deleteData', configuration.delete_data)
-        settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
-        settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
-        settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
-        settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
-        settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
-        settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
+        settings.setValue(
+            'QgsProjectGenerator/ili2pg/xtffile_import', configuration.xtffile)
+        settings.setValue(
+            'QgsProjectGenerator/ili2pg/deleteData', configuration.delete_data)
+        settings.setValue('QgsProjectGenerator/ili2pg/host',
+                          configuration.host)
+        settings.setValue('QgsProjectGenerator/ili2pg/port',
+                          configuration.port)
+        settings.setValue('QgsProjectGenerator/ili2pg/user',
+                          configuration.user)
+        settings.setValue('QgsProjectGenerator/ili2pg/database',
+                          configuration.database)
+        settings.setValue('QgsProjectGenerator/ili2pg/schema',
+                          configuration.schema)
+        settings.setValue('QgsProjectGenerator/ili2pg/password',
+                          configuration.password)
 
     def restore_configuration(self):
         settings = QSettings()
 
-        self.xtf_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/xtffile_import'))
-        self.chk_delete_data.setChecked(settings.value('QgsProjectGenerator/ili2pg/deleteData', False, bool))
-        self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
-        self.pg_port_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/port'))
-        self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
-        self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
-        self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
-        self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.xtf_file_line_edit.setText(settings.value(
+            'QgsProjectGenerator/ili2pg/xtffile_import'))
+        self.chk_delete_data.setChecked(settings.value(
+            'QgsProjectGenerator/ili2pg/deleteData', False, bool))
+        self.pg_host_line_edit.setText(settings.value(
+            'QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_port_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/port'))
+        self.pg_user_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/user'))
+        self.pg_database_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/database'))
+        self.pg_schema_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/schema'))
+        self.pg_password_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/password'))
 
     def disable(self):
         self.pg_config.setEnabled(False)
@@ -231,4 +283,5 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setCompleter(completer)
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+        webbrowser.open(
+            "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
