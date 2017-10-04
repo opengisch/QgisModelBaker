@@ -20,19 +20,44 @@
 
 import os, webbrowser
 
+import re
 from psycopg2 import OperationalError
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
+from projectgenerator.libili2pg.globals import CRS_PATTERNS
 from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration
 from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
-from projectgenerator.utils.qt_utils import make_file_selector, OverrideCursor, \
-    make_save_file_selector, Validators, FileValidator, NonEmptyStringValidator
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QSizePolicy, QGridLayout
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
-from qgis.core import QgsProject, QgsCoordinateReferenceSystem
+from projectgenerator.utils.qt_utils import (
+    make_file_selector,
+    make_save_file_selector,
+    Validators,
+    FileValidator,
+    NonEmptyStringValidator,
+    OverrideCursor
+)
+from qgis.PyQt.QtGui import (
+    QColor,
+    QDesktopServices,
+    QValidator
+)
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QCompleter,
+    QSizePolicy,
+    QGridLayout
+)
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QSettings,
+    Qt
+)
+from qgis.core import (
+    QgsProject,
+    QgsCoordinateReferenceSystem
+)
 from qgis.gui import QgsMessageBar
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
@@ -100,6 +125,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
 
         self.ilicache = IliCache(base_config)
         self.ilicache.models_changed.connect(self.update_models_completer)
@@ -153,7 +179,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']: # TODO Remove IF when Generator can handle GeoPackage
             try:
                 generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
-                print('uri: {} schema: {} inheritance: {}'.format(configuration.uri, configuration.schema, configuration.inheritance))
             except OperationalError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
@@ -323,6 +348,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_config.show()
             self.pg_config.hide()
             self.gpkg_config.show()
+
+    def on_model_changed(self, text):
+        for pattern, crs in CRS_PATTERNS.items():
+            if re.search(pattern, text):
+                self.crs = QgsCoordinateReferenceSystem(crs)
+                self.update_crs_info()
+                break
 
     def link_activated(self, link):
         if link.url() == '#configure':
