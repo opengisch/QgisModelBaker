@@ -88,8 +88,51 @@ class PGConnector(DBConnector):
         """.format(is_domain_field = is_domain_field, table_alias = table_alias,
                    domain_left_join = domain_left_join, alias_left_join = alias_left_join,
                    schema_where = schema_where))
-        
+
         return cur
+
+    def get_fields_info(self, table_name):
+        # Get all fields for this table
+        fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        fields_cur.execute("""
+            SELECT
+              c.column_name,
+              c.data_type,
+              pgd.description AS comment,
+              unit.setting AS unit,
+              txttype.setting AS texttype,
+              alias.setting AS column_alias
+            FROM pg_catalog.pg_statio_all_tables st
+            LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
+            LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
+            LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columnname AND unit.tag = 'ch.ehi.ili2db.unit'
+            LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columnname AND txttype.tag = 'ch.ehi.ili2db.textKind'
+            LEFT JOIN {schema}.t_ili2db_column_prop alias ON c.table_name=alias.tablename AND c.column_name=alias.columnname AND alias.tag = 'ch.ehi.ili2db.dispName'
+            WHERE st.relid = '{schema}.{table}'::regclass;
+            """.format(schema=self.schema, table=table_name))
+
+        return fields_cur
+
+    def get_constraints_info(self, table_name):
+        # Get all 'c'heck constraints for this table
+        constraints_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        constraints_cur.execute("""
+            SELECT
+              consrc,
+              regexp_matches(consrc, '\(\((.*) >= ([\d\.]+)\) AND \((.*) <= ([\d\.]+)\)\)') AS check_details
+            FROM pg_constraint
+            WHERE conrelid = '{schema}.{table}'::regclass
+            AND contype = 'c'
+            """.format(schema=self.schema, table=table_name))
+
+        # Create a mapping in the form of
+        #
+        # fieldname: (min, max)
+        constraint_mapping = dict()
+        for constraint in constraints_cur:
+            constraint_mapping[constraint['check_details'][0]] = (constraint['check_details'][1], constraint['check_details'][3])
+
+        return constraint_mapping
 
     def get_relations_info(self):
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)

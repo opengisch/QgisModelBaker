@@ -16,6 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import re
+
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
@@ -39,8 +41,6 @@ class Generator:
 
     def layers(self):
         tables_info = self._get_tables_info()
-        fields_info = self._get_fields_info()
-        constraints_info = self._get_constraints_info()
         layers = list()
 
         for record in tables_info:
@@ -90,6 +90,56 @@ class Generator:
                           QgsWkbTypes.parseType(record['type']) or QgsWkbTypes.Unknown,
                           alias,
                           is_domain)
+
+            # Configure fields for current table
+            fields_info = self._get_fields_info(record['tablename'])
+            constraints_info = self._get_constraints_info(record['tablename'])
+            re_iliname = re.compile('^@iliname (.*)$')
+
+            for fielddef in fields_info:
+                column_name = fielddef['column_name']
+                comment = fielddef['comment']
+                m = re_iliname.match(comment) if comment else None
+                alias = fielddef['column_alias']
+                if m and not alias:
+                    alias = m.group(1)
+
+                field = Field(column_name)
+                field.alias = alias
+
+                if column_name in IGNORED_FIELDNAMES:
+                    field.widget = 'Hidden'
+
+                if column_name in READONLY_FIELDNAMES:
+                    field.read_only = True
+
+                if column_name in constraints_info:
+                    field.widget = 'Range'
+                    field.widget_config['Min'] = constraints_info[column_name][0]
+                    field.widget_config['Max'] = constraints_info[column_name][1]
+                    field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+
+                if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
+                    field.widget = 'TextEdit'
+                    field.widget_config['IsMultiline'] = True
+
+                if 'time' in fielddef['data_type'] or 'date' in fielddef['data_type']:
+                    field.widget = 'DateTime'
+                    field.widget_config['calendar_popup'] = True
+
+                    dateFormat = QLocale(QgsApplication.instance().locale()).dateFormat(QLocale.ShortFormat)
+                    timeFormat = QLocale(QgsApplication.instance().locale()).timeFormat(QLocale.ShortFormat)
+                    dateTimeFormat = QLocale(QgsApplication.instance().locale()).dateTimeFormat(QLocale.ShortFormat)
+
+                    if 'time' in fielddef['data_type'] and not 'timestamp' in fielddef['data_type']:
+                        field.widget_config['display_format'] = timeFormat
+                    elif 'timestamp' in fielddef['data_type']:
+                        field.widget_config['display_format'] = dateTimeFormat
+                    elif 'date' in fielddef['data_type']:
+                        field.widget_config['display_format'] = dateFormat
+
+                layer.fields.append(field)
+
             layers.append(layer)
 
         return layers
@@ -155,11 +205,11 @@ class Generator:
     def _get_tables_info(self):
         return self._db_connector.get_tables_info()
 
-    def _get_fields_info(self):
-        return self._db_connector.get_fields_info()
+    def _get_fields_info(self, table_name):
+        return self._db_connector.get_fields_info(table_name)
 
-    def _get_constraints_info(self):
-        return self._db_connector.get_constraints_info()
+    def _get_constraints_info(self, table_name):
+        return self._db_connector.get_constraints_info(table_name)
 
     def _get_relations_info(self):
         return self._db_connector.get_relations_info()

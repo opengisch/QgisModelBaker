@@ -27,7 +27,7 @@ from projectgenerator.libqgsprojectgen.dataobjects import Project
 from projectgenerator.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
-from projectgenerator.libqgsprojectgen.generator.postgres import Generator
+from projectgenerator.libqgsprojectgen.generator.generator import Generator
 
 start_app()
 
@@ -43,7 +43,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('dbname=gis user=docker password=docker host=postgres', 'kbs', 'smart1')
+        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', 'kbs')
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)

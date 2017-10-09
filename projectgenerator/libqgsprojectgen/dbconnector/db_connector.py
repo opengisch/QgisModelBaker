@@ -27,10 +27,10 @@ class DBConnector:
     def get_tables_info(self):
         return {}
 
-    def get_fields_info(self):
+    def get_fields_info(self, table_name):
         return {}
 
-    def get_constraints_info(self):
+    def get_constraints_info(self, table_name):
         return {}
 
     def get_relations_info(self):
