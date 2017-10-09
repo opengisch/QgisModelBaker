@@ -78,6 +78,7 @@ class BaseConfiguration(object):
 
 class ImportConfiguration(object):
     def __init__(self):
+        self.tool_name = ''
         self.ilifile = ''
         self.inheritance = 'smart1'
         self.epsg = 21781  # Default EPSG code in ili2pg
@@ -94,16 +95,17 @@ class ImportConfiguration(object):
 
     @property
     def uri(self):
-        # TODO this should be different for each DBMS
         uri = []
-        uri += ['dbname={}'.format(self.database)]
-        uri += ['user={}'.format(self.user)]
-        if self.password:
-            uri += ['password={}'.format(self.password)]
-        uri += ['host={}'.format(self.host)]
-        if self.port:
-            uri += ['port={}'.format(self.port)]
-
+        if self.tool_name == 'ili2pg':
+            uri += ['dbname={}'.format(self.database)]
+            uri += ['user={}'.format(self.user)]
+            if self.password:
+                uri += ['password={}'.format(self.password)]
+            uri += ['host={}'.format(self.host)]
+            if self.port:
+                uri += ['port={}'.format(self.port)]
+        elif self.tool_name == 'ili2gpkg':
+            uri = [self.dbfile]
         return ' '.join(uri)
 
 
@@ -140,4 +142,3 @@ class ImportDataConfiguration(object):
 
 class JavaNotFoundError(FileNotFoundError):
     pass
-

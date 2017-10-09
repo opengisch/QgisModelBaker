@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                              -------------------
-        begin                : 2016-11-15
-        git sha              : :%H$
-        copyright            : (C) 2016 by OPENGIS.ch
-        email                : info@opengis.ch
+    begin                :    04/10/17
+    git sha              :    :%H$
+    copyright            :    (C) 2017 by Germán Carrillo
+    email                :    gcarrillo@linuxmail.org
  ***************************************************************************/
 
 /***************************************************************************
@@ -17,3 +16,22 @@
  *                                                                         *
  ***************************************************************************/
 """
+class DBConnector:
+    """SuperClass for all DB connectors."""
+    def __init__(self, uri, schema):
+        pass
+
+    def metadata_exists(self):
+        return False
+
+    def get_tables_info(self):
+        return {}
+
+    def get_fields_info(self):
+        return {}
+
+    def get_constraints_info(self):
+        return {}
+
+    def get_relations_info(self):
+        return {}

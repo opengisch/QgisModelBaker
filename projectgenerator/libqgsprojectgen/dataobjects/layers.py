@@ -23,9 +23,12 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 
 class Layer(object):
-    def __init__(self, provider, uri, alias='', is_domain=False):
+    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False):
         self.provider = provider
         self.uri = uri
+        self.name = name
+        self.geometry_column = geometry_column
+        self.wkb_type = wkb_type
         self.alias = alias
         self.__layer = None
         self.fields = list()
@@ -107,31 +110,3 @@ class Layer(object):
             return self.__layer.id()
         else:
             return None
-
-    @property
-    def table_name(self):
-        '''
-        This layers table name in the data provider
-        '''
-        return QgsDataSourceUri(self.uri).table()
-
-    @property
-    def geometry_column(self):
-        '''
-        The main geometry column for this layer. In explicit, the one that is shown on the map canvas.
-        '''
-        return QgsDataSourceUri(self.uri).geometryColumn()
-
-    @property
-    def wkb_type(self) -> QgsWkbTypes.Type:
-        '''
-        The geometries WKB type
-        '''
-        return QgsDataSourceUri(self.uri).wkbType()
-
-    @property
-    def name(self) -> str:
-        '''
-        A human readable name for this layer, to be used in the legend and similar places
-        '''
-        return self.table_name

@@ -25,7 +25,7 @@ from psycopg2 import OperationalError
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
-from projectgenerator.libili2pg.globals import CRS_PATTERNS
+from projectgenerator.libili2db.globals import CRS_PATTERNS
 from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration
 from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
@@ -61,7 +61,7 @@ from qgis.core import (
 from qgis.gui import QgsMessageBar
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
-from ..libqgsprojectgen.generator.postgres import Generator
+from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 
 DIALOG_UI = get_ui_class('generate_project.ui')
@@ -176,14 +176,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.gpkg_file_line_edit.setFocus()
                 return
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']: # TODO Remove IF when Generator can handle GeoPackage
-            try:
-                generator = Generator(configuration.uri, configuration.schema, configuration.inheritance)
-            except OperationalError:
-                self.txtStdout.setText(
-                    self.tr('There was an error connecting to the database. Check connection parameters.'))
-                return
-
         self.save_configuration(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
@@ -215,20 +207,27 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
                 configuration.schema = configuration.schema or configuration.database
 
-            if self.type_combo_box.currentData() in ['ili2pg', 'pg']: # TODO Remove IF when Generator can handle GeoPackage
-                available_layers = generator.layers()
-                relations = generator.relations(available_layers)
-                legend = generator.legend(available_layers)
+            print(configuration.tool_name, configuration.uri, configuration)
+            try:
+                generator = Generator(configuration.tool_name, configuration.uri, configuration.inheritance, configuration.schema)
+            except OperationalError:
+                self.txtStdout.setText(
+                    self.tr('There was an error connecting to the database. Check connection parameters.'))
+                return
 
-                project = Project()
-                project.layers = available_layers
-                project.relations = relations
-                project.legend = legend
-                project.post_generate()
+            available_layers = generator.layers()
+            relations = generator.relations(available_layers)
+            legend = generator.legend(available_layers)
 
-                qgis_project = QgsProject.instance()
-                project.layer_added.connect(self.print_info)
-                project.create(None, qgis_project)
+            project = Project()
+            project.layers = available_layers
+            project.relations = relations
+            project.legend = legend
+            project.post_generate()
+
+            qgis_project = QgsProject.instance()
+            project.layer_added.connect(self.print_info)
+            project.create(None, qgis_project)
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -262,6 +261,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
+            configuration.tool_name = 'ili2pg'
             configuration.host = self.pg_host_line_edit.text().strip()
             configuration.port = self.pg_port_line_edit.text().strip()
             configuration.user = self.pg_user_line_edit.text().strip()
@@ -269,6 +269,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.schema = self.pg_schema_line_edit.text().strip().lower()
             configuration.password = self.pg_password_line_edit.text()
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
+            configuration.tool_name = 'ili2gpkg'
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.epsg = self.epsg
