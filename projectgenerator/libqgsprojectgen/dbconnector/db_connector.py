@@ -35,3 +35,19 @@ class DBConnector:
 
     def get_relations_info(self):
         return {}
+
+    def get_domainili_domaindb_mapping(self):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}
+
+    def get_models(self):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}
+
+    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}

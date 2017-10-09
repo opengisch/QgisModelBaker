@@ -60,7 +60,7 @@ class TestProjectGen(unittest.TestCase):
 
         count = 0
         for layer in available_layers:
-            if layer.table_name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 self.assertEqual(edit_form_config.layout(), QgsEditFormConfig.TabLayout)

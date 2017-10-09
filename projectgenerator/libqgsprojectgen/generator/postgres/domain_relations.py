@@ -26,15 +26,15 @@ from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
 class DomainRelation(Relation):
     def __init__(self):
         super().__init__()
-        self.debug = False
+        self.debug = True
 
     def find_domain_relations(self, layers, conn, schema, inheritance):
-        domains = [layer.table_name for layer in layers if layer.is_domain]
+        domains = [layer.name for layer in layers if layer.is_domain]
         if self.debug: print("domains:", domains)
         if not domains:
             return []
 
-        mapped_layers = {layer.table_name: layer for layer in layers}
+        mapped_layers = {layer.name: layer for layer in layers}
 
         # Map domain ili name with its correspondent pg name
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)

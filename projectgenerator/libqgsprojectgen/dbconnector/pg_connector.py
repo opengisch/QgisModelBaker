@@ -150,3 +150,46 @@ class PGConnector(DBConnector):
                         ORDER BY KCU1.ORDINAL_POSITION
                         """.format(schema_where1=schema_where1, schema_where2=schema_where2))
         return cur
+
+    def get_domainili_domaindb_mapping(self, domains):
+        """TODO: remove when ili2db issue #19 is solved"""
+        # Map domain ili name with its correspondent pg name
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        domain_names = "'" + "','".join(domains) + "'"
+        cur.execute("""SELECT iliname, sqlname
+                        FROM {schema}.t_ili2db_classname
+                        WHERE sqlname IN ({domain_names})
+                    """.format(schema=self.schema, domain_names=domain_names))
+        return cur
+
+    def get_models(self):
+        """TODO: remove when ili2db issue #19 is solved"""
+        # Get MODELS
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("""SELECT modelname, content
+                       FROM {schema}.t_ili2db_model
+                    """.format(schema=self.schema))
+        return cur
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """TODO: remove when ili2db issue #19 is solved"""
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
+        cur.execute("""SELECT *
+                       FROM {schema}.t_ili2db_classname
+                       WHERE iliname IN ({class_names})
+                    """.format(schema=self.schema, class_names=class_names))
+        return cur
+
+    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+        """TODO: remove when ili2db issue #19 is solved"""
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        all_attrs = list()
+        for c, dict_attr_domain in models_info_with_ext.items():
+            all_attrs.extend(list(dict_attr_domain.keys()))
+        attr_names = "'" + "','".join(all_attrs) + "'"
+        cur.execute("""SELECT iliname, sqlname, owner
+                       FROM {schema}.t_ili2db_attrname
+                       WHERE iliname IN ({attr_names})
+                    """.format(schema=self.schema, attr_names=attr_names))
+        return cur
