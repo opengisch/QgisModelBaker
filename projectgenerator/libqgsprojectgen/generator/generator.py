@@ -29,6 +29,7 @@ from ..dbconnector import pg_connector, gpkg_connector
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 
 class Generator:
+    '''Builds Project Generator objects from data extracted from databases.'''
     def __init__(self, tool_name, uri, inheritance, schema=None):
         self.tool_name = tool_name
         self.uri = uri
@@ -218,6 +219,7 @@ class Generator:
 
     def _get_relations_info(self):
         return self._db_connector.get_relations_info()
+
 
 class DomainRelationGenerator:
     """TODO: remove when ili2db issue #19 is solved"""

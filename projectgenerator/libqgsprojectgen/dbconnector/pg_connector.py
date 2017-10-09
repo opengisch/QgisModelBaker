@@ -22,9 +22,10 @@ import re
 
 from .db_connector import DBConnector
 
+PG_METADATA_TABLE = 't_ili2db_table_prop'
+
 class PGConnector(DBConnector):
     def __init__(self, uri, schema):
-        print(uri)
         self.conn = psycopg2.connect(uri)
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
@@ -39,8 +40,8 @@ class PGConnector(DBConnector):
                         SELECT
                           count(tablename)
                         FROM pg_catalog.pg_tables
-                        WHERE schemaname = '{}' and tablename = 't_ili2db_table_prop'
-            """.format(self.schema))
+                        WHERE schemaname = '{}' and tablename = '{}'
+            """.format(self.schema, PG_METADATA_TABLE))
         return bool(cur.fetchone()[0])
 
     def get_tables_info(self):
