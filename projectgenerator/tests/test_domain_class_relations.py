@@ -54,8 +54,8 @@ class TestDomainClassRelation(unittest.TestCase):
         # Check domain class relations in the relations list
         relations_dicts = list()
         for relation in relations:
-            relations_dicts.append({"referencing_layer": relation.referencing_layer,
-                                    "referenced_layer": relation.referenced_layer,
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
                                     "referencing_field": relation.referencing_field,
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
