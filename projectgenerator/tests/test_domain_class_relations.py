@@ -69,8 +69,8 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "avaluo_uso_avaluo_usotipo_ilicode"})
         # Domain inherited from superclass and from another model
         expected_relations.append({"referencing_layer": "derecho",
-                                   "referenced_layer": "tipo",
-                                   "referencing_field": "col_derechotipo",
+                                   "referenced_layer": "col_derechotipo",
+                                   "referencing_field": "tipo",
                                    "referenced_field": "ilicode",
                                    "name": "derecho_tipo_col_derechotipo_ilicode"})
         # Domain from another model
