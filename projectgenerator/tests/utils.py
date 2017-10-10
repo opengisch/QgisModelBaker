@@ -31,6 +31,7 @@ def iliimporter_config(tool_name='ili2pg', modeldir=None):
         base_config.custom_model_directories_enabled = True
 
     configuration = ImportConfiguration()
+    configuration.tool_name = tool_name
     if tool_name == 'ili2pg':
         configuration.host = 'postgres'
         configuration.user = 'docker'
