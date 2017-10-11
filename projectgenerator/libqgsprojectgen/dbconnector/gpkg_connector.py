@@ -28,6 +28,7 @@ class GPKGConnector(DBConnector):
         self.conn = qgis.utils.spatialite_connect(uri)
         self.conn.row_factory = sqlite3.Row
         self._bMetadataTable = self._metadata_exists()
+        self._tables_info = self._get_tables_info()
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -45,6 +46,9 @@ class GPKGConnector(DBConnector):
         return cursor.fetchone()[0] == 1
 
     def get_tables_info(self):
+        return self._tables_info
+
+    def _get_tables_info(self):
         cursor = self.conn.cursor()
         cursor.execute("""
             SELECT NULL AS schemaname, s.name AS tablename, NULL AS primary_key, g.column_name AS geometry_column, g.srs_id AS srid, g.geometry_type_name AS type, p.setting AS is_domain, alias.setting AS table_alias
@@ -76,7 +80,7 @@ class GPKGConnector(DBConnector):
             primary_key = ",".join(primary_key_list) or None
 
             dict_record = dict(zip(record.keys(), tuple(record)))
-            dict_record['pk'] = primary_key
+            dict_record['primary_key'] = primary_key
             complete_records.append(dict_record)
 
         cursor.close()
@@ -116,4 +120,31 @@ class GPKGConnector(DBConnector):
             complete_records.append(record)
 
         cursor.close()
+        return complete_records
+
+    def get_relations_info(self):
+        # We need to get the PK for each table, so firts get tables_info
+        # and then build something more searchable
+        tables_info_dict = dict()
+        for table_info in self._tables_info:
+            tables_info_dict[table_info['tablename']] = table_info
+
+        cursor = self.conn.cursor()
+        complete_records = list()
+        for table_info_name, table_info in tables_info_dict.items():
+            cursor.execute("PRAGMA foreign_key_list({});".format(table_info_name))
+            foreign_keys = cursor.fetchall()
+
+            for foreign_key in foreign_keys:
+                record = {}
+                record['referencing_table'] = table_info['tablename']
+                record['referencing_column'] = foreign_key['from']
+                record['referenced_table'] = foreign_key['table']
+                record['referenced_column'] = tables_info_dict[foreign_key['table']]['primary_key']
+                record['constraint_name'] = '{}_{}_{}_{}'.format(record['referencing_table'],
+                                                                 record['referencing_column'],
+                                                                 record['referenced_table'],
+                                                                 record['referenced_column'])
+                complete_records.append(record)
+
         return complete_records

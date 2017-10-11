@@ -152,7 +152,7 @@ class PGConnector(DBConnector):
         schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(self.schema) if self.schema else ''
         schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(self.schema) if self.schema else ''
 
-        cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table_name, KCU1.COLUMN_NAME AS referencing_column_name, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table_name, KCU2.COLUMN_NAME AS referenced_column_name, KCU1.ORDINAL_POSITION
+        cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION
                         FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
                         INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
                         ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1}
