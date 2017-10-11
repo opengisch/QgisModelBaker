@@ -124,7 +124,8 @@ class Generator:
                     field.widget = 'TextEdit'
                     field.widget_config['IsMultiline'] = True
 
-                if 'time' in fielddef['data_type'] or 'date' in fielddef['data_type']:
+                data_type = self._db_connector.map_data_types(fielddef['data_type'])
+                if 'time' in data_type or 'date' in data_type:
                     field.widget = 'DateTime'
                     field.widget_config['calendar_popup'] = True
 
@@ -132,11 +133,11 @@ class Generator:
                     timeFormat = QLocale(QgsApplication.instance().locale()).timeFormat(QLocale.ShortFormat)
                     dateTimeFormat = QLocale(QgsApplication.instance().locale()).dateTimeFormat(QLocale.ShortFormat)
 
-                    if 'time' in fielddef['data_type'] and not 'timestamp' in fielddef['data_type']:
+                    if data_type == self._db_connector.QGIS_TIME_TYPE:
                         field.widget_config['display_format'] = timeFormat
-                    elif 'timestamp' in fielddef['data_type']:
+                    elif data_type == self._db_connector.QGIS_DATE_TIME_TYPE:
                         field.widget_config['display_format'] = dateTimeFormat
-                    elif 'date' in fielddef['data_type']:
+                    elif data_type == self._db_connector.QGIS_DATE_TYPE:
                         field.widget_config['display_format'] = dateFormat
 
                 layer.fields.append(field)

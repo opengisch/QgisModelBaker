@@ -24,9 +24,14 @@ GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 
 class GPKGConnector(DBConnector):
     def __init__(self, uri, schema):
+        DBConnector.__init__(self, uri, schema)
         self.conn = qgis.utils.spatialite_connect(uri)
         self.conn.row_factory = sqlite3.Row
         self._bMetadataTable = self._metadata_exists()
+
+    def map_data_types(self, data_type):
+        '''GPKG date/time types correspond to QGIS date/time types'''
+        return data_type.lower()
 
     def metadata_exists(self):
         return self._bMetadataTable
@@ -73,6 +78,42 @@ class GPKGConnector(DBConnector):
             dict_record = dict(zip(record.keys(), tuple(record)))
             dict_record['pk'] = primary_key
             complete_records.append(dict_record)
+
+        cursor.close()
+        return complete_records
+
+    def get_fields_info(self, table_name):
+        cursor = self.conn.cursor()
+        cursor.execute("PRAGMA table_info({});".format(table_name))
+        columns_info = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT *
+            FROM t_ili2db_column_prop
+            WHERE tablename = '{}'
+            """.format(table_name))
+        columns_prop = cursor.fetchall()
+
+        complete_records = list()
+        for column_info in columns_info:
+            record = {}
+            record['column_name'] = column_info['name']
+            record['data_type'] = column_info['type']
+            record['comment'] = None
+            record['unit'] = None
+            record['texttype'] = None
+            record['column_alias'] = None
+
+            for column_prop in columns_prop:
+                if column_prop['columnname'] == column_info['name']:
+                    if column_prop['tag'] == 'ch.ehi.ili2db.unit':
+                        record['unit'] = column_prop['setting']
+                    elif column_prop['tag'] == 'ch.ehi.ili2db.textKind':
+                        record['texttype'] = column_prop['setting']
+                    elif column_prop['tag'] == 'ch.ehi.ili2db.dispName':
+                        record['column_alias'] = column_prop['setting']
+
+            complete_records.append(record)
 
         cursor.close()
         return complete_records

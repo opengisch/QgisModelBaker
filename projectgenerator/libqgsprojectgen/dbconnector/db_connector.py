@@ -16,10 +16,17 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 class DBConnector:
     '''SuperClass for all DB connectors.'''
     def __init__(self, uri, schema):
-        pass
+        self.QGIS_DATE_TYPE = 'date'
+        self.QGIS_TIME_TYPE = 'time'
+        self.QGIS_DATE_TIME_TYPE = 'datetime'
+
+    def map_data_types(self, data_type):
+        '''Map provider date/time types to QGIS date/time types'''
+        return None
 
     def metadata_exists(self):
         '''Whether t_ili2db_table_prop table exists or not.'''

@@ -26,9 +26,21 @@ PG_METADATA_TABLE = 't_ili2db_table_prop'
 
 class PGConnector(DBConnector):
     def __init__(self, uri, schema):
+        DBConnector.__init__(self, uri, schema)
         self.conn = psycopg2.connect(uri)
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
+
+    def map_data_types(self, data_type):
+        data_type = data_type.lower()
+        if 'timestamp' in data_type:
+            return self.QGIS_DATE_TIME_TYPE
+        elif 'date' in data_type:
+            return self.QGIS_DATE_TYPE
+        elif 'time' in data_type:
+            return self.QGIS_TIME_TYPE
+
+        return data_type.lower()
 
     def metadata_exists(self):
         return self._bMetadataTable
