@@ -7,11 +7,13 @@ with a database, so your own postgres installation is not affected at all.
 To run the tests, go to the main directory of the project and do
 
 ```sh
-export TRAVIS_BUILD_DIR=$PWD # only for local execution
-docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
+# only for local execution
+export TRAVIS_BUILD_DIR=$PWD
+# run and destroy container
+docker-compose -f .docker/docker-compose.travis.yml run --rm qgis /usr/src/.docker/run-docker-tests.sh
 ```
 
-In one line, removing all containers.
+In one line, removing all containers, for clean execution.
 ```sh
-TRAVIS_BUILD_DIR=$PWD docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh; TRAVIS_BUILD_DIR=$PWD docker-compose -f .docker/docker-compose.travis.yml rm -s -f
+export TRAVIS_BUILD_DIR=$PWD && docker-compose -f .docker/docker-compose.travis.yml rm -s -f && docker-compose -f .docker/docker-compose.travis.yml run --rm qgis /usr/src/.docker/run-docker-tests.sh
 ```
