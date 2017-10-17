@@ -147,4 +147,47 @@ class GPKGConnector(DBConnector):
                                                                  record['referenced_column'])
                 complete_records.append(record)
 
+        cursor.close()
         return complete_records
+
+    def get_domainili_domaindb_mapping(self, domains):
+        """TODO: remove when ili2db issue #19 is solved"""
+        # Map domain ili name with its correspondent pg name
+        cursor = self.conn.cursor()
+        domain_names = "'" + "','".join(domains) + "'"
+        cursor.execute("""SELECT iliname, sqlname
+                          FROM t_ili2db_classname
+                          WHERE sqlname IN ({domain_names})
+                       """.format(domain_names=domain_names))
+        return cursor
+
+    def get_models(self):
+        """TODO: remove when ili2db issue #19 is solved"""
+        # Get MODELS
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT modelname, content
+                          FROM t_ili2db_model """)
+        return cursor
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """TODO: remove when ili2db issue #19 is solved"""
+        cursor = self.conn.cursor()
+        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
+        cursor.execute("""SELECT *
+                          FROM t_ili2db_classname
+                          WHERE iliname IN ({class_names})
+                       """.format(class_names=class_names))
+        return cursor
+
+    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+        """TODO: remove when ili2db issue #19 is solved"""
+        cursor = self.conn.cursor()
+        all_attrs = list()
+        for c, dict_attr_domain in models_info_with_ext.items():
+            all_attrs.extend(list(dict_attr_domain.keys()))
+        attr_names = "'" + "','".join(all_attrs) + "'"
+        cursor.execute("""SELECT iliname, sqlname, owner
+                          FROM t_ili2db_attrname
+                          WHERE iliname IN ({attr_names})
+                       """.format(attr_names=attr_names))
+        return cursor
