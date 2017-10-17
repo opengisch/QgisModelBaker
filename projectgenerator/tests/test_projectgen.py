@@ -150,7 +150,17 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung',
                                               'bemerkung_de']))
 
-                self.assertEqual(tabs[1].name(), 'parzellenidentifikation') # This might need to be adjusted if we get better names
+                tab_list = [tab.name() for tab in tabs]
+                tab_list.sort()
+                expected_tab_list = ['General',
+                                     'parzellenidentifikation',
+                                     'belasteter_standort_geo_lage_punkt',
+                                     'egrid_',
+                                     'deponietyp_',
+                                     'untersmassn_']
+                expected_tab_list.sort()
+
+                self.assertEqual(tab_list, expected_tab_list)
 
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
