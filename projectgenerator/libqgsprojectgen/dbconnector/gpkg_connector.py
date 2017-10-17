@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import re
 import sqlite3
 import qgis.utils
 from .db_connector import DBConnector
@@ -121,6 +122,25 @@ class GPKGConnector(DBConnector):
 
         cursor.close()
         return complete_records
+
+    def get_constraints_info(self, table_name):
+        constraint_mapping = dict()
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT sql
+                          FROM sqlite_master
+                          WHERE name = '{}' AND type = 'table'
+                       """.format(table_name))
+
+        # Create a mapping in the form of
+        #
+        # fieldname: (min, max)
+        res1 = re.findall('CHECK\((.*)\)', cursor.fetchone()[0])
+        for res in res1:
+            res2 = re.search('(\w+) BETWEEN ([-?\d\.]+) AND ([-?\d\.]+)', res)
+            if res2:
+                constraint_mapping[res2.group(1)] = (res2.group(2), res2.group(3))
+
+        return constraint_mapping
 
     def get_relations_info(self):
         # We need to get the PK for each table, so firts get tables_info
