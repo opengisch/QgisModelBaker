@@ -150,7 +150,7 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung',
                                               'bemerkung_de']))
 
-                self.assertEqual(tabs[1].name(), 'untersmassn_') # This might need to be adjusted if we get better names
+                self.assertEqual(tabs[1].name(), 'parzellenidentifikation') # This might need to be adjusted if we get better names
 
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
