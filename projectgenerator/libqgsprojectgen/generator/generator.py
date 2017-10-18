@@ -3,7 +3,8 @@
 /***************************************************************************
     begin                :    04/10/17
     git sha              :    :%H$
-    copyright            :    (C) 2017 by Germán Carrillo
+    copyright            :    (C) 2017 by Germán Carrillo (BSF-Swissphoto)
+                              (C) 2016 by OPENGIS.ch
     email                :    gcarrillo@linuxmail.org
  ***************************************************************************/
 

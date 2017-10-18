@@ -4,7 +4,7 @@
                               -------------------
         begin                : 30/05/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo
+        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
         email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 

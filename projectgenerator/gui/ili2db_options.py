@@ -4,7 +4,7 @@
                               -------------------
         begin                : 03/04/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo
+        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
         email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 
@@ -57,4 +57,3 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-
