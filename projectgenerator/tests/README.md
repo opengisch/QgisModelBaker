@@ -17,3 +17,8 @@ In one line, removing all containers, for clean execution.
 ```sh
 export TRAVIS_BUILD_DIR=$PWD && docker-compose -f .docker/docker-compose.travis.yml rm -s -f && docker-compose -f .docker/docker-compose.travis.yml run --rm qgis /usr/src/.docker/run-docker-tests.sh
 ```
+
+If you use sudo.
+```sh
+sudo TRAVIS_BUILD_DIR=$PWD docker-compose -f .docker/docker-compose.travis.yml rm -s -f && sudo TRAVIS_BUILD_DIR=$PWD docker-compose -f .docker/docker-compose.travis.yml run --rm qgis /usr/src/.docker/run-docker-tests.sh
+```
