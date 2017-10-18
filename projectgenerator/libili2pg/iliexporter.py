@@ -4,7 +4,7 @@
                               -------------------
         begin                : 30/05/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo
+        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
         email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 
@@ -123,4 +123,3 @@ class Exporter(QObject):
     def stdout_ready(self, proc):
         text = bytes(proc.readAllStandardOutput()).decode(self.encoding)
         self.stdout.emit(text)
-
