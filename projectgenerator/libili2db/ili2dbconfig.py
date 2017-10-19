@@ -57,8 +57,8 @@ class BaseConfiguration(object):
         if export_modeldir:
             if self.custom_model_directories_enabled and self.custom_model_directories:
                 args += ['--modeldir', self.custom_model_directories]
-        args += ['--trace']
-        if self.logfile_path:
+        if self.debugging_enabled and self.logfile_path:
+            args += ['--trace']
             args += ['--log', self.logfile_path]
         return args
 
