@@ -82,7 +82,7 @@ class Importer(QObject):
         args += ["--coalesceMultiLine"]
         args += ["--strokeArcs"]
         args += ["--beautifyEnumDispName"]
-        args += ["--createBasketCol"]
+        #args += ["--createBasketCol"]
         args += ["--createUnique"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
