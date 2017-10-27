@@ -53,7 +53,8 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QSettings,
-    Qt
+    Qt,
+    QLocale
 )
 from qgis.core import (
     QgsProject,
@@ -421,4 +422,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#generate-project".format(os_language))
+        else:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")

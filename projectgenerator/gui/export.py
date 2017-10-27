@@ -28,7 +28,7 @@ from projectgenerator.utils.qt_utils import make_save_file_selector, Validators,
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale
 from qgis.core import QgsProject
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
@@ -297,7 +297,11 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
+        else:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
 
     def xtf_browser_opened_to_true(self):
         """

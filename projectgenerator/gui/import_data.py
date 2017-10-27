@@ -46,7 +46,8 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QSettings,
-    Qt
+    Qt,
+    QLocale
 )
 from ..utils import get_ui_class
 from ..libili2db import (
@@ -341,5 +342,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        webbrowser.open(
-            "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
+        else:
+            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
