@@ -18,13 +18,13 @@
  ***************************************************************************/
 """
 import locale
-import os
+import os, webbrowser
 
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from projectgenerator.gui.export import ExportDialog
 from projectgenerator.gui.import_data import ImportDataDialog
-from qgis.PyQt.QtWidgets import QAction, QMenu
-from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
@@ -39,6 +39,9 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__export_action = None
         self.__importdata_action = None
         self.__configure_action = None
+        self.__help_action = None
+        self.__about_action = None
+        self.__separator = None
         if locale.getlocale() == (None, None):
             locale.setlocale(locale.LC_ALL, '')
 
@@ -59,26 +62,39 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__export_action = QAction(self.tr('Export Interlis Transfer File (.xtf)'), None)
         self.__importdata_action = QAction(self.tr('Import Interlis Transfer File (.xtf)'), None)
         self.__configure_action = QAction(self.tr('Settings'), None)
+        self.__help_action = QAction(self.tr('Help'), None)
+        self.__about_action = QAction(self.tr('About'),None)
+        self.__separator = QAction(None)
+        self.__separator.setSeparator(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__importdata_action.triggered.connect(self.show_importdata_dialog)
         self.__export_action.triggered.connect(self.show_export_dialog)
+        self.__help_action.triggered.connect(self.show_help_documentation)
+        self.__about_action.triggered.connect(self.show_about_dialog)
 
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__separator)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__help_action)
+        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__about_action)
 
     def unload(self):
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__export_action)
         self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__help_action)
+        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__about_action)
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
         del self.__configure_action
+        del self.__help_action
+        del self.__about_action
 
     def show_generate_dialog(self):
         dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
@@ -99,3 +115,24 @@ class QgsProjectGeneratorPlugin(QObject):
         dlg = ImportDataDialog(self.ili2db_configuration)
         dlg.exec_()
 
+    def show_help_documentation(self):
+        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
+        if os_language in ['es','de']:
+            webbrowser.open('https://opengisch.github.io/projectgenerator/docs/{}/'.format(os_language))
+        else:
+            webbrowser.open('https://opengisch.github.io/projectgenerator/docs/index.html')
+
+    def show_about_dialog(self):
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Information)
+        self.msg.setTextFormat(Qt.RichText)
+        self.msg.setWindowTitle(self.tr('About Project Generator'))
+        self.msg.setText(self.tr(
+        """<h1>Proyect Generator</h1>
+        <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta 
+        information to preconfigure the layer tree, widget configuration, relations and more.</p>
+        <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/projectgenerator">github</a>.</p>
+        <p align="justify">This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with 
+        <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>.</p></p>"""))
+        self.msg.setStandardButtons(QMessageBox.Close)
+        msg_box = self.msg.exec_()
