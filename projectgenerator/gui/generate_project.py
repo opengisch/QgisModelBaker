@@ -81,9 +81,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili)')))
-        self.gpkg_file_browse_button.clicked.connect(
-            make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                               file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg')) # TODO: Should this change depending on mode (from ili or gpkg)?
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.crs = QgsCoordinateReferenceSystem()
@@ -108,19 +105,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
         self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
 
-        self.restore_configuration()
-
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.ili', allow_empty=True)
-        gpkgFileValidator = FileValidator(pattern='*.gpkg', allow_non_existing=True)
+        self.gpkgSaveFileValidator = FileValidator(pattern='*.gpkg', allow_non_existing=True)
+        self.gpkgOpenFileValidator = FileValidator(pattern='*.gpkg')
+        self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+
+        self.restore_configuration()
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
-        self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -141,8 +139,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_line_edit.textChanged.connect(self.ili_file_changed)
         self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
 
-        self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -350,10 +346,28 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_config.hide()
             self.pg_config.hide()
             self.gpkg_config.show()
+            self.gpkg_file_line_edit.setValidator(self.gpkgOpenFileValidator)
+            self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+            try:
+                self.gpkg_file_browse_button.clicked.disconnect()
+            except:
+                pass
+            self.gpkg_file_browse_button.clicked.connect(
+                make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
+                                   file_filter=self.tr('GeoPackage Database (*.gpkg)')))
         elif self.type_combo_box.currentData() == 'ili2gpkg':
             self.ili_config.show()
             self.pg_config.hide()
             self.gpkg_config.show()
+            self.gpkg_file_line_edit.setValidator(self.gpkgSaveFileValidator)
+            self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+            try:
+                self.gpkg_file_browse_button.clicked.disconnect()
+            except:
+                pass
+            self.gpkg_file_browse_button.clicked.connect(
+                make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
+                                   file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
 
     def on_model_changed(self, text):
         for pattern, crs in CRS_PATTERNS.items():
