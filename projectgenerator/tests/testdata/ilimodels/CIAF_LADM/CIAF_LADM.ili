@@ -18,6 +18,7 @@ VERSION "2017-08-01"  =
 
     CLASS Avaluo =
       Area_Terreno : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.m2];
+      Area_Terreno2 : -100.0 .. 100000.0 [Catastro_COL_ES_V2_1_6.m2];
       Area_Construida : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.m2];
       Num_Habitaciones : Catastro_COL_ES_V2_1_6.Integer;
       Num_Banios : Catastro_COL_ES_V2_1_6.Integer;

@@ -19,6 +19,7 @@
 """
 
 import os
+import datetime
 import shutil
 import tempfile
 import nose2
@@ -45,12 +46,12 @@ class TestProjectGen(unittest.TestCase):
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
-        importer.configuration.schema = 'kbs'
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', 'kbs')
+        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.schema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -161,6 +162,83 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
+
+    def test_ranges_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'avaluo':
+                config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
+                self.assertEqual(config['Min'], '-100.0')
+                self.assertEqual(config['Max'], '100000.0')
+                count += 1
+                break
+
+        self.assertEqual(count, 1)
+
+    def test_ranges_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'avaluo':
+                config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
+                self.assertEqual(config['Min'], '-100.0')
+                self.assertEqual(config['Max'], '100000.0')
+                count += 1
+                break
+
+        self.assertEqual(count, 1)
 
     def print_info(self, text):
         print(text)
