@@ -133,7 +133,7 @@ class PGConnector(DBConnector):
         constraints_cur.execute("""
             SELECT
               consrc,
-              regexp_matches(consrc, '\(\((.*) >= ([\d\.]+)\) AND \((.*) <= ([\d\.]+)\)\)') AS check_details
+              regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
             FROM pg_constraint
             WHERE conrelid = '{schema}.{table}'::regclass
             AND contype = 'c'
