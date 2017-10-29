@@ -116,7 +116,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.xtf_file_line_edit.text())
         self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
-        self.ilicache = IliCache(base_config)
+
+        settings = QSettings()
+        ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
+        self.ilicache = IliCache(base_config, ilifile or None)
         self.ilicache.models_changed.connect(self.update_models_completer)
         self.ilicache.refresh()
 
