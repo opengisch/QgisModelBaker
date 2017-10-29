@@ -393,8 +393,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_models_line_edit.setValidator(None)
             self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
 
-            # Update completer to show only models in given ili file
-            self.iliFileCache = IliCache(single_ili_file=self.ili_file_line_edit.text().strip())
+            # Update completer to add models from given ili file
+            self.iliFileCache = IliCache(self.base_configuration, self.ili_file_line_edit.text().strip())
             self.iliFileCache.models_changed.connect(self.update_models_completer)
             self.iliFileCache.new_message.connect(self.show_message)
             self.iliFileCache.refresh()
