@@ -320,7 +320,7 @@ class DomainRelationGenerator:
     def parse_model(self, model_content, domains):
         re_model = re.compile('\s*MODEL\s*([\w\d_-]+).*')  # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
         re_topic = re.compile('\s*TOPIC\s*([\w\d_-]+).*')  # TOPIC Catastro_Registro [=]
-        re_class = re.compile('\s*CLASS\s*([\w\d_-]+).*')  # CLASS ClassName [=]
+        re_class = re.compile('\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile('\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
@@ -363,6 +363,16 @@ class DomainRelationGenerator:
                             attributes = dict()
                             re_end_class = re.compile('\s*END\s*{};.*'.format(current_class))  # END ClassName;
                             bClassJustFound = True
+
+                            # Possible EXTENDS
+                            if len(result.groups()) > 1 and result.group(2):
+                                extended_classes["{}.{}.{}".format(current_model, current_topic,
+                                                                   current_class)] = self.make_full_qualified(
+                                    result.group(2), 'class', current_model, current_topic)
+                                if self.debug: print("EXTENDS->",
+                                     self.make_full_qualified(result.group(2), 'class', current_model,
+                                                              current_topic))
+
                             continue
                     else:  # There is a current_class, go for attributes
                         if bClassJustFound:  # Search for extended classes
