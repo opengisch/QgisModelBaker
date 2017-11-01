@@ -141,7 +141,9 @@ class Importer(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        self.process_started.emit(java_path + ' ' + ' '.join(args))
+        command = java_path + ' ' + ' '.join(args)
+        safe_command = command.replace("--dbpwd {}".format(self.configuration.password), "--dbpwd ***")
+        self.process_started.emit(safe_command)
 
         self.__result = Importer.ERROR
 
