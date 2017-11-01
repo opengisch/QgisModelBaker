@@ -24,7 +24,7 @@ import tempfile
 import nose2
 
 from projectgenerator.libili2db import iliimporter
-from projectgenerator.tests.utils import iliimporter_config
+from projectgenerator.tests.utils import iliimporter_config, testdata_path
 from projectgenerator.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
 
@@ -176,6 +176,114 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "referencing_field": "tipo",
                                    "referenced_field": "iliCode",
                                    "name": "predio_tipo_la_baunittipo_iliCode"})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+    def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path('ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
+        importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
+        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2pg',
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.schema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        expected_relations = list() # 3 domain-class relations are expected
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
+                                   "referenced_layer": "abfallart",
+                                   "referencing_field": "abfallart",
+                                   "referenced_field": "ilicode",
+                                   "name": "oberirdische_sammelstelle_abfallart_abfallart_ilicode"})
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "unterflurcontainer",
+                           "referenced_layer": "abfallart",
+                           "referencing_field": "abfallart",
+                           "referenced_field": "ilicode",
+                           "name": "unterflurcontainer_abfallart_abfallart_ilicode"})
+        # Domain from the same model, out of the topic
+        expected_relations.append({"referencing_layer": "unterflurcontainer",
+                                   "referenced_layer": "lagegenauigkeit",
+                                   "referencing_field": "lagegenauigkeit",
+                                   "referenced_field": "ilicode",
+                                   "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_ilicode"})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+    def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path('ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
+        importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg_2.gpkg')
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg',
+                              importer.configuration.uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        expected_relations = list() # 3 domain-class relations are expected
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
+                                   "referenced_layer": "abfallart",
+                                   "referencing_field": "abfallart",
+                                   "referenced_field": "ilicode",
+                                   "name": "oberirdische_sammelstelle_abfallart_abfallart_ilicode"})
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "unterflurcontainer",
+                           "referenced_layer": "abfallart",
+                           "referencing_field": "abfallart",
+                           "referenced_field": "ilicode",
+                           "name": "unterflurcontainer_abfallart_abfallart_ilicode"})
+        # Domain from the same model, out of the topic
+        expected_relations.append({"referencing_layer": "unterflurcontainer",
+                                   "referenced_layer": "lagegenauigkeit",
+                                   "referencing_field": "lagegenauigkeit",
+                                   "referenced_field": "ilicode",
+                                   "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_ilicode"})
 
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
