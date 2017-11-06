@@ -26,46 +26,11 @@ GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 class GPKGConnector(DBConnector):
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
-        self.conn = self._get_connection(uri)
+        self.conn = qgis.utils.spatialite_connect(uri)
         self.conn.row_factory = sqlite3.Row
         self._bMetadataTable = self._metadata_exists()
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
-
-    def _get_connection(self, uri):
-        '''
-        Get a dbapi2.Connection to GeoPackage.
-
-        Heavily based on QGIS qgis.utils.spatialite_connect, but reimplemented
-        to avoid a Windows crash using pyspatialite with GeoPackage.
-
-        See https://github.com/qgis/QGIS/blob/master/python/utils.py#L591
-        '''
-        con = sqlite3.dbapi2.connect(uri)
-        con.enable_load_extension(True)
-        cur = con.cursor()
-        libs = [
-            # SpatiaLite >= 4.2 and Sqlite >= 3.7.17, should work on all platforms
-            ("mod_spatialite", "sqlite3_modspatialite_init"),
-            # SpatiaLite >= 4.2 and Sqlite < 3.7.17 (Travis)
-            ("mod_spatialite.so", "sqlite3_modspatialite_init"),
-            # SpatiaLite < 4.2 (linux)
-            ("libspatialite.so", "sqlite3_extension_init")
-        ]
-        found = False
-        for lib, entry_point in libs:
-            try:
-                cur.execute("select load_extension('{}', '{}')".format(lib, entry_point))
-            except sqlite3.OperationalError:
-                continue
-            else:
-                found = True
-                break
-        if not found:
-            print("Cannot find any suitable spatialite module")
-        cur.close()
-        con.enable_load_extension(False)
-        return con
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
