@@ -1,0 +1,1293 @@
+INTERLIS 2.3;
+
+/** !!-----------------------------------------------------------
+ * !!
+ * !! ISO 19152 LADM country profile COL modeled with INTERLIS 2
+ * !!
+ * !!-----------------------------------------------------------
+ * !! revision history
+ * !!-----------------------------------------------------------
+ * !!
+ * !! 10.05.2016/mg: EJEMPLO INTERLIS POR OFERTAS
+ * !! 16.06.2016/mg: Taller IGAC/SNR
+ * !! 23.08.2016/mg: Relaciones
+ * !! 15.09.2016/mg: Comentarios Modelo
+ * !! 20.11.2016/aa: Topic Ficha
+ * !! 25.11.2016/aa: Ajustes FichaPredio
+ * !! 02.12.2016/ss: Nuevas clases, atributos y tipos
+ * !! 15.12.2016/lj: Ajuste tipos (IGAC/SNR), BAUnit GM_surface
+ * !! 31.03.2017/fm: Simplificación de herencia
+ * !! 25.05.2017/fm: Se elimina la relacion HipotecaDerecho, se elimina la clase InteresadoBAUnit, se elimina marca abstract en las clases derivadas de RRR
+ * !! 26.05.2017/fm: Se cambian las clases terreno servidumbre de paso y construccion al paquete de unidades espaciales. Se acorta el nombre del Modelo. ajuste al diseño del diagrama de clases. Se elimina InteresadoNacion
+ * !! 09.06.2017/vm: Referido al modelo LADM traducido al español
+ * !! 09.06.2017/vm: cambio de version a 2.1.1, incluye cambios por LADM en español y de  nombres de atributo por no seguir las convenciones adoptadas.
+ * !! 15.06.2017/fm: cambio de version a 2.1.2, se quita el atributo geometría de la clase predio. se reemplaza el atributo OID por los atributos atributos namespace y localId. Se añaden atributos folio matriz y segregados al predio. se elimina el dominio transaccion_registral_tipo
+ * !! 20.06.2017/fm: Ajuste a nombres de las clases y atributos LA_
+ * !! 04.07.2017/sr: Ajuste de nombres de clases y atributos, creacion de relaciones, ajuste subdominios
+ * !! 04.07.2017/fm: Se unifican los modelos LADM_ES y Catastro_COL, se eliminan las clases que extienden de responsabilidad, restriccion, derecho, hipoteca, fuente_administrativa y fuente espacial. eliminan atributos opcionales no usados de la clase hipoteca
+ * !! 11.07.2017/fm: se adiciona el atributo poligono_creado
+ * !! 12.07.2017/fm: se adiciona el atributo Estado_Nupre en la clase predio
+ * !! 17.07.2017/fm: poligono creado debe ser obligatorio para la clase terreno.
+ * !!
+ * !!-----------------------------------------------------------
+ * !!
+ * !! (c) IGAC y SNR con apoyo de la Cooperacion Suiza
+ * !!
+ * !!-----------------------------------------------------------
+ */
+CONTRACTED MODEL Catastro_COL_ES_V2_1_6 (es)
+AT "http://www.igac.gov.co/models"
+VERSION "2017-07-12 V2.1.6"  =
+  IMPORTS ISO19107_V1_MAGNABOG;
+
+  UNIT
+
+    PesoColombiano [COP] EXTENDS INTERLIS.MONEY;
+
+    Area (ABSTRACT) = (INTERLIS.LENGTH * INTERLIS.LENGTH);
+
+    MetroCuadrado [m2] EXTENDS Area = (INTERLIS.m * INTERLIS.m);
+
+    Centrimetro [cm] = 1 / 100 [INTERLIS.m];
+
+  FUNCTION no_overlaps( Objects : OBJECTS OF ANYCLASS; SurfaceAttr : ATTRIBUTE OF @ Objects RESTRICTION ( SURFACE )) : BOOLEAN;
+
+  DOMAIN
+
+    Integer = -2000000000 .. 2000000000;
+
+    Real = -2000000000.000 .. 2000000000.000;
+
+    CharacterString = TEXT*255;
+
+    Currency = -2000000000.00 .. 2000000000.00;
+
+    COL_AreaTipo = (
+      Area_Calculada_Altura_Local,
+      Area_Calculada_Altura_Mar,
+      Area_Catastral_Administrativa,
+      Area_Estimado_Construccion,
+      Area_No_Oficial,
+      Area_Registral
+    );
+
+    COL_EstadoNupreTipo = (
+      /** El código ha sido asignado por el gestor catastral y refiere a un único predio de acuerdo al proceso de conformación o mantenimiento catastral multipropósito.
+       */
+      G,
+      /** El código ha sido asignado por el gestor catastral y refiere a un único predio de acuerdo al proceso de conformación o mantenimiento catastral multipropósito.
+       */
+      C,
+      /** El código ha sido anotado o inscrito en el sistema de registro de instrumentos públicos, en este estado el ciudadano podrá solicitar el Certificado Predial Registral, que contiene la información jurídica del Registro de Instrumentos Públicos y la información física y económica del Sistema Único de Información Catastral Multipropósito esta información goza con pleno mérito probatorio, cuya expedición está a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedición.
+       * 
+       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vía de actuación privada o pública y para todas las transacciones inmobiliarias, y permite prescindir de la transcripción de linderos en todos los documentos públicos que contengan actos jurídicos.
+       */
+      R,
+      /** El código ha sido anotado o inscrito en el sistema de registro de instrumentos públicos, en este estado el ciudadano podrá solicitar el Certificado Predial Registral, que contiene la información jurídica del Registro de Instrumentos Públicos y la información física y económica del Sistema Único de Información Catastral Multipropósito esta información goza con pleno mérito probatorio, cuya expedición está a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedición.
+       * 
+       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vía de actuación privada o pública y para todas las transacciones inmobiliarias, y permite prescindir de la transcripción de linderos en todos los documentos públicos que contengan actos jurídicos.
+       */
+      E
+    );
+
+    COL_EstructuraTipo = (
+      Croquis,
+      Linea_no_Estructurada,
+      Texto,
+      Topologico
+    );
+
+    COL_FuenteEspacialTipo = (
+      Croquis_Campo,
+      Protocolo_Posicionamiento,
+      Informe_Calculo,
+      Datos_Crudos
+    );
+
+    COL_DerechoTipo = (
+      Derecho_Propiedad_Colectiva,
+      Mineria_Derecho,
+      Nuda_Propiedad,
+      Ocupacion,
+      Posesion,
+      Tenencia,
+      Usufructo
+    );
+
+    COL_RegistroTipo = (
+      Forestal,
+      Mineria,
+      Restriccion_Publica
+    );
+
+    COL_LevelContentTipo = (
+      Construccion_Convencional,
+      Construccion_No_Convencional,
+      Consuetudinario,
+      Formal,
+      Informal,
+      Responsabilidad,
+      Restriccion_Derecho_Publico,
+      Restriction_Derecho_Privado
+    );
+
+    COL_ResponsabilidadTipo = (
+      Constitucional,
+      Legal,
+      Contractual,
+      Administrativa,
+      Judicial,
+      Otros
+    );
+
+    COL_BuildingUnitTipo = (
+      Compartido,
+      individual
+    );
+
+    COL_RestriccionTipo = (
+      Afectaciones_Interes_General,
+      Ambientales,
+      Desplazamiento_Forzado_Restitucion,
+      Embargo,
+      Propiedad_Horizontal_y_Urbanismo,
+      Prohibiciones_Expresas,
+      Proteccion_Familia,
+      Servidumbre,
+      No_Registrada
+    );
+
+    COL_HipotecaTipo = (
+      Abierta,
+      Cerrada
+    );
+
+    COL_UtilityNetworkTipo = (
+      Petroleo,
+      Quimicos,
+      Red_Termica,
+      Telecomunicacion
+    );
+
+    COL_AlertaTipo = (
+      Demanda,
+      Inicio_de_Proceso_Administrativo,
+      Cancelacion,
+      Desplazamiento_Forzado,
+      Victima_o_Restitucion,
+      Publicidad_de_Acto_Juridico
+    );
+
+    COL_ViaTipo = (
+      Arteria,
+      Autopista,
+      Carreteable,
+      Cicloruta,
+      Colectora,
+      Departamental,
+      Ferrea,
+      Local,
+      Metro_o_Metrovia,
+      Nacional,
+      Ordinaria,
+      Peatonal,
+      Principal,
+      Privada,
+      Secundaria,
+      Troncal
+    );
+
+    COL_FormalidadTipo = (
+      Formal,
+      Informal
+    );
+
+    Peso = 0 .. 999999999999 [COP];
+
+    COL_Genero = (
+      Femenino,
+      Masculino,
+      Otro
+    );
+
+    COL_MonumentacionTipo = (
+      Incrustacion,
+      Mojon,
+      No_Materializado,
+      Otros,
+      Pilastra
+    );
+
+    COL_InteresadoJuridicoTipo = (
+      Publico,
+      Privado
+    );
+
+    COL_PuntoControlTipo = (
+      Control,
+      Apoyo
+    );
+
+    COL_PredioTipo = (
+      Privado(
+        Individual,
+        En_Comunidad,
+        Propiedad_Colectiva(
+          Resguardo_Indigena,
+          Comunidad_Afrodescendiente,
+          Comunidad_Raizal,
+          Comunidad_Palenquera
+        )
+      ),
+      Publico(
+        Nacional,
+        Departamental,
+        Municipal
+      )
+    );
+
+    COL_PuntoLevTipo = (
+      Auxiliar,
+      Construccion,
+      Servidumbre
+    );
+
+    COL_PredioTipoPublicoTipo = (
+      Parque_Nacional,
+      Reserva_Natural,
+      Ejido,
+      Presunto_Baldio,
+      Fiscal_Patrimonial,
+      Bien_Uso_Publico(
+        Alameda,
+        Anden,
+        Area_Control_Ambiental,
+        Bahia_Estacionamiento,
+        Berma,
+        Calzada,
+        Ciclo_Ruta,
+        Escenario_Cultural,
+        Escenario_Deportivo,
+        Estacionamiento_Publico,
+        Humedal,
+        Lago,
+        Madre_Vieja,
+        Malecon,
+        Parque_Urbano,
+        Playa,
+        Playon,
+        Plaza,
+        Plazoleta,
+        Puente,
+        Rio,
+        Sabana_Comunal,
+        Sardinel,
+        Separador,
+        Terreno_Bajamar,
+        Tunel_Peatonal,
+        Via,
+        Zona_Equipamiento_Comunal
+      ),
+      Otro
+    );
+
+    COL_TipoZona = (
+      Perimetro_Urbano,
+      Rural,
+      Corregimiento,
+      Caserios,
+      Inspecion_Policia
+    );
+
+    COL_EstratoTipo = (
+      Estrato_0,
+      Estrato_1,
+      Estrato_2,
+      Estrato_3,
+      Estrato_4,
+      Estrato_5,
+      Estrato_6
+    );
+
+    COL_EstructuraLinealTipo = (
+      Via_Metro_o_Metrovia,
+      Via_Troncal,
+      Via_Ferrea,
+      Autopista,
+      Arteria,
+      Via_Principal,
+      Via_Secundaria,
+      Via_Colectora,
+      Via_Ordinaria,
+      Via_Local,
+      Via_Privada,
+      Ciclorruta,
+      Via_Peatonal,
+      Via_Carreteable,
+      Tunel,
+      Pista_Aterrizaje,
+      Puente,
+      Carretera_Elevada_Viaducto
+    );
+
+    /** !! ajustar en el Catalogo de Objetos
+     */
+    COL_AcuerdoTipo = (
+      Acuerdo,
+      desacuerdo
+    );
+
+    COL_EstructuraPuntualTipo = (
+      Carretera_Elevada_Viaducto,
+      Pista_Aterrizaje,
+      Puente,
+      Puerto_Via_Navegable,
+      Represa,
+      Sistema_de_Riego,
+      Tunel
+    );
+
+    COL_DefPuntoTipo = (
+      Bien_Definido,
+      No_Bien_Definido
+    );
+
+    COL_DescripcionPuntoTipo = (
+      Esquina_Construccion,
+      Interseccion_Cerca_De_Piedra,
+      Interseccion_Cerca_Viva,
+      Poste_de_Cerca,
+      /** !! por definir durante pilotos
+       */
+      Otros
+    );
+
+    COL_InterpolacionTipo = (
+      Aislado,
+      Intermedio_Arco,
+      Intermedio_Linea
+    );
+
+    COL_TipoConstruccionTipo = (
+      Anexo,
+      No_PH,
+      Parque_Cementerio,
+      PH
+    );
+
+    COL_RolInteresadoTipo = (
+      Abogado_Demandas,
+      Administrador_Estado,
+      Banco,
+      Ciudadano,
+      Juez,
+      Notario,
+      Reconocedor_Agrimensor
+    );
+
+    COL_InteresadoDocumentoTipo = (
+      Cedula_Ciudadania,
+      Cedula_Extranjeria,
+      NIT,
+      Pasaporte,
+      Tarjeta_Identidad
+    );
+
+    COL_InstitucionTipo = (
+      Registraduria_Nacional,
+      Registro_Propiedad,
+      Catastro_IGAC,
+      Catastro_Descentralizado,
+      URT,
+      ANT
+    );
+
+    COL_GrupoInteresadoTipo = (
+      Grupo_BAUnit,
+      Grupo_Civil,
+      Grupo_Empresarial,
+      Grupo_Etnico
+    );
+
+    COL_EstadoDisponibilidadTipo = (
+      Convertido,
+      Desconocido,
+      Disponible
+    );
+
+    COL_FuenteAdministrativaTipo = (
+      Certificado,
+      Contrato,
+      Documento_Identidad,
+      Informe,
+      Formulario_Predial,
+      Promesa_Compraventa,
+      Reglamento,
+      Resolucion,
+      Sentencia,
+      Solicitud,
+      Acta,
+      Acuerdo,
+      Auto,
+      Estatuto_Social,
+      Decreto,
+      Providencia,
+      Acta_Colindancia,
+      Informe_Colindancia
+    );
+
+    LA_EstadoDisponibilidadTipo = (
+      Original,
+      Destruido,
+      Incompleto,
+      Otro
+    );
+
+    LA_Agrupacion_Interesados_Tipo = (
+      Asociacion,
+      Familia,
+      Otro
+    );
+
+    LA_InteresadoTipo = (
+      Persona_Natural,
+      Persona_No_Natural,
+      Otro
+    );
+
+    LA_BAUnitTipo = (
+      Unidad_Propiedad_Basica,
+      Unidad_Derecho,
+      Otro
+    );
+
+    LA_DerechoTipo = (
+      Propiedad,
+      Consuetudinario,
+      Arrendamiento,
+      Otro
+    );
+
+    LA_RestriccionTipo = (
+      Servidumbres,
+      Otro
+    );
+
+    LA_ResponsabilidadTipo = (
+      Policia_Areas_Inundables,
+      Otro
+    );
+
+    LA_HipotecaTipo = (
+      Lineal,
+      Micro_Credito,
+      Otro
+    );
+
+    LA_FuenteAdministrativaTipo = (
+      Escritura,
+      Titulo,
+      Otro
+    );
+
+    LA_Area_Tipo = (
+      Oficial,
+      Calculada,
+      Otro
+    );
+
+    LA_VolumenTipo = (
+      Oficial,
+      Calculado,
+      Otro
+    );
+
+    LA_FuenteEspacialTipo = (
+      Topografia,
+      Plano,
+      Fotografia_Aerea,
+      Otro
+    );
+
+    LA_DimensionTipo = (
+      Dim2D,
+      Dim3D,
+      otro
+    );
+
+    LA_RelacionSuperficieTipo = (
+      En_Rasante,
+      En_Vuelo,
+      En_Subsuelo,
+      Otro
+    );
+
+    LA_UnidadEdificacionTipo = (
+      Privado,
+      Comercial,
+      Estado,
+      Otro
+    );
+
+    LA_EstadoRedServiciosTipo = (
+      Planeado,
+      En_Uso,
+      Fuera_De_Servicio,
+      Otro
+    );
+
+    LA_RedServiciosTipo = (
+      Electricidad,
+      Gas,
+      Agua,
+      Alcantarillado,
+      Otro
+    );
+
+    LA_RegistroTipo = (
+      Rural,
+      Urbano,
+      Otro
+    );
+
+    LA_EstructuraTipo = (
+      Punto,
+      Linea,
+      Poligono,
+      Otro
+    );
+
+    LA_ContenidoNivelTipo = (
+      Derecho_Primario,
+      Consuetudinario,
+      Otro
+    );
+
+    LA_InterpolacionTipo = (
+      Inicio,
+      Final,
+      Centro_Arco,
+      Otro
+    );
+
+    LA_MonumentacionTipo = (
+      Baliza,
+      Poste,
+      Otro
+    );
+
+    LA_PuntoTipo = (
+      Control,
+      Catastro,
+      Otro
+    );
+
+    ISO19125_Type = (
+      Disjunto,
+      Toca,
+      Superpone,
+      Desconocido
+    );
+
+    DQ_Metodo_Evaluacion_Codigo_Tipo = (
+      Interno_Directo,
+      Externo_Directo,
+      Indirecto
+    );
+
+    CI_CodigoTarea = (
+      Proveedor_De_Recursos,
+      Custodio,
+      Propietario,
+      Usuario,
+      Distribuidor,
+      Creador,
+      Punto_De_Contacto,
+      Investigador_Principal,
+      Procesador,
+      Editor,
+      Autor
+    );
+
+    CI_Forma_Presentacion_Codigo = (
+      Imagenn,
+      Mapa,
+      Modelo,
+      Perfil,
+      Tabla,
+      Video,
+      Audio,
+      Diagrama,
+      Multimedia,
+      Muestra_Fisica,
+      Otro
+    );
+
+  STRUCTURE COL_AreaValor =
+    areaSize : MANDATORY 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
+    type : MANDATORY COL_AreaTipo;
+  END COL_AreaValor;
+
+  TOPIC Catastro_Registro =
+
+    STRUCTURE Oid =
+      localId : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      espacioDeNombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END Oid;
+
+    STRUCTURE Fraccion =
+      Denominador : MANDATORY Catastro_COL_ES_V2_1_6.Integer;
+      Numerador : MANDATORY Catastro_COL_ES_V2_1_6.Integer;
+      MANDATORY CONSTRAINT
+        Denominador >= 0;
+      MANDATORY CONSTRAINT
+        Numerador >= 0;
+      MANDATORY CONSTRAINT
+        Denominador >= Numerador;
+    END Fraccion;
+
+    STRUCTURE Imagen =
+      uri : Catastro_COL_ES_V2_1_6.CharacterString;
+    END Imagen;
+
+    STRUCTURE DQ_Element =
+      Nombre_Medida : Catastro_COL_ES_V2_1_6.CharacterString;
+      Identificacion_Medida : Catastro_COL_ES_V2_1_6.CharacterString;
+      Descripcion_Medida : Catastro_COL_ES_V2_1_6.CharacterString;
+      Metodo_Evaluacion : Catastro_COL_ES_V2_1_6.DQ_Metodo_Evaluacion_Codigo_Tipo;
+      Descripcion_Metodo_Evaluacion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Procedimiento_Evaluacion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Fecha_Hora : INTERLIS.XMLDateTime;
+      Resultado : Catastro_COL_ES_V2_1_6.CharacterString;
+    END DQ_Element;
+
+    STRUCTURE DQ_PositionalAccuracy
+    EXTENDS DQ_Element =
+      atributo21 : Catastro_COL_ES_V2_1_6.CharacterString;
+    END DQ_PositionalAccuracy;
+
+    STRUCTURE DQ_AbsoluteExternalPositionalAccuracy
+    EXTENDS DQ_PositionalAccuracy =
+      atributo1 : Catastro_COL_ES_V2_1_6.CharacterString;
+    END DQ_AbsoluteExternalPositionalAccuracy;
+
+    STRUCTURE LI_Lineaje =
+      Statement : Catastro_COL_ES_V2_1_6.CharacterString;
+    END LI_Lineaje;
+
+    STRUCTURE CI_Contacto =
+      Telefono : Catastro_COL_ES_V2_1_6.CharacterString;
+      Direccion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Fuente_En_Linea : Catastro_COL_ES_V2_1_6.CharacterString;
+      Horario_De_Atencion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Instrucciones_Contacto : Catastro_COL_ES_V2_1_6.CharacterString;
+    END CI_Contacto;
+
+    STRUCTURE CI_ParteResponsable =
+      Nombre_Individual : Catastro_COL_ES_V2_1_6.CharacterString;
+      Nombre_Organizacion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Posicion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Informacion_Contacto : Catastro_COL_ES_V2_1_6.Catastro_Registro.CI_Contacto;
+      Funcion : Catastro_COL_ES_V2_1_6.CI_CodigoTarea;
+    END CI_ParteResponsable;
+
+    STRUCTURE CC_MetodoOperacion =
+      Formula : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      Dimensiones_Origen : Catastro_COL_ES_V2_1_6.Integer;
+      Ddimensiones_Objetivo : Catastro_COL_ES_V2_1_6.Integer;
+    END CC_MetodoOperacion;
+
+    STRUCTURE OM_Observacion =
+      Resultado_Calidad : Catastro_COL_ES_V2_1_6.Catastro_Registro.DQ_Element;
+    END OM_Observacion;
+
+    STRUCTURE OM_Proceso =
+    END OM_Proceso;
+
+    STRUCTURE ExtDireccion =
+      Nombre_Area_Direccion : Catastro_COL_ES_V2_1_6.CharacterString;
+      Coordenada_Direccion : ISO19107_V1_MAGNABOG.GM_Point2D;
+      Direccion_ID : MANDATORY Catastro_COL_ES_V2_1_6.Catastro_Registro.Oid;
+      Nombre_Edificio : Catastro_COL_ES_V2_1_6.CharacterString;
+      Numero_Edificio : Catastro_COL_ES_V2_1_6.CharacterString;
+      Ciudad : Catastro_COL_ES_V2_1_6.CharacterString;
+      Pais : Catastro_COL_ES_V2_1_6.CharacterString;
+      Codigo_Postal : Catastro_COL_ES_V2_1_6.CharacterString;
+      Apartado_Correo : Catastro_COL_ES_V2_1_6.CharacterString;
+      Departamento : Catastro_COL_ES_V2_1_6.CharacterString;
+      Nombre_Calle : Catastro_COL_ES_V2_1_6.CharacterString;
+    END ExtDireccion;
+
+    STRUCTURE ExtUnidadEdificacionFisica =
+      Ext_Direccion_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtDireccion;
+    END ExtUnidadEdificacionFisica;
+
+    STRUCTURE ExtInteresado =
+      Ext_Direccion_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtDireccion;
+      Huella_Dactilar : Catastro_COL_ES_V2_1_6.Catastro_Registro.Imagen;
+      Nombre : Catastro_COL_ES_V2_1_6.CharacterString;
+      Interesado_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.Oid;
+      Fotografia : Catastro_COL_ES_V2_1_6.Catastro_Registro.Imagen;
+      Firma : Catastro_COL_ES_V2_1_6.Catastro_Registro.Imagen;
+    END ExtInteresado;
+
+    STRUCTURE ExtRedServiciosFisica =
+      Orientada : BOOLEAN;
+      Ext_Interesado_Administrador_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtInteresado;
+    END ExtRedServiciosFisica;
+
+    STRUCTURE ExtArchivo =
+      Fecha_Aceptacion : INTERLIS.XMLDate;
+      Datos : Catastro_COL_ES_V2_1_6.CharacterString;
+      Extraccion : INTERLIS.XMLDate;
+      Fecha_Grabacion : INTERLIS.XMLDate;
+      Fecha_Entrega : INTERLIS.XMLDate;
+      s_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      s_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END ExtArchivo;
+
+    STRUCTURE LA_VolumenValor =
+      Volumen_Medicion : MANDATORY 0.0 .. 99999999999999.9 [INTERLIS.m];
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.LA_VolumenTipo;
+    END LA_VolumenValor;
+
+    STRUCTURE LA_AreaValor =
+      Area_Medicion : MANDATORY 0.0 .. 99999999999999.9 [INTERLIS.m];
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.LA_Area_Tipo;
+    END LA_AreaValor;
+
+    STRUCTURE LA_Transformacion =
+      Transformacion : MANDATORY Catastro_COL_ES_V2_1_6.Catastro_Registro.CC_MetodoOperacion;
+      Localizacion_Transformada : MANDATORY ISO19107_V1_MAGNABOG.GM_Point2D;
+    END LA_Transformacion;
+
+    STRUCTURE LA_TareaInteresadoTipo =
+      Tipo : (
+        topografo,
+        notario,
+        otro
+      );
+    END LA_TareaInteresadoTipo;
+
+    CLASS Alerta (ABSTRACT) =
+      lifeStamp : MANDATORY INTERLIS.XMLDateTime;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_AlertaTipo;
+      Codigo_Registral_Alerta : MANDATORY TEXT*3;
+    END Alerta;
+
+    CLASS ObjetoVersionado (ABSTRACT) =
+      Comienzo_Vida_Util_Version : MANDATORY INTERLIS.XMLDateTime;
+      Fin_Vida_Util_Version : INTERLIS.XMLDateTime;
+      Calidad : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.DQ_Element;
+      Procedencia : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.CI_ParteResponsable;
+      MANDATORY CONSTRAINT
+        Fin_Vida_Util_Version >= Comienzo_Vida_Util_Version;
+    END ObjetoVersionado;
+
+    CLASS COL_Fuente (ABSTRACT) =
+      Fecha_Aceptacion : INTERLIS.XMLDateTime;
+      Estado_Disponibilidad : MANDATORY Catastro_COL_ES_V2_1_6.COL_EstadoDisponibilidadTipo;
+      Ext_Archivo_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtArchivo;
+      Sello_Inicio_Validez : INTERLIS.XMLDateTime;
+      Tipo_Principal : Catastro_COL_ES_V2_1_6.CI_Forma_Presentacion_Codigo;
+      Calidad : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.DQ_Element;
+      Fecha_Grabacion : INTERLIS.XMLDateTime;
+      Procedencia : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.CI_ParteResponsable;
+      Fecha_Entrega : INTERLIS.XMLDateTime;
+      s_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      s_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      Oficialidad : BOOLEAN;
+    END COL_Fuente;
+
+    CLASS LA_UnidadEspacial (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Area : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.LA_AreaValor;
+      Dimension : Catastro_COL_ES_V2_1_6.LA_DimensionTipo;
+      Ext_Direccion_ID : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.Oid;
+      Etiqueta : Catastro_COL_ES_V2_1_6.CharacterString;
+      Punto_Referencia : ISO19107_V1_MAGNABOG.GM_Point2D;
+      Relacion_Superficie : Catastro_COL_ES_V2_1_6.LA_RelacionSuperficieTipo;
+      Volumen : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.LA_VolumenValor;
+      su_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      su_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      /** Materializacion del metodo createArea()
+       */
+      poligono_creado : ISO19107_V1_MAGNABOG.GM_Surface2D;
+    END LA_UnidadEspacial;
+
+    CLASS LA_AgrupacionUnidadesEspaciales (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Nivel_Jerarquico : MANDATORY Catastro_COL_ES_V2_1_6.Integer;
+      Etiqueta : Catastro_COL_ES_V2_1_6.CharacterString;
+      Nombre : Catastro_COL_ES_V2_1_6.CharacterString;
+      Punto_Referencia : ISO19107_V1_MAGNABOG.GM_Point2D;
+      sug_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      sug_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_AgrupacionUnidadesEspaciales;
+
+    CLASS LA_EspacioJuridicoUnidadEdificacion (ABSTRACT)
+    EXTENDS LA_UnidadEspacial =
+      Ext_Unidad_Edificacion_Fisica_ID : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtUnidadEdificacionFisica;
+      Tipo : Catastro_COL_ES_V2_1_6.LA_UnidadEdificacionTipo;
+    END LA_EspacioJuridicoUnidadEdificacion;
+
+    CLASS Construccion (ABSTRACT)
+    EXTENDS LA_EspacioJuridicoUnidadEdificacion =
+      Avaluo_Construccion : MANDATORY Catastro_COL_ES_V2_1_6.Peso;
+    END Construccion;
+
+    CLASS LA_EspacioJuridicoRedServicios
+    EXTENDS LA_UnidadEspacial =
+      ext_ID_Red_Fisica : Catastro_COL_ES_V2_1_6.Catastro_Registro.ExtRedServiciosFisica;
+      Estado : Catastro_COL_ES_V2_1_6.LA_EstadoRedServiciosTipo;
+      Tipo : Catastro_COL_ES_V2_1_6.LA_RedServiciosTipo;
+    END LA_EspacioJuridicoRedServicios;
+
+    CLASS LA_Nivel
+    EXTENDS ObjetoVersionado =
+      n_ID : MANDATORY Catastro_COL_ES_V2_1_6.Catastro_Registro.Oid;
+      Nombre : Catastro_COL_ES_V2_1_6.CharacterString;
+      Registro_Tipo : Catastro_COL_ES_V2_1_6.LA_RegistroTipo;
+      Estructura : Catastro_COL_ES_V2_1_6.LA_EstructuraTipo;
+      Tipo : Catastro_COL_ES_V2_1_6.LA_ContenidoNivelTipo;
+    END LA_Nivel;
+
+    CLASS LA_RelacionNecesariaUnidadesEspaciales
+    EXTENDS ObjetoVersionado =
+      Relacion : MANDATORY Catastro_COL_ES_V2_1_6.ISO19125_Type;
+    END LA_RelacionNecesariaUnidadesEspaciales;
+
+    ASSOCIATION relacionUe =
+      rue1 -- {0..*} LA_UnidadEspacial;
+      rue2 -- {0..*} LA_UnidadEspacial;
+    END relacionUe;
+
+    ASSOCIATION UeJerarquia =
+      uej1 -- {0..*} LA_UnidadEspacial;
+      uej2 -<> {0..1} LA_UnidadEspacial;
+    END UeJerarquia;
+
+    ASSOCIATION ueJerarquiaGrupo =
+      set -<> {0..1} LA_AgrupacionUnidadesEspaciales;
+      element -- {0..*} LA_AgrupacionUnidadesEspaciales;
+    END ueJerarquiaGrupo;
+
+    ASSOCIATION ueUeGrupo =
+      parte -- {0..*} LA_UnidadEspacial;
+      todo -- {0..*} LA_AgrupacionUnidadesEspaciales;
+    END ueUeGrupo;
+
+    ASSOCIATION ueNivel =
+      ue -- {0..*} LA_UnidadEspacial;
+      nivel -- {0..1} LA_Nivel;
+    END ueNivel;
+
+    CLASS LA_RRR (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Descripcion : Catastro_COL_ES_V2_1_6.CharacterString;
+      r_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      r_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_RRR;
+
+    CLASS LA_BAUnit (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Nombre : Catastro_COL_ES_V2_1_6.CharacterString;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.LA_BAUnitTipo;
+      u_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      u_Local_Id : Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_BAUnit;
+
+    CLASS LA_RelacionNecesariaBAUnits
+    EXTENDS ObjetoVersionado =
+      Relacion : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_RelacionNecesariaBAUnits;
+
+    CLASS Predio (ABSTRACT)
+    EXTENDS LA_BAUnit =
+      Departamento : TEXT*2;
+      Municipio : TEXT*3;
+      Zona : TEXT*2;
+      Sector : TEXT*2;
+      Localidad_Comuna : TEXT*2;
+      Barrio : TEXT*2;
+      Manzana_Vereda : TEXT*4;
+      Terreno : TEXT*4;
+      Condicion_Prop : TEXT*1;
+      Edificio : TEXT*2;
+      Piso : TEXT*2;
+      Unidad : TEXT*4;
+      Vigencia_Fiscal : INTERLIS.XMLDate;
+      Avaluo_Predio : Catastro_COL_ES_V2_1_6.Peso;
+      FMI : TEXT*20;
+      Nomenclatura : TEXT*100;
+      NUPRE : MANDATORY TEXT*20;
+      Numero_Predial : TEXT*30;
+      Numero_Predial_Anterior : TEXT*20;
+      Predio_Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_PredioTipo;
+      Tipo_Predio_Publico : Catastro_COL_ES_V2_1_6.COL_PredioTipoPublicoTipo;
+      Estrato : Catastro_COL_ES_V2_1_6.COL_EstratoTipo;
+      Informalidad : Catastro_COL_ES_V2_1_6.COL_FormalidadTipo;
+      /** Pendiente crear dominio de valores (Activo, cerrado)
+       */
+      Estado_FMI : TEXT*20;
+      Folio_Matriz : TEXT*20;
+      Folios_Segregados : TEXT*20;
+      Estado_NUPRE : Catastro_COL_ES_V2_1_6.COL_EstadoNupreTipo;
+      UNIQUE NUPRE;
+    END Predio;
+
+    ASSOCIATION AlertaBAUnit =
+      alerta -- {0..*} Alerta;
+      baunit -- {1} LA_BAUnit;
+    END AlertaBAUnit;
+
+    CLASS COL_Derecho (ABSTRACT)
+    EXTENDS LA_RRR =
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_DerechoTipo;
+    END COL_Derecho;
+
+    CLASS COL_Restriccion (ABSTRACT)
+    EXTENDS LA_RRR =
+      Interesado_Requerido : BOOLEAN;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_RestriccionTipo;
+      Codigo_Registral_Restriccion : TEXT*3;
+    END COL_Restriccion;
+
+    CLASS COL_Responsabilidad (ABSTRACT)
+    EXTENDS LA_RRR =
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_ResponsabilidadTipo;
+      Codigo_Registral_Responsabilidad : TEXT*3;
+    END COL_Responsabilidad;
+
+    CLASS COL_Hipoteca (ABSTRACT)
+    EXTENDS COL_Restriccion =
+      h_Tipo : Catastro_COL_ES_V2_1_6.COL_HipotecaTipo;
+      Codigo_Registral_Hipoteca : TEXT*3;
+    END COL_Hipoteca;
+
+    CLASS COL_FuenteAdministrativa (ABSTRACT)
+    EXTENDS COL_Fuente =
+      Texto : Catastro_COL_ES_V2_1_6.CharacterString;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_FuenteAdministrativaTipo;
+      Codigo_Registral_Transaccion : TEXT*3;
+    END COL_FuenteAdministrativa;
+
+    ASSOCIATION ueBaunit =
+      ue (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+      baunit -- {0..*} LA_BAUnit;
+    END ueBaunit;
+
+    ASSOCIATION relacionBaunit =
+      unidad1 -- {0..*} LA_BAUnit;
+      unidad2 -- {0..*} LA_BAUnit;
+    END relacionBaunit;
+
+    ASSOCIATION baunitRrr =
+      unidad -- {1} LA_BAUnit;
+      rrr -- {1..*} LA_RRR;
+    END baunitRrr;
+
+    ASSOCIATION hipotecaDerecho =
+      hipoteca -- {0..*} COL_Hipoteca;
+      derecho -- {0..*} COL_Derecho;
+    END hipotecaDerecho;
+
+    ASSOCIATION rrrFuente =
+      rfuente -- {0..*} COL_FuenteAdministrativa;
+      rrr -- {0..*} LA_RRR;
+    END rrrFuente;
+
+    ASSOCIATION relacionFuente =
+      refuente -- {0..*} COL_FuenteAdministrativa;
+      relacionrequeridaBaunit -- {0..*} LA_RelacionNecesariaBAUnits;
+    END relacionFuente;
+
+    ASSOCIATION unidadFuente =
+      ufuente -- {0..*} COL_FuenteAdministrativa;
+      unidad -- {0..*} LA_BAUnit;
+    END unidadFuente;
+
+    CLASS LA_Punto (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Exactitud_Estimada : Catastro_COL_ES_V2_1_6.Catastro_Registro.DQ_AbsoluteExternalPositionalAccuracy;
+      Posicion_Interpolacion : MANDATORY Catastro_COL_ES_V2_1_6.LA_InterpolacionTipo;
+      Monumentacion : Catastro_COL_ES_V2_1_6.LA_MonumentacionTipo;
+      Localizacion_Original : MANDATORY ISO19107_V1_MAGNABOG.GM_Point2D;
+      PuntoTipo : MANDATORY Catastro_COL_ES_V2_1_6.LA_PuntoTipo;
+      MetodoProduccion : Catastro_COL_ES_V2_1_6.Catastro_Registro.LI_Lineaje;
+      Transformacion_Y_Resultado : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.LA_Transformacion;
+      p_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      p_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_Punto;
+
+    CLASS COL_FuenteEspacial (ABSTRACT)
+    EXTENDS COL_Fuente =
+      Mediciones : LIST {0..*} OF Catastro_COL_ES_V2_1_6.Catastro_Registro.OM_Observacion;
+      Procedimiento : Catastro_COL_ES_V2_1_6.Catastro_Registro.OM_Proceso;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_FuenteEspacialTipo;
+    END COL_FuenteEspacial;
+
+    CLASS PuntoControl (ABSTRACT)
+    EXTENDS LA_Punto =
+      Nombre_Punto : MANDATORY TEXT*20;
+      Exactitud_Vertical : MANDATORY 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Exactitud_Horizontal : MANDATORY 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Posicion_Interpolacion (EXTENDED) : MANDATORY Catastro_COL_ES_V2_1_6.COL_InterpolacionTipo;
+      Monumentacion (EXTENDED) : MANDATORY Catastro_COL_ES_V2_1_6.COL_MonumentacionTipo;
+      Tipo_Punto_Control : Catastro_COL_ES_V2_1_6.COL_PuntoControlTipo;
+      Confiabilidad : BOOLEAN;
+    END PuntoControl;
+
+    CLASS PuntoLindero (ABSTRACT)
+    EXTENDS LA_Punto =
+      Acuerdo : MANDATORY Catastro_COL_ES_V2_1_6.COL_AcuerdoTipo;
+      Def_Punto : MANDATORY Catastro_COL_ES_V2_1_6.COL_DefPuntoTipo;
+      Descripcion_Punto : Catastro_COL_ES_V2_1_6.COL_DescripcionPuntoTipo;
+      Exactitud_Vertical : 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Exactitud_Horizontal : MANDATORY 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Confiabilidad : BOOLEAN;
+      Posicion_Interpolacion (EXTENDED) : Catastro_COL_ES_V2_1_6.COL_InterpolacionTipo;
+      Monumentacion (EXTENDED) : MANDATORY Catastro_COL_ES_V2_1_6.COL_MonumentacionTipo;
+      Nombre_Punto : TEXT*10;
+    END PuntoLindero;
+
+    CLASS LA_CadenaCarasLindero (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Geometria : ISO19107_V1_MAGNABOG.GM_Curve2D;
+      Localizacion_Textual : Catastro_COL_ES_V2_1_6.CharacterString;
+      ccl_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      ccl_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_CadenaCarasLindero;
+
+    CLASS PuntoLevantamiento (ABSTRACT)
+    EXTENDS LA_Punto =
+      Tipo_Punto_Lev : Catastro_COL_ES_V2_1_6.COL_PuntoLevTipo;
+      Def_Punto : MANDATORY Catastro_COL_ES_V2_1_6.COL_DefPuntoTipo;
+      Exactitud_Vertical : 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Exactitud_Horizontal : 0 .. 1000 [Catastro_COL_ES_V2_1_6.cm];
+      Posicion_Interpolacion (EXTENDED) : Catastro_COL_ES_V2_1_6.COL_InterpolacionTipo;
+      Monumentacion (EXTENDED) : MANDATORY Catastro_COL_ES_V2_1_6.COL_MonumentacionTipo;
+      Nombre_Punto : TEXT*10;
+    END PuntoLevantamiento;
+
+    CLASS LA_CarasLindero
+    EXTENDS ObjetoVersionado =
+      Geometria : ISO19107_V1_MAGNABOG.GM_MultiSurface3D;
+      Localizacion_Textual : Catastro_COL_ES_V2_1_6.CharacterString;
+      cl_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      cl_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_CarasLindero;
+
+    CLASS ServidumbrePaso (ABSTRACT)
+    EXTENDS LA_UnidadEspacial =
+      Identificador : MANDATORY TEXT*20;
+      Fecha_Inscripcion_Catastral : INTERLIS.XMLDate;
+    END ServidumbrePaso;
+
+    CLASS UnidadConstruccion (ABSTRACT)
+    EXTENDS LA_EspacioJuridicoUnidadEdificacion =
+      Avaluo_Unidad_Construccion : Catastro_COL_ES_V2_1_6.Peso;
+      Numero_Pisos : MANDATORY 1 .. 100;
+      Tipo_Construccion : Catastro_COL_ES_V2_1_6.COL_TipoConstruccionTipo;
+      Area_Construida : 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
+      Area_Privada_Construida : 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
+    END UnidadConstruccion;
+
+    ASSOCIATION puntoReferencia =
+      ue (EXTERNAL) -- {0..1} LA_UnidadEspacial;
+      punto -- {0..1} LA_Punto;
+    END puntoReferencia;
+
+    ASSOCIATION ConstruccionUnidadConstruccion =
+      unidadconstruccion -- {1..*} UnidadConstruccion;
+      construccion -<> {1} Construccion;
+    END ConstruccionUnidadConstruccion;
+
+    ASSOCIATION puntoFuente =
+      pfuente -- {0..*} COL_FuenteEspacial;
+      punto -- {1..*} LA_Punto;
+    END puntoFuente;
+
+    ASSOCIATION ueFuente =
+      ue (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+      pfuente -- {0..*} COL_FuenteEspacial;
+    END ueFuente;
+
+    ASSOCIATION baunitFuente =
+      bfuente -- {0..*} COL_FuenteEspacial;
+      unidad (EXTERNAL) -- {0..*} LA_BAUnit;
+    END baunitFuente;
+
+    ASSOCIATION relacionFuenteUespacial =
+      rfuente -- {0..*} COL_FuenteEspacial;
+      relacionrequeridaUe (EXTERNAL) -- {0..*} LA_RelacionNecesariaUnidadesEspaciales;
+    END relacionFuenteUespacial;
+
+    ASSOCIATION cclFuente =
+      ccl -- {0..*} LA_CadenaCarasLindero;
+      lfuente -- {0..*} COL_FuenteEspacial;
+    END cclFuente;
+
+    ASSOCIATION menos =
+      ccl -- {0..*} LA_CadenaCarasLindero;
+      eu (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+    END menos;
+
+    ASSOCIATION masCcl =
+      cclP -- {0..*} LA_CadenaCarasLindero;
+      ueP (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+    END masCcl;
+
+    ASSOCIATION puntoCcl =
+      punto -- {2..*} LA_Punto;
+      ccl -- {0..*} LA_CadenaCarasLindero;
+    END puntoCcl;
+
+    ASSOCIATION clFuente =
+      cl -- {0..*} LA_CarasLindero;
+      cfuente -- {0..*} COL_FuenteEspacial;
+    END clFuente;
+
+    ASSOCIATION menosf =
+      cl -- {0..*} LA_CarasLindero;
+      ue (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+    END menosf;
+
+    ASSOCIATION mas =
+      clP -- {0..*} LA_CarasLindero;
+      ueP (EXTERNAL) -- {0..*} LA_UnidadEspacial;
+    END mas;
+
+    ASSOCIATION puntoCl =
+      punto -- {3..*} LA_Punto;
+      cl -- {0..*} LA_CarasLindero;
+    END puntoCl;
+
+    CLASS LA_Interesado (ABSTRACT)
+    EXTENDS ObjetoVersionado =
+      Nombre : Catastro_COL_ES_V2_1_6.CharacterString;
+      Tipo : MANDATORY Catastro_COL_ES_V2_1_6.LA_InteresadoTipo;
+      p_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      p_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_Interesado;
+
+    CLASS InteresadoJuridico (ABSTRACT)
+    EXTENDS LA_Interesado =
+      Numero_NIT : MANDATORY TEXT*20;
+      Razon_Social : MANDATORY TEXT*100;
+      Tipo (EXTENDED) : Catastro_COL_ES_V2_1_6.COL_InteresadoJuridicoTipo;
+      Fecha_Constitucion : INTERLIS.XMLDate;
+      Lugar_Inscripcion : TEXT*100;
+      Nacionalidad : TEXT*20;
+      Domicilio_Notificacion : TEXT*100;
+      Telefono1 : TEXT*20;
+      Telefono2 : TEXT*20;
+      Correo_Electronico : TEXT*50;
+      Origen_Datos : Catastro_COL_ES_V2_1_6.COL_InstitucionTipo;
+    END InteresadoJuridico;
+
+    CLASS InteresadoNatural (ABSTRACT)
+    EXTENDS LA_Interesado =
+      Documento_Identidad : MANDATORY TEXT*10;
+      Tipo_Documento : MANDATORY Catastro_COL_ES_V2_1_6.COL_InteresadoDocumentoTipo;
+      Organo_Emisor : TEXT*20;
+      Fecha_Emision : INTERLIS.XMLDate;
+      Primer_Apellido : MANDATORY TEXT*50;
+      Primer_Nombre : MANDATORY TEXT*50;
+      Segundo_Apellido : TEXT*50;
+      Segundo_Nombre : TEXT*50;
+      Nacionalidad : TEXT*20;
+      Fecha_Nacimiento : INTERLIS.XMLDate;
+      Lugar_Nacimiento : TEXT*100;
+      Telefono1 : TEXT*20;
+      Telefono2 : TEXT*20;
+      Direccion : TEXT*100;
+      Correo_Electronico : TEXT*50;
+      Origen_Datos : Catastro_COL_ES_V2_1_6.COL_InstitucionTipo;
+      Cabeza_Hogar : BOOLEAN;
+      Discapacidad : BOOLEAN;
+      Genero : Catastro_COL_ES_V2_1_6.COL_Genero;
+      Etnia : TEXT*20;
+    END InteresadoNatural;
+
+    CLASS LA_AgrupacionInteresados (ABSTRACT)
+    EXTENDS LA_Interesado =
+      ai_Tipo : MANDATORY Catastro_COL_ES_V2_1_6.COL_GrupoInteresadoTipo;
+      ai_Espacio_De_Nombres : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+      ai_Local_Id : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
+    END LA_AgrupacionInteresados;
+
+    CLASS Lindero (ABSTRACT)
+    EXTENDS LA_CadenaCarasLindero =
+      Longitud : MANDATORY 0.0 .. 10000.0 [INTERLIS.m];
+    END Lindero;
+
+    CLASS Terreno (ABSTRACT)
+    EXTENDS LA_UnidadEspacial =
+      Area_Registral : MANDATORY 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
+      Area_Calculada : MANDATORY 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
+      Avaluo_Terreno : MANDATORY Catastro_COL_ES_V2_1_6.Peso;
+      Cultivos_Transitorios : BOOLEAN;
+      Cultivos_Permanentes : BOOLEAN;
+      Confinados : BOOLEAN;
+      Tierras_Preparacion : BOOLEAN;
+      Areas_Agricolas_Heterogeneas : BOOLEAN;
+      Pastos : BOOLEAN;
+      Bosques_Areas_Seminaturales : BOOLEAN;
+      Area_Boscosa : BOOLEAN;
+      Plantacion_Comercial : BOOLEAN;
+      Nacimientos_Agua : BOOLEAN;
+      Cuerpo_Agua : BOOLEAN;
+      Zonas_Pantanosas : BOOLEAN;
+      Explotacion_Minera : BOOLEAN;
+      Explotacion_Hidrocarburos : BOOLEAN;
+      Explotacion_Otras : BOOLEAN;
+      Afectacion_Inundacion : BOOLEAN;
+      Afectacion_Remocion_Masa : BOOLEAN;
+      Afectacion_Otras : BOOLEAN;
+      Servidumbre_Viales : BOOLEAN;
+      Servidumbre_Petroleras : BOOLEAN;
+      Servidumbre_Electricas : BOOLEAN;
+      Servidumbre_Otras : BOOLEAN;
+      poligono_creado (EXTENDED) : MANDATORY ISO19107_V1_MAGNABOG.GM_Surface2D;
+    END Terreno;
+
+    ASSOCIATION baunitComoInteresado =
+      interesado -- {0..*} LA_Interesado;
+      unidad (EXTERNAL) -- {0..*} LA_BAUnit;
+    END baunitComoInteresado;
+
+    ASSOCIATION AlertaFuente =
+      alerta -- {0..1} Alerta;
+      fuente -- {1..*} COL_FuenteAdministrativa;
+    END AlertaFuente;
+
+    ASSOCIATION AlertaInteresado =
+      alerta -- {0..*} Alerta;
+      interesado (EXTERNAL) -- {0..1} LA_Interesado;
+    END AlertaInteresado;
+
+    ASSOCIATION notarioFuente =
+      cfuente (EXTERNAL) -- {0..*} COL_FuenteAdministrativa;
+      notario -- {1..*} LA_Interesado;
+    END notarioFuente;
+
+    ASSOCIATION rrrInteresado =
+      rrr (EXTERNAL) -- {0..*} LA_RRR;
+      interesado -- {0..1} LA_Interesado;
+    END rrrInteresado;
+
+    ASSOCIATION topografoFuente =
+      sfuente (EXTERNAL) -- {0..*} COL_FuenteEspacial;
+      topografo -- {1..*} LA_Interesado;
+    END topografoFuente;
+
+    ASSOCIATION miembros =
+      interesados -- {2..*} LA_Interesado;
+      agrupacion -<> {0..1} LA_AgrupacionInteresados;
+      participacion : Catastro_COL_ES_V2_1_6.Catastro_Registro.Fraccion;
+    END miembros;
+
+  END Catastro_Registro;
+
+END Catastro_COL_ES_V2_1_6.

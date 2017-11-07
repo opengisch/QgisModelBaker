@@ -19,19 +19,66 @@
 """
 import os
 
-from projectgenerator.libili2pg.ili2pg_config import ImportConfiguration, BaseConfiguration
+from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
 
 
-def iliimporter_config():
+def iliimporter_config(tool_name='ili2pg', modeldir=None):
     base_config = BaseConfiguration()
-    base_config.custom_model_directories = testdata_path('ilimodels')
-    base_config.custom_model_directories_enabled = True
+    if modeldir is None:
+        base_config.custom_model_directories_enabled = False
+    else:
+        base_config.custom_model_directories = testdata_path(modeldir)
+        base_config.custom_model_directories_enabled = True
 
     configuration = ImportConfiguration()
-    configuration.host = 'postgres'
-    configuration.user = 'docker'
-    configuration.password = 'docker'
-    configuration.database = 'gis'
+    configuration.tool_name = tool_name
+    if tool_name == 'ili2pg':
+        configuration.host = 'postgres'
+        configuration.user = 'docker'
+        configuration.password = 'docker'
+        configuration.database = 'gis'
+    configuration.base_configuration = base_config
+
+    return configuration
+
+def iliexporter_config(tool_name='ili2pg', modeldir=None):
+    base_config = BaseConfiguration()
+    if modeldir is None:
+        base_config.custom_model_directories_enabled = False
+    else:
+        base_config.custom_model_directories = testdata_path(modeldir)
+        base_config.custom_model_directories_enabled = True
+
+    configuration = ExportConfiguration()
+    if tool_name == 'ili2pg':
+        configuration.host = 'postgres'
+        configuration.user = 'docker'
+        configuration.password = 'docker'
+        configuration.database = 'gis'
+    elif tool_name == 'ili2gpkg':
+        configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
+    configuration.base_configuration = base_config
+
+    return configuration
+
+def ilidataimporter_config(tool_name='ili2pg', modeldir=None):
+    base_config = BaseConfiguration()
+    if modeldir is None:
+        base_config.custom_model_directories_enabled = False
+    else:
+        base_config.custom_model_directories = testdata_path(modeldir)
+        base_config.custom_model_directories_enabled = True
+
+    configuration = ImportDataConfiguration()
+    if tool_name == 'ili2pg':
+        configuration.host = 'postgres'
+        configuration.user = 'docker'
+        configuration.password = 'docker'
+        configuration.database = 'gis'
+    elif tool_name == 'ili2gpkg':
+        configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
+    configuration.base_configuration = base_config
+
     return configuration
 
 def testdata_path(path):

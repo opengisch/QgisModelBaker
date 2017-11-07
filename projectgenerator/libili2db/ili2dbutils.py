@@ -21,18 +21,20 @@ import os
 import tempfile
 import zipfile
 
-from projectgenerator.libili2pg.ili2pg_config import ILI2PG_VERSION, ILI2PG_URL
+from projectgenerator.libili2db.ili2dbconfig import ili2db_tools
 from qgis.PyQt.QtCore import QCoreApplication
 
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 
 
-def get_ili2pg_bin(stdout, stderr):
+def get_ili2db_bin(tool_name, stdout, stderr):
+    if not tool_name:
+        return
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    ili2pg_dir = 'ili2pg-{}'.format(ILI2PG_VERSION)
+    ili2db_dir = '{}-{}'.format(tool_name, ili2db_tools[tool_name]['version'])
 
-    ili2pg_file = os.path.join(dir_path, 'bin', ili2pg_dir, 'ili2pg.jar')
-    if not os.path.isfile(ili2pg_file):
+    ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{}.jar'.format(tool_name))
+    if not os.path.isfile(ili2db_file):
         try:
             os.mkdir(os.path.join(dir_path, 'bin'))
         except FileExistsError:
@@ -40,17 +42,17 @@ def get_ili2pg_bin(stdout, stderr):
 
         tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
 
-        stdout.emit(QCoreApplication.translate('ili2dbutils', 'Downloading ili2pg version {}…'.format(ILI2PG_VERSION)))
+        stdout.emit(QCoreApplication.translate('ili2dbutils', 'Downloading {} version {}…'.format(tool_name, ili2db_tools[tool_name]['version'])))
 
         try:
-            download_file(ILI2PG_URL, tmpfile.name, on_progress=lambda received, total: stdout.emit('.'))
+            download_file(ili2db_tools[tool_name]['url'], tmpfile.name, on_progress=lambda received, total: stdout.emit('.'))
         except NetworkError as e:
             stderr.emit(
                 QCoreApplication.translate('ili2dbutils',
-                    'Could not download ili2pg\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2pg_url}">{ili2pg_url}</a>'.format(
-                        ili2pg_url=ILI2PG_URL,
+                    'Could not download {tool_name}\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2db_url}">{ili2db_url}</a>'.format(
+                        ili2db_url=ili2db_tools[tool_name]['version'],
                         error=e.msg,
-                        file=ili2pg_file)
+                        file=ili2db_file)
                 )
             )
             return None
@@ -62,12 +64,12 @@ def get_ili2pg_bin(stdout, stderr):
             # We will realize soon enough that the files were not extracted
             pass
 
-        if not os.path.isfile(ili2pg_file):
+        if not os.path.isfile(ili2db_file):
             stderr.emit(
                 QCoreApplication.translate('ili2dbutils',
-                    'File "{file}" not found. Please download and extract <a href="{ili2pg_url}">{ili2pg_url}</a>.'.format(
-                        file=ili2pg_file,
-                        ili2pg_url=ILI2PG_URL)))
+                    'File "{file}" not found. Please download and extract <a href="{ili2db_url}">{ili2db_url}</a>.'.format(
+                        file=ili2db_file,
+                        ili2db_url=ili2db_tools[tool_name]['version'])))
             return None
 
-    return ili2pg_file
+    return ili2db_file

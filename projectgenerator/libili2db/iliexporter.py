@@ -4,7 +4,7 @@
                               -------------------
         begin                : 30/05/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo
+        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
         email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 
@@ -23,10 +23,10 @@ import re
 import functools
 import locale
 
-from projectgenerator.libili2pg.ili2dbutils import get_ili2pg_bin
+from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from .ili2pg_config import ExportConfiguration, JavaNotFoundError
+from .ili2dbconfig import ExportConfiguration, JavaNotFoundError
 
 
 class Exporter(QObject):
@@ -45,6 +45,7 @@ class Exporter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.filename = None
+        self.tool_name = None
         self.configuration = ExportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
@@ -52,18 +53,25 @@ class Exporter(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2pg_bin = get_ili2pg_bin(self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr)
+        if not ili2db_bin:
+            return
 
-        args = ["-jar", ili2pg_bin]
+        args = ["-jar", ili2db_bin]
         args += ["--export"]
-        args += ["--dbhost", self.configuration.host]
-        if self.configuration.port:
-            args += ["--dbport", self.configuration.port]
-        args += ["--dbusr", self.configuration.user]
-        if self.configuration.password:
-            args += ["--dbpwd", self.configuration.password]
-        args += ["--dbdatabase", self.configuration.database]
-        args += ["--dbschema", self.configuration.schema or self.configuration.database]
+
+        if self.tool_name == 'ili2pg':
+            # PostgreSQL specific options
+            args += ["--dbhost", self.configuration.host]
+            if self.configuration.port:
+                args += ["--dbport", self.configuration.port]
+            args += ["--dbusr", self.configuration.user]
+            if self.configuration.password:
+                args += ["--dbpwd", self.configuration.password]
+            args += ["--dbdatabase", self.configuration.database]
+            args += ["--dbschema", self.configuration.schema or self.configuration.database]
+        elif self.tool_name == 'ili2gpkg':
+            args += ["--dbfile", self.configuration.dbfile]
 
         args += self.configuration.base_configuration.to_ili2db_args(False)
 
@@ -123,4 +131,3 @@ class Exporter(QObject):
     def stdout_ready(self, proc):
         text = bytes(proc.readAllStandardOutput()).decode(self.encoding)
         self.stdout.emit(text)
-

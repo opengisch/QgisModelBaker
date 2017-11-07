@@ -4,7 +4,7 @@
                               -------------------
         begin                : 23/03/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo
+        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
         email                : gcarrillo@linuxmail.org
  ***************************************************************************/
 
@@ -19,8 +19,16 @@
 """
 from qgis.PyQt.QtCore import QObject
 
-ILI2PG_VERSION = '3.10.6'
-ILI2PG_URL = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ILI2PG_VERSION)
+ili2db_tools = {
+    'ili2pg': {
+        'version' : '3.10.6'
+    },
+    'ili2gpkg': {
+        'version' : '3.10.5'
+    }
+}
+ili2db_tools['ili2pg']['url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
+ili2db_tools['ili2gpkg']['url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
 
 class BaseConfiguration(object):
     def __init__(self):
@@ -49,8 +57,8 @@ class BaseConfiguration(object):
         if export_modeldir:
             if self.custom_model_directories_enabled and self.custom_model_directories:
                 args += ['--modeldir', self.custom_model_directories]
-        args += ['--trace']
-        if self.logfile_path:
+        if self.debugging_enabled and self.logfile_path:
+            args += ['--trace']
             args += ['--log', self.logfile_path]
         return args
 
@@ -70,6 +78,7 @@ class BaseConfiguration(object):
 
 class ImportConfiguration(object):
     def __init__(self):
+        self.tool_name = ''
         self.ilifile = ''
         self.inheritance = 'smart1'
         self.epsg = 21781  # Default EPSG code in ili2pg
@@ -79,6 +88,7 @@ class ImportConfiguration(object):
         self.schema = ''
         self.password = ''
         self.port = ''
+        self.dbfile = ''
         self.ilimodels = ''
 
         self.base_configuration = BaseConfiguration()
@@ -86,14 +96,16 @@ class ImportConfiguration(object):
     @property
     def uri(self):
         uri = []
-        uri += ['dbname={}'.format(self.database)]
-        uri += ['user={}'.format(self.user)]
-        if self.password:
-            uri += ['password={}'.format(self.password)]
-        uri += ['host={}'.format(self.host)]
-        if self.port:
-            uri += ['port={}'.format(self.port)]
-
+        if self.tool_name == 'ili2pg':
+            uri += ['dbname={}'.format(self.database)]
+            uri += ['user={}'.format(self.user)]
+            if self.password:
+                uri += ['password={}'.format(self.password)]
+            uri += ['host={}'.format(self.host)]
+            if self.port:
+                uri += ['port={}'.format(self.port)]
+        elif self.tool_name == 'ili2gpkg':
+            uri = [self.dbfile]
         return ' '.join(uri)
 
 
@@ -106,6 +118,7 @@ class ExportConfiguration(object):
         self.schema = ''
         self.password = ''
         self.port = ''
+        self.dbfile = ''
         self.ilimodels = ''
 
         self.base_configuration = BaseConfiguration()
@@ -120,6 +133,7 @@ class ImportDataConfiguration(object):
         self.schema = ''
         self.password = ''
         self.port = ''
+        self.dbfile = ''
         self.ilimodels = ''
         self.delete_data = False
 
@@ -128,4 +142,3 @@ class ImportDataConfiguration(object):
 
 class JavaNotFoundError(FileNotFoundError):
     pass
-

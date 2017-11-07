@@ -4,7 +4,7 @@
                               -------------------
         begin                : 11.08.2017
         git sha              : :%H$
-        copyright            : (C) 2017 by Sergio Ramírez
+        copyright            : (C) 2017 by Sergio Ramírez (BSF-Swissphoto)
         email                : seralra96@gmail.com
  ***************************************************************************/
 

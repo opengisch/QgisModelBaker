@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Ili2pgOptions</class>
- <widget class="QDialog" name="Ili2pgOptions">
+ <class>Ili2dbOptions</class>
+ <widget class="QDialog" name="Ili2dbOptions">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>328</height>
+    <width>418</width>
+    <height>242</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ili2pg Options</string>
+   <string>ili2db Options</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -70,7 +70,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Ili2pgOptions</receiver>
+   <receiver>Ili2dbOptions</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -86,7 +86,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Ili2pgOptions</receiver>
+   <receiver>Ili2dbOptions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

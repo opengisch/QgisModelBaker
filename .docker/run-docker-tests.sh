@@ -18,11 +18,13 @@
 
 set -e
 # rationale: Wait for postgres container to become available
+echo "Wait a moment while loading the database."
 while ! PGPASSWORD='docker' psql -h postgres -U docker -p 5432 -l &> /dev/null
 do
-  echo "Wait a moment while loading the database."
+  printf "."
   sleep 2
 done
+echo ""
 
 pushd /usr/src
 xvfb-run nose2-3

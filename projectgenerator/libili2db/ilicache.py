@@ -39,7 +39,7 @@ class IliCache(QObject):
     models_changed = pyqtSignal()
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, configuration=None, single_ili_file=None):
+    def __init__(self, configuration, single_ili_file=None):
         QObject.__init__(self)
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
@@ -50,7 +50,7 @@ class IliCache(QObject):
         if not self.base_configuration is None:
             for directory in self.base_configuration.model_directories:
                 self.process_model_directory(directory)
-        else:
+        if not self.single_ili_file is None:
             self.process_single_ili_file()
 
     def process_model_directory(self, path):
