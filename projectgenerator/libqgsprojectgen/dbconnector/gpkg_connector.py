@@ -30,6 +30,7 @@ class GPKGConnector(DBConnector):
         self.conn.row_factory = sqlite3.Row
         self._bMetadataTable = self._metadata_exists()
         self._tables_info = self._get_tables_info()
+        self.iliCodeName = 'iliCode'
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''

@@ -23,6 +23,7 @@ class DBConnector:
         self.QGIS_DATE_TYPE = 'date'
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
+        self.iliCodeName = '' # For Domain-Class relations, specific for each DB
 
     def map_data_types(self, data_type):
         '''Map provider date/time types to QGIS date/time types'''
