@@ -31,6 +31,7 @@ class PGConnector(DBConnector):
         self.conn = psycopg2.connect(uri)
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
+        self.iliCodeName = 'ilicode'
 
     def map_data_types(self, data_type):
         data_type = data_type.lower()

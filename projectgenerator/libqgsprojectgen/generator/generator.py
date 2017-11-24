@@ -301,10 +301,10 @@ class DomainRelationGenerator:
                             relation.referencing_layer = mapped_layers[classes_ili_pg[iliclass]]
                             relation.referenced_layer = mapped_layers[domains_ili_pg[ilidomain]]
                             relation.referencing_field = attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr]
-                            relation.referenced_field = 'ilicode'
+                            relation.referenced_field = self._db_connector.iliCodeName
                             relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
                                                                  attrs_ili_pg_owner[classes_ili_pg[iliclass]][iliattr],
-                                                                 domains_ili_pg[ilidomain], 'ilicode')
+                                                                 domains_ili_pg[ilidomain], self._db_connector.iliCodeName)
 
                             if self.debug: print("Relation:", relation.name)
                             relations.append(relation)
