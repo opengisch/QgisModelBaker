@@ -27,7 +27,7 @@ from qgis.PyQt.QtWidgets import QAction, QMenu
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication
 
 from projectgenerator.gui.options import OptionsDialog
-from projectgenerator.libili2pg.ili2pg_config import BaseConfiguration
+from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 
 
 class QgsProjectGeneratorPlugin(QObject):

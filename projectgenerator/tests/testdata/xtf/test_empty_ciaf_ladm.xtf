@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2pg-3.10.6-20170821" VERSION="2.3"><MODELS><MODEL NAME="ISO19107_V1_MAGNABOG" VERSION="2016-03-07" URI="http://www.swisslm.ch/models"></MODEL><MODEL NAME="Catastro_COL_ES_V2_1_6" VERSION="2017-07-12 V2.1.6" URI="http://www.igac.gov.co/models"></MODEL><MODEL NAME="CIAF_LADM" VERSION="2017-08-01" URI="mailto:user@localhost"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+<CIAF_LADM.Catastro BID="CIAF_LADM.Catastro">
+</CIAF_LADM.Catastro>
+</DATASECTION>
+</TRANSFER>

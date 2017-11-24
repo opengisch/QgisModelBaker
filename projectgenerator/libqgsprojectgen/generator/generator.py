@@ -18,47 +18,238 @@
  ***************************************************************************/
 """
 import re
-import psycopg2
 
+from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
+from qgis.PyQt.QtCore import QCoreApplication, QLocale
+
+from projectgenerator.libqgsprojectgen.dataobjects import Field
+from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
+from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
 from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
+from ..dbconnector import pg_connector, gpkg_connector
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+
+class Generator:
+    '''Builds Project Generator objects from data extracted from databases.'''
+    def __init__(self, tool_name, uri, inheritance, schema=None):
+        self.tool_name = tool_name
+        self.uri = uri
+        self.inheritance = inheritance
+        self.schema = schema or None
+        if self.tool_name == 'ili2pg':
+            self._db_connector = pg_connector.PGConnector(uri, schema)
+        elif self.tool_name == 'ili2gpkg':
+            self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+
+    def layers(self):
+        tables_info = self._get_tables_info()
+        layers = list()
+
+        for record in tables_info:
+            # When in PostGIS mode, leaving schema blank should load tables from
+            # all schemas, except the ignored ones
+            if self.schema:
+                if record['schemaname'] != self.schema:
+                    continue
+            elif record['schemaname'] in IGNORED_SCHEMAS:
+                continue
+
+            if record['tablename'] in IGNORED_TABLES:
+                continue
+
+            if self.tool_name == 'ili2pg':
+                provider = 'postgres'
+                if record['geometry_column']:
+                    data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
+                        uri=self.uri,
+                        primary_key=record['primary_key'],
+                        srid=record['srid'],
+                        type=record['type'],
+                        schema=record['schemaname'],
+                        table=record['tablename'],
+                        geometry_column=record['geometry_column']
+                    )
+                else:
+                    data_source_uri = '{uri} key={primary_key} table="{schema}"."{table}"'.format(
+                        uri=self.uri,
+                        primary_key=record['primary_key'],
+                        schema=record['schemaname'],
+                        table=record['tablename']
+                    )
+            elif self.tool_name == 'ili2gpkg':
+                provider = 'ogr'
+                data_source_uri = '{uri}|layername={table}'.format(
+                    uri=self.uri,
+                    table=record['tablename']
+                )
+
+            alias = record['table_alias'] if 'table_alias' in record else ''
+            is_domain = record['is_domain'] == 'ENUM' or record['is_domain'] == 'CATALOGUE' if 'is_domain' in record else False
+            layer = Layer(provider,
+                          data_source_uri,
+                          record['tablename'],
+                          record['geometry_column'],
+                          QgsWkbTypes.parseType(record['type']) or QgsWkbTypes.Unknown,
+                          alias,
+                          is_domain)
+
+            # Configure fields for current table
+            fields_info = self._get_fields_info(record['tablename'])
+            constraints_info = self._get_constraints_info(record['tablename'])
+            re_iliname = re.compile('^@iliname (.*)$')
+
+            for fielddef in fields_info:
+                column_name = fielddef['column_name']
+                comment = fielddef['comment']
+                m = re_iliname.match(comment) if comment else None
+                alias = fielddef['column_alias']
+                if m and not alias:
+                    alias = m.group(1)
+
+                field = Field(column_name)
+                field.alias = alias
+
+                if column_name in IGNORED_FIELDNAMES:
+                    field.widget = 'Hidden'
+
+                if column_name in READONLY_FIELDNAMES:
+                    field.read_only = True
+
+                if column_name in constraints_info:
+                    field.widget = 'Range'
+                    field.widget_config['Min'] = constraints_info[column_name][0]
+                    field.widget_config['Max'] = constraints_info[column_name][1]
+                    field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+
+                if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
+                    field.widget = 'TextEdit'
+                    field.widget_config['IsMultiline'] = True
+
+                data_type = self._db_connector.map_data_types(fielddef['data_type'])
+                if 'time' in data_type or 'date' in data_type:
+                    field.widget = 'DateTime'
+                    field.widget_config['calendar_popup'] = True
+
+                    dateFormat = QLocale(QgsApplication.instance().locale()).dateFormat(QLocale.ShortFormat)
+                    timeFormat = QLocale(QgsApplication.instance().locale()).timeFormat(QLocale.ShortFormat)
+                    dateTimeFormat = QLocale(QgsApplication.instance().locale()).dateTimeFormat(QLocale.ShortFormat)
+
+                    if data_type == self._db_connector.QGIS_TIME_TYPE:
+                        field.widget_config['display_format'] = timeFormat
+                    elif data_type == self._db_connector.QGIS_DATE_TIME_TYPE:
+                        field.widget_config['display_format'] = dateTimeFormat
+                    elif data_type == self._db_connector.QGIS_DATE_TYPE:
+                        field.widget_config['display_format'] = dateFormat
+
+                layer.fields.append(field)
+
+            layers.append(layer)
+
+        return layers
+
+    def relations(self, layers):
+        relations_info = self._get_relations_info()
+        mapped_layers = {layer.name: layer for layer in layers}
+        relations = list()
+
+        for record in relations_info:
+            if record['referencing_table'] in mapped_layers.keys() and record['referenced_table'] in mapped_layers.keys():
+                relation = Relation()
+                relation.referencing_layer = mapped_layers[record['referencing_table']]
+                relation.referenced_layer = mapped_layers[record['referenced_table']]
+                relation.referencing_field = record['referencing_column']
+                relation.referenced_field = record['referenced_column']
+                relation.name = record['constraint_name']
+                relations.append(relation)
+
+        # TODO: Remove these 3 lines when https://github.com/claeis/ili2db/issues/19 is solved!
+        domain_relations_generator = DomainRelationGenerator(self._db_connector, self.inheritance)
+        domain_relations = domain_relations_generator.get_domain_relations_info(layers)
+        relations = relations + domain_relations
+
+        return relations
+
+    def legend(self, layers):
+        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'))
+        tables = LegendGroup(QCoreApplication.translate('LegendGroup', 'tables'))
+        domains = LegendGroup(QCoreApplication.translate('LegendGroup', 'domains'), False)
+
+        point_layers = []
+        line_layers = []
+        polygon_layers = []
+
+        for layer in layers:
+            if layer.geometry_column:
+                geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
+                if geometry_type == QgsWkbTypes.PointGeometry:
+                    point_layers.append(layer)
+                elif geometry_type == QgsWkbTypes.LineGeometry:
+                    line_layers.append(layer)
+                elif geometry_type == QgsWkbTypes.PolygonGeometry:
+                    polygon_layers.append(layer)
+            else:
+                if layer.is_domain:
+                    domains.append(layer)
+                else:
+                    tables.append(layer)
+
+        for l in point_layers:
+            legend.append(l)
+        for l in line_layers:
+            legend.append(l)
+        for l in polygon_layers:
+            legend.append(l)
+
+        if not tables.is_empty():
+            legend.append(tables)
+        if not domains.is_empty():
+            legend.append(domains)
+
+        return legend
+
+    def _metadata_exists(self):
+        return self._db_connector.metadata_exists()
+
+    def _get_tables_info(self):
+        return self._db_connector.get_tables_info()
+
+    def _get_fields_info(self, table_name):
+        return self._db_connector.get_fields_info(table_name)
+
+    def _get_constraints_info(self, table_name):
+        return self._db_connector.get_constraints_info(table_name)
+
+    def _get_relations_info(self):
+        return self._db_connector.get_relations_info()
 
 
-class DomainRelation(Relation):
-    def __init__(self):
-        super().__init__()
+class DomainRelationGenerator:
+    """TODO: remove when ili2db issue #19 is solved"""
+    def __init__(self, db_connector, inheritance):
+        self._db_connector = db_connector
+        self.inheritance = inheritance
         self.debug = False
 
-    def find_domain_relations(self, layers, conn, schema, inheritance):
-        domains = [layer.table_name for layer in layers if layer.is_domain]
+    def get_domain_relations_info(self, layers):
+        domains = [layer.name for layer in layers if layer.is_domain]
         if self.debug: print("domains:", domains)
         if not domains:
             return []
 
-        mapped_layers = {layer.table_name: layer for layer in layers}
-
-        # Map domain ili name with its correspondent pg name
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        domain_names = "'" + "','".join(domains) + "'"
-        cur.execute("""SELECT iliname, sqlname
-                        FROM {schema}.t_ili2db_classname
-                        WHERE sqlname IN ({domain_names})
-                    """.format(schema=schema, domain_names=domain_names))
+        mapped_layers = {layer.name: layer for layer in layers}
+        domainili_domaindb_mapping = self._get_domainili_domaindb_mapping(domains)
         domains_ili_pg = dict()
-        for record in cur:
+        for record in domainili_domaindb_mapping:
             domains_ili_pg[record['iliname']] = record['sqlname']
         if self.debug: print("domains_ili_pg:", domains_ili_pg)
 
-        # Get MODELS
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""SELECT modelname, content
-                       FROM {schema}.t_ili2db_model
-                    """.format(schema=schema))
+        model_records = self._get_models()
         models = dict()
-
         models_info = dict()
         extended_classes = dict()
-        for record in cur:
+        for record in model_records:
             models[record['modelname'].split("{")[0]] = record['content']
+
         for k, v in models.items():
             parsed = self.parse_model(v, list(domains_ili_pg.keys()))
             models_info.update(parsed[0])
@@ -68,14 +259,9 @@ class DomainRelation(Relation):
         # Map class ili name with its correspondent pg name
         # Take into account classes with domain attrs and those that extend other classes,
         #   because parent classes might have domain attrs that will be transfered to children
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
-        cur.execute("""SELECT *
-                       FROM {schema}.t_ili2db_classname
-                       WHERE iliname IN ({class_names})
-                    """.format(schema=schema, class_names=class_names))
+        class_records = self._get_classili_classdb_mapping(models_info, extended_classes)
         classes_ili_pg = dict()
-        for record in cur:
+        for record in class_records:
             classes_ili_pg[record['iliname']] = record['sqlname']
         if self.debug: print("classes_ili_pg:", classes_ili_pg)
 
@@ -83,26 +269,18 @@ class DomainRelation(Relation):
         models_info_with_ext = {}
         for iliclass in models_info:
             models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes,
-                                                                    inheritance)
+                                                                    self.inheritance)
         for iliclass in extended_classes:
             if iliclass not in models_info_with_ext:
                 # Take into account classes which only inherit attrs with domains, but don't have their own nor EXTEND attrs
                 # Only relevant for smart2Inheritance, since for smart1Inheritance this will return an empty dict {}
                 models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes,
-                                                                        inheritance)
+                                                                        self.inheritance)
 
         # Map attr ili name and owner (pg class name) with its correspondent attr pg name
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        all_attrs = list()
-        for c, dict_attr_domain in models_info_with_ext.items():
-            all_attrs.extend(list(dict_attr_domain.keys()))
-        attr_names = "'" + "','".join(all_attrs) + "'"
-        cur.execute("""SELECT iliname, sqlname, owner
-                       FROM {schema}.t_ili2db_attrname
-                       WHERE iliname IN ({attr_names})
-                    """.format(schema=schema, attr_names=attr_names))
+        attr_records = self._get_attrili_attrdb_mapping(models_info_with_ext)
         attrs_ili_pg_owner = dict()
-        for record in cur:
+        for record in attr_records:
             if record['owner'] in attrs_ili_pg_owner:
                 attrs_ili_pg_owner[record['owner']].update({record['iliname']: record['sqlname']})
             else:
@@ -134,6 +312,7 @@ class DomainRelation(Relation):
         if self.debug: print("final_models_info:", models_info_with_ext)
         if self.debug: print("extended_classes:", extended_classes)
         if self.debug: print("Num of Relations:", len(relations))
+
         return relations
 
     def parse_model(self, model_content, domains):
@@ -332,6 +511,15 @@ class DomainRelation(Relation):
 
         return all_attrs
 
-# TODO
-# Not yet supported:
-#   Classes that don't belong to a topic but directly to the model
+
+    def _get_domainili_domaindb_mapping(self, domains):
+        return self._db_connector.get_domainili_domaindb_mapping(domains)
+
+    def _get_models(self):
+        return self._db_connector.get_models()
+
+    def _get_classili_classdb_mapping(self, models_info, extended_classes):
+        return self._db_connector.get_classili_classdb_mapping(models_info, extended_classes)
+
+    def _get_attrili_attrdb_mapping(self, models_info_with_ext):
+        return self._db_connector.get_attrili_attrdb_mapping(models_info_with_ext)

@@ -2,10 +2,10 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 01/08/17
+        begin                : 23/03/17
         git sha              : :%H$
-        copyright            : (C) 2017 by Germán Carrillo (BSF-Swissphoto)
-        email                : gcarrillo@linuxmail.org
+        copyright            : (C) 2017 by OPENGIS.ch
+        email                : info@opengis.ch
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,18 +20,18 @@
 import os
 
 import re
-import functools
 import locale
+import functools
 
-from projectgenerator.libili2pg.ili2dbutils import get_ili2pg_bin
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop, QSettings
+from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
 
-from .ili2pg_config import ImportDataConfiguration, JavaNotFoundError
+from .ili2dbconfig import ImportConfiguration, JavaNotFoundError
 
 
-class DataImporter(QObject):
+class Importer(QObject):
     SUCCESS = 0
     # TODO: Insert more codes?
     ERROR = 1000
@@ -46,66 +46,72 @@ class DataImporter(QObject):
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
-        self.filename = None
-        self.configuration = ImportDataConfiguration()
+        self.tool_name = None
+        self.configuration = ImportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2pg_bin = get_ili2pg_bin(self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr)
+        if not ili2db_bin:
+            return
 
-        args = ["-jar", ili2pg_bin]
-        args += ["--import"]
-        if self.configuration.delete_data:
-            args += ["--deleteData"]
-        args += ["--dbhost", self.configuration.host]
-        if self.configuration.port:
-            args += ["--dbport", self.configuration.port]
-        args += ["--dbusr", self.configuration.user]
-        if self.configuration.password:
-            args += ["--dbpwd", self.configuration.password]
-        args += ["--dbdatabase", self.configuration.database]
-        args += ["--dbschema", self.configuration.schema or self.configuration.database]
+        args = ["-jar", ili2db_bin]
+        args += ["--schemaimport"]
 
-        args += self.configuration.base_configuration.to_ili2db_args()
+        if self.tool_name == 'ili2pg':
+            # PostgreSQL specific options
+            args += ["--dbhost", self.configuration.host]
+            if self.configuration.port:
+                args += ["--dbport", self.configuration.port]
+            args += ["--dbusr", self.configuration.user]
+            if self.configuration.password:
+                args += ["--dbpwd", self.configuration.password]
+            args += ["--dbdatabase", self.configuration.database]
+            args += ["--dbschema", self.configuration.schema or self.configuration.database]
+            args += ["--setupPgExt"]
+        elif self.tool_name == 'ili2gpkg':
+            args += ["--dbfile", self.configuration.dbfile]
 
-        if self.configuration.ilimodels:
-            args += ['--models', self.configuration.ilimodels]
-
-        # Use our default schema-import parameters and get others from QSettings.
-        # They're used by ili2db in case the schema doesn't exist. If it exists,
-        # this doesn't have any effect on the import.
+        args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
         args += ["--createNumChecks"]
         args += ["--coalesceMultiSurface"]
+        args += ["--coalesceMultiLine"]
+        args += ["--strokeArcs"]
+        args += ["--beautifyEnumDispName"]
+        #args += ["--createBasketCol"]
+        args += ["--createUnique"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
-        args += ["--setupPgExt"]
+        args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
+        if self.configuration.inheritance == 'smart1':
+            args += ["--smart1Inheritance"]
+        elif self.configuration.inheritance == 'smart2':
+            args += ["--smart2Inheritance"]
+        else:
+            args += ["--noSmartMapping"]
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
             args += ["--proxy", proxy.hostName()]
             args += ["--proxyPort", str(proxy.port())]
 
-        settings = QSettings()
-        epsg = settings.value('QgsProjectGenerator/ili2pg/epsg')
-        if epsg:
-            args += ["--defaultSrsCode", "{}".format(epsg)]
+        if self.configuration.epsg != 21781:
+            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
 
-        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart2')
-        if inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
-        elif inheritance == 'smart2':
-            args += ["--smart2Inheritance"]
+        if self.configuration.ilimodels:
+            args += ['--models', self.configuration.ilimodels]
+
+        if self.configuration.ilifile:
+            # Valid ili file, don't pass --modelDir (it can cause ili2db errors)
+            args += self.configuration.base_configuration.to_ili2db_args(export_modeldir=False)
+            args += [self.configuration.ilifile]
         else:
-            args += ["--noSmartMapping"]
-
-
-        args += [self.configuration.xtffile]
-
+            args += self.configuration.base_configuration.to_ili2db_args()
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -114,7 +120,7 @@ class DataImporter(QObject):
             # By default try JAVA_HOME and PATH
             java_paths = []
             if 'JAVA_HOME' in os.environ:
-                paths = os.environ['JAVA_HOME'].split(";")
+                paths = os.environ['JAVA_HOME'].split(os.pathsep)
                 for path in paths:
                     java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
             java_paths += ['java']
@@ -137,7 +143,7 @@ class DataImporter(QObject):
 
         self.process_started.emit(java_path + ' ' + ' '.join(args))
 
-        self.__result = DataImporter.ERROR
+        self.__result = Importer.ERROR
 
         loop = QEventLoop()
         proc.finished.connect(loop.exit)
@@ -149,9 +155,9 @@ class DataImporter(QObject):
     def stderr_ready(self, proc):
         text = bytes(proc.readAllStandardError()).decode(self.encoding)
         if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: ...import done")
+            self.__done_pattern = re.compile(r"Info: ...done")
         if self.__done_pattern.search(text):
-            self.__result = DataImporter.SUCCESS
+            self.__result = Importer.SUCCESS
 
         self.stderr.emit(text)
 
