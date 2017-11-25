@@ -144,38 +144,38 @@ class TestDomainClassRelation(unittest.TestCase):
         expected_relations.append({"referencing_layer": "avaluo",
                                    "referenced_layer": "avaluo_usotipo",
                                    "referencing_field": "uso",
-                                   "referenced_field": "ilicode",
-                                   "name": "avaluo_uso_avaluo_usotipo_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "avaluo_uso_avaluo_usotipo_iliCode"})
         # Domain inherited from superclass and from another model
         expected_relations.append({"referencing_layer": "derecho",
                                    "referenced_layer": "col_derechotipo",
                                    "referencing_field": "tipo",
-                                   "referenced_field": "ilicode",
-                                   "name": "derecho_tipo_col_derechotipo_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "derecho_tipo_col_derechotipo_iliCode"})
         # Domain from another model
         expected_relations.append({"referencing_layer": "persona",
                                    "referenced_layer": "col_interesadodocumentotipo",
                                    "referencing_field": "documento_tipo",
-                                   "referenced_field": "ilicode",
-                                   "name": "persona_documento_tipo_col_interesadodocumentotipo_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "persona_documento_tipo_col_interesadodocumentotipo_iliCode"})
         # Domain from another model
         expected_relations.append({"referencing_layer": "persona",
                                    "referenced_layer": "col_genero",
                                    "referencing_field": "genero",
-                                   "referenced_field": "ilicode",
-                                   "name": "persona_genero_col_genero_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "persona_genero_col_genero_iliCode"})
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "persona",
                                    "referenced_layer": "la_interesadotipo",
                                    "referencing_field": "tipo",
-                                   "referenced_field": "ilicode",
-                                   "name": "persona_tipo_la_interesadotipo_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "persona_tipo_la_interesadotipo_iliCode"})
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "predio",
                                    "referenced_layer": "la_baunittipo",
                                    "referencing_field": "tipo",
-                                   "referenced_field": "ilicode",
-                                   "name": "predio_tipo_la_baunittipo_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "predio_tipo_la_baunittipo_iliCode"})
 
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
