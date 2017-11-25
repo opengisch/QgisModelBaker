@@ -215,16 +215,6 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Model</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="3">
-           <widget class="QLineEdit" name="ili_models_line_edit"/>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
@@ -234,6 +224,9 @@
           </item>
           <item row="0" column="3">
            <widget class="QToolButton" name="ili_file_browse_button">
+            <property name="toolTip">
+             <string>Browse Interlis files</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -246,11 +239,34 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="3">
+           <widget class="QToolButton" name="multiple_models_button">
+            <property name="toolTip">
+             <string>Select multiple Interlis models</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="ili_models_line_edit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Models</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
        <item row="6" column="0">
         <widget class="QTextBrowser" name="txtStdout">
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="openLinks">
           <bool>false</bool>
          </property>
@@ -274,6 +290,9 @@
           </item>
           <item row="0" column="3">
            <widget class="QToolButton" name="gpkg_file_browse_button">
+            <property name="toolTip">
+             <string>Browse GeoPackage files</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -312,6 +331,7 @@
   <tabstop>ili_file_line_edit</tabstop>
   <tabstop>ili_file_browse_button</tabstop>
   <tabstop>ili_models_line_edit</tabstop>
+  <tabstop>multiple_models_button</tabstop>
   <tabstop>crsSelector</tabstop>
   <tabstop>ili2db_options_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
@@ -323,6 +343,7 @@
   <tabstop>gpkg_file_line_edit</tabstop>
   <tabstop>gpkg_file_browse_button</tabstop>
   <tabstop>txtStdout</tabstop>
+  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

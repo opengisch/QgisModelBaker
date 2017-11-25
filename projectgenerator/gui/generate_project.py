@@ -25,6 +25,7 @@ from psycopg2 import OperationalError
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
+from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.globals import CRS_PATTERNS
 from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration
 from projectgenerator.libili2db.ilicache import IliCache
@@ -87,6 +88,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
+        self.multiple_models_dialog = MultipleModelsDialog(self)
+        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('Interlis (use PostGIS)'), 'ili2pg')
         self.type_combo_box.addItem(self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
@@ -405,6 +408,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.sender().model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
+        self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def show_message(self, level, message):
         if level == QgsMessageBar.WARNING:

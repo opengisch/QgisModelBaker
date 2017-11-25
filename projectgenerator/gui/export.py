@@ -21,6 +21,7 @@
 import os, webbrowser, os.path
 
 from projectgenerator.gui.options import OptionsDialog
+from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
@@ -59,6 +60,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
+
+        self.multiple_models_dialog = MultipleModelsDialog(self)
+        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -286,6 +290,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model_names)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
+        self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def help_requested(self):
         webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
