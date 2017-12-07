@@ -28,4 +28,5 @@ echo ""
 
 pushd /usr/src
 xvfb-run nose2-3 --with-coverage
+coveralls
 popd
