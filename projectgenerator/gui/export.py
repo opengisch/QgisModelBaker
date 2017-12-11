@@ -63,6 +63,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
         self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -291,6 +292,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
+
+    def fill_models_line_edit(self):
+        self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
         webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")

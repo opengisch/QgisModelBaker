@@ -51,10 +51,10 @@ class MultipleModelsDialog(QDialog, DIALOG_UI):
         for item in self.model_list.selectedItems():
             self.model_list.takeItem(self.model_list.row(item))
 
-    def accepted(self):
+    def get_models_string(self):
         items = [self.model_list.item(x) for x in range(self.model_list.count())]
         models = ";".join([i.text().strip() for i in items if i.text().strip()])
-        self.parent.ili_models_line_edit.setText(models)
+        return models
 
     def on_selection_changed(self):
         enable = len(self.model_list.selectedItems()) == 1
