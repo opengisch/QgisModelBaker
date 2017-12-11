@@ -90,6 +90,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.multiple_models_dialog = MultipleModelsDialog(self)
         self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('Interlis (use PostGIS)'), 'ili2pg')
         self.type_combo_box.addItem(self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
@@ -415,6 +416,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
         elif level == QgsMessageBar.CRITICAL:
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+
+    def fill_models_line_edit(self):
+        self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
         webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
