@@ -119,7 +119,9 @@ class Generator:
                     field.widget = 'Range'
                     field.widget_config['Min'] = constraints_info[column_name][0]
                     field.widget_config['Max'] = constraints_info[column_name][1]
-                    field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+                    # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+                    if 'unit' in fielddef:
+                        field.alias = '{alias} [{unit}]'.format(alias=alias, unit=fielddef['unit'])
 
                 if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
                     field.widget = 'TextEdit'
