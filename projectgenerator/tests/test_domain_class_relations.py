@@ -270,20 +270,20 @@ class TestDomainClassRelation(unittest.TestCase):
         expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
                                    "referenced_layer": "abfallart",
                                    "referencing_field": "abfallart",
-                                   "referenced_field": "ilicode",
-                                   "name": "oberirdische_sammelstelle_abfallart_abfallart_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "oberirdische_sammelstelle_abfallart_abfallart_iliCode"})
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "unterflurcontainer",
                            "referenced_layer": "abfallart",
                            "referencing_field": "abfallart",
-                           "referenced_field": "ilicode",
-                           "name": "unterflurcontainer_abfallart_abfallart_ilicode"})
+                           "referenced_field": "iliCode",
+                           "name": "unterflurcontainer_abfallart_abfallart_iliCode"})
         # Domain from the same model, out of the topic
         expected_relations.append({"referencing_layer": "unterflurcontainer",
                                    "referenced_layer": "lagegenauigkeit",
                                    "referencing_field": "lagegenauigkeit",
-                                   "referenced_field": "ilicode",
-                                   "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_ilicode"})
+                                   "referenced_field": "iliCode",
+                                   "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_iliCode"})
 
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
