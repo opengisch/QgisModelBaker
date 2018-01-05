@@ -36,6 +36,7 @@ class Project(QObject):
         self.layers = List[Layer]
         self.legend = LegendGroup()
         self.auto_transaction = True
+        self.evaluate_default_values = True
         self.relations = List[Relation]
 
     def add_layer(self, layer):
@@ -45,6 +46,7 @@ class Project(QObject):
         definition = dict()
         definition['crs'] = self.crs.toWkt()
         definition['auto_transaction'] = self.auto_transaction
+        definition['evaluate_default_values'] = self.evaluate_default_values
 
         legend = list()
         for layer in self.layers:
@@ -63,6 +65,7 @@ class Project(QObject):
     def load(self, definition):
         self.crs = definition['crs']
         self.auto_transaction = definition['auto_transaction']
+        self.evaluate_default_values = definition['evaluate_default_values']
 
         self.layers = list()
         for layer_definition in definition['layers']:
@@ -72,6 +75,7 @@ class Project(QObject):
 
     def create(self, path: str, qgis_project: QgsProject):
         qgis_project.setAutoTransaction(self.auto_transaction)
+        qgis_project.setEvaluateDefaultValues(self.evaluate_default_values)
         qgis_layers = list()
         for layer in self.layers:
             qgis_layer = layer.create()
