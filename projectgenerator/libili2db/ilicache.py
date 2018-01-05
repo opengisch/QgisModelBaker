@@ -63,7 +63,8 @@ class IliCache(QObject):
 
     def process_single_ili_file(self):
         models = self.process_ili_file(self.single_ili_file)
-        self.repositories["no_repo"] = sorted(models, key=lambda m: m['version'], reverse=True)
+        self.repositories["no_repo"] = sorted(
+            models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
 
     def download_repository(self, url):
@@ -86,16 +87,21 @@ class IliCache(QObject):
 
         # download ilimodels.xml
         download_file(ilimodels_url, ilimodels_path,
-                      on_progress=lambda received, total: print('Downloading ({}/{})'.format(received, total)),
-                      on_success=lambda: self._process_ilimodels(ilimodels_path, netloc),
-                      on_error=lambda error, error_string: logger.warning(self.tr('Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
+                      on_progress=lambda received, total: print(
+                          'Downloading ({}/{})'.format(received, total)),
+                      on_success=lambda: self._process_ilimodels(
+                          ilimodels_path, netloc),
+                      on_error=lambda error, error_string: logger.warning(self.tr(
+                          'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
                       )
 
         # download ilisite.xml
         download_file(ilisite_url, ilisite_path,
-                      on_progress=lambda received, total: print('Downloading ({}/{})'.format(received, total)),
+                      on_progress=lambda received, total: print(
+                          'Downloading ({}/{})'.format(received, total)),
                       on_success=lambda: self._process_ilisite(ilisite_path),
-                      on_error=lambda error, error_string: logger.warning(self.tr('Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
+                      on_error=lambda error, error_string: logger.warning(self.tr(
+                          'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
                       )
 
     def _process_ilisite(self, file):
@@ -105,14 +111,16 @@ class IliCache(QObject):
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
-            QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
+            QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
             if subsite:
                 for location in subsite.findall('ili23:IliSite09.RepositoryLocation_', self.ns):
-                    self.download_repository(location.find('ili23:value', self.ns).text)
+                    self.download_repository(
+                        location.find('ili23:value', self.ns).text)
 
     def _process_ilimodels(self, file, netloc):
         '''
@@ -122,7 +130,8 @@ class IliCache(QObject):
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
-            QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(file=file, exception=str(e))), self.tr('Projectgenerator'))
+            QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 
         self.repositories[netloc] = list()
@@ -131,10 +140,12 @@ class IliCache(QObject):
             for model_metadata in repo.findall('ili23:IliRepository09.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
-                model['version'] = model_metadata.find('ili23:Version', self.ns).text
+                model['version'] = model_metadata.find(
+                    'ili23:Version', self.ns).text
                 repo_models.append(model)
 
-        self.repositories[netloc] = sorted(repo_models, key=lambda m: m['version'], reverse=True)
+        self.repositories[netloc] = sorted(
+            repo_models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
 
     def process_local_ili_folder(self, path):
@@ -147,7 +158,8 @@ class IliCache(QObject):
             fileModels = self.process_ili_file(ilifile)
             models.extend(fileModels)
 
-        self.repositories[path] = sorted(models, key=lambda m: m['version'], reverse=True)
+        self.repositories[path] = sorted(
+            models, key=lambda m: m['version'], reverse=True)
         self.models_changed.emit()
 
     def process_ili_file(self, ilifile):
@@ -158,11 +170,12 @@ class IliCache(QObject):
             try:
                 fileModels = self.parse_ili_file(ilifile, "latin1")
                 self.new_message.emit(QgsMessageBar.WARNING,
-                    self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                                      self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
             except UnicodeDecodeError:
                 self.new_message.emit(QgsMessageBar.CRITICAL,
-                    self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
-                QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
+                                      self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(
+                    ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
                 fileModels = list()
 
         return fileModels

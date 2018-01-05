@@ -41,6 +41,7 @@ def iliimporter_config(tool_name='ili2pg', modeldir=None):
 
     return configuration
 
+
 def iliexporter_config(tool_name='ili2pg', modeldir=None):
     base_config = BaseConfiguration()
     if modeldir is None:
@@ -61,6 +62,7 @@ def iliexporter_config(tool_name='ili2pg', modeldir=None):
 
     return configuration
 
+
 def ilidataimporter_config(tool_name='ili2pg', modeldir=None):
     base_config = BaseConfiguration()
     if modeldir is None:
@@ -80,6 +82,7 @@ def ilidataimporter_config(tool_name='ili2pg', modeldir=None):
     configuration.base_configuration = base_config
 
     return configuration
+
 
 def testdata_path(path):
     basepath = os.path.dirname(os.path.abspath(__file__))

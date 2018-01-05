@@ -65,7 +65,8 @@ class TestExport(unittest.TestCase):
         importer_e.configuration = iliimporter_config(importer_e.tool_name,
                                                       'ilimodels/CIAF_LADM')
         importer_e.configuration.ilimodels = 'CIAF_LADM'
-        importer_e.configuration.schema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer_e.configuration.schema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer_e.configuration.epsg = 3116
         importer_e.configuration.inheritance = 'smart2'
         importer_e.stdout.connect(self.print_info)
@@ -93,7 +94,8 @@ class TestExport(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool_name,
                                                     'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -103,13 +105,16 @@ class TestExport(unittest.TestCase):
         # Import data
         dataImporter = ilidataimporter.DataImporter()
         dataImporter.tool_name = 'ili2pg'
-        dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration = ilidataimporter_config(
+            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.schema = importer.configuration.schema
-        dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(),
+                         ilidataimporter.DataImporter.SUCCESS)
 
         # Export
         exporter = iliexporter.Exporter()
@@ -144,7 +149,7 @@ class TestExport(unittest.TestCase):
         tmp_datasection_children = list(tmp_datasection)
 
         self.assertEqual(len(datasection_children),
-                          len(tmp_datasection_children))
+                         len(tmp_datasection_children))
 
         for topic in datasection_children:
             tmp_topic = tmp_datasection.find(topic.tag)

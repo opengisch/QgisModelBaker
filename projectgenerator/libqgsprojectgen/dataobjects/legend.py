@@ -20,7 +20,9 @@
 
 from qgis.core import QgsProject
 
+
 class LegendGroup(object):
+
     def __init__(self, name=None, expanded=True):
         self.name = name
         self.items = list()

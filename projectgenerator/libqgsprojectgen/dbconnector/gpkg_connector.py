@@ -23,7 +23,9 @@ from .db_connector import DBConnector
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 
+
 class GPKGConnector(DBConnector):
+
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
         self.conn = qgis.utils.spatialite_connect(uri)
@@ -139,7 +141,8 @@ class GPKGConnector(DBConnector):
         for res in res1:
             res2 = re.search('(\w+) BETWEEN ([-?\d\.]+) AND ([-?\d\.]+)', res)
             if res2:
-                constraint_mapping[res2.group(1)] = (res2.group(2), res2.group(3))
+                constraint_mapping[res2.group(1)] = (
+                    res2.group(2), res2.group(3))
 
         return constraint_mapping
 
@@ -153,7 +156,8 @@ class GPKGConnector(DBConnector):
         cursor = self.conn.cursor()
         complete_records = list()
         for table_info_name, table_info in tables_info_dict.items():
-            cursor.execute("PRAGMA foreign_key_list({});".format(table_info_name))
+            cursor.execute(
+                "PRAGMA foreign_key_list({});".format(table_info_name))
             foreign_keys = cursor.fetchall()
 
             for foreign_key in foreign_keys:
@@ -161,10 +165,13 @@ class GPKGConnector(DBConnector):
                 record['referencing_table'] = table_info['tablename']
                 record['referencing_column'] = foreign_key['from']
                 record['referenced_table'] = foreign_key['table']
-                record['referenced_column'] = tables_info_dict[foreign_key['table']]['primary_key']
+                record['referenced_column'] = tables_info_dict[
+                    foreign_key['table']]['primary_key']
                 record['constraint_name'] = '{}_{}_{}_{}'.format(record['referencing_table'],
-                                                                 record['referencing_column'],
-                                                                 record['referenced_table'],
+                                                                 record[
+                                                                     'referencing_column'],
+                                                                 record[
+                                                                     'referenced_table'],
                                                                  record['referenced_column'])
                 complete_records.append(record)
 
@@ -193,7 +200,9 @@ class GPKGConnector(DBConnector):
     def get_classili_classdb_mapping(self, models_info, extended_classes):
         """TODO: remove when ili2db issue #19 is solved"""
         cursor = self.conn.cursor()
-        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
+        class_names = "'" + \
+            "','".join(list(models_info.keys()) +
+                       list(extended_classes.keys())) + "'"
         cursor.execute("""SELECT *
                           FROM t_ili2db_classname
                           WHERE iliname IN ({class_names})

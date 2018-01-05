@@ -76,15 +76,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                                file_filter=self.tr('XTF Transfer File (*.xtf)')))
         self.gpkg_file_browse_button.clicked.connect(
             make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Save in GeoPackage database file'),
-                               file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
+                                    file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
+        self.multiple_models_button.clicked.connect(
+            self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(
+            self.fill_models_line_edit)
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -92,7 +94,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.xtf')
-        gpkgFileValidator = FileValidator(pattern='*.gpkg', allow_non_existing=True)
+        gpkgFileValidator = FileValidator(
+            pattern='*.gpkg', allow_non_existing=True)
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
@@ -119,8 +122,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
-        self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+        self.gpkg_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.gpkg_file_line_edit.textChanged.emit(
+            self.gpkg_file_line_edit.text())
 
         settings = QSettings()
         ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
@@ -242,7 +247,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.schema = self.pg_schema_line_edit.text().strip().lower()
             configuration.password = self.pg_password_line_edit.text()
-        elif self.type_combo_box.currentData() =='gpkg':
+        elif self.type_combo_box.currentData() == 'gpkg':
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
@@ -342,11 +347,15 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def fill_models_line_edit(self):
-        self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
+        self.ili_models_line_edit.setText(
+            self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
-        if os_language in ['es','de']:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
+        os_language = QLocale(QSettings().value(
+            'locale/userLocale')).name()[:2]
+        if os_language in ['es', 'de']:
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
         else:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")

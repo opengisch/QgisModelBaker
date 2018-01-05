@@ -2,6 +2,7 @@ from qgis.core import QgsRelation
 
 
 class Relation(object):
+
     def __init__(self):
         self.referencing_layer = None
         self.referenced_layer = None
@@ -31,7 +32,7 @@ class Relation(object):
         relation.setName(self.name)
         relation.setReferencingLayer(self.referencing_layer.create().id())
         relation.setReferencedLayer(self.referenced_layer.create().id())
-        relation.addFieldPair( self.referencing_field, self.referenced_field)
+        relation.addFieldPair(self.referencing_field, self.referenced_field)
         self.qgis_relation = relation
         return relation
 

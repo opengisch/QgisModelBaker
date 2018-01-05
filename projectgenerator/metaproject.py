@@ -29,10 +29,14 @@ from qgis.core import QgsProject, QgsApplication
 
 
 def main(argv):
-    parser = argparse.ArgumentParser('Generate QGIS projects or QGIS dataobjects yaml templates.')
-    parser.add_argument("--generator", type=str, help='The generator to use. (Example: postgres)')
-    parser.add_argument("--uri", type=str, help='Database uri, used as db entry point. (Example: service=pg_qgep)')
-    parser.add_argument("out", type=str, help='Path to the generated dataobjects. (Example: /home/qgis/my_project)')
+    parser = argparse.ArgumentParser(
+        'Generate QGIS projects or QGIS dataobjects yaml templates.')
+    parser.add_argument("--generator", type=str,
+                        help='The generator to use. (Example: postgres)')
+    parser.add_argument(
+        "--uri", type=str, help='Database uri, used as db entry point. (Example: service=pg_qgep)')
+    parser.add_argument(
+        "out", type=str, help='Path to the generated dataobjects. (Example: /home/qgis/my_project)')
 
     args = parser.parse_args()
 
@@ -61,7 +65,7 @@ def main(argv):
 
     yamlfile = args.out + '.yaml'
     with open(yamlfile, 'w') as f:
-        f.write(yaml.dump(project.dump(), default_flow_style = False))
+        f.write(yaml.dump(project.dump(), default_flow_style=False))
         print('Project template written to {}'.format(yamlfile))
 
     QgsApplication.exitQgis()

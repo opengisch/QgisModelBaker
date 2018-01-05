@@ -25,7 +25,9 @@ from .db_connector import DBConnector
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 
+
 class PGConnector(DBConnector):
+
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
         self.conn = psycopg2.connect(uri)
@@ -100,15 +102,16 @@ class PGConnector(DBConnector):
                       ON g.f_table_schema = tbls.schemaname
                       AND g.f_table_name = tbls.tablename
                     WHERE i.indisprimary {schema_where}
-        """.format(is_domain_field = is_domain_field, table_alias = table_alias,
-                   domain_left_join = domain_left_join, alias_left_join = alias_left_join,
-                   schema_where = schema_where))
+        """.format(is_domain_field=is_domain_field, table_alias=table_alias,
+                   domain_left_join=domain_left_join, alias_left_join=alias_left_join,
+                   schema_where=schema_where))
 
         return cur
 
     def get_fields_info(self, table_name):
         # Get all fields for this table
-        fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        fields_cur = self.conn.cursor(
+            cursor_factory=psycopg2.extras.DictCursor)
         fields_cur.execute("""
             SELECT
               c.column_name,
@@ -130,7 +133,8 @@ class PGConnector(DBConnector):
 
     def get_constraints_info(self, table_name):
         # Get all 'c'heck constraints for this table
-        constraints_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        constraints_cur = self.conn.cursor(
+            cursor_factory=psycopg2.extras.DictCursor)
         constraints_cur.execute("""
             SELECT
               consrc,
@@ -145,14 +149,17 @@ class PGConnector(DBConnector):
         # fieldname: (min, max)
         constraint_mapping = dict()
         for constraint in constraints_cur:
-            constraint_mapping[constraint['check_details'][0]] = (constraint['check_details'][1], constraint['check_details'][3])
+            constraint_mapping[constraint['check_details'][0]] = (
+                constraint['check_details'][1], constraint['check_details'][3])
 
         return constraint_mapping
 
     def get_relations_info(self):
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(self.schema) if self.schema else ''
-        schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(self.schema) if self.schema else ''
+        schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
+            self.schema) if self.schema else ''
+        schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
+            self.schema) if self.schema else ''
 
         cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION
                         FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
@@ -189,7 +196,9 @@ class PGConnector(DBConnector):
     def get_classili_classdb_mapping(self, models_info, extended_classes):
         """TODO: remove when ili2db issue #19 is solved"""
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        class_names = "'" + "','".join(list(models_info.keys())+list(extended_classes.keys())) + "'"
+        class_names = "'" + \
+            "','".join(list(models_info.keys()) +
+                       list(extended_classes.keys())) + "'"
         cur.execute("""SELECT *
                        FROM {schema}.t_ili2db_classname
                        WHERE iliname IN ({class_names})

@@ -18,7 +18,9 @@
  ***************************************************************************/
 """
 
-import os, webbrowser, os.path
+import os
+import webbrowser
+import os.path
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
@@ -37,6 +39,7 @@ DIALOG_UI = get_ui_class('export.ui')
 
 
 class ExportDialog(QDialog, DIALOG_UI):
+
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -44,13 +47,15 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton(
+            self.tr('Export'), QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf)'), extension='.xtf'))
-        self.xtf_file_browse_button.clicked.connect(self.xtf_browser_opened_to_true)
+        self.xtf_file_browse_button.clicked.connect(
+            self.xtf_browser_opened_to_true)
         self.xtf_browser_was_opened = False
 
         self.gpkg_file_browse_button.clicked.connect(
@@ -62,8 +67,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
+        self.multiple_models_button.clicked.connect(
+            self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(
+            self.fill_models_line_edit)
 
         self.base_configuration = base_config
         self.restore_configuration()
@@ -80,19 +87,30 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
-        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
-        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(
+            self.ili_models_line_edit.text())
+        self.pg_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
-        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
-        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(
+            self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.xtf_file_line_edit.textChanged.connect(self.xtf_browser_opened_to_false)
-        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
-        self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.connect(
+            self.xtf_browser_opened_to_false)
+        self.xtf_file_line_edit.textChanged.emit(
+            self.xtf_file_line_edit.text())
+        self.gpkg_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.gpkg_file_line_edit.textChanged.emit(
+            self.gpkg_file_line_edit.text())
 
         settings = QSettings()
         ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
@@ -104,38 +122,46 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration = self.updated_configuration()
 
         if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
-            self.txtStdout.setText(self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
             self.xtf_file_line_edit.setFocus()
             return
         if not configuration.ilimodels:
-            self.txtStdout.setText(self.tr('Please set a model before exporting data.'))
+            self.txtStdout.setText(
+                self.tr('Please set a model before exporting data.'))
             self.ili_models_line_edit.setFocus()
             return
 
         if self.type_combo_box.currentData() == 'pg':
             if not configuration.host:
-                self.txtStdout.setText(self.tr('Please set a host before exporting data.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a host before exporting data.'))
                 self.pg_host_line_edit.setFocus()
                 return
             if not configuration.database:
-                self.txtStdout.setText(self.tr('Please set a database before exporting data.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a database before exporting data.'))
                 self.pg_database_line_edit.setFocus()
                 return
             if not configuration.user:
-                self.txtStdout.setText(self.tr('Please set a database user before exporting data.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a database user before exporting data.'))
                 self.pg_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() == 'gpkg':
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(self.tr('Please set an existing database file before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set an existing database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
 
-        # If xtf browser was opened and the file exists, the user already chose to overwrite the file
+        # If xtf browser was opened and the file exists, the user already chose
+        # to overwrite the file
         if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
-            self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip()) + self.tr(" already exists.\nDo you want to replace it?"))
+            self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip(
+            )) + self.tr(" already exists.\nDo you want to replace it?"))
             self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
             self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box = self.msg.exec_()
@@ -219,7 +245,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.schema = self.pg_schema_line_edit.text().strip().lower()
             configuration.password = self.pg_password_line_edit.text()
-        elif self.type_combo_box.currentData() =='gpkg':
+        elif self.type_combo_box.currentData() == 'gpkg':
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
@@ -230,31 +256,48 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue('QgsProjectGenerator/ili2pg/xtffile_export', configuration.xtffile)
-        settings.setValue('QgsProjectGenerator/importtype', self.type_combo_box.currentData())
+        settings.setValue(
+            'QgsProjectGenerator/ili2pg/xtffile_export', configuration.xtffile)
+        settings.setValue('QgsProjectGenerator/importtype',
+                          self.type_combo_box.currentData())
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
-            settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
-            settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
-            settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
-            settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
-            settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
-            settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/host', configuration.host)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/port', configuration.port)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/user', configuration.user)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/database', configuration.database)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/schema', configuration.schema)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/password', configuration.password)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            settings.setValue('QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
+            settings.setValue(
+                'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
 
     def restore_configuration(self):
         settings = QSettings()
 
-        self.xtf_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/xtffile_export'))
-        self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
-        self.pg_port_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/port'))
-        self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
-        self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
-        self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
-        self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
-        self.gpkg_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
+        self.xtf_file_line_edit.setText(settings.value(
+            'QgsProjectGenerator/ili2pg/xtffile_export'))
+        self.pg_host_line_edit.setText(settings.value(
+            'QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_port_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/port'))
+        self.pg_user_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/user'))
+        self.pg_database_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/database'))
+        self.pg_schema_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/schema'))
+        self.pg_password_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.gpkg_file_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
 
         mode = settings.value('QgsProjectGenerator/importtype', 'pg')
         mode = 'pg' if mode == 'ili2pg' else mode
@@ -297,14 +340,18 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def fill_models_line_edit(self):
-        self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
+        self.ili_models_line_edit.setText(
+            self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
-        if os_language in ['es','de']:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
+        os_language = QLocale(QSettings().value(
+            'locale/userLocale')).name()[:2]
+        if os_language in ['es', 'de']:
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
         else:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
 
     def xtf_browser_opened_to_true(self):
         """

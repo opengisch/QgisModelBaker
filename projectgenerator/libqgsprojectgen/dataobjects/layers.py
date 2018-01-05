@@ -23,6 +23,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 
 class Layer(object):
+
     def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False):
         self.provider = provider
         self.uri = uri
@@ -88,7 +89,8 @@ class Layer(object):
             for relation in project.relations:
                 if relation.referenced_layer == self:
                     tab = FormTab(relation.referencing_layer.name)
-                    widget = FormRelationWidget(relation.referencing_layer.name, relation)
+                    widget = FormRelationWidget(
+                        relation.referencing_layer.name, relation)
                     tab.addChild(widget)
                     self.__form.add_element(tab)
         else:

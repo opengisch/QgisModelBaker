@@ -6,6 +6,7 @@ from projectgenerator.yamltools.loader import InheritanceLoader
 
 
 class YamlInheritanceTest(unittest.TestCase):
+
     def test_inheritance(self):
         document = """
           base_object: &base_object

@@ -21,16 +21,20 @@ from qgis.PyQt.QtCore import QObject
 
 ili2db_tools = {
     'ili2pg': {
-        'version' : '3.10.6'
+        'version': '3.10.6'
     },
     'ili2gpkg': {
-        'version' : '3.10.5'
+        'version': '3.10.5'
     }
 }
-ili2db_tools['ili2pg']['url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
-ili2db_tools['ili2gpkg']['url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
+ili2db_tools['ili2pg'][
+    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
+ili2db_tools['ili2gpkg'][
+    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
+
 
 class BaseConfiguration(object):
+
     def __init__(self):
         self.custom_model_directories_enabled = False
         self.custom_model_directories = ''
@@ -39,17 +43,22 @@ class BaseConfiguration(object):
         self.debugging_enabled = False
 
     def save(self, settings):
-        settings.setValue('CustomModelDirectoriesEnabled', self.custom_model_directories_enabled)
-        settings.setValue('CustomModelDirectories', self.custom_model_directories)
+        settings.setValue('CustomModelDirectoriesEnabled',
+                          self.custom_model_directories_enabled)
+        settings.setValue('CustomModelDirectories',
+                          self.custom_model_directories)
         settings.setValue('JavaPath', self.java_path)
         settings.setValue('LogfilePath', self.logfile_path)
         settings.setValue('DebuggingEnabled', self.debugging_enabled)
 
     def restore(self, settings):
-        self.custom_model_directories_enabled = settings.value('CustomModelDirectoriesEnabled', False, bool)
-        self.custom_model_directories = settings.value('CustomModelDirectories', '', str)
+        self.custom_model_directories_enabled = settings.value(
+            'CustomModelDirectoriesEnabled', False, bool)
+        self.custom_model_directories = settings.value(
+            'CustomModelDirectories', '', str)
         self.java_path = settings.value('JavaPath', '', str)
-        self.debugging_enabled = settings.value('DebuggingEnabled', False, bool)
+        self.debugging_enabled = settings.value(
+            'DebuggingEnabled', False, bool)
         self.logfile_path = settings.value('LogfilePath', '', str)
 
     def to_ili2db_args(self, export_modeldir=True):
@@ -76,7 +85,9 @@ class BaseConfiguration(object):
             ]
         return dirs
 
+
 class ImportConfiguration(object):
+
     def __init__(self):
         self.tool_name = ''
         self.ilifile = ''
@@ -110,6 +121,7 @@ class ImportConfiguration(object):
 
 
 class ExportConfiguration(object):
+
     def __init__(self):
         self.xtffile = ''
         self.host = ''
@@ -125,6 +137,7 @@ class ExportConfiguration(object):
 
 
 class ImportDataConfiguration(object):
+
     def __init__(self):
         self.xtffile = ''
         self.host = ''

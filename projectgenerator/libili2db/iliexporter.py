@@ -48,7 +48,8 @@ class Exporter(QObject):
         self.tool_name = None
         self.configuration = ExportConfiguration()
         self.encoding = locale.getlocale()[1]
-        # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
+        # This might be unset
+        # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
             self.encoding = 'UTF8'
 
@@ -69,7 +70,8 @@ class Exporter(QObject):
             if self.configuration.password:
                 args += ["--dbpwd", self.configuration.password]
             args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema", self.configuration.schema or self.configuration.database]
+            args += ["--dbschema",
+                     self.configuration.schema or self.configuration.database]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.configuration.dbfile]
 
@@ -89,14 +91,17 @@ class Exporter(QObject):
             if 'JAVA_HOME' in os.environ:
                 paths = os.environ['JAVA_HOME'].split(";")
                 for path in paths:
-                    java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
+                    java_paths += [os.path.join(path.replace("\"",
+                                                             "").replace("'", ""), 'java')]
             java_paths += ['java']
 
         proc = None
         for java_path in java_paths:
             proc = QProcess()
-            proc.readyReadStandardError.connect(functools.partial(self.stderr_ready, proc=proc))
-            proc.readyReadStandardOutput.connect(functools.partial(self.stdout_ready, proc=proc))
+            proc.readyReadStandardError.connect(
+                functools.partial(self.stderr_ready, proc=proc))
+            proc.readyReadStandardOutput.connect(
+                functools.partial(self.stdout_ready, proc=proc))
 
             proc.start(java_path, args)
 

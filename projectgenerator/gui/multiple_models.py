@@ -25,7 +25,9 @@ from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem, QDialogButtonBox
 
 DIALOG_UI = get_ui_class('multiple_models.ui')
 
+
 class MultipleModelsDialog(QDialog, DIALOG_UI):
+
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -52,8 +54,10 @@ class MultipleModelsDialog(QDialog, DIALOG_UI):
             self.model_list.takeItem(self.model_list.row(item))
 
     def get_models_string(self):
-        items = [self.model_list.item(x) for x in range(self.model_list.count())]
-        models = ";".join([i.text().strip() for i in items if i.text().strip()])
+        items = [self.model_list.item(x)
+                 for x in range(self.model_list.count())]
+        models = ";".join([i.text().strip()
+                           for i in items if i.text().strip()])
         return models
 
     def on_selection_changed(self):
@@ -63,4 +67,5 @@ class MultipleModelsDialog(QDialog, DIALOG_UI):
     def update_add_button_state(self, text):
         self.add_button.setEnabled(bool(text.strip()))
         self.add_button.setDefault(bool(text.strip()))
-        self.buttonBox.button(QDialogButtonBox.Ok).setDefault(not bool(text.strip()))
+        self.buttonBox.button(QDialogButtonBox.Ok).setDefault(
+            not bool(text.strip()))

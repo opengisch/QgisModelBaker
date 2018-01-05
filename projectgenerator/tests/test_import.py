@@ -44,9 +44,11 @@ class TestImport(unittest.TestCase):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -56,13 +58,16 @@ class TestImport(unittest.TestCase):
         # Import data
         dataImporter = ilidataimporter.DataImporter()
         dataImporter.tool_name = 'ili2pg'
-        dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration = ilidataimporter_config(
+            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.schema = importer.configuration.schema
-        dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(),
+                         ilidataimporter.DataImporter.SUCCESS)
 
         # Check expected data is there in the database schema
         conn = psycopg2.connect(importer.configuration.uri)
@@ -104,14 +109,15 @@ class TestImport(unittest.TestCase):
         print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Posesion')
-        self.assertEqual(record[1], persona_id) # FK persona
-        self.assertEqual(record[2], predio_id) # FK predio
+        self.assertEqual(record[1], persona_id)  # FK persona
+        self.assertEqual(record[2], predio_id)  # FK predio
 
     def test_import_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -124,13 +130,16 @@ class TestImport(unittest.TestCase):
         # Import data
         dataImporter = ilidataimporter.DataImporter()
         dataImporter.tool_name = 'ili2gpkg'
-        dataImporter.configuration = ilidataimporter_config(dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration = ilidataimporter_config(
+            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.dbfile = importer.configuration.dbfile
-        dataImporter.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(), ilidataimporter.DataImporter.SUCCESS)
+        self.assertEqual(dataImporter.run(),
+                         ilidataimporter.DataImporter.SUCCESS)
 
         # Check expected data is there in the database schema
         conn = utils.spatialite_connect(importer.configuration.dbfile)

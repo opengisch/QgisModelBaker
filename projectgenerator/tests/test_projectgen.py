@@ -46,12 +46,14 @@ class TestProjectGen(unittest.TestCase):
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.schema)
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.schema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -71,7 +73,8 @@ class TestProjectGen(unittest.TestCase):
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(), QgsEditFormConfig.TabLayout)
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
                 self.assertEqual(fields, set(['letzteanpassung',
@@ -93,7 +96,8 @@ class TestProjectGen(unittest.TestCase):
                                               'geo_lage_punkt',
                                               'bemerkung_de']))
 
-                self.assertEqual(tabs[1].name(), 'deponietyp_') # This might need to be adjusted if we get better names
+                # This might need to be adjusted if we get better names
+                self.assertEqual(tabs[1].name(), 'deponietyp_')
 
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
@@ -127,10 +131,11 @@ class TestProjectGen(unittest.TestCase):
 
         count = 0
         for layer in available_layers:
-            if layer.name == 'belasteter_standort': # Polygon
+            if layer.name == 'belasteter_standort':  # Polygon
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(), QgsEditFormConfig.TabLayout)
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
                 self.assertEqual(fields, set(['letzteanpassung',
@@ -166,16 +171,19 @@ class TestProjectGen(unittest.TestCase):
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -204,7 +212,8 @@ class TestProjectGen(unittest.TestCase):
     def test_ranges_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')

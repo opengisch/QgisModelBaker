@@ -42,9 +42,11 @@ class TestDomainClassRelation(unittest.TestCase):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -68,7 +70,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list() # 6 domain-class relations are expected
+        expected_relations = list()  # 6 domain-class relations are expected
         # Domain from the same model, out of the topic
         expected_relations.append({"referencing_layer": "avaluo",
                                    "referenced_layer": "avaluo_usotipo",
@@ -113,7 +115,8 @@ class TestDomainClassRelation(unittest.TestCase):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -139,7 +142,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list() # 6 domain-class relations are expected
+        expected_relations = list()  # 6 domain-class relations are expected
         # Domain from the same model, out of the topic
         expected_relations.append({"referencing_layer": "avaluo",
                                    "referenced_layer": "avaluo_usotipo",
@@ -185,9 +188,11 @@ class TestDomainClassRelation(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
-        importer.configuration.ilifile = testdata_path('ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
-        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
         importer.configuration.epsg = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -211,7 +216,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list() # 3 domain-class relations are expected
+        expected_relations = list()  # 3 domain-class relations are expected
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
                                    "referenced_layer": "abfallart",
@@ -220,10 +225,10 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "oberirdische_sammelstelle_abfallart_abfallart_ilicode"})
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "unterflurcontainer",
-                           "referenced_layer": "abfallart",
-                           "referencing_field": "abfallart",
-                           "referenced_field": "ilicode",
-                           "name": "unterflurcontainer_abfallart_abfallart_ilicode"})
+                                   "referenced_layer": "abfallart",
+                                   "referencing_field": "abfallart",
+                                   "referenced_field": "ilicode",
+                                   "name": "unterflurcontainer_abfallart_abfallart_ilicode"})
         # Domain from the same model, out of the topic
         expected_relations.append({"referencing_layer": "unterflurcontainer",
                                    "referenced_layer": "lagegenauigkeit",
@@ -239,7 +244,8 @@ class TestDomainClassRelation(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'
         importer.configuration = iliimporter_config(importer.tool_name)
-        importer.configuration.ilifile = testdata_path('ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg_2.gpkg')
@@ -265,7 +271,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list() # 3 domain-class relations are expected
+        expected_relations = list()  # 3 domain-class relations are expected
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
                                    "referenced_layer": "abfallart",
@@ -274,10 +280,10 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "oberirdische_sammelstelle_abfallart_abfallart_iliCode"})
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "unterflurcontainer",
-                           "referenced_layer": "abfallart",
-                           "referencing_field": "abfallart",
-                           "referenced_field": "iliCode",
-                           "name": "unterflurcontainer_abfallart_abfallart_iliCode"})
+                                   "referenced_layer": "abfallart",
+                                   "referencing_field": "abfallart",
+                                   "referenced_field": "iliCode",
+                                   "name": "unterflurcontainer_abfallart_abfallart_iliCode"})
         # Domain from the same model, out of the topic
         expected_relations.append({"referencing_layer": "unterflurcontainer",
                                    "referenced_layer": "lagegenauigkeit",

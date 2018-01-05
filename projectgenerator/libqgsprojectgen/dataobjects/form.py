@@ -27,6 +27,7 @@ from qgis.core import (
 
 
 class Form(object):
+
     def __init__(self):
         self.__elements = list()
 
@@ -38,7 +39,8 @@ class Form(object):
         root_container = edit_form_config.invisibleRootContainer()
         root_container.clear()
         for element in self.__elements:
-            root_container.addChildElement(element.create(root_container, layer))
+            root_container.addChildElement(
+                element.create(root_container, layer))
         edit_form_config.setLayout(QgsEditFormConfig.TabLayout)
         return edit_form_config
 
@@ -47,6 +49,7 @@ class Form(object):
 
 
 class FormTab(object):
+
     def __init__(self, name):
         self.name = name
         self.children = list()
@@ -63,6 +66,7 @@ class FormTab(object):
 
 
 class FormGroupBox(object):
+
     def __init__(self, name):
         self.name = name
         self.children = list()
@@ -79,6 +83,7 @@ class FormGroupBox(object):
 
 
 class FormFieldWidget(object):
+
     def __init__(self, name, field_name):
         self.name = name if name else field_name
         self.field_name = field_name
@@ -90,10 +95,12 @@ class FormFieldWidget(object):
 
 
 class FormRelationWidget(object):
+
     def __init__(self, name, relation):
         self.name = name
         self.relation = relation
 
     def create(self, parent, layer):
-        widget = QgsAttributeEditorRelation(self.name, self.relation.id, parent)
+        widget = QgsAttributeEditorRelation(
+            self.name, self.relation.id, parent)
         return widget

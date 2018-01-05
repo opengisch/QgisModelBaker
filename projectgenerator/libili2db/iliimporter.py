@@ -49,7 +49,8 @@ class Importer(QObject):
         self.tool_name = None
         self.configuration = ImportConfiguration()
         self.encoding = locale.getlocale()[1]
-        # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
+        # This might be unset
+        # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
             self.encoding = 'UTF8'
 
@@ -70,7 +71,8 @@ class Importer(QObject):
             if self.configuration.password:
                 args += ["--dbpwd", self.configuration.password]
             args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema", self.configuration.schema or self.configuration.database]
+            args += ["--dbschema",
+                     self.configuration.schema or self.configuration.database]
             args += ["--setupPgExt"]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.configuration.dbfile]
@@ -107,8 +109,10 @@ class Importer(QObject):
             args += ['--models', self.configuration.ilimodels]
 
         if self.configuration.ilifile:
-            # Valid ili file, don't pass --modelDir (it can cause ili2db errors)
-            args += self.configuration.base_configuration.to_ili2db_args(export_modeldir=False)
+            # Valid ili file, don't pass --modelDir (it can cause ili2db
+            # errors)
+            args += self.configuration.base_configuration.to_ili2db_args(
+                export_modeldir=False)
             args += [self.configuration.ilifile]
         else:
             args += self.configuration.base_configuration.to_ili2db_args()
@@ -122,14 +126,17 @@ class Importer(QObject):
             if 'JAVA_HOME' in os.environ:
                 paths = os.environ['JAVA_HOME'].split(os.pathsep)
                 for path in paths:
-                    java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
+                    java_paths += [os.path.join(path.replace("\"",
+                                                             "").replace("'", ""), 'java')]
             java_paths += ['java']
 
         proc = None
         for java_path in java_paths:
             proc = QProcess()
-            proc.readyReadStandardError.connect(functools.partial(self.stderr_ready, proc=proc))
-            proc.readyReadStandardOutput.connect(functools.partial(self.stdout_ready, proc=proc))
+            proc.readyReadStandardError.connect(
+                functools.partial(self.stderr_ready, proc=proc))
+            proc.readyReadStandardOutput.connect(
+                functools.partial(self.stdout_ready, proc=proc))
 
             proc.start(java_path, args)
 
@@ -142,7 +149,8 @@ class Importer(QObject):
             raise JavaNotFoundError()
 
         command = java_path + ' ' + ' '.join(args)
-        safe_command = command.replace("--dbpwd {}".format(self.configuration.password), "--dbpwd ***")
+        safe_command = command.replace(
+            "--dbpwd {}".format(self.configuration.password), "--dbpwd ***")
         self.process_started.emit(safe_command)
 
         self.__result = Importer.ERROR

@@ -43,13 +43,17 @@ class ExtendObject(object):
     """
     The ExtendObject will be used as a placeholder for the loading time
     """
+
     def __init__(self, data):
         self.data = data
+
 
 class YamlReaderError(RuntimeError):
     pass
 
+
 class InheritanceLoader(yaml.Loader):
+
     def __init__(self, stream):
         yaml.Loader.__init__(self, stream)
 
@@ -91,7 +95,7 @@ class InheritanceLoader(yaml.Loader):
         # ## debug output
         # sys.stderr.write("DEBUG: %s to %s\n" %(b,a))
         try:
-            if a is None or isinstance(a, str) or isinstance(a, int) or isinstance( a, float):
+            if a is None or isinstance(a, str) or isinstance(a, int) or isinstance(a, float):
                 # border case for first run or if a is a primitive
                 a = b
             elif isinstance(a, list):
@@ -111,9 +115,12 @@ class InheritanceLoader(yaml.Loader):
                         else:
                             a[key] = b[key]
                 else:
-                    raise YamlReaderError('Cannot merge non-dict "%s" into dict "%s"' % (b, a))
+                    raise YamlReaderError(
+                        'Cannot merge non-dict "%s" into dict "%s"' % (b, a))
             else:
-                raise YamlReaderError('NOT IMPLEMENTED "%s" into "%s"' % (b, a))
+                raise YamlReaderError(
+                    'NOT IMPLEMENTED "%s" into "%s"' % (b, a))
         except TypeError as e:
-            raise YamlReaderError('TypeError "%s" in key "%s" when merging "%s" into "%s"' % (e, key, b, a))
+            raise YamlReaderError(
+                'TypeError "%s" in key "%s" when merging "%s" into "%s"' % (e, key, b, a))
         return a

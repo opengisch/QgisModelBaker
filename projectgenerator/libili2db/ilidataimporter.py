@@ -50,7 +50,8 @@ class DataImporter(QObject):
         self.tool_name = None
         self.configuration = ImportDataConfiguration()
         self.encoding = locale.getlocale()[1]
-        # This might be unset (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
+        # This might be unset
+        # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
             self.encoding = 'UTF8'
 
@@ -73,7 +74,8 @@ class DataImporter(QObject):
             if self.configuration.password:
                 args += ["--dbpwd", self.configuration.password]
             args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema", self.configuration.schema or self.configuration.database]
+            args += ["--dbschema",
+                     self.configuration.schema or self.configuration.database]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.configuration.dbfile]
 
@@ -104,7 +106,8 @@ class DataImporter(QObject):
         if epsg:
             args += ["--defaultSrsCode", "{}".format(epsg)]
 
-        inheritance = settings.value('QgsProjectGenerator/ili2pg/inheritance', 'smart2')
+        inheritance = settings.value(
+            'QgsProjectGenerator/ili2pg/inheritance', 'smart2')
         if inheritance == 'smart1':
             args += ["--smart1Inheritance"]
         elif inheritance == 'smart2':
@@ -112,9 +115,7 @@ class DataImporter(QObject):
         else:
             args += ["--noSmartMapping"]
 
-
         args += [self.configuration.xtffile]
-
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -125,14 +126,17 @@ class DataImporter(QObject):
             if 'JAVA_HOME' in os.environ:
                 paths = os.environ['JAVA_HOME'].split(";")
                 for path in paths:
-                    java_paths += [os.path.join(path.replace("\"","").replace("'",""), 'java')]
+                    java_paths += [os.path.join(path.replace("\"",
+                                                             "").replace("'", ""), 'java')]
             java_paths += ['java']
 
         proc = None
         for java_path in java_paths:
             proc = QProcess()
-            proc.readyReadStandardError.connect(functools.partial(self.stderr_ready, proc=proc))
-            proc.readyReadStandardOutput.connect(functools.partial(self.stdout_ready, proc=proc))
+            proc.readyReadStandardError.connect(
+                functools.partial(self.stderr_ready, proc=proc))
+            proc.readyReadStandardOutput.connect(
+                functools.partial(self.stdout_ready, proc=proc))
 
             proc.start(java_path, args)
 

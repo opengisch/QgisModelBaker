@@ -18,7 +18,8 @@
  ***************************************************************************/
 """
 
-import os, webbrowser
+import os
+import webbrowser
 
 import re
 from psycopg2 import OperationalError
@@ -68,7 +69,9 @@ from ..libqgsprojectgen.dataobjects import Project
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
+
 class GenerateProjectDialog(QDialog, DIALOG_UI):
+
     def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -77,7 +80,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(self.tr('Create'), QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton(
+            self.tr('Create'), QDialogButtonBox.AcceptRole)
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili)')))
@@ -87,11 +91,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
+        self.multiple_models_button.clicked.connect(
+            self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(
+            self.fill_models_line_edit)
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(self.tr('Interlis (use PostGIS)'), 'ili2pg')
-        self.type_combo_box.addItem(self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
+        self.type_combo_box.addItem(
+            self.tr('Interlis (use PostGIS)'), 'ili2pg')
+        self.type_combo_box.addItem(
+            self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
@@ -108,9 +116,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.ili', allow_empty=True)
-        self.gpkgSaveFileValidator = FileValidator(pattern='*.gpkg', allow_non_existing=True)
+        self.gpkgSaveFileValidator = FileValidator(
+            pattern='*.gpkg', allow_non_existing=True)
         self.gpkgOpenFileValidator = FileValidator(pattern='*.gpkg')
-        self.gpkg_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.gpkg_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
 
         self.restore_configuration()
 
@@ -120,14 +130,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
 
-        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
-        self.pg_database_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
-        self.pg_user_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.pg_database_line_edit.textChanged.emit(
+            self.pg_database_line_edit.text())
+        self.pg_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.ili_models_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.ili_models_line_edit.textChanged.emit(
+            self.ili_models_line_edit.text())
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
 
         self.ilicache = IliCache(base_config)
@@ -135,10 +151,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
-        self.ili_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.ili_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
         self.ili_file_line_edit.textChanged.connect(self.ili_file_changed)
-        self.ili_file_line_edit.textChanged.emit(self.ili_file_line_edit.text())
-
+        self.ili_file_line_edit.textChanged.emit(
+            self.ili_file_line_edit.text())
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -152,7 +169,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             if self.ili_file_line_edit.text().strip() and \
-                   self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
+                    self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
                     self.tr('Please set a valid INTERLIS file before creating the project.'))
                 self.ili_file_line_edit.setFocus()
@@ -160,20 +177,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             if not configuration.host:
-                self.txtStdout.setText(self.tr('Please set a host before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a host before creating the project.'))
                 self.pg_host_line_edit.setFocus()
                 return
             if not configuration.database:
-                self.txtStdout.setText(self.tr('Please set a database before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a database before creating the project.'))
                 self.pg_database_line_edit.setFocus()
                 return
             if not configuration.user:
-                self.txtStdout.setText(self.tr('Please set a database user before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(self.tr('Please set a valid database file before creating the project.'))
+                self.txtStdout.setText(
+                    self.tr('Please set a valid database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
 
@@ -210,7 +231,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             print(configuration.tool_name, configuration.uri, configuration)
             try:
-                generator = Generator(configuration.tool_name, configuration.uri, configuration.inheritance, configuration.schema)
+                generator = Generator(configuration.tool_name, configuration.uri,
+                                      configuration.inheritance, configuration.schema)
             except OperationalError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
@@ -287,34 +309,52 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue('QgsProjectGenerator/ili2db/ilifile', configuration.ilifile)
+        settings.setValue('QgsProjectGenerator/ili2db/ilifile',
+                          configuration.ilifile)
         settings.setValue('QgsProjectGenerator/ili2db/epsg', self.epsg)
-        settings.setValue('QgsProjectGenerator/importtype', self.type_combo_box.currentData())
+        settings.setValue('QgsProjectGenerator/importtype',
+                          self.type_combo_box.currentData())
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
-            settings.setValue('QgsProjectGenerator/ili2pg/host', configuration.host)
-            settings.setValue('QgsProjectGenerator/ili2pg/port', configuration.port)
-            settings.setValue('QgsProjectGenerator/ili2pg/user', configuration.user)
-            settings.setValue('QgsProjectGenerator/ili2pg/database', configuration.database)
-            settings.setValue('QgsProjectGenerator/ili2pg/schema', configuration.schema)
-            settings.setValue('QgsProjectGenerator/ili2pg/password', configuration.password)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/host', configuration.host)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/port', configuration.port)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/user', configuration.user)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/database', configuration.database)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/schema', configuration.schema)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/password', configuration.password)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            settings.setValue('QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
+            settings.setValue(
+                'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
 
     def restore_configuration(self):
         settings = QSettings()
 
-        self.ili_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2db/ilifile'))
-        self.crs = QgsCoordinateReferenceSystem(settings.value('QgsProjectGenerator/ili2db/epsg', 21781, int))
+        self.ili_file_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2db/ilifile'))
+        self.crs = QgsCoordinateReferenceSystem(settings.value(
+            'QgsProjectGenerator/ili2db/epsg', 21781, int))
         self.update_crs_info()
 
-        self.pg_host_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
-        self.pg_port_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/port'))
-        self.pg_user_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/user'))
-        self.pg_database_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/database'))
-        self.pg_schema_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/schema'))
-        self.pg_password_line_edit.setText(settings.value('QgsProjectGenerator/ili2pg/password'))
-        self.gpkg_file_line_edit.setText(settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
+        self.pg_host_line_edit.setText(settings.value(
+            'QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_port_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/port'))
+        self.pg_user_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/user'))
+        self.pg_database_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/database'))
+        self.pg_schema_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/schema'))
+        self.pg_password_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.gpkg_file_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
 
         self.type_combo_box.setCurrentIndex(
             self.type_combo_box.findData(settings.value('QgsProjectGenerator/importtype', 'pg')))
@@ -336,18 +376,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_config.show()
             self.pg_config.show()
             self.gpkg_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to create a default schema]"))
         elif self.type_combo_box.currentData() == 'pg':
             self.ili_config.hide()
             self.pg_config.show()
             self.gpkg_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to load all schemas in the database]"))
         elif self.type_combo_box.currentData() == 'gpkg':
             self.ili_config.hide()
             self.pg_config.hide()
             self.gpkg_config.show()
             self.gpkg_file_line_edit.setValidator(self.gpkgOpenFileValidator)
-            self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+            self.gpkg_file_line_edit.textChanged.emit(
+                self.gpkg_file_line_edit.text())
             try:
                 self.gpkg_file_browse_button.clicked.disconnect()
             except:
@@ -360,14 +403,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_config.hide()
             self.gpkg_config.show()
             self.gpkg_file_line_edit.setValidator(self.gpkgSaveFileValidator)
-            self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
+            self.gpkg_file_line_edit.textChanged.emit(
+                self.gpkg_file_line_edit.text())
             try:
                 self.gpkg_file_browse_button.clicked.disconnect()
             except:
                 pass
             self.gpkg_file_browse_button.clicked.connect(
                 make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                   file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
+                                        file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
 
     def on_model_changed(self, text):
         for pattern, crs in CRS_PATTERNS.items():
@@ -392,7 +436,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def crs_changed(self):
         if self.crsSelector.crs().authid()[:5] != 'EPSG:':
             self.crs_label.setStyleSheet('color: orange')
-            self.crs_label.setToolTip(self.tr('Please select an EPSG Coordinate Reference System'))
+            self.crs_label.setToolTip(
+                self.tr('Please select an EPSG Coordinate Reference System'))
             self.epsg = 21781
         else:
             self.crs_label.setStyleSheet('')
@@ -403,19 +448,23 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def ili_file_changed(self):
         # If ili file is valid, models is optional
         if self.ili_file_line_edit.text().strip() and \
-               self.ili_file_line_edit.validator().validate(self.ili_file_line_edit.text().strip(), 0)[0] == QValidator.Acceptable:
+                self.ili_file_line_edit.validator().validate(self.ili_file_line_edit.text().strip(), 0)[0] == QValidator.Acceptable:
             self.ili_models_line_edit.setValidator(None)
-            self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+            self.ili_models_line_edit.textChanged.emit(
+                self.ili_models_line_edit.text())
 
             # Update completer to add models from given ili file
-            self.iliFileCache = IliCache(self.base_configuration, self.ili_file_line_edit.text().strip())
-            self.iliFileCache.models_changed.connect(self.update_models_completer)
+            self.iliFileCache = IliCache(
+                self.base_configuration, self.ili_file_line_edit.text().strip())
+            self.iliFileCache.models_changed.connect(
+                self.update_models_completer)
             self.iliFileCache.new_message.connect(self.show_message)
             self.iliFileCache.refresh()
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
-            self.ili_models_line_edit.textChanged.emit(self.ili_models_line_edit.text())
+            self.ili_models_line_edit.textChanged.emit(
+                self.ili_models_line_edit.text())
 
             # Update completer to show repository models in models dir
             self.ilicache.models_changed.emit()
@@ -433,11 +482,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
 
     def fill_models_line_edit(self):
-        self.ili_models_line_edit.setText(self.multiple_models_dialog.get_models_string())
+        self.ili_models_line_edit.setText(
+            self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
-        if os_language in ['es','de']:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#generate-project".format(os_language))
+        os_language = QLocale(QSettings().value(
+            'locale/userLocale')).name()[:2]
+        if os_language in ['es', 'de']:
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#generate-project".format(os_language))
         else:
-            webbrowser.open("https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
+            webbrowser.open(
+                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")

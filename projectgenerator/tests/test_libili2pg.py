@@ -5,7 +5,8 @@ try:
     from projectgenerator.libili2db import ilicache
     from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 except ImportError:
-    # As long as we don't deploy qgis on travis, there's nothing we can do... sorry
+    # As long as we don't deploy qgis on travis, there's nothing we can do...
+    # sorry
     from nose2.compat import unittest
     pass
 
@@ -15,7 +16,9 @@ import nose2
 
 import tempfile
 
+
 class IliCacheTest(unittest.TestCase):
+
     @unittest.skipIf('TRAVIS' in os.environ, 'Enable this test as soon as qgis is available on travis')
     def test_refresh(self):
         config = BaseConfiguration()

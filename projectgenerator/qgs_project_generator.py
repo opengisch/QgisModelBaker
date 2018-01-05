@@ -18,7 +18,8 @@
  ***************************************************************************/
 """
 import locale
-import os, webbrowser
+import os
+import webbrowser
 
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from projectgenerator.gui.export import ExportDialog
@@ -31,6 +32,7 @@ from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 
 
 class QgsProjectGeneratorPlugin(QObject):
+
     def __init__(self, iface):
         QObject.__init__(self)
         self.iface = iface
@@ -59,11 +61,13 @@ class QgsProjectGeneratorPlugin(QObject):
 
     def initGui(self):
         self.__generate_action = QAction(self.tr('Generate'), None)
-        self.__export_action = QAction(self.tr('Export Interlis Transfer File (.xtf)'), None)
-        self.__importdata_action = QAction(self.tr('Import Interlis Transfer File (.xtf)'), None)
+        self.__export_action = QAction(
+            self.tr('Export Interlis Transfer File (.xtf)'), None)
+        self.__importdata_action = QAction(
+            self.tr('Import Interlis Transfer File (.xtf)'), None)
         self.__configure_action = QAction(self.tr('Settings'), None)
         self.__help_action = QAction(self.tr('Help'), None)
-        self.__about_action = QAction(self.tr('About'),None)
+        self.__about_action = QAction(self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
 
@@ -74,21 +78,34 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__help_action.triggered.connect(self.show_help_documentation)
         self.__about_action.triggered.connect(self.show_about_dialog)
 
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__export_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__separator)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__help_action)
-        self.iface.addPluginToDatabaseMenu(self.tr('Project Generator'), self.__about_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__generate_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__importdata_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__export_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__configure_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__separator)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__help_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Project Generator'), self.__about_action)
 
     def unload(self):
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__generate_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__importdata_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__export_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__configure_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__help_action)
-        self.iface.removePluginDatabaseMenu(self.tr('Project Generator'), self.__about_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__generate_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__importdata_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__export_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__configure_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__help_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr('Project Generator'), self.__about_action)
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
@@ -116,11 +133,14 @@ class QgsProjectGeneratorPlugin(QObject):
         dlg.exec_()
 
     def show_help_documentation(self):
-        os_language = QLocale(QSettings().value('locale/userLocale')).name()[:2]
-        if os_language in ['es','de']:
-            webbrowser.open('https://opengisch.github.io/projectgenerator/docs/{}/'.format(os_language))
+        os_language = QLocale(QSettings().value(
+            'locale/userLocale')).name()[:2]
+        if os_language in ['es', 'de']:
+            webbrowser.open(
+                'https://opengisch.github.io/projectgenerator/docs/{}/'.format(os_language))
         else:
-            webbrowser.open('https://opengisch.github.io/projectgenerator/docs/index.html')
+            webbrowser.open(
+                'https://opengisch.github.io/projectgenerator/docs/index.html')
 
     def show_about_dialog(self):
         self.msg = QMessageBox()
@@ -128,7 +148,7 @@ class QgsProjectGeneratorPlugin(QObject):
         self.msg.setTextFormat(Qt.RichText)
         self.msg.setWindowTitle(self.tr('About Project Generator'))
         self.msg.setText(self.tr(
-        """<h1>Project Generator</h1>
+            """<h1>Project Generator</h1>
         <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta
         information to preconfigure the layer tree, widget configuration, relations and more.</p>
         <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/projectgenerator">github</a>.</p>

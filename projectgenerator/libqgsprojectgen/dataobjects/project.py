@@ -91,10 +91,13 @@ class Project(QObject):
             if isinstance(self.crs, QgsCoordinateReferenceSystem):
                 qgis_project.setCrs(self.crs)
             else:
-                qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+                qgis_project.setCrs(
+                    QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
-        qgis_relations = list(qgis_project.relationManager().relations().values())
-        dict_domains = {layer.real_id: layer.is_domain for layer in self.layers}
+        qgis_relations = list(
+            qgis_project.relationManager().relations().values())
+        dict_domains = {
+            layer.real_id: layer.is_domain for layer in self.layers}
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
@@ -102,14 +105,15 @@ class Project(QObject):
 
             if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
-                        'Relation': rel.id(),
-                        'ShowForm': False,
-                        'OrderByValue': True,
-                        'ShowOpenFormButton': False
-                    }
+                    'Relation': rel.id(),
+                    'ShowForm': False,
+                    'OrderByValue': True,
+                    'ShowOpenFormButton': False
+                }
                 )
                 referencing_layer = rel.referencingLayer()
-                referencing_layer.setEditorWidgetSetup(rel.referencingFields()[0], editor_widget_setup)
+                referencing_layer.setEditorWidgetSetup(
+                    rel.referencingFields()[0], editor_widget_setup)
 
         qgis_project.relationManager().setRelations(qgis_relations)
 

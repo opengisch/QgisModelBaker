@@ -24,6 +24,7 @@ PORT = '443'
 ENDPOINT = '/plugins/RPC2/'
 VERBOSE = False
 
+
 def main(parameters, arguments):
     """Main entry point.
 
@@ -60,31 +61,33 @@ def main(parameters, arguments):
 
     conn = http.client.HTTPSConnection('api.github.com')
     headers = {
-      'User-Agent' : 'Deploy-Script',
-      'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
+        'User-Agent': 'Deploy-Script',
+        'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
     }
 
     raw_data = {
         "tag_name": parameters.release
-        }
+    }
     if parameters.changelog:
         with open(parameters.changelog, 'r') as cl:
             raw_data['body'] = cl.read()
     data = json.dumps(raw_data)
-    conn.request('POST', '/repos/{repo_slug}/releases'.format(repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
+    conn.request('POST', '/repos/{repo_slug}/releases'.format(
+        repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
     response = conn.getresponse()
     release = json.loads(response.read().decode())
     print(release)
 
     conn = http.client.HTTPSConnection('uploads.github.com')
     headers['Content-Type'] = 'application/zip'
-    url='{}?name={}'.format(release['upload_url'][:-13], filename)
+    url = '{}?name={}'.format(release['upload_url'][:-13], filename)
     print('Upload to {}'.format(url))
 
     with open(filename, 'rb') as f:
         conn.request('POST', url, f, headers)
 
     print(conn.getresponse().read())
+
 
 def hide_password(url, start=6):
     """Returns the http url with password part replaced with '*'.

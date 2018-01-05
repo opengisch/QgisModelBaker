@@ -40,7 +40,8 @@ import fnmatch
 
 
 def selectFileName(line_edit_widget, title, file_filter, parent):
-    filename, matched_filter = QFileDialog.getOpenFileName(parent, title, line_edit_widget.text(), file_filter)
+    filename, matched_filter = QFileDialog.getOpenFileName(
+        parent, title, line_edit_widget.text(), file_filter)
     line_edit_widget.setText(filename)
 
 
@@ -50,8 +51,10 @@ def make_file_selector(widget, title=QCoreApplication.translate('projectgenerato
 
 
 def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension):
-    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
-    line_edit_widget.setText(filename if filename.endswith(extension) else (filename + extension if filename else ''))
+    filename, matched_filter = QFileDialog.getSaveFileName(
+        parent, title, line_edit_widget.text(), file_filter)
+    line_edit_widget.setText(filename if filename.endswith(
+        extension) else (filename + extension if filename else ''))
 
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),
@@ -60,7 +63,8 @@ def make_save_file_selector(widget, title=QCoreApplication.translate('projectgen
 
 
 def selectFolder(line_edit_widget, title, parent):
-    foldername = QFileDialog.getExistingDirectory(parent, title, line_edit_widget.text())
+    foldername = QFileDialog.getExistingDirectory(
+        parent, title, line_edit_widget.text())
     line_edit_widget.setText(foldername)
 
 
@@ -69,6 +73,7 @@ def make_folder_selector(widget, title=QCoreApplication.translate('projectgenera
 
 
 class NetworkError(RuntimeError):
+
     def __init__(self, error_code, msg):
         self.msg = msg
         self.error_code = error_code
@@ -125,6 +130,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
 
 
 class Validators(QObject):
+
     def validate_line_edits(self, *args, **kwargs):
         """
         Validate line edits and set their color to indicate validation state.
@@ -141,10 +147,12 @@ class Validators(QObject):
                 color = '#ffd356'  # Light orange
             else:
                 color = '#f6989d'  # Red
-        senderObj.setStyleSheet('QLineEdit {{ background-color: {} }}'.format(color))
+        senderObj.setStyleSheet(
+            'QLineEdit {{ background-color: {} }}'.format(color))
 
 
 class FileValidator(QValidator):
+
     def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False, allow_non_existing=False):
         QValidator.__init__(self, parent)
         self.pattern = pattern
@@ -170,6 +178,7 @@ class FileValidator(QValidator):
 
 
 class NonEmptyStringValidator(QValidator):
+
     def __init__(self, parent=None):
         QValidator.__init__(self, parent)
 
@@ -181,6 +190,7 @@ class NonEmptyStringValidator(QValidator):
 
 
 class OverrideCursor():
+
     def __init__(self, cursor):
         self.cursor = cursor
 
