@@ -249,7 +249,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.post_generate()
 
             qgis_project = QgsProject.instance()
-            project.layer_added.connect(self.print_info)
             project.create(None, qgis_project)
 
             self.buttonBox.clear()
