@@ -1,4 +1,4 @@
-[![Read the documentation](https://img.shields.io/badge/Read-the%20docs-green.svg)](https://opengisch.github.io/projectgenerator-docs)
+[![Read the documentation](https://img.shields.io/badge/Read-the%20docs-green.svg)](https://opengisch.github.io/projectgenerator/docs/en/)
 [![Release](https://img.shields.io/github/release/opengisch/projectgenerator.svg)](https://github.com/opengisch/projectgenerator/releases)
 [![Build Status](https://travis-ci.org/opengisch/projectgenerator.svg?branch=master)](https://travis-ci.org/opengisch/projectgenerator)
 
