@@ -162,21 +162,24 @@ class Generator:
 
     def relations(self, layers):
         relations_info = self._get_relations_info()
-        mapped_layers = {layer.name: layer for layer in layers}
+        layer_map = dict()
+        for layer in layers:
+            if layer.name not in layer_map.keys():
+                layer_map[layer.name] = list()
+            layer_map[layer.name].append(layer)
         relations = list()
 
         for record in relations_info:
-            if record['referencing_table'] in mapped_layers.keys() and record[
-                    'referenced_table'] in mapped_layers.keys():
-                relation = Relation()
-                relation.referencing_layer = mapped_layers[
-                    record['referencing_table']]
-                relation.referenced_layer = mapped_layers[
-                    record['referenced_table']]
-                relation.referencing_field = record['referencing_column']
-                relation.referenced_field = record['referenced_column']
-                relation.name = record['constraint_name']
-                relations.append(relation)
+            if record['referencing_table'] in layer_map.keys() and record['referenced_table'] in layer_map.keys():
+                for referencing_layer in layer_map[record['referencing_table']]:
+                    for referenced_layer in layer_map[record['referenced_table']]:
+                        relation = Relation()
+                        relation.referencing_layer = referencing_layer
+                        relation.referenced_layer = referenced_layer
+                        relation.referencing_field = record['referencing_column']
+                        relation.referenced_field = record['referenced_column']
+                        relation.name = record['constraint_name']
+                        relations.append(relation)
 
         # TODO: Remove these 3 lines when
         # https://github.com/claeis/ili2db/issues/19 is solved!
