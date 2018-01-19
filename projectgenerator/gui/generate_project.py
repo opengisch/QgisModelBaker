@@ -258,21 +258,26 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
         self.txtStdout.setText(command)
+        self.progress_bar.show()
+        self.progress_bar.setValue(0)
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
         color = '#004905' if exit_code == 0 else '#aa2222'
         self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
+        self.progress_bar.setValue(100)
 
     def updated_configuration(self):
         """
@@ -371,6 +376,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.progress_bar.hide()
         if self.type_combo_box.currentData() == 'ili2pg':
             self.ili_config.show()
             self.pg_config.show()
@@ -493,3 +499,31 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         else:
             webbrowser.open(
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
+
+    def advance_progress_bar_by_text(self, text):
+        current_value = self.progress_bar.value()
+        if current_value > 100:
+            self.progress_bar.setValue(100)
+            return
+        if text.startswith('Info: dburl '):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: dbusr '):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: ili2pg-'):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: ili2c-'):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: iox-'):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: driverName '):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: data'):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: diver'):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: compile'):
+            self.progress_bar.setValue(current_value + 15)
+        elif text.startswith('Info: lookup '):
+            self.progress_bar.setValue(current_value + 5)
+        elif text.startswith('Info: ilifile '):
+            self.progress_bar.setValue(current_value + 5)
