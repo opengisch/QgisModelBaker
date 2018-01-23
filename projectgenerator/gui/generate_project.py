@@ -80,8 +80,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(
+        create_button = self.buttonBox.addButton(
             self.tr('Create'), QDialogButtonBox.AcceptRole)
+        create_button.setDefault(True)
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili)')))
