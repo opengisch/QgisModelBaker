@@ -59,7 +59,8 @@ from qgis.PyQt.QtCore import (
 )
 from qgis.core import (
     QgsProject,
-    QgsCoordinateReferenceSystem
+    QgsCoordinateReferenceSystem,
+    Qgis
 )
 from qgis.gui import QgsMessageBar
 from ..utils import get_ui_class
@@ -475,10 +476,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def show_message(self, level, message):
-        if level == QgsMessageBar.WARNING:
-            self.bar.pushMessage(message, QgsMessageBar.INFO, 10)
-        elif level == QgsMessageBar.CRITICAL:
-            self.bar.pushMessage(message, QgsMessageBar.WARNING, 10)
+        if level == Qgis.Warning:
+            self.bar.pushMessage(message, Qgis.Info, 10)
+        elif level == Qgis.Critical:
+            self.bar.pushMessage(message, Qgis.Warning, 10)
 
     def fill_models_line_edit(self):
         self.ili_models_line_edit.setText(
