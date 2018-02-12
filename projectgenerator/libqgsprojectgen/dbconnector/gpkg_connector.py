@@ -146,8 +146,8 @@ class GPKGConnector(DBConnector):
 
         return constraint_mapping
 
-    def get_relations_info(self):
-        # We need to get the PK for each table, so firts get tables_info
+    def get_relations_info(self, filter_layer_list=[]):
+        # We need to get the PK for each table, so first get tables_info
         # and then build something more searchable
         tables_info_dict = dict()
         for table_info in self._tables_info:

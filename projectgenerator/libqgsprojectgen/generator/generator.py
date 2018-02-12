@@ -164,7 +164,7 @@ class Generator:
         return layers
 
     def relations(self, layers, filter_layer_list=[]):
-        relations_info = self._get_relations_info() # Make this aware of filter_layer_list
+        relations_info = self._get_relations_info(filter_layer_list)
         mapped_layers = {layer.name: layer for layer in layers}
         relations = list()
 
@@ -243,8 +243,8 @@ class Generator:
     def _get_constraints_info(self, table_name):
         return self._db_connector.get_constraints_info(table_name)
 
-    def _get_relations_info(self):
-        return self._db_connector.get_relations_info()
+    def _get_relations_info(self, filter_layer_list=[]):
+        return self._db_connector.get_relations_info(filter_layer_list)
 
 
 class DomainRelationGenerator:
