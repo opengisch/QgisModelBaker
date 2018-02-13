@@ -57,12 +57,14 @@ class LegendGroup(object):
 
         for item in self.items:
             if isinstance(item, LegendGroup):
-                subgroup = group.addGroup(item.name)
-                subgroup.setExpanded(item.expanded)
+                subgroup = group.findGroup(item.name)
+                if subgroup is None:
+                    subgroup = group.addGroup(item.name)
+                    subgroup.setExpanded(item.expanded)
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                group.addLayer(layer)
+                group.insertLayer(0, layer)
 
     def is_empty(self):
         return not bool(self.items)

@@ -217,11 +217,11 @@ class Generator:
                 else:
                     tables.append(layer)
 
-        for l in point_layers:
+        for l in polygon_layers:
             legend.append(l)
         for l in line_layers:
             legend.append(l)
-        for l in polygon_layers:
+        for l in point_layers:
             legend.append(l)
 
         if not tables.is_empty():
