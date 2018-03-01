@@ -32,6 +32,7 @@ ili2db_tools['ili2pg'][
 ili2db_tools['ili2gpkg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
 
+from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 
 class BaseConfiguration(object):
 
@@ -65,7 +66,9 @@ class BaseConfiguration(object):
         args = []
         if export_modeldir:
             if self.custom_model_directories_enabled and self.custom_model_directories:
-                args += ['--modeldir', self.custom_model_directories]
+                str_model_directories = [get_all_modeldir_in_path(path) for path in self.custom_model_directories.split(';')]
+                str_model_directories = ';'.join(str_model_directories)
+                args += ['--modeldir', str_model_directories]
         if self.debugging_enabled and self.logfile_path:
             args += ['--trace']
             args += ['--log', self.logfile_path]
