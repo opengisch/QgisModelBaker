@@ -25,6 +25,7 @@ import xml.etree.ElementTree as ET
 
 import re
 
+from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 from PyQt5.QtCore import QObject, pyqtSignal
 from qgis.core import QgsMessageLog, Qgis
@@ -56,11 +57,8 @@ class IliCache(QObject):
         if path[0] == '%':
             pass
         elif os.path.isdir(path):
-            # recursive search of ilimodels
-            all_subdirs = [ path[0] for path in os.walk(path) ]
-            for subdir in all_subdirs:
-                if os.path.isdir(subdir) and '/.' not in subdir:
-                    self.process_local_ili_folder(subdir)
+            # recursive search of ilimodels paths
+            get_all_modeldir_in_path(path, self.process_local_ili_folder)
         else:
             self.download_repository(path)
 
