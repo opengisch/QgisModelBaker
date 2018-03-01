@@ -274,9 +274,9 @@
         </widget>
        </item>
        <item row="4" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <layout class="QHBoxLayout" name="horizontalLayout_1">
          <item>
-          <widget class="QProgressBar" name="progressBar">
+          <widget class="QProgressBar" name="progress_bar">
            <property name="value">
             <number>0</number>
            </property>

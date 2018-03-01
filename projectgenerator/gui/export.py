@@ -169,6 +169,9 @@ class ExportDialog(QDialog, DIALOG_UI):
                 return
 
         with OverrideCursor(Qt.WaitCursor):
+            self.progress_bar.show()
+            self.progress_bar.setValue(0)
+
             self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
@@ -186,9 +189,12 @@ class ExportDialog(QDialog, DIALOG_UI):
             exporter.process_started.connect(self.on_process_started)
             exporter.process_finished.connect(self.on_process_finished)
 
+            self.progress_bar.setValue(50)
+
             try:
                 if exporter.run() != iliexporter.Exporter.SUCCESS:
                     self.enable()
+                    self.progress_bar.hide()
                     return
             except JavaNotFoundError:
                 self.txtStdout.setTextColor(QColor('#000000'))
@@ -196,11 +202,13 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(self.tr(
                     'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 self.enable()
+                self.progress_bar.hide()
                 return
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
+            self.progress_bar.setValue(100)
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
@@ -316,6 +324,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.progress_bar.hide()
         if self.type_combo_box.currentData() == 'pg':
             self.pg_config.show()
             self.gpkg_config.hide()
