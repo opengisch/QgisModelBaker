@@ -189,7 +189,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             exporter.process_started.connect(self.on_process_started)
             exporter.process_finished.connect(self.on_process_finished)
 
-            self.progress_bar.setValue(50)
+            self.progress_bar.setValue(25)
 
             try:
                 if exporter.run() != iliexporter.Exporter.SUCCESS:
@@ -218,6 +218,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
@@ -373,3 +374,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         Slot. Sets a flag to false to eventually ask a user whether to overwrite a file.
         """
         self.xtf_browser_was_opened = False
+
+    def advance_progress_bar_by_text(self, text):
+        if text.strip() == 'Info: compile models...':
+            self.progress_bar.setValue(50)
+        elif text.strip() == 'Info: create table structure...':
+            self.progress_bar.setValue(75)

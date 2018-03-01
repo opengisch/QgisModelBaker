@@ -191,7 +191,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             dataImporter.process_started.connect(self.on_process_started)
             dataImporter.process_finished.connect(self.on_process_finished)
 
-            self.progress_bar.setValue(50)
+            self.progress_bar.setValue(25)
 
             try:
                 if dataImporter.run() != ilidataimporter.DataImporter.SUCCESS:
@@ -212,14 +212,15 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.buttonBox.addButton(QDialogButtonBox.Close)
             self.progress_bar.setValue(100)
 
-    def print_info(self, text):
-        self.txtStdout.setTextColor(QColor('#000000'))
+    def print_info(self, text, text_color='#000000'):
+        self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
@@ -368,3 +369,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         else:
             webbrowser.open(
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+
+    def advance_progress_bar_by_text(self, text):
+        if text.strip() == 'Info: compile models...':
+            self.progress_bar.setValue(50)
+        elif text.strip() == 'Info: create table structure...':
+            self.progress_bar.setValue(75)
