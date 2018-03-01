@@ -1,5 +1,5 @@
 import nose2
-from nose2.compat import unittest
+from qgis.testing import unittest
 import yaml
 
 from projectgenerator.yamltools.loader import InheritanceLoader

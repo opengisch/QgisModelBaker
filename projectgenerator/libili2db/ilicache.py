@@ -56,7 +56,11 @@ class IliCache(QObject):
         if path[0] == '%':
             pass
         elif os.path.isdir(path):
-            self.process_local_ili_folder(path)
+            # recursive search of ilimodels
+            all_subdirs = [ path[0] for path in os.walk(path) ]
+            for subdir in all_subdirs:
+                if os.path.isdir(subdir) and '/.' not in subdir:
+                    self.process_local_ili_folder(subdir)
         else:
             self.download_repository(path)
 
