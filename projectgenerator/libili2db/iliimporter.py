@@ -28,7 +28,7 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
 
-from .ili2dbconfig import ImportConfiguration, JavaNotFoundError
+from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration, JavaNotFoundError, ili2db_tools
 
 
 class Importer(QObject):
@@ -55,7 +55,7 @@ class Importer(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr, ili2db_tools)
         if not ili2db_bin:
             return
 
