@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import QObject
+from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 
 ili2db_tools = {
     'ili2pg': {
@@ -31,8 +32,6 @@ ili2db_tools['ili2pg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
 ili2db_tools['ili2gpkg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
-
-from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 
 class BaseConfiguration(object):
 
