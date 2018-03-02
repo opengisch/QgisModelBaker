@@ -81,8 +81,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(
+        create_button = self.buttonBox.addButton(
             self.tr('Create'), QDialogButtonBox.AcceptRole)
+        create_button.setDefault(True)
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili)')))
@@ -202,6 +203,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.save_configuration(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
+            self.progress_bar.show()
+            self.progress_bar.setValue(0)
+
             self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
@@ -219,6 +223,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 try:
                     if importer.run() != iliimporter.Importer.SUCCESS:
                         self.enable()
+                        self.progress_bar.hide()
                         return
                 except JavaNotFoundError:
                     self.txtStdout.setTextColor(QColor('#000000'))
@@ -226,6 +231,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.txtStdout.setText(self.tr(
                         'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                     self.enable()
+                    self.progress_bar.hide()
                     return
 
                 configuration.schema = configuration.schema or configuration.database
@@ -234,46 +240,69 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             try:
                 generator = Generator(configuration.tool_name, configuration.uri,
                                       configuration.inheritance, configuration.schema)
+                self.progress_bar.setValue(50)
             except OperationalError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
+                self.progress_bar.hide()
                 return
 
+            self.print_info(self.tr('\nObtaining available layers from the database...'))
             available_layers = generator.layers()
+            self.progress_bar.setValue(70)
+            self.print_info(self.tr('Obtaining relations from the database...'))
             relations = generator.relations(available_layers)
+            self.progress_bar.setValue(75)
+            self.print_info(self.tr('Arranging layers into groups...'))
             legend = generator.legend(available_layers)
+            self.progress_bar.setValue(85)
 
             project = Project()
             project.layers = available_layers
             project.relations = relations
             project.legend = legend
+            self.print_info(self.tr('Configuring forms and widgets...'))
             project.post_generate()
+            self.progress_bar.setValue(90)
 
             qgis_project = QgsProject.instance()
+
+            self.print_info(self.tr('Generating QGIS project...'))
             project.create(None, qgis_project)
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
+            self.progress_bar.setValue(100)
+            self.print_info(self.tr('\nDone!'), '#004905')
 
-    def print_info(self, text):
-        self.txtStdout.setTextColor(QColor('#000000'))
+    def print_info(self, text, text_color='#000000'):
+        self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
         self.txtStdout.setText(command)
+        self.progress_bar.setValue(10)
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        color = '#004905' if exit_code == 0 else '#aa2222'
+        if exit_code == 0:
+            color = '#004905'
+            message = self.tr('Interlis model(s) successfully imported into the database!')
+        else:
+            color = '#aa2222'
+            message = self.tr('Finished with errors!')
+
         self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
+        self.txtStdout.append(message)
+        self.progress_bar.setValue(50)
 
     def updated_configuration(self):
         """
@@ -372,6 +401,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.progress_bar.hide()
         if self.type_combo_box.currentData() == 'ili2pg':
             self.ili_config.show()
             self.pg_config.show()
@@ -494,3 +524,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         else:
             webbrowser.open(
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
+
+    def advance_progress_bar_by_text(self, text):
+        if text.strip() == 'Info: compile models...':
+            self.progress_bar.setValue(20)
+        elif text.strip() == 'Info: create table structure...':
+            self.progress_bar.setValue(30)

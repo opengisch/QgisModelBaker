@@ -169,6 +169,9 @@ class ExportDialog(QDialog, DIALOG_UI):
                 return
 
         with OverrideCursor(Qt.WaitCursor):
+            self.progress_bar.show()
+            self.progress_bar.setValue(0)
+
             self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
@@ -186,9 +189,12 @@ class ExportDialog(QDialog, DIALOG_UI):
             exporter.process_started.connect(self.on_process_started)
             exporter.process_finished.connect(self.on_process_finished)
 
+            self.progress_bar.setValue(25)
+
             try:
                 if exporter.run() != iliexporter.Exporter.SUCCESS:
                     self.enable()
+                    self.progress_bar.hide()
                     return
             except JavaNotFoundError:
                 self.txtStdout.setTextColor(QColor('#000000'))
@@ -196,11 +202,13 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(self.tr(
                     'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 self.enable()
+                self.progress_bar.hide()
                 return
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
+            self.progress_bar.setValue(100)
 
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor('#000000'))
@@ -210,6 +218,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def on_stderr(self, text):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
+        self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
@@ -316,6 +325,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.progress_bar.hide()
         if self.type_combo_box.currentData() == 'pg':
             self.pg_config.show()
             self.gpkg_config.hide()
@@ -364,3 +374,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         Slot. Sets a flag to false to eventually ask a user whether to overwrite a file.
         """
         self.xtf_browser_was_opened = False
+
+    def advance_progress_bar_by_text(self, text):
+        if text.strip() == 'Info: compile models...':
+            self.progress_bar.setValue(50)
+        elif text.strip() == 'Info: create table structure...':
+            self.progress_bar.setValue(75)
