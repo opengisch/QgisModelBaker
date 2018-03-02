@@ -81,7 +81,7 @@ class DBConnector:
         '''
         return {}
 
-    def get_relations_info(self):
+    def get_relations_info(self, filter_layer_list=[]):
         '''
         Info about relations found in a database (or database schema).
 

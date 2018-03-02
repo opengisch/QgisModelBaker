@@ -24,6 +24,10 @@ import webbrowser
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from projectgenerator.gui.export import ExportDialog
 from projectgenerator.gui.import_data import ImportDataDialog
+from projectgenerator.libqgsprojectgen.dataobjects.project import Project
+from projectgenerator.libqgsprojectgen.generator.generator import Generator
+
+from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
 
@@ -156,3 +160,15 @@ class QgsProjectGeneratorPlugin(QObject):
         <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>.</p></p>"""))
         self.msg.setStandardButtons(QMessageBox.Close)
         msg_box = self.msg.exec_()
+
+    def get_generator(self):
+        return Generator
+
+    def create_project(self, layers, relations, legend):
+        project = Project()
+        project.layers = layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)

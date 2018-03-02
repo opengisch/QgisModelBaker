@@ -43,7 +43,7 @@ class Generator:
         elif self.tool_name == 'ili2gpkg':
             self._db_connector = gpkg_connector.GPKGConnector(uri, None)
 
-    def layers(self):
+    def layers(self, filter_layer_list=[]):
         tables_info = self._get_tables_info()
         layers = list()
 
@@ -57,6 +57,9 @@ class Generator:
                 continue
 
             if record['tablename'] in IGNORED_TABLES:
+                continue
+
+            if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
             if self.tool_name == 'ili2pg':
@@ -160,8 +163,8 @@ class Generator:
 
         return layers
 
-    def relations(self, layers):
-        relations_info = self._get_relations_info()
+    def relations(self, layers, filter_layer_list=[]):
+        relations_info = self._get_relations_info(filter_layer_list)
         mapped_layers = {layer.name: layer for layer in layers}
         relations = list()
 
@@ -214,11 +217,11 @@ class Generator:
                 else:
                     tables.append(layer)
 
-        for l in point_layers:
+        for l in polygon_layers:
             legend.append(l)
         for l in line_layers:
             legend.append(l)
-        for l in polygon_layers:
+        for l in point_layers:
             legend.append(l)
 
         if not tables.is_empty():
@@ -240,8 +243,8 @@ class Generator:
     def _get_constraints_info(self, table_name):
         return self._db_connector.get_constraints_info(table_name)
 
-    def _get_relations_info(self):
-        return self._db_connector.get_relations_info()
+    def _get_relations_info(self, filter_layer_list=[]):
+        return self._db_connector.get_relations_info(filter_layer_list)
 
 
 class DomainRelationGenerator:
