@@ -20,14 +20,14 @@
 import os
 import tempfile
 import zipfile
+import glob
 
-from projectgenerator.libili2db.ili2dbconfig import ili2db_tools
 from qgis.PyQt.QtCore import QCoreApplication
 
 from projectgenerator.utils.qt_utils import download_file, NetworkError
 
 
-def get_ili2db_bin(tool_name, stdout, stderr):
+def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
     if not tool_name:
         return
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -77,3 +77,13 @@ def get_ili2db_bin(tool_name, stdout, stderr):
             return None
 
     return ili2db_file
+
+def get_all_modeldir_in_path(path, lambdafunction=None):
+    all_subdirs = [path[0] for path in os.walk(path)] # include path
+    modeldir = ''
+    for subdir in all_subdirs:
+        if os.path.isdir(subdir) and '/.' not in subdir and len(glob.glob(subdir + '/*.ili')) > 0:
+            if lambdafunction is not None:
+                lambdafunction(subdir)
+            modeldir += subdir + ';'
+    return modeldir[:-1]  # remove last ';'

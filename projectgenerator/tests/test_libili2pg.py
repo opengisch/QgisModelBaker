@@ -1,14 +1,8 @@
-try:
-    import qgis
-    from qgis.testing import unittest, start_app
-    start_app()
-    from projectgenerator.libili2db import ilicache
-    from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
-except ImportError:
-    # As long as we don't deploy qgis on travis, there's nothing we can do...
-    # sorry
-    from nose2.compat import unittest
-    pass
+import qgis
+from qgis.testing import unittest, start_app
+start_app()
+from projectgenerator.libili2db import ilicache
+from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 
 import os
 import nose2

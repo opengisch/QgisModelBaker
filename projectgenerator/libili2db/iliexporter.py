@@ -26,7 +26,7 @@ import locale
 from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from .ili2dbconfig import ExportConfiguration, JavaNotFoundError
+from projectgenerator.libili2db.ili2dbconfig import ExportConfiguration, JavaNotFoundError, ili2db_tools
 
 
 class Exporter(QObject):
@@ -54,7 +54,7 @@ class Exporter(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr, ili2db_tools)
         if not ili2db_bin:
             return
 
