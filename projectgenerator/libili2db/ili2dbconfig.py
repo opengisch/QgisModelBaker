@@ -22,7 +22,7 @@ from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 
 ili2db_tools = {
     'ili2pg': {
-        'version': '3.10.6'
+        'version': '3.11.2'
     },
     'ili2gpkg': {
         'version': '3.10.5'
