@@ -20,6 +20,9 @@
 
 from qgis.core import QgsProject
 
+from projectgenerator.utils.qgis_utils import get_suggested_index_for_layer
+
+
 
 class LegendGroup(object):
 
@@ -64,7 +67,8 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                group.insertLayer(0, layer)
+                index = get_suggested_index_for_layer(layer) if layer.isSpatial() else 0
+                group.insertLayer(index, layer)
 
     def is_empty(self):
         return not bool(self.items)
