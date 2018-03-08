@@ -27,6 +27,7 @@ PG_METADATA_TABLE = 't_ili2db_table_prop'
 
 
 class PGConnector(DBConnector):
+    _geom_parse_regexp = None
 
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
@@ -89,7 +90,8 @@ class PGConnector(DBConnector):
                       g.srid AS srid,
                       {is_domain_field}
                       {table_alias}
-                      g.type AS type
+                      g.type AS simple_type,
+                      format_type(ga.atttypid, ga.atttypmod) as formatted_type
                     FROM pg_catalog.pg_tables tbls
                     LEFT JOIN pg_index i
                       ON i.indrelid = CONCAT(tbls.schemaname, '.', tbls.tablename)::regclass
@@ -101,12 +103,41 @@ class PGConnector(DBConnector):
                     LEFT JOIN public.geometry_columns g
                       ON g.f_table_schema = tbls.schemaname
                       AND g.f_table_name = tbls.tablename
+                    LEFT JOIN pg_attribute ga
+                      ON ga.attrelid = i.indrelid
+                      AND ga.attname = g.f_geometry_column
                     WHERE i.indisprimary {schema_where}
         """.format(is_domain_field=is_domain_field, table_alias=table_alias,
                    domain_left_join=domain_left_join, alias_left_join=alias_left_join,
                    schema_where=schema_where))
 
-        return cur
+        return self._preprocess_table(cur)
+
+    def _preprocess_table(self, records):
+        for record in records:
+            my_rec = {key: value for key, value in record.items()}
+            geom_type = self._parse_pg_type(record['formatted_type'])
+            if not geom_type:
+                geom_type = record['simple_type']
+            my_rec['type'] = geom_type
+            print(repr(my_rec))
+            yield my_rec
+
+    def _parse_pg_type(self, formatted_attr_type):
+        if not self._geom_parse_regexp:
+            self._geom_parse_regexp = re.compile('geometry\((\w+?),\d+\)')
+
+        typedef = None
+
+        if formatted_attr_type:
+            match = self._geom_parse_regexp.search(formatted_attr_type)
+
+            if match:
+                typedef = match.group(1)
+            else:
+                typedef = None
+
+        return typedef
 
     def get_fields_info(self, table_name):
         # Get all fields for this table
