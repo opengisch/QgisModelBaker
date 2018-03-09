@@ -109,8 +109,9 @@ class PGConnector(DBConnector):
                       AND g.f_table_name = tbls.tablename
                     WHERE i.indisprimary {schema_where}
         """.format(is_domain_field=is_domain_field, table_alias=table_alias,
-                   domain_left_join=domain_left_join, alias_left_join=alias_left_join,
-                   model_where=model_where, schema_where=schema_where))
+                   model_name=model_name, domain_left_join=domain_left_join,
+                   alias_left_join=alias_left_join, model_where=model_where,
+                   schema_where=schema_where))
 
         return cur
 
