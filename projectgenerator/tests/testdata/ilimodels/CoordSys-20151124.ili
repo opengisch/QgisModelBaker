@@ -1,0 +1,214 @@
+!! File CoordSys.ili Release 2015-11-24
+
+INTERLIS 2.3;
+
+!! 2015-11-24 Cardinalities adapted (line 122, 123, 124, 132, 133, 134, 142, 143,
+!!                                   148, 149, 163, 164, 168, 169, 206 and 207)
+!!@precursorVersion = 2005-06-16
+
+REFSYSTEM MODEL CoordSys (en) AT "http://www.interlis.ch/models"
+  VERSION "2015-11-24" =
+
+  UNIT
+    Angle_Degree = 180 / PI [INTERLIS.rad];
+    Angle_Minute = 1 / 60 [Angle_Degree];
+    Angle_Second = 1 / 60 [Angle_Minute];
+
+  STRUCTURE Angle_DMS_S =
+    Degrees: -180 .. 180 CIRCULAR [Angle_Degree];
+    CONTINUOUS SUBDIVISION Minutes: 0 .. 59 CIRCULAR [Angle_Minute];
+    CONTINUOUS SUBDIVISION Seconds: 0.000 .. 59.999 CIRCULAR [Angle_Second];
+  END Angle_DMS_S;
+
+  DOMAIN
+    Angle_DMS = FORMAT BASED ON Angle_DMS_S (Degrees ":" Minutes ":" Seconds);
+    Angle_DMS_90 EXTENDS Angle_DMS = "-90:00:00.000" .. "90:00:00.000";
+
+
+  TOPIC CoordsysTopic =
+
+    !! Special space aspects to be referenced
+    !! **************************************
+
+    CLASS Ellipsoid EXTENDS INTERLIS.REFSYSTEM =
+      EllipsoidAlias: TEXT*70;
+      SemiMajorAxis: MANDATORY 6360000.0000 .. 6390000.0000 [INTERLIS.m];
+      InverseFlattening: MANDATORY 0.00000000 .. 350.00000000;
+      !! The inverse flattening 0 characterizes the 2-dim sphere
+      Remarks: TEXT*70;
+    END Ellipsoid;
+
+    CLASS GravityModel EXTENDS INTERLIS.REFSYSTEM =
+      GravityModAlias: TEXT*70;
+      Definition: TEXT*70;
+    END GravityModel;
+
+    CLASS GeoidModel EXTENDS INTERLIS.REFSYSTEM =
+      GeoidModAlias: TEXT*70;
+      Definition: TEXT*70;
+    END GeoidModel;
+
+
+    !! Coordinate systems for geodetic purposes
+    !! ****************************************
+
+    STRUCTURE LengthAXIS EXTENDS INTERLIS.AXIS =
+      ShortName: TEXT*12;
+      Description: TEXT*255;
+    PARAMETER
+      Unit (EXTENDED): NUMERIC [INTERLIS.LENGTH];
+    END LengthAXIS;
+
+    STRUCTURE AngleAXIS EXTENDS INTERLIS.AXIS =
+      ShortName: TEXT*12;
+      Description: TEXT*255;
+    PARAMETER
+      Unit (EXTENDED): NUMERIC [INTERLIS.ANGLE];
+    END AngleAXIS;
+
+    CLASS GeoCartesian1D EXTENDS INTERLIS.COORDSYSTEM =
+      Axis (EXTENDED): LIST {1} OF LengthAXIS;
+    END GeoCartesian1D;
+
+    CLASS GeoHeight EXTENDS GeoCartesian1D =
+      System: MANDATORY (
+        normal,
+        orthometric,
+        ellipsoidal,
+        other);
+      ReferenceHeight: MANDATORY -10000.000 .. +10000.000 [INTERLIS.m];
+      ReferenceHeightDescr: TEXT*70;
+    END GeoHeight;
+
+    ASSOCIATION HeightEllips =
+      GeoHeightRef -- {*} GeoHeight;
+      EllipsoidRef -- {1} Ellipsoid;
+    END HeightEllips;
+
+    ASSOCIATION HeightGravit =
+      GeoHeightRef -- {*} GeoHeight;
+      GravityRef -- {1} GravityModel;
+    END HeightGravit;
+
+    ASSOCIATION HeightGeoid =
+      GeoHeightRef -- {*} GeoHeight;
+      GeoidRef -- {1} GeoidModel;
+    END HeightGeoid;
+
+    CLASS GeoCartesian2D EXTENDS INTERLIS.COORDSYSTEM =
+      Definition: TEXT*70;
+      Axis (EXTENDED): LIST {2} OF LengthAXIS;
+    END GeoCartesian2D;
+
+    CLASS GeoCartesian3D EXTENDS INTERLIS.COORDSYSTEM =
+      Definition: TEXT*70;
+      Axis (EXTENDED): LIST {3} OF LengthAXIS;
+    END GeoCartesian3D;
+
+    CLASS GeoEllipsoidal EXTENDS INTERLIS.COORDSYSTEM =
+      Definition: TEXT*70;
+      Axis (EXTENDED): LIST {2} OF AngleAXIS;
+    END GeoEllipsoidal;
+
+    ASSOCIATION EllCSEllips =
+      GeoEllipsoidalRef -- {*} GeoEllipsoidal;
+      EllipsoidRef -- {1} Ellipsoid;
+    END EllCSEllips;
+
+
+    !! Mappings between coordinate systems
+    !! ***********************************
+
+    ASSOCIATION ToGeoEllipsoidal =
+      From -- {0..*} GeoCartesian3D;
+      To -- {0..*} GeoEllipsoidal;
+      ToHeight -- {0..*} GeoHeight;
+    MANDATORY CONSTRAINT
+      ToHeight -> System == #ellipsoidal;
+    MANDATORY CONSTRAINT
+      To -> EllipsoidRef -> Name == ToHeight -> EllipsoidRef -> Name;
+    END ToGeoEllipsoidal;
+
+    ASSOCIATION ToGeoCartesian3D =
+      From2 -- {0..*} GeoEllipsoidal;
+      FromHeight-- {0..*} GeoHeight;
+      To3 -- {0..*} GeoCartesian3D;
+    MANDATORY CONSTRAINT
+      FromHeight -> System == #ellipsoidal;
+    MANDATORY CONSTRAINT
+      From2 -> EllipsoidRef -> Name == FromHeight -> EllipsoidRef -> Name;
+    END ToGeoCartesian3D;
+
+    ASSOCIATION BidirectGeoCartesian2D =
+      From -- {0..*} GeoCartesian2D;
+      To -- {0..*} GeoCartesian2D;
+    END BidirectGeoCartesian2D;
+
+    ASSOCIATION BidirectGeoCartesian3D =
+      From -- {0..*} GeoCartesian3D;
+      To2 -- {0..*} GeoCartesian3D;
+      Precision: MANDATORY (
+        exact,
+        measure_based);
+      ShiftAxis1: MANDATORY -10000.000 .. 10000.000 [INTERLIS.m];
+      ShiftAxis2: MANDATORY -10000.000 .. 10000.000 [INTERLIS.m];
+      ShiftAxis3: MANDATORY -10000.000 .. 10000.000 [INTERLIS.m];
+      RotationAxis1: Angle_DMS_90;
+      RotationAxis2: Angle_DMS_90;
+      RotationAxis3: Angle_DMS_90;
+      NewScale: 0.000001 .. 1000000.000000;
+    END BidirectGeoCartesian3D;
+
+    ASSOCIATION BidirectGeoEllipsoidal =
+      From4 -- {0..*} GeoEllipsoidal;
+      To4 -- {0..*} GeoEllipsoidal;
+    END BidirectGeoEllipsoidal;
+
+    ASSOCIATION MapProjection (ABSTRACT) =
+      From5 -- {0..*} GeoEllipsoidal;
+      To5 -- {0..*} GeoCartesian2D;
+      FromCo1_FundPt: MANDATORY Angle_DMS_90;
+      FromCo2_FundPt: MANDATORY Angle_DMS_90;
+      ToCoord1_FundPt: MANDATORY -10000000 .. +10000000 [INTERLIS.m];
+      ToCoord2_FundPt: MANDATORY -10000000 .. +10000000 [INTERLIS.m];
+    END MapProjection;
+
+    ASSOCIATION TransverseMercator EXTENDS MapProjection =
+    END TransverseMercator;
+
+    ASSOCIATION SwissProjection EXTENDS MapProjection =
+      IntermFundP1: MANDATORY Angle_DMS_90;
+      IntermFundP2: MANDATORY Angle_DMS_90;
+    END SwissProjection;
+
+    ASSOCIATION Mercator EXTENDS MapProjection =
+    END Mercator;
+
+    ASSOCIATION ObliqueMercator EXTENDS MapProjection =
+    END ObliqueMercator;
+
+    ASSOCIATION Lambert EXTENDS MapProjection =
+    END Lambert;
+
+    ASSOCIATION Polyconic EXTENDS MapProjection =
+    END Polyconic;
+
+    ASSOCIATION Albus EXTENDS MapProjection =
+    END Albus;
+
+    ASSOCIATION Azimutal EXTENDS MapProjection =
+    END Azimutal;
+
+    ASSOCIATION Stereographic EXTENDS MapProjection =
+    END Stereographic;
+
+    ASSOCIATION HeightConversion =
+      FromHeight -- {0..*} GeoHeight;
+      ToHeight -- {0..*} GeoHeight;
+      Definition: TEXT*70;
+    END HeightConversion;
+
+  END CoordsysTopic;
+
+END CoordSys.
+

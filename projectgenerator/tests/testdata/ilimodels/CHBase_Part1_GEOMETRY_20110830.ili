@@ -1,0 +1,177 @@
+/* ########################################################################
+   CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
+   ======
+   BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
+   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+   
+   PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
+   PUBLISHED: 2011-0830
+   ########################################################################
+*/
+
+INTERLIS 2.3;
+
+/* ########################################################################
+   ########################################################################
+   PART I -- GEOMETRY
+   - Package GeometryCHLV03
+   - Package GeometryCHLV95
+*/
+
+!! ########################################################################
+
+!! Version    | Who   | Modification
+!!------------------------------------------------------------------------------
+!! 2015-02-20 | KOGIS | WITHOUT OVERLAPS added (line 57, 58, 65 and 66)
+!! 2015-11-12 | KOGIS | WITHOUT OVERLAPS corrected (line 57 and 58)
+!! 2017-11-27 | KOGIS | Meta-Attributes @furtherInformation adapted and @CRS added (line 31, 44 and 50)
+!! 2017-12-04 | KOGIS | Meta-Attribute @CRS corrected
+
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL GeometryCHLV03_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2017-12-04" =
+
+  IMPORTS UNQUALIFIED INTERLIS;
+  IMPORTS Units;
+  IMPORTS CoordSys;
+
+  REFSYSTEM BASKET BCoordSys ~ CoordSys.CoordsysTopic
+    OBJECTS OF GeoCartesian2D: CHLV03
+    OBJECTS OF GeoHeight: SwissOrthometricAlt;
+
+  DOMAIN
+    !!@CRS=EPSG:21781
+    Coord2 = COORD
+      460000.000 .. 870000.000 [m] {CHLV03[1]},
+       45000.000 .. 310000.000 [m] {CHLV03[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:21781
+    Coord3 = COORD
+      460000.000 .. 870000.000 [m] {CHLV03[1]},
+       45000.000 .. 310000.000 [m] {CHLV03[2]},
+        -200.000 ..   5000.000 [m] {SwissOrthometricAlt[1]},
+      ROTATION 2 -> 1;
+
+    Surface = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Area = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Line = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    DirectedLine EXTENDS Line = DIRECTED POLYLINE;
+    LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    
+    /* minimal overlaps only (2mm) */
+    SurfaceWithOverlaps2mm = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
+    AreaWithOverlaps2mm = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
+
+    Orientation = 0.00000 .. 359.99999 CIRCULAR [Units.Angle_Degree] <Coord2>;
+
+    Accuracy = (cm, cm50, m, m10, m50, vague);
+    Method = (measured, sketched, calculated);
+
+    STRUCTURE LineStructure = 
+      Line: Line;
+    END LineStructure;
+
+    STRUCTURE DirectedLineStructure =
+      Line: DirectedLine;
+    END DirectedLineStructure;
+
+    STRUCTURE MultiLine =
+      Lines: BAG {1..*} OF LineStructure;
+    END MultiLine;
+
+    STRUCTURE MultiDirectedLine =
+      Lines: BAG {1..*} OF DirectedLineStructure;
+    END MultiDirectedLine;
+
+    STRUCTURE SurfaceStructure =
+      Surface: Surface;
+    END SurfaceStructure;
+
+    STRUCTURE MultiSurface =
+      Surfaces: BAG {1..*} OF SurfaceStructure;
+    END MultiSurface;
+
+END GeometryCHLV03_V1.
+
+!! ########################################################################
+
+!! Version    | Who   | Modification
+!!------------------------------------------------------------------------------
+!! 2015-02-20 | KOGIS | WITHOUT OVERLAPS added (line 135, 136, 143 and 144)
+!! 2015-11-12 | KOGIS | WITHOUT OVERLAPS corrected (line 135 and 136)
+!! 2017-11-27 | KOGIS | Meta-Attributes @furtherInformation adapted and @CRS added (line 109, 122 and 128)
+!! 2017-12-04 | KOGIS | Meta-Attribute @CRS corrected
+
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL GeometryCHLV95_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2017-12-04" =
+
+  IMPORTS UNQUALIFIED INTERLIS;
+  IMPORTS Units;
+  IMPORTS CoordSys;
+
+  REFSYSTEM BASKET BCoordSys ~ CoordSys.CoordsysTopic
+    OBJECTS OF GeoCartesian2D: CHLV95
+    OBJECTS OF GeoHeight: SwissOrthometricAlt;
+
+  DOMAIN
+    !!@CRS=EPSG:2056
+    Coord2 = COORD
+      2460000.000 .. 2870000.000 [m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [m] {CHLV95[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:2056
+    Coord3 = COORD
+      2460000.000 .. 2870000.000 [m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [m] {CHLV95[2]},
+         -200.000 ..   5000.000 [m] {SwissOrthometricAlt[1]},
+      ROTATION 2 -> 1;
+
+    Surface = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Area = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Line = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    DirectedLine EXTENDS Line = DIRECTED POLYLINE;
+    LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    
+    /* minimal overlaps only (2mm) */
+    SurfaceWithOverlaps2mm = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
+    AreaWithOverlaps2mm = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
+
+    Orientation = 0.00000 .. 359.99999 CIRCULAR [Units.Angle_Degree] <Coord2>;
+
+    Accuracy = (cm, cm50, m, m10, m50, vague);
+    Method = (measured, sketched, calculated);
+
+    STRUCTURE LineStructure = 
+      Line: Line;
+    END LineStructure;
+
+    STRUCTURE DirectedLineStructure =
+      Line: DirectedLine;
+    END DirectedLineStructure;
+
+    STRUCTURE MultiLine =
+      Lines: BAG {1..*} OF LineStructure;
+    END MultiLine;
+
+    STRUCTURE MultiDirectedLine =
+      Lines: BAG {1..*} OF DirectedLineStructure;
+    END MultiDirectedLine;
+
+    STRUCTURE SurfaceStructure =
+      Surface: Surface;
+    END SurfaceStructure;
+
+    STRUCTURE MultiSurface =
+      Surfaces: BAG {1..*} OF SurfaceStructure;
+    END MultiSurface;
+
+END GeometryCHLV95_V1.
+
+!! ########################################################################

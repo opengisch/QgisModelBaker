@@ -1,0 +1,97 @@
+!! File Units.ili Release 2012-02-20
+
+INTERLIS 2.3;
+
+!! 2012-02-20 definition of "Bar [bar]" corrected
+!!@precursorVersion = 2005-06-06
+
+CONTRACTED TYPE MODEL Units (en) AT "http://www.interlis.ch/models"
+  VERSION "2012-02-20" =
+
+  UNIT
+    !! abstract Units
+    Area (ABSTRACT) = (INTERLIS.LENGTH*INTERLIS.LENGTH);
+    Volume (ABSTRACT) = (INTERLIS.LENGTH*INTERLIS.LENGTH*INTERLIS.LENGTH);
+    Velocity (ABSTRACT) = (INTERLIS.LENGTH/INTERLIS.TIME);
+    Acceleration (ABSTRACT) = (Velocity/INTERLIS.TIME);
+    Force (ABSTRACT) = (INTERLIS.MASS*INTERLIS.LENGTH/INTERLIS.TIME/INTERLIS.TIME);
+    Pressure (ABSTRACT) = (Force/Area);
+    Energy (ABSTRACT) = (Force*INTERLIS.LENGTH);
+    Power (ABSTRACT) = (Energy/INTERLIS.TIME);
+    Electric_Potential (ABSTRACT) = (Power/INTERLIS.ELECTRIC_CURRENT);
+    Frequency (ABSTRACT) = (INTERLIS.DIMENSIONLESS/INTERLIS.TIME);
+
+    Millimeter [mm] = 0.001 [INTERLIS.m];
+    Centimeter [cm] = 0.01 [INTERLIS.m];
+    Decimeter [dm] = 0.1 [INTERLIS.m];
+    Kilometer [km] = 1000 [INTERLIS.m];
+
+    Square_Meter [m2] EXTENDS Area = (INTERLIS.m*INTERLIS.m);
+    Cubic_Meter [m3] EXTENDS Volume = (INTERLIS.m*INTERLIS.m*INTERLIS.m);
+
+    Minute [min] = 60 [INTERLIS.s];
+    Hour [h] = 60 [min];
+    Day [d] = 24 [h];
+
+    Kilometer_per_Hour [kmh] EXTENDS Velocity = (km/h);
+    Meter_per_Second [ms] = 3.6 [kmh];
+    Newton [N] EXTENDS Force = (INTERLIS.kg*INTERLIS.m/INTERLIS.s/INTERLIS.s);
+    Pascal [Pa] EXTENDS Pressure = (N/m2);
+    Joule [J] EXTENDS Energy = (N*INTERLIS.m);
+    Watt [W] EXTENDS Power = (J/INTERLIS.s);
+    Volt [V] EXTENDS Electric_Potential = (W/INTERLIS.A);
+
+    Inch [in] = 2.54 [cm];
+    Foot [ft] = 0.3048 [INTERLIS.m];
+    Mile [mi] = 1.609344 [km];
+
+    Are [a] = 100 [m2];
+    Hectare [ha] = 100 [a];
+    Square_Kilometer [km2] = 100 [ha];
+    Acre [acre] = 4046.873 [m2];
+
+    Liter [L] = 1 / 1000 [m3];
+    US_Gallon [USgal] = 3.785412 [L];
+
+    Angle_Degree = 180 / PI [INTERLIS.rad];
+    Angle_Minute = 1 / 60 [Angle_Degree];
+    Angle_Second = 1 / 60 [Angle_Minute];
+
+    Gon = 200 / PI [INTERLIS.rad];
+
+    Gram [g] = 1 / 1000 [INTERLIS.kg];
+    Ton [t] = 1000 [INTERLIS.kg];
+    Pound [lb] = 0.4535924 [INTERLIS.kg];
+
+    Calorie [cal] = 4.1868 [J];
+    Kilowatt_Hour [kWh] = 0.36E7 [J];
+
+    Horsepower = 746 [W];
+
+    Techn_Atmosphere [at] = 98066.5 [Pa];
+    Atmosphere [atm] = 101325 [Pa];
+    Bar [bar] = 100000 [Pa];
+    Millimeter_Mercury [mmHg] = 133.3224 [Pa];
+    Torr = 133.3224 [Pa]; !! Torr = [mmHg]
+
+    Decibel [dB] = FUNCTION // 10**(dB/20) * 0.00002 // [Pa];
+
+    Degree_Celsius [oC] = FUNCTION // oC+273.15 // [INTERLIS.K];
+    Degree_Fahrenheit [oF] = FUNCTION // (oF+459.67)/1.8 // [INTERLIS.K];
+
+    CountedObjects EXTENDS INTERLIS.DIMENSIONLESS;
+
+    Hertz [Hz] EXTENDS Frequency = (CountedObjects/INTERLIS.s);
+    KiloHertz [KHz] = 1000 [Hz];
+    MegaHertz [MHz] = 1000 [KHz];
+
+    Percent = 0.01 [CountedObjects];
+    Permille = 0.001 [CountedObjects];
+
+    !! ISO 4217 Currency Abbreviation
+    USDollar [USD] EXTENDS INTERLIS.MONEY;
+    Euro [EUR] EXTENDS INTERLIS.MONEY;
+    SwissFrancs [CHF] EXTENDS INTERLIS.MONEY;
+
+END Units.
+
