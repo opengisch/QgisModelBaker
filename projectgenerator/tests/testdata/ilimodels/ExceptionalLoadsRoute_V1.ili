@@ -1,0 +1,105 @@
+INTERLIS 2.3;
+
+!!@ technicalContact=mailto:gis@astra.admin.ch
+!!@ IDGeoIV=184.1
+!!@ furtherInformation=https://www.astra.admin.ch/
+MODEL ExceptionalLoadsCatalogues_V1 (en)
+AT "http://models.geo.admin.ch/ASTRA/"
+VERSION "2017-02-08"  =
+  IMPORTS CatalogueObjects_V1,Units;
+
+  TOPIC TypeOfRouteCatalogue
+  EXTENDS CatalogueObjects_V1.Catalogues =
+
+    CLASS TypeOfRoute
+    EXTENDS CatalogueObjects_V1.Catalogues.Item =
+      Type : MANDATORY TEXT*10;
+      RoadWidth : 0.00 .. 100.00 [INTERLIS.m];
+      RoadClearance : 0.00 .. 100.00 [INTERLIS.m];
+      TotalWeight : 0 .. 1000 [Units.t];
+      AxisLoad : 0 .. 1000 [Units.t];
+      UNIQUE Type;
+    END TypeOfRoute;
+
+    STRUCTURE TypeOfRouteRef
+    EXTENDS CatalogueObjects_V1.Catalogues.CatalogueReference =
+      Reference (EXTENDED) : MANDATORY REFERENCE TO (EXTERNAL) TypeOfRoute;
+    END TypeOfRouteRef;
+
+  END TypeOfRouteCatalogue;
+
+END ExceptionalLoadsCatalogues_V1.
+
+!!@ technicalContact=mailto:gis@astra.admin.ch
+!!@ IDGeoIV=184.1
+!!@ furtherInformation=https://www.astra.admin.ch/
+MODEL ExceptionalLoadsRoute_LV03_V1 (en)
+AT "http://models.geo.admin.ch/ASTRA/"
+VERSION "2017-02-08"  =
+  IMPORTS GeometryCHLV03_V1,CHAdminCodes_V1,Units,ExceptionalLoadsCatalogues_V1;
+
+  TOPIC ExceptionalLoad =
+    DEPENDS ON ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue;
+
+    CLASS Obstacle =
+      Geometry : MANDATORY GeometryCHLV03_V1.Coord3;
+      Description : TEXT*100;
+      RestrictWidth : 0.00 .. 100.00 [INTERLIS.m];
+      RestrictClearance : 0.00 .. 100.00 [INTERLIS.m];
+      RestrictTotalWeight : 0 .. 1000 [Units.t];
+      RestrictAxisLoad : 0 .. 1000 [Units.t];
+    END Obstacle;
+
+    CLASS Route =
+      Identifier : MANDATORY TEXT*50;
+      Canton : MANDATORY CHAdminCodes_V1.CHCantonCode;
+      Geometry : MANDATORY GeometryCHLV03_V1.LineWithAltitude;
+      TypeOfRoute : MANDATORY ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRouteRef;
+      UNIQUE Identifier, Canton;
+    END Route;
+
+    ASSOCIATION RouteObstacleRef =
+      rObstacle -- {0..*} Obstacle;
+      rRoute -<#> {1} Route;
+    END RouteObstacleRef;
+
+  END ExceptionalLoad;
+
+END ExceptionalLoadsRoute_LV03_V1.
+
+!!@ technicalContact=mailto:gis@astra.admin.ch
+!!@ IDGeoIV=184.1
+!!@ furtherInformation=https://www.astra.admin.ch/
+MODEL ExceptionalLoadsRoute_LV95_V1 (en)
+AT "http://models.geo.admin.ch/ASTRA/"
+VERSION "2017-02-08"  =
+  IMPORTS GeometryCHLV95_V1,CHAdminCodes_V1,Units,ExceptionalLoadsCatalogues_V1;
+
+  TOPIC ExceptionalLoad =
+    DEPENDS ON ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue;
+
+    CLASS Obstacle =
+      Geometry : MANDATORY GeometryCHLV95_V1.Coord3;
+      Description : TEXT*100;
+      RestrictWidth : 0.00 .. 100.00 [INTERLIS.m];
+      RestrictClearance : 0.00 .. 100.00 [INTERLIS.m];
+      RestrictTotalWeight : 0 .. 1000 [Units.t];
+      RestrictAxisLoad : 0 .. 1000 [Units.t];
+    END Obstacle;
+
+    CLASS Route =
+      Identifier : MANDATORY TEXT*50;
+      Canton : MANDATORY CHAdminCodes_V1.CHCantonCode;
+      Geometry : MANDATORY GeometryCHLV95_V1.LineWithAltitude;
+      TypeOfRoute : MANDATORY ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRouteRef;
+      UNIQUE Identifier, Canton;
+    END Route;
+
+    ASSOCIATION RouteObstacleRef =
+      rObstacle -- {0..*} Obstacle;
+      rRoute -<#> {1} Route;
+    END RouteObstacleRef;
+
+  END ExceptionalLoad;
+
+END ExceptionalLoadsRoute_LV95_V1.
