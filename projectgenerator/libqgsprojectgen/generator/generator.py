@@ -184,10 +184,6 @@ class Generator:
                         relation.name = record['constraint_name']
                         relations.append(relation)
 
-                        with open('/tmp/txt.txt', 'a') as f:
-                            f.write('Creating relation between {}({}) and {}({})\n'.format(referenced_layer.name, referenced_layer.geometry_column,
-                                                                                 referencing_layer.name, referencing_layer.geometry_column))
-
         # TODO: Remove these 3 lines when
         # https://github.com/claeis/ili2db/issues/19 is solved!
         domain_relations_generator = DomainRelationGenerator(
