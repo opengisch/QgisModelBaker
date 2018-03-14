@@ -67,7 +67,7 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                index = get_suggested_index_for_layer(layer) if layer.isSpatial() else 0
+                index = get_suggested_index_for_layer(layer, group) if layer.isSpatial() else 0
                 group.insertLayer(index, layer)
 
     def is_empty(self):
