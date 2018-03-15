@@ -29,14 +29,14 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 class Project(QObject):
     layer_added = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, auto_transaction=True, evaluate_default_values=True):
         QObject.__init__(self)
         self.crs = None
         self.name = 'Not set'
         self.layers = List[Layer]
         self.legend = LegendGroup()
-        self.auto_transaction = True
-        self.evaluate_default_values = True
+        self.auto_transaction = auto_transaction
+        self.evaluate_default_values = evaluate_default_values
         self.relations = List[Relation]
 
     def add_layer(self, layer):

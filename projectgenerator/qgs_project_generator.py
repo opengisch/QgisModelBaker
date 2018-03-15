@@ -164,8 +164,8 @@ class QgsProjectGeneratorPlugin(QObject):
     def get_generator(self):
         return Generator
 
-    def create_project(self, layers, relations, legend):
-        project = Project()
+    def create_project(self, layers, relations, legend, auto_transaction=True, evaluate_default_values=True):
+        project = Project(auto_transaction, evaluate_default_values)
         project.layers = layers
         project.relations = relations
         project.legend = legend
