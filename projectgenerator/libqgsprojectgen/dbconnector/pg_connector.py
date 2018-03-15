@@ -59,7 +59,10 @@ class PGConnector(DBConnector):
                         FROM pg_catalog.pg_tables
                         WHERE schemaname = '{}' and tablename = '{}'
             """.format(self.schema, PG_METADATA_TABLE))
-        return bool(cur.fetchone()[0])
+
+            return bool(cur.fetchone()[0])
+
+        return False
 
     def get_tables_info(self):
         is_domain_field = ''
