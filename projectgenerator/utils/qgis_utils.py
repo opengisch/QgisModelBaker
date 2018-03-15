@@ -24,7 +24,11 @@ layer_order = [QgsWkbTypes.PointGeometry,
                QgsWkbTypes.PolygonGeometry,
                QgsWkbTypes.UnknownGeometry]
 
-def get_first_index_for_geometry_type(geometry_type, group=QgsProject.instance().layerTreeRoot()):
+def get_first_index_for_geometry_type(geometry_type, group):
+    """
+    Finds the first index (from top to botton) in the layer tree where a
+    specific layer type is found. This function works only for the given group.
+    """
     tree_nodes = group.children()
 
     for current, tree_node in enumerate(tree_nodes):
@@ -39,9 +43,16 @@ def get_first_index_for_geometry_type(geometry_type, group=QgsProject.instance()
 
     return None
 
-def get_suggested_index_for_layer(layer):
+def get_suggested_index_for_layer(layer, group):
+    """
+    Returns the index where a layer can be inserted, taking other layer types
+    into account. For instance, if a line layer is given, this function will
+    return the index of the first line layer in the layer tree, and if there are
+    no line layers in it, it will continue with the first index of polygons or
+    groups. Always following the order given in the global layer_order variable.
+    """
     for geometry_type in layer_order[layer_order.index(layer.geometryType()):]: # slice from current until last
-        index = get_first_index_for_geometry_type(geometry_type)
+        index = get_first_index_for_geometry_type(geometry_type, group)
         if index is not None:
             break
 

@@ -267,7 +267,6 @@ class Generator:
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
 
-
 class DomainRelationGenerator:
     """TODO: remove when ili2db issue #19 is solved"""
 
