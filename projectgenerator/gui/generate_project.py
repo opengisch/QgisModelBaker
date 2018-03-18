@@ -234,9 +234,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.progress_bar.hide()
                     return
 
-                configuration.schema = configuration.schema or configuration.database
+            configuration.schema = configuration.schema or configuration.database
 
-            print(configuration.tool_name, configuration.uri, configuration)
             try:
                 generator = Generator(configuration.tool_name, configuration.uri,
                                       configuration.inheritance, configuration.schema)

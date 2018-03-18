@@ -69,7 +69,7 @@ class PGConnector(DBConnector):
         alias_left_join = ''
 
         if self.schema:
-            if self._bMetadataTable:
+            if self.metadata_exists():
                 is_domain_field = "p.setting AS is_domain,"
                 table_alias = "alias.setting AS table_alias,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
@@ -94,7 +94,7 @@ class PGConnector(DBConnector):
                       format_type(ga.atttypid, ga.atttypmod) as formatted_type
                     FROM pg_catalog.pg_tables tbls
                     LEFT JOIN pg_index i
-                      ON i.indrelid = CONCAT(tbls.schemaname, '.', tbls.tablename)::regclass
+                      ON i.indrelid = CONCAT(tbls.schemaname, '."', tbls.tablename, '"')::regclass
                     LEFT JOIN pg_attribute a
                       ON a.attrelid = i.indrelid
                       AND a.attnum = ANY(i.indkey)
@@ -143,22 +143,51 @@ class PGConnector(DBConnector):
         # Get all fields for this table
         fields_cur = self.conn.cursor(
             cursor_factory=psycopg2.extras.DictCursor)
+
+        unit_field = ''
+        text_kind_field = ''
+        column_alias = ''
+        unit_join = ''
+        text_kind_join = ''
+        disp_name_join = ''
+
+        if self.schema:
+            if self.metadata_exists():
+                unit_field = "unit.setting AS unit,"
+                text_kind_field = "txttype.setting AS texttype,"
+                column_alias = "alias.setting AS column_alias,"
+                unit_join = """LEFT JOIN {}.t_ili2db_column_prop unit
+                                    ON c.table_name=unit.tablename AND
+                                    c.column_name=unit.columnname AND
+                                    unit.tag = 'ch.ehi.ili2db.unit'""".format(self.schema)
+                text_kind_join = """LEFT JOIN {}.t_ili2db_column_prop txttype
+                                        ON c.table_name=txttype.tablename AND
+                                        c.column_name=txttype.columnname AND
+                                        txttype.tag = 'ch.ehi.ili2db.textKind'""".format(self.schema)
+                disp_name_join = """LEFT JOIN {}.t_ili2db_column_prop alias
+                                        ON c.table_name=alias.tablename AND
+                                        c.column_name=alias.columnname AND
+                                        alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+
         fields_cur.execute("""
             SELECT
               c.column_name,
               c.data_type,
-              pgd.description AS comment,
-              unit.setting AS unit,
-              txttype.setting AS texttype,
-              alias.setting AS column_alias
+              {unit_field}
+              {text_kind_field}
+              {column_alias}
+              pgd.description AS comment
             FROM pg_catalog.pg_statio_all_tables st
             LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
             LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-            LEFT JOIN {schema}.t_ili2db_column_prop unit ON c.table_name=unit.tablename AND c.column_name=unit.columnname AND unit.tag = 'ch.ehi.ili2db.unit'
-            LEFT JOIN {schema}.t_ili2db_column_prop txttype ON c.table_name=txttype.tablename AND c.column_name=txttype.columnname AND txttype.tag = 'ch.ehi.ili2db.textKind'
-            LEFT JOIN {schema}.t_ili2db_column_prop alias ON c.table_name=alias.tablename AND c.column_name=alias.columnname AND alias.tag = 'ch.ehi.ili2db.dispName'
-            WHERE st.relid = '{schema}.{table}'::regclass;
-            """.format(schema=self.schema, table=table_name))
+            {unit_join}
+            {text_kind_join}
+            {disp_name_join}
+            WHERE st.relid = '{schema}."{table}"'::regclass;
+            """.format(schema=self.schema, table=table_name, unit_field=unit_field,
+                        text_kind_field=text_kind_field, column_alias=column_alias,
+                        unit_join=unit_join, text_kind_join=text_kind_join,
+                        disp_name_join=disp_name_join))
 
         return fields_cur
 
@@ -171,7 +200,7 @@ class PGConnector(DBConnector):
               consrc,
               regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
             FROM pg_constraint
-            WHERE conrelid = '{schema}.{table}'::regclass
+            WHERE conrelid = '{schema}."{table}"'::regclass
             AND contype = 'c'
             """.format(schema=self.schema, table=table_name))
 
