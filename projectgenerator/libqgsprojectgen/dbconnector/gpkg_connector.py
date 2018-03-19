@@ -59,19 +59,33 @@ class GPKGConnector(DBConnector):
 
     def _get_tables_info(self):
         cursor = self.conn.cursor()
+        interlis_fields = ''
+        interlis_joins = ''
+
+        if self.metadata_exists():
+            interlis_fields = """p.setting AS is_domain,
+                alias.setting AS table_alias,"""
+            interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
+                   ON p.tablename = s.name
+                      AND p.tag = 'ch.ehi.ili2db.tableKind'
+                LEFT JOIN t_ili2db_table_prop alias
+                   ON alias.tablename = s.name
+                      AND alias.tag = 'ch.ehi.ili2db.dispName'"""
+
         cursor.execute("""
-            SELECT NULL AS schemaname, s.name AS tablename, NULL AS primary_key, g.column_name AS geometry_column, g.srs_id AS srid, g.geometry_type_name AS type, p.setting AS is_domain, alias.setting AS table_alias
+            SELECT NULL AS schemaname,
+                s.name AS tablename,
+                NULL AS primary_key,
+                g.column_name AS geometry_column,
+                g.srs_id AS srid,
+                {interlis_fields}
+                g.geometry_type_name AS type
             FROM sqlite_master s
             LEFT JOIN gpkg_geometry_columns g
                ON g.table_name = s.name
-            LEFT JOIN T_ILI2DB_TABLE_PROP p
-               ON p.tablename = s.name
-                  AND p.tag = 'ch.ehi.ili2db.tableKind'
-            LEFT JOIN t_ili2db_table_prop alias
-               ON alias.tablename = s.name
-                  AND alias.tag = 'ch.ehi.ili2db.dispName'
+            {interlis_joins}
             WHERE s.type='table';
-                       """)
+        """.format(interlis_fields=interlis_fields, interlis_joins=interlis_joins))
         records = cursor.fetchall()
 
         # Get pk info and update each record storing it in a list of dicts
@@ -100,12 +114,15 @@ class GPKGConnector(DBConnector):
         cursor.execute("PRAGMA table_info({});".format(table_name))
         columns_info = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT *
-            FROM t_ili2db_column_prop
-            WHERE tablename = '{}'
-            """.format(table_name))
-        columns_prop = cursor.fetchall()
+        columns_prop = list()
+
+        if self.metadata_exists():
+            cursor.execute("""
+                SELECT *
+                FROM t_ili2db_column_prop
+                WHERE tablename = '{}'
+                """.format(table_name))
+            columns_prop = cursor.fetchall()
 
         complete_records = list()
         for column_info in columns_info:

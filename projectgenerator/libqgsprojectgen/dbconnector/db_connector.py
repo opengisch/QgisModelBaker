@@ -36,7 +36,9 @@ class DBConnector:
         return False
 
     def metadata_exists(self):
-        '''Whether t_ili2db_table_prop table exists or not.'''
+        '''Whether t_ili2db_table_prop table exists or not.
+        In other words... Does the DB/Schema hold an Interlis model?
+        '''
         return False
 
     def get_tables_info(self):
