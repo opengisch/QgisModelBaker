@@ -237,6 +237,9 @@ class Generator:
 
         return legend
 
+    def db_or_schema_exists(self):
+        return self._db_connector.db_or_schema_exists()
+
     def _metadata_exists(self):
         return self._db_connector.metadata_exists()
 

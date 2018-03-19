@@ -47,6 +47,17 @@ class PGConnector(DBConnector):
 
         return data_type.lower()
 
+    def db_or_schema_exists(self):
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '{}');
+            """.format(self.schema))
+
+            return bool(cur.fetchone()[0])
+
+        return False
+
     def metadata_exists(self):
         return self._bMetadataTable
 

@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 import re
 import sqlite3
 import qgis.utils
@@ -30,6 +31,7 @@ class GPKGConnector(DBConnector):
         DBConnector.__init__(self, uri, schema)
         self.conn = qgis.utils.spatialite_connect(uri)
         self.conn.row_factory = sqlite3.Row
+        self.uri = uri
         self._bMetadataTable = self._metadata_exists()
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
@@ -37,6 +39,9 @@ class GPKGConnector(DBConnector):
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
         return data_type.lower()
+
+    def db_or_schema_exists(self):
+        return os.path.isfile(self.uri)
 
     def metadata_exists(self):
         return self._bMetadataTable

@@ -166,40 +166,41 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
-                        self.tr('Please set a valid INTERLIS model before creating the project.'))
+                        self.tr('\n\nPlease set a valid INTERLIS model before creating the project.'))
                     self.ili_models_line_edit.setFocus()
                     return
 
             if self.ili_file_line_edit.text().strip() and \
                     self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file before creating the project.'))
+                    self.tr('\n\nPlease set a valid INTERLIS file before creating the project.'))
                 self.ili_file_line_edit.setFocus()
                 return
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             if not configuration.host:
                 self.txtStdout.setText(
-                    self.tr('Please set a host before creating the project.'))
+                    self.tr('\n\nPlease set a host before creating the project.'))
                 self.pg_host_line_edit.setFocus()
                 return
             if not configuration.database:
                 self.txtStdout.setText(
-                    self.tr('Please set a database before creating the project.'))
+                    self.tr('\n\nPlease set a database before creating the project.'))
                 self.pg_database_line_edit.setFocus()
                 return
             if not configuration.user:
                 self.txtStdout.setText(
-                    self.tr('Please set a database user before creating the project.'))
+                    self.tr('\n\nPlease set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set a valid database file before creating the project.'))
+                    self.tr('\n\nPlease set a valid database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
 
+        configuration.schema = configuration.schema or configuration.database
         self.save_configuration(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
@@ -229,12 +230,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.txtStdout.setTextColor(QColor('#000000'))
                     self.txtStdout.clear()
                     self.txtStdout.setText(self.tr(
-                        'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                        '\n\nJava could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                     self.enable()
                     self.progress_bar.hide()
                     return
-
-            configuration.schema = configuration.schema or configuration.database
 
             try:
                 generator = Generator(configuration.tool_name, configuration.uri,
@@ -242,9 +241,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.progress_bar.setValue(50)
             except OperationalError:
                 self.txtStdout.setText(
-                    self.tr('There was an error connecting to the database. Check connection parameters.'))
+                    self.tr('\n\nThere was an error connecting to the database. Check connection parameters.'))
+                self.enable()
                 self.progress_bar.hide()
                 return
+
+            if self.type_combo_box.currentData() in ['pg', 'gpkg']:
+                if not generator.db_or_schema_exists():
+                    self.txtStdout.setText(
+                        self.tr('\n\nSource {} does not exist. Check connection parameters.').format(
+                            'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                        ))
+                    self.enable()
+                    self.progress_bar.hide()
+                    return
 
             self.print_info(self.tr('\nObtaining available layers from the database...'))
             available_layers = generator.layers()
