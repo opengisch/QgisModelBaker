@@ -258,6 +258,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.print_info(self.tr('\nObtaining available layers from the database...'))
             available_layers = generator.layers()
+
+            if not available_layers:
+                self.txtStdout.setText(
+                    self.tr('\n\nThe {} has no layers to load into QGIS.').format(
+                        'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                    ))
+                self.enable()
+                self.progress_bar.hide()
+                return
+
             self.progress_bar.setValue(70)
             self.print_info(self.tr('Obtaining relations from the database...'))
             relations = generator.relations(available_layers)
