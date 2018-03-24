@@ -131,7 +131,7 @@ class Generator:
                     # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
                     if 'unit' in fielddef:
                         field.alias = '{alias} [{unit}]'.format(
-                            alias=alias, unit=fielddef['unit'])
+                            alias=alias or column_name, unit=fielddef['unit'])
 
                 if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
                     field.widget = 'TextEdit'
