@@ -58,14 +58,69 @@ class TestProjectGen(unittest.TestCase):
     def test_postgres_db_with_empty_schema(self):
         generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', 'empty_schema')
         cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""
-        CREATE SCHEMA IF NOT EXISTS empty_schema;
-        """)
+        cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
         self.assertEqual(len(generator.layers()), 0)
 
-    def test_postgres_db_with_not_empty_and_not_interlis_schema(self):
-        pass
+        cur.execute("DROP SCHEMA empty_schema CASCADE;")
+
+    def test_postgis_db_with_no_empty_and_no_interlis_schema(self):
+        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1',
+                              'no_interlis_schema')
+        cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
+        cur.execute("""
+        CREATE TABLE no_interlis_schema.point (
+            id serial NOT NULL,
+            name text,
+            geometry geometry(POLYGON, 4326) NOT NULL,
+            CONSTRAINT point_id_pkey PRIMARY KEY (id)
+        );
+        CREATE TABLE no_interlis_schema.region (
+            id serial NOT NULL,
+            name text,
+            geometry geometry(POLYGON, 4326) NOT NULL,
+            id_point integer,
+            CONSTRAINT region_id_pkey PRIMARY KEY (id)
+        );
+        """)
+        cur.execute("""
+        ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+        REFERENCES no_interlis_schema.point (id) MATCH FULL
+        ON DELETE SET NULL ON UPDATE CASCADE;
+        """)
+
+        self.assertEqual(len(generator.layers()), 2)
+
+        cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
+
+    def test_postgres_db_with_no_empty_and_no_interlis_schema(self):
+        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1',
+                              'no_interlis_schema')
+        cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
+        cur.execute("""
+                CREATE TABLE no_interlis_schema.point (
+                    id serial NOT NULL,
+                    name text,
+                    CONSTRAINT point_id_pkey PRIMARY KEY (id)
+                );
+                CREATE TABLE no_interlis_schema.region (
+                    id serial NOT NULL,
+                    name text,
+                    id_point integer,
+                    CONSTRAINT region_id_pkey PRIMARY KEY (id)
+                );
+                """)
+        cur.execute("""
+                ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                REFERENCES no_interlis_schema.point (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE;
+                """)
+
+        self.assertEqual(len(generator.layers()), 0)
+
+        cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
 
     def test_empty_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_empty.gpkg'), 'smart2')
