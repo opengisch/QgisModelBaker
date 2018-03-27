@@ -72,21 +72,25 @@ class GPKGConnector(DBConnector):
                    ON alias.tablename = s.name
                       AND alias.tag = 'ch.ehi.ili2db.dispName'"""
 
-        cursor.execute("""
-            SELECT NULL AS schemaname,
-                s.name AS tablename,
-                NULL AS primary_key,
-                g.column_name AS geometry_column,
-                g.srs_id AS srid,
-                {interlis_fields}
-                g.geometry_type_name AS type
-            FROM sqlite_master s
-            LEFT JOIN gpkg_geometry_columns g
-               ON g.table_name = s.name
-            {interlis_joins}
-            WHERE s.type='table';
-        """.format(interlis_fields=interlis_fields, interlis_joins=interlis_joins))
-        records = cursor.fetchall()
+        try:
+            cursor.execute("""
+                SELECT NULL AS schemaname,
+                    s.name AS tablename,
+                    NULL AS primary_key,
+                    g.column_name AS geometry_column,
+                    g.srs_id AS srid,
+                    {interlis_fields}
+                    g.geometry_type_name AS type
+                FROM sqlite_master s
+                LEFT JOIN gpkg_geometry_columns g
+                   ON g.table_name = s.name
+                {interlis_joins}
+                WHERE s.type='table';
+            """.format(interlis_fields=interlis_fields, interlis_joins=interlis_joins))
+            records = cursor.fetchall()
+        except sqlite3.OperationalError as e:
+            # If the geopackage is empty, geometry_columns table does not exist
+            return []
 
         # Get pk info and update each record storing it in a list of dicts
         complete_records = list()
