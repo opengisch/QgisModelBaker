@@ -73,13 +73,14 @@ class PGConnector(DBConnector):
         return bool(cur.fetchone()[0])
 
     def get_tables_info(self):
-        is_domain_field = ''
-        domain_left_join = ''
-        schema_where = ''
-        table_alias = ''
-        alias_left_join = ''
-
         if self.schema:
+            is_domain_field = ''
+            domain_left_join = ''
+            schema_where = ''
+            table_alias = ''
+            alias_left_join = ''
+
+
             if self.metadata_exists():
                 is_domain_field = "p.setting AS is_domain,"
                 table_alias = "alias.setting AS table_alias,"
@@ -91,38 +92,40 @@ class PGConnector(DBConnector):
                               AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""
-                    SELECT
-                      tbls.schemaname AS schemaname,
-                      tbls.tablename AS tablename,
-                      a.attname AS primary_key,
-                      g.f_geometry_column AS geometry_column,
-                      g.srid AS srid,
-                      {is_domain_field}
-                      {table_alias}
-                      g.type AS simple_type,
-                      format_type(ga.atttypid, ga.atttypmod) as formatted_type
-                    FROM pg_catalog.pg_tables tbls
-                    LEFT JOIN pg_index i
-                      ON i.indrelid = CONCAT(tbls.schemaname, '."', tbls.tablename, '"')::regclass
-                    LEFT JOIN pg_attribute a
-                      ON a.attrelid = i.indrelid
-                      AND a.attnum = ANY(i.indkey)
-                    {domain_left_join}
-                    {alias_left_join}
-                    LEFT JOIN public.geometry_columns g
-                      ON g.f_table_schema = tbls.schemaname
-                      AND g.f_table_name = tbls.tablename
-                    LEFT JOIN pg_attribute ga
-                      ON ga.attrelid = i.indrelid
-                      AND ga.attname = g.f_geometry_column
-                    WHERE i.indisprimary {schema_where}
-        """.format(is_domain_field=is_domain_field, table_alias=table_alias,
-                   domain_left_join=domain_left_join, alias_left_join=alias_left_join,
-                   schema_where=schema_where))
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT
+                          tbls.schemaname AS schemaname,
+                          tbls.tablename AS tablename,
+                          a.attname AS primary_key,
+                          g.f_geometry_column AS geometry_column,
+                          g.srid AS srid,
+                          {is_domain_field}
+                          {table_alias}
+                          g.type AS simple_type,
+                          format_type(ga.atttypid, ga.atttypmod) as formatted_type
+                        FROM pg_catalog.pg_tables tbls
+                        LEFT JOIN pg_index i
+                          ON i.indrelid = CONCAT(tbls.schemaname, '."', tbls.tablename, '"')::regclass
+                        LEFT JOIN pg_attribute a
+                          ON a.attrelid = i.indrelid
+                          AND a.attnum = ANY(i.indkey)
+                        {domain_left_join}
+                        {alias_left_join}
+                        LEFT JOIN public.geometry_columns g
+                          ON g.f_table_schema = tbls.schemaname
+                          AND g.f_table_name = tbls.tablename
+                        LEFT JOIN pg_attribute ga
+                          ON ga.attrelid = i.indrelid
+                          AND ga.attname = g.f_geometry_column
+                        WHERE i.indisprimary {schema_where}
+            """.format(is_domain_field=is_domain_field, table_alias=table_alias,
+                       domain_left_join=domain_left_join, alias_left_join=alias_left_join,
+                       schema_where=schema_where))
 
-        return self._preprocess_table(cur)
+            return self._preprocess_table(cur)
+
+        return []
 
     def _preprocess_table(self, records):
         for record in records:
@@ -152,17 +155,18 @@ class PGConnector(DBConnector):
 
     def get_fields_info(self, table_name):
         # Get all fields for this table
-        fields_cur = self.conn.cursor(
-            cursor_factory=psycopg2.extras.DictCursor)
-
-        unit_field = ''
-        text_kind_field = ''
-        column_alias = ''
-        unit_join = ''
-        text_kind_join = ''
-        disp_name_join = ''
-
         if self.schema:
+            fields_cur = self.conn.cursor(
+                cursor_factory=psycopg2.extras.DictCursor)
+
+            unit_field = ''
+            text_kind_field = ''
+            column_alias = ''
+            unit_join = ''
+            text_kind_join = ''
+            disp_name_join = ''
+
+
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"
                 text_kind_field = "txttype.setting AS texttype,"
@@ -180,114 +184,134 @@ class PGConnector(DBConnector):
                                         c.column_name=alias.columnname AND
                                         alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
 
-        fields_cur.execute("""
-            SELECT
-              c.column_name,
-              c.data_type,
-              {unit_field}
-              {text_kind_field}
-              {column_alias}
-              pgd.description AS comment
-            FROM pg_catalog.pg_statio_all_tables st
-            LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
-            LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-            {unit_join}
-            {text_kind_join}
-            {disp_name_join}
-            WHERE st.relid = '{schema}."{table}"'::regclass;
-            """.format(schema=self.schema, table=table_name, unit_field=unit_field,
-                        text_kind_field=text_kind_field, column_alias=column_alias,
-                        unit_join=unit_join, text_kind_join=text_kind_join,
-                        disp_name_join=disp_name_join))
+            fields_cur.execute("""
+                SELECT
+                  c.column_name,
+                  c.data_type,
+                  {unit_field}
+                  {text_kind_field}
+                  {column_alias}
+                  pgd.description AS comment
+                FROM pg_catalog.pg_statio_all_tables st
+                LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
+                LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
+                {unit_join}
+                {text_kind_join}
+                {disp_name_join}
+                WHERE st.relid = '{schema}."{table}"'::regclass;
+                """.format(schema=self.schema, table=table_name, unit_field=unit_field,
+                            text_kind_field=text_kind_field, column_alias=column_alias,
+                            unit_join=unit_join, text_kind_join=text_kind_join,
+                            disp_name_join=disp_name_join))
 
-        return fields_cur
+            return fields_cur
+
+        return []
 
     def get_constraints_info(self, table_name):
         # Get all 'c'heck constraints for this table
-        constraints_cur = self.conn.cursor(
-            cursor_factory=psycopg2.extras.DictCursor)
-        constraints_cur.execute("""
-            SELECT
-              consrc,
-              regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
-            FROM pg_constraint
-            WHERE conrelid = '{schema}."{table}"'::regclass
-            AND contype = 'c'
-            """.format(schema=self.schema, table=table_name))
+        if self.schema:
+            constraints_cur = self.conn.cursor(
+                cursor_factory=psycopg2.extras.DictCursor)
+            constraints_cur.execute("""
+                SELECT
+                  consrc,
+                  regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
+                FROM pg_constraint
+                WHERE conrelid = '{schema}."{table}"'::regclass
+                AND contype = 'c'
+                """.format(schema=self.schema, table=table_name))
 
-        # Create a mapping in the form of
-        #
-        # fieldname: (min, max)
-        constraint_mapping = dict()
-        for constraint in constraints_cur:
-            constraint_mapping[constraint['check_details'][0]] = (
-                constraint['check_details'][1], constraint['check_details'][3])
+            # Create a mapping in the form of
+            #
+            # fieldname: (min, max)
+            constraint_mapping = dict()
+            for constraint in constraints_cur:
+                constraint_mapping[constraint['check_details'][0]] = (
+                    constraint['check_details'][1], constraint['check_details'][3])
 
-        return constraint_mapping
+            return constraint_mapping
+
+        return {}
 
     def get_relations_info(self, filter_layer_list=[]):
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
-            self.schema) if self.schema else ''
-        schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
-            self.schema) if self.schema else ''
-        filter_layer_where = ""
-        if filter_layer_list:
-            filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
+                self.schema) if self.schema else ''
+            schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
+                self.schema) if self.schema else ''
+            filter_layer_where = ""
+            if filter_layer_list:
+                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
 
-        cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION
-                        FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
-                        INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
-                        ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1} {filter_layer_where}
-                        INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2
-                          ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
-                          AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
-                        GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION
-                        ORDER BY KCU1.ORDINAL_POSITION
-                        """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where))
-        return cur
+            cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION
+                            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
+                            INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
+                            ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1} {filter_layer_where}
+                            INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2
+                              ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
+                              AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
+                            GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION
+                            ORDER BY KCU1.ORDINAL_POSITION
+                            """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where))
+            return cur
+
+        return []
 
     def get_domainili_domaindb_mapping(self, domains):
         """TODO: remove when ili2db issue #19 is solved"""
         # Map domain ili name with its correspondent pg name
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        domain_names = "'" + "','".join(domains) + "'"
-        cur.execute("""SELECT iliname, sqlname
-                        FROM {schema}.t_ili2db_classname
-                        WHERE sqlname IN ({domain_names})
-                    """.format(schema=self.schema, domain_names=domain_names))
-        return cur
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            domain_names = "'" + "','".join(domains) + "'"
+            cur.execute("""SELECT iliname, sqlname
+                            FROM {schema}.t_ili2db_classname
+                            WHERE sqlname IN ({domain_names})
+                        """.format(schema=self.schema, domain_names=domain_names))
+            return cur
+
+        return {}
 
     def get_models(self):
         """TODO: remove when ili2db issue #19 is solved"""
         # Get MODELS
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""SELECT modelname, content
-                       FROM {schema}.t_ili2db_model
-                    """.format(schema=self.schema))
-        return cur
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""SELECT modelname, content
+                           FROM {schema}.t_ili2db_model
+                        """.format(schema=self.schema))
+            return cur
+
+        return {}
 
     def get_classili_classdb_mapping(self, models_info, extended_classes):
         """TODO: remove when ili2db issue #19 is solved"""
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        class_names = "'" + \
-            "','".join(list(models_info.keys()) +
-                       list(extended_classes.keys())) + "'"
-        cur.execute("""SELECT *
-                       FROM {schema}.t_ili2db_classname
-                       WHERE iliname IN ({class_names})
-                    """.format(schema=self.schema, class_names=class_names))
-        return cur
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            class_names = "'" + \
+                "','".join(list(models_info.keys()) +
+                           list(extended_classes.keys())) + "'"
+            cur.execute("""SELECT *
+                           FROM {schema}.t_ili2db_classname
+                           WHERE iliname IN ({class_names})
+                        """.format(schema=self.schema, class_names=class_names))
+            return cur
+
+        return {}
 
     def get_attrili_attrdb_mapping(self, models_info_with_ext):
         """TODO: remove when ili2db issue #19 is solved"""
-        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        all_attrs = list()
-        for c, dict_attr_domain in models_info_with_ext.items():
-            all_attrs.extend(list(dict_attr_domain.keys()))
-        attr_names = "'" + "','".join(all_attrs) + "'"
-        cur.execute("""SELECT iliname, sqlname, owner
-                       FROM {schema}.t_ili2db_attrname
-                       WHERE iliname IN ({attr_names})
-                    """.format(schema=self.schema, attr_names=attr_names))
-        return cur
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            all_attrs = list()
+            for c, dict_attr_domain in models_info_with_ext.items():
+                all_attrs.extend(list(dict_attr_domain.keys()))
+            attr_names = "'" + "','".join(all_attrs) + "'"
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE iliname IN ({attr_names})
+                        """.format(schema=self.schema, attr_names=attr_names))
+            return cur
+
+        return {}
