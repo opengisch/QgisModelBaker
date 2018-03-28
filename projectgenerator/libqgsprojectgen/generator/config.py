@@ -55,3 +55,15 @@ IGNORED_FIELDNAMES = [
 READONLY_FIELDNAMES = [
     't_ili_tid'
 ]
+
+# Some GeoPckage clients might add tables that we need to ignore based on
+# prefix-suffix matches, here we define some known prefix-suffix pairs
+GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX = [{
+        'prefix': 'rtree_',
+        'suffix': ['_geometry','_geometry_node','_geometry_parent','_geometry_rowid']
+    },
+    {
+        'prefix': 'vgpkg_',
+        'suffix': []
+    }
+]

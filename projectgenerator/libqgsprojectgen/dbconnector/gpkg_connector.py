@@ -21,6 +21,7 @@ import re
 import sqlite3
 import qgis.utils
 from .db_connector import DBConnector
+from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 
@@ -92,9 +93,22 @@ class GPKGConnector(DBConnector):
             # If the geopackage is empty, geometry_columns table does not exist
             return []
 
+        # Use prefix-suffix pairs defined in config to filter out matching tables
+        filtered_records = records[:]
+        for prefix_suffix in GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX:
+            suffix_regexp = '(' + '|'.join(prefix_suffix['suffix'] ) + ')$' if prefix_suffix['suffix'] else ''
+            regexp = '{}[\W\w]+{}'.format(prefix_suffix['prefix'], suffix_regexp)
+
+            p = re.compile(regexp) # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
+            for record in records:
+                if p.match(record['tablename']):
+                    print("INFO: NOT including GPKG table... ", record['tablename'])
+                    if record in filtered_records:
+                        filtered_records.remove(record)
+
         # Get pk info and update each record storing it in a list of dicts
         complete_records = list()
-        for record in records:
+        for record in filtered_records:
             cursor.execute("""
                 PRAGMA table_info({})
                 """.format(record['tablename']))
