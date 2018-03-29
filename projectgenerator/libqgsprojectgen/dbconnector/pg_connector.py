@@ -83,7 +83,6 @@ class PGConnector(DBConnector):
             table_alias = ''
             alias_left_join = ''
 
-
             if self.metadata_exists():
                 is_domain_field = "p.setting AS is_domain,"
                 table_alias = "alias.setting AS table_alias,"
@@ -168,7 +167,6 @@ class PGConnector(DBConnector):
             unit_join = ''
             text_kind_join = ''
             disp_name_join = ''
-
 
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"

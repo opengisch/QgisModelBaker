@@ -2,10 +2,10 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 09/08/17
+        begin                : 28/03/18
         git sha              : :%H$
-        copyright            : (C) 2017 by OPENGIS.ch
-        email                : info@opengis.ch
+        copyright            : (C) 2018 by Jorge Useche
+        email                : naturalmentejorge@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -24,6 +24,7 @@ import shutil
 import tempfile
 import nose2
 import psycopg2
+import psycopg2.extras
 
 from projectgenerator.libqgsprojectgen.dataobjects import Project
 from projectgenerator.tests.utils import testdata_path
@@ -34,7 +35,7 @@ from projectgenerator.libqgsprojectgen.generator.generator import Generator
 start_app()
 
 
-class TestProjectGen(unittest.TestCase):
+class TestProjectGenGenericDatabases(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -45,7 +46,6 @@ class TestProjectGen(unittest.TestCase):
         generator = None
         try:
             generator = Generator('ili2pg', 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
-            self.assertFalse(True) # must be failed
         except psycopg2.OperationalError as e:
             # psycopg2.OperationalError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
@@ -56,78 +56,85 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(len(generator.layers()), 0)
 
     def test_postgres_db_with_empty_schema(self):
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', 'empty_schema')
-        cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        uri = 'dbname=gis user=docker password=docker host=postgres'
+        conn = psycopg2.connect(uri)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
+        generator = Generator('ili2pg', uri, 'smart1', 'empty_schema')
         self.assertEqual(len(generator.layers()), 0)
 
         cur.execute("DROP SCHEMA empty_schema CASCADE;")
 
-    def test_postgis_db_with_no_empty_and_no_interlis_schema(self):
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1',
-                              'no_interlis_schema')
-        cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    def test_postgis_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
+        uri = 'dbname=gis user=docker password=docker host=postgres'
+        conn = psycopg2.connect(uri)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
         cur.execute("""
-        CREATE TABLE no_interlis_schema.point (
-            id serial NOT NULL,
-            name text,
-            geometry geometry(POINT, 4326) NOT NULL,
-            CONSTRAINT point_id_pkey PRIMARY KEY (id)
-        );
-        CREATE TABLE no_interlis_schema.region (
-            id serial NOT NULL,
-            name text,
-            geometry geometry(POLYGON, 4326) NOT NULL,
-            id_point integer,
-            CONSTRAINT region_id_pkey PRIMARY KEY (id)
-        );
+            CREATE TABLE no_interlis_schema.point (
+                id serial NOT NULL,
+                name text,
+                geometry geometry(POINT, 4326) NOT NULL,
+                CONSTRAINT point_id_pkey PRIMARY KEY (id)
+            );
+            CREATE TABLE no_interlis_schema.region (
+                id serial NOT NULL,
+                name text,
+                geometry geometry(POLYGON, 4326) NOT NULL,
+                id_point integer,
+                CONSTRAINT region_id_pkey PRIMARY KEY (id)
+            );
         """)
         cur.execute("""
-        ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-        REFERENCES no_interlis_schema.point (id) MATCH FULL
-        ON DELETE SET NULL ON UPDATE CASCADE;
+            ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+            REFERENCES no_interlis_schema.point (id) MATCH FULL
+            ON DELETE SET NULL ON UPDATE CASCADE;
         """)
 
-        self.assertEqual(len(generator.layers()), 2)
+        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
+        layers = generator.layers()
+        self.assertEqual(len(layers), 2)
+        self.assertEqual(len(generator.relations(layers)), 1)
 
-        self.assertEqual(len(generator.relations(generator.layers())), 1)
-
-        for layer in generator.layers():
+        for layer in layers:
             self.assertIsNotNone(layer.geometry_column)
 
         cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
 
-    def test_postgres_db_with_no_empty_and_no_interlis_schema(self):
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1',
-                              'no_interlis_schema')
-        cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
+        uri = 'dbname=gis user=docker password=docker host=postgres'
+        conn = psycopg2.connect(uri)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
         cur.execute("""
-        CREATE TABLE no_interlis_schema.point (
-            id serial NOT NULL,
-            name text,
-            CONSTRAINT point_id_pkey PRIMARY KEY (id)
-        );
-        CREATE TABLE no_interlis_schema.region (
-            id serial NOT NULL,
-            name text,
-            id_point integer,
-            CONSTRAINT region_id_pkey PRIMARY KEY (id)
-        );
+            CREATE TABLE no_interlis_schema.point (
+                id serial NOT NULL,
+                name text,
+                CONSTRAINT point_id_pkey PRIMARY KEY (id)
+            );
+            CREATE TABLE no_interlis_schema.region (
+                id serial NOT NULL,
+                name text,
+                id_point integer,
+                CONSTRAINT region_id_pkey PRIMARY KEY (id)
+            );
         """)
         cur.execute("""
-        ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-        REFERENCES no_interlis_schema.point (id) MATCH FULL
-        ON DELETE SET NULL ON UPDATE CASCADE;
+            ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+            REFERENCES no_interlis_schema.point (id) MATCH FULL
+            ON DELETE SET NULL ON UPDATE CASCADE;
         """)
 
-        self.assertEqual(len(generator.layers()), 2)
+        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
+        layers = generator.layers()
 
-        self.assertEqual(len(generator.relations(generator.layers())), 1)
+        self.assertEqual(len(layers), 2)
+        self.assertEqual(len(generator.relations(layers), 1)
 
-        for layer in generator.layers():
+        for layer in layers:
             self.assertIsNone(layer.geometry_column)
 
         cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
@@ -136,11 +143,11 @@ class TestProjectGen(unittest.TestCase):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_empty.gpkg'), 'smart2')
         self.assertEqual(len(generator.layers()), 0)
 
-    def test_not_empty_ogr_geopackage_db(self):
+    def test_non_empty_ogr_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_ogr_empty.gpkg'), 'smart2')
         self.assertEqual(len(generator.layers()), 0)
 
-    def test_not_empty_geopackage_db(self):
+    def test_non_empty_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_relations.gpkg'), 'smart2')
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -152,15 +159,13 @@ class TestProjectGen(unittest.TestCase):
         project.legend = legend
         project.post_generate()
 
-        # https://qgis.org/api/classQgsProject.html
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        #self.assertEqual(len(project.layers), 10)
-        self.assertEqual(len(project.layers), 2)
-        self.assertEqual(len(project.relations), 1)
+        self.assertEqual(len(qgis_project.layers()), 2)
+        self.assertEqual(len(qgis_project.relationManager().relations()), 1)
 
-        for layer in generator.layers():
+        for layer in available_layers:
             self.assertIsNotNone(layer.geometry_column)
 
     @classmethod
