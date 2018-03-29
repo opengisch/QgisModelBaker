@@ -132,7 +132,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         layers = generator.layers()
 
         self.assertEqual(len(layers), 2)
-        self.assertEqual(len(generator.relations(layers), 1)
+        self.assertEqual(len(generator.relations(layers), 1))
 
         for layer in layers:
             self.assertIsNone(layer.geometry_column)
