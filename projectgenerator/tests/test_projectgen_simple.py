@@ -73,7 +73,7 @@ class TestProjectGen(unittest.TestCase):
         CREATE TABLE no_interlis_schema.point (
             id serial NOT NULL,
             name text,
-            geometry geometry(POLYGON, 4326) NOT NULL,
+            geometry geometry(POINT, 4326) NOT NULL,
             CONSTRAINT point_id_pkey PRIMARY KEY (id)
         );
         CREATE TABLE no_interlis_schema.region (
@@ -92,6 +92,11 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(len(generator.layers()), 2)
 
+        self.assertEqual(len(generator.relations(generator.layers())), 1)
+
+        for layer in generator.layers():
+            self.assertIsNotNone(layer.geometry_column)
+
         cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
 
     def test_postgres_db_with_no_empty_and_no_interlis_schema(self):
@@ -100,25 +105,30 @@ class TestProjectGen(unittest.TestCase):
         cur = generator._db_connector.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
         cur.execute("""
-                CREATE TABLE no_interlis_schema.point (
-                    id serial NOT NULL,
-                    name text,
-                    CONSTRAINT point_id_pkey PRIMARY KEY (id)
-                );
-                CREATE TABLE no_interlis_schema.region (
-                    id serial NOT NULL,
-                    name text,
-                    id_point integer,
-                    CONSTRAINT region_id_pkey PRIMARY KEY (id)
-                );
-                """)
+        CREATE TABLE no_interlis_schema.point (
+            id serial NOT NULL,
+            name text,
+            CONSTRAINT point_id_pkey PRIMARY KEY (id)
+        );
+        CREATE TABLE no_interlis_schema.region (
+            id serial NOT NULL,
+            name text,
+            id_point integer,
+            CONSTRAINT region_id_pkey PRIMARY KEY (id)
+        );
+        """)
         cur.execute("""
-                ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-                REFERENCES no_interlis_schema.point (id) MATCH FULL
-                ON DELETE SET NULL ON UPDATE CASCADE;
-                """)
+        ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+        REFERENCES no_interlis_schema.point (id) MATCH FULL
+        ON DELETE SET NULL ON UPDATE CASCADE;
+        """)
 
-        self.assertEqual(len(generator.layers()), 0)
+        self.assertEqual(len(generator.layers()), 2)
+
+        self.assertEqual(len(generator.relations(generator.layers())), 1)
+
+        for layer in generator.layers():
+            self.assertIsNone(layer.geometry_column)
 
         cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
 
@@ -145,8 +155,13 @@ class TestProjectGen(unittest.TestCase):
         # https://qgis.org/api/classQgsProject.html
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
-        self.assertEqual(len(project.layers), 10)
+
+        #self.assertEqual(len(project.layers), 10)
+        self.assertEqual(len(project.layers), 2)
         self.assertEqual(len(project.relations), 1)
+
+        for layer in generator.layers():
+            self.assertIsNotNone(layer.geometry_column)
 
     @classmethod
     def tearDownClass(cls):
