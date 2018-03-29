@@ -89,8 +89,7 @@ class Layer(object):
             for relation in project.relations:
                 if relation.referenced_layer == self:
                     tab = FormTab(relation.referencing_layer.name)
-                    widget = FormRelationWidget(
-                        relation.id, relation)
+                    widget = FormRelationWidget(relation)
                     tab.addChild(widget)
                     self.__form.add_element(tab)
         else:
