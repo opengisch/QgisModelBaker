@@ -90,7 +90,7 @@ class Layer(object):
                 if relation.referenced_layer == self:
                     tab = FormTab(relation.referencing_layer.name)
                     widget = FormRelationWidget(
-                        relation.referencing_layer.name, relation)
+                        relation.id, relation)
                     tab.addChild(widget)
                     self.__form.add_element(tab)
         else:
