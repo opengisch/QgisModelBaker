@@ -167,6 +167,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         project.post_generate()
 
         qgis_project = QgsProject.instance()
+        qgis_project.removeAllMapLayers()
         project.create(None, qgis_project)
 
         self.assertEqual(len(qgis_project.mapLayers()), 2)
