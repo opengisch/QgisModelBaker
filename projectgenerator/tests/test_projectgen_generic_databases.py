@@ -71,15 +71,15 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         conn = psycopg2.connect(uri)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
+        cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema_spatial;")
         cur.execute("""
-            CREATE TABLE no_interlis_schema.point (
+            CREATE TABLE no_interlis_schema_spatial.point (
                 id serial NOT NULL,
                 name text,
                 geometry geometry(POINT, 4326) NOT NULL,
                 CONSTRAINT point_id_pkey PRIMARY KEY (id)
             );
-            CREATE TABLE no_interlis_schema.region (
+            CREATE TABLE no_interlis_schema_spatial.region (
                 id serial NOT NULL,
                 name text,
                 geometry geometry(POLYGON, 4326) NOT NULL,
@@ -88,20 +88,24 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             );
         """)
         cur.execute("""
-            ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-            REFERENCES no_interlis_schema.point (id) MATCH FULL
+            ALTER TABLE no_interlis_schema_spatial.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+            REFERENCES no_interlis_schema_spatial.point (id) MATCH FULL
             ON DELETE SET NULL ON UPDATE CASCADE;
         """)
+        conn.commit()
 
-        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
+        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema_spatial')
         layers = generator.layers()
+
         self.assertEqual(len(layers), 2)
         self.assertEqual(len(generator.relations(layers)), 1)
 
         for layer in layers:
             self.assertIsNotNone(layer.geometry_column)
 
-        cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
+        cur.execute("DROP SCHEMA no_interlis_schema_spatial CASCADE;")
+        conn.commit()
+        cur.close()
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
@@ -127,17 +131,20 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             REFERENCES no_interlis_schema.point (id) MATCH FULL
             ON DELETE SET NULL ON UPDATE CASCADE;
         """)
+        conn.commit()
 
         generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
         layers = generator.layers()
 
         self.assertEqual(len(layers), 2)
-        self.assertEqual(len(generator.relations(layers), 1))
+        self.assertEqual(len(generator.relations(layers)), 1)
 
         for layer in layers:
             self.assertIsNone(layer.geometry_column)
 
         cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
+        conn.commit()
+        cur.close()
 
     def test_empty_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_empty.gpkg'), 'smart2')
@@ -162,7 +169,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(len(qgis_project.layers()), 2)
+        self.assertEqual(len(qgis_project.mapLayers()), 2)
         self.assertEqual(len(qgis_project.relationManager().relations()), 1)
 
         for layer in available_layers:
