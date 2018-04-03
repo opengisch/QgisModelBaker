@@ -42,6 +42,10 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
+    def setUp(self):
+        "Run before each test"
+        QgsProject.instance().clear()
+
     def test_empty_postgres_db(self):
         generator = None
         try:
@@ -167,7 +171,6 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         project.post_generate()
 
         qgis_project = QgsProject.instance()
-        qgis_project.removeAllMapLayers()
         project.create(None, qgis_project)
 
         self.assertEqual(len(qgis_project.mapLayers()), 2)
