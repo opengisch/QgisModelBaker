@@ -33,7 +33,7 @@ class DBConnector:
 
     def db_or_schema_exists(self):
         '''Whether the DB (for GPKG) or schema (for PG) exists or not.'''
-        return False
+        raise NotImplementedError
 
     def metadata_exists(self):
         '''Whether t_ili2db_table_prop table exists or not.
