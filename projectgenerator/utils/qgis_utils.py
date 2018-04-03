@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes
+from qgis.core import QgsLayerTreeNode, QgsProject, QgsWkbTypes
 
 layer_order = [QgsWkbTypes.PointGeometry,
                QgsWkbTypes.LineGeometry,

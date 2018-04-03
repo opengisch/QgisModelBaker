@@ -55,7 +55,7 @@ class GPKGConnector(DBConnector):
     def _get_tables_info(self):
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT NULL AS schemaname, s.name AS tablename, NULL AS primary_key, g.column_name AS geometry_column, g.srs_id AS srid, g.geometry_type_name AS type, p.setting AS is_domain, alias.setting AS table_alias
+            SELECT NULL AS schemaname, s.name AS tablename, NULL AS primary_key, g.column_name AS geometry_column, g.srs_id AS srid, g.geometry_type_name AS type, p.setting AS is_domain, alias.setting AS table_alias, substr(c.iliname, 0, instr(c.iliname, '.')) AS model
             FROM sqlite_master s
             LEFT JOIN gpkg_geometry_columns g
                ON g.table_name = s.name
@@ -65,6 +65,8 @@ class GPKGConnector(DBConnector):
             LEFT JOIN t_ili2db_table_prop alias
                ON alias.tablename = s.name
                   AND alias.tag = 'ch.ehi.ili2db.dispName'
+            LEFT JOIN t_ili2db_classname c
+               ON s.name == c.sqlname
             WHERE s.type='table';
                        """)
         records = cursor.fetchall()
