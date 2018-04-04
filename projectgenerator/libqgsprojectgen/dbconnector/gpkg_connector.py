@@ -65,13 +65,16 @@ class GPKGConnector(DBConnector):
 
         if self.metadata_exists():
             interlis_fields = """p.setting AS is_domain,
-                alias.setting AS table_alias,"""
+                alias.setting AS table_alias,
+                substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
                    ON p.tablename = s.name
                       AND p.tag = 'ch.ehi.ili2db.tableKind'
                 LEFT JOIN t_ili2db_table_prop alias
                    ON alias.tablename = s.name
-                      AND alias.tag = 'ch.ehi.ili2db.dispName'"""
+                      AND alias.tag = 'ch.ehi.ili2db.dispName'
+                LEFT JOIN t_ili2db_classname c
+                   ON s.name == c.sqlname """
 
         try:
             cursor.execute("""

@@ -96,11 +96,15 @@ class FormFieldWidget(object):
 
 class FormRelationWidget(object):
 
-    def __init__(self, name, relation):
-        self.name = name
+    def __init__(self, relation):
         self.relation = relation
 
     def create(self, parent, layer):
-        widget = QgsAttributeEditorRelation(
-            self.name, self.relation.id, parent)
+        try:
+            widget = QgsAttributeEditorRelation(
+               self.relation.id, parent)
+        except TypeError:
+            # Feed deprecated API for 3.0.0 and 3.0.1
+            widget = QgsAttributeEditorRelation(
+               self.relation.id, self.relation.id, parent)
         return widget

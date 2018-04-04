@@ -168,9 +168,17 @@ class FileValidator(QValidator):
         if self.allow_empty and not text.strip():
             return QValidator.Acceptable, text, pos
 
+        pattern_matches = False
+        if type(self.pattern) is str:
+            pattern_matches = fnmatch.fnmatch(text, self.pattern)
+        elif type(self.pattern) is list:
+            pattern_matches = True in (fnmatch.fnmatch(text, pattern) for pattern in self.pattern)
+        else:
+            raise TypeError('pattern must be str or list, not {}'.format(type(self.pattern)))
+
         if not text \
                 or (not self.allow_non_existing and not os.path.isfile(text)) \
-                or not fnmatch.fnmatch(text, self.pattern) \
+                or not pattern_matches \
                 or (self.is_executable and not os.access(text, os.X_OK)):
             return QValidator.Intermediate, text, pos
         else:

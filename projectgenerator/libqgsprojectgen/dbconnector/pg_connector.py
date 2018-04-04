@@ -82,16 +82,22 @@ class PGConnector(DBConnector):
             schema_where = ''
             table_alias = ''
             alias_left_join = ''
+            model_name = ''
+            model_where = ''
 
             if self.metadata_exists():
                 is_domain_field = "p.setting AS is_domain,"
                 table_alias = "alias.setting AS table_alias,"
+                model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
                               AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(self.schema)
                 alias_left_join = """LEFT JOIN {}.t_ili2db_table_prop alias
                               ON alias.tablename = tbls.tablename
                               AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+                model_where = """LEFT JOIN {}.t_ili2db_classname c
+                      ON tbls.tablename = c.sqlname""".format(self.schema)
+                
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -104,6 +110,7 @@ class PGConnector(DBConnector):
                           g.srid AS srid,
                           {is_domain_field}
                           {table_alias}
+                          {model_name}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
                         FROM pg_catalog.pg_tables tbls
@@ -114,6 +121,7 @@ class PGConnector(DBConnector):
                           AND a.attnum = ANY(i.indkey)
                         {domain_left_join}
                         {alias_left_join}
+                        {model_where}
                         LEFT JOIN public.geometry_columns g
                           ON g.f_table_schema = tbls.schemaname
                           AND g.f_table_name = tbls.tablename
@@ -122,13 +130,14 @@ class PGConnector(DBConnector):
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
             """.format(is_domain_field=is_domain_field, table_alias=table_alias,
-                       domain_left_join=domain_left_join, alias_left_join=alias_left_join,
+                       model_name=model_name, domain_left_join=domain_left_join,
+                       alias_left_join=alias_left_join, model_where=model_where,
                        schema_where=schema_where))
 
             return self._preprocess_table(cur)
 
         return []
-
+                    
     def _preprocess_table(self, records):
         for record in records:
             my_rec = {key: value for key, value in record.items()}

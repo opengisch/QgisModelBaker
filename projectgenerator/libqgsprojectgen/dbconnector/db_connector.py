@@ -57,6 +57,7 @@ class DBConnector:
                 type  (Geometry Type)
                 is_domain
                 table_alias
+                model
         '''
         return []
 

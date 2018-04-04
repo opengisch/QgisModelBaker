@@ -72,8 +72,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
-            make_file_selector(self.xtf_file_line_edit, title=self.tr('Open XTF Transfer File'),
-                               file_filter=self.tr('XTF Transfer File (*.xtf)')))
+            make_file_selector(self.xtf_file_line_edit, title=self.tr('Open Transfer or Catalog File'),
+                               file_filter=self.tr('Transfer File (*.xtf *.itf);;Catalogue File(*.xml *.xls *.xlsx)')))
         self.gpkg_file_browse_button.clicked.connect(
             make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Save in GeoPackage database file'),
                                     file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
@@ -93,7 +93,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
-        fileValidator = FileValidator(pattern='*.xtf')
+        fileValidator = FileValidator(pattern=['*.xtf', '*.itf', '*.pdf', '*.xml', '*.xls', '*.xlsx'])
         gpkgFileValidator = FileValidator(
             pattern='*.gpkg', allow_non_existing=True)
 
@@ -138,7 +138,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
             self.txtStdout.setText(
-                self.tr('Please set a valid INTERLIS XTF file before importing data.'))
+                self.tr('Please set a valid INTERLIS transfer or catalogue file before importing data.'))
             self.xtf_file_line_edit.setFocus()
             return
         if not configuration.ilimodels:
