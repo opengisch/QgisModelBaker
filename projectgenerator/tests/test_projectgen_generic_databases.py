@@ -66,9 +66,10 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
         generator = Generator('ili2pg', uri, 'smart1', 'empty_schema')
-        self.assertEqual(len(generator.layers()), 0)
-
-        cur.execute("DROP SCHEMA empty_schema CASCADE;")
+        try:
+            self.assertEqual(len(generator.layers()), 0)
+        finally:
+            cur.execute("DROP SCHEMA empty_schema CASCADE;")
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
@@ -101,15 +102,16 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema_spatial')
         layers = generator.layers()
 
-        self.assertEqual(len(layers), 2)
-        self.assertEqual(len(generator.relations(layers)), 1)
+        try:
+            self.assertEqual(len(layers), 2)
+            self.assertEqual(len(generator.relations(layers)), 1)
 
-        for layer in layers:
-            self.assertIsNotNone(layer.geometry_column)
-
-        cur.execute("DROP SCHEMA no_interlis_schema_spatial CASCADE;")
-        conn.commit()
-        cur.close()
+            for layer in layers:
+                self.assertIsNotNone(layer.geometry_column)
+        finally:
+            cur.execute("DROP SCHEMA no_interlis_schema_spatial CASCADE;")
+            conn.commit()
+            cur.close()
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
@@ -140,15 +142,16 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
         layers = generator.layers()
 
-        self.assertEqual(len(layers), 2)
-        self.assertEqual(len(generator.relations(layers)), 1)
+        try:
+            self.assertEqual(len(layers), 2)
+            self.assertEqual(len(generator.relations(layers)), 1)
 
-        for layer in layers:
-            self.assertIsNone(layer.geometry_column)
-
-        cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
-        conn.commit()
-        cur.close()
+            for layer in layers:
+                self.assertIsNone(layer.geometry_column)
+        finally:
+            cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
+            conn.commit()
+            cur.close()
 
     def test_empty_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_empty.gpkg'), 'smart2')
