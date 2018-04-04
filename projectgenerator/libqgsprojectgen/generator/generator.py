@@ -44,7 +44,7 @@ class Generator:
             self._db_connector = gpkg_connector.GPKGConnector(uri, None)
 
     def layers(self, filter_layer_list=[]):
-        tables_info = self._get_tables_info()
+        tables_info = self.get_tables_info()
         layers = list()
 
         for record in tables_info:
@@ -101,8 +101,8 @@ class Generator:
                           is_domain)
 
             # Configure fields for current table
-            fields_info = self._get_fields_info(record['tablename'])
-            constraints_info = self._get_constraints_info(record['tablename'])
+            fields_info = self.get_fields_info(record['tablename'])
+            constraints_info = self.get_constraints_info(record['tablename'])
             re_iliname = re.compile('^@iliname (.*)$')
 
             for fielddef in fields_info:
@@ -164,7 +164,7 @@ class Generator:
         return layers
 
     def relations(self, layers, filter_layer_list=[]):
-        relations_info = self._get_relations_info(filter_layer_list)
+        relations_info = self.get_relations_info(filter_layer_list)
         layer_map = dict()
         for layer in layers:
             if layer.name not in layer_map.keys():
@@ -234,19 +234,36 @@ class Generator:
 
         return legend
 
-    def _metadata_exists(self):
+    def metadata_exists(self):
         return self._db_connector.metadata_exists()
 
-    def _get_tables_info(self):
+    def get_tables_info(self):
         return self._db_connector.get_tables_info()
 
-    def _get_fields_info(self, table_name):
+    def get_fields_info(self, table_name):
         return self._db_connector.get_fields_info(table_name)
 
-    def _get_constraints_info(self, table_name):
+    def get_tables_info_without_ignored_tables(self):
+        tables_info = self.get_tables_info()
+        new_tables_info = []
+        for record in tables_info:
+            if self.schema:
+                if record['schemaname'] != self.schema:
+                    continue
+            elif record['schemaname'] in IGNORED_SCHEMAS:
+                continue
+
+            if record['tablename'] in IGNORED_TABLES:
+                continue
+
+            new_tables_info.append(record)
+
+        return new_tables_info
+
+    def get_constraints_info(self, table_name):
         return self._db_connector.get_constraints_info(table_name)
 
-    def _get_relations_info(self, filter_layer_list=[]):
+    def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
 
 
