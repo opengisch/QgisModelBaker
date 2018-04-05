@@ -65,8 +65,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
-        generator = Generator('ili2pg', uri, 'smart1', 'empty_schema')
         try:
+            generator = Generator('ili2pg', uri, 'smart1', 'empty_schema')
             self.assertEqual(len(generator.layers()), 0)
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
@@ -77,32 +77,32 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema_spatial;")
-        cur.execute("""
-            CREATE TABLE no_interlis_schema_spatial.point (
-                id serial NOT NULL,
-                name text,
-                geometry geometry(POINT, 4326) NOT NULL,
-                CONSTRAINT point_id_pkey PRIMARY KEY (id)
-            );
-            CREATE TABLE no_interlis_schema_spatial.region (
-                id serial NOT NULL,
-                name text,
-                geometry geometry(POLYGON, 4326) NOT NULL,
-                id_point integer,
-                CONSTRAINT region_id_pkey PRIMARY KEY (id)
-            );
-        """)
-        cur.execute("""
-            ALTER TABLE no_interlis_schema_spatial.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-            REFERENCES no_interlis_schema_spatial.point (id) MATCH FULL
-            ON DELETE SET NULL ON UPDATE CASCADE;
-        """)
-        conn.commit()
-
-        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema_spatial')
-        layers = generator.layers()
-
         try:
+            cur.execute("""
+                CREATE TABLE no_interlis_schema_spatial.point (
+                    id serial NOT NULL,
+                    name text,
+                    geometry geometry(POINT, 4326) NOT NULL,
+                    CONSTRAINT point_id_pkey PRIMARY KEY (id)
+                );
+                CREATE TABLE no_interlis_schema_spatial.region (
+                    id serial NOT NULL,
+                    name text,
+                    geometry geometry(POLYGON, 4326) NOT NULL,
+                    id_point integer,
+                    CONSTRAINT region_id_pkey PRIMARY KEY (id)
+                );
+            """)
+            cur.execute("""
+                ALTER TABLE no_interlis_schema_spatial.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                REFERENCES no_interlis_schema_spatial.point (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE;
+            """)
+            conn.commit()
+
+            generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema_spatial')
+            layers = generator.layers()
+
             self.assertEqual(len(layers), 2)
             self.assertEqual(len(generator.relations(layers)), 1)
 
@@ -119,30 +119,30 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
-        cur.execute("""
-            CREATE TABLE no_interlis_schema.point (
-                id serial NOT NULL,
-                name text,
-                CONSTRAINT point_id_pkey PRIMARY KEY (id)
-            );
-            CREATE TABLE no_interlis_schema.region (
-                id serial NOT NULL,
-                name text,
-                id_point integer,
-                CONSTRAINT region_id_pkey PRIMARY KEY (id)
-            );
-        """)
-        cur.execute("""
-            ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
-            REFERENCES no_interlis_schema.point (id) MATCH FULL
-            ON DELETE SET NULL ON UPDATE CASCADE;
-        """)
-        conn.commit()
-
-        generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
-        layers = generator.layers()
-
         try:
+            cur.execute("""
+                CREATE TABLE no_interlis_schema.point (
+                    id serial NOT NULL,
+                    name text,
+                    CONSTRAINT point_id_pkey PRIMARY KEY (id)
+                );
+                CREATE TABLE no_interlis_schema.region (
+                    id serial NOT NULL,
+                    name text,
+                    id_point integer,
+                    CONSTRAINT region_id_pkey PRIMARY KEY (id)
+                );
+            """)
+            cur.execute("""
+                ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                REFERENCES no_interlis_schema.point (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE;
+            """)
+            conn.commit()
+
+            generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
+            layers = generator.layers()
+
             self.assertEqual(len(layers), 2)
             self.assertEqual(len(generator.relations(layers)), 1)
 
