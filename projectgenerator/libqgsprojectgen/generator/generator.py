@@ -109,7 +109,10 @@ class Generator:
                 column_name = fielddef['column_name']
                 comment = fielddef['comment']
                 m = re_iliname.match(comment) if comment else None
-                alias = fielddef['column_alias']
+
+                alias = None
+                if 'column_alias' in fielddef:
+                    alias = fielddef['column_alias']
                 if m and not alias:
                     alias = m.group(1)
 
@@ -233,6 +236,9 @@ class Generator:
             legend.append(domains)
 
         return legend
+
+    def db_or_schema_exists(self):
+        return self._db_connector.db_or_schema_exists()
 
     def metadata_exists(self):
         return self._db_connector.metadata_exists()

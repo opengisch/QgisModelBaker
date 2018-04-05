@@ -31,8 +31,14 @@ class DBConnector:
         '''Map provider date/time types to QGIS date/time types'''
         return None
 
+    def db_or_schema_exists(self):
+        '''Whether the DB (for GPKG) or schema (for PG) exists or not.'''
+        raise NotImplementedError
+
     def metadata_exists(self):
-        '''Whether t_ili2db_table_prop table exists or not.'''
+        '''Whether t_ili2db_table_prop table exists or not.
+        In other words... Does the DB/Schema hold an Interlis model?
+        '''
         return False
 
     def get_tables_info(self):

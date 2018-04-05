@@ -200,6 +200,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.gpkg_file_line_edit.setFocus()
                 return
 
+        configuration.schema = configuration.schema or configuration.database
         self.save_configuration(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
@@ -234,9 +235,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.progress_bar.hide()
                     return
 
-                configuration.schema = configuration.schema or configuration.database
-
-            print(configuration.tool_name, configuration.uri, configuration)
             try:
                 generator = Generator(configuration.tool_name, configuration.uri,
                                       configuration.inheritance, configuration.schema)
@@ -244,11 +242,32 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             except OperationalError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
+                self.enable()
                 self.progress_bar.hide()
                 return
 
+            if self.type_combo_box.currentData() in ['pg', 'gpkg']:
+                if not generator.db_or_schema_exists():
+                    self.txtStdout.setText(
+                        self.tr('Source {} does not exist. Check connection parameters.').format(
+                            'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                        ))
+                    self.enable()
+                    self.progress_bar.hide()
+                    return
+
             self.print_info(self.tr('\nObtaining available layers from the database...'))
             available_layers = generator.layers()
+
+            if not available_layers:
+                self.txtStdout.setText(
+                    self.tr('The {} has no layers to load into QGIS.').format(
+                        'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                    ))
+                self.enable()
+                self.progress_bar.hide()
+                return
+
             self.progress_bar.setValue(70)
             self.print_info(self.tr('Obtaining relations from the database...'))
             relations = generator.relations(available_layers)

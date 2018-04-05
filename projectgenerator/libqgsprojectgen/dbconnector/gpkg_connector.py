@@ -16,10 +16,12 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 import re
 import sqlite3
 import qgis.utils
 from .db_connector import DBConnector
+from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 
@@ -30,6 +32,7 @@ class GPKGConnector(DBConnector):
         DBConnector.__init__(self, uri, schema)
         self.conn = qgis.utils.spatialite_connect(uri)
         self.conn.row_factory = sqlite3.Row
+        self.uri = uri
         self._bMetadataTable = self._metadata_exists()
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
@@ -37,6 +40,9 @@ class GPKGConnector(DBConnector):
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
         return data_type.lower()
+
+    def db_or_schema_exists(self):
+        return os.path.isfile(self.uri)
 
     def metadata_exists(self):
         return self._bMetadataTable
@@ -54,26 +60,58 @@ class GPKGConnector(DBConnector):
 
     def _get_tables_info(self):
         cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT NULL AS schemaname, s.name AS tablename, NULL AS primary_key, g.column_name AS geometry_column, g.srs_id AS srid, g.geometry_type_name AS type, p.setting AS is_domain, alias.setting AS table_alias, substr(c.iliname, 0, instr(c.iliname, '.')) AS model
-            FROM sqlite_master s
-            LEFT JOIN gpkg_geometry_columns g
-               ON g.table_name = s.name
-            LEFT JOIN T_ILI2DB_TABLE_PROP p
-               ON p.tablename = s.name
-                  AND p.tag = 'ch.ehi.ili2db.tableKind'
-            LEFT JOIN t_ili2db_table_prop alias
-               ON alias.tablename = s.name
-                  AND alias.tag = 'ch.ehi.ili2db.dispName'
-            LEFT JOIN t_ili2db_classname c
-               ON s.name == c.sqlname
-            WHERE s.type='table';
-                       """)
-        records = cursor.fetchall()
+        interlis_fields = ''
+        interlis_joins = ''
+
+        if self.metadata_exists():
+            interlis_fields = """p.setting AS is_domain,
+                alias.setting AS table_alias,
+                substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
+            interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
+                   ON p.tablename = s.name
+                      AND p.tag = 'ch.ehi.ili2db.tableKind'
+                LEFT JOIN t_ili2db_table_prop alias
+                   ON alias.tablename = s.name
+                      AND alias.tag = 'ch.ehi.ili2db.dispName'
+                LEFT JOIN t_ili2db_classname c
+                   ON s.name == c.sqlname """
+
+        try:
+            cursor.execute("""
+                SELECT NULL AS schemaname,
+                    s.name AS tablename,
+                    NULL AS primary_key,
+                    g.column_name AS geometry_column,
+                    g.srs_id AS srid,
+                    {interlis_fields}
+                    g.geometry_type_name AS type
+                FROM sqlite_master s
+                LEFT JOIN gpkg_geometry_columns g
+                   ON g.table_name = s.name
+                {interlis_joins}
+                WHERE s.type='table';
+            """.format(interlis_fields=interlis_fields, interlis_joins=interlis_joins))
+            records = cursor.fetchall()
+        except sqlite3.OperationalError as e:
+            # If the geopackage is empty, geometry_columns table does not exist
+            return []
+
+        # Use prefix-suffix pairs defined in config to filter out matching tables
+        filtered_records = records[:]
+        for prefix_suffix in GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX:
+            suffix_regexp = '(' + '|'.join(prefix_suffix['suffix'] ) + ')$' if prefix_suffix['suffix'] else ''
+            regexp = '{}[\W\w]+{}'.format(prefix_suffix['prefix'], suffix_regexp)
+
+            p = re.compile(regexp) # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
+            for record in records:
+                if p.match(record['tablename']):
+                    print("INFO: NOT including GPKG table... ", record['tablename'])
+                    if record in filtered_records:
+                        filtered_records.remove(record)
 
         # Get pk info and update each record storing it in a list of dicts
         complete_records = list()
-        for record in records:
+        for record in filtered_records:
             cursor.execute("""
                 PRAGMA table_info({})
                 """.format(record['tablename']))
@@ -97,12 +135,15 @@ class GPKGConnector(DBConnector):
         cursor.execute("PRAGMA table_info({});".format(table_name))
         columns_info = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT *
-            FROM t_ili2db_column_prop
-            WHERE tablename = '{}'
-            """.format(table_name))
-        columns_prop = cursor.fetchall()
+        columns_prop = list()
+
+        if self.metadata_exists():
+            cursor.execute("""
+                SELECT *
+                FROM t_ili2db_column_prop
+                WHERE tablename = '{}'
+                """.format(table_name))
+            columns_prop = cursor.fetchall()
 
         complete_records = list()
         for column_info in columns_info:

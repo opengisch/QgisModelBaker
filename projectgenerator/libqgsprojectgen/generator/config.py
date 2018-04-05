@@ -19,6 +19,12 @@ IGNORED_TABLES = [
     'gpkg_geometry_columns',
     'gpkg_extensions',
     'gpkg_spatial_ref_sys',
+    'gpkg_ogr_contents',
+    'gpkg_tile_matrix_set',
+    'gpkg_tile_matrix',
+    'gpkg_metadata',
+    'gpkg_metadata_reference',
+    'sqlite_sequence',
     'T_ILI2DB_DATASET',
     'T_ILI2DB_TABLE_PROP',
     'T_ILI2DB_INHERITANCE',
@@ -33,7 +39,8 @@ IGNORED_TABLES = [
     'T_ILI2DB_CLASSNAME',
     'T_ILI2DB_BASKET',
     'T_ILI2DB_IMPORT_OBJECT',
-    'T_ILI2DB_IMPORT_BASKET'
+    'T_ILI2DB_IMPORT_BASKET',
+    'ogr_empty_table'
 ]
 
 IGNORED_FIELDNAMES = [
@@ -47,4 +54,16 @@ IGNORED_FIELDNAMES = [
 
 READONLY_FIELDNAMES = [
     't_ili_tid'
+]
+
+# Some GeoPckage clients might add tables that we need to ignore based on
+# prefix-suffix matches, here we define some known prefix-suffix pairs
+GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX = [{
+        'prefix': 'rtree_',
+        'suffix': ['_geometry','_geometry_node','_geometry_parent','_geometry_rowid']
+    },
+    {
+        'prefix': 'vgpkg_',
+        'suffix': []
+    }
 ]
