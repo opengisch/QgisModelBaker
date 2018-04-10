@@ -17,16 +17,21 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes
+from qgis.core import (
+    QgsLayerTreeNode,
+    QgsWkbTypes,
+    QgsMapLayer
+)
 
 layer_order = [QgsWkbTypes.PointGeometry,
                QgsWkbTypes.LineGeometry,
                QgsWkbTypes.PolygonGeometry,
                QgsWkbTypes.UnknownGeometry]
 
+
 def get_first_index_for_geometry_type(geometry_type, group):
     """
-    Finds the first index (from top to botton) in the layer tree where a
+    Finds the first index (from top to bottom) in the layer tree where a
     specific layer type is found. This function works only for the given group.
     """
     tree_nodes = group.children()
@@ -38,10 +43,11 @@ def get_first_index_for_geometry_type(geometry_type, group):
             return current
 
         layer = tree_node.layer()
-        if layer.geometryType() == geometry_type:
+        if layer.type() != QgsMapLayer.VectorLayer or layer.geometryType() == geometry_type:
             return current
 
     return None
+
 
 def get_suggested_index_for_layer(layer, group):
     """
@@ -51,9 +57,14 @@ def get_suggested_index_for_layer(layer, group):
     no line layers in it, it will continue with the first index of polygons or
     groups. Always following the order given in the global layer_order variable.
     """
-    for geometry_type in layer_order[layer_order.index(layer.geometryType()):]: # slice from current until last
+    index = None
+    for geometry_type in layer_order[layer_order.index(layer.geometryType()):]:  # slice from current until last
         index = get_first_index_for_geometry_type(geometry_type, group)
         if index is not None:
             break
 
-    return -1 if index is None else index # Send it to the last position in layer tree
+    if index is None:
+        # Send it to the last position in layer tree
+        return -1
+    else:
+        return index
