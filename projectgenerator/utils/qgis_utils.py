@@ -31,7 +31,7 @@ layer_order = [QgsWkbTypes.PointGeometry,
 
 def get_first_index_for_geometry_type(geometry_type, group):
     """
-    Finds the first index (from top to botton) in the layer tree where a
+    Finds the first index (from top to bottom) in the layer tree where a
     specific layer type is found. This function works only for the given group.
     """
     tree_nodes = group.children()
