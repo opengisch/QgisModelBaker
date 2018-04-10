@@ -63,4 +63,8 @@ def get_suggested_index_for_layer(layer, group):
         if index is not None:
             break
 
-    return -1 if index is None else index  # Send it to the last position in layer tree
+    if index is None:
+        # Send it to the last position in layer tree
+        return -1
+    else:
+        return index
