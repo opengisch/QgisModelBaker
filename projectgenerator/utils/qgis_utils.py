@@ -28,6 +28,7 @@ layer_order = [QgsWkbTypes.PointGeometry,
                QgsWkbTypes.PolygonGeometry,
                QgsWkbTypes.UnknownGeometry]
 
+
 def get_first_index_for_geometry_type(geometry_type, group):
     """
     Finds the first index (from top to botton) in the layer tree where a
@@ -47,6 +48,7 @@ def get_first_index_for_geometry_type(geometry_type, group):
 
     return None
 
+
 def get_suggested_index_for_layer(layer, group):
     """
     Returns the index where a layer can be inserted, taking other layer types
@@ -55,9 +57,9 @@ def get_suggested_index_for_layer(layer, group):
     no line layers in it, it will continue with the first index of polygons or
     groups. Always following the order given in the global layer_order variable.
     """
-    for geometry_type in layer_order[layer_order.index(layer.geometryType()):]: # slice from current until last
+    for geometry_type in layer_order[layer_order.index(layer.geometryType()):]:  # slice from current until last
         index = get_first_index_for_geometry_type(geometry_type, group)
         if index is not None:
             break
 
-    return -1 if index is None else index # Send it to the last position in layer tree
+    return -1 if index is None else index  # Send it to the last position in layer tree
