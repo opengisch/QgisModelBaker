@@ -57,6 +57,7 @@ def get_suggested_index_for_layer(layer, group):
     no line layers in it, it will continue with the first index of polygons or
     groups. Always following the order given in the global layer_order variable.
     """
+    index = None
     for geometry_type in layer_order[layer_order.index(layer.geometryType()):]:  # slice from current until last
         index = get_first_index_for_geometry_type(geometry_type, group)
         if index is not None:
