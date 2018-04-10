@@ -288,7 +288,12 @@ class DomainRelationGenerator:
         if not domains:
             return []
 
-        mapped_layers = {layer.name: layer for layer in layers}
+        layer_map = dict()
+        for layer in layers:
+            if layer.name not in layer_map.keys():
+                layer_map[layer.name] = list()
+            layer_map[layer.name].append(layer)
+
         domainili_domaindb_mapping = self._get_domainili_domaindb_mapping(
             domains)
         domains_ili_pg = dict()
@@ -356,29 +361,29 @@ class DomainRelationGenerator:
         for iliclass, dict_attr_domain in models_info_with_ext.items():
             for iliattr, ilidomain in dict_attr_domain.items():
                 if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili:
-                    if classes_ili_pg[iliclass] in mapped_layers and domains_ili_pg[ilidomain] in mapped_layers and \
+                    if classes_ili_pg[iliclass] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
                             classes_ili_pg[iliclass] in attrs_ili_pg_owner:
                         if iliattr in attrs_ili_pg_owner[classes_ili_pg[iliclass]]:
-                            # Might be that due to ORM mapping, a class is not
-                            # in mapped_layers
-                            relation = Relation()
-                            relation.referencing_layer = mapped_layers[
-                                classes_ili_pg[iliclass]]
-                            relation.referenced_layer = mapped_layers[
-                                domains_ili_pg[ilidomain]]
-                            relation.referencing_field = attrs_ili_pg_owner[
-                                classes_ili_pg[iliclass]][iliattr]
-                            relation.referenced_field = self._db_connector.iliCodeName
-                            relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
-                                                                 attrs_ili_pg_owner[
-                                                                     classes_ili_pg[iliclass]][iliattr],
-                                                                 domains_ili_pg[
-                                                                     ilidomain],
-                                                                 self._db_connector.iliCodeName)
+                            for referencing_layer in layer_map[classes_ili_pg[iliclass]]:
+                                for referenced_layer in layer_map[domains_ili_pg[ilidomain]]:
+                                    # Might be that due to ORM mapping, a class is not
+                                    # in mapped_layers
+                                    relation = Relation()
+                                    relation.referencing_layer = referencing_layer
+                                    relation.referenced_layer = referenced_layer
+                                    relation.referencing_field = attrs_ili_pg_owner[
+                                        classes_ili_pg[iliclass]][iliattr]
+                                    relation.referenced_field = self._db_connector.iliCodeName
+                                    relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
+                                                                         attrs_ili_pg_owner[
+                                                                             classes_ili_pg[iliclass]][iliattr],
+                                                                         domains_ili_pg[
+                                                                             ilidomain],
+                                                                         self._db_connector.iliCodeName)
 
-                            if self.debug:
-                                print("Relation:", relation.name)
-                            relations.append(relation)
+                                    if self.debug:
+                                        print("Relation:", relation.name)
+                                    relations.append(relation)
 
         if self.debug:
             print("final_models_info:", models_info_with_ext)

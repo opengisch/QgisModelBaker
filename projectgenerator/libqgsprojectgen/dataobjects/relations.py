@@ -10,6 +10,7 @@ class Relation(object):
         self.referenced_field = None
         self.name = None
         self.qgis_relation = None
+        self._id = None
 
     def dump(self):
         definition = dict()
@@ -26,9 +27,15 @@ class Relation(object):
         self.referenced_layer = definition['referencedLayer']
         self.referenced_field = definition['referencedField']
 
-    def create(self):
+    def create(self, qgis_project):
         relation = QgsRelation()
-        relation.setId(self.name)
+        project_ids = qgis_project.relationManager().relations().keys()
+        base_id = self.name
+        suffix = 0
+        self._id = base_id
+        while self._id in project_ids:
+            self._id = '{}{}'.format(base_id, suffix)
+        relation.setId(self._id)
         relation.setName(self.name)
         relation.setReferencingLayer(self.referencing_layer.create().id())
         relation.setReferencedLayer(self.referenced_layer.create().id())
@@ -38,4 +45,4 @@ class Relation(object):
 
     @property
     def id(self):
-        return self.name
+        return self._id
