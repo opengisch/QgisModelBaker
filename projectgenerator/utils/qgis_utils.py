@@ -17,7 +17,11 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes
+from qgis.core import (
+    QgsLayerTreeNode,
+    QgsWkbTypes,
+    QgsMapLayer
+)
 
 layer_order = [QgsWkbTypes.PointGeometry,
                QgsWkbTypes.LineGeometry,
@@ -38,7 +42,7 @@ def get_first_index_for_geometry_type(geometry_type, group):
             return current
 
         layer = tree_node.layer()
-        if layer.geometryType() == geometry_type:
+        if layer.type() != QgsMapLayer.VectorLayer or layer.geometryType() == geometry_type:
             return current
 
     return None
