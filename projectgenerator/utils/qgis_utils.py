@@ -17,43 +17,75 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes
+from qgis.core import QgsLayerTreeNode, QgsWkbTypes, QgsMapLayer
 
-layer_order = [QgsWkbTypes.PointGeometry,
-               QgsWkbTypes.LineGeometry,
-               QgsWkbTypes.PolygonGeometry,
-               QgsWkbTypes.UnknownGeometry]
+layer_order = ['point',  #QgsWkbTypes.PointGeometry
+               'line',  #QgsWkbTypes.LineGeometry
+               'polygon',  #QgsWkbTypes.PolygonGeometry
+               'raster',  # QgsMapLayer.RasterLayer
+               'table',  # QgsWkbTypes.NullGeometry
+               'unknown']  # Anything else like geometry collections or plugin layers
 
-def get_first_index_for_geometry_type(geometry_type, group):
+
+def get_first_index_for_layer_type(layer_type, group):
     """
-    Finds the first index (from top to botton) in the layer tree where a
+    Finds the first index (from top to bottom) in the layer tree where a
     specific layer type is found. This function works only for the given group.
     """
     tree_nodes = group.children()
 
     for current, tree_node in enumerate(tree_nodes):
-        if tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and geometry_type != QgsWkbTypes.UnknownGeometry:
+        if tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type != 'unknown':
             return None
-        elif tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and geometry_type == QgsWkbTypes.UnknownGeometry:
+        elif tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type == 'unknown':
+            # We've reached the lowest index in the layer tree before a group
             return current
 
         layer = tree_node.layer()
-        if layer.geometryType() == geometry_type:
+        if get_layer_type(layer) == layer_type:
             return current
 
     return None
+
 
 def get_suggested_index_for_layer(layer, group):
     """
     Returns the index where a layer can be inserted, taking other layer types
     into account. For instance, if a line layer is given, this function will
-    return the index of the first line layer in the layer tree, and if there are
-    no line layers in it, it will continue with the first index of polygons or
-    groups. Always following the order given in the global layer_order variable.
+    return the index of the first line layer in the layer tree (if above it
+    there are no lower-ordered layers like tables, otherwise this returns that
+    table index), and if there are no line layers in it, it will continue with
+    the first index of polygons , rasters, tables, or groups. Always following
+    the order given in the global layer_order variable.
     """
-    for geometry_type in layer_order[layer_order.index(layer.geometryType()):]: # slice from current until last
-        index = get_first_index_for_geometry_type(geometry_type, group)
+    indices = []
+    index = None
+    for layer_type in layer_order[layer_order.index(get_layer_type(layer)):]:  # Slice from current until last
+        index = get_first_index_for_layer_type(layer_type, group)
         if index is not None:
-            break
+            indices.append(index)
 
-    return -1 if index is None else index # Send it to the last position in layer tree
+    if indices:
+        index = min(indices)
+    print("Index for", layer.name(), -1 if index is None else index)
+    if index is None:
+        return -1  # Send it to the last position in layer tree
+    else:
+        return index
+
+def get_layer_type(layer):
+    """
+    To deal with all layer types, map their types to known values
+    """
+    if layer.type() == QgsMapLayer.VectorLayer:
+        if layer.isSpatial():
+            if layer.geometryType() == QgsWkbTypes.UnknownGeometry:
+                return 'unknown'
+            else:
+                return layer_order[layer.geometryType()]  # Point, Line or Polygon
+        else:
+            return 'table'
+    elif layer.type() == QgsMapLayer.RasterLayer:
+        return 'raster'
+    else:
+        return 'unknown'
