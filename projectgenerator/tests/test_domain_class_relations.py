@@ -294,6 +294,93 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
+    def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2pg',
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.schema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        # 7 domain-structure + 1 domain-class relations are expected
+        expected_relations = list()  
+
+        expected_relations.append({'name': 'ns_bewirtschaftung_ns_bewirtschaftungen_ns_bewirtschaftungen_ilicode',
+                                   'referenced_layer': 'ns_bewirtschaftungen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ns_bewirtschaftung',
+                                   'referencing_field': 'ns_bewirtschaftungen'})
+
+        expected_relations.append({'name': 'datenbestand_zustaendigestelle_fkey',
+                                   'referenced_layer': 'zustaendige_stelle',
+                                   'referenced_field': 't_id',
+                                   'referencing_layer': 'datenbestand',
+                                   'referencing_field': 'zustaendigestelle'})
+
+        expected_relations.append({'name': 'ni_punkt_typ_ni_punkt_typen_ni_punkt_typen_ilicode',
+                                   'referenced_layer': 'ni_punkt_typen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ni_punkt_typ',
+                                   'referencing_field': 'ni_punkt_typen'})
+
+        expected_relations.append({'name': 'ei_linie_typ_ei_linie_typen_ei_linie_typen_ilicode',
+                                   'referenced_layer': 'ei_linie_typen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ei_linie_typ',
+                                   'referencing_field': 'ei_linie_typen'})
+
+        expected_relations.append({'name': 'ei_bewirtschaftung_ei_bewirtschaftungen_ei_bewirtschaftungen_ilicode',
+                                   'referenced_layer': 'ei_bewirtschaftungen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ei_bewirtschaftung',
+                                   'referencing_field': 'ei_bewirtschaftungen'})
+
+        expected_relations.append({'name': 'ei_punkt_typ_ei_punkt_typen_ei_punkt_typen_ilicode',
+                                   'referenced_layer': 'ei_punkt_typen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ei_punkt_typ',
+                                   'referencing_field': 'ei_punkt_typen'})
+
+        expected_relations.append({'name': 'ni_linie_typ_ni_linie_typen_ni_linie_typen_ilicode',
+                                   'referenced_layer': 'ni_linie_typen',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'ni_linie_typ',
+                                   'referencing_field': 'ni_linie_typen'})
+
+        expected_relations.append({'name': 'naturschutzrelevantes_objekt_ohne_schutzstatus_typ_nro_typ_ilicode',
+                                   'referenced_layer': 'nro_typ',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'naturschutzrelevantes_objekt_ohne_schutzstatus',
+                                   'referencing_field': 'typ'})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
     def print_info(self, text):
         print(text)
 
