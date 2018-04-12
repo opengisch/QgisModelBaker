@@ -399,15 +399,18 @@ class DomainRelationGenerator:
         re_model = re.compile('\s*MODEL\s*([\w\d_-]+).*')
         # TOPIC Catastro_Registro [=]
         re_topic = re.compile('\s*TOPIC\s*([\w\d_-]+).*')
+        re_structure = re.compile('\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*') # STRUCTURE StructureName =
         re_class = re.compile(
             '\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(
             '\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
+        re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
         re_end_model = None  # END ModelName;
 
         current_model = ''
+        current_structure = ''
         current_topic = ''
         current_class = ''
         attributes = dict()
@@ -423,7 +426,8 @@ class DomainRelationGenerator:
                     current_model = result.group(1)
                     re_end_model = re.compile(
                         '.*END\s*{}\..*'.format(current_model))  # END TopicName;
-            else:  # The is a current_model
+            else:  # There is a current_model
+
                 if not current_topic:
                     result = re_topic.search(line)
                     if result:
@@ -441,6 +445,47 @@ class DomainRelationGenerator:
                             print("domains_with_local:", domains_with_local)
                         continue
                 else:  # There is a current_topic
+
+                    if not current_structure:
+                        result = re_structure.search(line)
+                        if result:
+                            current_structure = result.group(1)
+                            if self.debug:
+                                print("Structure encontrada", current_structure)
+                            attributes = dict()
+                            re_end_structure = re.compile(
+                                '\s*END\s*{};.*'.format(current_structure))  # END StructureName;
+                            continue
+                    else:
+                        attribute = {res.group(1): d for d in domains_with_local for res in
+                                     [re.search('\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+
+                        if attribute:
+                            if self.debug:
+                                print("MATCH (STRUCTURE):", attribute)
+                            old_key = list(attribute.keys())[0]  # Not qualified name
+                            new_key = "{}.{}.{}.{}".format(current_model, current_topic, current_structure,
+                                                           old_key)  # Fully qualified name
+                            attr_value = list(attribute.values())[0]
+                            if attr_value not in domains:  # Match was vs. local name, find its corresponding qualified name
+                                for k, v in local_names.items():
+                                    if attr_value in v:
+                                        attribute[old_key] = k
+                                        break
+                            attribute[new_key] = attribute.pop(old_key)
+                            attributes.update(attribute)
+                            continue
+
+                        result = re_end_structure.search(line)
+                        if result:
+                            if attributes:
+                                models_info.update(
+                                    {'{}.{}.{}'.format(current_model, current_topic, current_structure): attributes})
+                            if self.debug:
+                                print("END Structure encontrada", current_structure)
+                            current_structure = ''
+                            continue
+
                     if not current_class:  # Go for classes
                         result = re_class.search(line)
                         if result:
