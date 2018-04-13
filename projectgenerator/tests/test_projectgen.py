@@ -71,6 +71,7 @@ class TestProjectGen(unittest.TestCase):
         count = 0
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+                belasteter_standort_punkt_layer = layer
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 self.assertEqual(edit_form_config.layout(),
@@ -99,8 +100,16 @@ class TestProjectGen(unittest.TestCase):
                 # This might need to be adjusted if we get better names
                 self.assertEqual(tabs[1].name(), 'deponietyp_')
 
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                belasteter_standort_polygon_layer = layer
+
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
+
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
     def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
