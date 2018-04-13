@@ -1,4 +1,5 @@
 from qgis.core import QgsRelation
+from qgis.core import QgsApplication
 
 
 class Relation(object):
@@ -27,14 +28,20 @@ class Relation(object):
         self.referenced_layer = definition['referencedLayer']
         self.referenced_field = definition['referencedField']
 
-    def create(self, qgis_project):
+    def create(self, qgis_project, relations):
         relation = QgsRelation()
         project_ids = qgis_project.relationManager().relations().keys()
         base_id = self.name
-        suffix = 0
+
+        suffix = 1
         self._id = base_id
+
         while self._id in project_ids:
-            self._id = '{}{}'.format(base_id, suffix)
+            self._id = '{}{}_'.format(base_id, suffix)
+
+        while self._id in [rel.id() for rel in relations]:
+            self._id = '{}{}_'.format(base_id, suffix)
+
         relation.setId(self._id)
         relation.setName(self.name)
         relation.setReferencingLayer(self.referencing_layer.create().id())

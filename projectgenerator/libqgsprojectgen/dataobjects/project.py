@@ -99,7 +99,7 @@ class Project(QObject):
         dict_domains = {
             layer.layer.id(): layer.is_domain for layer in self.layers}
         for relation in self.relations:
-            rel = relation.create(qgis_project)
+            rel = relation.create(qgis_project, qgis_relations)
             assert rel.isValid()
             qgis_relations.append(rel)
 
