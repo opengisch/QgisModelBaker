@@ -1,4 +1,4 @@
-psycopg2
+psycopg2==2.7.4
 nose2
 pyyaml
 future

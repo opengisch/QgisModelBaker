@@ -6,7 +6,9 @@ services:
       - ALLOW_IP_RANGE="172.0.0.0/8"
 
   qgis:
-    build: .
+    build:
+      context: ..
+      dockerfile: ./.docker/Dockerfile
     tty: true
     volumes:
       - ${TRAVIS_BUILD_DIR}:/usr/src

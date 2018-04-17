@@ -9,8 +9,7 @@ before_install:
   - sudo apt-get -y install docker-ce
 
 install:
-  - pip install -r requirements.txt
-  - docker build --build-arg QGIS_TEST_VERSION=${QGIS_TEST_VERSION}  .docker
+  - docker build --build-arg QGIS_TEST_VERSION=${QGIS_TEST_VERSION} .docker
 
 jobs:
   include:
