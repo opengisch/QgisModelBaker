@@ -50,9 +50,10 @@ class Form(object):
 
 class FormTab(object):
 
-    def __init__(self, name):
+    def __init__(self, name, columns=1):
         self.name = name
         self.children = list()
+        self.columns = columns
 
     def addChild(self, child):
         self.children.append(child)
@@ -60,6 +61,8 @@ class FormTab(object):
     def create(self, parent, layer):
         container = QgsAttributeEditorContainer(self.name, parent)
         container.setIsGroupBox(False)
+        container.setColumnCount(self.columns)
+
         for child in self.children:
             container.addChildElement(child.create(container, layer))
         return container
@@ -67,9 +70,10 @@ class FormTab(object):
 
 class FormGroupBox(object):
 
-    def __init__(self, name):
+    def __init__(self, name, columns=1):
         self.name = name
         self.children = list()
+        self.columns = columns
 
     def addChild(self, child):
         self.children.append(child)
@@ -77,6 +81,8 @@ class FormGroupBox(object):
     def create(self, parent, layer):
         container = QgsAttributeEditorContainer(self.name)
         container.setIsGroupBox(True)
+        container.setColumnCount(self.columns)
+
         for child in self.children:
             container.addChildElement(child, layer)
         return container

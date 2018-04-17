@@ -78,7 +78,7 @@ class Layer(object):
                 has_tabs = True
 
         if has_tabs:
-            tab = FormTab(QCoreApplication.translate('FormTab', 'General'))
+            tab = FormTab(QCoreApplication.translate('FormTab', 'General'), 2)
             for field in self.fields:
                 if field.widget != 'Hidden':
                     widget = FormFieldWidget(field.alias, field.name)
