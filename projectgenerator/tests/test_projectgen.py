@@ -174,6 +174,12 @@ class TestProjectGen(unittest.TestCase):
                                      'untersmassn_']
                 self.assertEqual(set(tab_list), set(expected_tab_list))
 
+                for tab in tabs:
+                    if len(tab.findElements(tab.AeTypeRelation)) == 0:
+                        self.assertEqual(tab.columnCount(), 2)
+                    else:
+                        self.assertEqual(tab.columnCount(), 1)
+
         self.assertEqual(count, 1)
         self.assertEqual(len(available_layers), 16)
 
