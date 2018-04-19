@@ -118,6 +118,16 @@ class Project(QObject):
         qgis_project.relationManager().setRelations(qgis_relations)
 
         for layer in self.layers:
+            for relation in self.relations:
+                if relation.referenced_layer == layer:
+                    # get other relations, that have the same referencing_layer and set the first as nm-rel
+                    for other_relation in self.relations:
+                        if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer:
+                            edit_form_config = qgis_project.mapLayer(layer.layer.id()).editFormConfig()
+                            edit_form_config.setWidgetConfig(relation.id, {'nm-rel': other_relation.id})
+                            qgis_project.mapLayer(layer.layer.id()).setEditFormConfig(edit_form_config)
+                            break
+
             layer.create_form(qgis_project)
 
         if self.legend:
