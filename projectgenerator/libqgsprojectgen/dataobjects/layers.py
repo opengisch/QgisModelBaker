@@ -24,7 +24,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False):
+    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False, is_nmrel=False):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -34,6 +34,11 @@ class Layer(object):
         self.__layer = None
         self.fields = list()
         self.is_domain = is_domain
+
+        self.is_nmrel = is_nmrel
+        """ If is_nmrel is set to true it is a junction table in a N:M relation.
+        Or in ili2db terms, the table is marked as ASSOCIATION in t_ili2db_table_prop.settings. """
+
         self.__form = Form()
 
     def dump(self):
@@ -41,6 +46,7 @@ class Layer(object):
         definition['provider'] = self.provider
         definition['uri'] = self.uri
         definition['isdomain'] = self.is_domain
+        definition['isnmrel'] = self.is_nmrel
         definition['form'] = self.__form.dump()
         return definition
 
@@ -48,6 +54,7 @@ class Layer(object):
         self.provider = definition['provider']
         self.uri = definition['uri']
         self.is_domain = definition['isdomain']
+        self.is_nmrel = definition['isnmrel']
         self.__form.load(definition['form'])
 
     def create(self):
@@ -62,8 +69,8 @@ class Layer(object):
 
         return self.__layer
 
-    def create_form(self, qgis_project):
-        edit_form = self.__form.create(self.__layer)
+    def create_form(self, project):
+        edit_form = self.__form.create(self, self.__layer, project)
         self.__layer.setEditFormConfig(edit_form)
 
     def post_generate(self, project):

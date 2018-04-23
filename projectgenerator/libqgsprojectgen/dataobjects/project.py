@@ -118,7 +118,7 @@ class Project(QObject):
         qgis_project.relationManager().setRelations(qgis_relations)
 
         for layer in self.layers:
-            layer.create_form(qgis_project)
+            layer.create_form(self)
 
         if self.legend:
             self.legend.create(qgis_project)

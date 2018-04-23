@@ -264,16 +264,98 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
+    def test_nmrel_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilimodels = 'CoordSys'
+        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'geoellipsoidal':
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                map = edit_form_config.widgetConfig('lambert_from5_fkey')
+                self.assertEqual(map['nm-rel'], 'lambert_to5_fkey')
+                map = edit_form_config.widgetConfig('axis_geoellipsoidal_axis_fkey')
+                self.assertFalse(map)
+        self.assertEqual(count, 1)
+
+    def test_nmrel_geopackage(self):
+
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilimodels = 'CoordSys'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'geoellipsoidal':
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                map = edit_form_config.widgetConfig('lambert_from5_geoellipsoidal_T_Id')
+                self.assertEqual(map['nm-rel'], 'lambert_to5_geocartesian2d_T_Id')
+                map = edit_form_config.widgetConfig('axis_geoellipsoidal_axis_geoellipsoidal_T_Id')
+                self.assertFalse(map)
+        self.assertEqual(count, 1)
+
     def print_info(self, text):
         print(text)
 
     def print_error(self, text):
         print(text)
 
+    def tearDown(self):
+        QgsProject.instance().removeAllMapLayers()
+
     @classmethod
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
+
 
 if __name__ == '__main__':
     nose2.main()

@@ -55,7 +55,7 @@ class DBConnector:
                 geometry_column
                 srid
                 type  (Geometry Type)
-                is_domain
+                kind_settings
                 table_alias
                 model
         '''
