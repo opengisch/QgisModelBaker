@@ -24,7 +24,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False):
+    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False, is_nmrel=False):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -34,6 +34,7 @@ class Layer(object):
         self.__layer = None
         self.fields = list()
         self.is_domain = is_domain
+        self.is_nmrel = is_nmrel
         self.__form = Form()
 
     def dump(self):
