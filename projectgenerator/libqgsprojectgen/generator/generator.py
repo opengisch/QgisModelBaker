@@ -89,9 +89,9 @@ class Generator:
                 )
 
             alias = record['table_alias'] if 'table_alias' in record else ''
-            is_domain = record['is_domain'] == 'ENUM' or record[
-                'is_domain'] == 'CATALOGUE' if 'is_domain' in record else False
-            is_nmrel = record['is_domain'] == 'ASSOCIATION' if 'is_domain' in record else False
+            is_domain = record['kind_settings'] == 'ENUM' or record[
+                'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
+            is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
             layer = Layer(provider,
                           data_source_uri,
                           record['tablename'],

@@ -64,7 +64,7 @@ class GPKGConnector(DBConnector):
         interlis_joins = ''
 
         if self.metadata_exists():
-            interlis_fields = """p.setting AS is_domain,
+            interlis_fields = """p.setting AS kind_settings,
                 alias.setting AS table_alias,
                 substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p

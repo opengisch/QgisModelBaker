@@ -34,14 +34,22 @@ class Form(object):
     def elements(self):
         return self.__elements
 
-    def create(self, layer):
-        edit_form_config = layer.editFormConfig()
+    def create(self, layer, qgis_layer, project):
+        edit_form_config = qgis_layer.editFormConfig()
         root_container = edit_form_config.invisibleRootContainer()
         root_container.clear()
         for element in self.__elements:
             root_container.addChildElement(
-                element.create(root_container, layer))
+                element.create(root_container, qgis_layer))
         edit_form_config.setLayout(QgsEditFormConfig.TabLayout)
+        # set nm-rel if referencing tables are junction table
+        for relation in project.relations:
+            if relation.referenced_layer == layer:
+                # get other relations, that have the same referencing_layer and set the first as nm-rel
+                for other_relation in project.relations:
+                    if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer and relation.referencing_layer.is_nmrel:
+                        edit_form_config.setWidgetConfig(relation.id, {'nm-rel': other_relation.id})
+                        break
         return edit_form_config
 
     def add_element(self, element):

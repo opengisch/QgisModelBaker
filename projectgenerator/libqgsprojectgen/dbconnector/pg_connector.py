@@ -77,7 +77,7 @@ class PGConnector(DBConnector):
 
     def get_tables_info(self):
         if self.schema:
-            is_domain_field = ''
+            kind_settings_field = ''
             domain_left_join = ''
             schema_where = ''
             table_alias = ''
@@ -86,7 +86,7 @@ class PGConnector(DBConnector):
             model_where = ''
 
             if self.metadata_exists():
-                is_domain_field = "p.setting AS is_domain,"
+                kind_settings_field = "p.setting AS kind_settings,"
                 table_alias = "alias.setting AS table_alias,"
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
@@ -108,7 +108,7 @@ class PGConnector(DBConnector):
                           a.attname AS primary_key,
                           g.f_geometry_column AS geometry_column,
                           g.srid AS srid,
-                          {is_domain_field}
+                          {kind_settings_field}
                           {table_alias}
                           {model_name}
                           g.type AS simple_type,
@@ -129,7 +129,7 @@ class PGConnector(DBConnector):
                           ON ga.attrelid = i.indrelid
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
-            """.format(is_domain_field=is_domain_field, table_alias=table_alias,
+            """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
                        model_name=model_name, domain_left_join=domain_left_join,
                        alias_left_join=alias_left_join, model_where=model_where,
                        schema_where=schema_where))
