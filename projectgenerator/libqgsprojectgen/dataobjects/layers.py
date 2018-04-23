@@ -34,11 +34,11 @@ class Layer(object):
         self.__layer = None
         self.fields = list()
         self.is_domain = is_domain
-        """
-        If is_nmrel is set to true it is a junction table in a N:M relation.
-        Or in ili2db terms, the table is marked as ASSOCIATION in t_ili2db_table_prop.settings.
-        """
+
         self.is_nmrel = is_nmrel
+        """ If is_nmrel is set to true it is a junction table in a N:M relation.
+        Or in ili2db terms, the table is marked as ASSOCIATION in t_ili2db_table_prop.settings. """
+
         self.__form = Form()
 
     def dump(self):

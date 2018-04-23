@@ -258,7 +258,7 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
-    def test_rmrel_postgis(self):
+    def test_nmrel_postgis(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
@@ -296,7 +296,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertFalse(map)
         self.assertEqual(count, 1)
 
-    def test_rmrel_geopackage(self):
+    def test_nmrel_geopackage(self):
 
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'
