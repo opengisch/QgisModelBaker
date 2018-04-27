@@ -33,9 +33,9 @@ def iliimporter_config(tool_name='ili2pg', modeldir=None):
     configuration = SchemaImportConfiguration()
     configuration.tool_name = tool_name
     if tool_name == 'ili2pg':
-        configuration.host = 'postgres'
-        configuration.user = 'docker'
-        configuration.password = 'docker'
+        configuration.dbhost = 'postgres'
+        configuration.dbusr = 'docker'
+        configuration.dbpwd = 'docker'
         configuration.database = 'gis'
     configuration.base_configuration = base_config
 
@@ -54,7 +54,7 @@ def iliexporter_config(tool_name='ili2pg', modeldir=None):
     if tool_name == 'ili2pg':
         configuration.host = 'postgres'
         configuration.user = 'docker'
-        configuration.password = 'docker'
+        configuration.dbpwd = 'docker'
         configuration.database = 'gis'
     elif tool_name == 'ili2gpkg':
         configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
@@ -73,9 +73,9 @@ def ilidataimporter_config(tool_name='ili2pg', modeldir=None):
 
     configuration = ImportDataConfiguration()
     if tool_name == 'ili2pg':
-        configuration.host = 'postgres'
-        configuration.user = 'docker'
-        configuration.password = 'docker'
+        configuration.dbhost = 'postgres'
+        configuration.dbusr = 'docker'
+        configuration.dbpwd = 'docker'
         configuration.database = 'gis'
     elif tool_name == 'ili2gpkg':
         configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
