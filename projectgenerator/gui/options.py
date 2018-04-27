@@ -19,6 +19,9 @@
 """
 import webbrowser
 
+from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
+    ExportConfiguration
+from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
 from projectgenerator.gui.custom_model_dir import CustomModelDirDialog
@@ -58,6 +61,21 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.custom_models_dir_button.clicked.connect(
             self.show_custom_model_dir)
 
+        self.ili2db_tool_combobox.addItem('ili2pg', 'ili2pg')
+        self.ili2db_tool_combobox.addItem('ili2gpkg', 'ili2gpkg')
+
+        self.ili2db_action_combobox.addItem(
+            self.tr('Schema Import'), 'schemaimport')
+        self.ili2db_action_combobox.addItem(self.tr('Data Import'), 'import')
+        self.ili2db_action_combobox.addItem(self.tr('Data Export'), 'export')
+
+        self.ili2db_tool_combobox.currentIndexChanged.connect(
+            self.ili2db_command_reload)
+        self.ili2db_action_combobox.currentIndexChanged.connect(
+            self.ili2db_command_reload)
+
+        self.ili2db_command_reload()
+
     def accepted(self):
         self.configuration.custom_model_directories = self.custom_model_directories_line_edit.text()
         self.configuration.custom_model_directories_enabled = self.custom_model_directories_box.isChecked()
@@ -79,3 +97,19 @@ class OptionsDialog(QDialog, DIALOG_UI):
         else:
             webbrowser.open(
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#plugin-configuration")
+
+    def ili2db_command_reload(self):
+        config = None
+
+        if self.ili2db_action_combobox.currentData() == 'schemaimport':
+            config = SchemaImportConfiguration()
+        elif self.ili2db_action_combobox.currentData() == 'import':
+            config = ImportDataConfiguration()
+        elif self.ili2db_action_combobox.currentData() == 'export':
+            config = ExportConfiguration()
+
+        executable = 'java -jar {}.jar'.format(
+            self.ili2db_tool_combobox.currentData())
+        command = '\n  '.join([executable] + config.to_ili2db_args())
+
+        self.ili2db_options_textedit.setText(command)
