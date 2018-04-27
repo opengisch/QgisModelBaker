@@ -25,7 +25,7 @@ ili2db_tools = {
         'version': '3.11.2'
     },
     'ili2gpkg': {
-        'version': '3.10.5'
+        'version': '3.11.3'
     }
 }
 ili2db_tools['ili2pg'][
