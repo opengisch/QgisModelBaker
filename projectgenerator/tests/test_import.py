@@ -47,7 +47,7 @@ class TestImport(unittest.TestCase):
         importer.configuration = iliimporter_config(
             importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
@@ -61,7 +61,7 @@ class TestImport(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
-        dataImporter.configuration.schema = importer.configuration.schema
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
@@ -77,7 +77,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("""
                 SELECT tipo, st_asText(geometria), st_srid(geometria), t_id
                 FROM {}.predio
-            """.format(importer.configuration.schema))
+            """.format(importer.configuration.dbschema))
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)
@@ -91,7 +91,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("""
                 SELECT documento_numero, nombre, t_id
                 FROM {}.persona
-            """.format(importer.configuration.schema))
+            """.format(importer.configuration.dbschema))
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)
@@ -104,7 +104,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("""
                 SELECT tipo, interesado, unidad
                 FROM {}.derecho
-            """.format(importer.configuration.schema))
+            """.format(importer.configuration.dbschema))
         record = next(cursor)
         print("INFO", record)
         self.assertIsNotNone(record)

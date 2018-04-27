@@ -46,14 +46,14 @@ class TestProjectGen(unittest.TestCase):
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.schema)
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -205,7 +205,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(
             importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
@@ -214,7 +214,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -285,14 +285,14 @@ class TestProjectGen(unittest.TestCase):
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
         importer.configuration.ilimodels = 'CoordSys'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.schema)
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)

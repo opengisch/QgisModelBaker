@@ -52,8 +52,8 @@ def iliexporter_config(tool_name='ili2pg', modeldir=None):
 
     configuration = ExportConfiguration()
     if tool_name == 'ili2pg':
-        configuration.host = 'postgres'
-        configuration.user = 'docker'
+        configuration.dbhost = 'postgres'
+        configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
     elif tool_name == 'ili2gpkg':

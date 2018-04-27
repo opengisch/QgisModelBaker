@@ -65,7 +65,7 @@ class TestExport(unittest.TestCase):
         importer_e.configuration = iliimporter_config(importer_e.tool_name,
                                                       'ilimodels/CIAF_LADM')
         importer_e.configuration.ilimodels = 'CIAF_LADM'
-        importer_e.configuration.schema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
+        importer_e.configuration.dbschema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer_e.configuration.epsg = 3116
         importer_e.configuration.inheritance = 'smart2'
@@ -77,7 +77,7 @@ class TestExport(unittest.TestCase):
         exporter_e.tool_name = 'ili2pg'
         exporter_e.configuration = iliexporter_config(exporter_e.tool_name)
         exporter_e.configuration.ilimodels = 'CIAF_LADM'
-        exporter_e.configuration.schema = importer_e.configuration.schema
+        exporter_e.configuration.dbschema = importer_e.configuration.dbschema
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_empty.xtf')
         exporter_e.configuration.xtffile = obtained_xtf_path
@@ -94,7 +94,7 @@ class TestExport(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool_name,
                                                     'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
@@ -108,7 +108,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
-        dataImporter.configuration.schema = importer.configuration.schema
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
@@ -121,7 +121,7 @@ class TestExport(unittest.TestCase):
         exporter.tool_name = 'ili2pg'
         exporter.configuration = iliexporter_config(exporter.tool_name)
         exporter.configuration.ilimodels = 'CIAF_LADM'
-        exporter.configuration.schema = importer.configuration.schema
+        exporter.configuration.dbschema = importer.configuration.dbschema
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
