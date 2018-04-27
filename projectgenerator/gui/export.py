@@ -133,7 +133,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             return
 
         if self.type_combo_box.currentData() == 'pg':
-            if not configuration.host:
+            if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before exporting data.'))
                 self.pg_host_line_edit.setFocus()
@@ -143,7 +143,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database before exporting data.'))
                 self.pg_database_line_edit.setFocus()
                 return
-            if not configuration.user:
+            if not configuration.dbusr:
                 self.txtStdout.setText(
                     self.tr('Please set a database user before exporting data.'))
                 self.pg_user_line_edit.setFocus()
@@ -248,12 +248,12 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         if self.type_combo_box.currentData() == 'pg':
             # PostgreSQL specific options
-            configuration.host = self.pg_host_line_edit.text().strip()
-            configuration.port = self.pg_port_line_edit.text().strip()
-            configuration.user = self.pg_user_line_edit.text().strip()
+            configuration.dbhost = self.pg_host_line_edit.text().strip()
+            configuration.dbport = self.pg_port_line_edit.text().strip()
+            configuration.dbusr = self.pg_user_line_edit.text().strip()
             configuration.database = self.pg_database_line_edit.text().strip()
-            configuration.schema = self.pg_schema_line_edit.text().strip().lower()
-            configuration.password = self.pg_password_line_edit.text()
+            configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
+            configuration.dbpwd = self.pg_password_line_edit.text()
         elif self.type_combo_box.currentData() == 'gpkg':
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
@@ -273,17 +273,17 @@ class ExportDialog(QDialog, DIALOG_UI):
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/host', configuration.host)
+                'QgsProjectGenerator/ili2pg/host', configuration.dbhost)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/port', configuration.port)
+                'QgsProjectGenerator/ili2pg/port', configuration.dbport)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/user', configuration.user)
+                'QgsProjectGenerator/ili2pg/user', configuration.dbusr)
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/database', configuration.database)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/schema', configuration.schema)
+                'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/password', configuration.password)
+                'QgsProjectGenerator/ili2pg/password', configuration.dbpwd)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)

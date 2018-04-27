@@ -28,7 +28,7 @@ from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.globals import CRS_PATTERNS
-from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration
+from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration
 from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import (
@@ -178,7 +178,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 return
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
-            if not configuration.host:
+            if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before creating the project.'))
                 self.pg_host_line_edit.setFocus()
@@ -188,7 +188,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database before creating the project.'))
                 self.pg_database_line_edit.setFocus()
                 return
-            if not configuration.user:
+            if not configuration.dbusr:
                 self.txtStdout.setText(
                     self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
@@ -200,7 +200,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.gpkg_file_line_edit.setFocus()
                 return
 
-        configuration.schema = configuration.schema or configuration.database
+        configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
@@ -237,7 +237,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             try:
                 generator = Generator(configuration.tool_name, configuration.uri,
-                                      configuration.inheritance, configuration.schema)
+                                      configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except OperationalError:
                 self.txtStdout.setText(
@@ -256,7 +256,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.progress_bar.hide()
                     return
 
-            self.print_info(self.tr('\nObtaining available layers from the database...'))
+            self.print_info(
+                self.tr('\nObtaining available layers from the database...'))
             available_layers = generator.layers()
 
             if not available_layers:
@@ -269,7 +270,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 return
 
             self.progress_bar.setValue(70)
-            self.print_info(self.tr('Obtaining relations from the database...'))
+            self.print_info(
+                self.tr('Obtaining relations from the database...'))
             relations = generator.relations(available_layers)
             self.progress_bar.setValue(75)
             self.print_info(self.tr('Arranging layers into groups...'))
@@ -314,7 +316,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
             color = '#004905'
-            message = self.tr('Interlis model(s) successfully imported into the database!')
+            message = self.tr(
+                'Interlis model(s) successfully imported into the database!')
         else:
             color = '#aa2222'
             message = self.tr('Finished with errors!')
@@ -328,17 +331,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         Get the configuration that is updated with the user configuration changes on the dialog.
         :return: Configuration
         """
-        configuration = ImportConfiguration()
+        configuration = SchemaImportConfiguration()
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
             configuration.tool_name = 'ili2pg'
-            configuration.host = self.pg_host_line_edit.text().strip()
-            configuration.port = self.pg_port_line_edit.text().strip()
-            configuration.user = self.pg_user_line_edit.text().strip()
+            configuration.dbhost = self.pg_host_line_edit.text().strip()
+            configuration.dbport = self.pg_port_line_edit.text().strip()
+            configuration.dbusr = self.pg_user_line_edit.text().strip()
             configuration.database = self.pg_database_line_edit.text().strip()
-            configuration.schema = self.pg_schema_line_edit.text().strip().lower()
-            configuration.password = self.pg_password_line_edit.text()
+            configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
+            configuration.dbpwd = self.pg_password_line_edit.text()
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             configuration.tool_name = 'ili2gpkg'
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
@@ -365,17 +368,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/host', configuration.host)
+                'QgsProjectGenerator/ili2pg/host', configuration.dbhost)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/port', configuration.port)
+                'QgsProjectGenerator/ili2pg/port', configuration.dbport)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/user', configuration.user)
+                'QgsProjectGenerator/ili2pg/user', configuration.dbusr)
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/database', configuration.database)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/schema', configuration.schema)
+                'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/password', configuration.password)
+                'QgsProjectGenerator/ili2pg/password', configuration.dbpwd)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)

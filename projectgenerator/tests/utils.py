@@ -19,7 +19,7 @@
 """
 import os
 
-from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
+from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
 
 
 def iliimporter_config(tool_name='ili2pg', modeldir=None):
@@ -30,7 +30,7 @@ def iliimporter_config(tool_name='ili2pg', modeldir=None):
         base_config.custom_model_directories = testdata_path(modeldir)
         base_config.custom_model_directories_enabled = True
 
-    configuration = ImportConfiguration()
+    configuration = SchemaImportConfiguration()
     configuration.tool_name = tool_name
     if tool_name == 'ili2pg':
         configuration.host = 'postgres'

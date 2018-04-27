@@ -60,60 +60,11 @@ class DataImporter(QObject):
         if not ili2db_bin:
             return
 
-        args = ["-jar", ili2db_bin]
-        args += ["--import"]
-        if self.configuration.delete_data:
-            args += ["--deleteData"]
+        ili2db_jar_arg = ["-jar", ili2db_bin]
 
-        if self.tool_name == 'ili2pg':
-            # PostgreSQL specific options
-            args += ["--dbhost", self.configuration.host]
-            if self.configuration.port:
-                args += ["--dbport", self.configuration.port]
-            args += ["--dbusr", self.configuration.user]
-            if self.configuration.password:
-                args += ["--dbpwd", self.configuration.password]
-            args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema",
-                     self.configuration.schema or self.configuration.database]
-        elif self.tool_name == 'ili2gpkg':
-            args += ["--dbfile", self.configuration.dbfile]
+        self.configuration.tool_name = self.tool_name
 
-        args += self.configuration.base_configuration.to_ili2db_args()
-
-        if self.configuration.ilimodels:
-            args += ['--models', self.configuration.ilimodels]
-
-        # Use our default schema-import parameters and get others from QSettings.
-        # They're used by ili2db in case the schema doesn't exist. If it exists,
-        # this doesn't have any effect on the import.
-        args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
-        args += ["--coalesceMultiSurface"]
-        args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        args += ["--createMetaInfo"]
-        if self.tool_name == 'ili2pg':
-            args += ["--setupPgExt"]
-
-        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
-        if proxy.type() == QNetworkProxy.HttpProxy:
-            args += ["--proxy", proxy.hostName()]
-            args += ["--proxyPort", str(proxy.port())]
-
-        settings = QSettings()
-        epsg = settings.value('QgsProjectGenerator/ili2pg/epsg')
-        if epsg:
-            args += ["--defaultSrsCode", "{}".format(epsg)]
-
-        inheritance = settings.value(
-            'QgsProjectGenerator/ili2pg/inheritance', 'smart2')
-        if inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
-        elif inheritance == 'smart2':
-            args += ["--smart2Inheritance"]
-        else:
-            args += ["--noSmartMapping"]
+        args = self.configuration.to_ili2db_args()
 
         args += [self.configuration.xtffile]
 
@@ -138,7 +89,7 @@ class DataImporter(QObject):
             proc.readyReadStandardOutput.connect(
                 functools.partial(self.stdout_ready, proc=proc))
 
-            proc.start(java_path, args)
+            proc.start(java_path, ili2db_jar_arg + args)
 
             if not proc.waitForStarted():
                 proc = None
@@ -148,7 +99,9 @@ class DataImporter(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        self.process_started.emit(java_path + ' ' + ' '.join(args))
+        safe_args = ili2db_jar_arg + self.configuration.to_ili2db_args(hide_password=True)
+        safe_command = java_path + ' ' + ' '.join(safe_args)
+        self.process_started.emit(safe_command)
 
         self.__result = DataImporter.ERROR
 
