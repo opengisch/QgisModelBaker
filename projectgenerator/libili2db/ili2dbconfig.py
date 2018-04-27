@@ -131,7 +131,7 @@ class Ili2DbCommandConfiguration(object):
 
     def to_ili2db_args(self, hide_password=False):
 
-        # Valid ili file, don't pass --modelDir (it can cause ili2db errors)
+        # Valid ili file, don't pass --modeldir (it can cause ili2db errors)
         with_modeldir = bool(self.ilifile)
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
