@@ -37,10 +37,12 @@ class Relation(object):
         self._id = base_id
 
         while self._id in project_ids:
-            self._id = '{}{}_'.format(base_id, suffix)
+            self._id = '{}_{}'.format(base_id, suffix)
+            suffix += 1
 
         while self._id in [rel.id() for rel in relations]:
-            self._id = '{}{}_'.format(base_id, suffix)
+            self._id = '{}_{}'.format(base_id, suffix)
+            suffix += 1
 
         relation.setId(self._id)
         relation.setName(self.name)
