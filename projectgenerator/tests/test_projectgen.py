@@ -181,7 +181,23 @@ class TestProjectGen(unittest.TestCase):
                         self.assertEqual(tab.columnCount(), 1)
 
         self.assertEqual(count, 1)
-        self.assertEqual(len(available_layers), 16)
+        self.assertEqual(set(['statusaltlv',
+                              'multilingualtext',
+                              'untersmassn',
+                              'multilingualmtext',
+                              'languagecode_iso639_1',
+                              'deponietyp',
+                              'zustaendigkeitkataster',
+                              'standorttyp',
+                              'localisedtext',
+                              'localisedmtext',
+                              'belasteter_standort',
+                              'deponietyp_',
+                              'egrid_',
+                              'untersmassn_',
+                              'parzellenidentifikation',
+                              'belasteter_standort_geo_lage_punkt']),
+                         set([layer.name for layer in available_layers]))
 
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
