@@ -150,7 +150,7 @@ class PGConnector(DBConnector):
 
     def _parse_pg_type(self, formatted_attr_type):
         if not self._geom_parse_regexp:
-            self._geom_parse_regexp = re.compile('geometry\((\w+?),\d+\)')
+            self._geom_parse_regexp = re.compile(r'geometry\((\w+?),\d+\)')
 
         typedef = None
 

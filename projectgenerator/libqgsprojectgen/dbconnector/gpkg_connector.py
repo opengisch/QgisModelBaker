@@ -100,7 +100,7 @@ class GPKGConnector(DBConnector):
         filtered_records = records[:]
         for prefix_suffix in GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX:
             suffix_regexp = '(' + '|'.join(prefix_suffix['suffix'] ) + ')$' if prefix_suffix['suffix'] else ''
-            regexp = '{}[\W\w]+{}'.format(prefix_suffix['prefix'], suffix_regexp)
+            regexp = r'{}[\W\w]+{}'.format(prefix_suffix['prefix'], suffix_regexp)
 
             p = re.compile(regexp) # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
             for record in records:
@@ -180,9 +180,9 @@ class GPKGConnector(DBConnector):
         # Create a mapping in the form of
         #
         # fieldname: (min, max)
-        res1 = re.findall('CHECK\((.*)\)', cursor.fetchone()[0])
+        res1 = re.findall(r'CHECK\((.*)\)', cursor.fetchone()[0])
         for res in res1:
-            res2 = re.search('(\w+) BETWEEN ([-?\d\.]+) AND ([-?\d\.]+)', res)
+            res2 = re.search(r'(\w+) BETWEEN ([-?\d\.]+) AND ([-?\d\.]+)', res)
             if res2:
                 constraint_mapping[res2.group(1)] = (
                     res2.group(2), res2.group(3))
