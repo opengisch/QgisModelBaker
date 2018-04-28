@@ -105,7 +105,7 @@ class Generator:
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
             constraints_info = self.get_constraints_info(record['tablename'])
-            re_iliname = re.compile('^@iliname (.*)$')
+            re_iliname = re.compile(r'^@iliname (.*)$')
 
             for fielddef in fields_info:
                 column_name = fielddef['column_name']
@@ -398,14 +398,14 @@ class DomainRelationGenerator:
 
     def parse_model(self, model_content, domains):
         # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
-        re_model = re.compile('\s*MODEL\s*([\w\d_-]+).*')
+        re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+).*')
         # TOPIC Catastro_Registro [=]
-        re_topic = re.compile('\s*TOPIC\s*([\w\d_-]+).*')
-        re_structure = re.compile('\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*') # STRUCTURE StructureName =
+        re_topic = re.compile(r'\s*TOPIC\s*([\w\d_-]+).*')
+        re_structure = re.compile(r'\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*') # STRUCTURE StructureName =
         re_class = re.compile(
-            '\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
+            r'\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(
-            '\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
+            r'\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
@@ -427,7 +427,7 @@ class DomainRelationGenerator:
                 if result:
                     current_model = result.group(1)
                     re_end_model = re.compile(
-                        '.*END\s*{}\..*'.format(current_model))  # END TopicName;
+                        r'.*END\s*{}\..*'.format(current_model))  # END TopicName;
             else:  # There is a current_model
 
                 if not current_topic:
@@ -437,7 +437,7 @@ class DomainRelationGenerator:
                         if self.debug:
                             print("Topic encontrada", current_topic)
                         re_end_topic = re.compile(
-                            '\s*END\s*{};.*'.format(current_topic))  # END TopicName;
+                            r'\s*END\s*{};.*'.format(current_topic))  # END TopicName;
 
                         local_names = self.extract_local_names_from_domains(
                             domains, current_model, current_topic)
@@ -456,11 +456,11 @@ class DomainRelationGenerator:
                                 print("Structure encontrada", current_structure)
                             attributes = dict()
                             re_end_structure = re.compile(
-                                '\s*END\s*{};.*'.format(current_structure))  # END StructureName;
+                                r'\s*END\s*{};.*'.format(current_structure))  # END StructureName;
                             continue
                     else:
                         attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search('\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+                                     [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
 
                         if attribute:
                             if self.debug:
@@ -496,7 +496,7 @@ class DomainRelationGenerator:
                                 print("Class encontrada", current_class)
                             attributes = dict()
                             re_end_class = re.compile(
-                                '\s*END\s*{};.*'.format(current_class))  # END ClassName;
+                                r'\s*END\s*{};.*'.format(current_class))  # END ClassName;
                             bClassJustFound = True
 
                             # Possible EXTENDS
@@ -525,7 +525,7 @@ class DomainRelationGenerator:
                                 continue
 
                         attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search('\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+                                     [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
 
                         if attribute:
                             if self.debug:

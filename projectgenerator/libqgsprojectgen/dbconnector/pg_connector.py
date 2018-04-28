@@ -150,7 +150,7 @@ class PGConnector(DBConnector):
 
     def _parse_pg_type(self, formatted_attr_type):
         if not self._geom_parse_regexp:
-            self._geom_parse_regexp = re.compile('geometry\((\w+?),\d+\)')
+            self._geom_parse_regexp = re.compile(r'geometry\((\w+?),\d+\)')
 
         typedef = None
 
@@ -223,7 +223,7 @@ class PGConnector(DBConnector):
         if self.schema:
             constraints_cur = self.conn.cursor(
                 cursor_factory=psycopg2.extras.DictCursor)
-            constraints_cur.execute("""
+            constraints_cur.execute(r"""
                 SELECT
                   consrc,
                   regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
