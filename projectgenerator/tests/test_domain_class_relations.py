@@ -45,7 +45,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration = iliimporter_config(
             importer.tool_name, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
@@ -56,7 +56,7 @@ class TestDomainClassRelation(unittest.TestCase):
         generator = Generator('ili2pg',
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
-                              importer.configuration.schema)
+                              importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -191,7 +191,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilifile = testdata_path(
             'ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
-        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 21781
         importer.configuration.inheritance = 'smart2'
@@ -202,7 +202,7 @@ class TestDomainClassRelation(unittest.TestCase):
         generator = Generator('ili2pg',
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
-                              importer.configuration.schema)
+                              importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
@@ -302,7 +302,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilifile = testdata_path(
             'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
-        importer.configuration.schema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 21781
         importer.configuration.inheritance = 'smart2'
@@ -313,7 +313,7 @@ class TestDomainClassRelation(unittest.TestCase):
         generator = Generator('ili2pg',
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
-                              importer.configuration.schema)
+                              importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations = generator.relations(available_layers)

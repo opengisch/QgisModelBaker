@@ -58,29 +58,11 @@ class Exporter(QObject):
         if not ili2db_bin:
             return
 
-        args = ["-jar", ili2db_bin]
-        args += ["--export"]
+        ili2db_jar_arg = ["-jar", ili2db_bin]
 
-        if self.tool_name == 'ili2pg':
-            # PostgreSQL specific options
-            args += ["--dbhost", self.configuration.host]
-            if self.configuration.port:
-                args += ["--dbport", self.configuration.port]
-            args += ["--dbusr", self.configuration.user]
-            if self.configuration.password:
-                args += ["--dbpwd", self.configuration.password]
-            args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema",
-                     self.configuration.schema or self.configuration.database]
-        elif self.tool_name == 'ili2gpkg':
-            args += ["--dbfile", self.configuration.dbfile]
+        self.configuration.tool_name = self.tool_name
 
-        args += self.configuration.base_configuration.to_ili2db_args(False)
-
-        if self.configuration.ilimodels:
-            args += ['--models', self.configuration.ilimodels]
-
-        args += [self.configuration.xtffile]
+        args = self.configuration.to_ili2db_args()
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -103,7 +85,7 @@ class Exporter(QObject):
             proc.readyReadStandardOutput.connect(
                 functools.partial(self.stdout_ready, proc=proc))
 
-            proc.start(java_path, args)
+            proc.start(java_path, ili2db_jar_arg + args)
 
             if not proc.waitForStarted():
                 proc = None
@@ -113,7 +95,9 @@ class Exporter(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        self.process_started.emit(java_path + ' ' + ' '.join(args))
+        safe_args = ili2db_jar_arg + self.configuration.to_ili2db_args(hide_password=True)
+        safe_command = java_path + ' ' + ' '.join(safe_args)
+        self.process_started.emit(safe_command)
 
         self.__result = Exporter.ERROR
 

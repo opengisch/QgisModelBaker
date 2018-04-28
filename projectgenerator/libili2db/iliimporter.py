@@ -25,10 +25,8 @@ import functools
 
 from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
-from qgis.PyQt.QtNetwork import QNetworkProxy
-from qgis.core import QgsNetworkAccessManager
 
-from projectgenerator.libili2db.ili2dbconfig import ImportConfiguration, JavaNotFoundError, ili2db_tools
+from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, JavaNotFoundError, ili2db_tools
 
 
 class Importer(QObject):
@@ -47,7 +45,7 @@ class Importer(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.tool_name = None
-        self.configuration = ImportConfiguration()
+        self.configuration = SchemaImportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset
         # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
@@ -59,63 +57,11 @@ class Importer(QObject):
         if not ili2db_bin:
             return
 
-        args = ["-jar", ili2db_bin]
-        args += ["--schemaimport"]
+        ili2db_jar_arg = ["-jar", ili2db_bin]
 
-        if self.tool_name == 'ili2pg':
-            # PostgreSQL specific options
-            args += ["--dbhost", self.configuration.host]
-            if self.configuration.port:
-                args += ["--dbport", self.configuration.port]
-            args += ["--dbusr", self.configuration.user]
-            if self.configuration.password:
-                args += ["--dbpwd", self.configuration.password]
-            args += ["--dbdatabase", self.configuration.database]
-            args += ["--dbschema",
-                     self.configuration.schema or self.configuration.database]
-            args += ["--setupPgExt"]
-        elif self.tool_name == 'ili2gpkg':
-            args += ["--dbfile", self.configuration.dbfile]
+        self.configuration.tool_name = self.tool_name
 
-        args += ["--coalesceCatalogueRef"]
-        args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
-        args += ["--coalesceMultiSurface"]
-        args += ["--coalesceMultiLine"]
-        args += ["--strokeArcs"]
-        args += ["--beautifyEnumDispName"]
-        #args += ["--createBasketCol"]
-        args += ["--createUnique"]
-        args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        args += ["--createFkIdx"]
-        args += ["--createMetaInfo"]
-        if self.configuration.inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
-        elif self.configuration.inheritance == 'smart2':
-            args += ["--smart2Inheritance"]
-        else:
-            args += ["--noSmartMapping"]
-
-        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
-        if proxy.type() == QNetworkProxy.HttpProxy:
-            args += ["--proxy", proxy.hostName()]
-            args += ["--proxyPort", str(proxy.port())]
-
-        if self.configuration.epsg != 21781:
-            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
-
-        if self.configuration.ilimodels:
-            args += ['--models', self.configuration.ilimodels]
-
-        if self.configuration.ilifile:
-            # Valid ili file, don't pass --modelDir (it can cause ili2db
-            # errors)
-            args += self.configuration.base_configuration.to_ili2db_args(
-                export_modeldir=False)
-            args += [self.configuration.ilifile]
-        else:
-            args += self.configuration.base_configuration.to_ili2db_args()
+        args = self.configuration.to_ili2db_args()
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -138,7 +84,7 @@ class Importer(QObject):
             proc.readyReadStandardOutput.connect(
                 functools.partial(self.stdout_ready, proc=proc))
 
-            proc.start(java_path, args)
+            proc.start(java_path, ili2db_jar_arg + args)
 
             if not proc.waitForStarted():
                 proc = None
@@ -148,9 +94,8 @@ class Importer(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        command = java_path + ' ' + ' '.join(args)
-        safe_command = command.replace(
-            "--dbpwd {}".format(self.configuration.password), "--dbpwd ***")
+        safe_args = ili2db_jar_arg + self.configuration.to_ili2db_args(hide_password=True)
+        safe_command = java_path + ' ' + ' '.join(safe_args)
         self.process_started.emit(safe_command)
 
         self.__result = Importer.ERROR

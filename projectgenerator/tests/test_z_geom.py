@@ -37,7 +37,7 @@ class TestGeomZ(unittest.TestCase):
         importer.configuration = iliimporter_config(
             importer.tool_name, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
-        importer.configuration.schema = 'exceptional_loads_route'
+        importer.configuration.dbschema = 'exceptional_loads_route'
         importer.configuration.epsg = 2056
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -46,7 +46,7 @@ class TestGeomZ(unittest.TestCase):
         generator = Generator('ili2pg',
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
-                              importer.configuration.schema)
+                              importer.configuration.dbschema)
 
         available_layers = generator.layers()
 

@@ -17,8 +17,11 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QObject
+
 from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
+from qgis.PyQt.QtNetwork import QNetworkProxy
+from qgis.core import QgsNetworkAccessManager
+import os
 
 ili2db_tools = {
     'ili2pg': {
@@ -31,7 +34,9 @@ ili2db_tools = {
 ili2db_tools['ili2pg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
 ili2db_tools['ili2gpkg'][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(ili2db_tools['ili2gpkg']['version'])
+    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
+    ili2db_tools['ili2gpkg']['version'])
+
 
 class BaseConfiguration(object):
 
@@ -40,6 +45,7 @@ class BaseConfiguration(object):
         self.custom_model_directories = ''
         self.java_path = ''
         self.logfile_path = ''
+
         self.debugging_enabled = False
 
     def save(self, settings):
@@ -61,11 +67,16 @@ class BaseConfiguration(object):
             'DebuggingEnabled', False, bool)
         self.logfile_path = settings.value('LogfilePath', '', str)
 
-    def to_ili2db_args(self, export_modeldir=True):
-        args = []
-        if export_modeldir:
+    def to_ili2db_args(self, with_modeldir=True):
+        """
+        Create an ili2db command line argument string from this configuration
+        """
+        args = list()
+
+        if with_modeldir:
             if self.custom_model_directories_enabled and self.custom_model_directories:
-                str_model_directories = [get_all_modeldir_in_path(path) for path in self.custom_model_directories.split(';')]
+                str_model_directories = [get_all_modeldir_in_path(path) for path in
+                                         self.custom_model_directories.split(';')]
                 str_model_directories = ';'.join(str_model_directories)
                 args += ['--modeldir', str_model_directories]
         if self.debugging_enabled and self.logfile_path:
@@ -88,71 +99,161 @@ class BaseConfiguration(object):
         return dirs
 
 
-class ImportConfiguration(object):
-
+class Ili2DbCommandConfiguration(object):
     def __init__(self):
-        self.tool_name = ''
-        self.ilifile = ''
-        self.inheritance = 'smart1'
-        self.epsg = 21781  # Default EPSG code in ili2pg
-        self.host = ''
-        self.user = ''
-        self.database = ''
-        self.schema = ''
-        self.password = ''
-        self.port = ''
-        self.dbfile = ''
-        self.ilimodels = ''
-
         self.base_configuration = BaseConfiguration()
+
+        self.dbport = ''
+        self.dbhost = ''
+        self.dbpwd = ''
+        self.dbusr = ''
+        self.database = ''
+        self.dbschema = ''
+        self.dbfile = ''
+        self.tool_name = None
+        self.ilifile = ''
+        self.ilimodels = ''
 
     @property
     def uri(self):
         uri = []
         if self.tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.database)]
-            uri += ['user={}'.format(self.user)]
-            if self.password:
-                uri += ['password={}'.format(self.password)]
-            uri += ['host={}'.format(self.host)]
-            if self.port:
-                uri += ['port={}'.format(self.port)]
+            uri += ['user={}'.format(self.dbusr)]
+            if self.dbpwd:
+                uri += ['password={}'.format(self.dbpwd)]
+            uri += ['host={}'.format(self.dbhost)]
+            if self.dbport:
+                uri += ['port={}'.format(self.dbport)]
         elif self.tool_name == 'ili2gpkg':
             uri = [self.dbfile]
         return ' '.join(uri)
 
+    def to_ili2db_args(self, hide_password=False):
 
-class ExportConfiguration(object):
+        # Valid ili file, don't pass --modeldir (it can cause ili2db errors)
+        with_modeldir = not self.ilifile
+
+        args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
+
+        if self.tool_name == 'ili2pg':
+            # PostgreSQL specific options
+            args += ["--dbhost", self.dbhost]
+            if self.dbport:
+                args += ["--dbport", self.dbport]
+            args += ["--dbusr", self.dbusr]
+            if self.dbpwd:
+                if hide_password:
+                    args += ["--dbpwd", '******']
+                else:
+                    args += ["--dbpwd", self.dbpwd]
+            args += ["--dbdatabase", self.database]
+            args += ["--dbschema",
+                     self.dbschema or self.database]
+        elif self.tool_name == 'ili2gpkg':
+            args += ["--dbfile", self.dbfile]
+
+        proxy = QgsNetworkAccessManager.instance().fallbackProxy()
+        if proxy.type() == QNetworkProxy.HttpProxy:
+            args += ["--proxy", proxy.hostName()]
+            args += ["--proxyPort", str(proxy.port())]
+
+        if self.ilimodels:
+            args += ['--models', self.ilimodels]
+
+        if self.ilifile:
+            args += [self.ilifile]
+
+        return args
+
+
+class ExportConfiguration(Ili2DbCommandConfiguration):
 
     def __init__(self):
+        super().__init__()
         self.xtffile = ''
-        self.host = ''
-        self.user = ''
-        self.database = ''
-        self.schema = ''
-        self.password = ''
-        self.port = ''
-        self.dbfile = ''
-        self.ilimodels = ''
 
-        self.base_configuration = BaseConfiguration()
+    def to_ili2db_args(self, hide_password=False, with_action=True):
+        args = list()
+
+        if with_action:
+            args += ["--export"]
+
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password=hide_password)
+
+        args += [self.xtffile]
+
+        return args
 
 
-class ImportDataConfiguration(object):
+class SchemaImportConfiguration(Ili2DbCommandConfiguration):
 
     def __init__(self):
+        super().__init__()
+        self.inheritance = 'smart1'
+        self.epsg = 21781  # Default EPSG code in ili2pg
+
+    def to_ili2db_args(self, hide_password=False, with_action=True):
+        """
+        Create an ili2db argument array, with the password masked with ****** and optionally with the action
+        argument (--schemaimport) removed
+        """
+        args = list()
+
+        if with_action:
+            args += ["--schemaimport"]
+
+        args += ["--coalesceCatalogueRef"]
+        args += ["--createEnumTabs"]
+        args += ["--createNumChecks"]
+        args += ["--coalesceMultiSurface"]
+        args += ["--coalesceMultiLine"]
+        args += ["--strokeArcs"]
+        args += ["--beautifyEnumDispName"]
+        # args += ["--createBasketCol"]
+        args += ["--createUnique"]
+        args += ["--createGeomIdx"]
+        args += ["--createFk"]
+        args += ["--createFkIdx"]
+        args += ["--createMetaInfo"]
+
+        if self.inheritance == 'smart1':
+            args += ["--smart1Inheritance"]
+        elif self.inheritance == 'smart2':
+            args += ["--smart2Inheritance"]
+        else:
+            args += ["--noSmartMapping"]
+
+        if self.epsg != 21781:
+            args += ["--defaultSrsCode", "{}".format(self.epsg)]
+
+        if self.tool_name == 'ili2pg':
+            args += ["--setupPgExt"]
+
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)
+
+        return args
+
+
+class ImportDataConfiguration(SchemaImportConfiguration):
+
+    def __init__(self):
+        super().__init__()
         self.xtffile = ''
-        self.host = ''
-        self.user = ''
-        self.database = ''
-        self.schema = ''
-        self.password = ''
-        self.port = ''
-        self.dbfile = ''
-        self.ilimodels = ''
         self.delete_data = False
 
-        self.base_configuration = BaseConfiguration()
+    def to_ili2db_args(self, hide_password=False, with_action=True):
+        args = list()
+
+        if with_action:
+            args += ["--import"]
+
+        if self.delete_data:
+            args += ["--deleteData"]
+
+        args = SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
+
+        return args
 
 
 class JavaNotFoundError(FileNotFoundError):
