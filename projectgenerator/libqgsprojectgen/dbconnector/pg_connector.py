@@ -223,7 +223,7 @@ class PGConnector(DBConnector):
         if self.schema:
             constraints_cur = self.conn.cursor(
                 cursor_factory=psycopg2.extras.DictCursor)
-            constraints_cur.execute("""
+            constraints_cur.execute(r"""
                 SELECT
                   consrc,
                   regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
