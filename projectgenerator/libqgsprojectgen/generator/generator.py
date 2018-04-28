@@ -65,7 +65,7 @@ class Generator:
             if self.tool_name == 'ili2pg':
                 provider = 'postgres'
                 if record['geometry_column']:
-                    data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
+                    data_source_uri = '{uri} key={primary_key} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
                         uri=self.uri,
                         primary_key=record['primary_key'],
                         srid=record['srid'],
