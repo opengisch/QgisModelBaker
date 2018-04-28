@@ -40,6 +40,7 @@ IGNORED_TABLES = [
     'T_ILI2DB_BASKET',
     'T_ILI2DB_IMPORT_OBJECT',
     'T_ILI2DB_IMPORT_BASKET',
+    'T_ILI2DB_META_ATTRS',
     'ogr_empty_table'
 ]
 
@@ -56,7 +57,7 @@ READONLY_FIELDNAMES = [
     't_ili_tid'
 ]
 
-# Some GeoPckage clients might add tables that we need to ignore based on
+# Some GeoPackage clients might add tables that we need to ignore based on
 # prefix-suffix matches, here we define some known prefix-suffix pairs
 GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX = [{
         'prefix': 'rtree_',
