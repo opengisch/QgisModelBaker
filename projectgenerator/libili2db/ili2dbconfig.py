@@ -208,6 +208,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createNumChecks"]
         args += ["--coalesceMultiSurface"]
         args += ["--coalesceMultiLine"]
+        args += ["--coalesceMultiPoint"]
+        args += ["--coalesceArray"]
         args += ["--strokeArcs"]
         args += ["--beautifyEnumDispName"]
         # args += ["--createBasketCol"]
