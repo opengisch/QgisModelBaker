@@ -93,12 +93,12 @@ class Generator:
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
 
-            meta_attrs = self.get_meta_attrs(record['ili_name'])
-
             display_expression = ''
-            for attr_record in meta_attrs:
-                if attr_record['attr_name'] == 'dispExpression':
-                    display_expression = attr_record['attr_value']
+            if 'ili_name' in record:
+                meta_attrs = self.get_meta_attrs(record['ili_name'])
+                for attr_record in meta_attrs:
+                    if attr_record['attr_name'] == 'dispExpression':
+                        display_expression = attr_record['attr_value']
 
             layer = Layer(provider,
                           data_source_uri,
