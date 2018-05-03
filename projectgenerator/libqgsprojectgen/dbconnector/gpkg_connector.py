@@ -25,7 +25,6 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 
-
 class GPKGConnector(DBConnector):
 
     def __init__(self, uri, schema):
@@ -66,6 +65,7 @@ class GPKGConnector(DBConnector):
         if self.metadata_exists():
             interlis_fields = """p.setting AS kind_settings,
                 alias.setting AS table_alias,
+                c.iliname AS ili_name,
                 substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
                    ON p.tablename = s.name
@@ -129,6 +129,19 @@ class GPKGConnector(DBConnector):
 
         cursor.close()
         return complete_records
+
+    def get_meta_attrs(self, ili_name):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+                        SELECT
+                          attr_name,
+                          attr_value
+                        FROM T_ILI2DB_META_ATTRS
+                        WHERE ilielement='{ili_name}'
+        """.format(ili_name=ili_name))
+        records = cursor.fetchall()
+        cursor.close()
+        return records
 
     def get_fields_info(self, table_name):
         cursor = self.conn.cursor()

@@ -81,6 +81,7 @@ class PGConnector(DBConnector):
             domain_left_join = ''
             schema_where = ''
             table_alias = ''
+            ili_name = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
@@ -88,6 +89,7 @@ class PGConnector(DBConnector):
             if self.metadata_exists():
                 kind_settings_field = "p.setting AS kind_settings,"
                 table_alias = "alias.setting AS table_alias,"
+                ili_name = "c.iliname AS ili_name,"
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
@@ -111,6 +113,7 @@ class PGConnector(DBConnector):
                           {kind_settings_field}
                           {table_alias}
                           {model_name}
+                          {ili_name}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
                         FROM pg_catalog.pg_tables tbls
@@ -130,14 +133,29 @@ class PGConnector(DBConnector):
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
-                       model_name=model_name, domain_left_join=domain_left_join,
+                       model_name=model_name, ili_name=ili_name, domain_left_join=domain_left_join,
                        alias_left_join=alias_left_join, model_where=model_where,
                        schema_where=schema_where))
 
             return self._preprocess_table(cur)
 
         return []
-                    
+
+    def get_meta_attrs(self, ili_name):
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT
+                          attr_name,
+                          attr_value
+                        FROM {schema}.t_ili2db_meta_attrs
+                        WHERE ilielement='{ili_name}';
+            """.format(schema=self.schema, ili_name=ili_name))
+
+            return cur
+
+        return []
+
     def _preprocess_table(self, records):
         for record in records:
             my_rec = {key: value for key, value in record.items()}
