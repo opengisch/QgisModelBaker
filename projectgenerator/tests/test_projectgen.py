@@ -389,7 +389,7 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 't_id||type')
+                self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), '"t_id"')
@@ -429,7 +429,7 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 't_id||type')
+                self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), '"T_Id"')

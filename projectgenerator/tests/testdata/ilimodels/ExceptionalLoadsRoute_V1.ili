@@ -10,7 +10,7 @@ VERSION "2017-02-08"  =
 
   TOPIC TypeOfRouteCatalogue
   EXTENDS CatalogueObjects_V1.Catalogues =
-    !!@ dispExpression="t_id||type"
+    !!@ dispExpression="type"
     CLASS TypeOfRoute
     EXTENDS CatalogueObjects_V1.Catalogues.Item =
       Type : MANDATORY TEXT*10;
