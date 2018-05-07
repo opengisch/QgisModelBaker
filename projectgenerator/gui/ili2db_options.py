@@ -18,6 +18,11 @@
  ***************************************************************************/
 """
 
+from projectgenerator.utils.qt_utils import (
+    make_file_selector,
+    Validators,
+    FileValidator
+)
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
 from ..utils import get_ui_class
@@ -33,24 +38,46 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.rejected.disconnect()
+        self.buttonBox.rejected.connect(self.rejected)
+        self.toml_file_browse_button.clicked.connect(
+            make_file_selector(self.toml_file_line_edit, title=self.tr('Open TOML File'),
+                               file_filter=self.tr('Toms Obvious Minimal Language File (*.toml)')))
+        self.validators = Validators()
+        self.fileValidator = FileValidator(pattern='*.toml', allow_empty=True)
+        self.toml_file_line_edit.setValidator(self.fileValidator)
 
         self.restore_configuration()
+
+        self.toml_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.toml_file_line_edit.textChanged.emit(
+            self.toml_file_line_edit.text())
 
     def accepted(self):
         """ Save settings before accepting the dialog """
         self.save_configuration()
         self.done(1)
 
-    def get_inheritance_type(self):
+    def rejected(self):
+        self.restore_configuration()
+        self.done(1)
+
+    def inheritance_type(self):
         if self.smart1_radio_button.isChecked():
             return 'smart1'
         else:
             return 'smart2'
 
+    def toml_file(self):
+        return self.toml_file_line_edit.text().strip()
+
     def save_configuration(self):
         settings = QSettings()
         settings.setValue(
-            'QgsProjectGenerator/ili2db/inheritance', self.get_inheritance_type())
+            'QgsProjectGenerator/ili2db/inheritance', self.inheritance_type())
+        settings.setValue(
+            'QgsProjectGenerator/ili2db/tomlfile', self.toml_file())
 
     def restore_configuration(self):
         settings = QSettings()
@@ -60,3 +87,5 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
+        self.toml_file_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2db/tomlfile'))
