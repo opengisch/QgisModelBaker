@@ -348,6 +348,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2db_options.get_inheritance_type()
+        configuration.tomlfile = self.ili2db_options.get_toml_file()
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():
