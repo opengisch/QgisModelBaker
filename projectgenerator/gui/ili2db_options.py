@@ -20,11 +20,8 @@
 
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
-    make_save_file_selector,
     Validators,
-    FileValidator,
-    NonEmptyStringValidator,
-    OverrideCursor
+    FileValidator
 )
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
@@ -66,21 +63,21 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
         self.done(1)
 
-    def get_inheritance_type(self):
+    def inheritance_type(self):
         if self.smart1_radio_button.isChecked():
             return 'smart1'
         else:
             return 'smart2'
 
-    def get_toml_file(self):
+    def toml_file(self):
         return self.toml_file_line_edit.text().strip()
 
     def save_configuration(self):
         settings = QSettings()
         settings.setValue(
-            'QgsProjectGenerator/ili2db/inheritance', self.get_inheritance_type())
+            'QgsProjectGenerator/ili2db/inheritance', self.inheritance_type())
         settings.setValue(
-            'QgsProjectGenerator/ili2db/tomlfile', self.get_toml_file())
+            'QgsProjectGenerator/ili2db/tomlfile', self.toml_file())
 
     def restore_configuration(self):
         settings = QSettings()
