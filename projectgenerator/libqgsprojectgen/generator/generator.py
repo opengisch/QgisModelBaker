@@ -397,6 +397,11 @@ class DomainRelationGenerator:
         return relations
 
     def parse_model(self, model_content, domains):
+        re_comment = re.compile(r'\s*/\*')  # /* comment
+        re_end_comment = re.compile(r'\s*\*/')  # comment */
+        re_oneline_comment = re.compile(r'\s*/\*.*\*/')  # /* comment */
+        re_inline_comment = re.compile(r'^\s*!!')  # !! comment
+
         # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
         re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+).*')
         # TOPIC Catastro_Registro [=]
@@ -411,6 +416,7 @@ class DomainRelationGenerator:
         re_end_topic = None  # END TopicName;
         re_end_model = None  # END ModelName;
 
+        currently_inside_comment = False
         current_model = ''
         current_structure = ''
         current_topic = ''
@@ -422,12 +428,34 @@ class DomainRelationGenerator:
         local_names = dict()
 
         for line in model_content.splitlines():
+
+            if not currently_inside_comment:
+                result = re_comment.search(line)
+                if result:
+                    result = re_oneline_comment.search(line)
+                    if not result:
+                        currently_inside_comment = True
+
+                    continue
+            else:
+                result = re_end_comment.search(line)
+                if result:
+                    currently_inside_comment = False
+
+                continue # Whether comment ends or not, we are done in this line
+
+            if re_inline_comment.search(line):
+                continue # Inline comment at the start of the line
+
             if not current_model:
                 result = re_model.search(line)
                 if result:
                     current_model = result.group(1)
                     re_end_model = re.compile(
                         r'.*END\s*{}\..*'.format(current_model))  # END TopicName;
+                    if self.debug:
+                        print("\nMODEL encontrado", current_model)
+
             else:  # There is a current_model
 
                 if not current_topic:
@@ -435,10 +463,16 @@ class DomainRelationGenerator:
                     if result:
                         current_topic = result.group(1)
                         if self.debug:
-                            print("Topic encontrada", current_topic)
+                            print("TOPIC encontrada", current_topic)
                         re_end_topic = re.compile(
                             r'\s*END\s*{};.*'.format(current_topic))  # END TopicName;
 
+                        if self.debug:
+                            print("Call to extract_local_names_from_domains: {} | {} | {}".format(
+                                domains,
+                                current_model,
+                                current_topic
+                            ))
                         local_names = self.extract_local_names_from_domains(
                             domains, current_model, current_topic)
                         domains_with_local = [name for name_list in local_names.values() for name in
@@ -560,6 +594,8 @@ class DomainRelationGenerator:
 
                 result = re_end_model.search(line)
                 if result:
+                    if self.debug:
+                        print("END model encontrado", current_model, "\n")
                     current_model = ''
 
         return [models_info, extended_classes]
