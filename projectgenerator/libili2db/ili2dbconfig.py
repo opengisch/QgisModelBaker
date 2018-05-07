@@ -113,6 +113,7 @@ class Ili2DbCommandConfiguration(object):
         self.tool_name = None
         self.ilifile = ''
         self.ilimodels = ''
+        self.tomlfile = ''
 
     @property
     def uri(self):
@@ -160,6 +161,9 @@ class Ili2DbCommandConfiguration(object):
 
         if self.ilimodels:
             args += ['--models', self.ilimodels]
+
+        if self.tomlfile:
+            args += ["--iliMetaAttrs", self.tomlfile]
 
         if self.ilifile:
             args += [self.ilifile]
