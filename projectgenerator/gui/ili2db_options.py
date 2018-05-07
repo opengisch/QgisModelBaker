@@ -35,6 +35,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.toml_file_key = None
 
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
@@ -69,6 +70,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             return 'smart2'
 
+    def set_toml_file_key(self, key_postfix):
+        if key_postfix:
+            self.toml_file_key = 'QgsProjectGenerator/ili2db/tomlfile/' + key_postfix
+        else:
+            self.toml_file_key = None
+        self.restore_configuration()
+
     def toml_file(self):
         return self.toml_file_line_edit.text().strip()
 
@@ -77,7 +85,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgsProjectGenerator/ili2db/inheritance', self.inheritance_type())
         settings.setValue(
-            'QgsProjectGenerator/ili2db/tomlfile', self.toml_file())
+            self.toml_file_key, self.toml_file())
 
     def restore_configuration(self):
         settings = QSettings()
@@ -88,4 +96,4 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             self.smart2_radio_button.setChecked(True)
         self.toml_file_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2db/tomlfile'))
+            settings.value(self.toml_file_key))
