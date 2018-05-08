@@ -547,8 +547,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
-            text = 'Ext. Attributes File: '+('...'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-60:]) if len(self.ili2db_options.toml_file()) > 60 else 'Ext. Attributes File: '+self.ili2db_options.toml_file()
+            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
         self.toml_file_info_label.setText(text)
+        self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
     def help_requested(self):
         os_language = QLocale(QSettings().value(

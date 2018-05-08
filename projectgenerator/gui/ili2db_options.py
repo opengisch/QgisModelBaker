@@ -42,8 +42,8 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.buttonBox.rejected.disconnect()
         self.buttonBox.rejected.connect(self.rejected)
         self.toml_file_browse_button.clicked.connect(
-            make_file_selector(self.toml_file_line_edit, title=self.tr('Open TOML File'),
-                               file_filter=self.tr('Toms Obvious Minimal Language File (*.toml)')))
+            make_file_selector(self.toml_file_line_edit, title=self.tr('Open Extra Model Information File (*.toml)'),
+                               file_filter=self.tr('Extra Model Info File')))
         self.validators = Validators()
         self.fileValidator = FileValidator(pattern='*.toml', allow_empty=True)
         self.toml_file_line_edit.setValidator(self.fileValidator)
