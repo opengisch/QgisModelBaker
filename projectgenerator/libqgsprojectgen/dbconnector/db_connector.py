@@ -56,8 +56,22 @@ class DBConnector:
                 srid
                 type  (Geometry Type)
                 kind_settings
+                ili_name
                 table_alias
                 model
+        '''
+        return []
+
+    def get_meta_attr(self, ili_name):
+        '''
+        Info about meta attributes of a given ili element
+
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                attr_name
+                attr_value
         '''
         return []
 

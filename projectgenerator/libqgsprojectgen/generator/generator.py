@@ -92,6 +92,14 @@ class Generator:
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
+
+            display_expression = ''
+            if 'ili_name' in record:
+                meta_attrs = self.get_meta_attrs(record['ili_name'])
+                for attr_record in meta_attrs:
+                    if attr_record['attr_name'] == 'dispExpression':
+                        display_expression = attr_record['attr_value']
+
             layer = Layer(provider,
                           data_source_uri,
                           record['tablename'],
@@ -100,7 +108,8 @@ class Generator:
                               record['type']) or QgsWkbTypes.Unknown,
                           alias,
                           is_domain,
-                          is_nmrel)
+                          is_nmrel,
+                          display_expression)
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
@@ -247,6 +256,9 @@ class Generator:
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
+
+    def get_meta_attrs(self, ili_name):
+        return self._db_connector.get_meta_attrs(ili_name)
 
     def get_fields_info(self, table_name):
         return self._db_connector.get_fields_info(table_name)

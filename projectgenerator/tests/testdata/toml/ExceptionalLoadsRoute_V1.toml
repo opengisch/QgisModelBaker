@@ -1,0 +1,9 @@
+["PARAMETER"]
+# Globale Validator Einstellungen
+#
+# Validierung generell ausschalten
+# on/off
+validation="on"
+
+["ExceptionalLoadsRoute_LV95_V1.ExceptionalLoad.Obstacle"]
+dispExpression="type"

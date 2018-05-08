@@ -92,6 +92,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
+        self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
         self.multiple_models_dialog = MultipleModelsDialog(self)
         self.multiple_models_button.clicked.connect(
             self.multiple_models_dialog.open)
@@ -347,7 +348,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.epsg = self.epsg
-        configuration.inheritance = self.ili2db_options.get_inheritance_type()
+        configuration.inheritance = self.ili2db_options.inheritance_type()
+        configuration.tomlfile = self.ili2db_options.toml_file()
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():
@@ -388,12 +390,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_file_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2db/ilifile'))
-        self.crs = QgsCoordinateReferenceSystem(settings.value(
-            'QgsProjectGenerator/ili2db/epsg', 21781, int))
+        self.crs = QgsCoordinateReferenceSystem(
+            settings.value('QgsProjectGenerator/ili2db/epsg', 21781, int))
+        self.fill_toml_file_info_label()
         self.update_crs_info()
 
-        self.pg_host_line_edit.setText(settings.value(
-            'QgsProjectGenerator/ili2pg/host', 'localhost'))
+        self.pg_host_line_edit.setText(
+            settings.value('QgsProjectGenerator/ili2pg/host', 'localhost'))
         self.pg_port_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2pg/port'))
         self.pg_user_line_edit.setText(
@@ -471,6 +474,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.crs = QgsCoordinateReferenceSystem(crs)
                 self.update_crs_info()
                 break
+        self.ili2db_options.set_toml_file_key(text)
+        self.fill_toml_file_info_label()
 
     def link_activated(self, link):
         if link.url() == '#configure':
@@ -512,6 +517,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.update_models_completer)
             self.iliFileCache.new_message.connect(self.show_message)
             self.iliFileCache.refresh()
+            models = self.iliFileCache.process_ili_file(self.ili_file_line_edit.text().strip())
+            self.ili_models_line_edit.setText(models[-1]['name'])
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
@@ -536,6 +543,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def fill_models_line_edit(self):
         self.ili_models_line_edit.setText(
             self.multiple_models_dialog.get_models_string())
+
+    def fill_toml_file_info_label(self):
+        text = None
+        if self.ili2db_options.toml_file():
+            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
+        self.toml_file_info_label.setText(text)
+        self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
     def help_requested(self):
         os_language = QLocale(QSettings().value(

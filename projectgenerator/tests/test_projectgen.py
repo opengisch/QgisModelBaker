@@ -26,7 +26,7 @@ import nose2
 
 from projectgenerator.libili2db import iliimporter
 from projectgenerator.libqgsprojectgen.dataobjects import Project
-from projectgenerator.tests.utils import iliimporter_config
+from projectgenerator.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from projectgenerator.libqgsprojectgen.generator.generator import Generator
@@ -357,6 +357,170 @@ class TestProjectGen(unittest.TestCase):
                 map = edit_form_config.widgetConfig('axis_geoellipsoidal_axis_geoellipsoidal_T_Id')
                 self.assertFalse(map)
         self.assertEqual(count, 1)
+
+    def test_meta_attr_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+
+        self.assertEqual(count, 2)
+
+    def test_meta_attr_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+
+        self.assertEqual(count, 2)
+
+    def test_meta_attr_toml_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+        importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+            if layer.name == 'obstacle':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+
+        self.assertEqual(count, 3)
+
+    def test_meta_attr_toml_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+        importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
+
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+            if layer.name == 'obstacle':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+
+        self.assertEqual(count, 3)
 
     def print_info(self, text):
         print(text)

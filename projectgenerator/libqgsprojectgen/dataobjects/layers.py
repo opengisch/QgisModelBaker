@@ -24,7 +24,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias='', is_domain=False, is_nmrel=False):
+    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_nmrel=False, display_expression=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -39,6 +39,8 @@ class Layer(object):
         """ If is_nmrel is set to true it is a junction table in a N:M relation.
         Or in ili2db terms, the table is marked as ASSOCIATION in t_ili2db_table_prop.settings. """
 
+        self.display_expression = display_expression
+
         self.__form = Form()
 
     def dump(self):
@@ -47,6 +49,7 @@ class Layer(object):
         definition['uri'] = self.uri
         definition['isdomain'] = self.is_domain
         definition['isnmrel'] = self.is_nmrel
+        definition['displayexpression'] = self.display_expression
         definition['form'] = self.__form.dump()
         return definition
 
@@ -55,6 +58,7 @@ class Layer(object):
         self.uri = definition['uri']
         self.is_domain = definition['isdomain']
         self.is_nmrel = definition['isnmrel']
+        self.display_expression = definition['displayexpression']
         self.__form.load(definition['form'])
 
     def create(self):
@@ -63,7 +67,8 @@ class Layer(object):
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
             if self.is_domain:
                 self.__layer.setReadOnly()
-
+            if self.display_expression:
+                self.__layer.setDisplayExpression(self.display_expression)
         for field in self.fields:
             field.create(self)
 
