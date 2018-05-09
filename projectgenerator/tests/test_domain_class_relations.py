@@ -435,6 +435,293 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
+    def test_domain_class_relations_Hazard_Mapping_V1_2_postgis(self):
+        # Test and ili file with lots of comments inside.
+        # This test makes sense because we rely on a custom model parser.
+
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/Hazard_Mapping_V1_2.ili')
+        importer.configuration.ilimodels = 'Hazard_Mapping_LV95_V1_2'
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2pg',
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        expected_relations = list()  # 41!!! domain-class relations are expected
+        expected_relations.append({
+            "name": "hazard_area_hazard_level_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "hazard_area",
+            "referencing_field": "hazard_level",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_intensity_subproc_synoptic_intensity_detailed_process_synop_type_ilicode",
+            "referenced_layer": "detailed_process_synop_type",
+            "referencing_layer": "synoptic_intensity",
+            "referencing_field": "subproc_synoptic_intensity",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_data_responsibility_chcantoncode_ilicode",
+            "referenced_layer": "chcantoncode",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "data_responsibility",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_pa_state_powder_avalanche_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "pa_state_powder_avalanche",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_fl_state_flooding_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "fl_state_flooding",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_be_state_bank_erosion_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "be_state_bank_erosion",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_if_state_ice_fall_assessment_simple_type_ilicode",
+            "referenced_layer": "assessment_simple_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "if_state_ice_fall",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_water_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "water",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_landslide_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "landslide",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "hazard_area_main_process_main_process_type_ilicode",
+            "referenced_layer": "main_process_type",
+            "referencing_layer": "hazard_area",
+            "referencing_field": "main_process",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "intensity_by_source_intensity_class_intensity_type_ilicode",
+            "referenced_layer": "intensity_type",
+            "referencing_layer": "intensity_by_source",
+            "referencing_field": "intensity_class",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_rs_state_rock_slide_rock_aval_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "rs_state_rock_slide_rock_aval",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_max_hazard_level_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "max_hazard_level",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "par_flooding_velocity_method_of_assessment_assessment_method_type_ilicode",
+            "referenced_layer": "assessment_method_type",
+            "referencing_layer": "par_flooding_velocity",
+            "referencing_field": "method_of_assessment",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "par_flooding_v_x_h_method_of_assessment_assessment_method_type_ilicode",
+            "referenced_layer": "assessment_method_type",
+            "referencing_layer": "par_flooding_v_x_h",
+            "referencing_field": "method_of_assessment",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_rockfall_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "rockfall",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "special_indicat_hazard_area_data_responsibility_chcantoncode_ilicode",
+            "referenced_layer": "chcantoncode",
+            "referencing_layer": "special_indicat_hazard_area",
+            "referencing_field": "data_responsibility",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_avalanche_hazard_level_type_ilicode",
+            "referenced_layer": "hazard_level_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "avalanche",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "indicative_hazard_area_data_responsibility_chcantoncode_ilicode",
+            "referenced_layer": "chcantoncode",
+            "referencing_layer": "indicative_hazard_area",
+            "referencing_field": "data_responsibility",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "par_flooding_depth_method_of_assessment_assessment_method_type_ilicode",
+            "referenced_layer": "assessment_method_type",
+            "referencing_layer": "par_flooding_depth",
+            "referencing_field": "method_of_assessment",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "par_debris_flow_depth_method_of_assessment_assessment_method_type_ilicode",
+            "referenced_layer": "assessment_method_type",
+            "referencing_layer": "par_debris_flow_depth",
+            "referencing_field": "method_of_assessment",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_pl_state_permanent_landslide_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "pl_state_permanent_landslide",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "hazard_area_sources_complete_completeness_type_ilicode",
+            "referenced_layer": "completeness_type",
+            "referencing_layer": "hazard_area",
+            "referencing_field": "sources_complete",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_su_state_subsidence_assessment_simple_type_ilicode",
+            "referenced_layer": "assessment_simple_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "su_state_subsidence",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_fa_state_flowing_avalanche_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "fa_state_flowing_avalanche",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "par_debris_flow_velocity_method_of_assessment_assessment_method_type_ilicode",
+            "referenced_layer": "assessment_method_type",
+            "referencing_layer": "par_debris_flow_velocity",
+            "referencing_field": "method_of_assessment",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "special_indicat_hazard_area_special_process_special_indicat_process_type_ilicode",
+            "referenced_layer": "special_indicat_process_type",
+            "referencing_layer": "special_indicat_hazard_area",
+            "referencing_field": "special_process",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_gs_state_gliding_snow_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "gs_state_gliding_snow",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_rf_state_rock_fall_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "rf_state_rock_fall",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_hd_state_hillslope_debris_flow_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "hd_state_hillslope_debris_flow",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_intensity_intensity_class_intensity_type_ilicode",
+            "referenced_layer": "intensity_type",
+            "referencing_layer": "synoptic_intensity",
+            "referencing_field": "intensity_class",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "intensity_by_source_subproc_intensity_by_source_detailed_process_source_type_ilicode",
+            "referenced_layer": "detailed_process_source_type",
+            "referencing_layer": "intensity_by_source",
+            "referencing_field": "subproc_intensity_by_source",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_data_responsibility_chcantoncode_ilicode",
+            "referenced_layer": "chcantoncode",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "data_responsibility",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_intensity_sources_in_subprocesses_compl_completeness_type_ilicode",
+            "referenced_layer": "completeness_type",
+            "referencing_layer": "synoptic_intensity",
+            "referencing_field": "sources_in_subprocesses_compl",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "hazard_area_subprocesses_complete_completeness_type_ilicode",
+            "referenced_layer": "completeness_type",
+            "referencing_layer": "hazard_area",
+            "referencing_field": "subprocesses_complete",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "synoptic_hazard_area_assessment_complete_completeness_type_ilicode",
+            "referenced_layer": "completeness_type",
+            "referencing_layer": "synoptic_hazard_area",
+            "referencing_field": "assessment_complete",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "hazard_area_data_responsibility_chcantoncode_ilicode",
+            "referenced_layer": "chcantoncode",
+            "referencing_layer": "hazard_area",
+            "referencing_field": "data_responsibility",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "indicative_hazard_area_indicative_process_indicative_process_type_ilicode",
+            "referenced_layer": "indicative_process_type",
+            "referencing_layer": "indicative_hazard_area",
+            "referencing_field": "indicative_process",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_df_state_debris_flow_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "df_state_debris_flow",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_sh_state_sinkhole_assessment_simple_type_ilicode",
+            "referenced_layer": "assessment_simple_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "sh_state_sinkhole",
+            "referenced_field": "ilicode"})
+        expected_relations.append({
+            "name": "assessment_area_sl_state_spontaneous_landslide_assessment_complex_type_ilicode",
+            "referenced_layer": "assessment_complex_type",
+            "referencing_layer": "assessment_area",
+            "referencing_field": "sl_state_spontaneous_landslide",
+            "referenced_field": "ilicode"})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
     def print_info(self, text):
         print(text)
 
