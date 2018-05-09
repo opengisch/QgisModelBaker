@@ -411,6 +411,11 @@ class DomainRelationGenerator:
             r'\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(
             r'\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
+        re_inline_enum_start = re.compile(
+            r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*')
+        re_inline_enum_end = re.compile(r'\s*\);.*')
+        re_inline_enum_oneline = re.compile(
+            r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
@@ -421,6 +426,7 @@ class DomainRelationGenerator:
         current_structure = ''
         current_topic = ''
         current_class = ''
+        within_inline_enum = False
         attributes = dict()
         models_info = dict()
         extended_classes = dict()
@@ -576,6 +582,29 @@ class DomainRelationGenerator:
                                         break
                             attribute[new_key] = attribute.pop(old_key)
                             attributes.update(attribute)
+                            continue
+
+                        if within_inline_enum:
+                            result = re_inline_enum_end.search(line)
+                            if result:
+                                within_inline_enum = False
+                                continue
+
+                        # Look for inline ENUM definitions
+                        result = re_inline_enum_start.search(line)
+                        if result:
+                            # result.group(1) is the attribute name
+                            if self.debug:
+                                print("INLINE ENUM:", "{}.{}".format(current_class, result.group(1)))
+                            name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                            # Attribute and domain name match for inline ENUMs
+                            attributes[name] = name
+
+                            # Check if the whole ENUM is defined in one line
+                            result = re_inline_enum_oneline.search(line)
+                            if not result:
+                                within_inline_enum = True
+
                             continue
 
                         result = re_end_class.search(line)
