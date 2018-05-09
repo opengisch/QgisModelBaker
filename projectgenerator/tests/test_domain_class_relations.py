@@ -216,7 +216,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list()  # 3 domain-class relations are expected
+        expected_relations = list()  # 8 domain-class relations are expected
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
                                    "referenced_layer": "abfallart",
@@ -235,6 +235,33 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "referencing_field": "lagegenauigkeit",
                                    "referenced_field": "ilicode",
                                    "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_ilicode"})
+        # Domains from inline ENUMs
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_eigentum",
+                                   "referencing_field": "eigentum",
+                                   "referenced_field": "ilicode",
+                                   "name": "abfallsammelstelle_eigentum_abfallsammelstelle_eigentum_ilicode"})
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_grundeigentum",
+                                   "referencing_field": "grundeigentum",
+                                   "referenced_field": "ilicode",
+                                   "name": "abfallsammelstelle_grundeigentum_abfallsammelstelle_grundeigentum_ilicode"})
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_oeffentlichesammelstelle",
+                                   "referencing_field": "oeffentlichesammelstelle",
+                                   "referenced_field": "ilicode",
+                                   "name": "abfallsammelstelle_oeffentlichesammelstelle_abfallsammelstelle_oeffentlichesammelstelle_ilicode"})
+        # Domains from INTERLIS base model
+        expected_relations.append({"referencing_layer": "sammelstelle_beschriftung",
+                                   "referenced_layer": "halignment",
+                                   "referencing_field": "texthali",
+                                   "referenced_field": "ilicode",
+                                   "name": "sammelstelle_beschriftung_texthali_halignment_ilicode"})
+        expected_relations.append({"referencing_layer": "sammelstelle_beschriftung",
+                                   "referenced_layer": "valignment",
+                                   "referencing_field": "textvali",
+                                   "referenced_field": "ilicode",
+                                   "name": "sammelstelle_beschriftung_textvali_valignment_ilicode"})
 
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
@@ -271,7 +298,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "referenced_field": relation.referenced_field,
                                     "name": relation.name})
 
-        expected_relations = list()  # 3 domain-class relations are expected
+        expected_relations = list()  # 8 domain-class relations are expected
         # Domain inherited from abstract class
         expected_relations.append({"referencing_layer": "oberirdische_sammelstelle",
                                    "referenced_layer": "abfallart",
@@ -290,6 +317,33 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "referencing_field": "lagegenauigkeit",
                                    "referenced_field": "iliCode",
                                    "name": "unterflurcontainer_lagegenauigkeit_lagegenauigkeit_iliCode"})
+        # Domains from inline ENUMs
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_eigentum",
+                                   "referencing_field": "eigentum",
+                                   "referenced_field": "iliCode",
+                                   "name": "abfallsammelstelle_eigentum_abfallsammelstelle_eigentum_iliCode"})
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_grundeigentum",
+                                   "referencing_field": "grundeigentum",
+                                   "referenced_field": "iliCode",
+                                   "name": "abfallsammelstelle_grundeigentum_abfallsammelstelle_grundeigentum_iliCode"})
+        expected_relations.append({"referencing_layer": "abfallsammelstelle",
+                                   "referenced_layer": "abfallsammelstelle_oeffentlichesammelstelle",
+                                   "referencing_field": "oeffentlichesammelstelle",
+                                   "referenced_field": "iliCode",
+                                   "name": "abfallsammelstelle_oeffentlichesammelstelle_abfallsammelstelle_oeffentlichesammelstelle_iliCode"})
+        # Domains from INTERLIS base model
+        expected_relations.append({"referencing_layer": "sammelstelle_beschriftung",
+                                   "referenced_layer": "halignment",
+                                   "referencing_field": "texthali",
+                                   "referenced_field": "iliCode",
+                                   "name": "sammelstelle_beschriftung_texthali_halignment_iliCode"})
+        expected_relations.append({"referencing_layer": "sammelstelle_beschriftung",
+                                   "referenced_layer": "valignment",
+                                   "referencing_field": "textvali",
+                                   "referenced_field": "iliCode",
+                                   "name": "sammelstelle_beschriftung_textvali_valignment_iliCode"})
 
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
@@ -328,7 +382,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                     "name": relation.name})
 
         # 7 domain-structure + 1 domain-class relations are expected
-        expected_relations = list()  
+        expected_relations = list()
 
         expected_relations.append({'name': 'ns_bewirtschaftung_ns_bewirtschaftungen_ns_bewirtschaftungen_ilicode',
                                    'referenced_layer': 'ns_bewirtschaftungen',
