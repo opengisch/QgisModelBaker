@@ -643,8 +643,9 @@ class DomainRelationGenerator:
         local_names = dict()
         for domain in domains:
             local_names_list = list()
-            if domain.startswith('{}.'.format(current_model)) or domain.startswith(
-                    '{}.{}.'.format(current_model, current_topic)):
+            if domain.startswith('{}.'.format(current_model)) or \
+               domain.startswith('{}.{}.'.format(current_model, current_topic)) or \
+               domain.startswith('INTERLIS'):
                 array = domain.split(".")
                 if len(array) > 0:
                     local_names_list.append(array[-1])
