@@ -99,7 +99,7 @@ class PGConnector(DBConnector):
                               AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
                 model_where = """LEFT JOIN {}.t_ili2db_classname c
                       ON tbls.tablename = c.sqlname""".format(self.schema)
-                
+
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -163,7 +163,6 @@ class PGConnector(DBConnector):
             if not geom_type:
                 geom_type = record['simple_type']
             my_rec['type'] = geom_type
-            print(repr(my_rec))
             yield my_rec
 
     def _parse_pg_type(self, formatted_attr_type):
