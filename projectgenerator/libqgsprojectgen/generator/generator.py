@@ -33,11 +33,12 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 class Generator:
     """Builds Project Generator objects from data extracted from databases."""
 
-    def __init__(self, tool_name, uri, inheritance, schema=None):
+    def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=True):
         self.tool_name = tool_name
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None
+        self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
         if self.tool_name == 'ili2pg':
             self._db_connector = pg_connector.PGConnector(uri, schema)
         elif self.tool_name == 'ili2gpkg':
@@ -65,9 +66,10 @@ class Generator:
             if self.tool_name == 'ili2pg':
                 provider = 'postgres'
                 if record['geometry_column']:
-                    data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
+                    data_source_uri = '{uri} key={primary_key} estimatedmetadata={estimated_metadata} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
                         uri=self.uri,
                         primary_key=record['primary_key'],
+                        estimated_metadata=self.pg_estimated_metadata,
                         srid=record['srid'],
                         type=record['type'],
                         schema=record['schemaname'],
