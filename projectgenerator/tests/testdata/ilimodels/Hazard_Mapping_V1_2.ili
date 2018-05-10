@@ -1,0 +1,985 @@
+INTERLIS 2.3;
+
+!! Version    | Who        | Modification
+!!------------------------------------------------------------------------------
+!! 2017-06-23 | KOGIS/BAFU | Constraints adapted (line 384, 450, 853, 919),
+!!                           Comments adapted (line 376, 441, 845, 910)
+
+/* DATA MODEL HAZARD MAPPING (ID 166.1), version 1.2
+   de: Gefahrenkartierung
+   fr: cartographie des dangers
+   it: cartografia dei pericoli
+
+   This data model (MODEL Hazard_Mapping_LV95_V1_2 (en) resp.
+   MODEL Hazard_Mapping_LV03_V1_2 (en)) contains a minimum part according to
+   the Federal Act on Geoinformation and an extended part.
+   The following classes belong to the MINIMUM DATA MODEL:
+   - assessment_area
+   - synoptic_intensity
+   - hazard_area
+   The following classes belong to the EXTENDED DATA MODEL:
+   - par_flooding_depth
+   - par_flooding_velocity
+   - par_flooding_v_x_h
+   - par_debris_flow_depth
+   - par_debris_flow_velocity
+   - intensity_by_source
+   - synoptic_hazard_area
+   - indicative_hazard_area
+   - special_indicat_hazard_area
+   The different classes are correspondingly commented.
+
+   This model calls the following different submodels:
+   -- from http://models.interlis.ch/
+        -- CONTRACTED TYPE MODEL Units (en)
+        -- REFSYSTEM MODEL CoordSys (en) (implicitly; called by CHBase model)
+   -- from https;//models.geo.admin.ch/CH/
+        -- MODEL Geometry CHLV03_V1;  !! Part I of CHBase
+        resp.
+        -- MODEL Geometry CHLV95_V1;  !! Part I of CHBase
+
+   The following definition is further taken over from CHBase and
+   explicitly integrated (see https://models.geo.admin.ch/CH/):
+      definition of CHCantonCode from:
+      -- MODEL CHAdminCodes_V1;    !! Part IV of CHBase
+
+   The ili-file contains two models that are identical except for the
+   coordinate system. One model is built in LV95, the other in LV03. */
+
+
+
+!!@ IDGeoIV=166.1
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+
+MODEL Hazard_Mapping_LV95_V1_2  (en)
+    AT "https://models.geo.admin.ch/BAFU/" VERSION "2017-06-23" =
+  IMPORTS Units;
+  IMPORTS GeometryCHLV95_V1;
+
+
+  DOMAIN                                      !! from CHBase; for cantonal codes
+    CHCantonCode (FINAL) = (ZH,BE,LU,UR,SZ,OW,NW,GL,ZG,FR,SO,BS,BL,SH,AR,AI,SG,
+                            GR,AG,TG,TI,VD,VS,NE,GE,JU);
+
+
+  DOMAIN                                                              !! for OID
+    haz_map_oid = OID TEXT*120;    !! <OID as used in canton>.<cantonal code>.ch
+
+    surface_without_arcs = SURFACE WITH (STRAIGHTS)
+        VERTEX GeometryCHLV95_V1.Coord2 WITHOUT OVERLAPS > 0.001; !! areal type
+    /* surface_without_arcs is the data type for all areal geometry types in the
+       data model except of the class "assessment_area". arcs are not allowed.*/
+
+    area_without_arcs = AREA WITH (STRAIGHTS)
+        VERTEX GeometryCHLV95_V1.Coord2 WITHOUT OVERLAPS > 0.001; !! areal type
+    /* area_without_arcs is the data type for the class "assessment_area".
+       arcs are not allowed. */
+
+
+  TOPIC hazard_mapping =
+
+    OID AS haz_map_oid;
+
+    UNIT
+      v_x_h [m2s] = (INTERLIS.m*INTERLIS.m/INTERLIS.s);
+
+    DOMAIN                                       !! enumeration type declaration
+!! --- --- --- begin process type declaration
+      main_process_type (FINAL) = (                    !! process classification
+        water,
+        landslide,
+        rockfall,
+        avalanche);
+
+      indicative_process_type (FINAL) = (              !! process classification
+        water,
+          w_flooding,                    !! contains also overbank sedimentation
+          w_debris_flow,
+        landslide,
+          l_permanent_landslide,
+          l_sudden_landslide_proc,
+        rockfall,
+        avalanche);
+
+      detailed_process_source_type (FINAL) = (         !! process classification
+        w_flooding,
+        w_debris_flow,
+        w_bank_erosion,
+        l_permanent_landslide,
+        l_sud_spontaneous_landslide,
+        l_sud_hillslope_debris_flow,
+        r_rock_fall,
+        r_rock_slide_rock_avalanche,
+        r_ice_fall,
+        ss_sinkhole,
+        ss_subsidence,
+        a_flowing_avalanche,
+        a_powder_avalanche,
+        a_gliding_snow);
+
+      detailed_process_synop_type (FINAL) = (          !! process classification
+        water,
+          w_flooding,
+          w_debris_flow,
+          w_bank_erosion,
+        landslide,
+          l_permanent_landslide,
+          l_sudden_landslide_proc,
+            l_sud_spontaneous_landslide,
+            l_sud_hillslope_debris_flow,
+        rockfall,
+          r_rock_fall,
+          r_rock_slide_rock_avalanche,
+          r_ice_fall,
+        sinkhole_or_subsidence,
+          ss_sinkhole,
+          ss_subsidence,
+        avalanche,
+          a_flowing_avalanche,
+          a_powder_avalanche,
+          a_gliding_snow);
+
+      special_indicat_process_type (FINAL) = (        !! process classification
+        overland_flow,
+        groundwater_table_rise);
+!! --- --- --- end process type declaration
+
+      assessment_simple_type (FINAL) = MANDATORY (        !! assessment criteria
+        not_assessed,
+        assessment_not_necessary,
+        assessed);
+        /* The use of the attribute value "assessment_not_necessary" should be
+           avoided, if possible. See chapter 3.3.2 for details. */
+
+      assessment_complex_type (FINAL) = (                 !! assessment criteria
+        not_assessed,
+        assessment_not_necessary,
+        assessed_and_complete,
+        assessed_and_not_complete,
+        assessed_and_not_recognizable,
+        assessed_and_to_be_clarified);
+        /* The use of the attribute value "assessment_not_necessary" should be
+           avoided, if possible. See chapter 3.3.2 for details. */
+
+      completeness_type (FINAL) = (                       !! assessment criteria
+        complete,
+        not_complete,
+        not_recognizable,
+        to_be_clarified);
+
+      assessment_method_type (FINAL) = ( !! assessment criteria (for parameters)
+        not_reconstructible,
+        model_evaluation,
+        expertise);
+
+      intensity_type (FINAL) = (                     !! intensities (magnitudes)
+        no_impact,
+        existing_impact,
+          low,
+          mean,
+          high);
+
+      hazard_level_type (FINAL) = (                             !! hazard levels
+        not_in_danger,
+        residual_hazard,
+        slight,
+        mean,
+        substantial);
+
+    DOMAIN                              !! definition of the range of co-domains
+      flooding_depth_type = MANDATORY 0.00 .. 10.00 [INTERLIS.m];           !! m
+
+      flooding_velocity_type = MANDATORY 0.00 .. 30.00 [Units.ms];        !! m/s
+
+      flooding_v_x_h_type = MANDATORY 0.00 .. 50.00 [m2s];              !! m^2/s
+
+      debris_flow_depth_type = MANDATORY 0.00 .. 10.00 [INTERLIS.m];        !! m
+
+      debris_flow_velocity_type = MANDATORY 0.00 .. 10.00 [Units.ms];     !! m/s
+
+      probability_type = 0.00 .. 1.00;                          !! probabilities
+
+      return_period_type = 1 .. 10000;               !! return periods; in years
+      /* Comments:
+         The return period is mandatory for most subprocesses except for
+         - l_permanent_landslide: must always be undefined, because it makes no
+                                  sense
+         - a_gliding_snow, r_ice_fall: optional
+         - sinkhole_or_subsidence, ss_sinkhole, ss_subsidence: optional, if
+                                          assessed only on the indicative level.
+
+         Generally, the values for the return period are between 1 and 300
+         inclusively (except for the extreme event).
+         If a scenario is used as the decisive extreme event, the attribute
+         extreme_scenario must be set to 'TRUE', in any other case to 'FALSE' -
+         regardless whether it is based on a clearly specified return
+         period in years or not.
+         If the decisive extreme scenario is based on a specific return period,
+         a value between 301 and 10000 is also set as the attribute value of the
+         return_period_in_years.
+         Additional events with a lower probability between 301 and 10000 that
+         are not the decisive extreme scenario, are also possible. */
+
+
+
+!!  MINIMUM DATA MODEL
+    CLASS assessment_area =
+      area: MANDATORY area_without_arcs;
+      /* The assessment area consists conceptually of the area covering the
+         entire area of the canton, whereas no overlapping subareas are
+         possible.
+         Border line properties need not to be assigned (as it is forseen for
+         the encoding of the INTERLIS-type "AREA"). */
+      data_responsibility: MANDATORY CHCantonCode;
+      fl_state_flooding: MANDATORY assessment_complex_type;
+      df_state_debris_flow: MANDATORY assessment_complex_type;
+      be_state_bank_erosion: MANDATORY assessment_complex_type;
+      pl_state_permanent_landslide: MANDATORY assessment_complex_type;
+      sl_state_spontaneous_landslide: MANDATORY assessment_complex_type;
+      hd_state_hillslope_debris_flow: MANDATORY assessment_complex_type;
+      rf_state_rock_fall: MANDATORY assessment_complex_type;
+      rs_state_rock_slide_rock_aval: MANDATORY assessment_complex_type;
+      if_state_ice_fall: MANDATORY assessment_simple_type;
+      sh_state_sinkhole: MANDATORY assessment_simple_type;
+      su_state_subsidence: MANDATORY assessment_simple_type;
+      fa_state_flowing_avalanche: MANDATORY assessment_complex_type;
+      pa_state_powder_avalanche: MANDATORY assessment_complex_type;
+      gs_state_gliding_snow: MANDATORY assessment_complex_type;
+      comments: TEXT*250;
+    END assessment_area;
+    /* The assessment_area gives information about the state of detailed
+       hazard assessment in space. It is not applicable for the description of
+       hazard assessment on an indicative level. */
+
+
+    CLASS basic_object (ABSTRACT) =
+      impact_zone: MANDATORY surface_without_arcs;
+      data_responsibility: MANDATORY CHCantonCode;
+      comments: TEXT*250;
+    END basic_object;
+
+
+      CLASS parameter (ABSTRACT) EXTENDS basic_object =
+        return_period_in_years: return_period_type;
+        extreme_scenario: MANDATORY BOOLEAN;
+        subscenario_probability: MANDATORY probability_type;
+        /* If subscenario_probability = 1.00, it is a total scenario, otherwise
+           a subscenario. */
+        scenario_description: TEXT*400;
+        process_source: MANDATORY TEXT*50;
+        method_of_assessment: assessment_method_type;
+        process_cantonal_term: TEXT*50;
+        MANDATORY CONSTRAINT
+          /* Extreme scenarios with return periods smaller than or equal to 300
+             years are not allowed. */
+          NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+        MANDATORY CONSTRAINT
+          !! The scenario_description is mandatory for subscenarios.
+          (subscenario_probability == 1.00) OR
+          DEFINED (scenario_description);
+      END parameter;
+
+      /* Comments regarding the systematization of parameters:
+         - return period: see DOMAIN "return_period_type"
+         - The values are described both by a lower limit (_lower) and an upper
+           limit (_upper).
+         - Predefinition: If no impact on a specific area within the assessed
+           area exists (as a result of the corresponding process and source of
+           the process), the values for the lower and the upper limit are set
+           to 0, i.d. xxx_lower = 0 and xxx_upper = 0.
+         - "Parameters" exist only for the subprocesses "w_flooding" and
+           "w_debris_flow".
+         - If subscenario_probability = 1.00, it is a total scenario, otherwise
+           a subscenario. */
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_depth EXTENDS parameter =
+          fl_h_lower_m: MANDATORY flooding_depth_type;
+          fl_h_upper_m: MANDATORY flooding_depth_type;
+          MANDATORY CONSTRAINT
+            fl_h_lower_m <= fl_h_upper_m;
+        END par_flooding_depth;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_velocity EXTENDS parameter =
+          fl_v_lower_m_s: MANDATORY flooding_velocity_type;
+          fl_v_upper_m_s: MANDATORY flooding_velocity_type;
+          MANDATORY CONSTRAINT
+            fl_v_lower_m_s <= fl_v_upper_m_s;
+        END par_flooding_velocity;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_v_x_h EXTENDS parameter =
+          fl_vxh_lower_m_s2: MANDATORY flooding_v_x_h_type;
+          fl_vxh_upper_m_s2: MANDATORY flooding_v_x_h_type;
+          MANDATORY CONSTRAINT
+            fl_vxh_lower_m_s2 <= fl_vxh_upper_m_s2;
+        END par_flooding_v_x_h;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_debris_flow_depth EXTENDS parameter =
+          df_h_lower_m: MANDATORY debris_flow_depth_type;
+          df_h_upper_m: MANDATORY debris_flow_depth_type;
+          MANDATORY CONSTRAINT
+            df_h_lower_m <= df_h_upper_m;
+        END par_debris_flow_depth;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_debris_flow_velocity EXTENDS parameter =
+          df_v_lower_m_s: MANDATORY debris_flow_velocity_type;
+          df_v_upper_m_s: MANDATORY debris_flow_velocity_type;
+          MANDATORY CONSTRAINT
+            df_v_lower_m_s <= df_v_upper_m_s;
+        END par_debris_flow_velocity;
+
+
+      CLASS intensity (ABSTRACT) EXTENDS basic_object =
+        intensity_class: MANDATORY intensity_type;
+        process_cantonal_term: MANDATORY TEXT*50;
+      END intensity;
+
+!!  EXTENDED DATA MODEL
+        CLASS intensity_by_source EXTENDS intensity =
+          return_period_in_years: return_period_type;
+          /* mandatory for most of the subprocesses in case of being not the
+             extreme scenario (see constraints below resp. DOMAIN
+             "return_period_in_years" above) */
+          extreme_scenario: MANDATORY BOOLEAN;
+          /* Predefinition:
+             - For permanent landlides,
+               (subproc_intensity_by_source == #l_permanent_landslide), the
+               attribute "extreme_scenario" is always set to "FALSE".
+             - For the 'additional' processes (such as "r_ice_fall",
+               "ss_sinkhole", "ss_subsidence" or "a_gliding_snow"), the
+               attribute "extreme_scenario" is set to "FALSE" in those cases,
+               where it cannot be defined (see also the first MANDATORY
+               CONSTRAINT of this CLASS */
+          process_source: MANDATORY TEXT*50;
+          subproc_intensity_by_source: MANDATORY detailed_process_source_type;
+          subscenario_probability: MANDATORY probability_type;
+          /* If subscenario_probability = 1.00, it is a total scenario,
+             otherwise a subscenario. */
+          scenario_description: TEXT*400;
+          MANDATORY CONSTRAINT
+            /* An overview over the possible resp. invalid combinations between
+               the subprocesses, the extreme scenario, and the return period is
+               shown by a matrix scheme in the model documentation within this
+               chapter 6.1, below the INTERLIS model.
+               - In case of 'standard' processes (all 'additional' subprocesses
+                 except for the listed processes below), the
+                 return_period_in_years is mandatory for all events that are not
+                 the decisive extreme scenario
+                 (i.e. extreme_scenario == #false).
+               - No return period must be specified for the subprocess
+                 "l_permanent_landslide".
+               - For the 'additional' processes "r_ice_fall", "ss_sinkhole",
+                 "ss_subsidence" or "a_gliding_snow", the attribute
+                 "return_period_in_years" does not need to be specified.
+                 (This option can be used for "ss_sinkhole" or "ss_subsidence"
+                 in those cases, where the assessment was made only on an
+                 indicative level.) */
+            !! for 'standard' processes:
+            (((extreme_scenario) OR DEFINED (return_period_in_years)) AND
+              (subproc_intensity_by_source != #l_permanent_landslide))
+            OR !! for the "l_permanent_landslide" process:
+            (subproc_intensity_by_source == #l_permanent_landslide) AND
+              NOT (extreme_scenario) AND NOT (DEFINED (return_period_in_years))
+            OR !! for 'additional' processes:
+            (subproc_intensity_by_source == #r_ice_fall) OR
+            (subproc_intensity_by_source == #ss_sinkhole) OR
+            (subproc_intensity_by_source == #ss_subsidence) OR
+            (subproc_intensity_by_source == #a_gliding_snow);
+          MANDATORY CONSTRAINT
+            /* Extreme scenarios with return periods smaller than or equal to
+               300 years are not allowed. */
+            NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+          MANDATORY CONSTRAINT
+            !! The scenario_description is mandatory for subscenarios.
+            (subscenario_probability == 1.00) OR
+            DEFINED(scenario_description);
+          MANDATORY CONSTRAINT
+            /* For return periods between 1 und 300 years inclusively,
+               intensities must be specified in detail.
+               (--> "no_impact", "low", "mean", "high" -> corresponds to the
+               attribute type "intensity_class" -> i.e. the value
+               "existing_impact" is not allowed in this case.) */
+            (return_period_in_years > 300) OR
+            NOT (intensity_class == #existing_impact);
+        END intensity_by_source;
+
+!!  MINIMUM DATA MODEL
+        CLASS synoptic_intensity EXTENDS intensity =
+          return_period_in_years: return_period_type;
+          /* mandatory for most of the subprocesses in case of being not the
+             extreme scenario (see constraints below resp. DOMAIN
+             "return_period_in_years" above) */
+          extreme_scenario: MANDATORY BOOLEAN;
+          /* Predefinition:
+             - For permanent landlides,
+               (subproc_synoptic_intensity == #l_permanent_landslide), the
+               attribute "extreme_scenario" is always set to "FALSE".
+             - For the 'additional' processes (such as "r_ice_fall",
+               "sinkhole_subsidence", "ss_sinkhole", "ss_subsidence" or
+               "a_gliding_snow"), the attribute "extreme_scenario" is set to
+               "FALSE" in those cases, where it cannot be defined (see also the
+               first MANDATORY CONSTRAINT of this CLASS */
+          subproc_synoptic_intensity: MANDATORY detailed_process_synop_type;
+          sources_in_subprocesses_compl: MANDATORY completeness_type;
+          MANDATORY CONSTRAINT
+            /* An overview over the possible resp. invalid combinations between
+               the subprocesses, the extreme scenario, and the return period is
+               shown by a matrix scheme in the model documentation within this
+               chapter 6.1, below the INTERLIS model.
+               - In case of 'standard' processes (all 'additional' subprocesses
+                 except for the listed processes below), the
+                 return_period_in_years is mandatory for all events that are not
+                 the decisive extreme scenario
+                 (i.e. extreme_scenario == #false).
+               - No return period must be specified for the subprocess
+                 "l_permanent_landslide".
+               - For the 'additional' processes "r_ice_fall",
+                 "sinkhole_or_subsidence", "ss_sinkhole", "ss_subsidence" or
+                 "a_gliding_snow", the attribute "return_period_in_years" 
+                 does not need to be specified.
+                 (This option can be used for "sinkhole_or_subsidence",
+                 "ss_sinkhole" or "ss_subsidence" in those cases, where the
+                 assessment was made only on an indicative level.) */
+            !! for 'standard' processes:
+            (((extreme_scenario) OR DEFINED (return_period_in_years)) AND
+              (subproc_synoptic_intensity != #l_permanent_landslide))
+            OR !! for the "l_permanent_landslide" process:
+            (subproc_synoptic_intensity == #l_permanent_landslide) AND
+              NOT (extreme_scenario) AND NOT (DEFINED (return_period_in_years))
+            OR !! for 'additional' processes:
+            (subproc_synoptic_intensity == #r_ice_fall) OR
+            (subproc_synoptic_intensity == #sinkhole_or_subsidence) OR
+            (subproc_synoptic_intensity == #ss_sinkhole) OR
+            (subproc_synoptic_intensity == #ss_subsidence) OR
+            (subproc_synoptic_intensity == #a_gliding_snow);
+          MANDATORY CONSTRAINT
+            /* Extreme scenarios with return periods smaller than or equal to
+               300 years are not allowed. */
+            NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+          MANDATORY CONSTRAINT
+            /* For return periods between 1 und 300 years inclusively,
+               intensities must be specified in detail.
+               (--> "no_impact", "low", "mean", "high" -> corresponds to the
+               attribute type "intensity_class" -> i.e. the value
+               "existing_impact" is not allowed in this case.) */
+            (return_period_in_years > 300) OR
+            NOT (intensity_class == #existing_impact);
+        END synoptic_intensity;
+
+
+!!  MINIMUM DATA MODEL
+      CLASS hazard_area EXTENDS basic_object=
+        main_process: MANDATORY main_process_type;
+        hazard_level: MANDATORY hazard_level_type;
+        subprocesses_complete: MANDATORY completeness_type;
+        sources_complete: MANDATORY completeness_type;
+      END hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS synoptic_hazard_area EXTENDS basic_object =
+        assessment_complete: MANDATORY completeness_type;
+        !! with respect to subprocesses AND process sources
+        water: hazard_level_type;
+        landslide: hazard_level_type;
+        rockfall: hazard_level_type;
+        avalanche: hazard_level_type;
+        /* The hazard level for the particuliar main processes should be stated
+           either for all or for no main process. */
+        max_hazard_level: MANDATORY hazard_level_type;
+      END synoptic_hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS indicative_hazard_area EXTENDS basic_object =
+        indicative_process: MANDATORY indicative_process_type;
+        hazard_indication: MANDATORY BOOLEAN;
+        method: TEXT*400;
+      END indicative_hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS special_indicat_hazard_area EXTENDS basic_object =
+        special_process: MANDATORY special_indicat_process_type;
+        hazard_indication: MANDATORY BOOLEAN;
+        method: TEXT*400;
+       END special_indicat_hazard_area;
+
+  END hazard_mapping;
+
+
+END Hazard_Mapping_LV95_V1_2.
+
+/*............................................................................*/
+
+!!@ IDGeoIV=166.1
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+
+MODEL Hazard_Mapping_LV03_V1_2  (en)
+    AT "https://models.geo.admin.ch/BAFU/" VERSION "2017-06-23" =
+  IMPORTS Units;
+  IMPORTS GeometryCHLV03_V1;
+
+
+  DOMAIN                                      !! from CHBase; for cantonal codes
+    CHCantonCode (FINAL) = (ZH,BE,LU,UR,SZ,OW,NW,GL,ZG,FR,SO,BS,BL,SH,AR,AI,SG,
+                            GR,AG,TG,TI,VD,VS,NE,GE,JU);
+
+
+  DOMAIN                                                              !! for OID
+    haz_map_oid = OID TEXT*120;    !! <OID as used in canton>.<cantonal code>.ch
+
+    surface_without_arcs = SURFACE WITH (STRAIGHTS)
+        VERTEX GeometryCHLV03_V1.Coord2 WITHOUT OVERLAPS > 0.001; !! areal type
+    /* surface_without_arcs is the data type for all areal geometry types in the
+       data model except of the class "assessment_area". arcs are not allowed.*/
+
+    area_without_arcs = AREA WITH (STRAIGHTS)
+        VERTEX GeometryCHLV03_V1.Coord2 WITHOUT OVERLAPS > 0.001; !! areal type
+    /* area_without_arcs is the data type for the class "assessment_area".
+       arcs are not allowed. */
+
+
+  TOPIC hazard_mapping =
+
+    OID AS haz_map_oid;
+
+    UNIT
+      v_x_h [m2s] = (INTERLIS.m*INTERLIS.m/INTERLIS.s);
+
+    DOMAIN                                       !! enumeration type declaration
+!! --- --- --- begin process type declaration
+      main_process_type (FINAL) = (                    !! process classification
+        water,
+        landslide,
+        rockfall,
+        avalanche);
+
+      indicative_process_type (FINAL) = (              !! process classification
+        water,
+          w_flooding,                    !! contains also overbank sedimentation
+          w_debris_flow,
+        landslide,
+          l_permanent_landslide,
+          l_sudden_landslide_proc,
+        rockfall,
+        avalanche);
+
+      detailed_process_source_type (FINAL) = (         !! process classification
+        w_flooding,
+        w_debris_flow,
+        w_bank_erosion,
+        l_permanent_landslide,
+        l_sud_spontaneous_landslide,
+        l_sud_hillslope_debris_flow,
+        r_rock_fall,
+        r_rock_slide_rock_avalanche,
+        r_ice_fall,
+        ss_sinkhole,
+        ss_subsidence,
+        a_flowing_avalanche,
+        a_powder_avalanche,
+        a_gliding_snow);
+
+      detailed_process_synop_type (FINAL) = (          !! process classification
+        water,
+          w_flooding,
+          w_debris_flow,
+          w_bank_erosion,
+        landslide,
+          l_permanent_landslide,
+          l_sudden_landslide_proc,
+            l_sud_spontaneous_landslide,
+            l_sud_hillslope_debris_flow,
+        rockfall,
+          r_rock_fall,
+          r_rock_slide_rock_avalanche,
+          r_ice_fall,
+        sinkhole_or_subsidence,
+          ss_sinkhole,
+          ss_subsidence,
+        avalanche,
+          a_flowing_avalanche,
+          a_powder_avalanche,
+          a_gliding_snow);
+
+      special_indicat_process_type (FINAL) = (        !! process classification
+        overland_flow,
+        groundwater_table_rise);
+!! --- --- --- end process type declaration
+
+      assessment_simple_type (FINAL) = MANDATORY (        !! assessment criteria
+        not_assessed,
+        assessment_not_necessary,
+        assessed);
+        /* The use of the attribute value "assessment_not_necessary" should be
+           avoided, if possible. See chapter 3.3.2 for details. */
+
+      assessment_complex_type (FINAL) = (                 !! assessment criteria
+        not_assessed,
+        assessment_not_necessary,
+        assessed_and_complete,
+        assessed_and_not_complete,
+        assessed_and_not_recognizable,
+        assessed_and_to_be_clarified);
+        /* The use of the attribute value "assessment_not_necessary" should be
+           avoided, if possible. See chapter 3.3.2 for details. */
+
+      completeness_type (FINAL) = (                       !! assessment criteria
+        complete,
+        not_complete,
+        not_recognizable,
+        to_be_clarified);
+
+      assessment_method_type (FINAL) = ( !! assessment criteria (for parameters)
+        not_reconstructible,
+        model_evaluation,
+        expertise);
+
+      intensity_type (FINAL) = (                     !! intensities (magnitudes)
+        no_impact,
+        existing_impact,
+          low,
+          mean,
+          high);
+
+      hazard_level_type (FINAL) = (                             !! hazard levels
+        not_in_danger,
+        residual_hazard,
+        slight,
+        mean,
+        substantial);
+
+    DOMAIN                              !! definition of the range of co-domains
+      flooding_depth_type = MANDATORY 0.00 .. 10.00 [INTERLIS.m];           !! m
+
+      flooding_velocity_type = MANDATORY 0.00 .. 30.00 [Units.ms];        !! m/s
+
+      flooding_v_x_h_type = MANDATORY 0.00 .. 50.00 [m2s];              !! m^2/s
+
+      debris_flow_depth_type = MANDATORY 0.00 .. 10.00 [INTERLIS.m];        !! m
+
+      debris_flow_velocity_type = MANDATORY 0.00 .. 10.00 [Units.ms];     !! m/s
+
+      probability_type = 0.00 .. 1.00;                          !! probabilities
+
+      return_period_type = 1 .. 10000;               !! return periods; in years
+      /* Comments:
+         The return period is mandatory for most subprocesses except for
+         - l_permanent_landslide: must always be undefined, because it makes no
+                                  sense
+         - a_gliding_snow, r_ice_fall: optional
+         - sinkhole_or_subsidence, ss_sinkhole, ss_subsidence: optional, if
+                                          assessed only on the indicative level.
+
+         Generally, the values for the return period are between 1 and 300
+         inclusively (except for the extreme event).
+         If a scenario is used as the decisive extreme event, the attribute
+         extreme_scenario must be set to 'TRUE', in any other case to 'FALSE' -
+         regardless whether it is based on a clearly specified return
+         period in years or not.
+         If the decisive extreme scenario is based on a specific return period,
+         a value between 301 and 10000 is also set as the attribute value of the
+         return_period_in_years.
+         Additional events with a lower probability between 301 and 10000 that
+         are not the decisive extreme scenario, are also possible. */
+
+
+
+!!  MINIMUM DATA MODEL
+    CLASS assessment_area =
+      area: MANDATORY area_without_arcs;
+      /* The assessment area consists conceptually of the area covering the
+         entire area of the canton, whereas no overlapping subareas are
+         possible.
+         Border line properties need not to be assigned (as it is forseen for
+         the encoding of the INTERLIS-type "AREA"). */
+      data_responsibility: MANDATORY CHCantonCode;
+      fl_state_flooding: MANDATORY assessment_complex_type;
+      df_state_debris_flow: MANDATORY assessment_complex_type;
+      be_state_bank_erosion: MANDATORY assessment_complex_type;
+      pl_state_permanent_landslide: MANDATORY assessment_complex_type;
+      sl_state_spontaneous_landslide: MANDATORY assessment_complex_type;
+      hd_state_hillslope_debris_flow: MANDATORY assessment_complex_type;
+      rf_state_rock_fall: MANDATORY assessment_complex_type;
+      rs_state_rock_slide_rock_aval: MANDATORY assessment_complex_type;
+      if_state_ice_fall: MANDATORY assessment_simple_type;
+      sh_state_sinkhole: MANDATORY assessment_simple_type;
+      su_state_subsidence: MANDATORY assessment_simple_type;
+      fa_state_flowing_avalanche: MANDATORY assessment_complex_type;
+      pa_state_powder_avalanche: MANDATORY assessment_complex_type;
+      gs_state_gliding_snow: MANDATORY assessment_complex_type;
+      comments: TEXT*250;
+    END assessment_area;
+    /* The assessment_area gives information about the state of detailed
+       hazard assessment in space. It is not applicable for the description of
+       hazard assessment on an indicative level. */
+
+
+    CLASS basic_object (ABSTRACT) =
+      impact_zone: MANDATORY surface_without_arcs;
+      data_responsibility: MANDATORY CHCantonCode;
+      comments: TEXT*250;
+    END basic_object;
+
+
+      CLASS parameter (ABSTRACT) EXTENDS basic_object =
+        return_period_in_years: return_period_type;
+        extreme_scenario: MANDATORY BOOLEAN;
+        subscenario_probability: MANDATORY probability_type;
+        /* If subscenario_probability = 1.00, it is a total scenario, otherwise
+           a subscenario. */
+        scenario_description: TEXT*400;
+        process_source: MANDATORY TEXT*50;
+        method_of_assessment: assessment_method_type;
+        process_cantonal_term: TEXT*50;
+        MANDATORY CONSTRAINT
+          /* Extreme scenarios with return periods smaller than or equal to 300
+             years are not allowed. */
+          NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+        MANDATORY CONSTRAINT
+          !! The scenario_description is mandatory for subscenarios.
+          (subscenario_probability == 1.00) OR
+          DEFINED (scenario_description);
+      END parameter;
+
+      /* Comments regarding the systematization of parameters:
+         - return period: see DOMAIN "return_period_type"
+         - The values are described both by a lower limit (_lower) and an upper
+           limit (_upper).
+         - Predefinition: If no impact on a specific area within the assessed
+           area exists (as a result of the corresponding process and source of
+           the process), the values for the lower and the upper limit are set
+           to 0, i.d. xxx_lower = 0 and xxx_upper = 0.
+         - "Parameters" exist only for the subprocesses "w_flooding" and
+           "w_debris_flow".
+         - If subscenario_probability = 1.00, it is a total scenario, otherwise
+           a subscenario. */
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_depth EXTENDS parameter =
+          fl_h_lower_m: MANDATORY flooding_depth_type;
+          fl_h_upper_m: MANDATORY flooding_depth_type;
+          MANDATORY CONSTRAINT
+            fl_h_lower_m <= fl_h_upper_m;
+        END par_flooding_depth;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_velocity EXTENDS parameter =
+          fl_v_lower_m_s: MANDATORY flooding_velocity_type;
+          fl_v_upper_m_s: MANDATORY flooding_velocity_type;
+          MANDATORY CONSTRAINT
+            fl_v_lower_m_s <= fl_v_upper_m_s;
+        END par_flooding_velocity;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_flooding_v_x_h EXTENDS parameter =
+          fl_vxh_lower_m_s2: MANDATORY flooding_v_x_h_type;
+          fl_vxh_upper_m_s2: MANDATORY flooding_v_x_h_type;
+          MANDATORY CONSTRAINT
+            fl_vxh_lower_m_s2 <= fl_vxh_upper_m_s2;
+        END par_flooding_v_x_h;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_debris_flow_depth EXTENDS parameter =
+          df_h_lower_m: MANDATORY debris_flow_depth_type;
+          df_h_upper_m: MANDATORY debris_flow_depth_type;
+          MANDATORY CONSTRAINT
+            df_h_lower_m <= df_h_upper_m;
+        END par_debris_flow_depth;
+
+!!  EXTENDED DATA MODEL
+        CLASS par_debris_flow_velocity EXTENDS parameter =
+          df_v_lower_m_s: MANDATORY debris_flow_velocity_type;
+          df_v_upper_m_s: MANDATORY debris_flow_velocity_type;
+          MANDATORY CONSTRAINT
+            df_v_lower_m_s <= df_v_upper_m_s;
+        END par_debris_flow_velocity;
+
+
+      CLASS intensity (ABSTRACT) EXTENDS basic_object =
+        intensity_class: MANDATORY intensity_type;
+        process_cantonal_term: MANDATORY TEXT*50;
+      END intensity;
+
+!!  EXTENDED DATA MODEL
+        CLASS intensity_by_source EXTENDS intensity =
+          return_period_in_years: return_period_type;
+          /* mandatory for most of the subprocesses in case of being not the
+             extreme scenario (see constraints below resp. DOMAIN
+             "return_period_in_years" above) */
+          extreme_scenario: MANDATORY BOOLEAN;
+          /* Predefinition:
+             - For permanent landlides,
+               (subproc_intensity_by_source == #l_permanent_landslide), the
+               attribute "extreme_scenario" is always set to "FALSE".
+             - For the 'additional' processes (such as "r_ice_fall",
+               "ss_sinkhole", "ss_subsidence" or "a_gliding_snow"), the
+               attribute "extreme_scenario" is set to "FALSE" in those cases,
+               where it cannot be defined (see also the first MANDATORY
+               CONSTRAINT of this CLASS */
+          process_source: MANDATORY TEXT*50;
+          subproc_intensity_by_source: MANDATORY detailed_process_source_type;
+          subscenario_probability: MANDATORY probability_type;
+          /* If subscenario_probability = 1.00, it is a total scenario,
+             otherwise a subscenario. */
+          scenario_description: TEXT*400;
+          MANDATORY CONSTRAINT
+            /* An overview over the possible resp. invalid combinations between
+               the subprocesses, the extreme scenario, and the return period is
+               shown by a matrix scheme in the model documentation within this
+               chapter 6.1, below the INTERLIS model.
+               - In case of 'standard' processes (all 'additional' subprocesses
+                 except for the listed processes below), the
+                 return_period_in_years is mandatory for all events that are not
+                 the decisive extreme scenario
+                 (i.e. extreme_scenario == #false).
+               - No return period must be specified for the subprocess
+                 "l_permanent_landslide".
+               - For the 'additional' processes "r_ice_fall", "ss_sinkhole",
+                 "ss_subsidence" or "a_gliding_snow", the attribute
+                 "return_period_in_years" does not need to be specified.
+                 (This option can be used for "ss_sinkhole" or "ss_subsidence"
+                 in those cases, where the assessment was made only on an
+                 indicative level.) */
+            !! for 'standard' processes:
+            (((extreme_scenario) OR DEFINED (return_period_in_years)) AND
+              (subproc_intensity_by_source != #l_permanent_landslide))
+            OR !! for the "l_permanent_landslide" process:
+            (subproc_intensity_by_source == #l_permanent_landslide) AND
+              NOT (extreme_scenario) AND NOT (DEFINED (return_period_in_years))
+            OR !! for 'additional' processes:
+            (subproc_intensity_by_source == #r_ice_fall) OR
+            (subproc_intensity_by_source == #ss_sinkhole) OR
+            (subproc_intensity_by_source == #ss_subsidence) OR
+            (subproc_intensity_by_source == #a_gliding_snow);
+          MANDATORY CONSTRAINT
+            /* Extreme scenarios with return periods smaller than or equal to
+               300 years are not allowed. */
+            NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+          MANDATORY CONSTRAINT
+            !! The scenario_description is mandatory for subscenarios.
+            (subscenario_probability == 1.00) OR
+            DEFINED(scenario_description);
+          MANDATORY CONSTRAINT
+            /* For return periods between 1 und 300 years inclusively,
+               intensities must be specified in detail.
+               (--> "no_impact", "low", "mean", "high" -> corresponds to the
+               attribute type "intensity_class" -> i.e. the value
+               "existing_impact" is not allowed in this case.) */
+            (return_period_in_years > 300) OR
+            NOT (intensity_class == #existing_impact);
+        END intensity_by_source;
+
+!!  MINIMUM DATA MODEL
+        CLASS synoptic_intensity EXTENDS intensity =
+          return_period_in_years: return_period_type;
+          /* mandatory for most of the subprocesses in case of being not the
+             extreme scenario (see constraints below resp. DOMAIN
+             "return_period_in_years" above) */
+          extreme_scenario: MANDATORY BOOLEAN;
+          /* Predefinition:
+             - For permanent landlides,
+               (subproc_synoptic_intensity == #l_permanent_landslide), the
+               attribute "extreme_scenario" is always set to "FALSE".
+             - For the 'additional' processes (such as "r_ice_fall",
+               "sinkhole_subsidence", "ss_sinkhole", "ss_subsidence" or
+               "a_gliding_snow"), the attribute "extreme_scenario" is set to
+               "FALSE" in those cases, where it cannot be defined (see also the
+               first MANDATORY CONSTRAINT of this CLASS */
+          subproc_synoptic_intensity: MANDATORY detailed_process_synop_type;
+          sources_in_subprocesses_compl: MANDATORY completeness_type;
+          MANDATORY CONSTRAINT
+            /* An overview over the possible resp. invalid combinations between
+               the subprocesses, the extreme scenario, and the return period is
+               shown by a matrix scheme in the model documentation within this
+               chapter 6.1, below the INTERLIS model.
+               - In case of 'standard' processes (all 'additional' subprocesses
+                 except for the listed processes below), the
+                 return_period_in_years is mandatory for all events that are not
+                 the decisive extreme scenario
+                 (i.e. extreme_scenario == #false).
+               - No return period must be specified for the subprocess
+                 "l_permanent_landslide".
+               - For the 'additional' processes "r_ice_fall",
+                 "sinkhole_or_subsidence", "ss_sinkhole", "ss_subsidence" or
+                 "a_gliding_snow", the attribute "return_period_in_years"
+                 does not need to be specified.
+                 (This option can be used for "sinkhole_or_subsidence",
+                 "ss_sinkhole" or "ss_subsidence" in those cases, where the
+                 assessment was made only on an indicative level.) */
+            !! for 'standard' processes:
+            (((extreme_scenario) OR DEFINED (return_period_in_years)) AND
+              (subproc_synoptic_intensity != #l_permanent_landslide))
+            OR !! for the "l_permanent_landslide" process:
+            (subproc_synoptic_intensity == #l_permanent_landslide) AND
+              NOT (extreme_scenario) AND NOT (DEFINED (return_period_in_years))
+            OR !! for 'additional' processes:
+            (subproc_synoptic_intensity == #r_ice_fall) OR
+            (subproc_synoptic_intensity == #sinkhole_or_subsidence) OR
+            (subproc_synoptic_intensity == #ss_sinkhole) OR
+            (subproc_synoptic_intensity == #ss_subsidence) OR
+            (subproc_synoptic_intensity == #a_gliding_snow);
+          MANDATORY CONSTRAINT
+            /* Extreme scenarios with return periods smaller than or equal to
+               300 years are not allowed. */
+            NOT ((extreme_scenario) AND (return_period_in_years <= 300));
+          MANDATORY CONSTRAINT
+            /* For return periods between 1 und 300 years inclusively,
+               intensities must be specified in detail.
+               (--> "no_impact", "low", "mean", "high" -> corresponds to the
+               attribute type "intensity_class" -> i.e. the value
+               "existing_impact" is not allowed in this case.) */
+            (return_period_in_years > 300) OR
+            NOT (intensity_class == #existing_impact);
+        END synoptic_intensity;
+
+
+!!  MINIMUM DATA MODEL
+      CLASS hazard_area EXTENDS basic_object=
+        main_process: MANDATORY main_process_type;
+        hazard_level: MANDATORY hazard_level_type;
+        subprocesses_complete: MANDATORY completeness_type;
+        sources_complete: MANDATORY completeness_type;
+      END hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS synoptic_hazard_area EXTENDS basic_object =
+        assessment_complete: MANDATORY completeness_type;
+        !! with respect to subprocesses AND process sources
+        water: hazard_level_type;
+        landslide: hazard_level_type;
+        rockfall: hazard_level_type;
+        avalanche: hazard_level_type;
+        /* The hazard level for the particuliar main processes should be stated
+           either for all or for no main process. */
+        max_hazard_level: MANDATORY hazard_level_type;
+      END synoptic_hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS indicative_hazard_area EXTENDS basic_object =
+        indicative_process: MANDATORY indicative_process_type;
+        hazard_indication: MANDATORY BOOLEAN;
+        method: TEXT*400;
+      END indicative_hazard_area;
+
+
+!!  EXTENDED DATA MODEL
+      CLASS special_indicat_hazard_area EXTENDS basic_object =
+        special_process: MANDATORY special_indicat_process_type;
+        hazard_indication: MANDATORY BOOLEAN;
+        method: TEXT*400;
+       END special_indicat_hazard_area;
+
+  END hazard_mapping;
+
+
+END Hazard_Mapping_LV03_V1_2.
