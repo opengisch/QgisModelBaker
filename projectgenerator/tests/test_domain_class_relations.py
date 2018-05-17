@@ -728,7 +728,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.tool_name = 'ili2pg'
         importer.configuration = iliimporter_config(importer.tool_name)
         importer.configuration.ilifile = testdata_path(
-            'ilimodels/repo/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
+            'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
