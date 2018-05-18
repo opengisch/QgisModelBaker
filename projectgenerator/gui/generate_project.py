@@ -86,11 +86,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         create_button = self.buttonBox.addButton(
-            self.tr('Create'), QDialogButtonBox.AcceptRole)
+            self.trUtf8('Create'), QDialogButtonBox.AcceptRole)
         create_button.setDefault(True)
         self.ili_file_browse_button.clicked.connect(
-            make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
-                               file_filter=self.tr('Interlis Model File (*.ili)')))
+            make_file_selector(self.ili_file_line_edit, title=self.trUtf8('Open Interlis Model'),
+                               file_filter=self.trUtf8('Interlis Model File (*.ili)')))
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.crs = QgsCoordinateReferenceSystem()
@@ -104,11 +104,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.fill_models_line_edit)
         self.type_combo_box.clear()
         self.type_combo_box.addItem(
-            self.tr('Interlis (use PostGIS)'), 'ili2pg')
+            self.trUtf8('Interlis (use PostGIS)'), 'ili2pg')
         self.type_combo_box.addItem(
-            self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+            self.trUtf8('Interlis (use GeoPackage)'), 'ili2gpkg')
+        self.type_combo_box.addItem(self.trUtf8('PostGIS'), 'pg')
+        self.type_combo_box.addItem(self.trUtf8('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
@@ -171,37 +171,37 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
-                        self.tr('Please set a valid INTERLIS model before creating the project.'))
+                        self.trUtf8('Please set a valid INTERLIS model before creating the project.'))
                     self.ili_models_line_edit.setFocus()
                     return
 
             if self.ili_file_line_edit.text().strip() and \
                     self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file before creating the project.'))
+                    self.trUtf8('Please set a valid INTERLIS file before creating the project.'))
                 self.ili_file_line_edit.setFocus()
                 return
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             if not configuration.dbhost:
                 self.txtStdout.setText(
-                    self.tr('Please set a host before creating the project.'))
+                    self.trUtf8('Please set a host before creating the project.'))
                 self.pg_host_line_edit.setFocus()
                 return
             if not configuration.database:
                 self.txtStdout.setText(
-                    self.tr('Please set a database before creating the project.'))
+                    self.trUtf8('Please set a database before creating the project.'))
                 self.pg_database_line_edit.setFocus()
                 return
             if not configuration.dbusr:
                 self.txtStdout.setText(
-                    self.tr('Please set a database user before creating the project.'))
+                    self.trUtf8('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set a valid database file before creating the project.'))
+                    self.trUtf8('Please set a valid database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
 
@@ -234,7 +234,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 except JavaNotFoundError:
                     self.txtStdout.setTextColor(QColor('#000000'))
                     self.txtStdout.clear()
-                    self.txtStdout.setText(self.tr(
+                    self.txtStdout.setText(self.trUtf8(
                         'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                     self.enable()
                     self.progress_bar.hide()
@@ -246,7 +246,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.progress_bar.setValue(50)
             except OperationalError:
                 self.txtStdout.setText(
-                    self.tr('There was an error connecting to the database. Check connection parameters.'))
+                    self.trUtf8('There was an error connecting to the database. Check connection parameters.'))
                 self.enable()
                 self.progress_bar.hide()
                 return
@@ -254,7 +254,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if self.type_combo_box.currentData() in ['pg', 'gpkg']:
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
-                        self.tr('Source {} does not exist. Check connection parameters.').format(
+                        self.trUtf8('Source {} does not exist. Check connection parameters.').format(
                             'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
                         ))
                     self.enable()
@@ -262,14 +262,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             self.print_info(
-                self.tr('\nObtaining available layers from the database…'))
+                self.trUtf8('\nObtaining available layers from the database…'))
             available_layers = generator.layers()
 
             if not available_layers:
                 if self.type_combo_box.currentData() == 'gpkg':
-                    text = self.tr('The GeoPackage has no layers to load into QGIS.')
+                    text = self.trUtf8('The GeoPackage has no layers to load into QGIS.')
                 else:
-                    text = self.tr('The schema has no layers to load into QGIS.')
+                    text = self.trUtf8('The schema has no layers to load into QGIS.')
                 self.txtStdout.setText(text)
                 self.enable()
                 self.progress_bar.hide()
@@ -277,10 +277,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.progress_bar.setValue(70)
             self.print_info(
-                self.tr('Obtaining relations from the database…'))
+                self.trUtf8('Obtaining relations from the database…'))
             relations = generator.relations(available_layers)
             self.progress_bar.setValue(75)
-            self.print_info(self.tr('Arranging layers into groups…'))
+            self.print_info(self.trUtf8('Arranging layers into groups…'))
             legend = generator.legend(available_layers)
             self.progress_bar.setValue(85)
 
@@ -288,20 +288,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.layers = available_layers
             project.relations = relations
             project.legend = legend
-            self.print_info(self.tr('Configuring forms and widgets…'))
+            self.print_info(self.trUtf8('Configuring forms and widgets…'))
             project.post_generate()
             self.progress_bar.setValue(90)
 
             qgis_project = QgsProject.instance()
 
-            self.print_info(self.tr('Generating QGIS project…'))
+            self.print_info(self.trUtf8('Generating QGIS project…'))
             project.create(None, qgis_project)
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
             self.progress_bar.setValue(100)
-            self.print_info(self.tr('\nDone!'), '#004905')
+            self.print_info(self.trUtf8('\nDone!'), '#004905')
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
@@ -322,11 +322,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
             color = '#004905'
-            message = self.tr(
+            message = self.trUtf8(
                 'Interlis model(s) successfully imported into the database!')
         else:
             color = '#aa2222'
-            message = self.tr('Finished with errors!')
+            message = self.trUtf8('Finished with errors!')
 
         self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append(message)
@@ -437,13 +437,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_config.show()
             self.gpkg_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]"))
+                self.trUtf8("[Leave empty to create a default schema]"))
         elif self.type_combo_box.currentData() == 'pg':
             self.ili_config.hide()
             self.pg_config.show()
             self.gpkg_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to load all schemas in the database]"))
+                self.trUtf8("[Leave empty to load all schemas in the database]"))
         elif self.type_combo_box.currentData() == 'gpkg':
             self.ili_config.hide()
             self.pg_config.hide()
@@ -456,8 +456,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             except:
                 pass
             self.gpkg_file_browse_button.clicked.connect(
-                make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                   file_filter=self.tr('GeoPackage Database (*.gpkg)')))
+                make_file_selector(self.gpkg_file_line_edit, title=self.trUtf8('Open GeoPackage database file'),
+                                   file_filter=self.trUtf8('GeoPackage Database (*.gpkg)')))
         elif self.type_combo_box.currentData() == 'ili2gpkg':
             self.ili_config.show()
             self.pg_config.hide()
@@ -470,8 +470,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             except:
                 pass
             self.gpkg_file_browse_button.clicked.connect(
-                make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                        file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
+                make_save_file_selector(self.gpkg_file_line_edit, title=self.trUtf8('Open GeoPackage database file'),
+                                        file_filter=self.trUtf8('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
 
     def on_model_changed(self, text):
         for pattern, crs in CRS_PATTERNS.items():
@@ -499,11 +499,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.crsSelector.crs().authid()[:5] != 'EPSG:':
             self.crs_label.setStyleSheet('color: orange')
             self.crs_label.setToolTip(
-                self.tr('Please select an EPSG Coordinate Reference System'))
+                self.trUtf8('Please select an EPSG Coordinate Reference System'))
             self.epsg = 21781
         else:
             self.crs_label.setStyleSheet('')
-            self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
+            self.crs_label.setToolTip(self.trUtf8('Coordinate Reference System'))
             authid = self.crsSelector.crs().authid()
             self.epsg = int(authid[5:])
 
@@ -552,7 +552,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
-            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
+            text = self.trUtf8('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 

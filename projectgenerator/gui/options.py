@@ -45,7 +45,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
             configuration.custom_model_directories_enabled)
         self.java_path_line_edit.setText(configuration.java_path)
         self.java_path_search_button.clicked.connect(qt_utils.make_file_selector(
-            self.java_path_line_edit, self.tr('Select Java application'), self.tr('java (*)')))
+            self.java_path_line_edit, self.trUtf8('Select Java application'), self.trUtf8('java (*)')))
         self.java_path_line_edit.setValidator(
             FileValidator(is_executable=True, allow_empty=True))
         self.validators = Validators()
@@ -53,7 +53,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.ili2db_logfile_path.setText(configuration.logfile_path)
         self.ili2db_logfile_search_button.clicked.connect(qt_utils.make_save_file_selector(
-            self.ili2db_logfile_path, self.tr('Select log file'), self.tr('Text files (*.txt)')))
+            self.ili2db_logfile_path, self.trUtf8('Select log file'), self.trUtf8('Text files (*.txt)')))
         self.ili2db_enable_debugging.setChecked(
             self.configuration.debugging_enabled)
         self.buttonBox.accepted.connect(self.accepted)
@@ -65,9 +65,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.ili2db_tool_combobox.addItem('ili2gpkg', 'ili2gpkg')
 
         self.ili2db_action_combobox.addItem(
-            self.tr('Schema Import'), 'schemaimport')
-        self.ili2db_action_combobox.addItem(self.tr('Data Import'), 'import')
-        self.ili2db_action_combobox.addItem(self.tr('Data Export'), 'export')
+            self.trUtf8('Schema Import'), 'schemaimport')
+        self.ili2db_action_combobox.addItem(self.trUtf8('Data Import'), 'import')
+        self.ili2db_action_combobox.addItem(self.trUtf8('Data Export'), 'export')
 
         self.ili2db_tool_combobox.currentIndexChanged.connect(
             self.ili2db_command_reload)

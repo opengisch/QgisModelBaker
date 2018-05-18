@@ -50,22 +50,22 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(
-            self.tr('Export'), QDialogButtonBox.AcceptRole)
+            self.trUtf8('Export'), QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
-            make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
-                                    file_filter=self.tr('XTF Transfer File (*.xtf)'), extension='.xtf'))
+            make_save_file_selector(self.xtf_file_line_edit, title=self.trUtf8('Save in XTF Transfer File'),
+                                    file_filter=self.trUtf8('XTF Transfer File (*.xtf)'), extension='.xtf'))
         self.xtf_file_browse_button.clicked.connect(
             self.xtf_browser_opened_to_true)
         self.xtf_browser_was_opened = False
 
         self.gpkg_file_browse_button.clicked.connect(
-            make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                               file_filter=self.tr('GeoPackage Database (*.gpkg)')))
+            make_file_selector(self.gpkg_file_line_edit, title=self.trUtf8('Open GeoPackage database file'),
+                               file_filter=self.trUtf8('GeoPackage Database (*.gpkg)')))
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+        self.type_combo_box.addItem(self.trUtf8('PostGIS'), 'pg')
+        self.type_combo_box.addItem(self.trUtf8('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
@@ -125,35 +125,35 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
             self.txtStdout.setText(
-                self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+                self.trUtf8('Please set a valid INTERLIS XTF file before exporting data.'))
             self.xtf_file_line_edit.setFocus()
             return
         if not configuration.ilimodels:
             self.txtStdout.setText(
-                self.tr('Please set a model before exporting data.'))
+                self.trUtf8('Please set a model before exporting data.'))
             self.ili_models_line_edit.setFocus()
             return
 
         if self.type_combo_box.currentData() == 'pg':
             if not configuration.dbhost:
                 self.txtStdout.setText(
-                    self.tr('Please set a host before exporting data.'))
+                    self.trUtf8('Please set a host before exporting data.'))
                 self.pg_host_line_edit.setFocus()
                 return
             if not configuration.database:
                 self.txtStdout.setText(
-                    self.tr('Please set a database before exporting data.'))
+                    self.trUtf8('Please set a database before exporting data.'))
                 self.pg_database_line_edit.setFocus()
                 return
             if not configuration.dbusr:
                 self.txtStdout.setText(
-                    self.tr('Please set a database user before exporting data.'))
+                    self.trUtf8('Please set a database user before exporting data.'))
                 self.pg_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() == 'gpkg':
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
-                    self.tr('Please set an existing database file before creating the project.'))
+                    self.trUtf8('Please set an existing database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
 
@@ -162,8 +162,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
-            self.msg.setText(self.tr("{filename} already exists.\nDo you want to replace it?").format(filename=os.path.basename(self.xtf_file_line_edit.text().strip())))
-            self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
+            self.msg.setText(self.trUtf8("{filename} already exists.\nDo you want to replace it?").format(filename=os.path.basename(self.xtf_file_line_edit.text().strip())))
+            self.msg.setWindowTitle(self.trUtf8("Save in XTF Transfer File"))
             self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box = self.msg.exec_()
             if msg_box == QMessageBox.No:
@@ -200,7 +200,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             except JavaNotFoundError:
                 self.txtStdout.setTextColor(QColor('#000000'))
                 self.txtStdout.clear()
-                self.txtStdout.setText(self.tr(
+                self.txtStdout.setText(self.trUtf8(
                     'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 self.enable()
                 self.progress_bar.hide()
@@ -232,7 +232,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def on_process_finished(self, exit_code, result):
         color = '#004905' if exit_code == 0 else '#aa2222'
         self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
+        self.txtStdout.append(self.trUtf8('Finished ({})'.format(exit_code)))
         if result == iliexporter.Exporter.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
