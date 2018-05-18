@@ -266,10 +266,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             available_layers = generator.layers()
 
             if not available_layers:
-                self.txtStdout.setText(
-                    self.tr('The {} has no layers to load into QGIS.').format(
-                        'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
-                    ))
+                if self.type_combo_box.currentData() == 'gpkg':
+                    text = self.tr('The GeoPackage has no layers to load into QGIS.')
+                else:
+                    text = self.tr('The schema has no layers to load into QGIS.')
+                self.txtStdout.setText(text)
                 self.enable()
                 self.progress_bar.hide()
                 return
