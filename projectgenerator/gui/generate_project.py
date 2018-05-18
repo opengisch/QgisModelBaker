@@ -262,7 +262,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             self.print_info(
-                self.tr('\nObtaining available layers from the database...'))
+                self.tr('\nObtaining available layers from the database…'))
             available_layers = generator.layers()
 
             if not available_layers:
@@ -276,10 +276,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.progress_bar.setValue(70)
             self.print_info(
-                self.tr('Obtaining relations from the database...'))
+                self.tr('Obtaining relations from the database…'))
             relations = generator.relations(available_layers)
             self.progress_bar.setValue(75)
-            self.print_info(self.tr('Arranging layers into groups...'))
+            self.print_info(self.tr('Arranging layers into groups…'))
             legend = generator.legend(available_layers)
             self.progress_bar.setValue(85)
 
@@ -287,13 +287,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.layers = available_layers
             project.relations = relations
             project.legend = legend
-            self.print_info(self.tr('Configuring forms and widgets...'))
+            self.print_info(self.tr('Configuring forms and widgets…'))
             project.post_generate()
             self.progress_bar.setValue(90)
 
             qgis_project = QgsProject.instance()
 
-            self.print_info(self.tr('Generating QGIS project...'))
+            self.print_info(self.tr('Generating QGIS project…'))
             project.create(None, qgis_project)
 
             self.buttonBox.clear()
@@ -566,7 +566,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#generate-project")
 
     def advance_progress_bar_by_text(self, text):
-        if text.strip() == 'Info: compile models...':
+        if text.strip() == 'Info: compile models…':
             self.progress_bar.setValue(20)
-        elif text.strip() == 'Info: create table structure...':
+        elif text.strip() == 'Info: create table structure…':
             self.progress_bar.setValue(30)

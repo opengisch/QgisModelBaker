@@ -374,7 +374,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
 
     def advance_progress_bar_by_text(self, text):
-        if text.strip() == 'Info: compile models...':
+        if text.strip() == 'Info: compile models…':
             self.progress_bar.setValue(50)
-        elif text.strip() == 'Info: create table structure...':
+        elif text.strip() == 'Info: create table structure…':
             self.progress_bar.setValue(75)

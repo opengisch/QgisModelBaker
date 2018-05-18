@@ -113,7 +113,7 @@
              <string>Browse Interlis files</string>
             </property>
             <property name="text">
-             <string>...</string>
+             <string>…</string>
             </property>
            </widget>
           </item>
@@ -140,7 +140,7 @@
              <string>Select multiple Interlis models</string>
             </property>
             <property name="text">
-             <string>...</string>
+             <string>…</string>
             </property>
            </widget>
           </item>
@@ -306,7 +306,7 @@
              <string>Browse GeoPackage files</string>
             </property>
             <property name="text">
-             <string>...</string>
+             <string>…</string>
             </property>
            </widget>
           </item>

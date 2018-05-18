@@ -95,7 +95,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
          <string>Browse TOML files</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>…</string>
         </property>
        </widget>
       </item>

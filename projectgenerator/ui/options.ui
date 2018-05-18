@@ -85,7 +85,7 @@
             <item>
              <widget class="QToolButton" name="custom_models_dir_button">
               <property name="text">
-               <string>...</string>
+               <string>…</string>
               </property>
              </widget>
             </item>
@@ -114,7 +114,7 @@
           <item>
            <widget class="QToolButton" name="ili2db_logfile_search_button">
             <property name="text">
-             <string>...</string>
+             <string>…</string>
             </property>
            </widget>
           </item>
@@ -149,7 +149,7 @@
          <item>
           <widget class="QToolButton" name="java_path_search_button">
            <property name="text">
-            <string>...</string>
+            <string>…</string>
            </property>
           </widget>
          </item>
