@@ -64,14 +64,14 @@ class QgsProjectGeneratorPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
-        self.__generate_action = QAction(self.trUtf8('Generate'), None)
+        self.__generate_action = QAction(self.tr('Generate'), None)
         self.__export_action = QAction(
-            self.trUtf8('Export Interlis Transfer File (.xtf)'), None)
+            self.tr('Export Interlis Transfer File (.xtf)'), None)
         self.__importdata_action = QAction(
-            self.trUtf8('Import Interlis Transfer File (.xtf)'), None)
-        self.__configure_action = QAction(self.trUtf8('Settings'), None)
-        self.__help_action = QAction(self.trUtf8('Help'), None)
-        self.__about_action = QAction(self.trUtf8('About'), None)
+            self.tr('Import Interlis Transfer File (.xtf)'), None)
+        self.__configure_action = QAction(self.tr('Settings'), None)
+        self.__help_action = QAction(self.tr('Help'), None)
+        self.__about_action = QAction(self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
 
@@ -83,33 +83,33 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__about_action.triggered.connect(self.show_about_dialog)
 
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__generate_action)
+            self.tr('Project Generator'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__importdata_action)
+            self.tr('Project Generator'), self.__importdata_action)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__export_action)
+            self.tr('Project Generator'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__configure_action)
+            self.tr('Project Generator'), self.__configure_action)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__separator)
+            self.tr('Project Generator'), self.__separator)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__help_action)
+            self.tr('Project Generator'), self.__help_action)
         self.iface.addPluginToDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__about_action)
+            self.tr('Project Generator'), self.__about_action)
 
     def unload(self):
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__generate_action)
+            self.tr('Project Generator'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__importdata_action)
+            self.tr('Project Generator'), self.__importdata_action)
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__export_action)
+            self.tr('Project Generator'), self.__export_action)
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__configure_action)
+            self.tr('Project Generator'), self.__configure_action)
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__help_action)
+            self.tr('Project Generator'), self.__help_action)
         self.iface.removePluginDatabaseMenu(
-            self.trUtf8('Project Generator'), self.__about_action)
+            self.tr('Project Generator'), self.__about_action)
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
@@ -150,8 +150,8 @@ class QgsProjectGeneratorPlugin(QObject):
         self.msg = QMessageBox()
         self.msg.setIcon(QMessageBox.Information)
         self.msg.setTextFormat(Qt.RichText)
-        self.msg.setWindowTitle(self.trUtf8('About Project Generator'))
-        self.msg.setText(self.trUtf8(
+        self.msg.setWindowTitle(self.tr('About Project Generator'))
+        self.msg.setText(self.tr(
             """<h1>Project Generator</h1>
         <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta
         information to preconfigure the layer tree, widget configuration, relations and more.</p>
