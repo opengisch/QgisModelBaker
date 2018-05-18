@@ -162,8 +162,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
-            self.msg.setText(os.path.basename(self.xtf_file_line_edit.text().strip(
-            )) + self.tr(" already exists.\nDo you want to replace it?"))
+            self.msg.setText(self.tr("{filename} already exists.\nDo you want to replace it?").format(filename=os.path.basename(self.xtf_file_line_edit.text().strip())))
             self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
             self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box = self.msg.exec_()
