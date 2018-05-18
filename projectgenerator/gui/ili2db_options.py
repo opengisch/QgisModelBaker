@@ -26,6 +26,7 @@ from projectgenerator.utils.qt_utils import (
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QSettings
 from ..utils import get_ui_class
+from qgis.gui import QgsGui
 
 DIALOG_UI = get_ui_class('ili2db_options.ui')
 
@@ -35,6 +36,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.toml_file_key = None
 
         self.buttonBox.accepted.disconnect()

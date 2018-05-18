@@ -32,6 +32,7 @@ from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale
 from qgis.core import QgsProject
+from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
 
@@ -43,6 +44,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()

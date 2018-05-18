@@ -21,7 +21,7 @@ from projectgenerator.utils import get_ui_class
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem, QDialogButtonBox
-
+from qgis.gui import QgsGui
 
 DIALOG_UI = get_ui_class('multiple_models.ui')
 
@@ -31,6 +31,7 @@ class MultipleModelsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.parent = parent
 
         self.model_list.itemSelectionChanged.connect(self.on_selection_changed)

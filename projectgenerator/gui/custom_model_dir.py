@@ -24,6 +24,8 @@ from projectgenerator.utils.qt_utils import selectFolder
 from qgis.PyQt.QtCore import QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem
 
+from qgis.gui import QgsGui
+
 
 DIALOG_UI = get_ui_class('custom_model_dir.ui')
 
@@ -33,6 +35,7 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
     def __init__(self, current_paths, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.parent = parent
 
         paths = current_paths.split(";")

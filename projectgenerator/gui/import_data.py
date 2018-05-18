@@ -54,6 +54,7 @@ from ..libili2db import (
     ilidataimporter,
     ili2dbconfig
 )
+from qgis.gui import QgsGui
 
 DIALOG_UI = get_ui_class('import_data.ui')
 
@@ -63,6 +64,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()

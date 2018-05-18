@@ -62,7 +62,10 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     Qgis
 )
-from qgis.gui import QgsMessageBar
+from qgis.gui import (
+    QgsMessageBar,
+    QgsGui
+)
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
 from ..libqgsprojectgen.generator.generator import Generator
@@ -77,6 +80,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.iface = iface
+        QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
