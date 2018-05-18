@@ -42,6 +42,15 @@ done
 if [ ${UPDATE} == true ]
 # retrieve all python files
 then
+  if [[ -z $(git status -s) ]]
+  then
+    git grep -l '\.tr(' | xargs sed -i 's/\.tr(/\.trUtf8(/g'
+  else
+    echo "Uncommitted changes found, please stash or commit changes before running update-strings.sh"
+    exit -1
+  fi
+
+
   # update .ts
   echo "Please provide translations by editing the translation files below:"
   for LOCALE in ${LOCALES}
@@ -50,6 +59,7 @@ then
     # about what is made available.
     pylupdate5 -noobsolete ${PYTHON_FILES} -ts i18n/projectgenerator_${LOCALE}.ts
   done
+  git checkout -- .
 else
   echo "No need to edit any translation files (.ts) because no no python file"
   echo "has been updated since the last update translation. "
