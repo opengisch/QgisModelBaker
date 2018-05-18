@@ -23,9 +23,15 @@ jobs:
       script: docker-compose -f .docker/docker-compose.travis.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
     - stage: deploy
+      if: tag IS present
       install:
         - pip install -r requirements.txt
       script: scripts/ci/deploy.sh
+    - stage: deploy
+      if: branch == master
+      install:
+        - pip install -r requirements.txt
+      script: scripts/ci/update-translations.sh
 
 env:
   global:
