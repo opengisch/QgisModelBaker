@@ -154,7 +154,7 @@ class DomainRelationGenerator:
         re_topic = re.compile(r'\s*TOPIC\s*([\w\d_-]+).*')
         re_structure = re.compile(r'\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*') # STRUCTURE StructureName =
         re_class = re.compile(
-            r'\s*CLASS\s*([\w\d_-]+)\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName [EXTENDS] [BaseClassName] [=]
+            r'\s*CLASS\s*([\w\d_-]+)\s*[\(ABSTRACT\)]*\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName (ABSTRACT) [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(
             r'\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
         re_inline_enum_start = re.compile(
