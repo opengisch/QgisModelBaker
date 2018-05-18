@@ -19,5 +19,5 @@ then
   ./scripts/pull-transifex-translations.sh
   ./scripts/compile-strings.sh i18n/*.ts
 else
-  echo "Not pulling any translations. We only use transifex if TRAVIS_BRANCH is master (currently ${TRAVIS_BRANCH}) and if we are doing a release (git tag matches metadata.txt)."
+  echo "Not pulling any translations. We only pull if we are doing a release (git tag matches metadata.txt)."
 fi
