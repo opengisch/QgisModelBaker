@@ -24,6 +24,7 @@ from .db_connector import DBConnector
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
+GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 
 class GPKGConnector(DBConnector):
 
@@ -52,6 +53,14 @@ class GPKGConnector(DBConnector):
             FROM sqlite_master
             WHERE name = '{}';
                     """.format(GPKG_METADATA_TABLE))
+        return cursor.fetchone()[0] == 1
+
+    def _table_exists(self, tablename):
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT count(name)
+            FROM sqlite_master
+            WHERE name = '{}';
+                    """.format(tablename))
         return cursor.fetchone()[0] == 1
 
     def get_tables_info(self):
@@ -131,14 +140,17 @@ class GPKGConnector(DBConnector):
         return complete_records
 
     def get_meta_attrs(self, ili_name):
+        if not self._table_exists(GPKG_METAATTRS_TABLE):
+            return []
+
         cursor = self.conn.cursor()
         cursor.execute("""
                         SELECT
                           attr_name,
                           attr_value
-                        FROM T_ILI2DB_META_ATTRS
+                        FROM {meta_attr_table}
                         WHERE ilielement='{ili_name}'
-        """.format(ili_name=ili_name))
+        """.format(meta_attr_table=GPKG_METAATTRS_TABLE, ili_name=ili_name))
         records = cursor.fetchall()
         cursor.close()
         return records

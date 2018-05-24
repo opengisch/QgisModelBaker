@@ -24,6 +24,7 @@ import re
 from .db_connector import DBConnector
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
+PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 
 
 class PGConnector(DBConnector):
@@ -70,6 +71,20 @@ class PGConnector(DBConnector):
                         FROM pg_catalog.pg_tables
                         WHERE schemaname = '{}' and tablename = '{}'
             """.format(self.schema, PG_METADATA_TABLE))
+
+            return bool(cur.fetchone()[0])
+
+        return False
+
+    def _table_exists(self, tablename):
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT
+                          count(tablename)
+                        FROM pg_catalog.pg_tables
+                        WHERE schemaname = '{}' and tablename = '{}'
+            """.format(self.schema, tablename))
 
             return bool(cur.fetchone()[0])
 
@@ -142,6 +157,9 @@ class PGConnector(DBConnector):
         return []
 
     def get_meta_attrs(self, ili_name):
+        if not self._table_exists('t_ili2db_meta_attrs'):
+            return []
+
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute("""
