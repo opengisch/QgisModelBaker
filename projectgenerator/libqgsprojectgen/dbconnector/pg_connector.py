@@ -157,7 +157,7 @@ class PGConnector(DBConnector):
         return []
 
     def get_meta_attrs(self, ili_name):
-        if not self._table_exists('t_ili2db_meta_attrs'):
+        if not self._table_exists(PG_METAATTRS_TABLE):
             return []
 
         if self.schema:
@@ -166,9 +166,9 @@ class PGConnector(DBConnector):
                         SELECT
                           attr_name,
                           attr_value
-                        FROM {schema}.t_ili2db_meta_attrs
+                        FROM {schema}.{metaattrs_table}
                         WHERE ilielement='{ili_name}';
-            """.format(schema=self.schema, ili_name=ili_name))
+            """.format(schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE, ili_name=ili_name))
 
             return cur
 
