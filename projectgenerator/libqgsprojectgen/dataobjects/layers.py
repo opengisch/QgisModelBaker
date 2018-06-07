@@ -88,6 +88,7 @@ class Layer(object):
         for relation in project.relations:
             if relation.referencing_layer == self:
                 has_tabs = True
+                break
 
         if has_tabs:
             tab = FormTab(QCoreApplication.translate('FormTab', 'General'), 2)
