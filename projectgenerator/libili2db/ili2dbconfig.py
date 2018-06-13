@@ -222,6 +222,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createFk"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
+        args += ["--importTid"]
 
         if self.inheritance == 'smart1':
             args += ["--smart1Inheritance"]
