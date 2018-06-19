@@ -67,7 +67,6 @@ def get_suggested_index_for_layer(layer, group):
 
     if indices:
         index = min(indices)
-    print("Index for", layer.name(), -1 if index is None else index)
     if index is None:
         return -1  # Send it to the last position in layer tree
     else:
