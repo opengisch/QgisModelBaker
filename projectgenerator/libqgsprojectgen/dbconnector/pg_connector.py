@@ -235,6 +235,7 @@ class PGConnector(DBConnector):
                 SELECT
                   c.column_name,
                   c.data_type,
+                  c.numeric_scale,
                   {unit_field}
                   {text_kind_field}
                   {column_alias}

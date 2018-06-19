@@ -141,10 +141,10 @@ class Generator:
 
                 if column_name in constraints_info:
                     field.widget = 'Range'
-                    field.widget_config[
-                        'Min'] = constraints_info[column_name][0]
-                    field.widget_config[
-                        'Max'] = constraints_info[column_name][1]
+                    field.widget_config['Min'] = constraints_info[column_name][0]
+                    field.widget_config['Max'] = constraints_info[column_name][1]
+                    if 'numeric_scale' in fielddef:
+                        field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
                     # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
                     if 'unit' in fielddef:
                         field.alias = '{alias} [{unit}]'.format(
