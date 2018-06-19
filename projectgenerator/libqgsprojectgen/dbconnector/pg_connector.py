@@ -38,15 +38,17 @@ class PGConnector(DBConnector):
         self.iliCodeName = 'ilicode'
 
     def map_data_types(self, data_type):
+        if not data_type:
+            data_type = ''
         data_type = data_type.lower()
         if 'timestamp' in data_type:
-            return self.QGIS_DATE_TIME_TYPE
+            data_type = self.QGIS_DATE_TIME_TYPE
         elif 'date' in data_type:
-            return self.QGIS_DATE_TYPE
+            data_type = self.QGIS_DATE_TYPE
         elif 'time' in data_type:
-            return self.QGIS_TIME_TYPE
+            data_type = self.QGIS_TIME_TYPE
 
-        return data_type.lower()
+        return data_type
 
     def db_or_schema_exists(self):
         if self.schema:
