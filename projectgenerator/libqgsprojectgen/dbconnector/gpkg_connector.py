@@ -26,8 +26,8 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 
-class GPKGConnector(DBConnector):
 
+class GPKGConnector(DBConnector):
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
         self.conn = qgis.utils.spatialite_connect(uri)
@@ -108,10 +108,10 @@ class GPKGConnector(DBConnector):
         # Use prefix-suffix pairs defined in config to filter out matching tables
         filtered_records = records[:]
         for prefix_suffix in GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX:
-            suffix_regexp = '(' + '|'.join(prefix_suffix['suffix'] ) + ')$' if prefix_suffix['suffix'] else ''
+            suffix_regexp = '(' + '|'.join(prefix_suffix['suffix']) + ')$' if prefix_suffix['suffix'] else ''
             regexp = r'{}[\W\w]+{}'.format(prefix_suffix['prefix'], suffix_regexp)
 
-            p = re.compile(regexp) # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
+            p = re.compile(regexp)  # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
             for record in records:
                 if p.match(record['tablename']):
                     print("INFO: NOT including GPKG table... ", record['tablename'])
@@ -179,6 +179,11 @@ class GPKGConnector(DBConnector):
             record['unit'] = None
             record['texttype'] = None
             record['column_alias'] = None
+
+            if record['column_name'] == 'T_Id':
+                # The default value needs to be calculated client side,
+                # sqlite doesn't provide the means to pre-evaluate serials
+                record['default_value_expression'] = 'get_ili2gpkg_t_id()'
 
             for column_prop in columns_prop:
                 if column_prop['columnname'] == column_info['name']:
@@ -269,8 +274,8 @@ class GPKGConnector(DBConnector):
         """TODO: remove when ili2db issue #19 is solved"""
         cursor = self.conn.cursor()
         class_names = "'" + \
-            "','".join(list(models_info.keys()) +
-                       list(extended_classes.keys())) + "'"
+                      "','".join(list(models_info.keys()) +
+                                 list(extended_classes.keys())) + "'"
         cursor.execute("""SELECT *
                           FROM t_ili2db_classname
                           WHERE iliname IN ({class_names})
@@ -289,3 +294,13 @@ class GPKGConnector(DBConnector):
                           WHERE iliname IN ({attr_names})
                        """.format(attr_names=attr_names))
         return cursor
+
+    def post_process_layer(self, layer):
+        basepath, _ = os.path.split(__file__)
+        get_t_id_file_path = os.path.join(basepath, '../../templates/get_t_id.py')
+        with open(get_t_id_file_path, 'r') as get_t_id_file:
+            init_code = get_t_id_file.read()
+
+        layer.form.init_function = 'on_form_open'
+        layer.form.init_code = init_code
+        layer.form.init_code_source = 'CodeSourceDialog'

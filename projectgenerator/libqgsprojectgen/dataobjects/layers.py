@@ -112,6 +112,10 @@ class Layer(object):
                     self.__form.add_element(widget)
 
     @property
+    def form(self):
+        return self.__form
+
+    @property
     def layer(self):
         return self.__layer
 

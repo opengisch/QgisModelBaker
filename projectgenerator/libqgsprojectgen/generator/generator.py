@@ -174,7 +174,12 @@ class Generator:
                     elif data_type == self._db_connector.QGIS_DATE_TYPE:
                         field.widget_config['display_format'] = dateFormat
 
+                if 'default_value_expression' in fielddef:
+                    field.default_value_expression = fielddef['default_value_expression']
+
                 layer.fields.append(field)
+
+            self.post_process_layer(layer)
 
             layers.append(layer)
 
@@ -265,6 +270,9 @@ class Generator:
 
     def get_fields_info(self, table_name):
         return self._db_connector.get_fields_info(table_name)
+
+    def post_process_layer(self, layer):
+        self._db_connector.post_process_layer(layer)
 
     def get_tables_info_without_ignored_tables(self):
         tables_info = self.get_tables_info()

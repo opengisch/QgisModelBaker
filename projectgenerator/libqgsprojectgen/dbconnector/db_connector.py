@@ -119,6 +119,16 @@ class DBConnector:
         '''
         return []
 
+    def post_process_layer(self, layer):
+        """
+        Data source specific post processing for layers.
+        Receives a fully populated layer object. Relations are
+        still missing.
+        Can be used for example to add custom default value logic
+        as done in the gpkg_connector
+        """
+        pass
+
     def get_domainili_domaindb_mapping(self, domains):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}

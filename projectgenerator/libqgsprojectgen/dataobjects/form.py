@@ -30,6 +30,9 @@ class Form(object):
 
     def __init__(self):
         self.__elements = list()
+        self.init_function = None
+        self.init_code = None
+        self.init_code_source = None
 
     def elements(self):
         return self.__elements
@@ -50,6 +53,24 @@ class Form(object):
                     if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer and relation.referencing_layer.is_nmrel:
                         edit_form_config.setWidgetConfig(relation.id, {'nm-rel': other_relation.id})
                         break
+
+        if self.init_function:
+            edit_form_config.setInitFunction(self.init_function)
+
+        if self.init_code:
+            edit_form_config.setInitCode(self.init_code)
+
+        if self.init_code_source:
+            if self.init_code_source == 'CodeSourceNone':
+                edit_form_config.setInitCodeSource(QgsEditFormConfig.CodeSourceNone)
+            elif self.init_code_source == 'CodeSourceFile':
+                edit_form_config.setInitCodeSource(QgsEditFormConfig.CodeSourceFile)
+            elif self.init_code_source == 'CodeSourceDialog':
+                edit_form_config.setInitCodeSource(QgsEditFormConfig.CodeSourceDialog)
+            elif self.init_code_source == 'CodeSourceEnvironment':
+                edit_form_config.setInitCodeSource(QgsEditFormConfig.CodeSourceEnvironment)
+
+
         return edit_form_config
 
     def add_element(self, element):
