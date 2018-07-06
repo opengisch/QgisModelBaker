@@ -213,11 +213,13 @@ class PGConnector(DBConnector):
             unit_join = ''
             text_kind_join = ''
             disp_name_join = ''
+            full_name_join = ''
 
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"
                 text_kind_field = "txttype.setting AS texttype,"
                 column_alias = "alias.setting AS column_alias,"
+                full_name_field = "full_name.iliname as fully_qualified_name,"
                 unit_join = """LEFT JOIN {}.t_ili2db_column_prop unit
                                     ON c.table_name=unit.tablename AND
                                     c.column_name=unit.columnname AND
@@ -230,6 +232,10 @@ class PGConnector(DBConnector):
                                         ON c.table_name=alias.tablename AND
                                         c.column_name=alias.columnname AND
                                         alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+                full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
+                                        ON c.table_name='{}' AND
+                                        c.column_name=full_name.sqlname
+                                        """.format(self.schema, table_name)
 
             fields_cur.execute("""
                 SELECT
@@ -239,6 +245,7 @@ class PGConnector(DBConnector):
                   {unit_field}
                   {text_kind_field}
                   {column_alias}
+                  {full_name_field}
                   pgd.description AS comment
                 FROM pg_catalog.pg_statio_all_tables st
                 LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
@@ -246,11 +253,14 @@ class PGConnector(DBConnector):
                 {unit_join}
                 {text_kind_join}
                 {disp_name_join}
+                {full_name_join}
                 WHERE st.relid = '{schema}."{table}"'::regclass;
                 """.format(schema=self.schema, table=table_name, unit_field=unit_field,
                             text_kind_field=text_kind_field, column_alias=column_alias,
+                            full_name_field=full_name_field,
                             unit_join=unit_join, text_kind_join=text_kind_join,
-                            disp_name_join=disp_name_join))
+                            disp_name_join=disp_name_join,
+                            full_name_join=full_name_join))
 
             return fields_cur
 

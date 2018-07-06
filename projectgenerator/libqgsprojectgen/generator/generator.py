@@ -133,46 +133,64 @@ class Generator:
                 field = Field(column_name)
                 field.alias = alias
 
+                # Should we hide the field?
+                hide_attribute = False
+
+                if 'fully_qualified_name' in fielddef:
+                    fully_qualified_name = fielddef['fully_qualified_name']
+                    if fully_qualified_name:
+                        meta_attrs_column = self.get_meta_attrs(fully_qualified_name)
+
+                        for attr_record in meta_attrs_column:
+                            if attr_record['attr_name'] == 'hidden':
+                                if attr_record['attr_value'] == 'True':
+                                    hide_attribute = True
+                                    break
+
                 if column_name in IGNORED_FIELDNAMES:
+                    hide_attribute = True
+
+                if hide_attribute:
                     field.widget = 'Hidden'
 
-                if column_name in READONLY_FIELDNAMES:
-                    field.read_only = True
+                else: # Don't configure anything else on this field
+                    if column_name in READONLY_FIELDNAMES:
+                        field.read_only = True
 
-                if column_name in constraints_info:
-                    field.widget = 'Range'
-                    field.widget_config['Min'] = constraints_info[column_name][0]
-                    field.widget_config['Max'] = constraints_info[column_name][1]
-                    if 'numeric_scale' in fielddef:
-                        field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
-                    # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
-                    if 'unit' in fielddef:
-                        field.alias = '{alias} [{unit}]'.format(
-                            alias=alias or column_name, unit=fielddef['unit'])
+                    if column_name in constraints_info:
+                        field.widget = 'Range'
+                        field.widget_config['Min'] = constraints_info[column_name][0]
+                        field.widget_config['Max'] = constraints_info[column_name][1]
+                        if 'numeric_scale' in fielddef:
+                            field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
+                        # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
+                        if 'unit' in fielddef:
+                            field.alias = '{alias} [{unit}]'.format(
+                                alias=alias or column_name, unit=fielddef['unit'])
 
-                if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
-                    field.widget = 'TextEdit'
-                    field.widget_config['IsMultiline'] = True
+                    if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
+                        field.widget = 'TextEdit'
+                        field.widget_config['IsMultiline'] = True
 
-                data_type = self._db_connector.map_data_types(
-                    fielddef['data_type'])
-                if 'time' in data_type or 'date' in data_type:
-                    field.widget = 'DateTime'
-                    field.widget_config['calendar_popup'] = True
+                    data_type = self._db_connector.map_data_types(
+                        fielddef['data_type'])
+                    if 'time' in data_type or 'date' in data_type:
+                        field.widget = 'DateTime'
+                        field.widget_config['calendar_popup'] = True
 
-                    dateFormat = QLocale(QgsApplication.instance(
-                    ).locale()).dateFormat(QLocale.ShortFormat)
-                    timeFormat = QLocale(QgsApplication.instance(
-                    ).locale()).timeFormat(QLocale.ShortFormat)
-                    dateTimeFormat = QLocale(QgsApplication.instance(
-                    ).locale()).dateTimeFormat(QLocale.ShortFormat)
+                        dateFormat = QLocale(QgsApplication.instance(
+                        ).locale()).dateFormat(QLocale.ShortFormat)
+                        timeFormat = QLocale(QgsApplication.instance(
+                        ).locale()).timeFormat(QLocale.ShortFormat)
+                        dateTimeFormat = QLocale(QgsApplication.instance(
+                        ).locale()).dateTimeFormat(QLocale.ShortFormat)
 
-                    if data_type == self._db_connector.QGIS_TIME_TYPE:
-                        field.widget_config['display_format'] = timeFormat
-                    elif data_type == self._db_connector.QGIS_DATE_TIME_TYPE:
-                        field.widget_config['display_format'] = dateTimeFormat
-                    elif data_type == self._db_connector.QGIS_DATE_TYPE:
-                        field.widget_config['display_format'] = dateFormat
+                        if data_type == self._db_connector.QGIS_TIME_TYPE:
+                            field.widget_config['display_format'] = timeFormat
+                        elif data_type == self._db_connector.QGIS_DATE_TIME_TYPE:
+                            field.widget_config['display_format'] = dateTimeFormat
+                        elif data_type == self._db_connector.QGIS_DATE_TYPE:
+                            field.widget_config['display_format'] = dateFormat
 
                 layer.fields.append(field)
 
