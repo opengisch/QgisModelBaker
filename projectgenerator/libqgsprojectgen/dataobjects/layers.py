@@ -93,7 +93,7 @@ class Layer(object):
         if has_tabs:
             tab = FormTab(QCoreApplication.translate('FormTab', 'General'), 2)
             for field in self.fields:
-                if field.widget != 'Hidden':
+                if not field.hidden:
                     widget = FormFieldWidget(field.alias, field.name)
                     tab.addChild(widget)
 
@@ -107,7 +107,7 @@ class Layer(object):
                     self.__form.add_element(tab)
         else:
             for field in self.fields:
-                if field.widget != 'Hidden':
+                if not field.hidden:
                     widget = FormFieldWidget(field.alias, field.name)
                     self.__form.add_element(widget)
 
