@@ -209,6 +209,7 @@ class PGConnector(DBConnector):
 
             unit_field = ''
             text_kind_field = ''
+            full_name_field = ''
             column_alias = ''
             unit_join = ''
             text_kind_join = ''
