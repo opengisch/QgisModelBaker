@@ -89,6 +89,7 @@ class DBConnector:
                 unit
                 texttype
                 column_alias
+                fully_qualified_name
         '''
         return []
 

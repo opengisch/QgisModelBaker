@@ -161,6 +161,7 @@ class GPKGConnector(DBConnector):
         columns_info = cursor.fetchall()
 
         columns_prop = list()
+        columns_full_name = list()
 
         if self.metadata_exists():
             cursor.execute("""
@@ -169,6 +170,14 @@ class GPKGConnector(DBConnector):
                 WHERE tablename = '{}'
                 """.format(table_name))
             columns_prop = cursor.fetchall()
+
+        if self.metadata_exists():
+            cursor.execute("""
+                SELECT SqlName, IliName
+                FROM t_ili2db_attrname
+                WHERE owner = '{}'
+                """.format(table_name))
+            columns_full_name = cursor.fetchall()
 
         complete_records = list()
         for column_info in columns_info:
@@ -179,6 +188,11 @@ class GPKGConnector(DBConnector):
             record['unit'] = None
             record['texttype'] = None
             record['column_alias'] = None
+
+            for column_full_name in columns_full_name:
+                if column_full_name['sqlname'] == column_info['name']:
+                    record['fully_qualified_name'] = column_full_name['iliname']
+                    break
 
             for column_prop in columns_prop:
                 if column_prop['columnname'] == column_info['name']:
