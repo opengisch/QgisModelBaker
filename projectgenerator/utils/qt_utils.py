@@ -50,15 +50,21 @@ def make_file_selector(widget, title=QCoreApplication.translate('projectgenerato
     return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
 
 
-def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension):
-    filename, matched_filter = QFileDialog.getSaveFileName(
-        parent, title, line_edit_widget.text(), file_filter)
-    line_edit_widget.setText(filename if filename.endswith(
-        extension) else (filename + extension if filename else ''))
+def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension, extensions):
+    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
+    extension_valid = False
+
+    if extensions:
+        extension_valid = any(filename.endswith(ext) for ext in extensions)
+
+    if not extension_valid and filename:
+        filename = filename + extension
+
+    line_edit_widget.setText(filename)
 
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),
-                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None, extension=''):
+                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None, extension='', extensions=None):
     return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent, extension=extension)
 
 
@@ -154,6 +160,16 @@ class Validators(QObject):
 class FileValidator(QValidator):
 
     def __init__(self, pattern='*', is_executable=False, parent=None, allow_empty=False, allow_non_existing=False):
+        """
+        Validates if a string is a valid filename, based on the provided parameters.
+
+        :param pattern: A file glob pattern as recognized by ``fnmatch``, if a list if provided, the validator will try
+                        to match every pattern in the list.
+        :param is_executable: Only match executable files
+        :param parent: The parent QObject
+        :param allow_empty: Empty strings are valid
+        :param allow_non_existing: Non existing files are valid
+        """
         QValidator.__init__(self, parent)
         self.pattern = pattern
         self.is_executable = is_executable
