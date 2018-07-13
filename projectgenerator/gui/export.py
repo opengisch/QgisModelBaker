@@ -40,6 +40,7 @@ DIALOG_UI = get_ui_class('export.ui')
 
 
 class ExportDialog(QDialog, DIALOG_UI):
+    ValidExtensions = ['xtf', 'itf', 'gml', 'xml']
 
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
@@ -55,7 +56,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
-                                    file_filter=self.tr('XTF Transfer File (*.xtf)'), extension='.xtf'))
+                                    file_filter=self.tr('XTF Transfer File (*.xtf);;Interlis 1 Transfer File (*.itf);;XML (*.xml);;GML (*.gml)'), extension='.xtf', extensions=['.' + ext for ext in self.ValidExtensions]))
         self.xtf_file_browse_button.clicked.connect(
             self.xtf_browser_opened_to_true)
         self.xtf_browser_was_opened = False
@@ -79,7 +80,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
-        fileValidator = FileValidator(pattern='*.xtf', allow_non_existing=True)
+        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
         gpkgFileValidator = FileValidator(pattern='*.gpkg')
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
