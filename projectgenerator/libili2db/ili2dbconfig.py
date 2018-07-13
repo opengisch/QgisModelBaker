@@ -258,7 +258,7 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         if self.delete_data:
             args += ["--deleteData"]
 
-        args = SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
+        args += SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
 
         return args
 
