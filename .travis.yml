@@ -2,11 +2,15 @@ language: python
 python:
   - 3.5
 
+git:
+  submodules: false
+
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
+  - git submodule update --init --recursive
 
 install:
   - docker build --build-arg QGIS_TEST_VERSION=${QGIS_TEST_VERSION} -f .docker/Dockerfile .
@@ -36,6 +40,10 @@ jobs:
 
 env:
   global:
+    - PUSH_TO=github # plugins (osgeo login, default), github (current repo)
+    - PLUGIN_SRC_DIR=src # (defaut: plugin name)
+    - PLUGIN_AUTHOR=OPENGIS.ch
+
     - OSGEO_USERNAME=mkuhn
     # Inject OSGEO_PASSWORD matching the OSGEO_USERNAME
     # Generate with the following command for proper special characters support
