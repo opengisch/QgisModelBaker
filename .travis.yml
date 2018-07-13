@@ -30,7 +30,7 @@ jobs:
       if: tag IS present
       install:
         - pip install -r requirements.txt
-      script: scripts/ci/deploy.sh
+      script: plugin_ci/release/release.sh
     - stage: deploy
       if: branch = master
       install:
