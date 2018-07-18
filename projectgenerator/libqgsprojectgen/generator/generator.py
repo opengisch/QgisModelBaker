@@ -211,8 +211,8 @@ class Generator:
 
         return relations
 
-    def legend(self, layers):
-        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'))
+    def legend(self, layers, ignore_node_names=[]):
+        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
         tables = LegendGroup(
             QCoreApplication.translate('LegendGroup', 'tables'))
         domains = LegendGroup(QCoreApplication.translate(

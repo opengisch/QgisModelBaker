@@ -27,7 +27,7 @@ layer_order = ['point',  #QgsWkbTypes.PointGeometry
                'unknown']  # Anything else like geometry collections or plugin layers
 
 
-def get_first_index_for_layer_type(layer_type, group):
+def get_first_index_for_layer_type(layer_type, group, ignore_node_names=[]):
     """
     Finds the first index (from top to bottom) in the layer tree where a
     specific layer type is found. This function works only for the given group.
@@ -35,6 +35,10 @@ def get_first_index_for_layer_type(layer_type, group):
     tree_nodes = group.children()
 
     for current, tree_node in enumerate(tree_nodes):
+        if tree_node.name() in ignore_node_names:
+            # Some groups (e.g., validation errors) might be useful on a
+            # specific position (e.g., at the top), so, skip it to get indices
+            continue
         if tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type != 'unknown':
             return None
         elif tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type == 'unknown':
@@ -48,7 +52,7 @@ def get_first_index_for_layer_type(layer_type, group):
     return None
 
 
-def get_suggested_index_for_layer(layer, group):
+def get_suggested_index_for_layer(layer, group, ignore_node_names=[]):
     """
     Returns the index where a layer can be inserted, taking other layer types
     into account. For instance, if a line layer is given, this function will
@@ -61,7 +65,7 @@ def get_suggested_index_for_layer(layer, group):
     indices = []
     index = None
     for layer_type in layer_order[layer_order.index(get_layer_type(layer)):]:  # Slice from current until last
-        index = get_first_index_for_layer_type(layer_type, group)
+        index = get_first_index_for_layer_type(layer_type, group, ignore_node_names)
         if index is not None:
             indices.append(index)
 
