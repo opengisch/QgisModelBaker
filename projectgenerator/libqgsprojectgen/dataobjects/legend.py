@@ -26,10 +26,14 @@ from projectgenerator.utils.qgis_utils import get_suggested_index_for_layer
 
 class LegendGroup(object):
 
-    def __init__(self, name=None, expanded=True):
+    def __init__(self, name=None, expanded=True, ignore_node_names=None):
         self.name = name
         self.items = list()
         self.expanded = expanded
+
+        # When adding layers in order, one could want to ignore nodes (e.g.,
+        # groups that should be always on top)
+        self.ignore_node_names = ignore_node_names
 
     def dump(self):
         definition = list()
@@ -67,7 +71,7 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                index = get_suggested_index_for_layer(layer, group) if layer.isSpatial() else 0
+                index = get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
                 group.insertLayer(index, layer)
 
     def is_empty(self):
