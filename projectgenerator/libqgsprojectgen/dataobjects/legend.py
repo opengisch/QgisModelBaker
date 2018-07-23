@@ -26,7 +26,7 @@ from projectgenerator.utils.qgis_utils import get_suggested_index_for_layer
 
 class LegendGroup(object):
 
-    def __init__(self, name=None, expanded=True, ignore_node_names=[]):
+    def __init__(self, name=None, expanded=True, ignore_node_names=None):
         self.name = name
         self.items = list()
         self.expanded = expanded
