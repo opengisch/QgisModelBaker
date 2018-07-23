@@ -2,4 +2,4 @@ psycopg2==2.7.4
 nose2
 pyyaml
 future
-transifex-client==0.12.5
+transifex-client
