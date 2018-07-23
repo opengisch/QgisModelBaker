@@ -40,9 +40,6 @@ jobs:
 
 env:
   global:
-    - PUSH_TO=github # plugins (osgeo login, default), github (current repo)
-    - PLUGIN_AUTHOR=OPENGIS.ch
-
     - OSGEO_USERNAME=mkuhn
     # Inject OSGEO_PASSWORD matching the OSGEO_USERNAME
     # Generate with the following command for proper special characters support
