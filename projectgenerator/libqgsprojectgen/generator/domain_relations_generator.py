@@ -162,6 +162,8 @@ class DomainRelationGenerator:
         re_inline_enum_end = re.compile(r'\s*\);.*')
         re_inline_enum_oneline = re.compile(
             r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
+        # Typ: BAG {1..*} OF EI_Punkt_Typ;
+        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{.*\}\s*OF\s*([\w\d_-]+);.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
@@ -176,6 +178,7 @@ class DomainRelationGenerator:
         attributes = dict()
         models_info = dict()
         extended_classes = dict()
+        bags_of = dict()
         bClassJustFound = False  # Flag to search for EXTENDS classes
         local_names = dict()
 
@@ -353,6 +356,14 @@ class DomainRelationGenerator:
 
                             continue
 
+                        # Look for BAG {} OF lines
+                        result = re_bag_of.search(line)
+                        if result:
+                            attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                            print("BAG OF!!! {}: {}", attr_name, result.group(2))
+                            bags_of[attr_name] = result.group(2)
+                            continue
+
                         result = re_end_class.search(line)
                         if result:
                             if attributes:
@@ -373,7 +384,7 @@ class DomainRelationGenerator:
                         print("END model encontrado", current_model, "\n")
                     current_model = ''
 
-        return [models_info, extended_classes]
+        return [models_info, extended_classes, bags_of]
 
     def extract_local_names_from_domains(self, domains, current_model, current_topic):
         """
