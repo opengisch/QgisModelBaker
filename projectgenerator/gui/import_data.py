@@ -269,6 +269,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.base_configuration = self.base_configuration
 
         return configuration
@@ -303,6 +304,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def restore_configuration(self):
         settings = QSettings()
 
+        self.fill_toml_file_info_label()
         self.xtf_file_line_edit.setText(settings.value(
             'QgsProjectGenerator/ili2pg/xtffile_import'))
         self.chk_delete_data.setChecked(settings.value(
