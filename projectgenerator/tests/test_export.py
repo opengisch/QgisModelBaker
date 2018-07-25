@@ -25,8 +25,7 @@ import nose2
 import xml.etree.ElementTree as ET
 
 from projectgenerator.libili2db import (iliexporter,
-                                        iliimporter,
-                                        ilidataimporter)
+                                        iliimporter)
 from projectgenerator.tests.utils import (iliimporter_config,
                                           iliexporter_config,
                                           ilidataimporter_config,
@@ -103,7 +102,7 @@ class TestExport(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
-        dataImporter = ilidataimporter.DataImporter()
+        dataImporter = iliimporter.Importer()
         dataImporter.tool_name = 'ili2pg'
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
@@ -114,7 +113,7 @@ class TestExport(unittest.TestCase):
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
-                         ilidataimporter.DataImporter.SUCCESS)
+                         iliimporter.Importer.SUCCESS)
 
         # Export
         exporter = iliexporter.Exporter()

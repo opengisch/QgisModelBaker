@@ -26,7 +26,12 @@ import functools
 from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, JavaNotFoundError, ili2db_tools
+from projectgenerator.libili2db.ili2dbconfig import (
+        SchemaImportConfiguration,
+        ImportDataConfiguration,
+        JavaNotFoundError,
+        ili2db_tools
+)
 
 
 class Importer(QObject):
@@ -42,10 +47,15 @@ class Importer(QObject):
     __done_pattern = None
     __result = None
 
-    def __init__(self, parent=None):
+    def __init__(self, dataImport=False, parent=None):
         QObject.__init__(self, parent)
+        self.filename = None
         self.tool_name = None
-        self.configuration = SchemaImportConfiguration()
+        self.dataImport = dataImport
+        if dataImport:
+            self.configuration = ImportDataConfiguration()
+        else:
+            self.configuration = SchemaImportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset
         # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
@@ -62,6 +72,9 @@ class Importer(QObject):
         self.configuration.tool_name = self.tool_name
 
         args = self.configuration.to_ili2db_args()
+
+        if self.dataImport:
+            args += [self.configuration.xtffile]
 
         if self.configuration.base_configuration.java_path:
             # A java path is configured: respect it no mather what
