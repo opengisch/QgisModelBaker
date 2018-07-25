@@ -56,7 +56,7 @@ class TestImport(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
-        dataImporter = iliimporter.Importer()
+        dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool_name = 'ili2pg'
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
@@ -128,7 +128,7 @@ class TestImport(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
-        dataImporter = iliimporter.Importer()
+        dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool_name = 'ili2gpkg'
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
