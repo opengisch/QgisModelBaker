@@ -146,7 +146,7 @@ class DomainRelationGenerator:
         re_comment = re.compile(r'\s*/\*')  # /* comment
         re_end_comment = re.compile(r'\s*\*/')  # comment */
         re_oneline_comment = re.compile(r'\s*/\*.*\*/')  # /* comment */
-        re_inline_comment = re.compile(r'^\s*!!')  # !! comment
+        re_inline_comment = re.compile(r'^\s*!!(?!@)')  # !! comment
 
         # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
         re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+).*')
@@ -164,12 +164,14 @@ class DomainRelationGenerator:
             r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
         # Typ: BAG {1..*} OF EI_Punkt_Typ;
         re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{.*\}\s*OF\s*([\w\d_-]+);.*')
+        re_mapping_array = re.compile(r'\s*!!@ili2db.mapping=ARRAY.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
         re_end_model = None  # END ModelName;
 
         currently_inside_comment = False
+        current_line_bag_of_enum = False
         current_model = ''
         current_structure = ''
         current_topic = ''
@@ -313,6 +315,22 @@ class DomainRelationGenerator:
                                                                    current_topic))
                                 continue
 
+                        # Look for BAG {} OF ENUM lines
+                        if not current_line_bag_of_enum:
+                            result = re_mapping_array.search(line)
+                            if result:
+                                current_line_bag_of_enum = True
+                                continue
+                        else:
+                            current_line_bag_of_enum = False
+                            result = re_bag_of.search(line)
+                            if result:
+                                attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                                print("BAG OF!!! {}: {}", attr_name, result.group(2))
+                                bags_of[attr_name] = result.group(2)
+                                continue
+
+                        # Go for attributes
                         attribute = {res.group(1): d for d in domains_with_local for res in
                                      [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
 
@@ -354,14 +372,6 @@ class DomainRelationGenerator:
                             if not result:
                                 within_inline_enum = True
 
-                            continue
-
-                        # Look for BAG {} OF lines
-                        result = re_bag_of.search(line)
-                        if result:
-                            attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
-                            print("BAG OF!!! {}: {}", attr_name, result.group(2))
-                            bags_of[attr_name] = result.group(2)
                             continue
 
                         result = re_end_class.search(line)
