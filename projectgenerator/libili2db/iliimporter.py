@@ -123,7 +123,10 @@ class Importer(QObject):
     def stderr_ready(self, proc):
         text = bytes(proc.readAllStandardError()).decode(self.encoding)
         if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: ...done")
+            if self.dataImport:
+                self.__done_pattern = re.compile(r"Info: \.\.\.import done")
+            else:
+                self.__done_pattern = re.compile(r"Info: \.\.\.done")
         if self.__done_pattern.search(text):
             self.__result = Importer.SUCCESS
 
