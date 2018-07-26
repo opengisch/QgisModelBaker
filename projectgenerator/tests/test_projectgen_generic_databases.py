@@ -104,7 +104,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             layers = generator.layers()
 
             self.assertEqual(len(layers), 2)
-            self.assertEqual(len(generator.relations(layers)), 1)
+            relations, foo = generator.relations(layers)
+            self.assertEqual(len(relations), 1)
 
             for layer in layers:
                 self.assertIsNotNone(layer.geometry_column)
@@ -144,7 +145,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             layers = generator.layers()
 
             self.assertEqual(len(layers), 2)
-            self.assertEqual(len(generator.relations(layers)), 1)
+            relations, foo = generator.relations(layers)
+            self.assertEqual(len(relations), 1)
 
             for layer in layers:
                 self.assertIsNone(layer.geometry_column)
@@ -164,7 +166,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def test_non_empty_geopackage_db(self):
         generator = Generator('ili2gpkg', testdata_path('geopackage/test_relations.gpkg'), 'smart2')
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, foo = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
         project = Project()

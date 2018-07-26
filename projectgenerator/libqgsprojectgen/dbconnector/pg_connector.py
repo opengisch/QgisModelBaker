@@ -36,6 +36,7 @@ class PGConnector(DBConnector):
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'ilicode'
+        self.dispName = 'dispname'
 
     def map_data_types(self, data_type):
         if not data_type:
@@ -359,14 +360,11 @@ class PGConnector(DBConnector):
 
         return {}
 
-    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+    def get_attrili_attrdb_mapping(self, attrs_list):
         """TODO: remove when ili2db issue #19 is solved"""
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            all_attrs = list()
-            for c, dict_attr_domain in models_info_with_ext.items():
-                all_attrs.extend(list(dict_attr_domain.keys()))
-            attr_names = "'" + "','".join(all_attrs) + "'"
+            attr_names = "'" + "','".join(attrs_list) + "'"
             cur.execute("""SELECT iliname, sqlname, owner
                            FROM {schema}.t_ili2db_attrname
                            WHERE iliname IN ({attr_names})

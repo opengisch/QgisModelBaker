@@ -36,6 +36,7 @@ class GPKGConnector(DBConnector):
         self._bMetadataTable = self._metadata_exists()
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
+        self.dispName = 'dispName'
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -291,13 +292,10 @@ class GPKGConnector(DBConnector):
                        """.format(class_names=class_names))
         return cursor
 
-    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+    def get_attrili_attrdb_mapping(self, attrs_list):
         """TODO: remove when ili2db issue #19 is solved"""
         cursor = self.conn.cursor()
-        all_attrs = list()
-        for c, dict_attr_domain in models_info_with_ext.items():
-            all_attrs.extend(list(dict_attr_domain.keys()))
-        attr_names = "'" + "','".join(all_attrs) + "'"
+        attr_names = "'" + "','".join(attrs_list) + "'"
         cursor.execute("""SELECT iliname, sqlname, owner
                           FROM t_ili2db_attrname
                           WHERE iliname IN ({attr_names})

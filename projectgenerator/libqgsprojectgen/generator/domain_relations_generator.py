@@ -34,7 +34,7 @@ class DomainRelationGenerator:
         if self.debug:
             print("domains:", domains)
         if not domains:
-            return []
+            return ([], {}) # relations, bags_of_enum
 
         layer_map = dict()
         for layer in layers:
@@ -95,7 +95,11 @@ class DomainRelationGenerator:
 
         # Map attr ili name and owner (pg class name) with its correspondent
         # attr pg name
-        attr_records = self._get_attrili_attrdb_mapping(models_info_with_ext)
+        all_attrs = list()
+        for c, dict_attr_domain in models_info_with_ext.items():
+            all_attrs.extend(list(dict_attr_domain.keys()))
+
+        attr_records = self._get_attrili_attrdb_mapping(all_attrs)
         attrs_ili_pg_owner = dict()
         for record in attr_records:
             if record['owner'] in attrs_ili_pg_owner:
@@ -144,13 +148,25 @@ class DomainRelationGenerator:
         if self.debug:
             print("Num of Relations:", len(relations))
 
-
         # BAG OF ENUM handling
         # bags_info = {iliclass: {iliattribute: [cardinalities=[1, *], ilistructure}}
+        # iliattr_dbattr_mapping: {iliattribute: dbattribute}
         # structures_ili_pg = {ilistructure: dbstructure}
         # structure_domain_attr = {dbstructure: [iliname, sqlname]}
-        # return {layer_name: [dbattribute, cardinality, dbdomain]}
+        # return {Layer_class_name: {dbattribute: {Layer_class, cardinality, Layer_domain, key_field, value_field]}
 
+        # Get iliattr_dbattr_mapping
+        all_attrs = list()
+        for class_name, bag_of_enum_info in bags_of_enum_info.items():
+            for attribute, cardinality_structure in bag_of_enum_info.items():
+                all_attrs.append(attribute)
+
+        attr_records = self._get_attrili_attrdb_mapping(all_attrs)
+        iliattr_dbattr_mapping = dict()
+        for record in attr_records:
+            iliattr_dbattr_mapping[record['iliname']] = record['sqlname']
+
+        # Get structures_ili_pg
         structures = [layer.name for layer in layers if layer.is_structure]
         if self.debug:
             print("Structures:", structures)
@@ -163,6 +179,7 @@ class DomainRelationGenerator:
         if self.debug:
             print("structures_ili_pg:", structures_ili_pg)
 
+        # Get structure_domain_attr
         owners = list()
         for class_name, bag_of_enum_info in bags_of_enum_info.items():
             for attribute, cardinality_structure in bag_of_enum_info.items():
@@ -183,17 +200,37 @@ class DomainRelationGenerator:
         for class_name, bag_of_enum_info in bags_of_enum_info.items():
             for attribute, cardinality_structure in bag_of_enum_info.items():
                 cardinality, structure = cardinality_structure
-                if structure in models_info_with_ext:
+                if attribute in iliattr_dbattr_mapping and structure in models_info_with_ext:
                     structure_attribute = structure_domain_attr[structures_ili_pg[structure]][0] # iliname
                     if structure_attribute in models_info_with_ext[structure]:
                         ilidomain = models_info_with_ext[structure][structure_attribute] # ilidomain
                         if structure in classes_ili_pg and ilidomain in domains_ili_pg and structure_attribute in attrs_ili:
                             if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
                                 classes_ili_pg[structure] in attrs_ili_pg_owner:
-                                #bags_of_enum[]
-                                print("BAG OF ENUM!!!", classes_ili_pg[class_name], attribute, cardinality, domains_ili_pg[ilidomain])
 
-        return relations
+                                if classes_ili_pg[class_name] in bags_of_enum:
+                                    bags_of_enum[classes_ili_pg[class_name]][iliattr_dbattr_mapping[attribute]] = [
+                                        layer_map[classes_ili_pg[class_name]][0],
+                                        cardinality,
+                                        layer_map[domains_ili_pg[ilidomain]][0],
+                                        self._db_connector.iliCodeName,
+                                        self._db_connector.dispName
+                                    ]
+                                else:
+                                    bags_of_enum[classes_ili_pg[class_name]] = {
+                                        iliattr_dbattr_mapping[attribute]:
+                                            [
+                                                layer_map[classes_ili_pg[class_name]][0],
+                                                cardinality,
+                                                layer_map[domains_ili_pg[ilidomain]][0],
+                                                self._db_connector.iliCodeName,
+                                                self._db_connector.dispName
+                                            ]
+                                    }
+                                if self.debug:
+                                    print("BAG OF ENUM!!!", classes_ili_pg[class_name], iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+
+        return (relations, bags_of_enum)
 
     def parse_model(self, model_content, domains):
         re_comment = re.compile(r'\s*/\*')  # /* comment
@@ -205,7 +242,7 @@ class DomainRelationGenerator:
         re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+).*')
         # TOPIC Catastro_Registro [=]
         re_topic = re.compile(r'\s*TOPIC\s*([\w\d_-]+).*')
-        re_structure = re.compile(r'\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*') # STRUCTURE StructureName =
+        re_structure = re.compile(r'\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*')  # STRUCTURE StructureName =
         re_class = re.compile(
             r'\s*CLASS\s*([\w\d_-]+)\s*[\(ABSTRACT\)]*\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName (ABSTRACT) [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(

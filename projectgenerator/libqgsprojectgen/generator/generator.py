@@ -223,11 +223,11 @@ class Generator:
         # https://github.com/claeis/ili2db/issues/19 is solved!
         domain_relations_generator = DomainRelationGenerator(
             self._db_connector, self.inheritance)
-        domain_relations = domain_relations_generator.get_domain_relations_info(
+        domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
             layers)
         relations = relations + domain_relations
 
-        return relations
+        return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
         legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
