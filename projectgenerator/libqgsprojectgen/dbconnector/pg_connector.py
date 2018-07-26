@@ -318,16 +318,16 @@ class PGConnector(DBConnector):
 
         return []
 
-    def get_domainili_domaindb_mapping(self, domains):
+    def get_iliname_dbname_mapping(self, sqlnames):
         """TODO: remove when ili2db issue #19 is solved"""
         # Map domain ili name with its correspondent pg name
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            domain_names = "'" + "','".join(domains) + "'"
+            names = "'" + "','".join(sqlnames) + "'"
             cur.execute("""SELECT iliname, sqlname
                             FROM {schema}.t_ili2db_classname
-                            WHERE sqlname IN ({domain_names})
-                        """.format(schema=self.schema, domain_names=domain_names))
+                            WHERE sqlname IN ({names})
+                        """.format(schema=self.schema, names=names))
             return cur
 
         return {}
@@ -371,6 +371,19 @@ class PGConnector(DBConnector):
                            FROM {schema}.t_ili2db_attrname
                            WHERE iliname IN ({attr_names})
                         """.format(schema=self.schema, attr_names=attr_names))
+            return cur
+
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """TODO: remove when ili2db issue #19 is solved"""
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            owner_names = "'" + "','".join(owners) + "'"
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE owner IN ({owner_names})
+                        """.format(schema=self.schema, owner_names=owner_names))
             return cur
 
         return {}

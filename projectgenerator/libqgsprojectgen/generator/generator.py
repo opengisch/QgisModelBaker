@@ -94,6 +94,7 @@ class Generator:
             alias = record['table_alias'] if 'table_alias' in record else ''
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
+            is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
 
             display_expression = ''
@@ -111,6 +112,7 @@ class Generator:
                               record['type']) or QgsWkbTypes.Unknown,
                           alias,
                           is_domain,
+                          is_structure,
                           is_nmrel,
                           display_expression)
 

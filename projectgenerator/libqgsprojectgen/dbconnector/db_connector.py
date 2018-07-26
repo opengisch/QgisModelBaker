@@ -120,7 +120,7 @@ class DBConnector:
         '''
         return []
 
-    def get_domainili_domaindb_mapping(self, domains):
+    def get_iliname_dbname_mapping(self, sqlnames):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}
 
@@ -133,5 +133,9 @@ class DBConnector:
         return {}
 
     def get_attrili_attrdb_mapping(self, models_info_with_ext):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}

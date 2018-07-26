@@ -42,7 +42,7 @@ class DomainRelationGenerator:
                 layer_map[layer.name] = list()
             layer_map[layer.name].append(layer)
 
-        domainili_domaindb_mapping = self._get_domainili_domaindb_mapping(
+        domainili_domaindb_mapping = self._get_iliname_dbname_mapping(
             domains)
         domains_ili_pg = dict()
         for record in domainili_domaindb_mapping:
@@ -57,12 +57,16 @@ class DomainRelationGenerator:
         for record in model_records:
             models[record['modelname'].split("{")[0]] = record['content']
 
+        bags_of_enum_info = dict()
         for k, v in models.items():
             parsed = self.parse_model(v, list(domains_ili_pg.keys()))
             models_info.update(parsed[0])
             extended_classes.update(parsed[1])
+            bags_of_enum_info.update(parsed[2])
+
         if self.debug:
             print("Classes with domain attrs:", len(models_info))
+            print("BAGS OF ENUM", len(bags_of_enum_info), bags_of_enum_info)
 
         # Map class ili name with its correspondent pg name
         # Take into account classes with domain attrs and those that extend other classes,
@@ -140,6 +144,55 @@ class DomainRelationGenerator:
         if self.debug:
             print("Num of Relations:", len(relations))
 
+
+        # BAG OF ENUM handling
+        # bags_info = {iliclass: {iliattribute: [cardinalities=[1, *], ilistructure}}
+        # structures_ili_pg = {ilistructure: dbstructure}
+        # structure_domain_attr = {dbstructure: [iliname, sqlname]}
+        # return {layer_name: [dbattribute, cardinality, dbdomain]}
+
+        structures = [layer.name for layer in layers if layer.is_structure]
+        if self.debug:
+            print("Structures:", structures)
+
+        structureili_structuredb_mapping = self._get_iliname_dbname_mapping(
+            structures)
+        structures_ili_pg = dict()
+        for record in structureili_structuredb_mapping:
+            structures_ili_pg[record['iliname']] = record['sqlname']
+        if self.debug:
+            print("structures_ili_pg:", structures_ili_pg)
+
+        owners = list()
+        for class_name, bag_of_enum_info in bags_of_enum_info.items():
+            for attribute, cardinality_structure in bag_of_enum_info.items():
+                owners.append(structures_ili_pg[cardinality_structure[1]])
+
+        if self.debug:
+            print("OWNERS:",owners)
+        structure_domain_attr_ili_sql = self._get_attrili_attrdb_mapping_by_owner(owners)
+        structure_domain_attr = dict()
+        for record in structure_domain_attr_ili_sql:
+            structure_domain_attr[record['owner']] = [
+                record['iliname'],
+                record['sqlname']
+            ]
+
+        # Get the domain (extracted by the parser) corresponding to the structure
+        bags_of_enum = dict()
+        for class_name, bag_of_enum_info in bags_of_enum_info.items():
+            for attribute, cardinality_structure in bag_of_enum_info.items():
+                cardinality, structure = cardinality_structure
+                if structure in models_info_with_ext:
+                    structure_attribute = structure_domain_attr[structures_ili_pg[structure]][0] # iliname
+                    if structure_attribute in models_info_with_ext[structure]:
+                        ilidomain = models_info_with_ext[structure][structure_attribute] # ilidomain
+                        if structure in classes_ili_pg and ilidomain in domains_ili_pg and structure_attribute in attrs_ili:
+                            if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
+                                classes_ili_pg[structure] in attrs_ili_pg_owner:
+                                #bags_of_enum[]
+                                print("BAG OF ENUM!!!", classes_ili_pg[class_name], attribute, cardinality, domains_ili_pg[ilidomain])
+
         return relations
 
     def parse_model(self, model_content, domains):
@@ -163,7 +216,7 @@ class DomainRelationGenerator:
         re_inline_enum_oneline = re.compile(
             r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
         # Typ: BAG {1..*} OF EI_Punkt_Typ;
-        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{.*\}\s*OF\s*([\w\d_-]+);.*')
+        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\w\d_-]+);.*')
         re_mapping_array = re.compile(r'\s*!!@ili2db.mapping=ARRAY.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
@@ -180,7 +233,7 @@ class DomainRelationGenerator:
         attributes = dict()
         models_info = dict()
         extended_classes = dict()
-        bags_of = dict()
+        bags_of_enum = dict()
         bClassJustFound = False  # Flag to search for EXTENDS classes
         local_names = dict()
 
@@ -326,8 +379,15 @@ class DomainRelationGenerator:
                             result = re_bag_of.search(line)
                             if result:
                                 attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
-                                print("BAG OF!!! {}: {}", attr_name, result.group(2))
-                                bags_of[attr_name] = result.group(2)
+                                structure_name = result.group(3)
+                                if not '.' in structure_name:
+                                    structure_name = '{}.{}.{}'.format(current_model, current_topic, structure_name)
+
+                                class_name = '{}.{}.{}'.format(current_model, current_topic, current_class)
+                                if not class_name in bags_of_enum:
+                                    bags_of_enum[class_name] = {attr_name: [result.group(2), structure_name]}
+                                else:
+                                    bags_of_enum[class_name][attr_name] = [result.group(2), structure_name]
                                 continue
 
                         # Go for attributes
@@ -394,7 +454,7 @@ class DomainRelationGenerator:
                         print("END model encontrado", current_model, "\n")
                     current_model = ''
 
-        return [models_info, extended_classes, bags_of]
+        return [models_info, extended_classes, bags_of_enum]
 
     def extract_local_names_from_domains(self, domains, current_model, current_topic):
         """
@@ -506,8 +566,8 @@ class DomainRelationGenerator:
 
         return all_attrs
 
-    def _get_domainili_domaindb_mapping(self, domains):
-        return self._db_connector.get_domainili_domaindb_mapping(domains)
+    def _get_iliname_dbname_mapping(self, sqlnames):
+        return self._db_connector.get_iliname_dbname_mapping(sqlnames)
 
     def _get_models(self):
         return self._db_connector.get_models()
@@ -517,3 +577,6 @@ class DomainRelationGenerator:
 
     def _get_attrili_attrdb_mapping(self, models_info_with_ext):
         return self._db_connector.get_attrili_attrdb_mapping(models_info_with_ext)
+
+    def _get_attrili_attrdb_mapping_by_owner(self, owners):
+        return self._db_connector.get_attrili_attrdb_mapping_by_owner(owners)
