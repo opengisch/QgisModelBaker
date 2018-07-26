@@ -20,9 +20,10 @@
 
 import webbrowser
 
+from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
-from projectgenerator.libili2db.ilidataimporter import JavaNotFoundError
+from projectgenerator.libili2db.iliimporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
@@ -51,7 +52,7 @@ from qgis.PyQt.QtCore import (
 )
 from ..utils import get_ui_class
 from ..libili2db import (
-    ilidataimporter,
+    iliimporter,
     ili2dbconfig
 )
 from qgis.gui import QgsGui
@@ -83,6 +84,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
+        self.ili2db_options = Ili2dbOptionsDialog()
+        self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
+        self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
         self.multiple_models_button.clicked.connect(
@@ -181,7 +185,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
 
-            dataImporter = ilidataimporter.DataImporter()
+            dataImporter = iliimporter.Importer(dataImport=True)
 
             tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
             dataImporter.tool_name = tool_name
@@ -197,7 +201,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(25)
 
             try:
-                if dataImporter.run() != ilidataimporter.DataImporter.SUCCESS:
+                if dataImporter.run() != iliimporter.Importer.SUCCESS:
                     self.enable()
                     self.progress_bar.hide()
                     return
@@ -237,7 +241,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         color = '#004905' if exit_code == 0 else '#aa2222'
         self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append('Finished ({})'.format(exit_code))
-        if result == ilidataimporter.DataImporter.SUCCESS:
+        if result == iliimporter.Importer.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
@@ -265,6 +269,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.base_configuration = self.base_configuration
 
         return configuration
@@ -299,6 +304,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def restore_configuration(self):
         settings = QSettings()
 
+        self.fill_toml_file_info_label()
         self.xtf_file_line_edit.setText(settings.value(
             'QgsProjectGenerator/ili2pg/xtffile_import'))
         self.chk_delete_data.setChecked(settings.value(
@@ -362,6 +368,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def fill_models_line_edit(self):
         self.ili_models_line_edit.setText(
             self.multiple_models_dialog.get_models_string())
+
+    def fill_toml_file_info_label(self):
+        text = None
+        if self.ili2db_options.toml_file():
+            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
+        self.toml_file_info_label.setText(text)
+        self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
     def help_requested(self):
         os_language = QLocale(QSettings().value(

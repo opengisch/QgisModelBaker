@@ -25,7 +25,7 @@ import nose2
 import psycopg2
 import psycopg2.extras
 
-from projectgenerator.libili2db import iliimporter, ilidataimporter
+from projectgenerator.libili2db import iliimporter, iliimporter
 from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis import utils
@@ -56,7 +56,7 @@ class TestImport(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
-        dataImporter = ilidataimporter.DataImporter()
+        dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool_name = 'ili2pg'
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
@@ -67,7 +67,7 @@ class TestImport(unittest.TestCase):
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
-                         ilidataimporter.DataImporter.SUCCESS)
+                         iliimporter.Importer.SUCCESS)
 
         # Check expected data is there in the database schema
         conn = psycopg2.connect(importer.configuration.uri)
@@ -128,7 +128,7 @@ class TestImport(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         # Import data
-        dataImporter = ilidataimporter.DataImporter()
+        dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool_name = 'ili2gpkg'
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool_name, 'ilimodels/CIAF_LADM')
@@ -139,7 +139,7 @@ class TestImport(unittest.TestCase):
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
-                         ilidataimporter.DataImporter.SUCCESS)
+                         iliimporter.Importer.SUCCESS)
 
         # Check expected data is there in the database schema
         conn = utils.spatialite_connect(importer.configuration.dbfile)
