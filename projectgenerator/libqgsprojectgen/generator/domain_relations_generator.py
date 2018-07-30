@@ -253,7 +253,7 @@ class DomainRelationGenerator:
         re_inline_enum_oneline = re.compile(
             r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
         # Typ: BAG {1..*} OF EI_Punkt_Typ;
-        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\w\d_-]+);.*')
+        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\.\w\d_-]+);.*')
         re_mapping_array = re.compile(r'\s*!!@ili2db.mapping=ARRAY.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
