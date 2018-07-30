@@ -327,6 +327,10 @@ class DomainRelationGenerator:
                         if self.debug:
                             print("domains_with_local:", domains_with_local)
                         continue
+
+                    #else: # TODO: Look for structure-domain relations out of models
+
+
                 else:  # There is a current_topic
 
                     if not current_structure:
@@ -336,6 +340,47 @@ class DomainRelationGenerator:
                             if self.debug:
                                 print("Structure encontrada", current_structure)
                             attributes = dict()
+
+                            # Check if definition is in one line and handle it
+                            re_structure_one_line = re.compile(
+                                r'\s*STRUCTURE\s*{structure}\s*\=(.*)\s*END\s*{structure};.*'.format(structure=current_structure))
+                            if self.debug:
+                                print("STRUCTURE FOUND {}, testing one_line_regexp: {}".format(current_structure, re_structure_one_line))
+
+                            result = re_structure_one_line.search(line)
+                            if result:
+                                if self.debug:
+                                    print("STRUCTURE IN ONE LINE")
+
+                                structure_defs = result.group(1)
+                                for structure_def in structure_defs.strip().split(";"):
+                                    pair = structure_def.split(":")
+                                    if len(pair) > 1:
+                                        structure_attr = pair[0].strip()
+                                        structure_attr_full_name = "{}.{}.{}.{}".format(
+                                                                    current_model,
+                                                                    current_topic,
+                                                                    current_structure,
+                                                                    structure_attr)  # Fully qualified name
+                                        structure_domain = pair[1].strip().split(" ")[-1] # Filters out "MANDATORY"
+
+                                        if structure_domain not in domains:  # Match was vs. local name, find its corresponding qualified name
+                                            for k, v in local_names.items():
+                                                if structure_domain in v:
+                                                    structure_domain = k
+                                                    break
+
+                                        if structure_domain in domains_with_local:
+                                            attributes[structure_attr_full_name] = structure_domain
+
+                                if attributes:
+                                    models_info.update(
+                                        {'{}.{}.{}'.format(current_model, current_topic, current_structure): attributes})
+
+                                current_structure = ''
+                                continue
+
+
                             re_end_structure = re.compile(
                                 r'\s*END\s*{};.*'.format(current_structure))  # END StructureName;
                             continue
