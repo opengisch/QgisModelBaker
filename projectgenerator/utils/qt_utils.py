@@ -54,6 +54,9 @@ def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension
     filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
     extension_valid = False
 
+    if not extensions:
+        extensions = [extension]
+
     if extensions:
         extension_valid = any(filename.endswith(ext) for ext in extensions)
 
@@ -65,7 +68,7 @@ def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),
                             file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None, extension='', extensions=None):
-    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent, extension=extension)
+    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent, extension=extension, extensions=extensions)
 
 
 def selectFolder(line_edit_widget, title, parent):
