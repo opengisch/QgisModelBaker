@@ -270,6 +270,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.inheritance = self.ili2db_options.inheritance_type()
+        configuration.create_basket_col = self.ili2db_options.create_basket_col()
         configuration.base_configuration = self.base_configuration
 
         return configuration
