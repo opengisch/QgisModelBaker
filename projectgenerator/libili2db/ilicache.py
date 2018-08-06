@@ -172,7 +172,7 @@ class IliCache(QObject):
                 fileModels = self.parse_ili_file(ilifile, "latin1")
                 self.new_message.emit(Qgis.Warning,
                                       self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as e:
                 self.new_message.emit(Qgis.Critical,
                                       self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
                 QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(
