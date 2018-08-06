@@ -101,6 +101,8 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-        self.create_basket_col_checkbox.setChecked(settings.value('QgsProjectGenerator/ili2db/create_basket_col', False))
+        create_basket_col = settings.value('QgsProjectGenerator/ili2db/create_basket_col', defaultValue=False, type=bool)
+
+        self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.toml_file_line_edit.setText(
             settings.value(self.toml_file_key))
