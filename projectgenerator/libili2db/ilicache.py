@@ -69,10 +69,10 @@ class IliCache(QObject):
         self.models_changed.emit()
 
     def download_repository(self, url):
-        '''
+        """
         Downloads the ilimodels.xml and ilisite.xml files from the provided url
         and updates the local cache.
-        '''
+        """
         netloc = urllib.parse.urlsplit(url)[1]
 
         modeldir = os.path.join(self.cache_path, netloc)
@@ -106,9 +106,9 @@ class IliCache(QObject):
                       )
 
     def _process_ilisite(self, file):
-        '''
+        """
         Parses the ilisite.xml provided in ``file`` and recursively downloads any subidiary sites.
-        '''
+        """
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
@@ -124,9 +124,9 @@ class IliCache(QObject):
                         location.find('ili23:value', self.ns).text)
 
     def _process_ilimodels(self, file, netloc):
-        '''
+        """
         Parses ilimodels.xml provided in ``file`` and updates the local repositories cache.
-        '''
+        """
 
         try:
             root = ET.parse(file).getroot()
@@ -150,9 +150,9 @@ class IliCache(QObject):
         self.models_changed.emit()
 
     def process_local_ili_folder(self, path):
-        '''
+        """
         Parses all .ili files in the given ``path`` (non-recursively)
-        '''
+        """
         models = list()
         fileModels = list()
         for ilifile in glob.iglob(os.path.join(path, '*.ili')):
@@ -182,9 +182,9 @@ class IliCache(QObject):
         return fileModels
 
     def parse_ili_file(self, ilipath, encoding):
-        '''
+        """
         Parses an ili file returning models and version data
-        '''
+        """
         models = list()
         re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+)\s.*')
         re_model_version = re.compile(r'VERSION "([ \w\d\._-]+)".*')
