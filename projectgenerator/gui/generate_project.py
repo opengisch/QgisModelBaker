@@ -355,6 +355,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.tomlfile = self.ili2db_options.toml_file()
+        configuration.create_basket_col = self.ili2db_options.create_basket_col()
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():

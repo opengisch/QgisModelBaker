@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>242</height>
+    <height>290</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@ using a SubClass strategy. Concrete classes, without a base class or their direc
 strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
         </property>
         <property name="text">
-         <string>smart1Inheritance</string>
+         <string>s&amp;mart1Inheritance</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -46,14 +46,14 @@ strategy are mapped using a NewClass strategy. All other classes are mapped usin
 strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
         </property>
         <property name="text">
-         <string>smart2Inheritance</string>
+         <string>smart&amp;2Inheritance</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -63,7 +63,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -96,6 +96,25 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
         </property>
         <property name="text">
          <string>…</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Create Basket Column</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_basket_col_checkbox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column T_basket in class tables which references entries in the additional table t_ili2db_baskets.&lt;/p&gt;&lt;p&gt;The T_basket column needs to be filled with the basket to which an object belongs.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled by the database, by default values on QGIS side or manually from the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Create Basket Column</string>
         </property>
        </widget>
       </item>

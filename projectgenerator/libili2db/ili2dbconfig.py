@@ -195,11 +195,12 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.inheritance = 'smart1'
+        self.create_basket_col = False
         self.epsg = 21781  # Default EPSG code in ili2pg
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
         """
-        Create an ili2db argument array, with the password masked with ****** and optionally with the action
+        Create an ili2db argument array, with the password masked with ****** and optionally with the ``action``
         argument (--schemaimport) removed
         """
         args = list()
@@ -216,7 +217,6 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--coalesceArray"]
         args += ["--strokeArcs"]
         args += ["--beautifyEnumDispName"]
-        # args += ["--createBasketCol"]
         args += ["--createUnique"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
@@ -230,6 +230,9 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
             args += ["--smart2Inheritance"]
         else:
             args += ["--noSmartMapping"]
+
+        if self.create_basket_col:
+            args += ["--createBasketCol"]
 
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
