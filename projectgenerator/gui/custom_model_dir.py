@@ -57,6 +57,8 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
         item = QListWidgetItem()
         self.set_flags(item)
         self.model_dir_list.addItem(item)
+        self.model_dir_list.setCurrentItem(item)
+        self.browse_dir()
 
     def remove_model_dir(self):
         for item in self.model_dir_list.selectedItems():
