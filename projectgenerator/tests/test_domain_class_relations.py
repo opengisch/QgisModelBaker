@@ -59,7 +59,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -131,7 +131,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -205,7 +205,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -287,7 +287,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -738,7 +738,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -1022,7 +1022,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations, foo = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()

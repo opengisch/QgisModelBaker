@@ -54,7 +54,7 @@ def main(argv):
     generator = generator_module.Generator(args.uri)
 
     available_layers = generator.layers()
-    relations, foo = generator.relations(available_layers)
+    relations, _ = generator.relations(available_layers)
 
     project = Project()
     project.layers = available_layers
