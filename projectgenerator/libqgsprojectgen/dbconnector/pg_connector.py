@@ -234,7 +234,7 @@ class PGConnector(DBConnector):
                                         c.column_name=alias.columnname AND
                                         alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
                 full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
-                                        ON c.table_name='{}' AND
+                                        ON full_name.owner='{}' AND
                                         c.column_name=full_name.sqlname
                                         """.format(self.schema, table_name)
 
