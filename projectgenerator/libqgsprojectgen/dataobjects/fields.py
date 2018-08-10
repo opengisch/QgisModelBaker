@@ -27,6 +27,7 @@ class Field:
         self.name = name
         self.alias = None
         self.read_only = False
+        self.hidden = False
         self.widget = None
         self.widget_config = dict()
 

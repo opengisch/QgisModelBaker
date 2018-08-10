@@ -478,6 +478,49 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_meta_attr_hidden_toml_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in project.layers:
+            if layer.name == 'predio':
+                efc = layer.layer.editFormConfig()
+                for tab in efc.tabs():
+                    if tab.name() == 'General':
+                        count = 1
+                        attribute_names = [child.name() for child in tab.children()]
+                        self.assertEqual(len(attribute_names), 9)
+                        self.assertNotIn('tipo', attribute_names)
+                        self.assertNotIn('avaluo', attribute_names)
+
+        self.assertEqual(count, 1)
+
     def test_meta_attr_toml_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2gpkg'

@@ -133,8 +133,24 @@ class Generator:
                 field = Field(column_name)
                 field.alias = alias
 
+                # Should we hide the field?
+                hide_attribute = False
+
+                if 'fully_qualified_name' in fielddef:
+                    fully_qualified_name = fielddef['fully_qualified_name']
+                    if fully_qualified_name:
+                        meta_attrs_column = self.get_meta_attrs(fully_qualified_name)
+
+                        for attr_record in meta_attrs_column:
+                            if attr_record['attr_name'] == 'hidden':
+                                if attr_record['attr_value'] == 'True':
+                                    hide_attribute = True
+                                    break
+
                 if column_name in IGNORED_FIELDNAMES:
-                    field.widget = 'Hidden'
+                    hide_attribute = True
+
+                field.hidden = hide_attribute
 
                 if column_name in READONLY_FIELDNAMES:
                     field.read_only = True
