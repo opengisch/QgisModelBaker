@@ -168,8 +168,10 @@ VERSION "2016-11-28"  =
       EGRID : BAG {0..*} OF KbS_Basis_V1_3.EGRID_;
       Standorttyp : MANDATORY KbS_Basis_V1_3.Standorttyp;
       InBetrieb : BOOLEAN;
+      !!@ili2db.mapping=ARRAY
       Deponietyp : BAG {0..*} OF KbS_Basis_V1_3.Deponietyp_;
       Nachsorge : BOOLEAN;
+      !!@ili2db.mapping=ARRAY
       Untersuchungsmassnahmen : BAG {1..*} OF KbS_Basis_V1_3.UntersMassn_;
       StatusAltlV : MANDATORY KbS_Basis_V1_3.StatusAltlV;
       Ersteintrag : MANDATORY INTERLIS.XMLDate;

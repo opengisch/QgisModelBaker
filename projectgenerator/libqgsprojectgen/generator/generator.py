@@ -94,6 +94,7 @@ class Generator:
             alias = record['table_alias'] if 'table_alias' in record else ''
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
+            is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
 
             display_expression = ''
@@ -111,6 +112,7 @@ class Generator:
                               record['type']) or QgsWkbTypes.Unknown,
                           alias,
                           is_domain,
+                          is_structure,
                           is_nmrel,
                           display_expression)
 
@@ -221,11 +223,11 @@ class Generator:
         # https://github.com/claeis/ili2db/issues/19 is solved!
         domain_relations_generator = DomainRelationGenerator(
             self._db_connector, self.inheritance)
-        domain_relations = domain_relations_generator.get_domain_relations_info(
+        domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
             layers)
         relations = relations + domain_relations
 
-        return relations
+        return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
         legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)

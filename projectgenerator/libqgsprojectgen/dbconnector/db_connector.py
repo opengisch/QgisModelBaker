@@ -26,6 +26,7 @@ class DBConnector:
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
+        self.dispName = ''  # For BAG OF config, specific for each DB
 
     def map_data_types(self, data_type):
         '''Map provider date/time types to QGIS date/time types'''
@@ -120,7 +121,7 @@ class DBConnector:
         '''
         return []
 
-    def get_domainili_domaindb_mapping(self, domains):
+    def get_iliname_dbname_mapping(self, sqlnames):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}
 
@@ -132,6 +133,10 @@ class DBConnector:
         """TODO: remove when ili2db issue #19 is solved"""
         return {}
 
-    def get_attrili_attrdb_mapping(self, models_info_with_ext):
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """TODO: remove when ili2db issue #19 is solved"""
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}

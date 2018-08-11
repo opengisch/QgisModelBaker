@@ -278,7 +278,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(70)
             self.print_info(
                 self.tr('Obtaining relations from the database…'))
-            relations = generator.relations(available_layers)
+            relations, bags_of_enum = generator.relations(available_layers)
             self.progress_bar.setValue(75)
             self.print_info(self.tr('Arranging layers into groups…'))
             legend = generator.legend(available_layers)
@@ -287,6 +287,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project = Project()
             project.layers = available_layers
             project.relations = relations
+            project.bags_of_enum = bags_of_enum
             project.legend = legend
             self.print_info(self.tr('Configuring forms and widgets…'))
             project.post_generate()

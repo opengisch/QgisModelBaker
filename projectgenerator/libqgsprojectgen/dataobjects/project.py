@@ -39,6 +39,9 @@ class Project(QObject):
         self.evaluate_default_values = evaluate_default_values
         self.relations = List[Relation]
 
+        # {Layer_class_name: {dbattribute: {Layer_class, cardinality, Layer_domain, key_field, value_field]}
+        self.bags_of_enum = dict()
+
     def add_layer(self, layer):
         self.layers.append(layer)
 
@@ -116,6 +119,37 @@ class Project(QObject):
                     rel.referencingFields()[0], editor_widget_setup)
 
         qgis_project.relationManager().setRelations(qgis_relations)
+
+        # Set Bag of Enum widget
+        for layer_name, bag_of_enum in self.bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+
+                allow_null = cardinality.startswith('0')
+                allow_multi = cardinality.endswith('*')
+
+                current_layer = layer_obj.create()
+
+                field_widget = 'ValueRelation'
+                field_widget_config = {
+                    'AllowMulti': allow_multi,
+                    'UseCompleter': False,
+                    'Value': value_field,
+                    'OrderByValue': False,
+                    'AllowNull': allow_null,
+                    'Layer': domain_table.create().id(),
+                    'FilterExpression': '',
+                    'Key': key_field,
+                    'NofColumns': 1
+                }
+
+                field_idx = current_layer.fields().indexOf(attribute)
+                setup = QgsEditorWidgetSetup(field_widget, field_widget_config)
+                current_layer.setEditorWidgetSetup(field_idx, setup)
 
         for layer in self.layers:
             layer.create_form(self)

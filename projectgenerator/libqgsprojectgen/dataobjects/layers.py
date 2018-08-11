@@ -24,7 +24,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_nmrel=False, display_expression=None):
+    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -34,6 +34,7 @@ class Layer(object):
         self.__layer = None
         self.fields = list()
         self.is_domain = is_domain
+        self.is_structure = is_structure
 
         self.is_nmrel = is_nmrel
         """ If is_nmrel is set to true it is a junction table in a N:M relation.
@@ -48,6 +49,7 @@ class Layer(object):
         definition['provider'] = self.provider
         definition['uri'] = self.uri
         definition['isdomain'] = self.is_domain
+        definition['isstructure'] = self.is_structure
         definition['isnmrel'] = self.is_nmrel
         definition['displayexpression'] = self.display_expression
         definition['form'] = self.__form.dump()
@@ -57,6 +59,7 @@ class Layer(object):
         self.provider = definition['provider']
         self.uri = definition['uri']
         self.is_domain = definition['isdomain']
+        self.is_structure = definition['isstructure']
         self.is_nmrel = definition['isnmrel']
         self.display_expression = definition['displayexpression']
         self.__form.load(definition['form'])

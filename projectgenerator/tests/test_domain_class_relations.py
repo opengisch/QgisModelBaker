@@ -59,7 +59,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -131,7 +131,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -205,7 +205,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -287,7 +287,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -370,7 +370,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, bags_of_enum = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -435,6 +435,284 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['erholungsinfrastruktur_punktobjekt', 'typ', '1..*', 'ei_punkt_typen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_linienobjekt', 'typ', '1..*', 'ei_linie_typen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_punktobjekt', 'typ', '1..*', 'ni_punkt_typen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_linienobjekt', 'typ', '1..*', 'ni_linie_typen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzrelevantes_objekt_ohne_schutzstatus', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+
+        self.assertEqual(count, 9)
+
+    def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_bags_of_enum_gpkg.gpkg')
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg',
+                              importer.configuration.uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        # 7 domain-structure + 1 domain-class relations are expected
+        expected_relations = list()
+
+        expected_relations.append({'name': 'ns_bewirtschaftung_ns_bewirtschaftungen_ns_bewirtschaftungen_iliCode',
+                                   'referenced_layer': 'ns_bewirtschaftungen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ns_bewirtschaftung',
+                                   'referencing_field': 'ns_bewirtschaftungen'})
+
+        expected_relations.append({'name': 'datenbestand_zustaendigestelle_zustaendige_stelle_T_Id',
+                                   'referenced_layer': 'zustaendige_stelle',
+                                   'referenced_field': 'T_Id',
+                                   'referencing_layer': 'datenbestand',
+                                   'referencing_field': 'zustaendigestelle'})
+
+        expected_relations.append({'name': 'ni_punkt_typ_ni_punkt_typen_ni_punkt_typen_iliCode',
+                                   'referenced_layer': 'ni_punkt_typen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ni_punkt_typ',
+                                   'referencing_field': 'ni_punkt_typen'})
+
+        expected_relations.append({'name': 'ei_linie_typ_ei_linie_typen_ei_linie_typen_iliCode',
+                                   'referenced_layer': 'ei_linie_typen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ei_linie_typ',
+                                   'referencing_field': 'ei_linie_typen'})
+
+        expected_relations.append({'name': 'ei_bewirtschaftung_ei_bewirtschaftungen_ei_bewirtschaftungen_iliCode',
+                                   'referenced_layer': 'ei_bewirtschaftungen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ei_bewirtschaftung',
+                                   'referencing_field': 'ei_bewirtschaftungen'})
+
+        expected_relations.append({'name': 'ei_punkt_typ_ei_punkt_typen_ei_punkt_typen_iliCode',
+                                   'referenced_layer': 'ei_punkt_typen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ei_punkt_typ',
+                                   'referencing_field': 'ei_punkt_typen'})
+
+        expected_relations.append({'name': 'ni_linie_typ_ni_linie_typen_ni_linie_typen_iliCode',
+                                   'referenced_layer': 'ni_linie_typen',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'ni_linie_typ',
+                                   'referencing_field': 'ni_linie_typen'})
+
+        expected_relations.append({'name': 'naturschutzrelevantes_objekt_ohne_schutzstatus_typ_nro_typ_iliCode',
+                                   'referenced_layer': 'nro_typ',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'naturschutzrelevantes_objekt_ohne_schutzstatus',
+                                   'referencing_field': 'typ'})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['erholungsinfrastruktur_punktobjekt', 'typ', '1..*', 'ei_punkt_typen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_linienobjekt', 'typ', '1..*', 'ei_linie_typen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_punktobjekt', 'typ', '1..*', 'ni_punkt_typen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_linienobjekt', 'typ', '1..*', 'ni_linie_typen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzrelevantes_objekt_ohne_schutzstatus', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+
+        self.assertEqual(count, 9)
+
+    def test_domain_structure_relations_KbS_LV95_V1_3_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/KbS_V1_3.ili')
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2pg',
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        # 2 structure-domain relations defined OUT OF A TOPIC are expected
+        expected_relations = list()
+
+        expected_relations.append({'name': 'deponietyp__avalue_deponietyp_ilicode',
+                                   'referenced_layer': 'deponietyp',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'deponietyp_',
+                                   'referencing_field': 'avalue'})
+
+        expected_relations.append({'name': 'untersmassn__avalue_untersmassn_ilicode',
+                                   'referenced_layer': 'untersmassn',
+                                   'referenced_field': 'ilicode',
+                                   'referencing_layer': 'untersmassn_',
+                                   'referencing_field': 'avalue'})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['belasteter_standort', 'deponietyp', '0..*', 'deponietyp', 'ilicode', 'dispname'],
+            ['belasteter_standort', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'ilicode', 'dispname']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
+
+    def test_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/KbS_V1_3.ili')
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_bags_of_enum_kbs_lv95_v1_3.gpkg')
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg',
+                              importer.configuration.uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        # 2 structure-domain relations defined OUT OF A TOPIC are expected
+        expected_relations = list()
+
+        expected_relations.append({'name': 'deponietyp__avalue_deponietyp_iliCode',
+                                   'referenced_layer': 'deponietyp',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'deponietyp_',
+                                   'referencing_field': 'avalue'})
+
+        expected_relations.append({'name': 'untersmassn__avalue_untersmassn_iliCode',
+                                   'referenced_layer': 'untersmassn',
+                                   'referenced_field': 'iliCode',
+                                   'referencing_layer': 'untersmassn_',
+                                   'referencing_field': 'avalue'})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['belasteter_standort', 'deponietyp', '0..*', 'deponietyp', 'iliCode', 'dispName'],
+            ['belasteter_standort', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'iliCode', 'dispName']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
     def test_domain_class_relations_Hazard_Mapping_V1_2_postgis(self):
         # Test and ili file with lots of comments inside.
         # This test makes sense because we rely on a custom model parser.
@@ -460,7 +738,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
@@ -744,7 +1022,7 @@ class TestDomainClassRelation(unittest.TestCase):
                               importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
 
         # Check domain class relations in the relations list
         relations_dicts = list()
