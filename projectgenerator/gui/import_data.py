@@ -104,17 +104,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         gpkgFileValidator = FileValidator(
             pattern='*.gpkg', allow_non_existing=True)
 
-        self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
-        self.ili_models_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(
-            self.ili_models_line_edit.text())
+        self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model in repository]'))
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -147,11 +143,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.txtStdout.setText(
                 self.tr('Please set a valid INTERLIS transfer or catalogue file before importing data.'))
             self.xtf_file_line_edit.setFocus()
-            return
-        if not configuration.ilimodels:
-            self.txtStdout.setText(
-                self.tr('Please set a model before importing data.'))
-            self.ili_models_line_edit.setFocus()
             return
 
         if self.type_combo_box.currentData() == 'pg':
