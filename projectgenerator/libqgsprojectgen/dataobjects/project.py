@@ -114,9 +114,19 @@ class Project(QObject):
                     'ShowOpenFormButton': False
                 }
                 )
-                referencing_layer = rel.referencingLayer()
-                referencing_layer.setEditorWidgetSetup(
-                    rel.referencingFields()[0], editor_widget_setup)
+            else:
+                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
+                    'Relation': rel.id(),
+                    'ShowForm': False,
+                    'OrderByValue': True,
+                    'ShowOpenFormButton': False,
+                    'AllowAddFeatures': True
+                }
+                                                           )
+
+            referencing_layer = rel.referencingLayer()
+            referencing_layer.setEditorWidgetSetup(
+                rel.referencingFields()[0], editor_widget_setup)
 
         qgis_project.relationManager().setRelations(qgis_relations)
 
