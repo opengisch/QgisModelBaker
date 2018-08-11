@@ -495,7 +495,7 @@ class TestProjectGen(unittest.TestCase):
             'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
-        relations = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
         project = Project()
