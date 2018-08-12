@@ -24,6 +24,7 @@ import tempfile
 import nose2
 import psycopg2
 import psycopg2.extras
+import logging
 
 from projectgenerator.libili2db import iliimporter, iliimporter
 from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
@@ -175,10 +176,10 @@ class TestImport(unittest.TestCase):
         conn.close()
 
     def print_info(self, text):
-        print(text)
+        logging.info(text)
 
     def print_error(self, text):
-        print(text)
+        logging.info(text)
 
     @classmethod
     def tearDownClass(cls):

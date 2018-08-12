@@ -23,6 +23,7 @@ import datetime
 import shutil
 import tempfile
 import nose2
+import logging
 
 from projectgenerator.libili2db import iliimporter
 from projectgenerator.libqgsprojectgen.dataobjects import Project
@@ -566,10 +567,10 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(count, 3)
 
     def print_info(self, text):
-        print(text)
+        logging.info(text)
 
     def print_error(self, text):
-        print(text)
+        logging.info(text)
 
     def tearDown(self):
         QgsProject.instance().removeAllMapLayers()

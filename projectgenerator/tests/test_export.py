@@ -23,6 +23,7 @@ import shutil
 import tempfile
 import nose2
 import xml.etree.ElementTree as ET
+import logging
 
 from projectgenerator.libili2db import (iliexporter,
                                         iliimporter)
@@ -131,10 +132,10 @@ class TestExport(unittest.TestCase):
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
-        print(text)
+        logging.info(text)
 
     def print_error(self, text):
-        print(text)
+        logging.info(text)
 
     def compare_xtfs(self, expected, obtained):
         nsxtf = '{http://www.interlis.ch/INTERLIS2.3}'

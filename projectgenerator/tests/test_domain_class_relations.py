@@ -22,6 +22,7 @@ import datetime
 import shutil
 import tempfile
 import nose2
+import logging
 
 from projectgenerator.libili2db import iliimporter
 from projectgenerator.tests.utils import iliimporter_config, testdata_path
@@ -1070,11 +1071,12 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
+
     def print_info(self, text):
-        print(text)
+        logging.info(text)
 
     def print_error(self, text):
-        print(text)
+        logging.info(text)
 
     @classmethod
     def tearDownClass(cls):

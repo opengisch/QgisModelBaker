@@ -18,6 +18,7 @@
 """
 
 import nose2
+import logging
 
 from projectgenerator.libili2db import iliimporter
 from projectgenerator.tests.utils import iliimporter_config, testdata_path
@@ -55,10 +56,10 @@ class TestGeomZ(unittest.TestCase):
         self.assertEquals(obstacle_layer.layer.wkbType(), QgsWkbTypes.PointZ)
 
     def print_info(self, text):
-        print(text)
+        logging.info(text)
 
     def print_error(self, text):
-        print(text)
+        logging.info(text)
 
 if __name__ == '__main__':
     nose2.main()
