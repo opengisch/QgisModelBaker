@@ -53,7 +53,7 @@ class TestGeomZ(unittest.TestCase):
 
         obstacle_layer = next((layer for layer in available_layers if 'obstacle' in layer.uri))
         obstacle_layer.create()
-        self.assertEquals(obstacle_layer.layer.wkbType(), QgsWkbTypes.PointZ)
+        self.assertEqual(obstacle_layer.layer.wkbType(), QgsWkbTypes.PointZ)
 
     def print_info(self, text):
         logging.info(text)
