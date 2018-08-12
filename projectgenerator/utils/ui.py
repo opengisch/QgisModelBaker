@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from qgis.PyQt.uic import loadUiType
 
@@ -18,4 +19,7 @@ def get_ui_class(ui_file):
             ui_file
         )
     )
-    return loadUiType(ui_file_path)[0]
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return loadUiType(ui_file_path)[0]
