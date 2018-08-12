@@ -80,7 +80,6 @@ class TestImport(unittest.TestCase):
                 FROM {}.predio
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Unidad_Derecho')
         self.assertEqual(record[1], 'POLYGON((1000257.42555766 1002020.37570978,1000437.68843915 1002196.49461698,1000275.4718973 1002428.18956643,1000072.2500615 1002291.5386724,1000158.57171943 1002164.91352262,1000159.94153032 1002163.12799749,1000257.42555766 1002020.37570978))')
