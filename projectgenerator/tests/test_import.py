@@ -93,7 +93,6 @@ class TestImport(unittest.TestCase):
                 FROM {}.persona
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], '1234354656')
         self.assertEqual(record[1], 'Pepito Perez')
@@ -106,7 +105,6 @@ class TestImport(unittest.TestCase):
                 FROM {}.derecho
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        print("INFO", record)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Posesion')
         self.assertEqual(record[1], persona_id)  # FK persona

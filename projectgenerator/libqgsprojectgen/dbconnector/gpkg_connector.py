@@ -115,7 +115,6 @@ class GPKGConnector(DBConnector):
             p = re.compile(regexp) # e.g., 'rtree_[\W\w]+_(geometry|geometry_node|geometry_parent|geometry_rowid)$'
             for record in records:
                 if p.match(record['tablename']):
-                    print("INFO: NOT including GPKG table... ", record['tablename'])
                     if record in filtered_records:
                         filtered_records.remove(record)
 

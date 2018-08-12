@@ -88,8 +88,6 @@ class IliCache(QObject):
 
         # download ilimodels.xml
         download_file(ilimodels_url, ilimodels_path,
-                      on_progress=lambda received, total: print(
-                          'Downloading ({}/{})'.format(received, total)),
                       on_success=lambda: self._process_ilimodels(
                           ilimodels_path, netloc),
                       on_error=lambda error, error_string: logger.warning(self.tr(
@@ -98,8 +96,6 @@ class IliCache(QObject):
 
         # download ilisite.xml
         download_file(ilisite_url, ilisite_path,
-                      on_progress=lambda received, total: print(
-                          'Downloading ({}/{})'.format(received, total)),
                       on_success=lambda: self._process_ilisite(ilisite_path),
                       on_error=lambda error, error_string: logger.warning(self.tr(
                           'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))

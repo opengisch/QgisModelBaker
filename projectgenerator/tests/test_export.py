@@ -152,21 +152,13 @@ class TestExport(unittest.TestCase):
 
         for topic in datasection_children:
             tmp_topic = tmp_datasection.find(topic.tag)
-            print("INFO topic, tmp_topic:", topic.tag,
-                  tmp_topic.tag if hasattr(tmp_topic, 'tag') else tmp_topic)
             self.assertIsNotNone(tmp_topic)
             classes = list(topic)
             for _class in classes:
                 tmp_class = tmp_topic.find(_class.tag)
-                print("INFO class, tmp_class:", _class.tag,
-                      tmp_class.tag if hasattr(tmp_class, 'tag') else tmp_class)
                 self.assertIsNotNone(tmp_class)
                 for attribute in _class:
                     tmp_attribute = tmp_class.find(attribute.tag)
-                    print("INFO attribute.tag, tmp_attribute.tag:", attribute.tag,
-                          tmp_attribute.tag if hasattr(tmp_attribute, 'tag') else tmp_attribute)
-                    print("INFO attribute.text, tmp_attribute.text:", attribute.text,
-                          tmp_attribute.text if hasattr(tmp_attribute, 'text') else tmp_attribute)
                     self.assertIsNotNone(tmp_attribute)
                     if attribute.tag not in ignored_attributes:
                         self.assertEqual(attribute.text, tmp_attribute.text)
