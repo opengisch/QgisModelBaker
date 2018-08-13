@@ -31,7 +31,7 @@ class MultipleModelsDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.parent = parent
 
         self.model_list.itemSelectionChanged.connect(self.on_selection_changed)

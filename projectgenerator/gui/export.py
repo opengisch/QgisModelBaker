@@ -25,7 +25,7 @@ import os.path
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
-from projectgenerator.libili2db.ilicache import IliCache
+from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
@@ -118,7 +118,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings = QSettings()
         ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
         self.ilicache = IliCache(base_config, ilifile or None)
-        self.ilicache.models_changed.connect(self.update_models_completer)
+        self.update_models_completer()
         self.ilicache.refresh()
 
     def accepted(self):
@@ -346,8 +346,10 @@ class ExportDialog(QDialog, DIALOG_UI):
             QDesktopServices.openUrl(link)
 
     def update_models_completer(self):
-        completer = QCompleter(self.ilicache.model_names)
+        completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.delegate = ModelCompleterDelegate()
+        completer.popup().setItemDelegate(self.delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 

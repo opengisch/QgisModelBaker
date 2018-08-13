@@ -29,7 +29,7 @@ from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.globals import CRS_PATTERNS
 from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration
-from projectgenerator.libili2db.ilicache import IliCache
+from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
@@ -154,7 +154,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
 
         self.ilicache = IliCache(base_config)
-        self.ilicache.models_changed.connect(self.update_models_completer)
+        self.update_models_completer()
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
@@ -520,8 +520,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Update completer to add models from given ili file
             self.iliFileCache = IliCache(
                 self.base_configuration, self.ili_file_line_edit.text().strip())
-            self.iliFileCache.models_changed.connect(
-                self.update_models_completer)
             self.iliFileCache.new_message.connect(self.show_message)
             self.iliFileCache.refresh()
             models = self.iliFileCache.process_ili_file(self.ili_file_line_edit.text().strip())
@@ -532,12 +530,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_models_line_edit.textChanged.emit(
                 self.ili_models_line_edit.text())
 
-            # Update completer to show repository models in models dir
-            self.ilicache.models_changed.emit()
-
     def update_models_completer(self):
-        completer = QCompleter(self.sender().model_names)
+        completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.delegate = ModelCompleterDelegate()
+        completer.popup().setItemDelegate(self.delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
