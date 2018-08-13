@@ -25,9 +25,28 @@ import xml.etree.ElementTree as ET
 
 import re
 
+from enum import Enum
 from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
-from projectgenerator.utils.qt_utils import download_file, NetworkError
-from PyQt5.QtCore import QObject, pyqtSignal
+from projectgenerator.utils.qt_utils import download_file
+from PyQt5.QtCore import (
+    QObject,
+    pyqtSignal,
+    Qt,
+    QModelIndex
+)
+from PyQt5.QtGui import (
+    QStandardItemModel,
+    QStandardItem,
+    QPalette,
+    QRegion
+)
+from PyQt5.QtWidgets import (
+    QItemDelegate,
+    QLabel,
+    QStyle,
+    QWidget,
+    QGridLayout
+)
 from qgis.core import QgsMessageLog, Qgis
 
 
@@ -45,6 +64,7 @@ class IliCache(QObject):
         self.repositories = dict()
         self.base_configuration = configuration
         self.single_ili_file = single_ili_file
+        self.model = IliModelItemModel()
 
     def refresh(self):
         if not self.base_configuration is None:
@@ -66,7 +86,7 @@ class IliCache(QObject):
         models = self.process_ili_file(self.single_ili_file)
         self.repositories["no_repo"] = sorted(
             models, key=lambda m: m['version'], reverse=True)
-        self.models_changed.emit()
+        self.model.set_repositories(self.repositories)
 
     def download_repository(self, url):
         """
@@ -143,11 +163,13 @@ class IliCache(QObject):
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
                 model['version'] = model_metadata.find(
                     'ili23:Version', self.ns).text
+                model['repository'] = netloc
                 repo_models.append(model)
 
         self.repositories[netloc] = sorted(
             repo_models, key=lambda m: m['version'], reverse=True)
-        self.models_changed.emit()
+
+        self.model.set_repositories(self.repositories)
 
     def process_local_ili_folder(self, path):
         """
@@ -161,7 +183,8 @@ class IliCache(QObject):
 
         self.repositories[path] = sorted(
             models, key=lambda m: m['version'], reverse=True)
-        self.models_changed.emit()
+
+        self.model.set_repositories(self.repositories)
 
     def process_ili_file(self, ilifile):
         fileModels = list()
@@ -171,12 +194,17 @@ class IliCache(QObject):
             try:
                 fileModels = self.parse_ili_file(ilifile, "latin1")
                 self.new_message.emit(Qgis.Warning,
-                                      self.tr('Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
+                                      self.tr(
+                                          'Even though the ili file `{}` could be read, it is not in UTF-8. Please encode your ili models in UTF-8.'.format(
+                                              os.path.basename(ilifile))))
             except UnicodeDecodeError as e:
                 self.new_message.emit(Qgis.Critical,
-                                      self.tr('Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(os.path.basename(ilifile))))
-                QgsMessageLog.logMessage(self.tr('Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(
-                    ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
+                                      self.tr(
+                                          'Could not parse ili file `{}` with UTF-8 nor Latin-1 encodings. Please encode your ili models in UTF-8.'.format(
+                                              os.path.basename(ilifile))))
+                QgsMessageLog.logMessage(self.tr(
+                    'Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(
+                        ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
                 fileModels = list()
 
         return fileModels
@@ -195,6 +223,7 @@ class IliCache(QObject):
                     model = dict()
                     model['name'] = result.group(1)
                     model['version'] = ''
+                    model['repository'] = ilipath
                     models += [model]
 
                 result = re_model_version.search(line)
@@ -210,3 +239,66 @@ class IliCache(QObject):
             for model in repo:
                 names.append(model['name'])
         return names
+
+
+class IliModelItemModel(QStandardItemModel):
+    class Roles(Enum):
+        ILIREPO = Qt.UserRole + 1
+        VERSION = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self, parent=None):
+        super().__init__(0, 1, parent)
+
+    def set_repositories(self, repositories):
+        self.clear()
+        row = 0
+
+        for repository in repositories.values():
+            for model in repository:
+                item = QStandardItem()
+                item.setData(model['name'], int(Qt.DisplayRole))
+                item.setData(model['name'], int(Qt.EditRole))
+                item.setData(model['repository'], int(IliModelItemModel.Roles.ILIREPO))
+                item.setData(model['version'], int(IliModelItemModel.Roles.VERSION))
+
+                self.appendRow(item)
+                row += 1
+
+
+class ModelCompleterDelegate(QItemDelegate):
+    """
+    A item delegate for the autocompleter of model dialogs.
+    It shows the source repository next to the model name.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.widget = QWidget()
+        self.widget.setLayout(QGridLayout())
+        self.widget.layout().setContentsMargins(0, 0, 0, 0)
+        self.model_label = QLabel()
+        self.model_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.repository_label = QLabel()
+        self.repository_label.setAlignment(Qt.AlignRight)
+        self.widget.layout().addWidget(self.model_label, 0, 0)
+        self.widget.layout().addWidget(self.repository_label, 0, 1)
+
+    def paint(self, painter, option, index):
+        option.index = index
+        super().paint(painter, option, index)
+
+    def drawDisplay(self, painter, option, rect, text):
+        repository = option.index.data(int(IliModelItemModel.Roles.ILIREPO))
+        version = option.index.data(int(IliModelItemModel.Roles.VERSION))
+        self.repository_label.setText('<font color="#666666"><i>{}</i></font>'.format(repository))
+        self.model_label.setText('{model}<font color="#666666"><i>{version}</i></font>'.format(model=text, version=version))
+        self.widget.setMinimumSize(rect.size())
+
+        model_palette = option.palette
+        if option.state & QStyle.State_Selected:
+            model_palette.setColor(QPalette.WindowText, model_palette.color(QPalette.Active, QPalette.HighlightedText))
+
+        self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
