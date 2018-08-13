@@ -293,8 +293,8 @@ class ModelCompleterDelegate(QItemDelegate):
     def drawDisplay(self, painter, option, rect, text):
         repository = option.index.data(int(IliModelItemModel.Roles.ILIREPO))
         version = option.index.data(int(IliModelItemModel.Roles.VERSION))
-        self.repository_label.setText('<font color="#666666"><i>{}</i></font>'.format(repository))
-        self.model_label.setText('{model}<font color="#666666"><i>{version}</i></font>'.format(model=text, version=version))
+        self.repository_label.setText('<font color="#666666"><i>{repository}</i></font>'.format(repository=repository))
+        self.model_label.setText('{model}'.format(model=text))
         self.widget.setMinimumSize(rect.size())
 
         model_palette = option.palette
