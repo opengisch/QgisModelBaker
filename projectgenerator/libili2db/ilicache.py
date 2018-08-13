@@ -55,7 +55,6 @@ class IliCache(QObject):
         'ili23': 'http://www.interlis.ch/INTERLIS2.3'
     }
 
-    models_changed = pyqtSignal()
     new_message = pyqtSignal(int, str)
 
     def __init__(self, configuration, single_ili_file=None):

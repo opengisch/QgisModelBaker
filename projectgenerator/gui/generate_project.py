@@ -55,8 +55,7 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
     QSettings,
     Qt,
-    QLocale,
-    QTimer
+    QLocale
 )
 from qgis.core import (
     QgsProject,
@@ -155,9 +154,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
 
         self.ilicache = IliCache(base_config)
-        # self.ilicache.models_changed.connect(self.update_models_completer)
-        QTimer.singleShot(5000, self.update_models_completer)
-        # self.update_models_completer()
+        self.update_models_completer()
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
 
@@ -521,8 +518,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Update completer to add models from given ili file
             self.iliFileCache = IliCache(
                 self.base_configuration, self.ili_file_line_edit.text().strip())
-            self.iliFileCache.models_changed.connect(
-                self.update_models_completer)
             self.iliFileCache.new_message.connect(self.show_message)
             self.iliFileCache.refresh()
             models = self.iliFileCache.process_ili_file(self.ili_file_line_edit.text().strip())
@@ -532,9 +527,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
             self.ili_models_line_edit.textChanged.emit(
                 self.ili_models_line_edit.text())
-
-            # Update completer to show repository models in models dir
-            self.ilicache.models_changed.emit()
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
