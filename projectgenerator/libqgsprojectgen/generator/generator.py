@@ -107,6 +107,7 @@ class Generator:
             layer = Layer(provider,
                           data_source_uri,
                           record['tablename'],
+                          record['extent'],
                           record['geometry_column'],
                           QgsWkbTypes.parseType(
                               record['type']) or QgsWkbTypes.Unknown,

@@ -76,6 +76,23 @@ class GPKGConnector(DBConnector):
             interlis_fields = """p.setting AS kind_settings,
                 alias.setting AS table_alias,
                 c.iliname AS ili_name,
+                (
+                SELECT GROUP_CONCAT("setting", ';') FROM (
+                    SELECT tablename, setting
+                    FROM T_ILI2DB_COLUMN_PROP AS cprop
+                    LEFT JOIN gpkg_geometry_columns g
+                    ON cprop.tablename == g.table_name
+                        WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                         'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                    ORDER BY CASE TAG
+                        WHEN 'ch.ehi.ili2db.c1Min' THEN 1
+                        WHEN 'ch.ehi.ili2db.c2Min' THEN 2
+                        WHEN 'ch.ehi.ili2db.c1Max' THEN 3
+                        WHEN 'ch.ehi.ili2db.c2Max' THEN 4
+                        END ASC
+                    ) WHERE g.geometry_type_name IS NOT NULL
+                    GROUP BY tablename
+                ) AS extent,
                 substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
                    ON p.tablename = s.name

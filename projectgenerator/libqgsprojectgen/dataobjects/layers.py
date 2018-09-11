@@ -24,10 +24,11 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
+    def __init__(self, provider, uri, name, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
         self.provider = provider
         self.uri = uri
         self.name = name
+        self.extent = extent
         self.geometry_column = geometry_column
         self.wkb_type = wkb_type
         self.alias = alias
