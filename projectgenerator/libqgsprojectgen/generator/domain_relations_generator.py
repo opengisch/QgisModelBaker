@@ -209,29 +209,36 @@ class DomainRelationGenerator:
                                 classes_ili_pg[structure] in attrs_ili_pg_owner:
 
                                 for layer in layer_map[classes_ili_pg[class_name]]:
-                                    layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
-                                    if layer_unique_name in bags_of_enum:
-                                        bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
-                                            layer,
-                                            cardinality,
-                                            # Domains shouldn't be repeated in layers list, so get the first and only element
-                                            layer_map[domains_ili_pg[ilidomain]][0],
-                                            self._db_connector.iliCodeName,
-                                            self._db_connector.dispName
-                                        ]
-                                    else:
-                                        bags_of_enum[layer_unique_name] = {
-                                            iliattr_dbattr_mapping[attribute]:
-                                                [
+
+                                    meta_attrs = self._get_meta_attrs(attribute)
+                                    for attr_record in meta_attrs:
+                                        if attr_record['attr_name'] == 'ili2db.mapping' and attr_record['attr_value'] == 'ARRAY':
+
+                                            layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
+                                            if layer_unique_name in bags_of_enum:
+                                                bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
                                                     layer,
                                                     cardinality,
+                                                    # Domains shouldn't be repeated in layers list, so get the first and only element
                                                     layer_map[domains_ili_pg[ilidomain]][0],
                                                     self._db_connector.iliCodeName,
                                                     self._db_connector.dispName
                                                 ]
-                                        }
-                                    if self.debug:
-                                        print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+                                            else:
+                                                bags_of_enum[layer_unique_name] = {
+                                                    iliattr_dbattr_mapping[attribute]:
+                                                        [
+                                                            layer,
+                                                            cardinality,
+                                                            layer_map[domains_ili_pg[ilidomain]][0],
+                                                            self._db_connector.iliCodeName,
+                                                            self._db_connector.dispName
+                                                        ]
+                                                }
+                                            if self.debug:
+                                                print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+
+                                            break # Don't search for other meta-attrs for this attribute
 
         return (relations, bags_of_enum)
 
@@ -257,14 +264,12 @@ class DomainRelationGenerator:
             r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
         # Typ: BAG {1..*} OF EI_Punkt_Typ;
         re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\.\w\d_-]+);.*')
-        re_mapping_array = re.compile(r'\s*!!@ili2db.mapping=ARRAY.*')
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
         re_end_model = None  # END ModelName;
 
         currently_inside_comment = False
-        current_line_bag_of_enum = False
         current_model = ''
         current_structure = ''
         current_structure_out = ''
@@ -545,26 +550,19 @@ class DomainRelationGenerator:
                                 continue
 
                         # Look for BAG {} OF ENUM lines
-                        if not current_line_bag_of_enum:
-                            result = re_mapping_array.search(line)
-                            if result:
-                                current_line_bag_of_enum = True
-                                continue
-                        else:
-                            current_line_bag_of_enum = False
-                            result = re_bag_of.search(line)
-                            if result:
-                                attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
-                                structure_name = result.group(3)
-                                if not '.' in structure_name:
-                                    structure_name = '{}.{}.{}'.format(current_model, current_topic, structure_name)
+                        result = re_bag_of.search(line)
+                        if result:
+                            attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                            structure_name = result.group(3)
+                            if not '.' in structure_name:
+                                structure_name = '{}.{}.{}'.format(current_model, current_topic, structure_name)
 
-                                class_name = '{}.{}.{}'.format(current_model, current_topic, current_class)
-                                if not class_name in bags_of_enum:
-                                    bags_of_enum[class_name] = {attr_name: [result.group(2), structure_name]}
-                                else:
-                                    bags_of_enum[class_name][attr_name] = [result.group(2), structure_name]
-                                continue
+                            class_name = '{}.{}.{}'.format(current_model, current_topic, current_class)
+                            if not class_name in bags_of_enum:
+                                bags_of_enum[class_name] = {attr_name: [result.group(2), structure_name]}
+                            else:
+                                bags_of_enum[class_name][attr_name] = [result.group(2), structure_name]
+                            continue
 
                         # Go for attributes
                         attribute = {res.group(1): d for d in domains_with_local for res in
@@ -747,6 +745,9 @@ class DomainRelationGenerator:
 
     def _get_models(self):
         return self._db_connector.get_models()
+
+    def _get_meta_attrs(self, ilielement):
+        return self._db_connector.get_meta_attrs(ilielement)
 
     def _get_classili_classdb_mapping(self, models_info, extended_classes):
         return self._db_connector.get_classili_classdb_mapping(models_info, extended_classes)
