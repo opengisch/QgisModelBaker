@@ -208,27 +208,30 @@ class DomainRelationGenerator:
                             if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
                                 classes_ili_pg[structure] in attrs_ili_pg_owner:
 
-                                if classes_ili_pg[class_name] in bags_of_enum:
-                                    bags_of_enum[classes_ili_pg[class_name]][iliattr_dbattr_mapping[attribute]] = [
-                                        layer_map[classes_ili_pg[class_name]][0],
-                                        cardinality,
-                                        layer_map[domains_ili_pg[ilidomain]][0],
-                                        self._db_connector.iliCodeName,
-                                        self._db_connector.dispName
-                                    ]
-                                else:
-                                    bags_of_enum[classes_ili_pg[class_name]] = {
-                                        iliattr_dbattr_mapping[attribute]:
-                                            [
-                                                layer_map[classes_ili_pg[class_name]][0],
-                                                cardinality,
-                                                layer_map[domains_ili_pg[ilidomain]][0],
-                                                self._db_connector.iliCodeName,
-                                                self._db_connector.dispName
-                                            ]
-                                    }
-                                if self.debug:
-                                    print("BAG OF ENUM!!!", classes_ili_pg[class_name], iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+                                for layer in layer_map[classes_ili_pg[class_name]]:
+                                    layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
+                                    if layer_unique_name in bags_of_enum:
+                                        bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
+                                            layer,
+                                            cardinality,
+                                            # Domains shouldn't be repeated in layers list, so get the first and only element
+                                            layer_map[domains_ili_pg[ilidomain]][0],
+                                            self._db_connector.iliCodeName,
+                                            self._db_connector.dispName
+                                        ]
+                                    else:
+                                        bags_of_enum[layer_unique_name] = {
+                                            iliattr_dbattr_mapping[attribute]:
+                                                [
+                                                    layer,
+                                                    cardinality,
+                                                    layer_map[domains_ili_pg[ilidomain]][0],
+                                                    self._db_connector.iliCodeName,
+                                                    self._db_connector.dispName
+                                                ]
+                                        }
+                                    if self.debug:
+                                        print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
 
         return (relations, bags_of_enum)
 

@@ -438,15 +438,15 @@ class TestDomainClassRelation(unittest.TestCase):
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
-            ['erholungsinfrastruktur_punktobjekt', 'typ', '1..*', 'ei_punkt_typen', 'ilicode', 'dispname'],
-            ['erholungsinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
-            ['erholungsinfrastruktur_linienobjekt', 'typ', '1..*', 'ei_linie_typen', 'ilicode', 'dispname'],
-            ['erholungsinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
-            ['naturschutzinfrastruktur_punktobjekt', 'typ', '1..*', 'ni_punkt_typen', 'ilicode', 'dispname'],
-            ['naturschutzinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
-            ['naturschutzinfrastruktur_linienobjekt', 'typ', '1..*', 'ni_linie_typen', 'ilicode', 'dispname'],
-            ['naturschutzinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
-            ['naturschutzrelevantes_objekt_ohne_schutzstatus', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname']
+            ['erholungsinfrastruktur_punktobjekt_geometrie', 'typ', '1..*', 'ei_punkt_typen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_punktobjekt_geometrie', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_linienobjekt_geometrie', 'typ', '1..*', 'ei_linie_typen', 'ilicode', 'dispname'],
+            ['erholungsinfrastruktur_linienobjekt_geometrie', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_punktobjekt_geometrie', 'typ', '1..*', 'ni_punkt_typen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_punktobjekt_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_linienobjekt_geometrie', 'typ', '1..*', 'ni_linie_typen', 'ilicode', 'dispname'],
+            ['naturschutzinfrastruktur_linienobjekt_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname'],
+            ['naturschutzrelevantes_objekt_ohne_schutzstatus_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'ilicode', 'dispname']
         ]
 
         count = 0
@@ -550,15 +550,15 @@ class TestDomainClassRelation(unittest.TestCase):
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
-            ['erholungsinfrastruktur_punktobjekt', 'typ', '1..*', 'ei_punkt_typen', 'iliCode', 'dispName'],
-            ['erholungsinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
-            ['erholungsinfrastruktur_linienobjekt', 'typ', '1..*', 'ei_linie_typen', 'iliCode', 'dispName'],
-            ['erholungsinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
-            ['naturschutzinfrastruktur_punktobjekt', 'typ', '1..*', 'ni_punkt_typen', 'iliCode', 'dispName'],
-            ['naturschutzinfrastruktur_punktobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
-            ['naturschutzinfrastruktur_linienobjekt', 'typ', '1..*', 'ni_linie_typen', 'iliCode', 'dispName'],
-            ['naturschutzinfrastruktur_linienobjekt', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
-            ['naturschutzrelevantes_objekt_ohne_schutzstatus', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName']
+            ['erholungsinfrastruktur_punktobjekt_geometrie', 'typ', '1..*', 'ei_punkt_typen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_punktobjekt_geometrie', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_linienobjekt_geometrie', 'typ', '1..*', 'ei_linie_typen', 'iliCode', 'dispName'],
+            ['erholungsinfrastruktur_linienobjekt_geometrie', 'bewirtschaftung', '1..*', 'ei_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_punktobjekt_geometrie', 'typ', '1..*', 'ni_punkt_typen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_punktobjekt_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_linienobjekt_geometrie', 'typ', '1..*', 'ni_linie_typen', 'iliCode', 'dispName'],
+            ['naturschutzinfrastruktur_linienobjekt_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName'],
+            ['naturschutzrelevantes_objekt_ohne_schutzstatus_geometrie', 'bewirtschaftung', '1..*', 'ns_bewirtschaftungen', 'iliCode', 'dispName']
         ]
 
         count = 0
@@ -627,8 +627,10 @@ class TestDomainClassRelation(unittest.TestCase):
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
-            ['belasteter_standort', 'deponietyp', '0..*', 'deponietyp', 'ilicode', 'dispname'],
-            ['belasteter_standort', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'ilicode', 'dispname']
+            ['belasteter_standort_geo_lage_punkt', 'deponietyp', '0..*', 'deponietyp', 'ilicode', 'dispname'],
+            ['belasteter_standort_geo_lage_punkt', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'ilicode', 'dispname'],
+            ['belasteter_standort_geo_lage_polygon', 'deponietyp', '0..*', 'deponietyp', 'ilicode', 'dispname'],
+            ['belasteter_standort_geo_lage_polygon', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'ilicode', 'dispname']
         ]
 
         count = 0
@@ -642,7 +644,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 value_field = bag_of_enum_info[4]
                 self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
 
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 4)
 
 
     def test_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
@@ -697,8 +699,10 @@ class TestDomainClassRelation(unittest.TestCase):
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
-            ['belasteter_standort', 'deponietyp', '0..*', 'deponietyp', 'iliCode', 'dispName'],
-            ['belasteter_standort', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'iliCode', 'dispName']
+            ['belasteter_standort_geo_lage_punkt', 'deponietyp', '0..*', 'deponietyp', 'iliCode', 'dispName'],
+            ['belasteter_standort_geo_lage_punkt', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'iliCode', 'dispName'],
+            ['belasteter_standort_geo_lage_polygon', 'deponietyp', '0..*', 'deponietyp', 'iliCode', 'dispName'],
+            ['belasteter_standort_geo_lage_polygon', 'untersuchungsmassnahmen', '1..*', 'untersmassn', 'iliCode', 'dispName']
         ]
 
         count = 0
