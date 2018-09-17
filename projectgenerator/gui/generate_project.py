@@ -533,6 +533,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
         self.delegate = ModelCompleterDelegate()
         completer.popup().setItemDelegate(self.delegate)
         self.ili_models_line_edit.setCompleter(completer)
