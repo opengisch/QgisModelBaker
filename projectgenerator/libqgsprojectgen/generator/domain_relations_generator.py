@@ -183,7 +183,8 @@ class DomainRelationGenerator:
         owners = list()
         for class_name, bag_of_enum_info in bags_of_enum_info.items():
             for attribute, cardinality_structure in bag_of_enum_info.items():
-                owners.append(structures_ili_pg[cardinality_structure[1]])
+                if cardinality_structure[1] in structures_ili_pg:
+                    owners.append(structures_ili_pg[cardinality_structure[1]])
 
         if self.debug:
             print("OWNERS:",owners)
@@ -198,47 +199,49 @@ class DomainRelationGenerator:
         # Get the domain (extracted by the parser) corresponding to the structure
         bags_of_enum = dict()
         for class_name, bag_of_enum_info in bags_of_enum_info.items():
-            for attribute, cardinality_structure in bag_of_enum_info.items():
-                cardinality, structure = cardinality_structure
-                if attribute in iliattr_dbattr_mapping and structure in models_info_with_ext:
-                    structure_attribute = structure_domain_attr[structures_ili_pg[structure]][0] # iliname
-                    if structure_attribute in models_info_with_ext[structure]:
-                        ilidomain = models_info_with_ext[structure][structure_attribute] # ilidomain
-                        if structure in classes_ili_pg and ilidomain in domains_ili_pg and structure_attribute in attrs_ili:
-                            if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
-                                classes_ili_pg[structure] in attrs_ili_pg_owner:
+            if class_name in classes_ili_pg:
+                for attribute, cardinality_structure in bag_of_enum_info.items():
+                    cardinality, structure = cardinality_structure
+                    if attribute in iliattr_dbattr_mapping and structure in models_info_with_ext:
+                        if structure in structures_ili_pg:
+                            structure_attribute = structure_domain_attr[structures_ili_pg[structure]][0] # iliname
+                            if structure_attribute in models_info_with_ext[structure]:
+                                ilidomain = models_info_with_ext[structure][structure_attribute] # ilidomain
+                                if structure in classes_ili_pg and ilidomain in domains_ili_pg and structure_attribute in attrs_ili:
+                                    if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
+                                        classes_ili_pg[class_name] in layer_map.keys() and classes_ili_pg[structure] in attrs_ili_pg_owner:
 
-                                for layer in layer_map[classes_ili_pg[class_name]]:
+                                        for layer in layer_map[classes_ili_pg[class_name]]:
 
-                                    meta_attrs = self._get_meta_attrs(attribute)
-                                    for attr_record in meta_attrs:
-                                        if attr_record['attr_name'] == 'ili2db.mapping' and attr_record['attr_value'] == 'ARRAY':
+                                            meta_attrs = self._get_meta_attrs(attribute)
+                                            for attr_record in meta_attrs:
+                                                if attr_record['attr_name'] == 'ili2db.mapping' and attr_record['attr_value'] == 'ARRAY':
 
-                                            layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
-                                            if layer_unique_name in bags_of_enum:
-                                                bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
-                                                    layer,
-                                                    cardinality,
-                                                    # Domains shouldn't be repeated in layers list, so get the first and only element
-                                                    layer_map[domains_ili_pg[ilidomain]][0],
-                                                    self._db_connector.iliCodeName,
-                                                    self._db_connector.dispName
-                                                ]
-                                            else:
-                                                bags_of_enum[layer_unique_name] = {
-                                                    iliattr_dbattr_mapping[attribute]:
-                                                        [
+                                                    layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
+                                                    if layer_unique_name in bags_of_enum:
+                                                        bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
                                                             layer,
                                                             cardinality,
+                                                            # Domains shouldn't be repeated in layers list, so get the first and only element
                                                             layer_map[domains_ili_pg[ilidomain]][0],
                                                             self._db_connector.iliCodeName,
                                                             self._db_connector.dispName
                                                         ]
-                                                }
-                                            if self.debug:
-                                                print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+                                                    else:
+                                                        bags_of_enum[layer_unique_name] = {
+                                                            iliattr_dbattr_mapping[attribute]:
+                                                                [
+                                                                    layer,
+                                                                    cardinality,
+                                                                    layer_map[domains_ili_pg[ilidomain]][0],
+                                                                    self._db_connector.iliCodeName,
+                                                                    self._db_connector.dispName
+                                                                ]
+                                                        }
+                                                    if self.debug:
+                                                        print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
 
-                                            break # Don't search for other meta-attrs for this attribute
+                                                    break # Don't search for other meta-attrs for this attribute
 
         return (relations, bags_of_enum)
 
