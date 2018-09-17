@@ -253,6 +253,10 @@ class IliModelItemModel(QStandardItemModel):
 
         for repository in repositories.values():
             for model in repository:
+
+                if next((duplicate for duplicate in model if duplicate == model['name']), None) != None:
+                    continue
+
                 item = QStandardItem()
                 item.setData(model['name'], int(Qt.DisplayRole))
                 item.setData(model['name'], int(Qt.EditRole))
