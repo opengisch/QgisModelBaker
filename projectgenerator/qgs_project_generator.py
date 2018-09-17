@@ -30,10 +30,12 @@ from projectgenerator.libqgsprojectgen.generator.generator import Generator
 from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
+from qgis.PyQt.QtGui import QIcon
 
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 
+from .resources import *
 
 class QgsProjectGeneratorPlugin(QObject):
 
@@ -64,14 +66,18 @@ class QgsProjectGeneratorPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
-        self.__generate_action = QAction(self.tr('Generate'), None)
-        self.__export_action = QAction(
+        self.__generate_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+            self.tr('Generate'), None)
+        self.__export_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
             self.tr('Export Interlis Transfer File (.xtf)'), None)
-        self.__importdata_action = QAction(
+        self.__importdata_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
             self.tr('Import Interlis Transfer File (.xtf)'), None)
-        self.__configure_action = QAction(self.tr('Settings'), None)
-        self.__help_action = QAction(self.tr('Help'), None)
-        self.__about_action = QAction(self.tr('About'), None)
+        self.__configure_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+            self.tr('Settings'), None)
+        self.__help_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+            self.tr('Help'), None)
+        self.__about_action = QAction(QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+            self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
 

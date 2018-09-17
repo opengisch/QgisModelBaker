@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/plugins/projectgenerator" >
+     <file alias="projectgenerator-icon.svg">resources/projectgenerator-icon.svg</file>
+  </qresource>
+</RCC>
