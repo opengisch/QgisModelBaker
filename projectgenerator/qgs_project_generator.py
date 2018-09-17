@@ -164,10 +164,11 @@ class QgsProjectGeneratorPlugin(QObject):
     def get_generator(self):
         return Generator
 
-    def create_project(self, layers, relations, legend, auto_transaction=True, evaluate_default_values=True):
+    def create_project(self, layers, relations, bags_of_enum, legend, auto_transaction=True, evaluate_default_values=True):
         project = Project(auto_transaction, evaluate_default_values)
         project.layers = layers
         project.relations = relations
+        project.bags_of_enum = bags_of_enum
         project.legend = legend
         project.post_generate()
         qgis_project = QgsProject.instance()
