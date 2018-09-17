@@ -100,6 +100,7 @@ class PGConnector(DBConnector):
             schema_where = ''
             table_alias = ''
             ili_name = ''
+            extent = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
