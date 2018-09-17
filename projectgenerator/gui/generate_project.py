@@ -314,6 +314,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.canvas.setExtent(rectangle)
                     self.canvas.refresh()
                     break
+                else:
+                    continue
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
