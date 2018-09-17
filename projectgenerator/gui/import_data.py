@@ -262,6 +262,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
+        configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.base_configuration = self.base_configuration
 
         return configuration

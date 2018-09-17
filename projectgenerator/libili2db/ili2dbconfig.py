@@ -196,6 +196,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         super().__init__()
         self.inheritance = 'smart1'
         self.create_basket_col = False
+        self.create_import_tid = True
         self.epsg = 21781  # Default EPSG code in ili2pg
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
@@ -222,7 +223,9 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createFk"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
-        args += ["--importTid"]
+
+        if self.create_import_tid:
+            args += ["--importTid"]
 
         if self.inheritance == 'smart1':
             args += ["--smart1Inheritance"]

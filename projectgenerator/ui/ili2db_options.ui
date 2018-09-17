@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>290</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,7 +53,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -63,7 +63,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -115,6 +115,25 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
         </property>
         <property name="text">
          <string>Create Basket Column</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Create Import Tid</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_import_tid_checkbox">
+        <property name="text">
+         <string>Create Import Tid</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

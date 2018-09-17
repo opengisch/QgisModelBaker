@@ -66,6 +66,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
         self.done(1)
 
+    def create_import_tid(self):
+        return self.create_import_tid_checkbox.isChecked()
+
     def create_basket_col(self):
         return self.create_basket_col_checkbox.isChecked()
 
@@ -92,6 +95,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         settings.setValue(
             self.toml_file_key, self.toml_file())
         settings.setValue('QgsProjectGenerator/ili2db/create_basket_col', self.create_basket_col())
+        settings.setValue('QgsProjectGenerator/ili2db/create_import_tid', self.create_import_tid())
 
     def restore_configuration(self):
         settings = QSettings()
@@ -102,7 +106,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             self.smart2_radio_button.setChecked(True)
         create_basket_col = settings.value('QgsProjectGenerator/ili2db/create_basket_col', defaultValue=False, type=bool)
+        create_import_tid = settings.value('QgsProjectGenerator/ili2db/create_import_tid', defaultValue=True, type=bool)
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
+        self.create_import_tid_checkbox.setChecked(create_import_tid)
         self.toml_file_line_edit.setText(
             settings.value(self.toml_file_key))
