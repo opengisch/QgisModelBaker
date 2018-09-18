@@ -281,6 +281,62 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
+    def test_extent_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        count = 0
+        for layer in available_layers:
+            if layer.extent is not None:
+                count += 1
+                self.assertEqual(layer.extent.toString(2), '165000.00,23000.00 : 1806900.00,1984900.00')
+
+        self.assertEqual(count, 1)
+
+    def test_extent_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2gpkg'
+        importer.configuration = iliimporter_config(
+            importer.tool_name, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_extent_gpkg.gpkg')
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        count = 0
+        for layer in available_layers:
+            if layer.extent is not None:
+                count += 1
+                self.assertEqual(layer.extent.toString(2), '165000.00,23000.00 : 1806900.00,1984900.00')
+
+        self.assertEqual(count, 1)
+
     def test_nmrel_postgis(self):
         importer = iliimporter.Importer()
         importer.tool_name = 'ili2pg'
