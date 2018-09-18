@@ -250,15 +250,22 @@ class IliModelItemModel(QStandardItemModel):
     def set_repositories(self, repositories):
         self.clear()
         row = 0
-
+        names = list()
+                
         for repository in repositories.values():
+
             for model in repository:
+                # in case there is more than one version of the model with the same name, it shouldn't load it twice
+                if any(model['name'] in s for s in names):
+                    continue
+
                 item = QStandardItem()
                 item.setData(model['name'], int(Qt.DisplayRole))
                 item.setData(model['name'], int(Qt.EditRole))
                 item.setData(model['repository'], int(IliModelItemModel.Roles.ILIREPO))
                 item.setData(model['version'], int(IliModelItemModel.Roles.VERSION))
 
+                names.append(model['name'])
                 self.appendRow(item)
                 row += 1
 
