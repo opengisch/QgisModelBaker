@@ -17,8 +17,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .form import Form, FormTab, FormRelationWidget, FormFieldWidget
-from qgis.core import QgsVectorLayer, QgsDataSourceUri, QgsWkbTypes
+from .form import (
+    Form,
+    FormTab,
+    FormRelationWidget,
+    FormFieldWidget
+)
+from qgis.core import (
+    QgsVectorLayer,
+    QgsDataSourceUri,
+    QgsWkbTypes,
+    QgsRectangle
+)
 from qgis.PyQt.QtCore import QCoreApplication
 
 
@@ -28,6 +38,13 @@ class Layer(object):
         self.provider = provider
         self.uri = uri
         self.name = name
+        if extent is not None:
+            extent_coords = extent.split(';')
+            extent = QgsRectangle(
+                        float(extent_coords[0]),
+                        float(extent_coords[1]),
+                        float(extent_coords[2]),
+                        float(extent_coords[3]))
         self.extent = extent
         self.geometry_column = geometry_column
         self.wkb_type = wkb_type

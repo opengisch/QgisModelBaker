@@ -60,8 +60,7 @@ from qgis.PyQt.QtCore import (
 from qgis.core import (
     QgsProject,
     QgsCoordinateReferenceSystem,
-    Qgis,
-    QgsRectangle
+    Qgis
 )
 from qgis.gui import (
     QgsMessageBar,
@@ -302,13 +301,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Set the extent of the mapCanvas from the first layer extent found
             for layer in project.layers:
                 if layer.extent is not None:
-                    extent_values = layer.extent.split(';')
-                    rectangle = QgsRectangle(
-                                    float(extent_values[0]),
-                                    float(extent_values[1]),
-                                    float(extent_values[2]),
-                                    float(extent_values[3]))
-                    self.iface.mapCanvas().setExtent(rectangle)
+                    self.iface.mapCanvas().setExtent(layer.extent)
                     self.iface.mapCanvas().refresh()
                     break
 

@@ -118,6 +118,7 @@ class PGConnector(DBConnector):
                         END)
                     FROM {}."t_ili2db_column_prop" AS cprop
                     WHERE tbls.tablename = cprop.tablename
+                    AND cprop.columnname = g.f_geometry_column
                     AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                      'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
                 ) AS extent,""".format(self.schema)
