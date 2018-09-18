@@ -72,11 +72,11 @@ class QgsProjectGeneratorPlugin(QObject):
             self.tr('Export Interlis Transfer File (.xtf)'), None)
         self.__importdata_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
             self.tr('Import Interlis Transfer File (.xtf)'), None)
-        self.__configure_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__configure_action = QAction(
             self.tr('Settings'), None)
-        self.__help_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__help_action = QAction( 
             self.tr('Help'), None)
-        self.__about_action = QAction(QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__about_action = QAction(
             self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
