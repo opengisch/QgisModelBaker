@@ -35,8 +35,6 @@ from qgis.PyQt.QtGui import QIcon
 from projectgenerator.gui.options import OptionsDialog
 from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
 
-from .resources import *
-
 class QgsProjectGeneratorPlugin(QObject):
 
     def __init__(self, iface):
@@ -66,11 +64,11 @@ class QgsProjectGeneratorPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
-        self.__generate_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-icon.svg')),
             self.tr('Generate'), None)
-        self.__export_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__export_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-icon.svg')),
             self.tr('Export Interlis Transfer File (.xtf)'), None)
-        self.__importdata_action = QAction( QIcon(':/plugins/projectgenerator/projectgenerator-icon.svg'),
+        self.__importdata_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-icon.svg')),
             self.tr('Import Interlis Transfer File (.xtf)'), None)
         self.__configure_action = QAction(
             self.tr('Settings'), None)
