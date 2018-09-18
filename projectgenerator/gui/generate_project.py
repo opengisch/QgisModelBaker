@@ -49,10 +49,12 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QCompleter,
     QSizePolicy,
-    QGridLayout
+    QGridLayout,
+    QLineEdit
 )
 from qgis.PyQt.QtCore import (
     QCoreApplication,
+    pyqtSignal,
     QSettings,
     Qt,
     QLocale
@@ -72,6 +74,23 @@ from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 
 DIALOG_UI = get_ui_class('generate_project.ui')
+
+
+class CompletionLineEdit(QLineEdit):
+
+    punched = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(CompletionLineEdit, self).__init__(parent)
+        self.readyToEdit = True
+
+    def focusInEvent(self, e):
+        super(CompletionLineEdit, self).focusInEvent(e)
+        self.punched.emit()
+
+    def mouseReleaseEvent(self, e):
+        super(CompletionLineEdit, self).mouseReleaseEvent(e)
+        self.punched.emit()
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
@@ -131,6 +150,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
+        self.ili_models_line_edit = CompletionLineEdit()
+        self.ili_config.layout().replaceWidget( self.ili_models_line_edit_dummy, self.ili_models_line_edit)
+
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
@@ -152,6 +174,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.emit(
             self.ili_models_line_edit.text())
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
+        self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
+        self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
         self.ilicache = IliCache(base_config)
         self.update_models_completer()
@@ -476,6 +500,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                         file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
 
     def on_model_changed(self, text):
+        if not text:
+            return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
                 self.crs = QgsCoordinateReferenceSystem(crs)
@@ -538,6 +564,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer.popup().setItemDelegate(self.delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
+
+    def complete_models_completer(self):
+        if not self.ili_models_line_edit.text():
+            self.ili_models_line_edit.completer().setCompletionMode( QCompleter.UnfilteredPopupCompletion )
+            self.ili_models_line_edit.completer().complete()
+        else:
+            self.ili_models_line_edit.completer().setCompletionMode( QCompleter.PopupCompletion )
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
