@@ -250,12 +250,19 @@ class IliModelItemModel(QStandardItemModel):
     def set_repositories(self, repositories):
         self.clear()
         row = 0
-
+        names = list()
+                
         for repository in repositories.values():
-            for model in repository:
 
-                if next((duplicate for duplicate in model if duplicate == model['name']), None) != None:
+            for model in repository:
+                if any(model['name'] in s for s in names):
                     continue
+
+                # for modelname in self.data(int(Qt.DisplayRole)):
+                #     if modelname == model['name']:
+                #         name_in_list = True
+                # if name_in_list:
+                #     continue
 
                 item = QStandardItem()
                 item.setData(model['name'], int(Qt.DisplayRole))
@@ -263,6 +270,7 @@ class IliModelItemModel(QStandardItemModel):
                 item.setData(model['repository'], int(IliModelItemModel.Roles.ILIREPO))
                 item.setData(model['version'], int(IliModelItemModel.Roles.VERSION))
 
+                names.append(model['name'])
                 self.appendRow(item)
                 row += 1
 
