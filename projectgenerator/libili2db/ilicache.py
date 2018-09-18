@@ -258,12 +258,6 @@ class IliModelItemModel(QStandardItemModel):
                 if any(model['name'] in s for s in names):
                     continue
 
-                # for modelname in self.data(int(Qt.DisplayRole)):
-                #     if modelname == model['name']:
-                #         name_in_list = True
-                # if name_in_list:
-                #     continue
-
                 item = QStandardItem()
                 item.setData(model['name'], int(Qt.DisplayRole))
                 item.setData(model['name'], int(Qt.EditRole))
