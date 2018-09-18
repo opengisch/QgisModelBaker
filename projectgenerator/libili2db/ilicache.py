@@ -255,6 +255,7 @@ class IliModelItemModel(QStandardItemModel):
         for repository in repositories.values():
 
             for model in repository:
+                # in case there is more than one version of the model with the same name, it shouldn't load it twice
                 if any(model['name'] in s for s in names):
                     continue
 
