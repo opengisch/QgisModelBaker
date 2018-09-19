@@ -175,10 +175,26 @@ class QgsProjectGeneratorPlugin(QObject):
     def get_generator(self):
         return Generator
 
-    def create_project(self, layers, relations, legend, auto_transaction=True, evaluate_default_values=True):
+    def create_project(self, layers, relations, bags_of_enum, legend, auto_transaction=True, evaluate_default_values=True):
+        """
+        Expose the main functionality from Project Generator to other plugins,
+        namely, create a QGIS project from objects obtained from the Generator
+        class.
+
+        :param layers: layers object from generator.layers
+        :param relations: relations object obtained from generator.relations
+        :param bags_of_enum: bags_of_enum object from generator.relations
+        :param legend: legend object obtained from generator.legend
+        :param auto_transaction: whether transactions should be enabled or not
+                                 when editing layers from supported DB like PG
+        :param evaluate_default_values: should default values be evaluated on
+                                        provider side when requested and not
+                                        when committed. (from QGIS docs)
+        """
         project = Project(auto_transaction, evaluate_default_values)
         project.layers = layers
         project.relations = relations
+        project.bags_of_enum = bags_of_enum
         project.legend = legend
         project.post_generate()
         qgis_project = QgsProject.instance()
