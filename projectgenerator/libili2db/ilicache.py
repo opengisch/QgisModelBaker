@@ -66,11 +66,12 @@ class IliCache(QObject):
         self.model = IliModelItemModel()
 
     def refresh(self):
-        if not self.base_configuration is None:
-            for directory in self.base_configuration.model_directories:
-                self.process_model_directory(directory)
+        #if single_ili_file given, do not take models from repositories
         if not self.single_ili_file is None:
             self.process_single_ili_file()
+        elif not self.base_configuration is None:
+            for directory in self.base_configuration.model_directories:
+                self.process_model_directory(directory)
 
     def process_model_directory(self, path):
         if path[0] == '%':

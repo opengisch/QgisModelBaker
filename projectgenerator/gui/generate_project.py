@@ -155,10 +155,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
-        self.ilicache = IliCache(base_config)
-        self.update_models_completer()
-        self.ilicache.new_message.connect(self.show_message)
-        self.ilicache.refresh()
+        self.ilicache = IliCache(self.base_configuration)
+        self.refresh_ili_cache()
 
         self.ili_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
@@ -522,17 +520,25 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ili_models_line_edit.text())
 
             # Update completer to add models from given ili file
-            self.iliFileCache = IliCache(
+            self.ilicache = IliCache(
                 self.base_configuration, self.ili_file_line_edit.text().strip())
-            self.iliFileCache.new_message.connect(self.show_message)
-            self.iliFileCache.refresh()
-            models = self.iliFileCache.process_ili_file(self.ili_file_line_edit.text().strip())
+            self.refresh_ili_cache()
+            models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             self.ili_models_line_edit.setText(models[-1]['name'])
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
             self.ili_models_line_edit.textChanged.emit(
                 self.ili_models_line_edit.text())
+
+            # Update completer to add models from given ili file
+            self.ilicache = IliCache(self.base_configuration)
+            self.refresh_ili_cache()
+
+    def refresh_ili_cache(self):
+        self.ilicache.new_message.connect(self.show_message)
+        self.ilicache.refresh()
+        self.update_models_completer()
 
     def complete_models_completer(self):
         if not self.ili_models_line_edit.text():
