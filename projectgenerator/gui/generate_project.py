@@ -24,7 +24,7 @@ import webbrowser
 import re
 from psycopg2 import OperationalError
 
-from projectgenerator.gui.options import OptionsDialog
+from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.globals import CRS_PATTERNS
@@ -49,12 +49,10 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QCompleter,
     QSizePolicy,
-    QGridLayout,
-    QLineEdit
+    QGridLayout
 )
 from qgis.PyQt.QtCore import (
     QCoreApplication,
-    pyqtSignal,
     QSettings,
     Qt,
     QLocale
@@ -74,23 +72,6 @@ from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 
 DIALOG_UI = get_ui_class('generate_project.ui')
-
-
-class CompletionLineEdit(QLineEdit):
-
-    punched = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super(CompletionLineEdit, self).__init__(parent)
-        self.readyToEdit = True
-
-    def focusInEvent(self, e):
-        super(CompletionLineEdit, self).focusInEvent(e)
-        self.punched.emit()
-
-    def mouseReleaseEvent(self, e):
-        super(CompletionLineEdit, self).mouseReleaseEvent(e)
-        self.punched.emit()
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
@@ -149,9 +130,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
 
         self.restore_configuration()
-
-        self.ili_models_line_edit = CompletionLineEdit()
-        self.ili_config.layout().replaceWidget( self.ili_models_line_edit_dummy, self.ili_models_line_edit)
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
@@ -556,6 +534,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_models_line_edit.textChanged.emit(
                 self.ili_models_line_edit.text())
 
+    def complete_models_completer(self):
+        if not self.ili_models_line_edit.text():
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_models_line_edit.completer().complete()
+        else:
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -564,13 +549,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer.popup().setItemDelegate(self.delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
-
-    def complete_models_completer(self):
-        if not self.ili_models_line_edit.text():
-            self.ili_models_line_edit.completer().setCompletionMode( QCompleter.UnfilteredPopupCompletion )
-            self.ili_models_line_edit.completer().complete()
-        else:
-            self.ili_models_line_edit.completer().setCompletionMode( QCompleter.PopupCompletion )
 
     def show_message(self, level, message):
         if level == Qgis.Warning:

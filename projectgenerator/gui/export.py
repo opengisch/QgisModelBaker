@@ -22,7 +22,7 @@ import os
 import webbrowser
 import os.path
 
-from projectgenerator.gui.options import OptionsDialog
+from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
@@ -94,6 +94,8 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(
             self.ili_models_line_edit.text())
+        self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
+        self.ili_models_line_edit.punched.connect(self.complete_models_completer)
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -344,6 +346,13 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
+
+    def complete_models_completer(self):
+        if not self.ili_models_line_edit.text():
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_models_line_edit.completer().complete()
+        else:
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)

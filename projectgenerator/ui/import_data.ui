@@ -128,7 +128,7 @@
            </widget>
           </item>
           <item row="1" column="2" colspan="2">
-           <widget class="QLineEdit" name="ili_models_line_edit"/>
+           <widget class="CompletionLineEdit" name="ili_models_line_edit"/>
           </item>
           <item row="0" column="2" colspan="2">
            <widget class="QLineEdit" name="xtf_file_line_edit"/>
@@ -328,6 +328,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CompletionLineEdit</class>
+   <header>projectgenerator.gui.options</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>type_combo_box</tabstop>
   <tabstop>xtf_file_line_edit</tabstop>
