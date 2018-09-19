@@ -157,6 +157,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ilicache = IliCache(self.base_configuration)
         self.refresh_ili_cache()
+        self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
         self.ili_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
@@ -524,6 +525,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.refresh_ili_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             self.ili_models_line_edit.setText(models[-1]['name'])
+            self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from file]'))
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
@@ -533,6 +535,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Update completer to add models from given ili file
             self.ilicache = IliCache(self.base_configuration)
             self.refresh_ili_cache()
+            self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
     def refresh_ili_cache(self):
         self.ilicache.new_message.connect(self.show_message)
