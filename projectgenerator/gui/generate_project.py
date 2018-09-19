@@ -24,7 +24,7 @@ import webbrowser
 import re
 from psycopg2 import OperationalError
 
-from projectgenerator.gui.options import OptionsDialog
+from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.globals import CRS_PATTERNS
@@ -152,11 +152,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.emit(
             self.ili_models_line_edit.text())
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
+        self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
+        self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
-        self.ilicache = IliCache(base_config)
-        self.update_models_completer()
-        self.ilicache.new_message.connect(self.show_message)
-        self.ilicache.refresh()
+        self.ilicache = IliCache(self.base_configuration)
+        self.refresh_ili_cache()
+        self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
         self.ili_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
@@ -483,6 +484,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                         file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
 
     def on_model_changed(self, text):
+        if not text:
+            return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
                 self.crs = QgsCoordinateReferenceSystem(crs)
@@ -525,17 +528,33 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ili_models_line_edit.text())
 
             # Update completer to add models from given ili file
-            self.iliFileCache = IliCache(
-                self.base_configuration, self.ili_file_line_edit.text().strip())
-            self.iliFileCache.new_message.connect(self.show_message)
-            self.iliFileCache.refresh()
-            models = self.iliFileCache.process_ili_file(self.ili_file_line_edit.text().strip())
+            self.ilicache = IliCache(None, self.ili_file_line_edit.text().strip())
+            self.refresh_ili_cache()
+            models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             self.ili_models_line_edit.setText(models[-1]['name'])
+            self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
             self.ili_models_line_edit.textChanged.emit(
                 self.ili_models_line_edit.text())
+
+            # Update completer to add models from given ili file
+            self.ilicache = IliCache(self.base_configuration)
+            self.refresh_ili_cache()
+            self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
+
+    def refresh_ili_cache(self):
+        self.ilicache.new_message.connect(self.show_message)
+        self.ilicache.refresh()
+        self.update_models_completer()
+
+    def complete_models_completer(self):
+        if not self.ili_models_line_edit.text():
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_models_line_edit.completer().complete()
+        else:
+            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)

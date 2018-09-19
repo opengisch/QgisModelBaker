@@ -25,8 +25,8 @@ from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
 from projectgenerator.gui.custom_model_dir import CustomModelDirDialog
-from qgis.PyQt.QtWidgets import QDialog
-from qgis.PyQt.QtCore import QLocale, QSettings
+from qgis.PyQt.QtWidgets import QDialog, QLineEdit
+from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal
 
 from projectgenerator.utils.qt_utils import FileValidator, Validators
 
@@ -113,3 +113,20 @@ class OptionsDialog(QDialog, DIALOG_UI):
         command = '\n  '.join([executable] + config.to_ili2db_args())
 
         self.ili2db_options_textedit.setText(command)
+
+
+class CompletionLineEdit(QLineEdit):
+
+    punched = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(CompletionLineEdit, self).__init__(parent)
+        self.readyToEdit = True
+
+    def focusInEvent(self, e):
+        super(CompletionLineEdit, self).focusInEvent(e)
+        self.punched.emit()
+
+    def mouseReleaseEvent(self, e):
+        super(CompletionLineEdit, self).mouseReleaseEvent(e)
+        self.punched.emit()
