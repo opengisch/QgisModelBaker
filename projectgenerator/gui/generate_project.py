@@ -520,8 +520,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ili_models_line_edit.text())
 
             # Update completer to add models from given ili file
-            self.ilicache = IliCache(
-                self.base_configuration, self.ili_file_line_edit.text().strip())
+            self.ilicache = IliCache(None, self.ili_file_line_edit.text().strip())
             self.refresh_ili_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             self.ili_models_line_edit.setText(models[-1]['name'])
