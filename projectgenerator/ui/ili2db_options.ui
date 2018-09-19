@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>290</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,7 +53,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -63,7 +63,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -115,6 +115,28 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
         </property>
         <property name="text">
          <string>Create Basket Column</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Create Import Tid</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_import_tid_checkbox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_ili_tid in all classes, which is mandatory and should be unique, not only for across the current database, but across the whole system.&lt;/p&gt;&lt;p&gt;Normally you should not enable this option directly, but rely on the INTERLIS model and ili2db. The former should have a line enabling OIDs (preferably with UUIDs) and the latter will make sure the database updates the new column every time a new record is created.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled with unique values. If the column is not filled, you would not be able to export the data to XTF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Create Import Tid</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
