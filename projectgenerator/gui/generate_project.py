@@ -525,7 +525,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.refresh_ili_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             self.ili_models_line_edit.setText(models[-1]['name'])
-            self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from file]'))
+            self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
