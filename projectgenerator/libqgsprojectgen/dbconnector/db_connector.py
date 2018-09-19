@@ -58,6 +58,7 @@ class DBConnector:
                 type  (Geometry Type)
                 kind_settings
                 ili_name
+                extent [a string: "xmin;ymin;xmax;ymax"]
                 table_alias
                 model
         '''

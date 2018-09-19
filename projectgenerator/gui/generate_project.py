@@ -298,6 +298,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.print_info(self.tr('Generating QGIS project…'))
             project.create(None, qgis_project)
 
+            # Set the extent of the mapCanvas from the first layer extent found
+            for layer in project.layers:
+                if layer.extent is not None:
+                    self.iface.mapCanvas().setExtent(layer.extent)
+                    self.iface.mapCanvas().refresh()
+                    break
+
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)

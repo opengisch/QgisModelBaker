@@ -100,6 +100,7 @@ class PGConnector(DBConnector):
             schema_where = ''
             table_alias = ''
             ili_name = ''
+            extent = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
@@ -108,6 +109,19 @@ class PGConnector(DBConnector):
                 kind_settings_field = "p.setting AS kind_settings,"
                 table_alias = "alias.setting AS table_alias,"
                 ili_name = "c.iliname AS ili_name,"
+                extent = """(
+                    SELECT string_agg(setting, ';' ORDER BY CASE
+                        WHEN cprop."tag"='ch.ehi.ili2db.c1Min' THEN 1
+                        WHEN cprop."tag"='ch.ehi.ili2db.c2Min' THEN 2
+                        WHEN cprop."tag"='ch.ehi.ili2db.c1Max' THEN 3
+                        WHEN cprop."tag"='ch.ehi.ili2db.c2Max' THEN 4
+                        END)
+                    FROM {}."t_ili2db_column_prop" AS cprop
+                    WHERE tbls.tablename = cprop.tablename
+                    AND cprop.columnname = g.f_geometry_column
+                    AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                     'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                ) AS extent,""".format(self.schema)
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
@@ -132,6 +146,7 @@ class PGConnector(DBConnector):
                           {table_alias}
                           {model_name}
                           {ili_name}
+                          {extent}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
                         FROM pg_catalog.pg_tables tbls
@@ -151,7 +166,7 @@ class PGConnector(DBConnector):
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
-                       model_name=model_name, ili_name=ili_name, domain_left_join=domain_left_join,
+                       model_name=model_name, ili_name=ili_name, extent=extent, domain_left_join=domain_left_join,
                        alias_left_join=alias_left_join, model_where=model_where,
                        schema_where=schema_where))
 
