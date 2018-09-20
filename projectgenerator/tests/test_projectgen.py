@@ -622,6 +622,29 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_unit(self):
+        importer = iliimporter.Importer()
+        importer.tool_name = 'ili2pg'
+        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+
+        importer.configuration.dbschema = 'nue_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 21781
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+
+        infra_po = next((layer for layer in available_layers if layer.name == 'erholungsinfrastruktur_punktobjekt'))
+        naechste_kontrolle = next((field for field in infra_po.fields if field.name == 'naechste_kontrolle'))
+        self.assertEqual(naechste_kontrolle.alias, 'Naechste_Kontrolle')
+
     def print_info(self, text):
         logging.info(text)
 
