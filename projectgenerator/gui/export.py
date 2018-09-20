@@ -21,6 +21,7 @@
 import os
 import webbrowser
 import os.path
+import re
 
 from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
@@ -29,14 +30,42 @@ from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox, QListView
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel
 from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
+from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector
 
 DIALOG_UI = get_ui_class('export.ui')
+
+
+class ExportModels(QStringListModel):
+
+    def __init__(self, tool_name, uri, schema=None):
+        super().__init__()
+
+        print("ExportModels with {} and {} and {}".format(tool_name, uri, schema))
+
+        if tool_name == 'ili2gpkg':
+            self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+        else:
+            self._db_connector = pg_connector.PGConnector(uri, schema)
+
+        modelnames = list()
+        if self._db_connector.db_or_schema_exists():
+            db_models = self._db_connector.get_models()
+            for db_model in db_models:
+                print('modelname: {}'.format(db_model['modelname']))
+                regex = re.compile(r'\{[^\}]*\}')
+                for modelname in regex.split(db_model['modelname']):
+                    if modelname:
+                        modelnames.append(modelname.strip())
+        self.setStringList(modelnames)
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
 
 class ExportDialog(QDialog, DIALOG_UI):
@@ -69,12 +98,6 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
-        self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(
-            self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(
-            self.fill_models_line_edit)
-
         self.base_configuration = base_config
         self.restore_configuration()
 
@@ -83,19 +106,12 @@ class ExportDialog(QDialog, DIALOG_UI):
         fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
         gpkgFileValidator = FileValidator(pattern='*.gpkg')
 
-        self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
-        self.ili_models_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(
-            self.ili_models_line_edit.text())
-        self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
-        self.ili_models_line_edit.punched.connect(self.complete_models_completer)
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -117,15 +133,41 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.gpkg_file_line_edit.textChanged.emit(
             self.gpkg_file_line_edit.text())
 
-        settings = QSettings()
-        ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
-        #INFO AN DAVE: angenommen das alles funktioniert und es werden models geladen, dann müsste noch immer das im richtigen zeitpunkt (bsp. bei update des schemas) angepasst werden ...
-        self.ilicache = IliCache(self.updated_configuration(), ilifile or None, True)
-        self.refresh_ili_cache()
+        self.pg_host_line_edit.textChanged.connect(self.refresh_models)
+        self.pg_port_line_edit.textChanged.connect(self.refresh_models)
+        self.pg_database_line_edit.textChanged.connect(self.refresh_models)
+        self.pg_schema_line_edit.textChanged.connect(self.refresh_models)
+        self.pg_user_line_edit.textChanged.connect(self.refresh_models)
+        self.pg_password_line_edit.textChanged.connect(self.refresh_models)
+        self.gpkg_file_line_edit.textChanged.connect(self.refresh_models)
 
-    def refresh_ili_cache(self):
-        self.ilicache.refresh()
-        self.update_models_completer()
+        self.export_models_view.setSelectionMode(QListView.ExtendedSelection)
+        self.export_models_model=self.refreshed_export_models_model()
+        self.export_models_view.setModel(self.export_models_model)
+
+    def refresh_models(self):
+        self.export_models_model=self.refreshed_export_models_model()
+        self.export_models_view.setModel(self.export_models_model)
+
+    def refreshed_export_models_model(self):
+        tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+        uri = []
+        if tool_name == 'ili2pg':
+            uri += ['dbname={}'.format(self.updated_configuration().database)]
+            uri += ['user={}'.format(self.updated_configuration().dbusr)]
+            if self.updated_configuration().dbpwd:
+                uri += ['password={}'.format(self.updated_configuration().dbpwd)]
+            uri += ['host={}'.format(self.updated_configuration().dbhost)]
+            if self.updated_configuration().dbport:
+                uri += ['port={}'.format(self.updated_configuration().dbport)]
+        elif tool_name == 'ili2gpkg':
+            uri = [self.updated_configuration().dbfile]
+        uri_string = ' '.join(uri)
+
+        schema = self.updated_configuration().dbschema
+        print("Start export models with {} and {} and {}".format(tool_name, uri_string, schema))
+        self.export_models_model = ExportModels(tool_name, uri_string, schema)
+        return self.export_models_model
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -138,7 +180,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         if not configuration.ilimodels:
             self.txtStdout.setText(
                 self.tr('Please set a model before exporting data.'))
-            self.ili_models_line_edit.setFocus()
+            self.export_models_view.setFocus()
             return
 
         if self.type_combo_box.currentData() == 'pg':
@@ -266,7 +308,12 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        modelnames = list()
+        indexes = self.export_models_view.selectedIndexes()
+        for index in indexes:
+            modelnames.append( self.export_models_model.data(index, Qt.DisplayRole))
+        configuration.ilimodels = ';'.join(modelnames)
+        print (configuration.ilimodels)
         configuration.base_configuration = self.base_configuration
 
         return configuration
@@ -350,26 +397,6 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
-
-    def complete_models_completer(self):
-        if not self.ili_models_line_edit.text():
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-            self.ili_models_line_edit.completer().complete()
-        else:
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
-
-    def update_models_completer(self):
-        completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        self.delegate = ModelCompleterDelegate()
-        completer.popup().setItemDelegate(self.delegate)
-        self.ili_models_line_edit.setCompleter(completer)
-        self.multiple_models_dialog.models_line_edit.setCompleter(completer)
-
-    def fill_models_line_edit(self):
-        self.ili_models_line_edit.setText(
-            self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
         os_language = QLocale(QSettings().value(

@@ -28,7 +28,6 @@ import re
 from enum import Enum
 from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 from projectgenerator.utils.qt_utils import download_file
-from projectgenerator.libqgsprojectgen.dbconnector import pg_connector, gpkg_connector, db_connector
 
 from PyQt5.QtCore import (
     QObject,
@@ -85,32 +84,6 @@ class IliCache(QObject):
             get_all_modeldir_in_path(path, self.process_local_ili_folder)
         else:
             self.download_repository(path)
-
-    def process_model_table( self ):
-        models = self.parse_model_table()
-        self.repositories["no_repo"] = sorted(
-            models, key=lambda m: m['version'], reverse=True)
-        self.model.set_repositories(self.repositories)
-
-    def parse_model_table( self ):
-        db_models = list()
-        if self.base_configuration.tool_name == 'ili2gpkg':
-            db_connector = gpkg_connector.GPKGConnector(self.base_configuration.uri, None)
-            # INFO AN DAVE: get_models weiss nicht wie sehr das verwendet wird wegen issue #19 aber muss eh neu implementiert werden wegen file-feld
-            db_models = db_connector.get_models()
-        elif self.base_configuration.tool_name == 'ili2pg':
-            db_connector = pg_connector.PGConnector(self.base_configuration.uri, self.base_configuration.schema)
-            db_models = db_connector.get_models()
-
-        models = list()
-        for db_model in db_models:
-            model = dict()
-            model['name'] = db_model['name']
-            model['version'] = ''
-            # INFO AN DAVE: richtigen wert hier lesen von file-feld
-            model['repository'] = db_model['content']
-            models += [model]
-        return models
 
     def process_single_ili_file(self):
         models = self.process_ili_file(self.single_ili_file)
