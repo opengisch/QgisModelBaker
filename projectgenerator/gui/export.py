@@ -119,9 +119,13 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         settings = QSettings()
         ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
-        self.ilicache = IliCache(base_config, ilifile or None)
-        self.update_models_completer()
+        #INFO AN DAVE: angenommen das alles funktioniert und es werden models geladen, dann müsste noch immer das im richtigen zeitpunkt (bsp. bei update des schemas) angepasst werden ...
+        self.ilicache = IliCache(self.updated_configuration(), ilifile or None, True)
+        self.refresh_ili_cache()
+
+    def refresh_ili_cache(self):
         self.ilicache.refresh()
+        self.update_models_completer()
 
     def accepted(self):
         configuration = self.updated_configuration()

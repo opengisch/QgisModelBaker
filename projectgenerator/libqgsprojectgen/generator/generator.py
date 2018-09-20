@@ -30,7 +30,6 @@ from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 
-
 class Generator:
     """Builds Project Generator objects from data extracted from databases."""
 
