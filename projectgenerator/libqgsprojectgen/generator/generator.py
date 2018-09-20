@@ -165,7 +165,7 @@ class Generator:
                     if 'numeric_scale' in fielddef:
                         field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
                     # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
-                    if 'unit' in fielddef:
+                    if 'unit' in fielddef and fielddef['unit'] is not None:
                         field.alias = '{alias} [{unit}]'.format(
                             alias=alias or column_name, unit=fielddef['unit'])
 
