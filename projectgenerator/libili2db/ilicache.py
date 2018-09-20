@@ -28,7 +28,6 @@ import re
 from enum import Enum
 from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
 from projectgenerator.utils.qt_utils import download_file
-
 from PyQt5.QtCore import (
     QObject,
     pyqtSignal,
@@ -58,23 +57,20 @@ class IliCache(QObject):
 
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, configuration, single_ili_file=None, export=False):
+    def __init__(self, configuration, single_ili_file=None):
         QObject.__init__(self)
         self.cache_path = os.path.expanduser('~/.ilicache')
         self.repositories = dict()
         self.base_configuration = configuration
         self.single_ili_file = single_ili_file
         self.model = IliModelItemModel()
-        self.export = export
 
     def refresh(self):
-        if not self.base_configuration is None and not self.export:
+        if not self.base_configuration is None:
             for directory in self.base_configuration.model_directories:
                 self.process_model_directory(directory)
         if not self.single_ili_file is None:
             self.process_single_ili_file()
-        if self.export:
-            self.process_model_table()
 
     def process_model_directory(self, path):
         if path[0] == '%':
