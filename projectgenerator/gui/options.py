@@ -140,6 +140,7 @@ class ModelListView(QListView):
         super(QListView, self).__init__(parent)
         self.spaced.connect(self.update)
 
+    #to act when space is pressed
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Space:
             _selected_indexes = self.selectedIndexes()
