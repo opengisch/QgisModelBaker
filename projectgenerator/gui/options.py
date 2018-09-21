@@ -25,8 +25,8 @@ from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
 from projectgenerator.utils import get_ui_class
 from projectgenerator.utils import qt_utils
 from projectgenerator.gui.custom_model_dir import CustomModelDirDialog
-from qgis.PyQt.QtWidgets import QDialog, QLineEdit
-from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal
+from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView
+from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal, pyqtSlot, Qt, QModelIndex
 
 from projectgenerator.utils.qt_utils import FileValidator, Validators
 
@@ -130,3 +130,18 @@ class CompletionLineEdit(QLineEdit):
     def mouseReleaseEvent(self, e):
         super(CompletionLineEdit, self).mouseReleaseEvent(e)
         self.punched.emit()
+
+
+class ModelListView(QListView):
+
+    spaced = pyqtSignal(QModelIndex)
+
+    def __init__(self, parent=None):
+        super(QListView, self).__init__(parent)
+        self.spaced.connect(self.update)
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Space:
+            _selected_indexes = self.selectedIndexes()
+            self.spaced.emit(_selected_indexes[0])
+        super(ModelListView, self).keyPressEvent(e)

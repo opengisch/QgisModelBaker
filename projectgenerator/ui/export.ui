@@ -279,7 +279,7 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QListView" name="export_models_view"/>
+           <widget class="ModelListView" name="export_models_view"/>
           </item>
          </layout>
         </widget>
@@ -291,6 +291,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ModelListView</class>
+   <header>projectgenerator.gui.options</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>type_combo_box</tabstop>
   <tabstop>xtf_file_line_edit</tabstop>

@@ -23,14 +23,14 @@ import webbrowser
 import os.path
 import re
 
-from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
+from projectgenerator.gui.options import OptionsDialog, ModelListView
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox, QListView
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
 from qgis.core import QgsProject
 from qgis.gui import QgsGui
@@ -81,7 +81,7 @@ class ExportModels(QStringListModel):
         else:
             QStringListModel.setData(self, index, role, data)
 
-    def click(self, index):
+    def check(self, index):
         if self.data( index, Qt.CheckStateRole ) == Qt.Checked:
             self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
         else:
@@ -167,11 +167,11 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.pg_password_line_edit.textChanged.connect(self.request_for_refresh_models)
         self.gpkg_file_line_edit.textChanged.connect(self.request_for_refresh_models)
 
-        self.export_models_view.setSelectionMode(QListView.ExtendedSelection)
         self.export_models_model = ExportModels(None, None, None)
         self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
-        self.export_models_view.clicked.connect(self.export_models_model.click)
+        self.export_models_view.clicked.connect(self.export_models_model.check)
+        self.export_models_view.spaced.connect(self.export_models_model.check)
 
     def request_for_refresh_models(self):
         #hold refresh back one second
