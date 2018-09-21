@@ -175,7 +175,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def request_for_refresh_models(self):
         #hold refresh back one second
-        self.refreshTimer.start(1000)
+        self.refreshTimer.start(500)
 
     def refresh_models(self):
         self.export_models_model=self.refreshed_export_models_model()
@@ -342,7 +342,6 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.ilimodels = ';'.join(self.export_models_model.checked_models())
-        print (configuration.ilimodels)
         configuration.base_configuration = self.base_configuration
 
         return configuration
