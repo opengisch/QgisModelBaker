@@ -31,7 +31,7 @@ from projectgenerator.utils.qt_utils import make_save_file_selector, Validators,
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox, QListView
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
 from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
@@ -46,23 +46,24 @@ class ExportModels(QStringListModel):
     def __init__(self, tool_name, uri, schema=None):
         super().__init__()
 
-        print("ExportModels with {} and {} and {}".format(tool_name, uri, schema))
-
-        if tool_name == 'ili2gpkg':
-            self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-        else:
-            self._db_connector = pg_connector.PGConnector(uri, schema)
-
         modelnames = list()
-        if self._db_connector.db_or_schema_exists():
-            db_models = self._db_connector.get_models()
-            for db_model in db_models:
-                print('modelname: {}'.format(db_model['modelname']))
-                regex = re.compile(r'\{[^\}]*\}')
-                for modelname in regex.split(db_model['modelname']):
-                    if modelname:
-                        modelnames.append(modelname.strip())
+        try:
+            if tool_name == 'ili2gpkg':
+                self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+            else:
+                self._db_connector = pg_connector.PGConnector(uri, schema)
+
+            if self._db_connector.db_or_schema_exists():
+                db_models = self._db_connector.get_models()
+                for db_model in db_models:
+                    regex = re.compile(r'\{[^\}]*\}')
+                    for modelname in regex.split(db_model['modelname']):
+                        if modelname:
+                            modelnames.append(modelname.strip())
+        except:
+            pass
         self.setStringList(modelnames)
+
         self._checked_models = {modelname: Qt.Checked for modelname in modelnames}
 
     def flags(self, index):
@@ -86,6 +87,8 @@ class ExportModels(QStringListModel):
         else:
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
+    def checked_models(self):
+        return [modelname for modelname in self.stringList() if self._checked_models[modelname] == Qt.Checked]
 
 class ExportDialog(QDialog, DIALOG_UI):
     ValidExtensions = ['xtf', 'itf', 'gml', 'xml']
@@ -152,24 +155,32 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.gpkg_file_line_edit.textChanged.emit(
             self.gpkg_file_line_edit.text())
 
-        self.pg_host_line_edit.textChanged.connect(self.refresh_models)
-        self.pg_port_line_edit.textChanged.connect(self.refresh_models)
-        self.pg_database_line_edit.textChanged.connect(self.refresh_models)
-        self.pg_schema_line_edit.textChanged.connect(self.refresh_models)
-        self.pg_user_line_edit.textChanged.connect(self.refresh_models)
-        self.pg_password_line_edit.textChanged.connect(self.refresh_models)
-        self.gpkg_file_line_edit.textChanged.connect(self.refresh_models)
+        #refresh the models on changing values but avoid massive db connects by timer
+        self.refreshTimer = QTimer()
+        self.refreshTimer.setSingleShot(True)
+        self.refreshTimer.timeout.connect( self.refresh_models)
+        self.pg_host_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_port_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_database_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_schema_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_user_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_password_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.gpkg_file_line_edit.textChanged.connect(self.request_for_refresh_models)
 
         self.export_models_view.setSelectionMode(QListView.ExtendedSelection)
-        self.export_models_model=self.refreshed_export_models_model()
+        self.export_models_model = ExportModels(None, None, None)
+        self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
-
         self.export_models_view.clicked.connect(self.export_models_model.click)
 
+    def request_for_refresh_models(self):
+        #hold refresh back one second
+        self.refreshTimer.start(1000)
 
     def refresh_models(self):
         self.export_models_model=self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
+        self.export_models_view.clicked.connect(self.export_models_model.click)
 
     def refreshed_export_models_model(self):
         tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
@@ -187,7 +198,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         uri_string = ' '.join(uri)
 
         schema = self.updated_configuration().dbschema
-        print("Start export models with {} and {} and {}".format(tool_name, uri_string, schema))
+
         self.export_models_model = ExportModels(tool_name, uri_string, schema)
         return self.export_models_model
 
@@ -330,11 +341,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        modelnames = list()
-        indexes = self.export_models_view.selectedIndexes()
-        for index in indexes:
-            modelnames.append( self.export_models_model.data(index, Qt.DisplayRole))
-        configuration.ilimodels = ';'.join(modelnames)
+        configuration.ilimodels = ';'.join(self.export_models_model.checked_models())
         print (configuration.ilimodels)
         configuration.base_configuration = self.base_configuration
 
