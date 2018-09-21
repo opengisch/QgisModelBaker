@@ -290,6 +290,7 @@ class GPKGConnector(DBConnector):
 
     def get_models(self):
         """TODO: remove when ili2db issue #19 is solved"""
+        """Needed for exportmodels"""
         # Get MODELS
         cursor = self.conn.cursor()
         cursor.execute("""SELECT modelname, content
