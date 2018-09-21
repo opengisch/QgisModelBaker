@@ -80,6 +80,12 @@ class ExportModels(QStringListModel):
         else:
             QStringListModel.setData(self, index, role, data)
 
+    def click(self, index):
+        if self.data( index, Qt.CheckStateRole ) == Qt.Checked:
+            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        else:
+            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+
 
 class ExportDialog(QDialog, DIALOG_UI):
     ValidExtensions = ['xtf', 'itf', 'gml', 'xml']
@@ -157,6 +163,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.setSelectionMode(QListView.ExtendedSelection)
         self.export_models_model=self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
+
+        self.export_models_view.clicked.connect(self.export_models_model.click)
+
 
     def refresh_models(self):
         self.export_models_model=self.refreshed_export_models_model()
