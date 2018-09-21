@@ -63,9 +63,22 @@ class ExportModels(QStringListModel):
                     if modelname:
                         modelnames.append(modelname.strip())
         self.setStringList(modelnames)
+        self._checked_models = {modelname: Qt.Checked for modelname in modelnames}
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def data(self, index, role):
+        if role == Qt.CheckStateRole:
+            return self._checked_models[self.data(index, Qt.DisplayRole)]
+        else:
+            return QStringListModel.data(self, index, role)
+
+    def setData(self, index, role, data):
+        if role == Qt.CheckStateRole:
+            self._checked_models[self.data(index, Qt.DisplayRole)] = data
+        else:
+            QStringListModel.setData(self, index, role, data)
 
 
 class ExportDialog(QDialog, DIALOG_UI):
