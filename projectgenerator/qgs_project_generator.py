@@ -27,10 +27,8 @@ from projectgenerator.gui.import_data import ImportDataDialog
 from projectgenerator.libqgsprojectgen.dataobjects.project import Project
 from projectgenerator.libqgsprojectgen.generator.generator import Generator
 
-from qgis.core import (
-    QgsProject,
-    QgsMessageLog
-)
+from qgis.core import QgsProject
+
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
@@ -56,7 +54,6 @@ class QgsProjectGeneratorPlugin(QObject):
 
         # initialize translation
         qgis_locale_id = str(QSettings().value('locale/userLocale'))
-        QgsMessageLog.logMessage('Running with locale {}'.format(qgis_locale_id), self.tr('Projectgenerator'))
         qgis_locale = QLocale(qgis_locale_id)
         locale_path = os.path.join(self.plugin_dir, 'i18n')
         self.translator = QTranslator()
