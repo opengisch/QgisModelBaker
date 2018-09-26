@@ -280,7 +280,7 @@ class ModelCompleterDelegate(QItemDelegate):
         super().__init__()
         self.widget = QWidget()
         self.widget.setLayout(QGridLayout())
-        self.widget.layout().setContentsMargins(0, 0, 0, 0)
+        self.widget.layout().setContentsMargins(2, 0, 0, 0)
         self.model_label = QLabel()
         self.model_label.setAttribute(Qt.WA_TranslucentBackground)
         self.repository_label = QLabel()
