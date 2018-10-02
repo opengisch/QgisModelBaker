@@ -180,7 +180,8 @@ class ExportDialog(QDialog, DIALOG_UI):
     def refresh_models(self):
         self.export_models_model=self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
-        self.export_models_view.clicked.connect(self.export_models_model.click)
+        self.export_models_view.clicked.connect(self.export_models_model.check)
+        self.export_models_view.spaced.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
         tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
