@@ -60,7 +60,7 @@ class ExportModels(QStringListModel):
                     for modelname in regex.split(db_model['modelname']):
                         if modelname:
                             modelnames.append(modelname.strip())
-        except:
+        except TypeError:
             pass
         self.setStringList(modelnames)
 
