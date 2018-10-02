@@ -56,7 +56,7 @@ class ExportModels(QStringListModel):
             if self._db_connector.db_or_schema_exists():
                 db_models = self._db_connector.get_models()
                 for db_model in db_models:
-                    regex = re.compile(r'\{[^\}]*\}')
+                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
                     for modelname in regex.split(db_model['modelname']):
                         if modelname:
                             modelnames.append(modelname.strip())
