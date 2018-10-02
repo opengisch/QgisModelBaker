@@ -183,6 +183,9 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         if with_action:
             args += ["--export"]
 
+        if self.ilimodels:
+            args += ['--exportModels', self.ilimodels]
+
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password=hide_password)
 
         args += [self.xtffile]
