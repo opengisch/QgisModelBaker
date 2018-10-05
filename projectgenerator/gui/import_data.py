@@ -221,7 +221,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.txtStdout.setTextColor(QColor('#2a2a2a'))
         self.txtStdout.append(text)
         self.advance_progress_bar_by_text(text)
-        QCoreApplication.processEvents()
 
     def on_process_started(self, command):
         self.disable()
@@ -392,7 +391,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                 "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
 
     def advance_progress_bar_by_text(self, text):
-        if text.strip() == 'Info: compile models…':
+        if text.strip() == 'Info: compile models...':
             self.progress_bar.setValue(50)
-        elif text.strip() == 'Info: create table structure…':
+            QCoreApplication.processEvents()
+        elif text.strip() == 'Info: create table structure...':
             self.progress_bar.setValue(75)
+            QCoreApplication.processEvents()
