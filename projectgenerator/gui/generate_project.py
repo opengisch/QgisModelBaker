@@ -147,6 +147,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.pg_use_super_login.setText(
+            "Use logins from settings (User: {}) for schema generation".format(base_config.super_pg_user))
         self.ili_models_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(
@@ -242,7 +244,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool_name, configuration.uri(False), configuration.uri(True),
+                generator = Generator(configuration.tool_name, configuration.uri(False),
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except OperationalError:

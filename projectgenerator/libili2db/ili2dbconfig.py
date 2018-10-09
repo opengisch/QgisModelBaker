@@ -156,12 +156,18 @@ class Ili2DbCommandConfiguration(object):
             args += ["--dbhost", self.dbhost]
             if self.dbport:
                 args += ["--dbport", self.dbport]
-            args += ["--dbusr", self.dbusr]
+            if self.dbusesuperlogin:
+                args += ["--dbusr", self.base_configuration.super_pg_user]
+            else:
+                args += ["--dbusr", self.dbusr]
             if self.dbpwd:
                 if hide_password:
                     args += ["--dbpwd", '******']
                 else:
-                    args += ["--dbpwd", self.dbpwd]
+                    if self.dbusesuperlogin:
+                        args += ["--dbpwd", self.base_configuration.super_pg_password]
+                    else:
+                        args += ["--dbpwd", self.dbpwd]
             args += ["--dbdatabase", self.database]
             args += ["--dbschema",
                      self.dbschema or self.database]
