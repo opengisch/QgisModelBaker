@@ -34,14 +34,14 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 class Generator:
     """Builds Project Generator objects from data extracted from databases."""
 
-    def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=False):
+    def __init__(self, tool_name, uri, suuri, inheritance, schema=None, pg_estimated_metadata=False):
         self.tool_name = tool_name
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
         if self.tool_name == 'ili2pg':
-            self._db_connector = pg_connector.PGConnector(uri, schema)
+            self._db_connector = pg_connector.PGConnector(suuri, schema)
         elif self.tool_name == 'ili2gpkg':
             self._db_connector = gpkg_connector.GPKGConnector(uri, None)
 

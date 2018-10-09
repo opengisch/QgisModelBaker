@@ -242,7 +242,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool_name, configuration.uri,
+                generator = Generator(configuration.tool_name, configuration.uri(False), configuration.uri(True),
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except OperationalError:

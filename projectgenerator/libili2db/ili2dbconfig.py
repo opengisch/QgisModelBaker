@@ -116,6 +116,7 @@ class Ili2DbCommandConfiguration(object):
         self.dbhost = ''
         self.dbpwd = ''
         self.dbusr = ''
+        self.dbusesuperlogin = False
         self.database = ''
         self.dbschema = ''
         self.dbfile = ''
@@ -124,14 +125,18 @@ class Ili2DbCommandConfiguration(object):
         self.ilimodels = ''
         self.tomlfile = ''
 
-    @property
-    def uri(self):
+    def uri(self, su = False):
         uri = []
         if self.tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.database)]
-            uri += ['user={}'.format(self.dbusr)]
-            if self.dbpwd:
-                uri += ['password={}'.format(self.dbpwd)]
+            if su and self.dbusesuperlogin:
+                uri += ['user={}'.format(self.base_configuration.super_pg_user)]
+                if self.dbpwd:
+                    uri += ['password={}'.format(self.base_configuration.super_pg_password)]
+            else:
+                uri += ['user={}'.format(self.dbusr)]
+                if self.dbpwd:
+                    uri += ['password={}'.format(self.dbpwd)]
             uri += ['host={}'.format(self.dbhost)]
             if self.dbport:
                 uri += ['port={}'.format(self.dbport)]
