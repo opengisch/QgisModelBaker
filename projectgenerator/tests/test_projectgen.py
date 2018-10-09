@@ -124,7 +124,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart1')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart1')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -255,7 +255,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -321,7 +321,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -389,7 +389,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -467,7 +467,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -593,7 +593,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        generator = Generator('ili2gpkg', importer.configuration.uri(), 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)

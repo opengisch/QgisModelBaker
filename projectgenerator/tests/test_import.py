@@ -71,7 +71,7 @@ class TestImport(unittest.TestCase):
                          iliimporter.Importer.SUCCESS)
 
         # Check expected data is there in the database schema
-        conn = psycopg2.connect(importer.configuration.uri)
+        conn = psycopg2.connect(importer.configuration.uri())
 
         # Expected predio data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
