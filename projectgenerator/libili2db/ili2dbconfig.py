@@ -41,6 +41,9 @@ ili2db_tools['ili2gpkg'][
 class BaseConfiguration(object):
 
     def __init__(self):
+        self.super_pg_user = 'postgres'
+        self.super_pg_password = 'postgres'
+
         self.custom_model_directories_enabled = False
         self.custom_model_directories = ''
         self.java_path = ''
@@ -49,6 +52,8 @@ class BaseConfiguration(object):
         self.debugging_enabled = False
 
     def save(self, settings):
+        settings.setValue('SuperUser', self.super_pg_user)
+        settings.setValue('SuperPassword', self.super_pg_password)
         settings.setValue('CustomModelDirectoriesEnabled',
                           self.custom_model_directories_enabled)
         settings.setValue('CustomModelDirectories',
@@ -58,6 +63,10 @@ class BaseConfiguration(object):
         settings.setValue('DebuggingEnabled', self.debugging_enabled)
 
     def restore(self, settings):
+        self.super_pg_user = settings.value(
+            'SuperUser', 'postgres', str )
+        self.super_pg_password = settings.value(
+            'SuperPassword', 'postgres', str )
         self.custom_model_directories_enabled = settings.value(
             'CustomModelDirectoriesEnabled', False, bool)
         self.custom_model_directories = settings.value(

@@ -357,6 +357,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
+            configuration.dbusesuperlogin = self.pg_use_super_login.isChecked()
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             configuration.tool_name = 'ili2gpkg'
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
@@ -397,6 +398,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/password', configuration.dbpwd)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/usesuperlogin', configuration.dbusesuperlogin)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
@@ -423,6 +426,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             settings.value('QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.pg_use_super_login.setChecked(
+            settings.value('QgsProjectGenerator/ili2pg/usesuperlogin', defaultValue=False, type=bool))
         self.gpkg_file_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
 
