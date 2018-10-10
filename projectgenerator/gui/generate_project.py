@@ -149,7 +149,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
         self.pg_use_super_login.setText(
-            "Use logins from settings (user: {}) for schema generation".format(base_config.super_pg_user))
+            "Generate schema with superuser login from settings ({})".format(base_config.super_pg_user))
         self.ili_models_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(

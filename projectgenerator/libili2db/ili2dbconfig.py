@@ -156,7 +156,7 @@ class Ili2DbCommandConfiguration(object):
             args += ["--dbhost", self.dbhost]
             if self.dbport:
                 args += ["--dbport", self.dbport]
-                args += ["--dbusr", self.dbusr]
+            args += ["--dbusr", self.dbusr]
             if self.dbpwd:
                 if hide_password:
                     args += ["--dbpwd", '******']
