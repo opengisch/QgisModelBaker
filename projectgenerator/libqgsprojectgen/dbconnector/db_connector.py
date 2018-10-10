@@ -36,6 +36,10 @@ class DBConnector:
         '''Whether the DB (for GPKG) or schema (for PG) exists or not.'''
         raise NotImplementedError
 
+    def create_db_or_schema(self, usr):
+        '''Create the DB (for GPKG) or schema (for PG)'''
+        raise NotImplementedError
+
     def metadata_exists(self):
         '''Whether t_ili2db_table_prop table exists or not.
         In other words... Does the DB/Schema hold an Interlis model?

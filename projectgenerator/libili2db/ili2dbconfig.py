@@ -129,9 +129,9 @@ class Ili2DbCommandConfiguration(object):
         uri = []
         if self.tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.database)]
-            if su and self.dbusesuperlogin:
+            if su:
                 uri += ['user={}'.format(self.base_configuration.super_pg_user)]
-                if self.dbpwd:
+                if self.base_configuration.super_pg_password:
                     uri += ['password={}'.format(self.base_configuration.super_pg_password)]
             else:
                 uri += ['user={}'.format(self.dbusr)]

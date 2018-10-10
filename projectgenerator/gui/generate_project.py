@@ -70,6 +70,7 @@ from ..utils import get_ui_class
 from ..libili2db import iliimporter
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
+from ..libqgsprojectgen.dbconnector import pg_connector
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
@@ -210,6 +211,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
+
+        # create schema with superuser
+        if self.type_combo_box.currentData() in ['ili2pg', 'pg'] and configuration.dbusesuperlogin:
+            _db_connector = pg_connector.PGConnector(configuration.uri(True), configuration.dbschema)
+            if not _db_connector.db_or_schema_exists():
+                _db_connector.create_db_or_schema(configuration.dbusr)
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()
