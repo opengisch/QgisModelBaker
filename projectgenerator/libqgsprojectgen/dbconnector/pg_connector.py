@@ -51,6 +51,17 @@ class PGConnector(DBConnector):
 
         return data_type
 
+    def _postgis_exists(self):
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("""
+                    SELECT
+                        count(extversion)
+                    FROM pg_catalog.pg_extension
+                    WHERE extname='postgis'
+                    """)
+
+        return bool(cur.fetchone()[0])
+
     def db_or_schema_exists(self):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)

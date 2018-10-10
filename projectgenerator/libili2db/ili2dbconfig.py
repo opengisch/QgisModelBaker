@@ -148,7 +148,7 @@ class Ili2DbCommandConfiguration(object):
                     args += ["--dbpwd", '******']
                 else:
                     args += ["--dbpwd", self.dbpwd]
-            args += ["--dbdatabase", self.database]
+            args += ["--dbdatabase", self.database.strip("'")]
             args += ["--dbschema",
                      self.dbschema or self.database]
         elif self.tool_name == 'ili2gpkg':
