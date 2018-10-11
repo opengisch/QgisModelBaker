@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>718</width>
-    <height>641</height>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,7 +128,7 @@
            </widget>
           </item>
           <item row="1" column="2" colspan="2">
-           <widget class="CompletionLineEdit" name="ili_models_line_edit"/>
+           <widget class="CompletionLineEdit" name="ili_models_line_edit" native="true"/>
           </item>
           <item row="0" column="2" colspan="2">
            <widget class="QLineEdit" name="xtf_file_line_edit"/>
@@ -297,6 +297,13 @@
             </property>
            </widget>
           </item>
+          <item row="11" column="2">
+           <widget class="QCheckBox" name="pg_use_super_login">
+            <property name="text">
+             <string>Use logins from settings (superuser) for schema generation</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -331,6 +338,7 @@
  <customwidgets>
   <customwidget>
    <class>CompletionLineEdit</class>
+   <extends></extends>
    <header>projectgenerator.gui.options</header>
    <container>1</container>
   </customwidget>
