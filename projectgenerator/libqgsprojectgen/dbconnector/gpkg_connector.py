@@ -45,6 +45,10 @@ class GPKGConnector(DBConnector):
     def db_or_schema_exists(self):
         return os.path.isfile(self.uri)
 
+    def create_db_or_schema(self, usr):
+        '''Create the DB (for GPKG).'''
+        raise NotImplementedError
+
     def metadata_exists(self):
         return self._bMetadataTable
 

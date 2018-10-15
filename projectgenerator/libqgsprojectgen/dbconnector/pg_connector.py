@@ -62,6 +62,13 @@ class PGConnector(DBConnector):
 
         return False
 
+    def create_db_or_schema(self, usr):
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("""
+                    CREATE SCHEMA {} AUTHORIZATION {};
+        """.format(self.schema, usr))
+        self.conn.commit()
+
     def metadata_exists(self):
         return self._bMetadataTable
 

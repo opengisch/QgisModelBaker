@@ -70,6 +70,7 @@ from ..utils import get_ui_class
 from ..libili2db import iliimporter
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
+from ..libqgsprojectgen.dbconnector import pg_connector
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
@@ -147,6 +148,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.pg_use_super_login.setText(
+            self.tr('Generate schema with superuser login from settings ({})').format(base_config.super_pg_user))
         self.ili_models_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(
@@ -208,6 +211,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
+
+        # create schema with superuser
+        if self.type_combo_box.currentData() in ['ili2pg', 'pg'] and configuration.db_use_super_login:
+            _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
+            if not _db_connector.db_or_schema_exists():
+                _db_connector.create_db_or_schema(configuration.dbusr)
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()
@@ -357,6 +366,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
+            configuration.db_use_super_login = self.pg_use_super_login.isChecked()
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             configuration.tool_name = 'ili2gpkg'
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
@@ -397,6 +407,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/password', configuration.dbpwd)
+            settings.setValue(
+                'QgsProjectGenerator/ili2pg/usesuperlogin', configuration.db_use_super_login)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
@@ -423,6 +435,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             settings.value('QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2pg/password'))
+        self.pg_use_super_login.setChecked(
+            settings.value('QgsProjectGenerator/ili2pg/usesuperlogin', defaultValue=False, type=bool))
         self.gpkg_file_line_edit.setText(
             settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
 

@@ -25,6 +25,7 @@ from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from projectgenerator.libqgsprojectgen.dbconnector import pg_connector
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
     make_save_file_selector,
@@ -123,6 +124,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+        self.pg_use_super_login.setText(
+            self.tr('Generate schema with superuser login from settings ({})').format(base_config.super_pg_user))
         self.xtf_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.xtf_file_line_edit.textChanged.emit(
@@ -169,6 +172,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a valid database file before creating the project.'))
                 self.gpkg_file_line_edit.setFocus()
                 return
+
+        # create schema with superuser
+        if self.type_combo_box.currentData() == 'pg' and configuration.db_use_super_login:
+            configuration.tool_name='ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+            _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
+            if not _db_connector.db_or_schema_exists():
+                _db_connector.create_db_or_schema(configuration.dbusr)
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()
@@ -255,6 +265,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
+            configuration.db_use_super_login = self.pg_use_super_login.isChecked()
         elif self.type_combo_box.currentData() == 'gpkg':
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
@@ -291,6 +302,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                               configuration.dbschema)
             settings.setValue('QgsProjectGenerator/ili2pg/password',
                               configuration.dbpwd)
+            settings.setValue('QgsProjectGenerator/ili2pg/usesuperlogin',
+                              configuration.db_use_super_login)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue('QgsProjectGenerator/ili2gpkg/dbfile',
                               configuration.dbfile)
@@ -315,6 +328,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             'QgsProjectGenerator/ili2pg/schema'))
         self.pg_password_line_edit.setText(settings.value(
             'QgsProjectGenerator/ili2pg/password'))
+        self.pg_use_super_login.setChecked(settings.value(
+            'QgsProjectGenerator/ili2pg/usesuperlogin', defaultValue=False, type=bool))
         self.gpkg_file_line_edit.setText(settings.value(
             'QgsProjectGenerator/ili2gpkg/dbfile'))
 

@@ -39,6 +39,10 @@ class OptionsDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.configuration = configuration
+
+        self.pg_user_line_edit.setText(configuration.super_pg_user)
+        self.pg_password_line_edit.setText(configuration.super_pg_password)
+
         self.custom_model_directories_line_edit.setText(
             configuration.custom_model_directories)
         self.custom_model_directories_box.setChecked(
@@ -82,6 +86,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.configuration.java_path = self.java_path_line_edit.text().strip()
         self.configuration.logfile_path = self.ili2db_logfile_path.text()
         self.configuration.debugging_enabled = self.ili2db_enable_debugging.isChecked()
+
+        self.configuration.super_pg_user = self.pg_user_line_edit.text()
+        self.configuration.super_pg_password = self.pg_password_line_edit.text()
 
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(
