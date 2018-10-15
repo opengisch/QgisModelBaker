@@ -116,7 +116,7 @@ class Ili2DbCommandConfiguration(object):
         self.dbhost = ''
         self.dbpwd = ''
         self.dbusr = ''
-        self.dbusesuperlogin = False
+        self.db_use_super_login = False
         self.database = ''
         self.dbschema = ''
         self.dbfile = ''
@@ -125,7 +125,19 @@ class Ili2DbCommandConfiguration(object):
         self.ilimodels = ''
         self.tomlfile = ''
 
-    def uri(self, su = False):
+    @property
+    def uri(self):
+        return self._uri(False)
+
+    @property
+    def super_user_uri(self):
+        return self._uri(True)
+
+    def _uri(self, su = False):
+        '''
+        The superuser url if su is True - the user configured in the options.
+        Otherwise it's the url with the user information entered in the current interface.
+        '''
         uri = []
         if self.tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.database)]

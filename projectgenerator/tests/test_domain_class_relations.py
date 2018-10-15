@@ -128,7 +128,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator('ili2gpkg',
-                              importer.configuration.uri(),
+                              importer.configuration.uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -284,7 +284,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator('ili2gpkg',
-                              importer.configuration.uri(),
+                              importer.configuration.uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -479,7 +479,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator('ili2gpkg',
-                              importer.configuration.uri(),
+                              importer.configuration.uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -664,7 +664,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator('ili2gpkg',
-                              importer.configuration.uri(),
+                              importer.configuration.uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
