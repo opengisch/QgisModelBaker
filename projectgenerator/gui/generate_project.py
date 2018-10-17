@@ -266,7 +266,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if self.type_combo_box.currentData() == 'pg':
                 if not generator._postgis_exists():
                     self.txtStdout.setText(
-                        self.tr('The current database does not have PostGIS installed! Please install it before proceeding.'))
+                        self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
                     self.enable()
                     self.progress_bar.hide()
                     return
