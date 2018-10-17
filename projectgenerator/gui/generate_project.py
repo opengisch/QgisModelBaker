@@ -202,6 +202,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
+
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
@@ -267,6 +268,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         self.tr('Source {} does not exist. Check connection parameters.').format(
                             'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
                         ))
+                    self.enable()
+                    self.progress_bar.hide()
+                    return
+
+            if self.type_combo_box.currentData() == 'pg':
+                if not generator._postgis_exists():
+                    self.txtStdout.setText(
+                        self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
                     self.enable()
                     self.progress_bar.hide()
                     return
@@ -363,7 +372,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.dbhost = self.pg_host_line_edit.text().strip()
             configuration.dbport = self.pg_port_line_edit.text().strip()
             configuration.dbusr = self.pg_user_line_edit.text().strip()
-            configuration.database = self.pg_database_line_edit.text().strip()
+            configuration.database = "'{}'".format(self.pg_database_line_edit.text().strip())
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
             configuration.db_use_super_login = self.pg_use_super_login.isChecked()
@@ -402,7 +411,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/user', configuration.dbusr)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/database', configuration.database)
+                'QgsProjectGenerator/ili2pg/database', configuration.database.strip("'"))
             settings.setValue(
                 'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
             settings.setValue(
