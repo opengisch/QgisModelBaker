@@ -46,7 +46,11 @@ class ExportModels(QStringListModel):
     def __init__(self, tool_name, uri, schema=None):
         super().__init__()
 
+        blacklist = ['GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'CoordSys', 'CHAdminCodes_V1', 'AdministrativeUnits_V1',
+                     'AdministrativeUnitsCH_V1', 'InternationalCodes_V1', 'Localisation_V1', 'LocalisationCH_V1',
+                     'Dictionaries_V1', 'DictionariesCH_V1', 'Units']
         modelnames = list()
+
         try:
             if tool_name == 'ili2gpkg':
                 self._db_connector = gpkg_connector.GPKGConnector(uri, None)
@@ -58,7 +62,7 @@ class ExportModels(QStringListModel):
                 for db_model in db_models:
                     regex = re.compile(r'(?:\{[^\}]*\}|\s)')
                     for modelname in regex.split(db_model['modelname']):
-                        if modelname:
+                        if modelname and modelname not in blacklist:
                             modelnames.append(modelname.strip())
         except TypeError:
             pass
@@ -89,6 +93,7 @@ class ExportModels(QStringListModel):
 
     def checked_models(self):
         return [modelname for modelname in self.stringList() if self._checked_models[modelname] == Qt.Checked]
+
 
 class ExportDialog(QDialog, DIALOG_UI):
     ValidExtensions = ['xtf', 'itf', 'gml', 'xml']
@@ -211,7 +216,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
             self.xtf_file_line_edit.setFocus()
             return
-        if not configuration.ilimodels:
+        if not configuration.iliexportmodels:
             self.txtStdout.setText(
                 self.tr('Please set a model before exporting data.'))
             self.export_models_view.setFocus()
@@ -342,7 +347,8 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilimodels = ';'.join(self.export_models_model.checked_models())
+        configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
+        configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
 
         return configuration

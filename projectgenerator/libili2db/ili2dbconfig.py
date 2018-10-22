@@ -176,6 +176,7 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.xtffile = ''
+        self.iliexportmodels = ''
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
         args = list()
@@ -183,8 +184,8 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         if with_action:
             args += ["--export"]
 
-        if self.ilimodels:
-            args += ['--exportModels', self.ilimodels]
+        if self.iliexportmodels:
+            args += ['--exportModels', self.iliexportmodels]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password=hide_password)
 
