@@ -21,8 +21,9 @@
 import os
 import webbrowser
 import os.path
+import re
 
-from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
+from projectgenerator.gui.options import OptionsDialog, ModelListView
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
@@ -30,13 +31,78 @@ from projectgenerator.utils.qt_utils import make_save_file_selector, Validators,
     make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
 from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
+from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector
 
 DIALOG_UI = get_ui_class('export.ui')
+
+
+class ExportModels(QStringListModel):
+
+    def __init__(self, tool_name, uri, schema=None):
+        super().__init__()
+
+        blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
+                     'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
+                     'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
+                     'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
+                     'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
+                     'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
+                     'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
+                     'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
+                     'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
+                     'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
+                     'Time', 'Units']
+
+        modelnames = list()
+
+        try:
+            if tool_name == 'ili2gpkg':
+                self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+            else:
+                self._db_connector = pg_connector.PGConnector(uri, schema)
+
+            if self._db_connector.db_or_schema_exists():
+                db_models = self._db_connector.get_models()
+                for db_model in db_models:
+                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
+                    for modelname in regex.split(db_model['modelname']):
+                        if modelname and modelname not in blacklist:
+                            modelnames.append(modelname.strip())
+        except TypeError:
+            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+            pass
+        self.setStringList(modelnames)
+
+        self._checked_models = {modelname: Qt.Checked for modelname in modelnames}
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def data(self, index, role):
+        if role == Qt.CheckStateRole:
+            return self._checked_models[self.data(index, Qt.DisplayRole)]
+        else:
+            return QStringListModel.data(self, index, role)
+
+    def setData(self, index, role, data):
+        if role == Qt.CheckStateRole:
+            self._checked_models[self.data(index, Qt.DisplayRole)] = data
+        else:
+            QStringListModel.setData(self, index, role, data)
+
+    def check(self, index):
+        if self.data( index, Qt.CheckStateRole ) == Qt.Checked:
+            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        else:
+            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+
+    def checked_models(self):
+        return [modelname for modelname in self.stringList() if self._checked_models[modelname] == Qt.Checked]
 
 
 class ExportDialog(QDialog, DIALOG_UI):
@@ -69,12 +135,6 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
-        self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(
-            self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(
-            self.fill_models_line_edit)
-
         self.base_configuration = base_config
         self.restore_configuration()
 
@@ -83,19 +143,12 @@ class ExportDialog(QDialog, DIALOG_UI):
         fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
         gpkgFileValidator = FileValidator(pattern='*.gpkg')
 
-        self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
-        self.ili_models_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.ili_models_line_edit.textChanged.emit(
-            self.ili_models_line_edit.text())
-        self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
-        self.ili_models_line_edit.punched.connect(self.complete_models_completer)
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -117,11 +170,53 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.gpkg_file_line_edit.textChanged.emit(
             self.gpkg_file_line_edit.text())
 
-        settings = QSettings()
-        ilifile = settings.value('QgsProjectGenerator/ili2db/ilifile')
-        self.ilicache = IliCache(base_config, ilifile or None)
-        self.update_models_completer()
-        self.ilicache.refresh()
+        #refresh the models on changing values but avoid massive db connects by timer
+        self.refreshTimer = QTimer()
+        self.refreshTimer.setSingleShot(True)
+        self.refreshTimer.timeout.connect( self.refresh_models)
+        self.pg_host_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_port_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_database_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_schema_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_user_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.pg_password_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.gpkg_file_line_edit.textChanged.connect(self.request_for_refresh_models)
+
+        self.export_models_model = ExportModels(None, None, None)
+        self.refreshed_export_models_model()
+        self.export_models_view.setModel(self.export_models_model)
+        self.export_models_view.clicked.connect(self.export_models_model.check)
+        self.export_models_view.space_pressed.connect(self.export_models_model.check)
+
+    def request_for_refresh_models(self):
+        # hold refresh back
+        self.refreshTimer.start(500)
+
+    def refresh_models(self):
+        self.export_models_model=self.refreshed_export_models_model()
+        self.export_models_view.setModel(self.export_models_model)
+        self.export_models_view.clicked.connect(self.export_models_model.check)
+        self.export_models_view.space_pressed.connect(self.export_models_model.check)
+
+    def refreshed_export_models_model(self):
+        tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+        uri = []
+        if tool_name == 'ili2pg':
+            uri += ['dbname={}'.format(self.updated_configuration().database)]
+            uri += ['user={}'.format(self.updated_configuration().dbusr)]
+            if self.updated_configuration().dbpwd:
+                uri += ['password={}'.format(self.updated_configuration().dbpwd)]
+            uri += ['host={}'.format(self.updated_configuration().dbhost)]
+            if self.updated_configuration().dbport:
+                uri += ['port={}'.format(self.updated_configuration().dbport)]
+        elif tool_name == 'ili2gpkg':
+            uri = [self.updated_configuration().dbfile]
+        uri_string = ' '.join(uri)
+
+        schema = self.updated_configuration().dbschema
+
+        self.export_models_model = ExportModels(tool_name, uri_string, schema)
+        return self.export_models_model
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -131,10 +226,10 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
             self.xtf_file_line_edit.setFocus()
             return
-        if not configuration.ilimodels:
+        if not configuration.iliexportmodels:
             self.txtStdout.setText(
                 self.tr('Please set a model before exporting data.'))
-            self.ili_models_line_edit.setFocus()
+            self.export_models_view.setFocus()
             return
 
         if self.type_combo_box.currentData() == 'pg':
@@ -262,7 +357,8 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilimodels = self.ili_models_line_edit.text().strip()
+        configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
+        configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
 
         return configuration
@@ -346,26 +442,6 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
-
-    def complete_models_completer(self):
-        if not self.ili_models_line_edit.text():
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-            self.ili_models_line_edit.completer().complete()
-        else:
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
-
-    def update_models_completer(self):
-        completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        self.delegate = ModelCompleterDelegate()
-        completer.popup().setItemDelegate(self.delegate)
-        self.ili_models_line_edit.setCompleter(completer)
-        self.multiple_models_dialog.models_line_edit.setCompleter(completer)
-
-    def fill_models_line_edit(self):
-        self.ili_models_line_edit.setText(
-            self.multiple_models_dialog.get_models_string())
 
     def help_requested(self):
         os_language = QLocale(QSettings().value(

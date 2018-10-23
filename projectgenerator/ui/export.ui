@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>718</width>
-    <height>680</height>
+    <height>771</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,66 +58,11 @@
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="ili_config">
-         <property name="title">
-          <string>Interlis</string>
+       <item row="3" column="0">
+        <widget class="QTextBrowser" name="txtStdout">
+         <property name="openLinks">
+          <bool>false</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="2" colspan="2">
-           <widget class="QLineEdit" name="xtf_file_line_edit"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Models</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>3</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="2" colspan="2">
-           <widget class="CompletionLineEdit" name="ili_models_line_edit"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>XTF File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QToolButton" name="xtf_file_browse_button">
-            <property name="toolTip">
-             <string>Browse XTF files</string>
-            </property>
-            <property name="text">
-             <string>…</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QToolButton" name="multiple_models_button">
-            <property name="toolTip">
-             <string>Select multiple Interlis models</string>
-            </property>
-            <property name="text">
-             <string>…</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
        <item row="0" column="1">
@@ -137,6 +82,56 @@
           </property>
          </layout>
         </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="gpkg_config">
+         <property name="title">
+          <string>GeoPackage</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Database File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="gpkg_file_line_edit"/>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="gpkg_file_browse_button">
+            <property name="toolTip">
+             <string>Browse GeoPackage files</string>
+            </property>
+            <property name="text">
+             <string>…</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_1">
+         <item>
+          <widget class="QProgressBar" name="progress_bar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDialogButtonBox" name="buttonBox">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="standardButtons">
+            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="pg_config">
@@ -237,62 +232,57 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QGroupBox" name="gpkg_config">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="ili_config">
          <property name="title">
-          <string>GeoPackage</string>
+          <string>Interlis</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_9">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="2" colspan="2">
+           <widget class="QLineEdit" name="xtf_file_line_edit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Database File</string>
+             <string>Models</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="gpkg_file_line_edit"/>
+          <item row="3" column="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>3</height>
+             </size>
+            </property>
+           </spacer>
           </item>
-          <item row="0" column="3">
-           <widget class="QToolButton" name="gpkg_file_browse_button">
+          <item row="0" column="4">
+           <widget class="QToolButton" name="xtf_file_browse_button">
             <property name="toolTip">
-             <string>Browse GeoPackage files</string>
+             <string>Browse XTF files</string>
             </property>
             <property name="text">
              <string>…</string>
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>XTF File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="ModelListView" name="export_models_view"/>
+          </item>
          </layout>
         </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QTextBrowser" name="txtStdout">
-         <property name="openLinks">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_1">
-         <item>
-          <widget class="QProgressBar" name="progress_bar">
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDialogButtonBox" name="buttonBox">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="standardButtons">
-            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
       </layout>
      </widget>
@@ -303,7 +293,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CompletionLineEdit</class>
+   <class>ModelListView</class>
    <header>projectgenerator.gui.options</header>
    <container>1</container>
   </customwidget>
@@ -312,8 +302,6 @@
   <tabstop>type_combo_box</tabstop>
   <tabstop>xtf_file_line_edit</tabstop>
   <tabstop>xtf_file_browse_button</tabstop>
-  <tabstop>ili_models_line_edit</tabstop>
-  <tabstop>multiple_models_button</tabstop>
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_port_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>

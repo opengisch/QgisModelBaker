@@ -368,6 +368,7 @@ class PGConnector(DBConnector):
 
     def get_models(self):
         """TODO: remove when ili2db issue #19 is solved"""
+        """Needed for exportmodels"""
         # Get MODELS
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
