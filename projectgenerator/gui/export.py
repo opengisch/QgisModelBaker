@@ -74,6 +74,7 @@ class ExportModels(QStringListModel):
                         if modelname and modelname not in blacklist:
                             modelnames.append(modelname.strip())
         except TypeError:
+            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
             pass
         self.setStringList(modelnames)
 
@@ -185,17 +186,17 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
-        self.export_models_view.spaced.connect(self.export_models_model.check)
+        self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def request_for_refresh_models(self):
-        #hold refresh back one second
+        # hold refresh back
         self.refreshTimer.start(500)
 
     def refresh_models(self):
         self.export_models_model=self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
-        self.export_models_view.spaced.connect(self.export_models_model.check)
+        self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
         tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'

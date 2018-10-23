@@ -134,15 +134,15 @@ class CompletionLineEdit(QLineEdit):
 
 class ModelListView(QListView):
 
-    spaced = pyqtSignal(QModelIndex)
+    space_pressed = pyqtSignal(QModelIndex)
 
     def __init__(self, parent=None):
         super(QListView, self).__init__(parent)
-        self.spaced.connect(self.update)
+        self.space_pressed.connect(self.update)
 
     #to act when space is pressed
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Space:
             _selected_indexes = self.selectedIndexes()
-            self.spaced.emit(_selected_indexes[0])
+            self.space_pressed.emit(_selected_indexes[0])
         super(ModelListView, self).keyPressEvent(e)
