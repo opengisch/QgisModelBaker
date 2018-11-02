@@ -111,7 +111,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     def on_download_progress(bytes_received, bytes_total):
         on_progress(bytes_received, bytes_total)
 
-    def finished(filename):
+    def finished(filename, reply, on_error, on_success, on_finished):
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
         file.write(reply.readAll())
@@ -128,7 +128,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
 
-    on_reply_finished = functools.partial(finished, filename)
+    on_reply_finished = functools.partial(finished, filename, reply, on_error, on_success, on_finished)
 
     reply.finished.connect(on_reply_finished)
 
