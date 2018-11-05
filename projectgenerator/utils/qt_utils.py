@@ -20,6 +20,7 @@
 
 import os.path
 import inspect
+import functools
 from qgis.PyQt.QtWidgets import (
     QFileDialog,
     QApplication
@@ -110,7 +111,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     def on_download_progress(bytes_received, bytes_total):
         on_progress(bytes_received, bytes_total)
 
-    def finished():
+    def finished(filename, reply, on_error, on_success, on_finished):
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
         file.write(reply.readAll())
@@ -127,7 +128,9 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
 
-    reply.finished.connect(finished)
+    on_reply_finished = functools.partial(finished, filename, reply, on_error, on_success, on_finished)
+
+    reply.finished.connect(on_reply_finished)
 
     if not on_finished and not on_success:
         loop = QEventLoop()
