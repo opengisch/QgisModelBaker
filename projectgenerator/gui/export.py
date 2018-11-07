@@ -73,8 +73,9 @@ class ExportModels(QStringListModel):
                     for modelname in regex.split(db_model['modelname']):
                         if modelname and modelname not in blacklist:
                             modelnames.append(modelname.strip())
-        except TypeError:
+        except:
             # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+            # The exception can be a lot of different things (depending on the backend) so let's catch all
             pass
         self.setStringList(modelnames)
 
@@ -216,6 +217,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         schema = self.updated_configuration().dbschema
 
         self.export_models_model = ExportModels(tool_name, uri_string, schema)
+
         return self.export_models_model
 
     def accepted(self):
