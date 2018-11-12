@@ -317,8 +317,14 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#2a2a2a'))
-        self.txtStdout.append(text)
+        textspl = text.splitlines()
+        for textn in textspl:
+            if "Info:" in textn:
+                self.txtStdout.setTextColor(QColor('#3BAA22'))
+                self.txtStdout.append(textn)
+            elif "Error:" in textn:
+                self.txtStdout.setTextColor(QColor('#aa2222'))
+                self.txtStdout.append(textn)
         self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
