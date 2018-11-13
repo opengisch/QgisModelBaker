@@ -27,6 +27,7 @@ from projectgenerator.gui.options import OptionsDialog, ModelListView
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from projectgenerator.libili2db.ili2dbutils import color_log_text
 from projectgenerator.utils.qt_utils import (
     make_save_file_selector,
     Validators,
@@ -34,8 +35,7 @@ from projectgenerator.utils.qt_utils import (
     FileValidator,
     NonEmptyStringValidator,
     make_folder_selector,
-    OverrideCursor,
-    color_log_text
+    OverrideCursor
 )
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox

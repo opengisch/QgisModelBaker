@@ -31,14 +31,14 @@ from projectgenerator.libili2db.globals import CRS_PATTERNS
 from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
+from projectgenerator.libili2db.ili2dbutils import color_log_text
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
     make_save_file_selector,
     Validators,
     FileValidator,
     NonEmptyStringValidator,
-    OverrideCursor,
-    color_log_text
+    OverrideCursor
 )
 from qgis.PyQt.QtGui import (
     QColor,
