@@ -33,7 +33,7 @@ from qgis.PyQt.QtCore import (
     QEventLoop,
     QUrl
 )
-from qgis.PyQt.QtGui import QValidator
+from qgis.PyQt.QtGui import QValidator, QColor
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager
 from functools import partial
@@ -81,6 +81,21 @@ def selectFolder(line_edit_widget, title, parent):
 def make_folder_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open Folder'), parent=None):
     return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
+def color_log_text(text, txt_edit):
+    textlines = text.splitlines()
+    for textline in textlines:
+        if textline.startswith("Info:"):
+            txt_edit.setTextColor(QColor('#004905'))
+            txt_edit.append(textline)
+        elif textline.startswith("Warning:"):
+            txt_edit.setTextColor(QColor('#FFBF00'))
+            txt_edit.append(textline)
+        elif "error" in textline.lower() or "failed" in textline.lower():
+            txt_edit.setTextColor(QColor('#aa2222'))
+            txt_edit.append(textline)
+        else:
+            txt_edit.setTextColor(QColor('#2a2a2a'))
+            txt_edit.append(textline)
 
 class NetworkError(RuntimeError):
 

@@ -37,7 +37,8 @@ from projectgenerator.utils.qt_utils import (
     Validators,
     FileValidator,
     NonEmptyStringValidator,
-    OverrideCursor
+    OverrideCursor,
+    color_log_text
 )
 from qgis.PyQt.QtGui import (
     QColor,
@@ -336,8 +337,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#2a2a2a'))
-        self.txtStdout.append(text)
+        color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
