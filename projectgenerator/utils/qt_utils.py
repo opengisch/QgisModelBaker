@@ -68,8 +68,10 @@ def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension
 
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open File'),
-                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None, extension='', extensions=None):
-    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent, extension=extension, extensions=extensions)
+                            file_filter=QCoreApplication.translate('projectgenerator', 'Any file(*)'), parent=None,
+                            extension='', extensions=None):
+    return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent,
+                   extension=extension, extensions=extensions)
 
 
 def selectFolder(line_edit_widget, title, parent):
@@ -86,6 +88,9 @@ class NetworkError(RuntimeError):
     def __init__(self, error_code, msg):
         self.msg = msg
         self.error_code = error_code
+
+
+replies = list()
 
 
 def download_file(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
@@ -123,6 +128,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
         if on_finished:
             on_finished()
         reply.deleteLater()
+        replies.remove(reply)
 
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
@@ -130,6 +136,8 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     on_reply_finished = functools.partial(finished, filename, reply, on_error, on_success, on_finished)
 
     reply.finished.connect(on_reply_finished)
+
+    replies.append(reply)
 
     if not on_finished and not on_success:
         loop = QEventLoop()
