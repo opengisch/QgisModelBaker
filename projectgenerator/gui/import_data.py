@@ -25,6 +25,7 @@ from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliimporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from projectgenerator.libili2db.ili2dbutils import color_log_text
 from projectgenerator.libqgsprojectgen.dbconnector import pg_connector
 from projectgenerator.utils.qt_utils import (
     make_file_selector,
@@ -228,8 +229,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#2a2a2a'))
-        self.txtStdout.append(text)
+        color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
 
     def on_process_started(self, command):

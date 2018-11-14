@@ -81,7 +81,6 @@ def selectFolder(line_edit_widget, title, parent):
 def make_folder_selector(widget, title=QCoreApplication.translate('projectgenerator', 'Open Folder'), parent=None):
     return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
-
 class NetworkError(RuntimeError):
 
     def __init__(self, error_code, msg):

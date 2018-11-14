@@ -27,8 +27,16 @@ from projectgenerator.gui.options import OptionsDialog, ModelListView
 from projectgenerator.gui.multiple_models import MultipleModelsDialog
 from projectgenerator.libili2db.iliexporter import JavaNotFoundError
 from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from projectgenerator.utils.qt_utils import make_save_file_selector, Validators, \
-    make_file_selector, FileValidator, NonEmptyStringValidator, make_folder_selector, OverrideCursor
+from projectgenerator.libili2db.ili2dbutils import color_log_text
+from projectgenerator.utils.qt_utils import (
+    make_save_file_selector,
+    Validators,
+    make_file_selector,
+    FileValidator,
+    NonEmptyStringValidator,
+    make_folder_selector,
+    OverrideCursor
+)
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
@@ -317,8 +325,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#2a2a2a'))
-        self.txtStdout.append(text)
+        color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
 
