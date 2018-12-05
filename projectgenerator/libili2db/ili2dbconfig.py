@@ -228,6 +228,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.create_basket_col = False
         self.create_import_tid = True
         self.epsg = 21781  # Default EPSG code in ili2pg
+        self.stroke_arcs = True
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
         """
@@ -246,7 +247,6 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--coalesceMultiLine"]
         args += ["--coalesceMultiPoint"]
         args += ["--coalesceArray"]
-        args += ["--strokeArcs"]
         args += ["--beautifyEnumDispName"]
         args += ["--createUnique"]
         args += ["--createGeomIdx"]
@@ -263,6 +263,9 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
             args += ["--smart2Inheritance"]
         else:
             args += ["--noSmartMapping"]
+
+        if self.stroke_arcs:
+            args += ["--strokeArcs"]
 
         if self.create_basket_col:
             args += ["--createBasketCol"]

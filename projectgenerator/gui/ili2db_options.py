@@ -88,6 +88,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def toml_file(self):
         return self.toml_file_line_edit.text().strip()
 
+    def stroke_arcs(self):
+        return self.stroke_arcs_checkbox.isChecked()
+
     def save_configuration(self):
         settings = QSettings()
         settings.setValue(
@@ -96,6 +99,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.toml_file_key, self.toml_file())
         settings.setValue('QgsProjectGenerator/ili2db/create_basket_col', self.create_basket_col())
         settings.setValue('QgsProjectGenerator/ili2db/create_import_tid', self.create_import_tid())
+        settings.setValue('QgsProjectGenerator/ili2db/stroke_arcs', self.stroke_arcs())
 
     def restore_configuration(self):
         settings = QSettings()
@@ -107,8 +111,10 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart2_radio_button.setChecked(True)
         create_basket_col = settings.value('QgsProjectGenerator/ili2db/create_basket_col', defaultValue=False, type=bool)
         create_import_tid = settings.value('QgsProjectGenerator/ili2db/create_import_tid', defaultValue=True, type=bool)
+        stroke_arcs = settings.value('QgsProjectGenerator/ili2db/stroke_arcs', defaultValue=True, type=bool)
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)
+        self.stroke_arcs_checkbox.setChecked(stroke_arcs)
         self.toml_file_line_edit.setText(
             settings.value(self.toml_file_key))
