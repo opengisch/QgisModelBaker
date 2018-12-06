@@ -385,6 +385,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.tomlfile = self.ili2db_options.toml_file()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
+        configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():

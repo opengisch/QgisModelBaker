@@ -17,53 +17,7 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="inheritance_group_box">
-     <property name="title">
-      <string>Inheritance type</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QRadioButton" name="smart1_radio_button">
-        <property name="toolTip">
-         <string>Form the inheritance hierarchy with a dymamic strategy. The NewClass strategy is used for classes that are
-referenced and whose base classes are not mapped using a NewClass strategy. Abstract classes are mapped
-using a SubClass strategy. Concrete classes, without a base class or their direct base classes with a SubClass
-strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
-        </property>
-        <property name="text">
-         <string>s&amp;mart1Inheritance</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="smart2_radio_button">
-        <property name="toolTip">
-         <string>Form the inheritance hierarchy with a dymamic strategy. Abstract classes are mapped using a SubClass
-strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
-        </property>
-        <property name="text">
-         <string>smart&amp;2Inheritance</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="4" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -102,6 +56,28 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </layout>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Create Import Tid</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_import_tid_checkbox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_ili_tid in all classes, which is mandatory and should be unique, not only for across the current database, but across the whole system.&lt;/p&gt;&lt;p&gt;Normally you should not enable this option directly, but rely on the INTERLIS model and ili2db. The former should have a line enabling OIDs (preferably with UUIDs) and the latter will make sure the database updates the new column every time a new record is created.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled with unique values. If the column is not filled, you would not be able to export the data to XTF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Create Import Tid</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -121,22 +97,65 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Create Import Tid</string>
+   <item row="5" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="create_import_tid_checkbox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="inheritance_group_box">
+     <property name="title">
+      <string>Inheritance type</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="smart1_radio_button">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_ili_tid in all classes, which is mandatory and should be unique, not only for across the current database, but across the whole system.&lt;/p&gt;&lt;p&gt;Normally you should not enable this option directly, but rely on the INTERLIS model and ili2db. The former should have a line enabling OIDs (preferably with UUIDs) and the latter will make sure the database updates the new column every time a new record is created.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled with unique values. If the column is not filled, you would not be able to export the data to XTF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Form the inheritance hierarchy with a dymamic strategy. The NewClass strategy is used for classes that are
+referenced and whose base classes are not mapped using a NewClass strategy. Abstract classes are mapped
+using a SubClass strategy. Concrete classes, without a base class or their direct base classes with a SubClass
+strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
         </property>
         <property name="text">
-         <string>Create Import Tid</string>
+         <string>s&amp;mart1Inheritance</string>
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="smart2_radio_button">
+        <property name="toolTip">
+         <string>Form the inheritance hierarchy with a dymamic strategy. Abstract classes are mapped using a SubClass
+strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
+        </property>
+        <property name="text">
+         <string>smart&amp;2Inheritance</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Stroke arcs</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="stroke_arcs_checkbox">
+        <property name="toolTip">
+         <string>If this option is activated, circular arcs are stroked when importing the data</string>
+        </property>
+        <property name="text">
+         <string>Stroke Arcs</string>
         </property>
        </widget>
       </item>
