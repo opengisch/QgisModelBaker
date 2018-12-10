@@ -54,6 +54,7 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
             stderr.emit(
                 QCoreApplication.translate('ili2dbutils',
                                            'Could not download {tool_name}\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2db_url}">{ili2db_url}</a>'.format(
+                                               tool_name=tool_name,
                                                ili2db_url=ili2db_tools[
                                                    tool_name]['version'],
                                                error=e.msg,
