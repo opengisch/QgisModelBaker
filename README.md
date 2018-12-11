@@ -1,8 +1,8 @@
 [![Read the documentation](https://img.shields.io/badge/Read-the%20docs-green.svg)](https://opengisch.github.io/projectgenerator/docs/en/)
-[![Release](https://img.shields.io/github/release/opengisch/projectgenerator.svg)](https://github.com/opengisch/projectgenerator/releases)
-[![Build Status](https://travis-ci.org/opengisch/projectgenerator.svg?branch=master)](https://travis-ci.org/opengisch/projectgenerator)
+[![Release](https://img.shields.io/github/release/opengisch/ModelBaker.svg)](https://github.com/opengisch/projectgenerator/releases)
+[![Build Status](https://travis-ci.org/opengisch/ModelBaker.svg?branch=master)](https://travis-ci.org/opengisch/projectgenerator)
 
-# Projectgenerator
+# QGIS Model Baker
 
 This is a QGIS plugin to quickly generate [QGIS](https://www.qgis.org) projects
 from an existing model with a few mouseclicks.
