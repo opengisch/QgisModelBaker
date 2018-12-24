@@ -19,7 +19,7 @@
 """
 import re
 
-from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
+from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 
 class DomainRelationGenerator:
     """TODO: remove when ili2db issue #19 is solved"""

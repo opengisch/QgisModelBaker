@@ -23,12 +23,12 @@ import webbrowser
 import os.path
 import re
 
-from projectgenerator.gui.options import OptionsDialog, ModelListView
-from projectgenerator.gui.multiple_models import MultipleModelsDialog
-from projectgenerator.libili2db.iliexporter import JavaNotFoundError
-from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from projectgenerator.libili2db.ili2dbutils import color_log_text
-from projectgenerator.utils.qt_utils import (
+from QgisModelBaker.gui.options import OptionsDialog, ModelListView
+from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.libili2db.iliexporter import JavaNotFoundError
+from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
     Validators,
     make_file_selector,
@@ -457,10 +457,10 @@ class ExportDialog(QDialog, DIALOG_UI):
             'locale/userLocale')).name()[:2]
         if os_language in ['es', 'de']:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
+                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
         else:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
 
     def xtf_browser_opened_to_true(self):
         """

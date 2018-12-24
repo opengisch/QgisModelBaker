@@ -21,11 +21,11 @@ import locale
 import os
 import webbrowser
 
-from projectgenerator.gui.generate_project import GenerateProjectDialog
-from projectgenerator.gui.export import ExportDialog
-from projectgenerator.gui.import_data import ImportDataDialog
-from projectgenerator.libqgsprojectgen.dataobjects.project import Project
-from projectgenerator.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.gui.generate_project import GenerateProjectDialog
+from QgisModelBaker.gui.export import ExportDialog
+from QgisModelBaker.gui.import_data import ImportDataDialog
+from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
+from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
 from qgis.core import QgsProject
 
@@ -33,8 +33,8 @@ from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 
-from projectgenerator.gui.options import OptionsDialog
-from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.gui.options import OptionsDialog
+from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
 class QgsProjectGeneratorPlugin(QObject):
 
@@ -57,7 +57,7 @@ class QgsProjectGeneratorPlugin(QObject):
         qgis_locale = QLocale(qgis_locale_id)
         locale_path = os.path.join(self.plugin_dir, 'i18n')
         self.translator = QTranslator()
-        self.translator.load(qgis_locale, 'projectgenerator', '_', locale_path)
+        self.translator.load(qgis_locale, 'QgisModelBaker', '_', locale_path)
         QCoreApplication.installTranslator(self.translator)
 
         self.ili2db_configuration = BaseConfiguration()
@@ -66,11 +66,11 @@ class QgsProjectGeneratorPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
-        self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-icon.svg')),
+        self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-icon.svg')),
             self.tr('Generate'), None)
-        self.__export_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-xtf-export-icon.svg')),
+        self.__export_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-export-icon.svg')),
             self.tr('Export Interlis Transfer File (.xtf)'), None)
-        self.__importdata_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/projectgenerator-xtf-import-icon.svg')),
+        self.__importdata_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-import-icon.svg')),
             self.tr('Import Interlis Transfer File (.xtf)'), None)
         self.__configure_action = QAction(
             self.tr('Settings'), None)
@@ -154,10 +154,10 @@ class QgsProjectGeneratorPlugin(QObject):
             'locale/userLocale')).name()[:2]
         if os_language in ['es', 'de']:
             webbrowser.open(
-                'https://opengisch.github.io/projectgenerator/docs/{}/'.format(os_language))
+                'https://opengisch.github.io/QgisModelBaker/docs/{}/'.format(os_language))
         else:
             webbrowser.open(
-                'https://opengisch.github.io/projectgenerator/docs/index.html')
+                'https://opengisch.github.io/QgisModelBaker/docs/index.html')
 
     def show_about_dialog(self):
         self.msg = QMessageBox()
@@ -168,7 +168,7 @@ class QgsProjectGeneratorPlugin(QObject):
             """<h1>Project Generator</h1>
         <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta
         information to preconfigure the layer tree, widget configuration, relations and more.</p>
-        <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/projectgenerator">github</a>.</p>
+        <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/QgisModelBaker">github</a>.</p>
         <p align="justify">This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with
         <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>.</p></p>"""))
         self.msg.setStandardButtons(QMessageBox.Close)

@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from projectgenerator.utils.qt_utils import (
+from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     Validators,
     FileValidator

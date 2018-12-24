@@ -18,8 +18,8 @@
  ***************************************************************************/
 """
 
-from projectgenerator.utils import get_ui_class
-from projectgenerator.utils.qt_utils import selectFolder
+from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils.qt_utils import selectFolder
 
 from qgis.PyQt.QtCore import QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem
@@ -73,7 +73,7 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
 
     def browse_dir(self):
         selectFolder(self.model_dir_list.currentItem(), title=QCoreApplication.translate(
-            'projectgenerator', 'Open Folder with ili Models'), parent=None)
+            'QgisModelBaker', 'Open Folder with ili Models'), parent=None)
 
     def set_flags(self, item):
         item.setFlags(Qt.ItemIsSelectable |

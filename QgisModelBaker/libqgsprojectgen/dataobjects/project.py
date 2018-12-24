@@ -19,7 +19,7 @@
 """
 from typing import List
 
-from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
+from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from .layers import Layer
 from .legend import LegendGroup
 from qgis.core import QgsCoordinateReferenceSystem, QgsProject, QgsEditorWidgetSetup

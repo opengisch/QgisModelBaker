@@ -20,7 +20,7 @@
 
 from qgis.core import QgsProject
 
-from projectgenerator.utils.qgis_utils import get_suggested_index_for_layer
+from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
 
 

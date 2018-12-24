@@ -22,10 +22,10 @@ import re
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
-from projectgenerator.libqgsprojectgen.dataobjects import Field
-from projectgenerator.libqgsprojectgen.dataobjects import LegendGroup
-from projectgenerator.libqgsprojectgen.dataobjects.layers import Layer
-from projectgenerator.libqgsprojectgen.dataobjects.relations import Relation
+from QgisModelBaker.libqgsprojectgen.dataobjects import Field
+from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
+from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
+from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES

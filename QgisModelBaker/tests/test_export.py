@@ -25,9 +25,9 @@ import nose2
 import xml.etree.ElementTree as ET
 import logging
 
-from projectgenerator.libili2db import (iliexporter,
+from QgisModelBaker.libili2db import (iliexporter,
                                         iliimporter)
-from projectgenerator.tests.utils import (iliimporter_config,
+from QgisModelBaker.tests.utils import (iliimporter_config,
                                           iliexporter_config,
                                           ilidataimporter_config,
                                           testdata_path)

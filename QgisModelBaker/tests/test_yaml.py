@@ -2,7 +2,7 @@ import nose2
 from qgis.testing import unittest
 import yaml
 
-from projectgenerator.yamltools.loader import InheritanceLoader
+from QgisModelBaker.yamltools.loader import InheritanceLoader
 
 
 class YamlInheritanceTest(unittest.TestCase):

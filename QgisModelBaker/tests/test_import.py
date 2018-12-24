@@ -26,8 +26,8 @@ import psycopg2
 import psycopg2.extras
 import logging
 
-from projectgenerator.libili2db import iliimporter, iliimporter
-from projectgenerator.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
+from QgisModelBaker.libili2db import iliimporter, iliimporter
+from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis import utils
 

@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from projectgenerator.utils import get_ui_class
+from QgisModelBaker.utils import get_ui_class
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem, QDialogButtonBox

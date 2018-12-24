@@ -294,7 +294,7 @@
  <customwidgets>
   <customwidget>
    <class>ModelListView</class>
-   <header>projectgenerator.gui.options</header>
+   <header>QgisModelBaker.gui.options</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

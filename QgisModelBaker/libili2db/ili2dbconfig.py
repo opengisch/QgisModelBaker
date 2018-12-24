@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
+from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
 import os

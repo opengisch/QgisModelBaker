@@ -19,4 +19,4 @@
 """
 
 import os
-from projectgenerator.qgs_project_generator import QgsProjectGeneratorPlugin
+from QgisModelBaker.qgs_project_generator import QgsProjectGeneratorPlugin

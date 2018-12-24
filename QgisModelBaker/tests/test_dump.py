@@ -19,8 +19,8 @@
 
 import nose2
 
-from projectgenerator.tests.utils import testdata_path
-from projectgenerator.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.tests.utils import testdata_path
+from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
 
 from subprocess import call

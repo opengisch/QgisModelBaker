@@ -20,14 +20,14 @@
 
 import webbrowser
 
-from projectgenerator.gui.ili2db_options import Ili2dbOptionsDialog
-from projectgenerator.gui.options import OptionsDialog, CompletionLineEdit
-from projectgenerator.gui.multiple_models import MultipleModelsDialog
-from projectgenerator.libili2db.iliimporter import JavaNotFoundError
-from projectgenerator.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from projectgenerator.libili2db.ili2dbutils import color_log_text
-from projectgenerator.libqgsprojectgen.dbconnector import pg_connector
-from projectgenerator.utils.qt_utils import (
+from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
+from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
+from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
+from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     make_save_file_selector,
     make_folder_selector,
@@ -401,10 +401,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             'locale/userLocale')).name()[:2]
         if os_language in ['es', 'de']:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
+                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
         else:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
 
     def advance_progress_bar_by_text(self, text):
         if text.strip() == 'Info: compile models...':

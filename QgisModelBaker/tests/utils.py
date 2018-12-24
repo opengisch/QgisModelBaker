@@ -19,7 +19,7 @@
 """
 import os
 
-from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
 
 
 def iliimporter_config(tool_name='ili2pg', modeldir=None):

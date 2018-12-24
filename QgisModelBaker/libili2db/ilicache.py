@@ -26,8 +26,8 @@ import xml.etree.ElementTree as ET
 import re
 
 from enum import Enum
-from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
-from projectgenerator.utils.qt_utils import download_file
+from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
+from QgisModelBaker.utils.qt_utils import download_file
 from PyQt5.QtCore import (
     QObject,
     pyqtSignal,

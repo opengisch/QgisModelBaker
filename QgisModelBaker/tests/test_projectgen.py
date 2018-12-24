@@ -25,12 +25,12 @@ import tempfile
 import nose2
 import logging
 
-from projectgenerator.libili2db import iliimporter
-from projectgenerator.libqgsprojectgen.dataobjects import Project
-from projectgenerator.tests.utils import iliimporter_config, testdata_path
+from QgisModelBaker.libili2db import iliimporter
+from QgisModelBaker.libqgsprojectgen.dataobjects import Project
+from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
-from projectgenerator.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
 start_app()
 

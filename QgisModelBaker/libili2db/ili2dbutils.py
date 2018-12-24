@@ -25,7 +25,7 @@ import glob
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
-from projectgenerator.utils.qt_utils import download_file, NetworkError
+from QgisModelBaker.utils.qt_utils import download_file, NetworkError
 
 
 def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):

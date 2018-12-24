@@ -23,10 +23,10 @@ import re
 import locale
 import functools
 
-from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
+from QgisModelBaker.libili2db.ili2dbutils import get_ili2db_bin
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from projectgenerator.libili2db.ili2dbconfig import (
+from QgisModelBaker.libili2db.ili2dbconfig import (
         SchemaImportConfiguration,
         ImportDataConfiguration,
         JavaNotFoundError,

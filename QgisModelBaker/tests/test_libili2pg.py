@@ -1,8 +1,8 @@
 import qgis
 from qgis.testing import unittest, start_app
 start_app()
-from projectgenerator.libili2db import ilicache
-from projectgenerator.libili2db.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libili2db import ilicache
+from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
 import os
 import nose2

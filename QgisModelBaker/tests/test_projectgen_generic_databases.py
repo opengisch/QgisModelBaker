@@ -26,11 +26,11 @@ import nose2
 import psycopg2
 import psycopg2.extras
 
-from projectgenerator.libqgsprojectgen.dataobjects import Project
-from projectgenerator.tests.utils import testdata_path
+from QgisModelBaker.libqgsprojectgen.dataobjects import Project
+from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
-from projectgenerator.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
 start_app()
 

@@ -19,16 +19,16 @@
 """
 import webbrowser
 
-from projectgenerator.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
     ExportConfiguration
-from projectgenerator.libili2db.ili2dbutils import get_ili2db_bin
-from projectgenerator.utils import get_ui_class
-from projectgenerator.utils import qt_utils
-from projectgenerator.gui.custom_model_dir import CustomModelDirDialog
+from QgisModelBaker.libili2db.ili2dbutils import get_ili2db_bin
+from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils import qt_utils
+from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
 from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView
 from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal, pyqtSlot, Qt, QModelIndex
 
-from projectgenerator.utils.qt_utils import FileValidator, Validators
+from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
 DIALOG_UI = get_ui_class('options.ui')
 
@@ -100,10 +100,10 @@ class OptionsDialog(QDialog, DIALOG_UI):
             'locale/userLocale')).name()[:2]
         if os_language in ['es', 'de']:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/{}/user-guide.html#plugin-configuration".format(os_language))
+                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#plugin-configuration".format(os_language))
         else:
             webbrowser.open(
-                "https://opengisch.github.io/projectgenerator/docs/user-guide.html#plugin-configuration")
+                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#plugin-configuration")
 
     def ili2db_command_reload(self):
         config = None

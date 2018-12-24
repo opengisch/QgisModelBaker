@@ -2,13 +2,13 @@
 name=QgsProjectGenerator
 description=QGIS Project Generator
 version=3.2.3
-icon=images/projectgenerator-icon.svg
+icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 author=OPENGIS.ch GmbH in collaboration with Swissphoto BSF
 email=info@opengis.ch
 about=Creates QGIS Projects from Interlis files
-tracker=https://github.com/opengisch/projectgenerator/issues
-repository=https://github.com/opengisch/projectgenerator
+tracker=https://github.com/opengisch/QgisModelBaker/issues
+repository=https://github.com/opengisch/QgisModelBaker
 experimental=False
 deprecated=False
