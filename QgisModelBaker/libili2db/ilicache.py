@@ -128,7 +128,7 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(
-                file=file, exception=str(e))), self.tr('Projectgenerator'))
+                file=file, exception=str(e))), self.tr('QGIS Model Baker'))
             return
 
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
@@ -147,7 +147,7 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(
-                file=file, exception=str(e))), self.tr('Projectgenerator'))
+                file=file, exception=str(e))), self.tr('QGIS Model Baker'))
             return
 
         self.repositories[netloc] = list()
@@ -199,7 +199,7 @@ class IliCache(QObject):
                                               os.path.basename(ilifile))))
                 QgsMessageLog.logMessage(self.tr(
                     'Could not parse ili file `{ilifile}`. We suggest you to encode it in UTF-8. ({exception})'.format(
-                        ilifile=ilifile, exception=str(e))), self.tr('Projectgenerator'))
+                        ilifile=ilifile, exception=str(e))), self.tr('QGIS Model Baker'))
                 fileModels = list()
 
         return fileModels
