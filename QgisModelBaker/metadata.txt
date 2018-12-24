@@ -1,7 +1,7 @@
 [general]
-name=QgsProjectGenerator
+name=QGIS Model Baker
 description=QGIS Project Generator
-version=3.2.3
+version=dev
 icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99

@@ -36,7 +36,7 @@ from qgis.PyQt.QtGui import QIcon
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
-class QgsProjectGeneratorPlugin(QObject):
+class QgisModelBakerPlugin(QObject):
 
     def __init__(self, iface):
         QObject.__init__(self)

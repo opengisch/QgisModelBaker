@@ -20,5 +20,5 @@
 
 
 def classFactory(iface):
-    from .qgs_project_generator import QgsProjectGeneratorPlugin
-    return QgsProjectGeneratorPlugin(iface)
+    from .qgismodelbaker import QgisModelBakerPlugin
+    return QgisModelBakerPlugin(iface)
