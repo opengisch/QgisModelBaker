@@ -36,6 +36,8 @@ from qgis.PyQt.QtGui import QIcon
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
+import pyplugin_installer
+
 class QgisModelBakerPlugin(QObject):
 
     def __init__(self, iface):
@@ -66,6 +68,12 @@ class QgisModelBakerPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
+        pyplugin_installer.installer.initPluginInstaller()
+        pyplugin_installer.installer_data.plugins.rebuild()
+        if 'projectgenerator' in pyplugin_installer.installer_data.plugins.all().keys():
+            import qgis
+            pyplugin_installer.instance().uninstallPlugin('projectgenerator', quiet=True)
+
         self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-icon.svg')),
             self.tr('Generate'), None)
         self.__export_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-export-icon.svg')),
