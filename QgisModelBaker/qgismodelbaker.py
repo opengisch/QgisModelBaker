@@ -62,7 +62,7 @@ class QgisModelBakerPlugin(QObject):
 
         self.ili2db_configuration = BaseConfiguration()
         settings = QSettings()
-        settings.beginGroup('QgsProjectGenerator/ili2db')
+        settings.beginGroup('QgisModelBaker/ili2db')
         self.ili2db_configuration.restore(settings)
 
     def initGui(self):
@@ -138,7 +138,7 @@ class QgisModelBakerPlugin(QObject):
         dlg = OptionsDialog(self.ili2db_configuration)
         if dlg.exec_():
             settings = QSettings()
-            settings.beginGroup('QgsProjectGenerator/ili2db')
+            settings.beginGroup('QgisModelBaker/ili2db')
             self.ili2db_configuration.save(settings)
 
     def show_export_dialog(self):

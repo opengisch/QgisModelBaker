@@ -80,7 +80,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def set_toml_file_key(self, key_postfix):
         if key_postfix:
-            self.toml_file_key = 'QgsProjectGenerator/ili2db/tomlfile/' + key_postfix
+            self.toml_file_key = 'QgisModelBaker/ili2db/tomlfile/' + key_postfix
         else:
             self.toml_file_key = None
         self.restore_configuration()
@@ -94,24 +94,24 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def save_configuration(self):
         settings = QSettings()
         settings.setValue(
-            'QgsProjectGenerator/ili2db/inheritance', self.inheritance_type())
+            'QgisModelBaker/ili2db/inheritance', self.inheritance_type())
         settings.setValue(
             self.toml_file_key, self.toml_file())
-        settings.setValue('QgsProjectGenerator/ili2db/create_basket_col', self.create_basket_col())
-        settings.setValue('QgsProjectGenerator/ili2db/create_import_tid', self.create_import_tid())
-        settings.setValue('QgsProjectGenerator/ili2db/stroke_arcs', self.stroke_arcs())
+        settings.setValue('QgisModelBaker/ili2db/create_basket_col', self.create_basket_col())
+        settings.setValue('QgisModelBaker/ili2db/create_import_tid', self.create_import_tid())
+        settings.setValue('QgisModelBaker/ili2db/stroke_arcs', self.stroke_arcs())
 
     def restore_configuration(self):
         settings = QSettings()
         inheritance = settings.value(
-            'QgsProjectGenerator/ili2db/inheritance', 'smart2')
+            'QgisModelBaker/ili2db/inheritance', 'smart2')
         if inheritance == 'smart1':
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-        create_basket_col = settings.value('QgsProjectGenerator/ili2db/create_basket_col', defaultValue=False, type=bool)
-        create_import_tid = settings.value('QgsProjectGenerator/ili2db/create_import_tid', defaultValue=True, type=bool)
-        stroke_arcs = settings.value('QgsProjectGenerator/ili2db/stroke_arcs', defaultValue=True, type=bool)
+        create_basket_col = settings.value('QgisModelBaker/ili2db/create_basket_col', defaultValue=False, type=bool)
+        create_import_tid = settings.value('QgisModelBaker/ili2db/create_import_tid', defaultValue=True, type=bool)
+        stroke_arcs = settings.value('QgisModelBaker/ili2db/stroke_arcs', defaultValue=True, type=bool)
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)

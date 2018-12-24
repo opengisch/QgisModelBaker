@@ -375,49 +375,49 @@ class ExportDialog(QDialog, DIALOG_UI):
     def save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue(
-            'QgsProjectGenerator/ili2pg/xtffile_export', configuration.xtffile)
-        settings.setValue('QgsProjectGenerator/importtype',
+            'QgisModelBaker/ili2pg/xtffile_export', configuration.xtffile)
+        settings.setValue('QgisModelBaker/importtype',
                           self.type_combo_box.currentData())
 
         if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
             # PostgreSQL specific options
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/host', configuration.dbhost)
+                'QgisModelBaker/ili2pg/host', configuration.dbhost)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/port', configuration.dbport)
+                'QgisModelBaker/ili2pg/port', configuration.dbport)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/user', configuration.dbusr)
+                'QgisModelBaker/ili2pg/user', configuration.dbusr)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/database', configuration.database)
+                'QgisModelBaker/ili2pg/database', configuration.database)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/schema', configuration.dbschema)
+                'QgisModelBaker/ili2pg/schema', configuration.dbschema)
             settings.setValue(
-                'QgsProjectGenerator/ili2pg/password', configuration.dbpwd)
+                'QgisModelBaker/ili2pg/password', configuration.dbpwd)
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
-                'QgsProjectGenerator/ili2gpkg/dbfile', configuration.dbfile)
+                'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
 
     def restore_configuration(self):
         settings = QSettings()
 
         self.xtf_file_line_edit.setText(settings.value(
-            'QgsProjectGenerator/ili2pg/xtffile_export'))
+            'QgisModelBaker/ili2pg/xtffile_export'))
         self.pg_host_line_edit.setText(settings.value(
-            'QgsProjectGenerator/ili2pg/host', 'localhost'))
+            'QgisModelBaker/ili2pg/host', 'localhost'))
         self.pg_port_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2pg/port'))
+            settings.value('QgisModelBaker/ili2pg/port'))
         self.pg_user_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2pg/user'))
+            settings.value('QgisModelBaker/ili2pg/user'))
         self.pg_database_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2pg/database'))
+            settings.value('QgisModelBaker/ili2pg/database'))
         self.pg_schema_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2pg/schema'))
+            settings.value('QgisModelBaker/ili2pg/schema'))
         self.pg_password_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2pg/password'))
+            settings.value('QgisModelBaker/ili2pg/password'))
         self.gpkg_file_line_edit.setText(
-            settings.value('QgsProjectGenerator/ili2gpkg/dbfile'))
+            settings.value('QgisModelBaker/ili2gpkg/dbfile'))
 
-        mode = settings.value('QgsProjectGenerator/importtype', 'pg')
+        mode = settings.value('QgisModelBaker/importtype', 'pg')
         mode = 'pg' if mode == 'ili2pg' else mode
         mode = 'gpkg' if mode == 'ili2gpkg' else mode
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
@@ -447,7 +447,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             cfg = OptionsDialog(self.base_configuration)
             if cfg.exec_():
                 settings = QSettings()
-                settings.beginGroup('QgsProjectGenerator/ili2db')
+                settings.beginGroup('QgisModelBaker/ili2db')
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
