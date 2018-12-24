@@ -32,7 +32,7 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 
 
 class Generator:
-    """Builds Project Generator objects from data extracted from databases."""
+    """Builds Model Baker objects from data extracted from databases."""
 
     def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=False):
         self.tool_name = tool_name

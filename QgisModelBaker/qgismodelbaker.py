@@ -89,40 +89,40 @@ class QgisModelBakerPlugin(QObject):
         self.__about_action.triggered.connect(self.show_about_dialog)
 
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__generate_action)
+            self.tr('Model Baker'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__importdata_action)
+            self.tr('Model Baker'), self.__importdata_action)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__export_action)
+            self.tr('Model Baker'), self.__export_action)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__configure_action)
+            self.tr('Model Baker'), self.__configure_action)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__separator)
+            self.tr('Model Baker'), self.__separator)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__help_action)
+            self.tr('Model Baker'), self.__help_action)
         self.iface.addPluginToDatabaseMenu(
-            self.tr('Project Generator'), self.__about_action)
+            self.tr('Model Baker'), self.__about_action)
 
-        self.toolbar = self.iface.addToolBar(self.tr('Project Generator'))
+        self.toolbar = self.iface.addToolBar(self.tr('Model Baker'))
         self.toolbar.setObjectName("ProjectGeneratorToolbar")
-        self.toolbar.setToolTip(self.tr('Project Generator Toolbar'))
+        self.toolbar.setToolTip(self.tr('Model Baker Toolbar'))
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
 
     def unload(self):
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__generate_action)
+            self.tr('Model Baker'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__importdata_action)
+            self.tr('Model Baker'), self.__importdata_action)
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__export_action)
+            self.tr('Model Baker'), self.__export_action)
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__configure_action)
+            self.tr('Model Baker'), self.__configure_action)
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__help_action)
+            self.tr('Model Baker'), self.__help_action)
         self.iface.removePluginDatabaseMenu(
-            self.tr('Project Generator'), self.__about_action)
+            self.tr('Model Baker'), self.__about_action)
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
@@ -163,9 +163,9 @@ class QgisModelBakerPlugin(QObject):
         self.msg = QMessageBox()
         self.msg.setIcon(QMessageBox.Information)
         self.msg.setTextFormat(Qt.RichText)
-        self.msg.setWindowTitle(self.tr('About Project Generator'))
+        self.msg.setWindowTitle(self.tr('About Model Baker'))
         self.msg.setText(self.tr(
-            """<h1>Project Generator</h1>
+            """<h1>Model Baker</h1>
         <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta
         information to preconfigure the layer tree, widget configuration, relations and more.</p>
         <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/QgisModelBaker">github</a>.</p>
@@ -179,7 +179,7 @@ class QgisModelBakerPlugin(QObject):
 
     def create_project(self, layers, relations, bags_of_enum, legend, auto_transaction=True, evaluate_default_values=True):
         """
-        Expose the main functionality from Project Generator to other plugins,
+        Expose the main functionality from Model Baker to other plugins,
         namely, create a QGIS project from objects obtained from the Generator
         class.
 
