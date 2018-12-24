@@ -112,7 +112,7 @@ class QgisModelBakerPlugin(QObject):
             self.tr('Model Baker'), self.__about_action)
 
         self.toolbar = self.iface.addToolBar(self.tr('Model Baker'))
-        self.toolbar.setObjectName("ProjectGeneratorToolbar")
+        self.toolbar.setObjectName("ModelBakerToolbar")
         self.toolbar.setToolTip(self.tr('Model Baker Toolbar'))
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
