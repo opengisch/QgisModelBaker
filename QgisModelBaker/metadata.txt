@@ -1,13 +1,14 @@
 [general]
 name=QGIS Model Baker
-description=QGIS Model Baker
+description=QGIS Model Baker creates QGIS projects from models or dabase schemas
 version=dev
 icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 author=OPENGIS.ch GmbH in collaboration with Swissphoto BSF
 email=info@opengis.ch
-about=Creates QGIS Projects from Interlis files
+about=QGIS Model Baker creates QGIS projects from Interlis models, PostGIS database schemas or GeoPackages. It preconfigures layers, widgets, relations and much more based on meta information available from models.
+tags=model,schema,postgres,postgis,geopackage,gpkg,interlis,ili,xtf,projectgenerator,project
 tracker=https://github.com/opengisch/QgisModelBaker/issues
 repository=https://github.com/opengisch/QgisModelBaker
 experimental=False
