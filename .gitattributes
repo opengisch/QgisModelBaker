@@ -2,8 +2,8 @@
 .gitignore export-ignore
 .travis.yml export-ignore
 .idea export-ignore
-projectgenerator.zip export-ignore
+QgisModelBaker.zip export-ignore
 *.sh export-ignore
 */__pycache__ export-ignore
-projectgenerator/tests export-ignore
-projectgenerator/metadata.txt eol=lf
+QgisModelBaker/tests export-ignore
+QgisModelBaker/metadata.txt eol=lf

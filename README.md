@@ -20,6 +20,6 @@ the additional meta information to configure the user interface even better.
 We love to be multilingual!
 
 Translating the plugin is done on
-[Transifex](https://www.transifex.com/opengisch/projectgenerator/languages/). If
+[Transifex](https://www.transifex.com/opengisch/QgisModelBaker/languages/). If
 you would like to help translating this plugin into an existing or a new language,
 please create a Transifex account and request access to the team.
