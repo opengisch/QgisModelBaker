@@ -78,7 +78,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_file_selector(self.xtf_file_line_edit, title=self.tr('Open Transfer or Catalog File'),
-                               file_filter=self.tr('Transfer File (*.xtf *.itf);;Catalogue File(*.xml *.xls *.xlsx)')))
+                               file_filter=self.tr('Transfer File (*.xtf *.itf);;Catalogue File (*.xml *.xls *.xlsx)')))
         self.gpkg_file_browse_button.clicked.connect(
             make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Save in GeoPackage database file'),
                                     file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
