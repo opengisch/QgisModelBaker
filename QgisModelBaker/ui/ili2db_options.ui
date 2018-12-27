@@ -116,7 +116,7 @@
       <item>
        <widget class="QRadioButton" name="smart1_radio_button">
         <property name="toolTip">
-         <string>Form the inheritance hierarchy with a dymamic strategy. The NewClass strategy is used for classes that are
+         <string>Form the inheritance hierarchy with a dynamic strategy. The NewClass strategy is used for classes that are
 referenced and whose base classes are not mapped using a NewClass strategy. Abstract classes are mapped
 using a SubClass strategy. Concrete classes, without a base class or their direct base classes with a SubClass
 strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
