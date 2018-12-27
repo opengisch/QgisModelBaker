@@ -47,7 +47,7 @@ def selectFileName(line_edit_widget, title, file_filter, parent):
 
 
 def make_file_selector(widget, title=QCoreApplication.translate('QgisModelBaker', 'Open File'),
-                       file_filter=QCoreApplication.translate('QgisModelBaker', 'Any file(*)'), parent=None):
+                       file_filter=QCoreApplication.translate('QgisModelBaker', 'Any file (*)'), parent=None):
     return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
 
 
