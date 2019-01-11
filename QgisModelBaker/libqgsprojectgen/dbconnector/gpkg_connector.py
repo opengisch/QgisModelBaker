@@ -20,6 +20,7 @@ import os
 import re
 import sqlite3
 import qgis.utils
+from qgis.core import Qgis
 from .db_connector import DBConnector
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
@@ -210,7 +211,7 @@ class GPKGConnector(DBConnector):
             record['texttype'] = None
             record['column_alias'] = None
 
-            if record['column_name'] == 'T_Id':
+            if record['column_name'] == 'T_Id' and Qgis.QGIS_VERSION_INT >= 30500:
                 # The default value needs to be calculated client side,
                 # sqlite doesn't provide the means to pre-evaluate serials
                 record['default_value_expression'] = "sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))"
