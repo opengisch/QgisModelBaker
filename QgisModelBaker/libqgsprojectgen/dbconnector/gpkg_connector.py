@@ -210,6 +210,11 @@ class GPKGConnector(DBConnector):
             record['texttype'] = None
             record['column_alias'] = None
 
+            if record['column_name'] == 'T_Id':
+                # The default value needs to be calculated client side,
+                # sqlite doesn't provide the means to pre-evaluate serials
+                record['default_value_expression'] = "sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))"
+
             for column_full_name in columns_full_name:
                 if column_full_name['sqlname'] == column_info['name']:
                     record['fully_qualified_name'] = column_full_name['iliname']

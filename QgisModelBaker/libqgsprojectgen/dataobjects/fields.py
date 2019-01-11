@@ -18,18 +18,20 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsEditorWidgetSetup
+from qgis.core import (
+    QgsEditorWidgetSetup,
+    QgsDefaultValue
+)
 
 
 class Field:
-
     def __init__(self, name):
         self.name = name
         self.alias = None
         self.read_only = False
-        self.hidden = False
         self.widget = None
         self.widget_config = dict()
+        self.default_value_expression = None
 
     def dump(self):
         definition = dict()
@@ -51,3 +53,7 @@ class Field:
         if self.widget:
             setup = QgsEditorWidgetSetup(self.widget, self.widget_config)
             layer.layer.setEditorWidgetSetup(field_idx, setup)
+
+        if self.default_value_expression:
+            default_value = QgsDefaultValue(self.default_value_expression)
+            layer.layer.setDefaultValueDefinition(field_idx, default_value)
