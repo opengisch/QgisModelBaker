@@ -85,6 +85,11 @@ class Importer(QObject):
             if 'JAVA_HOME' in os.environ:
                 paths = os.environ['JAVA_HOME'].split(os.pathsep)
                 for path in paths:
+                    # Include double check as java can be found on different paths
+                    # /usr/lib/jvm/java8oracle/bin/java
+                    java_paths += [os.path.join(path.replace("\"",
+                                                             "").replace("'", ""), 'bin', 'java')]
+                    # C:\ProgramData\Oracle\Java\javapath\java
                     java_paths += [os.path.join(path.replace("\"",
                                                              "").replace("'", ""), 'java')]
             java_paths += ['java']
