@@ -111,6 +111,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+        self.type_combo_box.addItem(self.tr('Mssql'), 'mssql')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
@@ -138,7 +139,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
-
+        
+        # mssql fields
+        self.mssql_host_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_database_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_user_line_edit.setValidator(nonEmptyValidator)
+        
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -158,7 +164,18 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.textChanged.connect(self.on_model_changed)
         self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
-
+        
+        # mssql fields
+        self.mssql_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_host_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_database_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_user_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        
         self.ilicache = IliCache(self.base_configuration)
         self.refresh_ili_cache()
         self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
@@ -203,7 +220,22 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
-
+        elif self.type_combo_box.currentData() in ['mssql']:
+            if not configuration.dbhost:
+                self.txtStdout.setText(
+                    self.tr('Please set a host before creating the project.'))
+                self.mssql_host_line_edit.setFocus()
+                return
+            if not configuration.database:
+                self.txtStdout.setText(
+                    self.tr('Please set a database before creating the project.'))
+                self.mssql_database_line_edit.setFocus()
+                return
+            if not configuration.dbusr:
+                self.txtStdout.setText(
+                    self.tr('Please set a database user before creating the project.'))
+                self.mssql_user_line_edit.setFocus()
+                return
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
@@ -376,6 +408,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
             configuration.db_use_super_login = self.pg_use_super_login.isChecked()
+        elif self.type_combo_box.currentData() in ['mssql']:
+            configuration.tool_name = 'ili2mssql'
+            configuration.dbhost = self.mssql_host_line_edit.text().strip()
+            configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
+            configuration.dbport = self.mssql_port_line_edit.text().strip()
+            configuration.dbusr = self.mssql_user_line_edit.text().strip()
+            configuration.database = self.mssql_database_line_edit.text().strip()
+            configuration.dbschema = self.mssql_schema_line_edit.text().strip().lower()
+            configuration.dbpwd = self.mssql_password_line_edit.text()
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             configuration.tool_name = 'ili2gpkg'
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
@@ -419,6 +460,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgisModelBaker/ili2pg/password', configuration.dbpwd)
             settings.setValue(
                 'QgisModelBaker/ili2pg/usesuperlogin', configuration.db_use_super_login)
+        elif self.type_combo_box.currentData() in ['mssql']:
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/host', configuration.dbhost)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/instance', configuration.dbinstance)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/port', configuration.dbport)
+            settings.setValue('QgisModelBaker/ili2mssql/user', configuration.dbusr)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/database', configuration.database)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/schema', configuration.dbschema)
+            settings.setValue('QgisModelBaker/ili2mssql/password', configuration.dbpwd)
+
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
@@ -447,6 +502,22 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             settings.value('QgisModelBaker/ili2pg/password'))
         self.pg_use_super_login.setChecked(
             settings.value('QgisModelBaker/ili2pg/usesuperlogin', defaultValue=False, type=bool))
+        
+        self.mssql_host_line_edit.setText(settings.value(
+            'QgisModelBaker/ili2mssql/host', 'localhost'))
+        self.mssql_instance_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/instance'))
+        self.mssql_port_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/port'))
+        self.mssql_user_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/user'))
+        self.mssql_database_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/database'))
+        self.mssql_schema_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/schema'))
+        self.mssql_password_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/password'))
+            
         self.gpkg_file_line_edit.setText(
             settings.value('QgisModelBaker/ili2gpkg/dbfile'))
 
@@ -471,18 +542,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_config.show()
             self.pg_config.show()
             self.gpkg_config.hide()
+            self.mssql_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]"))
         elif self.type_combo_box.currentData() == 'pg':
             self.ili_config.hide()
             self.pg_config.show()
             self.gpkg_config.hide()
+            self.mssql_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to load all schemas in the database]"))
         elif self.type_combo_box.currentData() == 'gpkg':
             self.ili_config.hide()
             self.pg_config.hide()
             self.gpkg_config.show()
+            self.mssql_config.hide()
             self.gpkg_file_line_edit.setValidator(self.gpkgOpenFileValidator)
             self.gpkg_file_line_edit.textChanged.emit(
                 self.gpkg_file_line_edit.text())
@@ -493,10 +567,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.gpkg_file_browse_button.clicked.connect(
                 make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
                                    file_filter=self.tr('GeoPackage Database (*.gpkg)')))
+        elif self.type_combo_box.currentData() == 'mssql':
+            self.ili_config.hide()
+            self.pg_config.hide()
+            self.gpkg_config.hide()
+            self.mssql_config.show()
         elif self.type_combo_box.currentData() == 'ili2gpkg':
             self.ili_config.show()
             self.pg_config.hide()
             self.gpkg_config.show()
+            self.mssql_config.hide()
             self.gpkg_file_line_edit.setValidator(self.gpkgSaveFileValidator)
             self.gpkg_file_line_edit.textChanged.emit(
                 self.gpkg_file_line_edit.text())
