@@ -124,6 +124,7 @@ class Ili2DbCommandConfiguration(object):
         self.ilifile = ''
         self.ilimodels = ''
         self.tomlfile = ''
+        self.dbinstance = ''
 
     @property
     def uri(self):
@@ -138,6 +139,7 @@ class Ili2DbCommandConfiguration(object):
         The superuser url if su is True - the user configured in the options.
         Otherwise it's the url with the user information entered in the current interface.
         '''
+        separator = ' '
         uri = []
         if self.tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.database)]
@@ -154,7 +156,21 @@ class Ili2DbCommandConfiguration(object):
                 uri += ['port={}'.format(self.dbport)]
         elif self.tool_name == 'ili2gpkg':
             uri = [self.dbfile]
-        return ' '.join(uri)
+        elif self.tool_name == 'ili2mssql':
+            uri += ['DRIVER={SQL Server}']
+            host = self.dbhost
+            if self.dbport:
+                host += ',' + self.dbport
+            if self.dbinstance:
+                host += '\\' + self.dbinstance
+
+            uri += ['SERVER={}'.format(host)]
+            uri += ['DATABASE={}'.format(self.database)]
+            uri += ['UID={}'.format(self.dbusr)]
+            uri += ['PWD={}'.format(self.dbpwd)]
+            separator = ';'
+
+        return separator.join(uri)
 
     def to_ili2db_args(self, hide_password=False):
 

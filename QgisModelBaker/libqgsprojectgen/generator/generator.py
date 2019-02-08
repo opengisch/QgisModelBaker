@@ -26,7 +26,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
-from ..dbconnector import pg_connector, gpkg_connector
+from ..dbconnector import pg_connector, gpkg_connector, mssql_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 
@@ -44,6 +44,8 @@ class Generator:
             self._db_connector = pg_connector.PGConnector(uri, schema)
         elif self.tool_name == 'ili2gpkg':
             self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+        elif self.tool_name == 'ili2mssql':
+            self._db_connector = mssql_connector.MssqlConnector(uri, schema)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
