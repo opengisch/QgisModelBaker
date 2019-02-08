@@ -86,6 +86,42 @@ class Generator:
                         schema=record['schemaname'],
                         table=record['tablename']
                     )
+            elif self.tool_name == 'ili2mssql':
+                provider = 'mssql'
+                param_db = dict()
+                lst_item = self.uri.split(';')
+                for item in lst_item:
+                    key_value = item.split('=')
+                    if len(key_value)==2:
+                        key = key_value[0].strip()
+                        value = key_value[1].strip()
+                        param_db[key] = value
+
+                uri = 'dbname=\'{database}\' host={server} user=\'{uid}\' password=\'{pwd}\' '.format(
+                    database=param_db['DATABASE'],
+                    server=param_db['SERVER'],
+                    uid=param_db['UID'],
+                    pwd=param_db['PWD']
+                )
+                
+                if record['geometry_column']:
+
+                    data_source_uri = '{uri} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column}) sql='.format(
+                        uri=uri,
+                        primary_key=record['primary_key'],
+                        srid=record['srid'],
+                        type=record['type'],
+                        schema=record['schemaname'],
+                        table=record['tablename'],
+                        geometry_column=record['geometry_column']
+                    )
+                else:
+                    data_source_uri = '{uri} estimatedmetadata=true srid=0 table="{schema}"."{table}" sql='.format(
+                        uri=uri,
+                        primary_key=record['primary_key'],
+                        schema=record['schemaname'],
+                        table=record['tablename']
+                    )
             elif self.tool_name == 'ili2gpkg':
                 provider = 'ogr'
                 data_source_uri = '{uri}|layername={table}'.format(
