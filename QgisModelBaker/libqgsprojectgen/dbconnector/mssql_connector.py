@@ -341,6 +341,79 @@ class MssqlConnector(DBConnector):
 
         return result
 
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """TODO: remove when ili2db issue #19 is solved"""
+        result = []
+        # Map domain ili name with its correspondent mssql name
+        if self.schema:
+            cur = self.conn.cursor()
+            names = "'" + "','".join(sqlnames) + "'"
+
+            cur.execute("""SELECT iliname, sqlname
+                            FROM {schema}.t_ili2db_classname
+                            WHERE sqlname IN ({names})
+                        """.format(schema=self.schema, names=names))
+
+            result = self._get_dict_result(cur)
+        return result
+
+    def get_models(self):
+        """TODO: remove when ili2db issue #19 is solved"""
+        """Needed for exportmodels"""
+        result = {}
+        # Get MODELS
+        if self.schema:
+            cur = self.conn.cursor()
+            
+            cur.execute("""SELECT modelname, content
+                           FROM {schema}.t_ili2db_model
+                        """.format(schema=self.schema))
+            result = self._get_dict_result(cur)
+
+        return result
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """TODO: remove when ili2db issue #19 is solved"""
+        result = {}
+        if self.schema:
+            cur = self.conn.cursor()
+            class_names = "'" + \
+                "','".join(list(models_info.keys()) +
+                           list(extended_classes.keys())) + "'"
+            cur.execute("""SELECT iliname, sqlname
+                           FROM {schema}.t_ili2db_classname
+                           WHERE iliname IN ({class_names})
+                        """.format(schema=self.schema, class_names=class_names))
+            result = self._get_dict_result(cur) 
+        return result
+
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """TODO: remove when ili2db issue #19 is solved"""
+        result = {}
+        if self.schema:
+            cur = self.conn.cursor()
+            attr_names = "'" + "','".join(attrs_list) + "'"
+
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE iliname IN ({attr_names})
+                        """.format(schema=self.schema, attr_names=attr_names))
+            result = self._get_dict_result(cur)
+        return result
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """TODO: remove when ili2db issue #19 is solved"""
+        result = {}
+        if self.schema:
+            cur = self.conn.cursor()
+            owner_names = "'" + "','".join(owners) + "'"
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE owner IN ({owner_names})
+                        """.format(schema=self.schema, owner_names=owner_names))
+            result = self._get_dict_result(cur)
+        return result
+    
     def _get_dict_result(self, cur):
         columns = [column[0] for column in cur.description]
 
