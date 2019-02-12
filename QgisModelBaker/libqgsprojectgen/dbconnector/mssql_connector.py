@@ -38,15 +38,28 @@ class MssqlConnector(DBConnector):
         self.iliCodeName = 'iliCode'
 
     def map_data_types(self, data_type):
-        data_type = data_type.lower()
+        result = data_type.lower()
         if 'timestamp' in data_type:
-            return self.QGIS_DATE_TIME_TYPE
+            result = self.QGIS_DATE_TIME_TYPE
         elif 'date' in data_type:
-            return self.QGIS_DATE_TYPE
+            result = self.QGIS_DATE_TYPE
         elif 'time' in data_type:
-            return self.QGIS_TIME_TYPE
+            result = self.QGIS_TIME_TYPE
 
-        return data_type.lower()
+        return result
+    
+    def db_or_schema_exists(self):
+        if self.schema:
+            cur = self.conn.cursor()
+            cur.execute("""
+                SELECT case when count(schema_name)>0 then 1 else 0 end
+                FROM information_schema.schemata
+                where schema_name = '{}'
+            """.format(self.schema))
+
+            return bool(cur.fetchone()[0])
+
+        return False
 
     def metadata_exists(self):
         return self._bMetadataTable
@@ -171,7 +184,9 @@ class MssqlConnector(DBConnector):
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(METAATTRS_TABLE):
             return []
-
+        
+        result = []
+        
         if self.schema:
             cur = self.conn.cursor()
             cur.execute("""
@@ -182,9 +197,9 @@ class MssqlConnector(DBConnector):
                         WHERE ilielement='{ili_name}';
             """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE, ili_name=ili_name))
 
-            return cur
+            result = cur
 
-        return []
+        return result
 
     def get_fields_info(self, table_name):
         # Get all fields for this table
@@ -200,7 +215,7 @@ class MssqlConnector(DBConnector):
             disp_name_join = ''
             full_name_join = ''
             
-            # TODO falta la columna description
+            # TODO description column is missing
             if self.metadata_exists():
                 unit_field = 'unit.setting AS unit,'
                 text_kind_field = 'txttype.setting AS texttype,'
@@ -221,9 +236,11 @@ class MssqlConnector(DBConnector):
                 full_name_join = """
                 LEFT JOIN {}.t_ili2db_attrname full_name ON full_name.owner='{}'
                     AND c.column_name=full_name.sqlname""".format(self.schema, table_name)
+            
+            # TODO Remove 'distinct' when issue 255 is solved
             query = """
-                SELECT c.column_name,
-                    c.data_type,
+                SELECT distinct c.column_name,
+                    case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type,
                     c.numeric_scale,
                     {unit_field}
                     {text_kind_field}
@@ -242,10 +259,87 @@ class MssqlConnector(DBConnector):
                             full_name_field=full_name_field,unit_join=unit_join, text_kind_join=text_kind_join,
                             disp_name_join=disp_name_join,
                             full_name_join=full_name_join)
-            print(query)
             fields_cur.execute(query)
             res = self._get_dict_result(fields_cur)
             return res
+
+    def get_constraints_info(self, table_name):
+        result = {}
+        # Get all 'c'heck constraints for this table
+        if self.schema:
+            constraints_cur = self.conn.cursor()
+            
+            query = """
+                SELECT CHECK_CLAUSE
+                FROM
+                    INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc INNER JOIN
+                    INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE c
+                        ON cc.CONSTRAINT_NAME = c.CONSTRAINT_NAME
+                        AND cc.CONSTRAINT_SCHEMA = c.CONSTRAINT_SCHEMA
+                WHERE
+                    cc.CONSTRAINT_SCHEMA = '{schema}'
+                    AND TABLE_NAME = '{table}'
+                """.format(schema=self.schema, table=table_name)
+            
+            constraints_cur.execute(query)
+
+            # Create a mapping in the form of
+            #
+            # fieldname: (min, max)
+            constraint_mapping = dict()
+            for constraint in constraints_cur:
+                m = re.match(r"\(\[(.*)\]>=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\) AND \[(.*)\]<=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\)\)", constraint[0])
+                
+                if m:
+                    constraint_mapping[m.group(1)] = (
+                    m.group(2), m.group(4))
+
+            result = constraint_mapping
+
+        return result
+
+    def get_relations_info(self, filter_layer_list=[]):
+        result = []
+
+        if self.schema:
+            cur = self.conn.cursor()
+            schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
+                self.schema) if self.schema else ''
+            schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
+                self.schema) if self.schema else ''
+            filter_layer_where = ""
+            if filter_layer_list:
+                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
+            
+            query = """
+                SELECT  
+                    KCU1.CONSTRAINT_NAME AS constraint_name 
+                    ,KCU1.TABLE_NAME AS referencing_table 
+                    ,KCU1.COLUMN_NAME AS referencing_column 
+                    -- ,KCU2.CONSTRAINT_NAME AS REFERENCED_CONSTRAINT_NAME 
+                    ,KCU2.TABLE_NAME AS referenced_table 
+                    ,KCU2.COLUMN_NAME AS referenced_column 
+                    ,KCU1.ORDINAL_POSITION AS ordinal_position 
+                    -- ,KCU2.ORDINAL_POSITION AS REFERENCED_ORDINAL_POSITION 
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
+
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 
+                    ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG  
+                    AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA 
+                    AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME 
+
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2 
+                    ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG  
+                    AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
+                    AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
+                    AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION
+                WHERE 1=1 {schema_where1} {schema_where2} {filter_layer_where}
+                order by constraint_name, ordinal_position
+                """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where)
+            cur.execute(query)
+            result = self._get_dict_result(cur)
+
+        return result
 
     def _get_dict_result(self, cur):
         columns = [column[0] for column in cur.description]

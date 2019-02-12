@@ -23,6 +23,7 @@ import webbrowser
 
 import re
 from psycopg2 import OperationalError
+from pyodbc import ProgrammingError
 
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
@@ -294,8 +295,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.enable()
                 self.progress_bar.hide()
                 return
+            except ProgrammingError:
+                self.txtStdout.setText(
+                    self.tr('There was an error connecting to the database. Check connection parameters.'))
+                self.enable()
+                self.progress_bar.hide()
+                return
 
-            if self.type_combo_box.currentData() in ['pg', 'gpkg']:
+            if self.type_combo_box.currentData() in ['pg', 'gpkg', 'mssql']:
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
                         self.tr('Source {} does not exist. Check connection parameters.').format(

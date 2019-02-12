@@ -106,7 +106,7 @@ class Generator:
                 
                 if record['geometry_column']:
 
-                    data_source_uri = '{uri} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column}) sql='.format(
+                    data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid={srid} type={type} table="{schema}"."{table}" ({geometry_column}) sql='.format(
                         uri=uri,
                         primary_key=record['primary_key'],
                         srid=record['srid'],
@@ -116,7 +116,7 @@ class Generator:
                         geometry_column=record['geometry_column']
                     )
                 else:
-                    data_source_uri = '{uri} estimatedmetadata=true srid=0 table="{schema}"."{table}" sql='.format(
+                    data_source_uri = '{uri} key={primary_key} estimatedmetadata=true srid=0 table="{schema}"."{table}" sql='.format(
                         uri=uri,
                         primary_key=record['primary_key'],
                         schema=record['schemaname'],
