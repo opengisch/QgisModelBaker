@@ -113,6 +113,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
+        # mssql fields
+        self.mssql_host_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_database_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_user_line_edit.setValidator(nonEmptyValidator)
+
         self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model in repository]'))
         self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
@@ -136,6 +141,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.gpkg_file_line_edit.textChanged.emit(
             self.gpkg_file_line_edit.text())
+
+        # mssql fields
+        self.mssql_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_host_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_database_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_user_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
 
         settings = QSettings()
         ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
@@ -167,6 +183,22 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(
                     self.tr('Please set a database user before importing data.'))
                 self.pg_user_line_edit.setFocus()
+                return
+        elif self.type_combo_box.currentData() == 'mssql':
+            if not configuration.dbhost:
+                self.txtStdout.setText(
+                    self.tr('Please set a host before importing data.'))
+                self.mssql_host_line_edit.setFocus()
+                return
+            if not configuration.database:
+                self.txtStdout.setText(
+                    self.tr('Please set a database before importing data.'))
+                self.mssql_database_line_edit.setFocus()
+                return
+            if not configuration.dbusr:
+                self.txtStdout.setText(
+                    self.tr('Please set a database user before importing data.'))
+                self.mssql_user_line_edit.setFocus()
                 return
         elif self.type_combo_box.currentData() == 'gpkg':
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
