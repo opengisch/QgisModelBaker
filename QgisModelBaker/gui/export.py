@@ -44,7 +44,7 @@ from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
-from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector
+from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector, mssql_connector
 
 DIALOG_UI = get_ui_class('export.ui')
 
@@ -71,8 +71,10 @@ class ExportModels(QStringListModel):
         try:
             if tool_name == 'ili2gpkg':
                 self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-            else:
+            elif tool_name == 'ili2pg':
                 self._db_connector = pg_connector.PGConnector(uri, schema)
+            elif tool_name == 'ili2mssql':
+                self._db_connector = mssql_connector.MssqlConnector(uri, schema)
 
             if self._db_connector.db_or_schema_exists():
                 db_models = self._db_connector.get_models()
@@ -207,6 +209,14 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.textChanged.connect(self.request_for_refresh_models)
         self.pg_password_line_edit.textChanged.connect(self.request_for_refresh_models)
         self.gpkg_file_line_edit.textChanged.connect(self.request_for_refresh_models)
+        
+        self.mssql_host_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_instance_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_port_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_user_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_database_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_schema_line_edit.textChanged.connect(self.request_for_refresh_models)
+        self.mssql_password_line_edit.textChanged.connect(self.request_for_refresh_models)
 
         self.export_models_model = ExportModels(None, None, None)
         self.refreshed_export_models_model()
@@ -225,7 +235,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
-        tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+        tool_name_list = {'pg':'ili2pg','gpkg':'ili2gpkg', 'mssql': 'ili2mssql'}
+        tool_name = tool_name_list[self.type_combo_box.currentData()]
+        separator = ' '
         uri = []
         if tool_name == 'ili2pg':
             uri += ['dbname={}'.format(self.updated_configuration().database)]
@@ -237,7 +249,23 @@ class ExportDialog(QDialog, DIALOG_UI):
                 uri += ['port={}'.format(self.updated_configuration().dbport)]
         elif tool_name == 'ili2gpkg':
             uri = [self.updated_configuration().dbfile]
-        uri_string = ' '.join(uri)
+        elif tool_name == 'ili2mssql':
+            uri += ['DRIVER={SQL Server}']
+            host = self.updated_configuration().dbhost
+            port = self.updated_configuration().dbport
+            instance = self.updated_configuration().dbinstance
+            if port:
+                host += ',' + port
+            if instance:
+                host += '\\' + instance
+
+            uri += ['SERVER={}'.format(host)]
+            uri += ['DATABASE={}'.format(self.updated_configuration().database)]
+            uri += ['UID={}'.format(self.updated_configuration().dbusr)]
+            uri += ['PWD={}'.format(self.updated_configuration().dbpwd)]
+            separator = ';'
+
+        uri_string = separator.join(uri)
 
         schema = self.updated_configuration().dbschema
 
