@@ -566,7 +566,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_config.hide()
             self.gpkg_config.hide()
             self.mssql_config.show()
-            self.pg_schema_line_edit.setPlaceholderText(
+            self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]"))
         elif self.type_combo_box.currentData() == 'gpkg':
             self.ili_config.hide()
@@ -588,6 +588,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.pg_config.hide()
             self.gpkg_config.hide()
             self.mssql_config.show()
+            self.mssql_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to load all schemas in the database]"))
         elif self.type_combo_box.currentData() == 'ili2gpkg':
             self.ili_config.show()
             self.pg_config.hide()
