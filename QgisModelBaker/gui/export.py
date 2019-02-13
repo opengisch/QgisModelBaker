@@ -142,6 +142,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+        self.type_combo_box.addItem(self.tr('Mssql'), 'mssql')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.base_configuration = base_config
@@ -157,6 +158,11 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
         self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
+
+        # mssql fields
+        self.mssql_host_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_database_line_edit.setValidator(nonEmptyValidator)
+        self.mssql_user_line_edit.setValidator(nonEmptyValidator)
 
         self.pg_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
@@ -178,6 +184,17 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.validators.validate_line_edits)
         self.gpkg_file_line_edit.textChanged.emit(
             self.gpkg_file_line_edit.text())
+
+        # mssql fields
+        self.mssql_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_host_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_database_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_database_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_user_line_edit.textChanged.connect(
+            self.validators.validate_line_edits)
+        self.mssql_user_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
 
         #refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
@@ -258,6 +275,22 @@ class ExportDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before exporting data.'))
                 self.pg_user_line_edit.setFocus()
                 return
+        elif self.type_combo_box.currentData() == 'mssql':
+            if not configuration.dbhost:
+                self.txtStdout.setText(
+                    self.tr('Please set a host before exporting data.'))
+                self.mssql_host_line_edit.setFocus()
+                return
+            if not configuration.database:
+                self.txtStdout.setText(
+                    self.tr('Please set a database before exporting data.'))
+                self.mssql_database_line_edit.setFocus()
+                return
+            if not configuration.dbusr:
+                self.txtStdout.setText(
+                    self.tr('Please set a database user before exporting data.'))
+                self.mssql_user_line_edit.setFocus()
+                return
         elif self.type_combo_box.currentData() == 'gpkg':
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
@@ -287,7 +320,9 @@ class ExportDialog(QDialog, DIALOG_UI):
 
             exporter = iliexporter.Exporter()
 
-            tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+            tool_name_list = {'pg':'ili2pg','gpkg':'ili2gpkg', 'mssql': 'ili2mssql'}
+            tool_name = tool_name_list[self.type_combo_box.currentData()]
+            
             exporter.tool_name = tool_name
             exporter.configuration = configuration
 
@@ -364,6 +399,14 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.dbpwd = self.pg_password_line_edit.text()
         elif self.type_combo_box.currentData() == 'gpkg':
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
+        elif self.type_combo_box.currentData() == 'mssql':
+            configuration.dbhost = self.mssql_host_line_edit.text().strip()
+            configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
+            configuration.dbport = self.mssql_port_line_edit.text().strip()
+            configuration.dbusr = self.mssql_user_line_edit.text().strip()
+            configuration.database = self.mssql_database_line_edit.text().strip()
+            configuration.dbschema = self.mssql_schema_line_edit.text().strip().lower()
+            configuration.dbpwd = self.mssql_password_line_edit.text()
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
@@ -396,6 +439,19 @@ class ExportDialog(QDialog, DIALOG_UI):
         elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
             settings.setValue(
                 'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
+        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/host', configuration.dbhost)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/instance', configuration.dbinstance)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/port', configuration.dbport)
+            settings.setValue('QgisModelBaker/ili2mssql/user', configuration.dbusr)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/database', configuration.database)
+            settings.setValue(
+                'QgisModelBaker/ili2mssql/schema', configuration.dbschema)
+            settings.setValue('QgisModelBaker/ili2mssql/password', configuration.dbpwd)
 
     def restore_configuration(self):
         settings = QSettings()
@@ -417,9 +473,25 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.gpkg_file_line_edit.setText(
             settings.value('QgisModelBaker/ili2gpkg/dbfile'))
 
+        self.mssql_host_line_edit.setText(settings.value(
+            'QgisModelBaker/ili2mssql/host', 'localhost'))
+        self.mssql_instance_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/instance'))
+        self.mssql_port_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/port'))
+        self.mssql_user_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/user'))
+        self.mssql_database_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/database'))
+        self.mssql_schema_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/schema'))
+        self.mssql_password_line_edit.setText(
+            settings.value('QgisModelBaker/ili2mssql/password'))
+
         mode = settings.value('QgisModelBaker/importtype', 'pg')
         mode = 'pg' if mode == 'ili2pg' else mode
         mode = 'gpkg' if mode == 'ili2gpkg' else mode
+        mode = 'mssql' if mode == 'ili2mssql' else mode
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
 
@@ -435,12 +507,16 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.progress_bar.hide()
+        self.pg_config.hide()
+        self.gpkg_config.hide()
+        self.mssql_config.hide()
+
         if self.type_combo_box.currentData() == 'pg':
             self.pg_config.show()
-            self.gpkg_config.hide()
         elif self.type_combo_box.currentData() == 'gpkg':
-            self.pg_config.hide()
             self.gpkg_config.show()
+        elif self.type_combo_box.currentData() == 'mssql':
+            self.mssql_config.show()
 
     def link_activated(self, link):
         if link.url() == '#configure':
