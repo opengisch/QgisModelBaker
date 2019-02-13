@@ -29,6 +29,9 @@ ili2db_tools = {
     },
     'ili2gpkg': {
         'version': '3.11.3'
+    },
+    'ili2mssql': {
+        'version': '3.12.2'
     }
 }
 ili2db_tools['ili2pg'][
@@ -36,7 +39,9 @@ ili2db_tools['ili2pg'][
 ili2db_tools['ili2gpkg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
     ili2db_tools['ili2gpkg']['version'])
-
+# FIXME download link
+ili2db_tools['ili2mssql'][
+    'url'] = ''
 
 class BaseConfiguration(object):
 
@@ -195,6 +200,22 @@ class Ili2DbCommandConfiguration(object):
                      self.dbschema or self.database]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.dbfile]
+        elif self.tool_name == 'ili2mssql':
+            # mssql specific options
+            args += ["--dbhost", self.dbhost]
+            if self.dbport:
+                args += ["--dbport", self.dbport]
+            args += ["--dbusr", self.dbusr]
+            if self.dbpwd:
+                if hide_password:
+                    args += ["--dbpwd", '******']
+                else:
+                    args += ["--dbpwd", self.dbpwd]
+            args += ["--dbdatabase", self.database.strip("'")]
+            args += ["--dbschema",
+                     self.dbschema or self.database]
+            if self.dbinstance:
+                args+= ["--dbinstance", self.dbinstance]
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:

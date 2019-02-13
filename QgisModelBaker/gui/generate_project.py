@@ -110,6 +110,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.tr('Interlis (use PostGIS)'), 'ili2pg')
         self.type_combo_box.addItem(
             self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
+        self.type_combo_box.addItem(
+            self.tr('Interlis (use Mssql)'), 'ili2mssql')
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
         self.type_combo_box.addItem(self.tr('Mssql'), 'mssql')
@@ -190,7 +192,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg']:
+        if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg', 'ili2mssql']:
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
@@ -221,7 +223,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
-        elif self.type_combo_box.currentData() in ['mssql']:
+        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
             if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before creating the project.'))
@@ -261,7 +263,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
 
-            if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg']:
+            if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg', 'ili2mssql']:
                 importer = iliimporter.Importer()
 
                 importer.tool_name = self.type_combo_box.currentData()
@@ -415,7 +417,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
             configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        elif self.type_combo_box.currentData() in ['mssql']:
+        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
             configuration.tool_name = 'ili2mssql'
             configuration.dbhost = self.mssql_host_line_edit.text().strip()
             configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
@@ -467,7 +469,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgisModelBaker/ili2pg/password', configuration.dbpwd)
             settings.setValue(
                 'QgisModelBaker/ili2pg/usesuperlogin', configuration.db_use_super_login)
-        elif self.type_combo_box.currentData() in ['mssql']:
+        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
             settings.setValue(
                 'QgisModelBaker/ili2mssql/host', configuration.dbhost)
             settings.setValue(
@@ -559,6 +561,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.mssql_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to load all schemas in the database]"))
+        if self.type_combo_box.currentData() == 'ili2mssql':
+            self.ili_config.show()
+            self.pg_config.hide()
+            self.gpkg_config.hide()
+            self.mssql_config.show()
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to create a default schema]"))
         elif self.type_combo_box.currentData() == 'gpkg':
             self.ili_config.hide()
             self.pg_config.hide()
