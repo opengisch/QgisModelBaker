@@ -29,10 +29,6 @@ class MssqlConnector(DBConnector):
         DBConnector.__init__(self, uri, schema)
         self.conn = pyodbc.connect(uri)
         self.schema = schema
-
-        # TODO check dbo schema
-        if self.schema is None:
-            self.schema = 'dbo'
         
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'iliCode'
