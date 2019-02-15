@@ -85,7 +85,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.type_combo_box.clear()
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
-        self.type_combo_box.addItem(self.tr('Mssql'), 'mssql')
+        self.type_combo_box.addItem(self.tr('SQL Server'), 'mssql')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)

@@ -111,10 +111,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_combo_box.addItem(
             self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
         self.type_combo_box.addItem(
-            self.tr('Interlis (use Mssql)'), 'ili2mssql')
+            self.tr('Interlis (use SQL Server)'), 'ili2mssql')
         self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
         self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
-        self.type_combo_box.addItem(self.tr('Mssql'), 'mssql')
+        self.type_combo_box.addItem(self.tr('SQL Server'), 'mssql')
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)

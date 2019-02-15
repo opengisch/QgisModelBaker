@@ -115,7 +115,7 @@
        <item row="3" column="0">
         <widget class="QGroupBox" name="mssql_config">
          <property name="title">
-          <string>Mssql</string>
+          <string>SQL Server</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
