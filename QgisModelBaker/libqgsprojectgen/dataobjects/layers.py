@@ -27,14 +27,15 @@ from qgis.core import (
     QgsVectorLayer,
     QgsDataSourceUri,
     QgsWkbTypes,
-    QgsRectangle
+    QgsRectangle,
+    QgsCoordinateReferenceSystem
 )
 from qgis.PyQt.QtCore import QCoreApplication
 
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -55,6 +56,7 @@ class Layer(object):
         self.is_structure = is_structure
 
         self.is_nmrel = is_nmrel
+        self.srid = srid
         """ If is_nmrel is set to true it is a junction table in a N:M relation.
         Or in ili2db terms, the table is marked as ASSOCIATION in t_ili2db_table_prop.settings. """
 
@@ -86,6 +88,8 @@ class Layer(object):
         if self.__layer is None:
             layer_name = self.alias or self.name
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+            if self.srid is not None and not self.__layer.crs().authid() == "EPSG:{}".format(self.srid):
+                self.__layer.setCrs(QgsCoordinateReferenceSystem().fromEpsgId(self.srid))
             if self.is_domain:
                 self.__layer.setReadOnly()
             if self.display_expression:

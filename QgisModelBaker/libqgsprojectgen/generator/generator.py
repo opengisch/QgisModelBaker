@@ -86,6 +86,7 @@ class Generator:
             layer = Layer(layer_uri.provider,
                           layer_uri.get_data_source_uri(record),
                           record['tablename'],
+                          record['srid'],
                           record['extent'] if 'extent' in record else None,
                           record['geometry_column'],
                           QgsWkbTypes.parseType(
