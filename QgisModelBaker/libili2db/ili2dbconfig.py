@@ -39,9 +39,8 @@ ili2db_tools['ili2pg'][
 ili2db_tools['ili2gpkg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
     ili2db_tools['ili2gpkg']['version'])
-# FIXME download link
 ili2db_tools['ili2mssql'][
-    'url'] = ''
+    'url'] = 'https://owncloud.proadmintierra.info/owncloud/index.php/s/gfpEkdMpBnFgLMs/download'
 
 class BaseConfiguration(object):
 
