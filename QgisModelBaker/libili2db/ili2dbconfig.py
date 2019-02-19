@@ -40,7 +40,8 @@ ili2db_tools['ili2gpkg'][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
     ili2db_tools['ili2gpkg']['version'])
 ili2db_tools['ili2mssql'][
-    'url'] = 'https://owncloud.proadmintierra.info/owncloud/index.php/s/gfpEkdMpBnFgLMs/download'
+    'url'] = 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(
+    ili2db_tools['ili2mssql']['version'])
 
 class BaseConfiguration(object):
 
