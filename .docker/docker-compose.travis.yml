@@ -5,6 +5,14 @@ services:
     environment:
       - ALLOW_IP_RANGE="172.0.0.0/8"
 
+  mssql:
+    image: microsoft/mssql-server-linux:2017-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: <YourStrong!Passw0rd>
+    ports:
+      - "1433:1433"
+
   qgis:
     build:
       context: ..
@@ -16,3 +24,4 @@ services:
       - ${TRAVIS_BUILD_DIR}:/usr/src
     links:
       - postgres
+      - mssql

@@ -25,6 +25,7 @@ import nose2
 import psycopg2
 import psycopg2.extras
 import logging
+import pyodbc
 
 from QgisModelBaker.libili2db import iliimporter, iliimporter
 from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
@@ -40,6 +41,13 @@ class TestImport(unittest.TestCase):
     def setUpClass(cls):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
+
+    def test_import_mssql(self):
+        uri = "DSN={dsn};UID={uid};PWD={pwd}"\
+            .format(dsn="testsqlserver",
+                    uid="sa",
+                    pwd="<YourStrong!Passw0rd>")
+        con = pyodbc.connect(uri)
 
     def test_import_postgis(self):
         # Schema Import
