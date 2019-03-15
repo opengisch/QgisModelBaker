@@ -3,7 +3,7 @@ FROM  qgis/qgis:${QGIS_TEST_VERSION}
 MAINTAINER Matthias Kuhn <matthias@opengis.ch>
 
 RUN apt-get update && \
-    apt-get -y install openjdk-8-jre \
+    apt-get -y install openjdk-8-jre python3-pyodbc \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
