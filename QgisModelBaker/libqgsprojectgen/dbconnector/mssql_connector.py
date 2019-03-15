@@ -193,7 +193,7 @@ class MssqlConnector(DBConnector):
                         WHERE ilielement='{ili_name}';
             """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE, ili_name=ili_name))
 
-            result = cur
+            result = self._get_dict_result(cur)
 
         return result
 
