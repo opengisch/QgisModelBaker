@@ -25,10 +25,10 @@ import os
 
 ili2db_tools = {
     'ili2pg': {
-        'version': '3.11.2'
+        'version': '3.12.2'
     },
     'ili2gpkg': {
-        'version': '3.11.3'
+        'version': '3.12.2'
     }
 }
 ili2db_tools['ili2pg'][
