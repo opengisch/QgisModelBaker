@@ -164,10 +164,10 @@ class Ili2DbCommandConfiguration(object):
         elif self.tool_name == 'ili2mssql':
             uri += ['DRIVER={SQL Server}']
             host = self.dbhost
-            if self.dbport:
-                host += ',' + self.dbport
             if self.dbinstance:
                 host += '\\' + self.dbinstance
+            if self.dbport:
+                host += ',' + self.dbport
 
             uri += ['SERVER={}'.format(host)]
             uri += ['DATABASE={}'.format(self.database)]
