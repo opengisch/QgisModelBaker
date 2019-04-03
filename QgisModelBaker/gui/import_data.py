@@ -23,9 +23,11 @@ import webbrowser
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.libili2db.ili2dbutils import (
+    color_log_text,
+    JavaNotFoundError
+)
 from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -209,11 +211,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                     self.enable()
                     self.progress_bar.hide()
                     return
-            except JavaNotFoundError:
+            except JavaNotFoundError as e:
                 self.txtStdout.setTextColor(QColor('#000000'))
                 self.txtStdout.clear()
-                self.txtStdout.setText(self.tr(
-                    'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                self.txtStdout.setText(e.error_string)
                 self.enable()
                 self.progress_bar.hide()
                 return
