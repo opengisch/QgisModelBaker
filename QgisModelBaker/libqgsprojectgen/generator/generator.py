@@ -22,6 +22,7 @@ import re
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
@@ -34,8 +35,8 @@ from ..db_factory.db_simple_factory import DbSimpleFactory
 class Generator:
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=False):
-        self.tool_name = tool_name
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+        self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None

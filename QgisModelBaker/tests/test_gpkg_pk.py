@@ -48,9 +48,9 @@ class TestGpkgPrimaryKey(unittest.TestCase):
 
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels')
+            importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
         importer.configuration.dbfile = gpkg_path
         importer.configuration.epsg = 2056
@@ -58,7 +58,7 @@ class TestGpkgPrimaryKey(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg',
+        generator = Generator(DbIliMode.ili2gpkg,
                               gpkg_path,
                               importer.configuration.inheritance)
 

@@ -27,7 +27,7 @@ from psycopg2 import OperationalError
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
@@ -69,6 +69,7 @@ from qgis.gui import (
 )
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
+from ..libili2db.globals import DbIliMode
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 from ..libqgsprojectgen.dbconnector import pg_connector
@@ -191,8 +192,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
 
-        # TODO Hard-coding
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg'] and configuration.db_use_super_login:
+        # create schema with superuser
+        if (self.type_combo_box.currentData() & DbIliMode.pg) and configuration.db_use_super_login:
             _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
             if not _db_connector.db_or_schema_exists():
                 _db_connector.create_db_or_schema(configuration.dbusr)
@@ -208,7 +209,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if interlis_mode:
                 importer = iliimporter.Importer()
 
-                importer.tool_name = self.type_combo_box.currentData()
+                importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
                 importer.stderr.connect(self.on_stderr)
@@ -229,7 +230,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool_name, configuration.uri,
+                generator = Generator(configuration.tool, configuration.uri,
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except OperationalError:
@@ -243,14 +244,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
                         self.tr('Source {} does not exist. Check connection parameters.').format(
-                            'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                            'database' if self.type_combo_box.currentData() == DbIliMode.gpkg else 'schema'
                         ))
                     self.enable()
                     self.progress_bar.hide()
                     return
 
-            # TODO specific pg option
-            if self.type_combo_box.currentData() == 'pg':
+            if self.type_combo_box.currentData() == DbIliMode.pg:
                 if not generator._postgis_exists():
                     self.txtStdout.setText(
                         self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
@@ -264,7 +264,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # TODO specific pg, gpkg option
             if not available_layers:
-                if self.type_combo_box.currentData() == 'gpkg':
+                if self.type_combo_box.currentData() == DbIliMode.gpkg:
                     text = self.tr('The GeoPackage has no layers to load into QGIS.')
                 else:
                     text = self.tr('The schema has no layers to load into QGIS.')
@@ -397,7 +397,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         # TODO Hardcoding 'pg' default option
         self.type_combo_box.setCurrentIndex(
-            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', 'pg')))
+            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', DbIliMode.pg)))
         self.type_changed()
         self.crs_changed()
 

@@ -17,8 +17,30 @@
  *                                                                         *
  ***************************************************************************/
 """
+from enum import IntFlag
 
 CRS_PATTERNS = {
     'LV95': 2056,
     'LV03': 21781
+}
+
+class DbIliMode(IntFlag):
+    pg = 1
+    gpkg = 2
+    mssql = 4
+
+    ili = 1024
+
+    ili2pg = ili | pg
+    ili2gpkg = ili | gpkg
+    ili2mssql = ili | mssql
+
+displayDbIliMode = {
+    DbIliMode.pg: "PostgreSQL/PostGIS",
+    DbIliMode.gpkg: "GeoPackage",
+    DbIliMode.mssql: "SQL Server",
+    DbIliMode.ili: "Interlis",
+    DbIliMode.ili2pg: "ili2pg",
+    DbIliMode.ili2gpkg: "ili2gpkg",
+    DbIliMode.ili2mssql: "ili2mssql"
 }

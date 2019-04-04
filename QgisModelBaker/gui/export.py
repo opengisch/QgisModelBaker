@@ -25,6 +25,7 @@ import re
 
 from QgisModelBaker.gui.options import OptionsDialog, ModelListView
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
@@ -54,7 +55,7 @@ DIALOG_UI = get_ui_class('export.ui')
 
 class ExportModels(QStringListModel):
 
-    def __init__(self, tool_name, uri, schema=None):
+    def __init__(self, tool, uri, schema=None):
         super().__init__()
 
         blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
@@ -71,7 +72,7 @@ class ExportModels(QStringListModel):
 
         modelnames = list()
 
-        if tool_name:
+        if tool:
             try:
                 db_simple_factory = DbSimpleFactory()
                 db_factory = db_simple_factory.create_factory(tool_name)

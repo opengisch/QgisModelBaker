@@ -150,8 +150,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         # create schema with superuser
         # TODO Hard-coding 'pg'
-        if self.type_combo_box.currentData() == 'pg' and configuration.db_use_super_login:
-            configuration.tool_name='ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+        if self.type_combo_box.currentData() == DbIliMode.pg and configuration.db_use_super_login:
+            configuration.tool = DbIliMode.ili2pg
             _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
             if not _db_connector.db_or_schema_exists():
                 _db_connector.create_db_or_schema(configuration.dbusr)

@@ -26,18 +26,18 @@ from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 import os
 
 ili2db_tools = {
-    'ili2pg': {
+    DbIliMode.ili2pg: {
         'version': '3.11.2'
     },
-    'ili2gpkg': {
+    DbIliMode.ili2gpkg: {
         'version': '3.11.3'
     }
 }
-ili2db_tools['ili2pg'][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
-ili2db_tools['ili2gpkg'][
+ili2db_tools[DbIliMode.ili2pg][
+    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools[DbIliMode.ili2pg]['version'])
+ili2db_tools[DbIliMode.ili2gpkg][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
-    ili2db_tools['ili2gpkg']['version'])
+    ili2db_tools[DbIliMode.ili2gpkg]['version'])
 
 
 class BaseConfiguration(object):
@@ -122,7 +122,7 @@ class Ili2DbCommandConfiguration(object):
         self.database = ''
         self.dbschema = ''
         self.dbfile = ''
-        self.tool_name = None
+        self.tool = None
         self.ilifile = ''
         self.ilimodels = ''
         self.tomlfile = ''
@@ -256,7 +256,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
 
-        if self.tool_name == 'ili2pg':
+        if self.tool == DbIliMode.ili2pg:
             args += ["--setupPgExt"]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)

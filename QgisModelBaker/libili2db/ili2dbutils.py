@@ -29,13 +29,19 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
 from QgisModelBaker.utils.qt_utils import download_file, NetworkError
+from .globals import DbIliMode, displayDbIliMode
 
+from .ili2dbconfig import ili2db_tools
 
-def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
-    if not tool_name:
-        return
+def get_ili2db_bin(tool, stdout, stderr):
+    if tool not in DbIliMode or tool ==  DbIliMode.ili:
+        return None
+
+    tool |= DbIliMode.ili # Regardlless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
+    tool_name = displayDbIliMode[tool] # in fact, we need the name of the ili tool
+
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    ili2db_dir = '{}-{}'.format(tool_name, ili2db_tools[tool_name]['version'])
+    ili2db_dir = '{}-{}'.format(tool_name, ili2db_tools[tool]['version'])
 
     ili2db_file = os.path.join(
         dir_path, 'bin', ili2db_dir, '{}.jar'.format(tool_name))
@@ -48,10 +54,10 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
         tmpfile = tempfile.NamedTemporaryFile(suffix='.zip', delete=False)
 
         stdout.emit(QCoreApplication.translate('ili2dbutils', 'Downloading {} version {}…'.format(
-            tool_name, ili2db_tools[tool_name]['version'])))
+            tool_name, ili2db_tools[tool]['version'])))
 
         try:
-            download_file(ili2db_tools[tool_name][
+            download_file(ili2db_tools[tool][
                           'url'], tmpfile.name, on_progress=lambda received, total: stdout.emit('.'))
         except NetworkError as e:
             stderr.emit(
@@ -59,7 +65,7 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
                                            'Could not download {tool_name}\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2db_url}">{tool_name}</a>'.format(
                                                tool_name=tool_name,
                                                ili2db_url=ili2db_tools[
-                                                   tool_name]['url'],
+                                                   tool]['url'],
                                                error=e.msg,
                                                file=ili2db_file)
                                            )
@@ -79,7 +85,7 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
                                            'File "{file}" not found. Please download and extract <a href="{ili2db_url}">{tool_name}</a>.'.format(
                                                tool_name=tool_name,
                                                file=ili2db_file,
-                                               ili2db_url=ili2db_tools[tool_name]['url'])))
+                                               ili2db_url=ili2db_tools[tool]['url'])))
             return None
 
     return ili2db_file
