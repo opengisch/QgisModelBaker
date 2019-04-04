@@ -21,27 +21,28 @@
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
-import os
+
+from ..libili2db.globals import DbIliMode
 
 ili2db_tools = {
-    'ili2pg': {
+    DbIliMode.ili2pg: {
         'version': '3.11.2'
     },
-    'ili2gpkg': {
+    DbIliMode.ili2gpkg: {
         'version': '3.11.3'
     },
-    'ili2mssql': {
+    DbIliMode.ili2mssql: {
         'version': '3.12.2'
     }
 }
-ili2db_tools['ili2pg'][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
-ili2db_tools['ili2gpkg'][
+ili2db_tools[DbIliMode.ili2pg][
+    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools[DbIliMode.ili2pg]['version'])
+ili2db_tools[DbIliMode.ili2gpkg][
     'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
-    ili2db_tools['ili2gpkg']['version'])
-ili2db_tools['ili2mssql'][
+    ili2db_tools[DbIliMode.ili2gpkg]['version'])
+ili2db_tools[DbIliMode.ili2mssql][
     'url'] = 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(
-    ili2db_tools['ili2mssql']['version'])
+    ili2db_tools[DbIliMode.ili2mssql]['version'])
 
 class BaseConfiguration(object):
 
@@ -125,7 +126,7 @@ class Ili2DbCommandConfiguration(object):
         self.database = ''
         self.dbschema = ''
         self.dbfile = ''
-        self.tool_name = None
+        self.tool = None
         self.ilifile = ''
         self.ilimodels = ''
         self.tomlfile = ''
@@ -146,7 +147,7 @@ class Ili2DbCommandConfiguration(object):
         '''
         separator = ' '
         uri = []
-        if self.tool_name == 'ili2pg':
+        if self.tool == DbIliMode.ili2pg:
             uri += ['dbname={}'.format(self.database)]
             if su:
                 uri += ['user={}'.format(self.base_configuration.super_pg_user)]
@@ -159,9 +160,9 @@ class Ili2DbCommandConfiguration(object):
             uri += ['host={}'.format(self.dbhost)]
             if self.dbport:
                 uri += ['port={}'.format(self.dbport)]
-        elif self.tool_name == 'ili2gpkg':
+        elif self.tool == DbIliMode.ili2gpkg:
             uri = [self.dbfile]
-        elif self.tool_name == 'ili2mssql':
+        elif self.tool == DbIliMode.ili2mssql:
             uri += ['DRIVER={SQL Server}']
             host = self.dbhost
             if self.dbinstance:
@@ -184,7 +185,7 @@ class Ili2DbCommandConfiguration(object):
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
 
-        if self.tool_name == 'ili2pg':
+        if self.tool == DbIliMode.ili2pg:
             # PostgreSQL specific options
             args += ["--dbhost", self.dbhost]
             if self.dbport:
@@ -198,9 +199,9 @@ class Ili2DbCommandConfiguration(object):
             args += ["--dbdatabase", self.database.strip("'")]
             args += ["--dbschema",
                      self.dbschema or self.database]
-        elif self.tool_name == 'ili2gpkg':
+        elif self.tool == DbIliMode.ili2gpkg:
             args += ["--dbfile", self.dbfile]
-        elif self.tool_name == 'ili2mssql':
+        elif self.tool == DbIliMode.ili2mssql:
             # mssql specific options
             args += ["--dbhost", self.dbhost]
             if self.dbport:
@@ -310,7 +311,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
 
-        if self.tool_name == 'ili2pg':
+        if self.tool == DbIliMode.ili2pg:
             args += ["--setupPgExt"]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)

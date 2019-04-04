@@ -19,9 +19,9 @@
 """
 import webbrowser
 
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
     ExportConfiguration
-from QgisModelBaker.libili2db.ili2dbutils import get_ili2db_bin
 from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.utils import qt_utils
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
@@ -65,8 +65,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.custom_models_dir_button.clicked.connect(
             self.show_custom_model_dir)
 
-        self.ili2db_tool_combobox.addItem('ili2pg', 'ili2pg')
-        self.ili2db_tool_combobox.addItem('ili2gpkg', 'ili2gpkg')
+        self.ili2db_tool_combobox.addItem(displayDbIliMode(DbIliMode.ili2pg), DbIliMode.ili2pg)
+        self.ili2db_tool_combobox.addItem(displayDbIliMode(DbIliMode.ili2gpkg), DbIliMode.ili2gpkg)
 
         self.ili2db_action_combobox.addItem(
             self.tr('Schema Import'), 'schemaimport')

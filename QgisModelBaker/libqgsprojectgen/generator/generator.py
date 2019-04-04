@@ -22,6 +22,7 @@ import re
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
@@ -34,17 +35,17 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 class Generator:
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=False):
-        self.tool_name = tool_name
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+        self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
-        if self.tool_name == 'ili2pg':
+        if self.tool == DbIliMode.ili2pg:
             self._db_connector = pg_connector.PGConnector(uri, schema)
-        elif self.tool_name == 'ili2gpkg':
+        elif self.tool == DbIliMode.ili2gpkg:
             self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-        elif self.tool_name == 'ili2mssql':
+        elif self.tool == DbIliMode.ili2mssql:
             self._db_connector = mssql_connector.MssqlConnector(uri, schema)
 
     def layers(self, filter_layer_list=[]):
@@ -66,7 +67,7 @@ class Generator:
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            if self.tool_name == 'ili2pg':
+            if self.tool == DbIliMode.ili2pg:
                 provider = 'postgres'
                 if record['geometry_column']:
                     data_source_uri = '{uri} key={primary_key} estimatedmetadata={estimated_metadata} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
@@ -86,7 +87,7 @@ class Generator:
                         schema=record['schemaname'],
                         table=record['tablename']
                     )
-            elif self.tool_name == 'ili2mssql':
+            elif self.tool == DbIliMode.ili2mssql:
                 provider = 'mssql'
                 param_db = dict()
                 lst_item = self.uri.split(';')
@@ -122,7 +123,7 @@ class Generator:
                         schema=record['schemaname'],
                         table=record['tablename']
                     )
-            elif self.tool_name == 'ili2gpkg':
+            elif self.tool == DbIliMode.ili2gpkg:
                 provider = 'ogr'
                 data_source_uri = '{uri}|layername={table}'.format(
                     uri=self.uri,

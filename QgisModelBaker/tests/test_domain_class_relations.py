@@ -42,9 +42,9 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_class_relations_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
+        importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -54,7 +54,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
@@ -115,9 +115,9 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_class_relations_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -127,7 +127,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg',
+        generator = Generator(DbIliMode.ili2gpkg,
                               importer.configuration.uri,
                               importer.configuration.inheritance)
 
@@ -187,8 +187,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
@@ -200,7 +200,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
@@ -270,8 +270,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/ZG_Abfallsammelstellen_ZEBA_V1.ili')
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
@@ -283,7 +283,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg',
+        generator = Generator(DbIliMode.ili2gpkg,
                               importer.configuration.uri,
                               importer.configuration.inheritance)
 
@@ -352,8 +352,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
@@ -365,7 +365,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
@@ -465,8 +465,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
@@ -478,7 +478,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg',
+        generator = Generator(DbIliMode.ili2gpkg,
                               importer.configuration.uri,
                               importer.configuration.inheritance)
 
@@ -577,8 +577,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_structure_relations_KbS_LV95_V1_3_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/KbS_V1_3.ili')
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
@@ -590,7 +590,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
@@ -650,8 +650,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/KbS_V1_3.ili')
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
@@ -663,7 +663,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg',
+        generator = Generator(DbIliMode.ili2gpkg,
                               importer.configuration.uri,
                               importer.configuration.inheritance)
 
@@ -724,8 +724,8 @@ class TestDomainClassRelation(unittest.TestCase):
 
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/Hazard_Mapping_V1_2.ili')
         importer.configuration.ilimodels = 'Hazard_Mapping_LV95_V1_2'
@@ -737,7 +737,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
@@ -1008,8 +1008,8 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_domain_class_relations_ZG_Naturschutz_und_Erholungsinfrastruktur_V1_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
             'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
@@ -1021,7 +1021,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)

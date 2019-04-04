@@ -18,17 +18,16 @@
  ***************************************************************************/
 """
 
-import os
 import webbrowser
 
 import re
 from psycopg2 import OperationalError
 from pyodbc import ProgrammingError
 
-from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
+from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
@@ -70,6 +69,7 @@ from qgis.gui import (
 )
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
+from ..libili2db.globals import DbIliMode
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 from ..libqgsprojectgen.dbconnector import pg_connector
@@ -107,14 +107,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.fill_models_line_edit)
         self.type_combo_box.clear()
         self.type_combo_box.addItem(
-            self.tr('Interlis (use PostGIS)'), 'ili2pg')
+            self.tr('Interlis (use PostGIS)'), DbIliMode.ili2pg)
         self.type_combo_box.addItem(
-            self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
+            self.tr('Interlis (use GeoPackage)'), DbIliMode.ili2gpkg)
         self.type_combo_box.addItem(
-            self.tr('Interlis (use SQL Server)'), 'ili2mssql')
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
-        self.type_combo_box.addItem(self.tr('SQL Server'), 'mssql')
+            self.tr('Interlis (use SQL Server)'), DbIliMode.ili2mssql)
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.pg]), DbIliMode.pg)
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.gpkg]), DbIliMode.gpkg)
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.mssql]), DbIliMode.mssql)
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
@@ -192,7 +192,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg', 'ili2mssql']:
+        if self.type_combo_box.currentData() & DbIliMode.ili: # it's an ili tool
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
@@ -207,7 +207,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ili_file_line_edit.setFocus()
                 return
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
+        if self.type_combo_box.currentData() & DbIliMode.pg:
             if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before creating the project.'))
@@ -223,7 +223,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before creating the project.'))
                 self.pg_user_line_edit.setFocus()
                 return
-        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
+        elif self.type_combo_box.currentData() & DbIliMode.mssql:
             if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before creating the project.'))
@@ -239,7 +239,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before creating the project.'))
                 self.mssql_user_line_edit.setFocus()
                 return
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
+        elif self.type_combo_box.currentData() & DbIliMode.gpkg:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
                     self.tr('Please set a valid database file before creating the project.'))
@@ -250,7 +250,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.save_configuration(configuration)
 
         # create schema with superuser
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg'] and configuration.db_use_super_login:
+        if (self.type_combo_box.currentData() & DbIliMode.pg) and configuration.db_use_super_login:
             _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
             if not _db_connector.db_or_schema_exists():
                 _db_connector.create_db_or_schema(configuration.dbusr)
@@ -263,10 +263,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
 
-            if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg', 'ili2mssql']:
+            if self.type_combo_box.currentData() & DbIliMode.ili: # it's an ili tool
                 importer = iliimporter.Importer()
 
-                importer.tool_name = self.type_combo_box.currentData()
+                importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
                 importer.stderr.connect(self.on_stderr)
@@ -288,7 +288,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool_name, configuration.uri,
+                generator = Generator(configuration.tool, configuration.uri,
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except OperationalError:
@@ -304,17 +304,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.progress_bar.hide()
                 return
 
-            if self.type_combo_box.currentData() in ['pg', 'gpkg', 'mssql']:
+            if self.type_combo_box.currentData() & ~DbIliMode.ili: # No ili tool
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
                         self.tr('Source {} does not exist. Check connection parameters.').format(
-                            'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                            'database' if self.type_combo_box.currentData() == DbIliMode.gpkg else 'schema'
                         ))
                     self.enable()
                     self.progress_bar.hide()
                     return
 
-            if self.type_combo_box.currentData() == 'pg':
+            if self.type_combo_box.currentData() == DbIliMode.pg:
                 if not generator._postgis_exists():
                     self.txtStdout.setText(
                         self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
@@ -327,7 +327,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             available_layers = generator.layers()
 
             if not available_layers:
-                if self.type_combo_box.currentData() == 'gpkg':
+                if self.type_combo_box.currentData() == DbIliMode.gpkg:
                     text = self.tr('The GeoPackage has no layers to load into QGIS.')
                 else:
                     text = self.tr('The schema has no layers to load into QGIS.')
@@ -407,9 +407,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         """
         configuration = SchemaImportConfiguration()
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
+        if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
-            configuration.tool_name = 'ili2pg'
+            configuration.tool = DbIliMode.ili2pg
             configuration.dbhost = self.pg_host_line_edit.text().strip()
             configuration.dbport = self.pg_port_line_edit.text().strip()
             configuration.dbusr = self.pg_user_line_edit.text().strip()
@@ -417,8 +417,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
             configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
-            configuration.tool_name = 'ili2mssql'
+        elif self.type_combo_box.currentData() & DbIliMode.mssql:
+            configuration.tool = DbIliMode.ili2mssql
             configuration.dbhost = self.mssql_host_line_edit.text().strip()
             configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
             configuration.dbport = self.mssql_port_line_edit.text().strip()
@@ -426,8 +426,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.database = self.mssql_database_line_edit.text().strip()
             configuration.dbschema = self.mssql_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.mssql_password_line_edit.text()
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            configuration.tool_name = 'ili2gpkg'
+        elif self.type_combo_box.currentData() & DbIliMode.gpkg:
+            configuration.tool = DbIliMode.ili2gpkg
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
         configuration.epsg = self.epsg
@@ -453,7 +453,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings.setValue('QgisModelBaker/ili2db/epsg', self.epsg)
         settings.setValue('QgisModelBaker/importtype',
                           self.type_combo_box.currentData())
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
+        if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
             settings.setValue(
                 'QgisModelBaker/ili2pg/host', configuration.dbhost)
@@ -469,7 +469,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgisModelBaker/ili2pg/password', configuration.dbpwd)
             settings.setValue(
                 'QgisModelBaker/ili2pg/usesuperlogin', configuration.db_use_super_login)
-        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
+        elif self.type_combo_box.currentData() & DbIliMode.mssql:
             settings.setValue(
                 'QgisModelBaker/ili2mssql/host', configuration.dbhost)
             settings.setValue(
@@ -483,7 +483,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 'QgisModelBaker/ili2mssql/schema', configuration.dbschema)
             settings.setValue('QgisModelBaker/ili2mssql/password', configuration.dbpwd)
 
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
+        elif self.type_combo_box.currentData() & DbIliMode.gpkg:
             settings.setValue(
                 'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
 
@@ -531,7 +531,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             settings.value('QgisModelBaker/ili2gpkg/dbfile'))
 
         self.type_combo_box.setCurrentIndex(
-            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', 'pg')))
+            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', DbIliMode.pg)))
         self.type_changed()
         self.crs_changed()
 
@@ -547,28 +547,28 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.progress_bar.hide()
-        if self.type_combo_box.currentData() == 'ili2pg':
+        if self.type_combo_box.currentData() == DbIliMode.ili2pg:
             self.ili_config.show()
             self.pg_config.show()
             self.gpkg_config.hide()
             self.mssql_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]"))
-        elif self.type_combo_box.currentData() == 'pg':
+        elif self.type_combo_box.currentData() == DbIliMode.pg:
             self.ili_config.hide()
             self.pg_config.show()
             self.gpkg_config.hide()
             self.mssql_config.hide()
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to load all schemas in the database]"))
-        if self.type_combo_box.currentData() == 'ili2mssql':
+        if self.type_combo_box.currentData() == DbIliMode.ili2mssql:
             self.ili_config.show()
             self.pg_config.hide()
             self.gpkg_config.hide()
             self.mssql_config.show()
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]"))
-        elif self.type_combo_box.currentData() == 'gpkg':
+        elif self.type_combo_box.currentData() == DbIliMode.gpkg:
             self.ili_config.hide()
             self.pg_config.hide()
             self.gpkg_config.show()
@@ -583,14 +583,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.gpkg_file_browse_button.clicked.connect(
                 make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
                                    file_filter=self.tr('GeoPackage Database (*.gpkg)')))
-        elif self.type_combo_box.currentData() == 'mssql':
+        elif self.type_combo_box.currentData() == DbIliMode.mssql:
             self.ili_config.hide()
             self.pg_config.hide()
             self.gpkg_config.hide()
             self.mssql_config.show()
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to load all schemas in the database]"))
-        elif self.type_combo_box.currentData() == 'ili2gpkg':
+        elif self.type_combo_box.currentData() == DbIliMode.ili2gpkg:
             self.ili_config.show()
             self.pg_config.hide()
             self.gpkg_config.show()

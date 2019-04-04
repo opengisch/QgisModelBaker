@@ -25,6 +25,7 @@ import re
 
 from QgisModelBaker.gui.options import OptionsDialog, ModelListView
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.iliexporter import JavaNotFoundError
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
@@ -51,7 +52,7 @@ DIALOG_UI = get_ui_class('export.ui')
 
 class ExportModels(QStringListModel):
 
-    def __init__(self, tool_name, uri, schema=None):
+    def __init__(self, tool, uri, schema=None):
         super().__init__()
 
         blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
@@ -69,11 +70,11 @@ class ExportModels(QStringListModel):
         modelnames = list()
 
         try:
-            if tool_name == 'ili2gpkg':
+            if tool == DbIliMode.ili2gpkg:
                 self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-            elif tool_name == 'ili2pg':
+            elif tool == DbIliMode.ili2pg:
                 self._db_connector = pg_connector.PGConnector(uri, schema)
-            elif tool_name == 'ili2mssql':
+            elif tool == DbIliMode.ili2mssql:
                 self._db_connector = mssql_connector.MssqlConnector(uri, schema)
 
             if self._db_connector.db_or_schema_exists():
@@ -142,9 +143,9 @@ class ExportDialog(QDialog, DIALOG_UI):
             make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
                                file_filter=self.tr('GeoPackage Database (*.gpkg)')))
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
-        self.type_combo_box.addItem(self.tr('SQL Server'), 'mssql')
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.pg]), DbIliMode.pg)
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.gpkg]), DbIliMode.gpkg)
+        self.type_combo_box.addItem(self.tr(displayDbIliMode[DbIliMode.mssql]), DbIliMode.mssql)
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.base_configuration = base_config
@@ -235,11 +236,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
-        tool_name_list = {'pg':'ili2pg','gpkg':'ili2gpkg', 'mssql': 'ili2mssql'}
-        tool_name = tool_name_list[self.type_combo_box.currentData()]
+        tool = self.type_combo_box.currentData()
         separator = ' '
         uri = []
-        if tool_name == 'ili2pg':
+        if tool == DbIliMode.ili2pg:
             uri += ['dbname={}'.format(self.updated_configuration().database)]
             uri += ['user={}'.format(self.updated_configuration().dbusr)]
             if self.updated_configuration().dbpwd:
@@ -247,9 +247,9 @@ class ExportDialog(QDialog, DIALOG_UI):
             uri += ['host={}'.format(self.updated_configuration().dbhost)]
             if self.updated_configuration().dbport:
                 uri += ['port={}'.format(self.updated_configuration().dbport)]
-        elif tool_name == 'ili2gpkg':
+        elif tool == DbIliMode.ili2gpkg:
             uri = [self.updated_configuration().dbfile]
-        elif tool_name == 'ili2mssql':
+        elif tool == DbIliMode.ili2mssql:
             uri += ['DRIVER={SQL Server}']
             host = self.updated_configuration().dbhost
             port = self.updated_configuration().dbport
@@ -269,7 +269,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         schema = self.updated_configuration().dbschema
 
-        self.export_models_model = ExportModels(tool_name, uri_string, schema)
+        self.export_models_model = ExportModels(tool, uri_string, schema)
 
         return self.export_models_model
 
@@ -287,7 +287,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.export_models_view.setFocus()
             return
 
-        if self.type_combo_box.currentData() == 'pg':
+        if self.type_combo_box.currentData() == DbIliMode.pg:
             if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before exporting data.'))
@@ -303,7 +303,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before exporting data.'))
                 self.pg_user_line_edit.setFocus()
                 return
-        elif self.type_combo_box.currentData() == 'mssql':
+        elif self.type_combo_box.currentData() == DbIliMode.mssql:
             if not configuration.dbhost:
                 self.txtStdout.setText(
                     self.tr('Please set a host before exporting data.'))
@@ -319,7 +319,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                     self.tr('Please set a database user before exporting data.'))
                 self.mssql_user_line_edit.setFocus()
                 return
-        elif self.type_combo_box.currentData() == 'gpkg':
+        elif self.type_combo_box.currentData() == DbIliMode.gpkg:
             if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
                 self.txtStdout.setText(
                     self.tr('Please set an existing database file before creating the project.'))
@@ -347,11 +347,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.txtStdout.clear()
 
             exporter = iliexporter.Exporter()
-
-            tool_name_list = {'pg':'ili2pg','gpkg':'ili2gpkg', 'mssql': 'ili2mssql'}
-            tool_name = tool_name_list[self.type_combo_box.currentData()]
-            
-            exporter.tool_name = tool_name
+            exporter.tool = self.type_combo_box.currentData()
             exporter.configuration = configuration
 
             self.save_configuration(configuration)
@@ -417,7 +413,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         """
         configuration = ili2dbconfig.ExportConfiguration()
 
-        if self.type_combo_box.currentData() == 'pg':
+        if self.type_combo_box.currentData() == DbIliMode.pg:
             # PostgreSQL specific options
             configuration.dbhost = self.pg_host_line_edit.text().strip()
             configuration.dbport = self.pg_port_line_edit.text().strip()
@@ -425,9 +421,9 @@ class ExportDialog(QDialog, DIALOG_UI):
             configuration.database = self.pg_database_line_edit.text().strip()
             configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
             configuration.dbpwd = self.pg_password_line_edit.text()
-        elif self.type_combo_box.currentData() == 'gpkg':
+        elif self.type_combo_box.currentData() == DbIliMode.gpkg:
             configuration.dbfile = self.gpkg_file_line_edit.text().strip()
-        elif self.type_combo_box.currentData() == 'mssql':
+        elif self.type_combo_box.currentData() == DbIliMode.mssql:
             configuration.dbhost = self.mssql_host_line_edit.text().strip()
             configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
             configuration.dbport = self.mssql_port_line_edit.text().strip()
@@ -450,7 +446,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings.setValue('QgisModelBaker/importtype',
                           self.type_combo_box.currentData())
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
+        if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
             settings.setValue(
                 'QgisModelBaker/ili2pg/host', configuration.dbhost)
@@ -464,10 +460,10 @@ class ExportDialog(QDialog, DIALOG_UI):
                 'QgisModelBaker/ili2pg/schema', configuration.dbschema)
             settings.setValue(
                 'QgisModelBaker/ili2pg/password', configuration.dbpwd)
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
+        elif self.type_combo_box.currentData() & DbIliMode.gpkg:
             settings.setValue(
                 'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
-        elif self.type_combo_box.currentData() in ['ili2mssql', 'mssql']:
+        elif self.type_combo_box.currentData() & DbIliMode.mssql:
             settings.setValue(
                 'QgisModelBaker/ili2mssql/host', configuration.dbhost)
             settings.setValue(
@@ -516,11 +512,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.mssql_password_line_edit.setText(
             settings.value('QgisModelBaker/ili2mssql/password'))
 
-        mode = settings.value('QgisModelBaker/importtype', 'pg')
-        mode = 'pg' if mode == 'ili2pg' else mode
-        mode = 'gpkg' if mode == 'ili2gpkg' else mode
-        mode = 'mssql' if mode == 'ili2mssql' else mode
-        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
+        mode = settings.value('QgisModelBaker/importtype', DbIliMode.pg)
+        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(~DbIliMode.ili & mode)) # Get base name, without the ili
         self.type_changed()
 
     def disable(self):
@@ -535,15 +528,16 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.progress_bar.hide()
+
         self.pg_config.hide()
         self.gpkg_config.hide()
         self.mssql_config.hide()
 
-        if self.type_combo_box.currentData() == 'pg':
+        if self.type_combo_box.currentData() == DbIliMode.pg:
             self.pg_config.show()
-        elif self.type_combo_box.currentData() == 'gpkg':
+        elif self.type_combo_box.currentData() == DbIliMode.gpkg:
             self.gpkg_config.show()
-        elif self.type_combo_box.currentData() == 'mssql':
+        elif self.type_combo_box.currentData() == DbIliMode.mssql:
             self.mssql_config.show()
 
     def link_activated(self, link):
