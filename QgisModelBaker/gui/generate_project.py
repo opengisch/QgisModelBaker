@@ -278,11 +278,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         self.enable()
                         self.progress_bar.hide()
                         return
-                except JavaNotFoundError:
+                except JavaNotFoundError as e:
                     self.txtStdout.setTextColor(QColor('#000000'))
                     self.txtStdout.clear()
-                    self.txtStdout.setText(self.tr(
-                        'Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
+                    self.txtStdout.setText(e.error_string)
                     self.enable()
                     self.progress_bar.hide()
                     return

@@ -291,6 +291,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createFk"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
+        args += ["--expandMultilingual"]
 
         if self.create_import_tid:
             args += ["--importTid"]
@@ -338,7 +339,3 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         args += SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
 
         return args
-
-
-class JavaNotFoundError(FileNotFoundError):
-    pass

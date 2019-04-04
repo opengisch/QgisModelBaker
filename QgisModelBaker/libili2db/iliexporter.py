@@ -17,13 +17,16 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
 
 import re
 import functools
 import locale
 
-from QgisModelBaker.libili2db.ili2dbutils import get_ili2db_bin
+from QgisModelBaker.libili2db.ili2dbutils import (
+    get_ili2db_bin,
+    get_java_path,
+    JavaNotFoundError
+)
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
 from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, JavaNotFoundError
@@ -64,38 +67,18 @@ class Exporter(QObject):
 
         args = self.configuration.to_ili2db_args()
 
-        if self.configuration.base_configuration.java_path:
-            # A java path is configured: respect it no mather what
-            java_paths = [self.configuration.base_configuration.java_path]
-        else:
-            # By default try JAVA_HOME and PATH
-            java_paths = []
-            if 'JAVA_HOME' in os.environ:
-                paths = os.environ['JAVA_HOME'].split(";")
-                for path in paths:
-                    # Include double check as java can be found on different paths
-                    # /usr/lib/jvm/java8oracle/bin/java
-                    java_paths += [os.path.join(path.replace("\"",
-                                                             "").replace("'", ""), 'bin', 'java')]
-                    # C:\ProgramData\Oracle\Java\javapath\java
-                    java_paths += [os.path.join(path.replace("\"",
-                                                             "").replace("'", ""), 'java')]
-            java_paths += ['java']
+        java_path = get_java_path(self.configuration.base_configuration)
 
-        proc = None
-        for java_path in java_paths:
-            proc = QProcess()
-            proc.readyReadStandardError.connect(
-                functools.partial(self.stderr_ready, proc=proc))
-            proc.readyReadStandardOutput.connect(
-                functools.partial(self.stdout_ready, proc=proc))
+        proc = QProcess()
+        proc.readyReadStandardError.connect(
+            functools.partial(self.stderr_ready, proc=proc))
+        proc.readyReadStandardOutput.connect(
+            functools.partial(self.stdout_ready, proc=proc))
 
-            proc.start(java_path, ili2db_jar_arg + args)
+        proc.start(java_path, ili2db_jar_arg + args)
 
-            if not proc.waitForStarted():
-                proc = None
-            else:
-                break
+        if not proc.waitForStarted():
+            proc = None
 
         if not proc:
             raise JavaNotFoundError()
