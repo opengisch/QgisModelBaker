@@ -254,6 +254,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createFk"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
+        args += ["--expandMultilingual"]
 
         if self.create_import_tid:
             args += ["--importTid"]
