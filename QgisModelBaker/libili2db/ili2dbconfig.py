@@ -21,6 +21,7 @@
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
+
 import os
 
 ili2db_tools = {
@@ -300,7 +301,3 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         args += SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
 
         return args
-
-
-class JavaNotFoundError(FileNotFoundError):
-    pass
