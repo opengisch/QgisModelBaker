@@ -32,5 +32,5 @@ echo ""
 
 
 pushd /usr/src
-xvfb-run nose2-3 QgisModelBaker.tests.test_import.TestImport
+xvfb-run nose2-3
 popd
