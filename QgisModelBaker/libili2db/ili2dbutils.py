@@ -174,11 +174,13 @@ def get_java_path(base_configuration):
                                                          "").replace("'", ""), 'java')]
 
         if platform.system() == 'Windows':
-            java_paths += [which('java.exe')]
+            java_path = which('java.exe')
+            if java_path:
+                java_paths += [java_path]
         else:
             java_paths += ['java']
 
-        err = None
+        version_output = None
         java_version_re = re.compile(r'.*version "([0-9\.]+)_.*')
         for java_path in java_paths:
             try:
@@ -188,13 +190,14 @@ def get_java_path(base_configuration):
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 p = subprocess.Popen([java_path, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
                 output, err = p.communicate()
-                java_version = java_version_re.match(err.decode('utf-8'))
+                version_output = err.decode('utf-8')
+                java_version = java_version_re.match(version_output)
                 if java_version.group(1) == '1.8.0':
                     return java_path
             except FileNotFoundError:
                 pass
 
-        raise JavaNotFoundError(err.decode('utf-8'))
+        raise JavaNotFoundError(version_output)
 
 
 class JavaNotFoundError(FileNotFoundError):
