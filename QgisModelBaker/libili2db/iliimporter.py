@@ -33,7 +33,6 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 from QgisModelBaker.libili2db.ili2dbconfig import (
         SchemaImportConfiguration,
         ImportDataConfiguration,
-        JavaNotFoundError,
         ili2db_tools
 )
 

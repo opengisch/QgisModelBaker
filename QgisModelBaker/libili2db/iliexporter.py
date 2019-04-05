@@ -29,7 +29,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, JavaNotFoundError, ili2db_tools
+from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, ili2db_tools
 
 
 class Exporter(QObject):
