@@ -19,6 +19,7 @@
 
 import nose2
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app

@@ -21,6 +21,7 @@ import nose2
 import logging
 
 from QgisModelBaker.libili2db import iliimporter
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app

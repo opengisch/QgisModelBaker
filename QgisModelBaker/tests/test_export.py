@@ -27,6 +27,7 @@ import logging
 
 from QgisModelBaker.libili2db import (iliexporter,
                                         iliimporter)
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import (iliimporter_config,
                                           iliexporter_config,
                                           ilidataimporter_config,

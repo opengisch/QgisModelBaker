@@ -26,6 +26,7 @@ import nose2
 import psycopg2
 import psycopg2.extras
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
