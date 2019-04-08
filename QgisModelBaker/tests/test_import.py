@@ -183,6 +183,84 @@ class TestImport(unittest.TestCase):
         cursor.close()
         conn.close()
 
+    def test_import_mssql(self):
+
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(
+            importer.tool, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2mssql
+        dataImporter.configuration = ilidataimporter_config(
+            dataImporter.tool, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        self.assertEqual(dataImporter.run(),
+                         iliimporter.Importer.SUCCESS)
+
+        # TODO Check importer.configuration.uri
+        uri = "DSN={dsn};DATABASE={db};UID={uid};PWD={pwd}"\
+             .format(dsn="testsqlserver",
+                     db=importer.configuration.database,
+                     uid=importer.configuration.dbusr,
+                     pwd=importer.configuration.dbpwd)
+
+        # Check expected data is there in the database schema
+        conn = pyodbc.connect(uri)
+
+        # Expected predio data
+        cursor = conn.cursor()
+        cursor.execute("""
+                SELECT tipo, geometria.STAsText(), geometria.STSrid, t_id
+                FROM {}.Predio
+            """.format(importer.configuration.dbschema))
+        record = next(cursor)
+        self.assertIsNotNone(record)
+        self.assertEqual(record[0], 'Unidad_Derecho')
+        self.assertEqual(record[1], 'POLYGON ((1000257.4255576647 1002020.3757097842, 1000437.6884391493 1002196.4946169816, 1000275.4718973016 1002428.1895664315, 1000072.2500615012 1002291.538672403, 1000158.571719431 1002164.9135226171, 1000159.9415303215 1002163.1279974865, 1000257.4255576647 1002020.3757097842))')
+        self.assertEqual(record[2], 3116)
+        predio_id = record[3]
+
+        # Expected persona data
+        cursor = conn.cursor()
+        cursor.execute("""
+                SELECT documento_numero, nombre, t_id
+                FROM {}.persona
+            """.format(importer.configuration.dbschema))
+        record = next(cursor)
+        self.assertIsNotNone(record)
+        self.assertEqual(record[0], '1234354656')
+        self.assertEqual(record[1], 'Pepito Perez')
+        persona_id = record[2]
+
+        # Expected derecho data
+        cursor = conn.cursor()
+        cursor.execute("""
+                SELECT tipo, interesado, unidad
+                FROM {}.derecho
+            """.format(importer.configuration.dbschema))
+        record = next(cursor)
+        self.assertIsNotNone(record)
+        self.assertEqual(record[0], 'Posesion')
+        self.assertEqual(record[1], persona_id)  # FK persona
+        self.assertEqual(record[2], predio_id)  # FK predio
+
     def print_info(self, text):
         logging.info(text)
 
