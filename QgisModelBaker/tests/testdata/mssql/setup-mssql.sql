@@ -1,2 +1,2 @@
-CREATE SCHEMA modelbaker_test;
+CREATE DATABASE GIS;
 GO

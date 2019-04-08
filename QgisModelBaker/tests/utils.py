@@ -38,6 +38,11 @@ def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
+    elif tool == DbIliMode.ili2mssql:
+        configuration.dbhost = 'mssql'
+        configuration.dbusr = 'sa'
+        configuration.dbpwd = '<YourStrong!Passw0rd>'
+        configuration.database = 'gis'
     configuration.base_configuration = base_config
 
     return configuration
@@ -56,6 +61,11 @@ def iliexporter_config(tool=DbIliMode.ili2pg, modeldir=None):
         configuration.dbhost = 'postgres'
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
+        configuration.database = 'gis'
+    elif tool == DbIliMode.ili2mssql:
+        configuration.dbhost = 'mssql'
+        configuration.dbusr = 'sa'
+        configuration.dbpwd = '<YourStrong!Passw0rd>'
         configuration.database = 'gis'
     elif tool == DbIliMode.ili2gpkg:
         configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
@@ -77,6 +87,11 @@ def ilidataimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
         configuration.dbhost = 'postgres'
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
+        configuration.database = 'gis'
+    elif tool == DbIliMode.ili2mssql:
+        configuration.dbhost = 'mssql'
+        configuration.dbusr = 'sa'
+        configuration.dbpwd = '<YourStrong!Passw0rd>'
         configuration.database = 'gis'
     elif tool == DbIliMode.ili2gpkg:
         configuration.dbfile = testdata_path('geopackage/test_export.gpkg')

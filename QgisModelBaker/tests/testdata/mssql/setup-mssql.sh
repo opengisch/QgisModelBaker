@@ -12,7 +12,6 @@ export SQLUSER=sa
 export SQLHOST=mssql
 export SQLPORT=1433
 export SQLPASSWORD='<YourStrong!Passw0rd>'
-export SQLDATABASE=modelbaker_test
 
 export PATH=$PATH:/opt/mssql-tools/bin
 
