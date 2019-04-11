@@ -110,6 +110,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     req = QNetworkRequest(QUrl(url))
     req.setAttribute(QNetworkRequest.CacheSaveControlAttribute, False)
     req.setAttribute(QNetworkRequest.CacheLoadControlAttribute, QNetworkRequest.AlwaysNetwork)
+    req.setAttribute(QNetworkRequest.FollowRedirectsAttribute, True)
     reply = network_access_manager.get(req)
 
     def on_download_progress(bytes_received, bytes_total):

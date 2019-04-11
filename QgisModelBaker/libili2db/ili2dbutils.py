@@ -56,10 +56,10 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
         except NetworkError as e:
             stderr.emit(
                 QCoreApplication.translate('ili2dbutils',
-                                           'Could not download {tool_name}\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2db_url}">{ili2db_url}</a>'.format(
+                                           'Could not download {tool_name}\n\n  Error: {error}\n\nFile "{file}" not found. Please download and extract <a href="{ili2db_url}">{tool_name}</a>'.format(
                                                tool_name=tool_name,
                                                ili2db_url=ili2db_tools[
-                                                   tool_name]['version'],
+                                                   tool_name]['url'],
                                                error=e.msg,
                                                file=ili2db_file)
                                            )
@@ -76,9 +76,10 @@ def get_ili2db_bin(tool_name, stdout, stderr, ili2db_tools):
         if not os.path.isfile(ili2db_file):
             stderr.emit(
                 QCoreApplication.translate('ili2dbutils',
-                                           'File "{file}" not found. Please download and extract <a href="{ili2db_url}">{ili2db_url}</a>.'.format(
+                                           'File "{file}" not found. Please download and extract <a href="{ili2db_url}">{tool_name}</a>.'.format(
+                                               tool_name=tool_name,
                                                file=ili2db_file,
-                                               ili2db_url=ili2db_tools[tool_name]['version'])))
+                                               ili2db_url=ili2db_tools[tool_name]['url'])))
             return None
 
     return ili2db_file
