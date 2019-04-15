@@ -257,10 +257,10 @@ class ExportDialog(QDialog, DIALOG_UI):
             host = self.updated_configuration().dbhost
             port = self.updated_configuration().dbport
             instance = self.updated_configuration().dbinstance
-            if port:
-                host += ',' + port
             if instance:
                 host += '\\' + instance
+            if port:
+                host += ',' + port
 
             uri += ['SERVER={}'.format(host)]
             uri += ['DATABASE={}'.format(self.updated_configuration().database)]
