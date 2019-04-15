@@ -65,8 +65,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.custom_models_dir_button.clicked.connect(
             self.show_custom_model_dir)
 
-        self.ili2db_tool_combobox.addItem(displayDbIliMode(DbIliMode.ili2pg), DbIliMode.ili2pg)
-        self.ili2db_tool_combobox.addItem(displayDbIliMode(DbIliMode.ili2gpkg), DbIliMode.ili2gpkg)
+        self.ili2db_tool_combobox.addItem(self.tr(displayDbIliMode[DbIliMode.ili2pg]), DbIliMode.ili2pg)
+        self.ili2db_tool_combobox.addItem(self.tr(displayDbIliMode[DbIliMode.ili2gpkg]), DbIliMode.ili2gpkg)
 
         self.ili2db_action_combobox.addItem(
             self.tr('Schema Import'), 'schemaimport')
