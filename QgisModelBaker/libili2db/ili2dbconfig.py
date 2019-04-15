@@ -185,7 +185,7 @@ class Ili2DbCommandConfiguration(object):
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
 
-        if self.tool == DbIliMode.ili2pg:
+        if self.tool & DbIliMode.pg:
             # PostgreSQL specific options
             args += ["--dbhost", self.dbhost]
             if self.dbport:
@@ -199,9 +199,9 @@ class Ili2DbCommandConfiguration(object):
             args += ["--dbdatabase", self.database.strip("'")]
             args += ["--dbschema",
                      self.dbschema or self.database]
-        elif self.tool == DbIliMode.ili2gpkg:
+        elif self.tool & DbIliMode.gpkg:
             args += ["--dbfile", self.dbfile]
-        elif self.tool == DbIliMode.ili2mssql:
+        elif self.tool & DbIliMode.mssql:
             # mssql specific options
             args += ["--dbhost", self.dbhost]
             if self.dbport:

@@ -451,7 +451,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                           configuration.ilifile)
         settings.setValue('QgisModelBaker/ili2db/epsg', self.epsg)
         settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData())
+                          self.type_combo_box.currentData().value)
         if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
             settings.setValue(
@@ -529,8 +529,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.gpkg_file_line_edit.setText(
             settings.value('QgisModelBaker/ili2gpkg/dbfile'))
 
-        self.type_combo_box.setCurrentIndex(
-            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', DbIliMode.pg)))
+        import_type_val = int(settings.value('QgisModelBaker/importtype', DbIliMode.pg))
+        mode = DbIliMode(import_type_val) if DbIliMode(import_type_val) in DbIliMode else DbIliMode.pg
+
+        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
         self.crs_changed()
 
