@@ -159,7 +159,7 @@ def get_java_path(base_configuration):
 
     if base_configuration.java_path:
         # A java path is configured: respect it no mather what
-        return [base_configuration.java_path]
+        return base_configuration.java_path
     else:
         # By default try JAVA_HOME and PATH
         java_paths = []
