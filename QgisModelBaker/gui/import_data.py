@@ -329,7 +329,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgisModelBaker/ili2pg/deleteData', configuration.delete_data)
         settings.setValue(
-            'QgisModelBaker/importtype', self.type_combo_box.currentData())
+            'QgisModelBaker/importtype', self.type_combo_box.currentData().value)
 
         if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
@@ -404,7 +404,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.mssql_password_line_edit.setText(
             settings.value('QgisModelBaker/ili2mssql/password'))
 
-        mode = settings.value('QgisModelBaker/importtype', DbIliMode.pg)
+        import_type_val = int(settings.value('QgisModelBaker/importtype', DbIliMode.pg))
+        mode = DbIliMode(import_type_val) if DbIliMode(import_type_val) in DbIliMode else DbIliMode.pg
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(~DbIliMode.ili & mode)) # Get the base mode, without the ili
         self.type_changed()
 
