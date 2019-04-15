@@ -73,11 +73,11 @@ class ExportModels(QStringListModel):
         modelnames = list()
 
         try:
-            if tool == DbIliMode.ili2gpkg:
+            if tool == DbIliMode.gpkg:
                 self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-            elif tool == DbIliMode.ili2pg:
+            elif tool == DbIliMode.pg:
                 self._db_connector = pg_connector.PGConnector(uri, schema)
-            elif tool == DbIliMode.ili2mssql:
+            elif tool == DbIliMode.mssql:
                 self._db_connector = mssql_connector.MssqlConnector(uri, schema)
 
             if self._db_connector.db_or_schema_exists():
@@ -242,7 +242,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         tool = self.type_combo_box.currentData()
         separator = ' '
         uri = []
-        if tool == DbIliMode.ili2pg:
+        if tool == DbIliMode.pg:
             uri += ['dbname={}'.format(self.updated_configuration().database)]
             uri += ['user={}'.format(self.updated_configuration().dbusr)]
             if self.updated_configuration().dbpwd:
@@ -250,9 +250,9 @@ class ExportDialog(QDialog, DIALOG_UI):
             uri += ['host={}'.format(self.updated_configuration().dbhost)]
             if self.updated_configuration().dbport:
                 uri += ['port={}'.format(self.updated_configuration().dbport)]
-        elif tool == DbIliMode.ili2gpkg:
+        elif tool == DbIliMode.gpkg:
             uri = [self.updated_configuration().dbfile]
-        elif tool == DbIliMode.ili2mssql:
+        elif tool == DbIliMode.mssql:
             uri += ['DRIVER={SQL Server}']
             host = self.updated_configuration().dbhost
             port = self.updated_configuration().dbport
@@ -446,7 +446,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgisModelBaker/ili2pg/xtffile_export', configuration.xtffile)
         settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData())
+                          self.type_combo_box.currentData().value)
 
         if self.type_combo_box.currentData() & DbIliMode.pg:
             # PostgreSQL specific options
@@ -514,7 +514,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.mssql_password_line_edit.setText(
             settings.value('QgisModelBaker/ili2mssql/password'))
 
-        mode = settings.value('QgisModelBaker/importtype', DbIliMode.pg)
+        import_type_val = int(settings.value('QgisModelBaker/importtype', DbIliMode.pg))
+        mode = DbIliMode(import_type_val) if DbIliMode(import_type_val) in DbIliMode else DbIliMode.pg
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(~DbIliMode.ili & mode)) # Get base name, without the ili
         self.type_changed()
 
