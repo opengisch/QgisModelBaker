@@ -25,6 +25,7 @@ import tempfile
 import nose2
 import psycopg2
 import psycopg2.extras
+import pyodbc
 
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
@@ -32,6 +33,7 @@ from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.tests.utils import iliimporter_config
 
 start_app()
 
@@ -53,6 +55,24 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
         except psycopg2.OperationalError as e:
             # psycopg2.OperationalError: FATAL:  database "not_exists_database" does not exist
+            self.assertIsNone(generator)
+
+    def test_empty_mssql_db(self):
+        generator = None
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        try:
+            uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+                .format(drv="{ODBC Driver 17 for SQL Server}",
+                        server=configuration.dbhost,
+                        db='not_exists_database',
+                        uid=configuration.dbusr,
+                        pwd=configuration.dbpwd)
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', '')
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42000:
+            # Cannot open database "not_exists_database" requested by the login. The login failed
+            self.assertEqual(int(sqlstate), 42000)
             self.assertIsNone(generator)
 
     def test_postgres_db_without_schema(self):
