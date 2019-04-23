@@ -80,6 +80,19 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         self.assertIsNotNone(generator)
         self.assertEqual(len(generator.layers()), 0)
 
+    def test_mssql_db_without_schema(self):
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart1')
+        self.assertIsNotNone(generator)
+        self.assertEqual(len(generator.layers()), 0)
+
     def test_postgres_db_with_empty_schema(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
         conn = psycopg2.connect(uri)
