@@ -29,6 +29,8 @@ from QgisModelBaker.libili2db.ili2dbutils import (
     JavaNotFoundError
 )
 from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     make_save_file_selector,
@@ -70,6 +72,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self);
+        self.db_simple_factory = DbSimpleFactory()
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
@@ -81,12 +84,18 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.xtf_file_browse_button.clicked.connect(
             make_file_selector(self.xtf_file_line_edit, title=self.tr('Open Transfer or Catalog File'),
                                file_filter=self.tr('Transfer File (*.xtf *.itf);;Catalogue File (*.xml *.xls *.xlsx)')))
-        self.gpkg_file_browse_button.clicked.connect(
-            make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Save in GeoPackage database file'),
-                                    file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
+
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+        self._lst_panel = dict()
+
+        for db_id in self.db_simple_factory.get_db_list(False):
+            self.type_combo_box.addItem(
+                self.tr(self.db_simple_factory.db_display(db_id)), db_id)
+            db_factory = self.db_simple_factory.create_factory(db_id)
+            item_panel = db_factory.get_config_panel(self)
+            self._lst_panel[db_id] = item_panel
+            self.db_layout.addWidget(item_panel)
+
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
@@ -105,38 +114,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(
             pattern=['*.xtf', '*.itf', '*.pdf', '*.xml', '*.xls', '*.xlsx'])
-        gpkgFileValidator = FileValidator(
-            pattern='*.gpkg', allow_non_existing=True)
 
-        self.pg_host_line_edit.setValidator(nonEmptyValidator)
-        self.pg_database_line_edit.setValidator(nonEmptyValidator)
-        self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.xtf_file_line_edit.setValidator(fileValidator)
-        self.gpkg_file_line_edit.setValidator(gpkgFileValidator)
 
         self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model in repository]'))
         self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
-        self.pg_host_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
-        self.pg_database_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(
-            self.pg_database_line_edit.text())
-        self.pg_user_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.pg_use_super_login.setText(
-            self.tr('Generate schema with superuser login from settings ({})').format(base_config.super_pg_user))
+
         self.xtf_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
-        self.gpkg_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.gpkg_file_line_edit.textChanged.emit(
-            self.gpkg_file_line_edit.text())
 
         settings = QSettings()
         ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
@@ -153,30 +141,15 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.xtf_file_line_edit.setFocus()
             return
 
-        if self.type_combo_box.currentData() == 'pg':
-            if not configuration.dbhost:
-                self.txtStdout.setText(
-                    self.tr('Please set a host before importing data.'))
-                self.pg_host_line_edit.setFocus()
-                return
-            if not configuration.database:
-                self.txtStdout.setText(
-                    self.tr('Please set a database before importing data.'))
-                self.pg_database_line_edit.setFocus()
-                return
-            if not configuration.dbusr:
-                self.txtStdout.setText(
-                    self.tr('Please set a database user before importing data.'))
-                self.pg_user_line_edit.setFocus()
-                return
-        elif self.type_combo_box.currentData() == 'gpkg':
-            if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(
-                    self.tr('Please set a valid database file before creating the project.'))
-                self.gpkg_file_line_edit.setFocus()
-                return
+        db_id = self.type_combo_box.currentData()
+        res, message = self._lst_panel[db_id].is_valid()
+
+        if not res:
+            self.txtStdout.setText(self.tr(message))
+            return
 
         # create schema with superuser
+        # TODO Hard-coding 'pg'
         if self.type_combo_box.currentData() == 'pg' and configuration.db_use_super_login:
             configuration.tool_name='ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
             _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
@@ -193,8 +166,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
             dataImporter = iliimporter.Importer(dataImport=True)
 
-            tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
-            dataImporter.tool_name = tool_name
+            dataImporter.tool_name = configuration.tool_name
             dataImporter.configuration = configuration
 
             self.save_configuration(configuration)
@@ -258,17 +230,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         """
         configuration = ili2dbconfig.ImportDataConfiguration()
 
-        if self.type_combo_box.currentData() == 'pg':
-            # PostgreSQL specific options
-            configuration.dbhost = self.pg_host_line_edit.text().strip()
-            configuration.dbport = self.pg_port_line_edit.text().strip()
-            configuration.dbusr = self.pg_user_line_edit.text().strip()
-            configuration.database = self.pg_database_line_edit.text().strip()
-            configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
-            configuration.dbpwd = self.pg_password_line_edit.text()
-            configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        elif self.type_combo_box.currentData() == 'gpkg':
-            configuration.dbfile = self.gpkg_file_line_edit.text().strip()
+        mode = self.type_combo_box.currentData()
+        db_id = self.db_simple_factory.get_db_id(mode)
+
+        self._lst_panel[db_id].get_fields(configuration)
 
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.delete_data = self.chk_delete_data.isChecked()
@@ -290,25 +255,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgisModelBaker/importtype', self.type_combo_box.currentData())
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
-            # PostgreSQL specific options
-            settings.setValue('QgisModelBaker/ili2pg/host',
-                              configuration.dbhost)
-            settings.setValue('QgisModelBaker/ili2pg/port',
-                              configuration.dbport)
-            settings.setValue('QgisModelBaker/ili2pg/user',
-                              configuration.dbusr)
-            settings.setValue('QgisModelBaker/ili2pg/database',
-                              configuration.database)
-            settings.setValue('QgisModelBaker/ili2pg/schema',
-                              configuration.dbschema)
-            settings.setValue('QgisModelBaker/ili2pg/password',
-                              configuration.dbpwd)
-            settings.setValue('QgisModelBaker/ili2pg/usesuperlogin',
-                              configuration.db_use_super_login)
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            settings.setValue('QgisModelBaker/ili2gpkg/dbfile',
-                              configuration.dbfile)
+        mode = self.type_combo_box.currentData()
+        db_id = self.db_simple_factory.get_db_id(mode)
+        db_factory = self.db_simple_factory.create_factory(db_id)
+
+        db_factory.save_settings(configuration)
 
     def restore_configuration(self):
         settings = QSettings()
@@ -318,47 +269,40 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             'QgisModelBaker/ili2pg/xtffile_import'))
         self.chk_delete_data.setChecked(settings.value(
             'QgisModelBaker/ili2pg/deleteData', False, bool))
-        self.pg_host_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/host', 'localhost'))
-        self.pg_port_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/port'))
-        self.pg_user_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/user'))
-        self.pg_database_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/database'))
-        self.pg_schema_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/schema'))
-        self.pg_password_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/password'))
-        self.pg_use_super_login.setChecked(settings.value(
-            'QgisModelBaker/ili2pg/usesuperlogin', defaultValue=False, type=bool))
-        self.gpkg_file_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2gpkg/dbfile'))
 
+        for db_id in self.db_simple_factory.get_db_list(False):
+            configuration = iliimporter.ImportDataConfiguration()
+            db_factory = self.db_simple_factory.create_factory(db_id)
+            db_factory.load_settings(configuration)
+            self._lst_panel[db_id].set_fields(configuration)
+
+        # TODO Hardcoding 'pg' default option
         mode = settings.value('QgisModelBaker/importtype', 'pg')
-        mode = 'pg' if mode == 'ili2pg' else mode
-        mode = 'gpkg' if mode == 'ili2gpkg' else mode
+        mode = self.db_simple_factory.get_db_id(mode)
+
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
 
     def disable(self):
-        self.pg_config.setEnabled(False)
+        for key, value in self._lst_panel.items():
+            value.setEnabled(False)
         self.ili_config.setEnabled(False)
         self.buttonBox.setEnabled(False)
 
     def enable(self):
-        self.pg_config.setEnabled(True)
+        for key, value in self._lst_panel.items():
+            value.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
         self.progress_bar.hide()
-        if self.type_combo_box.currentData() == 'pg':
-            self.pg_config.show()
-            self.gpkg_config.hide()
-        elif self.type_combo_box.currentData() == 'gpkg':
-            self.pg_config.hide()
-            self.gpkg_config.show()
+
+        for key, value in self._lst_panel.items():
+            value.setVisible(False)
+
+        db_id = self.type_combo_box.currentData()
+        self._lst_panel[db_id].show_panel(False)
 
     def link_activated(self, link):
         if link.url() == '#configure':
