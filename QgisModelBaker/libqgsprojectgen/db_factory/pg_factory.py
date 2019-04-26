@@ -19,6 +19,7 @@
 from qgis.PyQt.QtCore import QSettings
 from .db_factory import DbFactory
 from ..dbconnector.pg_connector import PGConnector
+from .pg_uri import PgUri
 from ...gui.panel.pg_config_panel import PgConfigPanel
 
 
@@ -29,6 +30,9 @@ class PgFactory(DbFactory):
 
     def get_config_panel(self, parent):
         return PgConfigPanel(parent)
+
+    def get_db_uri(self):
+        return PgUri()
 
     def save_settings(self, configuration):
         # TODO repair string path settings

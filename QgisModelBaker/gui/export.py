@@ -47,6 +47,7 @@ from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
 from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 DIALOG_UI = get_ui_class('export.ui')
 
@@ -122,6 +123,7 @@ class ExportDialog(QDialog, DIALOG_UI):
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
@@ -211,18 +213,9 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def refreshed_export_models_model(self):
         tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
-        uri = []
-        if tool_name == 'ili2pg':
-            uri += ['dbname={}'.format(self.updated_configuration().database)]
-            uri += ['user={}'.format(self.updated_configuration().dbusr)]
-            if self.updated_configuration().dbpwd:
-                uri += ['password={}'.format(self.updated_configuration().dbpwd)]
-            uri += ['host={}'.format(self.updated_configuration().dbhost)]
-            if self.updated_configuration().dbport:
-                uri += ['port={}'.format(self.updated_configuration().dbport)]
-        elif tool_name == 'ili2gpkg':
-            uri = [self.updated_configuration().dbfile]
-        uri_string = ' '.join(uri)
+        
+        db_factory = self.db_simple_factory.create_factory(tool_name)
+        uri_string = db_factory.get_db_uri().get_uri_from_conf(self.updated_configuration())
 
         schema = self.updated_configuration().dbschema
 

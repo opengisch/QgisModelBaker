@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    08/04/19
+    begin                :    25/04/19
     git sha              :    :%H$
     copyright            :    (C) 2019 by Yesid Polania
     email                :    yesidpol.3@gmail.com
@@ -16,28 +16,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings
-from .db_factory import DbFactory
-from ..dbconnector.gpkg_connector import GPKGConnector
-from .gpkg_uri import GpkgUri
-from ...gui.panel.gpkg_config_panel import GpkgConfigPanel
+from .db_uri import DbUri
 
-class GpkgFactory(DbFactory):
 
-    def get_db_connector(self, uri, schema):
-        return GPKGConnector(uri, None)
+class GpkgUri(DbUri):
 
-    def get_config_panel(self, parent):
-        return GpkgConfigPanel(parent)
-
-    def get_db_uri(self):
-        return GpkgUri()
-
-    def save_settings(self, configuration):
-        # TODO repair string path settings
-        settings = QSettings()
-        settings.setValue('QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
-
-    def load_settings(self, configuration):
-        settings = QSettings()
-        configuration.dbfile = settings.value('QgisModelBaker/ili2gpkg/dbfile')
+    def get_uri_from_conf(self, configuration, su=False):
+        return configuration.dbfile

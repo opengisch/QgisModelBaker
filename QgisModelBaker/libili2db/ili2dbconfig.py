@@ -21,6 +21,7 @@
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 import os
 
@@ -139,23 +140,10 @@ class Ili2DbCommandConfiguration(object):
         The superuser url if su is True - the user configured in the options.
         Otherwise it's the url with the user information entered in the current interface.
         '''
-        uri = []
-        if self.tool_name == 'ili2pg':
-            uri += ['dbname={}'.format(self.database)]
-            if su:
-                uri += ['user={}'.format(self.base_configuration.super_pg_user)]
-                if self.base_configuration.super_pg_password:
-                    uri += ['password={}'.format(self.base_configuration.super_pg_password)]
-            else:
-                uri += ['user={}'.format(self.dbusr)]
-                if self.dbpwd:
-                    uri += ['password={}'.format(self.dbpwd)]
-            uri += ['host={}'.format(self.dbhost)]
-            if self.dbport:
-                uri += ['port={}'.format(self.dbport)]
-        elif self.tool_name == 'ili2gpkg':
-            uri = [self.dbfile]
-        return ' '.join(uri)
+        db_simple_factory = DbSimpleFactory()
+        db_factory = db_simple_factory.create_factory(self.tool_name)
+        uri_string = db_factory.get_db_uri().get_uri_from_conf(self, su)
+        return uri_string
 
     def to_ili2db_args(self, hide_password=False):
 

@@ -30,6 +30,10 @@ class DbFactory:
         pass
 
     @abstractmethod
+    def get_db_uri(self):
+        pass
+
+    @abstractmethod
     def save_settings(self, configuration):
         pass
 
