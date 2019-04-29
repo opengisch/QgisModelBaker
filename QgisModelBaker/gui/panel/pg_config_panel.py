@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.PyQt.QtCore import (QObject,pyqtSignal)
 from qgis.PyQt.QtWidgets import (QWidget,
                                  QLabel,
                                  QGridLayout,
@@ -27,7 +28,10 @@ from QgisModelBaker.utils.qt_utils import (
     Validators,
     NonEmptyStringValidator)
 
+
 class PgConfigPanel(QWidget, DbConfigPanel):
+
+    notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -98,6 +102,13 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         self.pg_user_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
+
+        self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_database_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_schema_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_user_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_password_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def show_panel(self, interlis_mode=False):
         self.show()

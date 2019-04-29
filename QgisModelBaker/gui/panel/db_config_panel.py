@@ -16,13 +16,17 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.PyQt.QtCore import (QObject,pyqtSignal)
+from qgis.core import Qgis
 from abc import ABC, abstractmethod
 
 
-class DbConfigPanel:
+class DbConfigPanel(QObject):
+
+    notify_fields_modified = pyqtSignal(str)
 
     def __init__(self):
-        pass
+        super(DbConfigPanel, self).__init__()
 
     @abstractmethod
     def show_panel(self, interlis_mode=False):

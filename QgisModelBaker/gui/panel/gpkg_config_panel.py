@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.PyQt.QtCore import (QObject,pyqtSignal)
 from qgis.PyQt.QtWidgets import (QWidget,
                                  QLabel,
                                  QGridLayout,
@@ -33,6 +34,8 @@ from .db_config_panel import DbConfigPanel
 
 
 class GpkgConfigPanel(QWidget, DbConfigPanel):
+
+    notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -59,6 +62,8 @@ class GpkgConfigPanel(QWidget, DbConfigPanel):
         self.gpkgOpenFileValidator = FileValidator(pattern='*.gpkg')
         self.gpkg_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
+
+        self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def show_panel(self, interlis_mode=False):
         self.show()
