@@ -29,7 +29,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
-
+from ..db_factory.db_simple_factory import DbSimpleFactory
 
 class Generator:
     """Builds Model Baker objects from data extracted from databases."""
@@ -40,10 +40,10 @@ class Generator:
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
-        if self.tool_name == 'ili2pg':
-            self._db_connector = pg_connector.PGConnector(uri, schema)
-        elif self.tool_name == 'ili2gpkg':
-            self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+
+        self.db_simple_factory = DbSimpleFactory()
+        db_factory = self.db_simple_factory.create_factory(self.tool_name)
+        self._db_connector = db_factory.get_db_connector(uri, schema)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()

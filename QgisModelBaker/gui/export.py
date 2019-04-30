@@ -71,23 +71,24 @@ class ExportModels(QStringListModel):
 
         modelnames = list()
 
-        try:
-            if tool_name == 'ili2gpkg':
-                self._db_connector = gpkg_connector.GPKGConnector(uri, None)
-            else:
-                self._db_connector = pg_connector.PGConnector(uri, schema)
+        if tool_name:
+            try:
+                db_simple_factory = DbSimpleFactory()
+                db_factory = db_simple_factory.create_factory(tool_name)
+                self._db_connector = db_factory.get_db_connector(uri, schema)
+                
+                if self._db_connector.db_or_schema_exists():
+                    db_models = self._db_connector.get_models()
+                    for db_model in db_models:
+                        regex = re.compile(r'(?:\{[^\}]*\}|\s)')
+                        for modelname in regex.split(db_model['modelname']):
+                            if modelname and modelname not in blacklist:
+                                modelnames.append(modelname.strip())
+            except:
+                # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+                # The exception can be a lot of different things (depending on the backend) so let's catch all
+                pass
 
-            if self._db_connector.db_or_schema_exists():
-                db_models = self._db_connector.get_models()
-                for db_model in db_models:
-                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
-                    for modelname in regex.split(db_model['modelname']):
-                        if modelname and modelname not in blacklist:
-                            modelnames.append(modelname.strip())
-        except:
-            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
-            # The exception can be a lot of different things (depending on the backend) so let's catch all
-            pass
         self.setStringList(modelnames)
 
         self._checked_models = {modelname: Qt.Checked for modelname in modelnames}
@@ -197,9 +198,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
         
         db_factory = self.db_simple_factory.create_factory(tool_name)
-        uri_string = db_factory.get_db_uri().get_uri_from_conf(self.updated_configuration())
-
-        schema = self.updated_configuration().dbschema
+        configuration = self.updated_configuration()
+        uri_string = db_factory.get_db_uri().get_uri_from_conf(configuration)
+        schema = configuration.dbschema
 
         self.export_models_model = ExportModels(tool_name, uri_string, schema)
 
