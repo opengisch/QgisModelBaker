@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    08/04/19
+    begin                :    30/04/19
     git sha              :    :%H$
     copyright            :    (C) 2019 by Yesid Polania
     email                :    yesidpol.3@gmail.com
@@ -19,28 +19,13 @@
 from abc import ABC, abstractmethod
 
 
-class DbFactory:
+class LayerUri:
+
+    def __init__(self, uri):
+        # TODO specific field for postgres
+        self.pg_estimated_metadata = 'false'
+        self.uri = uri
 
     @abstractmethod
-    def get_db_connector(self, uri, schema):
-        pass
-
-    @abstractmethod
-    def get_config_panel(self, parent):
-        pass
-
-    @abstractmethod
-    def get_db_uri(self):
-        pass
-
-    @abstractmethod
-    def get_layer_uri(self, uri):
-        pass
-
-    @abstractmethod
-    def save_settings(self, configuration):
-        pass
-
-    @abstractmethod
-    def load_settings(self, configuration):
+    def get_data_source_uri(self, record):
         pass

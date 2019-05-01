@@ -20,7 +20,9 @@ from qgis.PyQt.QtCore import QSettings
 from .db_factory import DbFactory
 from ..dbconnector.gpkg_connector import GPKGConnector
 from .gpkg_uri import GpkgUri
+from .gpkg_layer_uri import GpkgLayerUri
 from ...gui.panel.gpkg_config_panel import GpkgConfigPanel
+
 
 class GpkgFactory(DbFactory):
 
@@ -32,6 +34,9 @@ class GpkgFactory(DbFactory):
 
     def get_db_uri(self):
         return GpkgUri()
+
+    def get_layer_uri(self, uri):
+        return GpkgLayerUri(uri)
 
     def save_settings(self, configuration):
         # TODO repair string path settings

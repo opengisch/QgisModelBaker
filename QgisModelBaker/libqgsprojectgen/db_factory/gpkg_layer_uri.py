@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    08/04/19
+    begin                :    30/04/19
     git sha              :    :%H$
     copyright            :    (C) 2019 by Yesid Polania
     email                :    yesidpol.3@gmail.com
@@ -16,31 +16,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from abc import ABC, abstractmethod
+from .layer_uri import LayerUri
 
 
-class DbFactory:
+class GpkgLayerUri(LayerUri):
 
-    @abstractmethod
-    def get_db_connector(self, uri, schema):
-        pass
+    def __init__(self, uri):
+        LayerUri.__init__(self, uri)
+        self.provider = 'ogr'
 
-    @abstractmethod
-    def get_config_panel(self, parent):
-        pass
-
-    @abstractmethod
-    def get_db_uri(self):
-        pass
-
-    @abstractmethod
-    def get_layer_uri(self, uri):
-        pass
-
-    @abstractmethod
-    def save_settings(self, configuration):
-        pass
-
-    @abstractmethod
-    def load_settings(self, configuration):
-        pass
+    def get_data_source_uri(self, record):
+        data_source_uri = '{uri}|layername={table}'.format(
+            uri=self.uri,
+            table=record['tablename']
+        )
+        return data_source_uri

@@ -49,6 +49,11 @@ class Generator:
         tables_info = self.get_tables_info()
         layers = list()
 
+        db_factory = self.db_simple_factory.create_factory(self.tool_name)
+
+        layer_uri = db_factory.get_layer_uri(self.uri)
+        layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
+
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
             # all schemas, except the ignored ones
@@ -64,33 +69,6 @@ class Generator:
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            if self.tool_name == 'ili2pg':
-                provider = 'postgres'
-                if record['geometry_column']:
-                    data_source_uri = '{uri} key={primary_key} estimatedmetadata={estimated_metadata} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
-                        uri=self.uri,
-                        primary_key=record['primary_key'],
-                        estimated_metadata=self.pg_estimated_metadata,
-                        srid=record['srid'],
-                        type=record['type'],
-                        schema=record['schemaname'],
-                        table=record['tablename'],
-                        geometry_column=record['geometry_column']
-                    )
-                else:
-                    data_source_uri = '{uri} key={primary_key} table="{schema}"."{table}"'.format(
-                        uri=self.uri,
-                        primary_key=record['primary_key'],
-                        schema=record['schemaname'],
-                        table=record['tablename']
-                    )
-            elif self.tool_name == 'ili2gpkg':
-                provider = 'ogr'
-                data_source_uri = '{uri}|layername={table}'.format(
-                    uri=self.uri,
-                    table=record['tablename']
-                )
-
             alias = record['table_alias'] if 'table_alias' in record else ''
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
@@ -104,8 +82,8 @@ class Generator:
                     if attr_record['attr_name'] == 'dispExpression':
                         display_expression = attr_record['attr_value']
 
-            layer = Layer(provider,
-                          data_source_uri,
+            layer = Layer(layer_uri.provider,
+                          layer_uri.get_data_source_uri(record),
                           record['tablename'],
                           record['extent'] if 'extent' in record else None,
                           record['geometry_column'],
