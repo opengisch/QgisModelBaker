@@ -23,3 +23,7 @@ class DbUri:
     @abstractmethod
     def get_uri_from_conf(self, configuration, su):
         pass
+
+    @abstractmethod
+    def get_db_args_from_conf(self, configuration, hide_password=False):
+        pass

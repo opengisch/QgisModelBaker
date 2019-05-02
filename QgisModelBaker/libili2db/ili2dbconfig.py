@@ -152,22 +152,14 @@ class Ili2DbCommandConfiguration(object):
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
 
-        if self.tool_name == 'ili2pg':
-            # PostgreSQL specific options
-            args += ["--dbhost", self.dbhost]
-            if self.dbport:
-                args += ["--dbport", self.dbport]
-            args += ["--dbusr", self.dbusr]
-            if self.dbpwd:
-                if hide_password:
-                    args += ["--dbpwd", '******']
-                else:
-                    args += ["--dbpwd", self.dbpwd]
-            args += ["--dbdatabase", self.database.strip("'")]
-            args += ["--dbschema",
-                     self.dbschema or self.database]
-        elif self.tool_name == 'ili2gpkg':
-            args += ["--dbfile", self.dbfile]
+        db_simple_factory = DbSimpleFactory()
+        db_factory = db_simple_factory.create_factory(self.tool_name)
+
+        # TODO
+        mgr_db_args = db_factory.get_db_uri()
+        db_args = mgr_db_args.get_db_args_from_conf(self, hide_password)
+
+        args += db_args
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:

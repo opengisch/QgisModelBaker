@@ -38,3 +38,19 @@ class PgUri(DbUri):
             uri += ['port={}'.format(configuration.dbport)]
 
         return ' '.join(uri)
+
+    def get_db_args_from_conf(self, configuration, hide_password=False):
+        db_args = list()
+        db_args += ["--dbhost", configuration.dbhost]
+        if configuration.dbport:
+            db_args += ["--dbport", configuration.dbport]
+        db_args += ["--dbusr", configuration.dbusr]
+        if configuration.dbpwd:
+            if hide_password:
+                db_args += ["--dbpwd", '******']
+            else:
+                db_args += ["--dbpwd", configuration.dbpwd]
+        db_args += ["--dbdatabase", configuration.database.strip("'")]
+        db_args += ["--dbschema",
+                 configuration.dbschema or configuration.database]
+        return db_args

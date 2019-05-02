@@ -23,3 +23,6 @@ class GpkgUri(DbUri):
 
     def get_uri_from_conf(self, configuration, su=False):
         return configuration.dbfile
+
+    def get_db_args_from_conf(self, configuration, hide_password=False):
+        return ["--dbfile", configuration.dbfile]
