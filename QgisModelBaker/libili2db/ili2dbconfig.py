@@ -155,11 +155,12 @@ class Ili2DbCommandConfiguration(object):
         db_simple_factory = DbSimpleFactory()
         db_factory = db_simple_factory.create_factory(self.tool_name)
 
-        # TODO
-        mgr_db_args = db_factory.get_db_uri()
-        db_args = mgr_db_args.get_db_args_from_conf(self, hide_password)
+        if db_factory:
+        # TODO rename mgr_db_args
+            mgr_db_args = db_factory.get_db_uri()
+            db_args = mgr_db_args.get_db_args_from_conf(self, hide_password)
 
-        args += db_args
+            args += db_args
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
