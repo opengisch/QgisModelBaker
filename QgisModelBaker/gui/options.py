@@ -116,7 +116,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
             config = ExportConfiguration()
 
         executable = 'java -jar {}.jar'.format(
-            self.ili2db_tool_combobox.currentData())
+            self.ili2db_tool_combobox.currentData().name)
         command = '\n  '.join([executable] + config.to_ili2db_args())
 
         self.ili2db_options_textedit.setText(command)

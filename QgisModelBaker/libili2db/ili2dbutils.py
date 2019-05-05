@@ -36,7 +36,7 @@ def get_ili2db_bin(tool, stdout, stderr, ili2db_tools):
         return None
 
     tool |= DbIliMode.ili # Regardlless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
-    tool_name = displayDbIliMode[tool] # in fact, we need the name of the ili tool
+    tool_name = tool.name # in fact, we need the name of the ili tool
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     ili2db_dir = '{}-{}'.format(tool_name, ili2db_tools[tool]['version'])

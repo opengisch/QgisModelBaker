@@ -121,8 +121,6 @@ class PgConfigPanel(QWidget, DbConfigPanel):
                 self.tr("[Leave empty to load all schemas in the database]"))
 
     def get_fields(self, configuration):
-        # TODO fix tool_name
-        configuration.tool_name = 'ili2pg'
         configuration.dbhost = self.pg_host_line_edit.text().strip()
         configuration.dbport = self.pg_port_line_edit.text().strip()
         configuration.dbusr = self.pg_user_line_edit.text().strip()

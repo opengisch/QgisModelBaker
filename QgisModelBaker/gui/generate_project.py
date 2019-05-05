@@ -34,7 +34,6 @@ from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
-    make_save_file_selector,
     Validators,
     FileValidator,
     NonEmptyStringValidator,
@@ -112,9 +111,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.type_combo_box.clear()
         self._lst_panel = dict()
 
-        for item_db in self.db_simple_factory.get_db_list(True):
-            self.type_combo_box.addItem(
-                self.tr(self.db_simple_factory.db_display(item_db)), item_db)
+        for db_id in self.db_simple_factory.get_db_list(True):
+            self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
 
         for db_id in self.db_simple_factory.get_db_list(False):
             db_factory = self.db_simple_factory.create_factory(db_id)
@@ -164,9 +162,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration = self.updated_configuration()
 
         ili_mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(ili_mode)
-
-        interlis_mode = db_id != ili_mode
+        db_id = ili_mode & ~DbIliMode.ili
+        interlis_mode = ili_mode & DbIliMode.ili
 
         if interlis_mode:
             if not self.ili_file_line_edit.text().strip():
@@ -344,11 +341,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         """
         configuration = SchemaImportConfiguration()
 
-        ili_mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(ili_mode)
+        mode = self.type_combo_box.currentData()
+        db_id = mode & ~DbIliMode.ili
 
         self._lst_panel[db_id].get_fields(configuration)
 
+        configuration.tool = mode
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.tomlfile = self.ili2db_options.toml_file()
@@ -371,12 +369,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                           configuration.ilifile)
         settings.setValue('QgisModelBaker/ili2db/epsg', self.epsg)
         settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData())
+                          self.type_combo_box.currentData().name)
 
-        ili_mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(ili_mode)
-        db_factory = self.db_simple_factory.create_factory(db_id)
-
+        mode = self.type_combo_box.currentData()
+        db_factory = self.db_simple_factory.create_factory(mode)
         db_factory.save_settings(configuration)
 
     def restore_configuration(self):
@@ -396,8 +392,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self._lst_panel[db_id].set_fields(configuration)
 
         # TODO Hardcoding 'pg' default option
-        self.type_combo_box.setCurrentIndex(
-            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', DbIliMode.pg)))
+        mode = settings.value('QgisModelBaker/importtype', 'pg')
+        mode = DbIliMode[mode]
+
+        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
         self.crs_changed()
 
@@ -417,9 +415,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.progress_bar.hide()
 
         ili_mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(ili_mode)
-
-        interlis_mode = db_id != ili_mode
+        db_id = ili_mode & ~DbIliMode.ili
+        interlis_mode = ili_mode & DbIliMode.ili
 
         self.ili_config.setVisible(interlis_mode)
 

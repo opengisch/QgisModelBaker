@@ -22,8 +22,7 @@ from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-
-import os
+from ..libili2db.globals import DbIliMode
 
 ili2db_tools = {
     DbIliMode.ili2pg: {
@@ -141,7 +140,7 @@ class Ili2DbCommandConfiguration(object):
         Otherwise it's the url with the user information entered in the current interface.
         '''
         db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool_name)
+        db_factory = db_simple_factory.create_factory(self.tool)
         uri_string = db_factory.get_db_uri().get_uri_from_conf(self, su)
         return uri_string
 
@@ -153,7 +152,7 @@ class Ili2DbCommandConfiguration(object):
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
 
         db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool_name)
+        db_factory = db_simple_factory.create_factory(self.tool)
 
         if db_factory:
         # TODO rename mgr_db_args

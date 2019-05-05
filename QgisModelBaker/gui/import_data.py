@@ -30,14 +30,12 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
-    make_save_file_selector,
-    make_folder_selector,
     Validators,
     FileValidator,
-    NonEmptyStringValidator,
     OverrideCursor
 )
 from qgis.PyQt.QtGui import (
@@ -89,8 +87,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self._lst_panel = dict()
 
         for db_id in self.db_simple_factory.get_db_list(False):
-            self.type_combo_box.addItem(
-                self.tr(self.db_simple_factory.db_display(db_id)), db_id)
+            self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
             item_panel = db_factory.get_config_panel(self)
             self._lst_panel[db_id] = item_panel
@@ -111,7 +108,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(
             pattern=['*.xtf', '*.itf', '*.pdf', '*.xml', '*.xls', '*.xlsx'])
 
@@ -166,7 +162,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
             dataImporter = iliimporter.Importer(dataImport=True)
 
-            dataImporter.tool_name = configuration.tool_name
+            dataImporter.tool = self.type_combo_box.currentData()
             dataImporter.configuration = configuration
 
             self.save_configuration(configuration)
@@ -231,10 +227,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration = ili2dbconfig.ImportDataConfiguration()
 
         mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(mode)
+        self._lst_panel[mode].get_fields(configuration)
 
-        self._lst_panel[db_id].get_fields(configuration)
-
+        configuration.tool = mode
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.delete_data = self.chk_delete_data.isChecked()
         configuration.ilimodels = self.ili_models_line_edit.text().strip()
@@ -253,12 +248,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgisModelBaker/ili2pg/deleteData', configuration.delete_data)
         settings.setValue(
-            'QgisModelBaker/importtype', self.type_combo_box.currentData())
+            'QgisModelBaker/importtype', self.type_combo_box.currentData().name)
 
         mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(mode)
-        db_factory = self.db_simple_factory.create_factory(db_id)
-
+        db_factory = self.db_simple_factory.create_factory(mode)
         db_factory.save_settings(configuration)
 
     def restore_configuration(self):
@@ -278,7 +271,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         # TODO Hardcoding 'pg' default option
         mode = settings.value('QgisModelBaker/importtype', 'pg')
-        mode = self.db_simple_factory.get_db_id(mode)
+        mode = DbIliMode[mode]
+        mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()

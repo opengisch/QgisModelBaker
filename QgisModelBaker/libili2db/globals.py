@@ -18,6 +18,8 @@
  ***************************************************************************/
 """
 from enum import IntFlag
+from qgis.PyQt.QtCore import QCoreApplication
+
 
 CRS_PATTERNS = {
     'LV95': 2056,
@@ -35,12 +37,13 @@ class DbIliMode(IntFlag):
     ili2gpkg = ili | gpkg
     ili2mssql = ili | mssql
 
+
 displayDbIliMode = {
-    DbIliMode.pg: "PostgreSQL/PostGIS",
-    DbIliMode.gpkg: "GeoPackage",
-    DbIliMode.mssql: "SQL Server",
-    DbIliMode.ili: "Interlis",
-    DbIliMode.ili2pg: "ili2pg",
-    DbIliMode.ili2gpkg: "ili2gpkg",
-    DbIliMode.ili2mssql: "ili2mssql"
+    DbIliMode.pg: QCoreApplication.translate('QgisModelBaker', 'PostgreSQL/PostGIS'),
+    DbIliMode.gpkg: QCoreApplication.translate('QgisModelBaker', 'GeoPackage'),
+    DbIliMode.mssql: QCoreApplication.translate('QgisModelBaker', 'SQL Server'),
+    DbIliMode.ili: QCoreApplication.translate('QgisModelBaker', 'Interlis'),
+    DbIliMode.ili2pg: QCoreApplication.translate('QgisModelBaker', 'Interlis (use PostGIS)'),
+    DbIliMode.ili2gpkg: QCoreApplication.translate('QgisModelBaker', 'Interlis (use GeoPackage)'),
+    DbIliMode.ili2mssql: QCoreApplication.translate('QgisModelBaker', 'Interlis (use SQL Server)')
 }

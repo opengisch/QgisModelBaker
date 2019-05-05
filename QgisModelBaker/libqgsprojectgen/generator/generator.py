@@ -43,14 +43,14 @@ class Generator:
         self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
 
         self.db_simple_factory = DbSimpleFactory()
-        db_factory = self.db_simple_factory.create_factory(self.tool_name)
+        db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
         layers = list()
 
-        db_factory = self.db_simple_factory.create_factory(self.tool_name)
+        db_factory = self.db_simple_factory.create_factory(self.tool)
 
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata

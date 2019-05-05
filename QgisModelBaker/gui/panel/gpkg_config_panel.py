@@ -88,8 +88,6 @@ class GpkgConfigPanel(QWidget, DbConfigPanel):
         self.gpkg_file_browse_button.clicked.connect(file_selector)
 
     def get_fields(self, configuration):
-        # TODO fix tool_name
-        configuration.tool_name = 'ili2gpkg'
         configuration.dbfile = self.gpkg_file_line_edit.text().strip()
 
     def set_fields(self, configuration):

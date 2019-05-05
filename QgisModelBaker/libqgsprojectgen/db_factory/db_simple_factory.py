@@ -18,47 +18,33 @@
 """
 from .pg_factory import PgFactory
 from .gpkg_factory import GpkgFactory
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 
 
 class DbSimpleFactory:
 
     def create_factory(self, ili_mode):
+        if not ili_mode:
+            return None
+
         result = None
 
-        if ili_mode == 'pg' or ili_mode == 'ili2pg':
+        if ili_mode & DbIliMode.pg:
             result = PgFactory()
-        elif ili_mode == 'gpkg' or ili_mode == 'ili2gpkg':
+        elif ili_mode & DbIliMode.gpkg:
             result = GpkgFactory()
 
         return result
 
     def get_db_list(self, is_schema_import=False):
-        result = ['pg', 'gpkg']
+        ili = []
+        result = [DbIliMode.pg, DbIliMode.gpkg]
+
         if is_schema_import:
-            result = ['ili2pg', 'ili2gpkg', 'pg', 'gpkg']
+            for item in result:
+                print(item)
+                ili += [item | DbIliMode.ili]
+
+            result = ili + result
+
         return result
-
-    def get_db_id(self, ili_mode):
-        lst_db_item = dict()
-        lst_db_item['ili2pg'] = 'pg'
-        lst_db_item['ili2gpkg'] = 'gpkg'
-        lst_db_item['pg'] = 'pg'
-        lst_db_item['gpkg'] = 'gpkg'
-
-        return lst_db_item[ili_mode]
-
-    def db_display(self, ili_mode):
-        lst_name_display = dict()
-        lst_name_display['ili2pg'] = 'Interlis (use PostGIS)'
-        lst_name_display['ili2gpkg'] = 'Interlis (use GeoPackage)'
-        lst_name_display['pg'] = 'PostGIS'
-        lst_name_display['gpkg'] = 'GeoPackage'
-
-        return lst_name_display[ili_mode]
-
-    def is_interlis_mode(self, ili_mode):
-        prefix = 'ili'
-
-        index = ili_mode.find(prefix)
-
-        return index == 0

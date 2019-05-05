@@ -34,10 +34,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
     Validators,
-    make_file_selector,
     FileValidator,
-    NonEmptyStringValidator,
-    make_folder_selector,
     OverrideCursor
 )
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
@@ -47,7 +44,6 @@ from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
-from ..libqgsprojectgen.dbconnector import pg_connector, gpkg_connector
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 DIALOG_UI = get_ui_class('export.ui')
@@ -75,7 +71,7 @@ class ExportModels(QStringListModel):
         if tool:
             try:
                 db_simple_factory = DbSimpleFactory()
-                db_factory = db_simple_factory.create_factory(tool_name)
+                db_factory = db_simple_factory.create_factory(tool)
                 self._db_connector = db_factory.get_db_connector(uri, schema)
                 
                 if self._db_connector.db_or_schema_exists():
@@ -146,8 +142,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self._lst_panel = dict()
 
         for db_id in self.db_simple_factory.get_db_list(False):
-            self.type_combo_box.addItem(
-                self.tr(self.db_simple_factory.db_display(db_id)), db_id)
+            self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
             item_panel = db_factory.get_config_panel(self)
             self._lst_panel[db_id] = item_panel
@@ -159,7 +154,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+
         fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
 
         self.xtf_file_line_edit.setValidator(fileValidator)
@@ -195,15 +190,14 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
-        # TODO Hard-coding ili2pg...
-        tool_name = 'ili2pg' if self.type_combo_box.currentData() == 'pg' else 'ili2gpkg'
+        tool = self.type_combo_box.currentData() & ~DbIliMode.ili
         
-        db_factory = self.db_simple_factory.create_factory(tool_name)
+        db_factory = self.db_simple_factory.create_factory(tool)
         configuration = self.updated_configuration()
         uri_string = db_factory.get_db_uri().get_uri_from_conf(configuration)
         schema = configuration.dbschema
 
-        self.export_models_model = ExportModels(tool_name, uri_string, schema)
+        self.export_models_model = ExportModels(tool, uri_string, schema)
 
         return self.export_models_model
 
@@ -249,9 +243,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.txtStdout.clear()
 
             exporter = iliexporter.Exporter()
-
-            tool_name = configuration.tool_name
-            exporter.tool_name = tool_name
+            exporter.tool = self.type_combo_box.currentData()
             exporter.configuration = configuration
 
             self.save_configuration(configuration)
@@ -317,10 +309,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration = ili2dbconfig.ExportConfiguration()
 
         mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(mode)
+        self._lst_panel[mode].get_fields(configuration)
 
-        self._lst_panel[db_id].get_fields(configuration)
-
+        configuration.tool = mode
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
         configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
         configuration.ilimodels = ';'.join(self.export_models_model.stringList())
@@ -333,12 +324,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         settings.setValue(
             'QgisModelBaker/ili2pg/xtffile_export', configuration.xtffile)
         settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData())
+                          self.type_combo_box.currentData().name)
 
         mode = self.type_combo_box.currentData()
-        db_id = self.db_simple_factory.get_db_id(mode)
-        db_factory = self.db_simple_factory.create_factory(db_id)
-
+        db_factory = self.db_simple_factory.create_factory(mode)
         db_factory.save_settings(configuration)
 
     def restore_configuration(self):
@@ -350,8 +339,11 @@ class ExportDialog(QDialog, DIALOG_UI):
             db_factory.load_settings(configuration)
             self._lst_panel[db_id].set_fields(configuration)
 
+        # TODO Hardcoding 'pg' default option
         mode = settings.value('QgisModelBaker/importtype', 'pg')
-        mode = self.db_simple_factory.get_db_id(mode)
+        mode = DbIliMode[mode]
+        mode = mode & ~DbIliMode.ili
+
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
 
