@@ -27,13 +27,15 @@ from .db_config_panel import DbConfigPanel
 from QgisModelBaker.utils.qt_utils import (
     Validators,
     NonEmptyStringValidator)
+from QgisModelBaker.libili2db.globals import DbActionType
 
 
 class PgConfigPanel(QWidget, DbConfigPanel):
 
     notify_fields_modified = pyqtSignal(str)
 
-    def __init__(self, parent):
+    def __init__(self, parent, db_action_type):
+        DbConfigPanel.__init__(self, db_action_type)
         QWidget.__init__(self, parent)
 
         lbl_host = QLabel(self.tr("Host"))
@@ -63,10 +65,12 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         self.pg_password_line_edit.setEchoMode(QLineEdit.Password)
         self.pg_password_line_edit.setPlaceholderText(self.tr("[Leave empty to use system password]"))
 
-        self.pg_use_super_login = QCheckBox()
-        self.pg_use_super_login.setText(self.tr('Use logins from settings (superuser) for schema generation'))
-        self.pg_use_super_login.setText(
-            self.tr('Generate schema with superuser login from settings (....)'))
+        from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+
+        if self._db_action_type != DbActionType.EXPORT:
+            self.pg_use_super_login = QCheckBox()
+            self.pg_use_super_login.setText(
+                self.tr('Generate schema with superuser login from settings ({})').format(BaseConfiguration().super_pg_user))
 
         layout = QGridLayout(self)
         layout.addWidget(lbl_host, 0, 0)
@@ -82,7 +86,9 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         layout.addWidget(self.pg_schema_line_edit, 3, 1)
         layout.addWidget(self.pg_user_line_edit, 4, 1)
         layout.addWidget(self.pg_password_line_edit, 5, 1)
-        layout.addWidget(self.pg_use_super_login,6,1)
+
+        if self._db_action_type != DbActionType.EXPORT:
+            layout.addWidget(self.pg_use_super_login,6,1)
 
         # define validators
         self.validators = Validators()
@@ -127,7 +133,9 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         configuration.database = "'{}'".format(self.pg_database_line_edit.text().strip())
         configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
         configuration.dbpwd = self.pg_password_line_edit.text()
-        configuration.db_use_super_login = self.pg_use_super_login.isChecked()
+
+        if self._db_action_type != DbActionType.EXPORT:
+            configuration.db_use_super_login = self.pg_use_super_login.isChecked()
 
     def set_fields(self, configuration):
         self.pg_host_line_edit.setText(configuration.dbhost)
@@ -136,7 +144,9 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         self.pg_database_line_edit.setText(configuration.database)
         self.pg_schema_line_edit.setText(configuration.dbschema)
         self.pg_password_line_edit.setText(configuration.dbpwd)
-        self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+
+        if self._db_action_type != DbActionType.EXPORT:
+            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
 
     def is_valid(self):
         result = False

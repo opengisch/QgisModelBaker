@@ -29,8 +29,8 @@ class GpkgFactory(DbFactory):
     def get_db_connector(self, uri, schema):
         return GPKGConnector(uri, None)
 
-    def get_config_panel(self, parent):
-        return GpkgConfigPanel(parent)
+    def get_config_panel(self, parent, db_action_type):
+        return GpkgConfigPanel(parent, db_action_type)
 
     def get_db_uri(self):
         return GpkgUri()

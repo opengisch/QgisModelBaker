@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import IntFlag
+from enum import IntFlag, Enum
 from qgis.PyQt.QtCore import QCoreApplication
 
 
@@ -25,6 +25,7 @@ CRS_PATTERNS = {
     'LV95': 2056,
     'LV03': 21781
 }
+
 
 class DbIliMode(IntFlag):
     pg = 1
@@ -47,3 +48,10 @@ displayDbIliMode = {
     DbIliMode.ili2gpkg: QCoreApplication.translate('QgisModelBaker', 'Interlis (use GeoPackage)'),
     DbIliMode.ili2mssql: QCoreApplication.translate('QgisModelBaker', 'Interlis (use SQL Server)')
 }
+
+
+class DbActionType(Enum):
+    GENERATE = 1
+    IMPORT_DATA = 2
+    EXPORT = 3
+

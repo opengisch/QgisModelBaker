@@ -27,7 +27,7 @@ from psycopg2 import OperationalError
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
@@ -116,7 +116,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self)
+            item_panel = db_factory.get_config_panel(self, DbActionType.GENERATE)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

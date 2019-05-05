@@ -29,8 +29,8 @@ class PgFactory(DbFactory):
     def get_db_connector(self, uri, schema):
         return PGConnector(uri, schema)
 
-    def get_config_panel(self, parent):
-        return PgConfigPanel(parent)
+    def get_config_panel(self, parent, db_action_type):
+        return PgConfigPanel(parent, db_action_type)
 
     def get_db_uri(self):
         return PgUri()

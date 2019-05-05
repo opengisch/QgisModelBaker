@@ -30,7 +30,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -89,7 +89,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self)
+            item_panel = db_factory.get_config_panel(self, DbActionType.IMPORT_DATA)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

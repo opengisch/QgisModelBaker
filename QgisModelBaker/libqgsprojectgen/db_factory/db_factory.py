@@ -26,7 +26,7 @@ class DbFactory:
         pass
 
     @abstractmethod
-    def get_config_panel(self, parent):
+    def get_config_panel(self, parent, db_action_type):
         pass
 
     @abstractmethod

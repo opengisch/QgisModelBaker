@@ -25,8 +25,8 @@ class DbConfigPanel(QObject):
 
     notify_fields_modified = pyqtSignal(str)
 
-    def __init__(self):
-        super(DbConfigPanel, self).__init__()
+    def __init__(self, db_action_type):
+        self._db_action_type = db_action_type
 
     @abstractmethod
     def show_panel(self, interlis_mode=False):

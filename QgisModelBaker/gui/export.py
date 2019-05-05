@@ -25,7 +25,7 @@ import re
 
 from QgisModelBaker.gui.options import OptionsDialog, ModelListView
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
@@ -144,7 +144,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self)
+            item_panel = db_factory.get_config_panel(self, DbActionType.EXPORT)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

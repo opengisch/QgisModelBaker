@@ -37,7 +37,8 @@ class GpkgConfigPanel(QWidget, DbConfigPanel):
 
     notify_fields_modified = pyqtSignal(str)
 
-    def __init__(self, parent):
+    def __init__(self, parent, db_action_type):
+        DbConfigPanel.__init__(self, db_action_type)
         QWidget.__init__(self, parent)
 
         lbl_db_file = QLabel(self.tr("Database File"))
