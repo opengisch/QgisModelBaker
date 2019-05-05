@@ -44,3 +44,11 @@ class DbFactory:
     @abstractmethod
     def load_settings(self, configuration):
         pass
+
+    @abstractmethod
+    def get_tool_version(self):
+        pass
+
+    @abstractmethod
+    def get_tool_url(self):
+        pass

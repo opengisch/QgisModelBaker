@@ -46,3 +46,9 @@ class GpkgFactory(DbFactory):
     def load_settings(self, configuration):
         settings = QSettings()
         configuration.dbfile = settings.value('QgisModelBaker/ili2gpkg/dbfile')
+
+    def get_tool_version(self):
+        return '3.11.3'
+
+    def get_tool_url(self):
+        return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(self.get_tool_version())

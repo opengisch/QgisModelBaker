@@ -29,7 +29,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, ili2db_tools
+from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration
 
 
 class Exporter(QObject):
@@ -57,7 +57,7 @@ class Exporter(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool, self.stdout, self.stderr, ili2db_tools)
+        ili2db_bin = get_ili2db_bin(self.tool, self.stdout, self.stderr)
         if not ili2db_bin:
             return
 

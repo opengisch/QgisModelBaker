@@ -68,3 +68,8 @@ class PgFactory(DbFactory):
         configuration.dbpwd = settings.value('QgisModelBaker/ili2pg/password')
         configuration.db_use_super_login = settings.value('QgisModelBaker/ili2pg/usesuperlogin', defaultValue=False, type=bool)
 
+    def get_tool_version(self):
+        return '3.11.2'
+
+    def get_tool_url(self):
+        return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(self.get_tool_version())

@@ -24,20 +24,6 @@ from qgis.core import QgsNetworkAccessManager
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libili2db.globals import DbIliMode
 
-ili2db_tools = {
-    DbIliMode.ili2pg: {
-        'version': '3.11.2'
-    },
-    DbIliMode.ili2gpkg: {
-        'version': '3.11.3'
-    }
-}
-ili2db_tools[DbIliMode.ili2pg][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools[DbIliMode.ili2pg]['version'])
-ili2db_tools[DbIliMode.ili2gpkg][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
-    ili2db_tools[DbIliMode.ili2gpkg]['version'])
-
 
 class BaseConfiguration(object):
 
