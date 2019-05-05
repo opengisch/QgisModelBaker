@@ -269,9 +269,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             db_factory.load_settings(configuration)
             self._lst_panel[db_id].set_fields(configuration)
 
-        # TODO Hardcoding 'pg' default option
-        mode = settings.value('QgisModelBaker/importtype', 'pg')
-        mode = DbIliMode[mode]
+        mode = settings.value('QgisModelBaker/importtype')
+        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))

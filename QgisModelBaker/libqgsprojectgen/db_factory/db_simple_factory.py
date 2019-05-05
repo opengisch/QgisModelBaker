@@ -23,6 +23,9 @@ from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
 
 class DbSimpleFactory:
 
+    _available_databases = [DbIliMode.pg, DbIliMode.gpkg]
+    _index_default_db = 0
+
     def create_factory(self, ili_mode):
         if not ili_mode:
             return None
@@ -38,13 +41,16 @@ class DbSimpleFactory:
 
     def get_db_list(self, is_schema_import=False):
         ili = []
-        result = [DbIliMode.pg, DbIliMode.gpkg]
+        result = self._available_databases.copy()
 
         if is_schema_import:
             for item in result:
-                print(item)
                 ili += [item | DbIliMode.ili]
 
             result = ili + result
 
         return result
+
+    @property
+    def default_database(self):
+        return self._available_databases[self._index_default_db]
