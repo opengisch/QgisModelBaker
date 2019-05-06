@@ -166,7 +166,7 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="db_wrapper_group_box">
          <property name="title">
           <string/>
          </property>

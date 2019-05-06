@@ -362,6 +362,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()
+        self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
+
         for key, value in self._lst_panel.items():
             value.setVisible(db_id == key)
 

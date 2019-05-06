@@ -412,6 +412,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         interlis_mode = bool(ili_mode & DbIliMode.ili)
 
         self.ili_config.setVisible(interlis_mode)
+        self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
         for key, value in self._lst_panel.items():
             value.interlis_mode = interlis_mode

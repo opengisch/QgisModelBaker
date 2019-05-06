@@ -40,7 +40,7 @@ class DbIliMode(IntFlag):
 
 
 displayDbIliMode = {
-    DbIliMode.pg: QCoreApplication.translate('QgisModelBaker', 'PostgreSQL/PostGIS'),
+    DbIliMode.pg: QCoreApplication.translate('QgisModelBaker', 'PostGIS'),
     DbIliMode.gpkg: QCoreApplication.translate('QgisModelBaker', 'GeoPackage'),
     DbIliMode.mssql: QCoreApplication.translate('QgisModelBaker', 'SQL Server'),
     DbIliMode.ili: QCoreApplication.translate('QgisModelBaker', 'Interlis'),
