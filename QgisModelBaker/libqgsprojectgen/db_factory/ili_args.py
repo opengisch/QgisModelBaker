@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    25/04/19
+    begin                :    06/05/19
     git sha              :    :%H$
-    copyright            :    (C) 2019 by Yesid Polania
+    copyright            :    (C) 2019 by Yesid Polania (BSF Swissphoto)
     email                :    yesidpol.3@gmail.com
  ***************************************************************************/
 
@@ -16,10 +16,15 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_uri import DbUri
+from abc import ABC, abstractmethod
 
 
-class GpkgUri(DbUri):
+class IliArgs:
 
-    def get_uri_from_conf(self, configuration, su=False):
-        return configuration.dbfile
+    @abstractmethod
+    def get_db_args_from_conf(self, configuration, hide_password=False):
+        pass
+
+    @abstractmethod
+    def get_schema_import_args(self):
+        pass

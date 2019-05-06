@@ -38,6 +38,10 @@ class DbFactory:
         pass
 
     @abstractmethod
+    def get_ili_args(self):
+        pass
+
+    @abstractmethod
     def pre_generate_project(self, configuration):
         pass
 

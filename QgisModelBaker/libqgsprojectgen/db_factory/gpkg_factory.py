@@ -22,7 +22,7 @@ from ..dbconnector.gpkg_connector import GPKGConnector
 from .gpkg_uri import GpkgUri
 from .gpkg_layer_uri import GpkgLayerUri
 from ...gui.panel.gpkg_config_panel import GpkgConfigPanel
-
+from .ili2gpkg_args import Ili2gpkgArgs
 
 class GpkgFactory(DbFactory):
 
@@ -37,6 +37,9 @@ class GpkgFactory(DbFactory):
 
     def get_layer_uri(self, uri):
         return GpkgLayerUri(uri)
+
+    def get_ili_args(self):
+        return Ili2gpkgArgs()
 
     def pre_generate_project(self, configuration):
         pass

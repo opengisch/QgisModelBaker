@@ -141,9 +141,8 @@ class Ili2DbCommandConfiguration(object):
         db_factory = db_simple_factory.create_factory(self.tool)
 
         if db_factory:
-        # TODO rename mgr_db_args
-            mgr_db_args = db_factory.get_db_uri()
-            db_args = mgr_db_args.get_db_args_from_conf(self, hide_password)
+            ili_args = db_factory.get_ili_args()
+            db_args = ili_args.get_db_args_from_conf(self, hide_password)
 
             args += db_args
 
@@ -245,9 +244,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         db_factory = db_simple_factory.create_factory(self.tool)
 
         if db_factory:
-        # TODO rename mgr_db_args
-            mgr_db_args = db_factory.get_db_uri()
-            db_args = mgr_db_args.get_specific_params_schema_import()
+            ili_args = db_factory.get_ili_args()
+            db_args = ili_args.get_schema_import_args()
 
             args += db_args
 

@@ -22,6 +22,7 @@ from ..dbconnector.pg_connector import PGConnector
 from .pg_uri import PgUri
 from .pg_layer_uri import PgLayerUri
 from ...gui.panel.pg_config_panel import PgConfigPanel
+from .ili2pg_args import Ili2pgArgs
 
 
 class PgFactory(DbFactory):
@@ -37,6 +38,9 @@ class PgFactory(DbFactory):
 
     def get_layer_uri(self, uri):
         return PgLayerUri(uri)
+
+    def get_ili_args(self):
+        return Ili2pgArgs()
 
     def pre_generate_project(self, configuration):
         if configuration.db_use_super_login:
