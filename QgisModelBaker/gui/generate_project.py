@@ -413,14 +413,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
-        interlis_mode = ili_mode & DbIliMode.ili
+        interlis_mode = bool(ili_mode & DbIliMode.ili)
 
         self.ili_config.setVisible(interlis_mode)
 
         for key, value in self._lst_panel.items():
-            value.setVisible(False)
-
-        self._lst_panel[db_id].show_panel(interlis_mode)
+            value.interlis_mode = interlis_mode
+            value.setVisible(db_id == key)
 
     def on_model_changed(self, text):
         if not text:

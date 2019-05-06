@@ -16,9 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import (QObject,pyqtSignal)
-from qgis.PyQt.QtWidgets import (QWidget,
-                                 QLabel,
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtWidgets import (QLabel,
                                  QGridLayout,
                                  QLineEdit,
                                  QToolButton)
@@ -33,13 +32,12 @@ from QgisModelBaker.utils.qt_utils import (
 from .db_config_panel import DbConfigPanel
 
 
-class GpkgConfigPanel(QWidget, DbConfigPanel):
+class GpkgConfigPanel(DbConfigPanel):
 
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent, db_action_type):
-        DbConfigPanel.__init__(self, db_action_type)
-        QWidget.__init__(self, parent)
+        DbConfigPanel.__init__(self, parent, db_action_type)
 
         lbl_db_file = QLabel(self.tr("Database File"))
 
@@ -66,10 +64,8 @@ class GpkgConfigPanel(QWidget, DbConfigPanel):
 
         self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
 
-    def show_panel(self, interlis_mode=False):
-        self.show()
-
-        if interlis_mode:
+    def _show_panel(self):
+        if self.interlis_mode:
             validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
                                         file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg')

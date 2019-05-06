@@ -16,9 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import (QObject,pyqtSignal)
-from qgis.PyQt.QtWidgets import (QWidget,
-                                 QLabel,
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtWidgets import (QLabel,
                                  QGridLayout,
                                  QLineEdit,
                                  QCheckBox)
@@ -30,13 +29,12 @@ from QgisModelBaker.utils.qt_utils import (
 from QgisModelBaker.libili2db.globals import DbActionType
 
 
-class PgConfigPanel(QWidget, DbConfigPanel):
+class PgConfigPanel(DbConfigPanel):
 
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent, db_action_type):
-        DbConfigPanel.__init__(self, db_action_type)
-        QWidget.__init__(self, parent)
+        DbConfigPanel.__init__(self, parent, db_action_type)
 
         lbl_host = QLabel(self.tr("Host"))
         lbl_port = QLabel(self.tr("Port"))
@@ -116,12 +114,10 @@ class PgConfigPanel(QWidget, DbConfigPanel):
         self.pg_user_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_password_line_edit.textChanged.connect(self.notify_fields_modified)
 
-    def show_panel(self, interlis_mode=False):
-        self.show()
-
-        if interlis_mode:
+    def _show_panel(self):
+        if self.interlis_mode:
             self.pg_schema_line_edit.setPlaceholderText(
-            self.tr("[Leave empty to create a default schema]"))
+                self.tr("[Leave empty to create a default schema]"))
         else:
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to load all schemas in the database]"))

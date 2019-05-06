@@ -16,20 +16,23 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import (QObject,pyqtSignal)
+from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import Qgis
+from qgis.PyQt.QtWidgets import QWidget
 from abc import ABC, abstractmethod
 
 
-class DbConfigPanel(QObject):
+class DbConfigPanel(QWidget):
 
     notify_fields_modified = pyqtSignal(str)
 
-    def __init__(self, db_action_type):
+    def __init__(self, parent, db_action_type):
+        QWidget.__init__(self, parent)
         self._db_action_type = db_action_type
+        self.interlis_mode = False
 
     @abstractmethod
-    def show_panel(self, interlis_mode=False):
+    def _show_panel(self):
         pass
 
     @abstractmethod
@@ -51,3 +54,6 @@ class DbConfigPanel(QObject):
     @abstractmethod
     def is_valid(self):
         pass
+
+    def showEvent(self, event):
+        self._show_panel()

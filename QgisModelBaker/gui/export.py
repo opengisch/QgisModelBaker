@@ -361,11 +361,9 @@ class ExportDialog(QDialog, DIALOG_UI):
     def type_changed(self):
         self.progress_bar.hide()
 
-        for key, value in self._lst_panel.items():
-            value.setVisible(False)
-
         db_id = self.type_combo_box.currentData()
-        self._lst_panel[db_id].show_panel(False)
+        for key, value in self._lst_panel.items():
+            value.setVisible(db_id == key)
 
     def link_activated(self, link):
         if link.url() == '#configure':
