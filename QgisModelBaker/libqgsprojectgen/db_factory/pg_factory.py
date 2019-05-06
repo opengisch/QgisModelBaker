@@ -23,9 +23,12 @@ from .pg_uri import PgUri
 from .pg_layer_uri import PgLayerUri
 from ...gui.panel.pg_config_panel import PgConfigPanel
 from .ili2pg_args import Ili2pgArgs
+from qgis.PyQt.QtCore import QCoreApplication
 
 
 class PgFactory(DbFactory):
+
+    _settings_base_path = 'QgisModelBaker/ili2pg/'
 
     def get_db_connector(self, uri, schema):
         return PGConnector(uri, schema)
@@ -55,41 +58,34 @@ class PgFactory(DbFactory):
         connector = self.get_db_connector(configuration.uri, configuration.dbschema)
 
         if not connector._postgis_exists():
-            message = 'The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'
+            message = QCoreApplication.translate("PgFactory", "The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.")
         else:
             result = True
 
         return result, message
 
     def save_settings(self, configuration):
-        # TODO repair string path settings
         settings = QSettings()
         # PostgreSQL specific options
-        settings.setValue(
-            'QgisModelBaker/ili2pg/host', configuration.dbhost)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/port', configuration.dbport)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/user', configuration.dbusr)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/database', configuration.database.strip("'"))
-        settings.setValue(
-            'QgisModelBaker/ili2pg/schema', configuration.dbschema)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/password', configuration.dbpwd)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/usesuperlogin', configuration.db_use_super_login)
+        settings.setValue(self._settings_base_path + 'host', configuration.dbhost)
+        settings.setValue(self._settings_base_path + 'port', configuration.dbport)
+        settings.setValue(self._settings_base_path + 'user', configuration.dbusr)
+        settings.setValue(self._settings_base_path + 'database', configuration.database.strip("'"))
+        settings.setValue(self._settings_base_path + 'schema', configuration.dbschema)
+        settings.setValue(self._settings_base_path + 'password', configuration.dbpwd)
+        settings.setValue(self._settings_base_path + 'usesuperlogin', configuration.db_use_super_login)
 
     def load_settings(self, configuration):
         settings = QSettings()
 
-        configuration.dbhost = settings.value('QgisModelBaker/ili2pg/host', 'localhost')
-        configuration.dbport = settings.value('QgisModelBaker/ili2pg/port')
-        configuration.dbusr = settings.value('QgisModelBaker/ili2pg/user')
-        configuration.database = settings.value('QgisModelBaker/ili2pg/database')
-        configuration.dbschema = settings.value('QgisModelBaker/ili2pg/schema')
-        configuration.dbpwd = settings.value('QgisModelBaker/ili2pg/password')
-        configuration.db_use_super_login = settings.value('QgisModelBaker/ili2pg/usesuperlogin', defaultValue=False, type=bool)
+        configuration.dbhost = settings.value(self._settings_base_path + 'host', 'localhost')
+        configuration.dbport = settings.value(self._settings_base_path + 'port')
+        configuration.dbusr = settings.value(self._settings_base_path + 'user')
+        configuration.database = settings.value(self._settings_base_path + 'database')
+        configuration.dbschema = settings.value(self._settings_base_path + 'schema')
+        configuration.dbpwd = settings.value(self._settings_base_path + 'password')
+        configuration.db_use_super_login = settings.value(
+            self._settings_base_path + 'usesuperlogin', defaultValue=False, type=bool)
 
     def get_tool_version(self):
         return '3.11.2'

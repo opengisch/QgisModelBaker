@@ -219,7 +219,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         res, message = self._lst_panel[db_id].is_valid()
 
         if not res:
-            self.txtStdout.setText(self.tr(message))
+            self.txtStdout.setText(message)
             return
 
         # If xtf browser was opened and the file exists, the user already chose

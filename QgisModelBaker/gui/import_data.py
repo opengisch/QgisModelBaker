@@ -141,7 +141,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         res, message = self._lst_panel[db_id].is_valid()
 
         if not res:
-            self.txtStdout.setText(self.tr(message))
+            self.txtStdout.setText(message)
             return
 
         # create schema with superuser

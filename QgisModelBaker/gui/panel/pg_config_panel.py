@@ -68,7 +68,7 @@ class PgConfigPanel(DbConfigPanel):
         if self._db_action_type != DbActionType.EXPORT:
             self.pg_use_super_login = QCheckBox()
             self.pg_use_super_login.setText(
-                self.tr('Generate schema with superuser login from settings ({})').format(BaseConfiguration().super_pg_user))
+                self.tr("Generate schema with superuser login from settings ({})").format(BaseConfiguration().super_pg_user))
 
         layout = QGridLayout(self)
         layout.addWidget(lbl_host, 0, 0)
@@ -148,13 +148,13 @@ class PgConfigPanel(DbConfigPanel):
         result = False
         message = ''
         if not self.pg_host_line_edit.text().strip():
-            message = 'Please set a host before creating the project.'
+            message = self.tr("Please set a host before creating the project.")
             self.pg_host_line_edit.setFocus()
         elif not "{}".format(self.pg_database_line_edit.text().strip()):
-            message = 'Please set a database before creating the project.'
+            message = self.tr("Please set a database before creating the project.")
             self.pg_database_line_edit.setFocus()
         elif not self.pg_user_line_edit.text().strip():
-            message = 'Please set a database user before creating the project.'
+            message = self.tr("Please set a database user before creating the project.")
             self.pg_user_line_edit.setFocus()
         else:
             result = True

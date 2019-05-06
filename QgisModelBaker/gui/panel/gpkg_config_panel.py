@@ -45,7 +45,7 @@ class GpkgConfigPanel(DbConfigPanel):
 
         self.gpkg_file_browse_button = QToolButton()
         self.gpkg_file_browse_button.setText('…')
-        self.gpkg_file_browse_button.setToolTip(self.tr('Browse GeoPackage files'))
+        self.gpkg_file_browse_button.setToolTip(self.tr("Browse GeoPackage files"))
 
         layout = QGridLayout(self)
 
@@ -67,12 +67,12 @@ class GpkgConfigPanel(DbConfigPanel):
     def _show_panel(self):
         if self.interlis_mode:
             validator = self.gpkgSaveFileValidator
-            file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                        file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg')
+            file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
+                                        file_filter=self.tr("GeoPackage Database (*.gpkg)"), extension='.gpkg')
         else:
             validator = self.gpkgOpenFileValidator
-            file_selector = make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                        file_filter=self.tr('GeoPackage Database (*.gpkg)'))
+            file_selector = make_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
+                                        file_filter=self.tr("GeoPackage Database (*.gpkg)"))
         try:
             self.gpkg_file_browse_button.clicked.disconnect()
         except:
@@ -96,9 +96,8 @@ class GpkgConfigPanel(DbConfigPanel):
 
         db_file = self.gpkg_file_line_edit.text().strip()
 
-        if not db_file or self.gpkg_file_line_edit.validator().validate(db_file, 0)[
-            0] != QValidator.Acceptable:
-            message = 'Please set a valid database file before creating the project.'
+        if not db_file or self.gpkg_file_line_edit.validator().validate(db_file, 0)[0] != QValidator.Acceptable:
+            message = self.tr("Please set a valid database file before creating the project.")
             self.gpkg_file_line_edit.setFocus()
         else:
             result = True

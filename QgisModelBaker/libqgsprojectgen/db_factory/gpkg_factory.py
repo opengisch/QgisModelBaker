@@ -26,6 +26,8 @@ from .ili2gpkg_args import Ili2gpkgArgs
 
 class GpkgFactory(DbFactory):
 
+    _settings_base_path = 'QgisModelBaker/ili2gpkg/'
+
     def get_db_connector(self, uri, schema):
         return GPKGConnector(uri, None)
 
@@ -48,13 +50,12 @@ class GpkgFactory(DbFactory):
         return True, ''
 
     def save_settings(self, configuration):
-        # TODO repair string path settings
         settings = QSettings()
-        settings.setValue('QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
+        settings.setValue(self._settings_base_path + 'dbfile', configuration.dbfile)
 
     def load_settings(self, configuration):
         settings = QSettings()
-        configuration.dbfile = settings.value('QgisModelBaker/ili2gpkg/dbfile')
+        configuration.dbfile = settings.value(self._settings_base_path + 'dbfile')
 
     def get_tool_version(self):
         return '3.11.3'

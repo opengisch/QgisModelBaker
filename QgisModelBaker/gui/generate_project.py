@@ -181,7 +181,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         res, message = self._lst_panel[db_id].is_valid()
 
         if not res:
-            self.txtStdout.setText(self.tr(message))
+            self.txtStdout.setText(message)
             return
 
         configuration.dbschema = configuration.dbschema or configuration.database
@@ -246,7 +246,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             res, message = db_factory.post_generate_project_validations(configuration)
 
             if not res:
-                self.txtStdout.setText(self.tr(message))
+                self.txtStdout.setText(message)
                 self.enable()
                 self.progress_bar.hide()
                 return
