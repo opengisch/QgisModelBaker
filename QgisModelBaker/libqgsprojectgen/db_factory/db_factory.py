@@ -60,3 +60,11 @@ class DbFactory:
     @abstractmethod
     def get_tool_url(self):
         pass
+
+    def get_specific_messages(self):
+        messages = {
+            'db_or_schema': 'schema',
+            'layers_source':   'schema'
+        }
+
+        return messages

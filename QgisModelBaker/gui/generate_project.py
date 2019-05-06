@@ -71,8 +71,6 @@ from ..libili2db import iliimporter
 from ..libili2db.globals import DbIliMode
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
-from ..libqgsprojectgen.dbconnector import pg_connector
-
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 DIALOG_UI = get_ui_class('generate_project.ui')
@@ -239,7 +237,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
                         self.tr('Source {} does not exist. Check connection parameters.').format(
-                            'database' if self.type_combo_box.currentData() == DbIliMode.gpkg else 'schema'
+                            db_factory.get_specific_messages()['db_or_schema']
                         ))
                     self.enable()
                     self.progress_bar.hide()
@@ -257,12 +255,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.tr('\nObtaining available layers from the database…'))
             available_layers = generator.layers()
 
-            # TODO specific pg, gpkg option
             if not available_layers:
-                if self.type_combo_box.currentData() == DbIliMode.gpkg:
-                    text = self.tr('The GeoPackage has no layers to load into QGIS.')
-                else:
-                    text = self.tr('The schema has no layers to load into QGIS.')
+                text = self.tr('The {} has no layers to load into QGIS.').format(
+                            db_factory.get_specific_messages()['layers_source'])
+
                 self.txtStdout.setText(text)
                 self.enable()
                 self.progress_bar.hide()

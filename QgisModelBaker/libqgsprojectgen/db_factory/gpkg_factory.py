@@ -58,3 +58,11 @@ class GpkgFactory(DbFactory):
 
     def get_tool_url(self):
         return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(self.get_tool_version())
+
+    def get_specific_messages(self):
+        messages = {
+            'db_or_schema': 'database',
+            'layers_source': 'GeoPackage'
+        }
+
+        return messages
