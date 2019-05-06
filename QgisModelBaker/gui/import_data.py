@@ -145,12 +145,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             return
 
         # create schema with superuser
-        # TODO Hard-coding 'pg'
-        if self.type_combo_box.currentData() == DbIliMode.pg and configuration.db_use_super_login:
-            configuration.tool = DbIliMode.ili2pg
-            _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
-            if not _db_connector.db_or_schema_exists():
-                _db_connector.create_db_or_schema(configuration.dbusr)
+        db_factory = self.db_simple_factory.create_factory(db_id)
+        db_factory.pre_generate_project(configuration)
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()

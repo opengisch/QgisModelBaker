@@ -38,6 +38,12 @@ class PgFactory(DbFactory):
     def get_layer_uri(self, uri):
         return PgLayerUri(uri)
 
+    def pre_generate_project(self, configuration):
+        if configuration.db_use_super_login:
+            _db_connector = self.get_db_connector(configuration.super_user_uri, configuration.dbschema)
+            if not _db_connector.db_or_schema_exists():
+                _db_connector.create_db_or_schema(configuration.dbusr)
+
     def save_settings(self, configuration):
         # TODO repair string path settings
         settings = QSettings()

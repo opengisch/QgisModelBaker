@@ -38,6 +38,10 @@ class DbFactory:
         pass
 
     @abstractmethod
+    def pre_generate_project(self, configuration):
+        pass
+
+    @abstractmethod
     def save_settings(self, configuration):
         pass
 

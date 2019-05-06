@@ -38,6 +38,9 @@ class GpkgFactory(DbFactory):
     def get_layer_uri(self, uri):
         return GpkgLayerUri(uri)
 
+    def pre_generate_project(self, configuration):
+        pass
+
     def save_settings(self, configuration):
         # TODO repair string path settings
         settings = QSettings()
