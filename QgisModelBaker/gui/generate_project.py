@@ -245,13 +245,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.progress_bar.hide()
                     return
 
-            if self.type_combo_box.currentData() == DbIliMode.pg:
-                if not generator._postgis_exists():
-                    self.txtStdout.setText(
-                        self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
-                    self.enable()
-                    self.progress_bar.hide()
-                    return
+            res, message = db_factory.post_generate_project_validations(configuration)
+
+            if not res:
+                self.txtStdout.setText(self.tr(message))
+                self.enable()
+                self.progress_bar.hide()
+                return
 
             self.print_info(
                 self.tr('\nObtaining available layers from the database…'))

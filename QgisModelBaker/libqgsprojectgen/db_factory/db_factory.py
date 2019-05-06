@@ -42,6 +42,10 @@ class DbFactory:
         pass
 
     @abstractmethod
+    def post_generate_project_validations(self, configuration):
+        pass
+
+    @abstractmethod
     def save_settings(self, configuration):
         pass
 

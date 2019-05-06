@@ -252,9 +252,6 @@ class Generator:
 
         return legend
 
-    def _postgis_exists(self):
-        return self._db_connector._postgis_exists()
-
     def db_or_schema_exists(self):
         return self._db_connector.db_or_schema_exists()
 

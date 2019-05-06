@@ -44,6 +44,19 @@ class PgFactory(DbFactory):
             if not _db_connector.db_or_schema_exists():
                 _db_connector.create_db_or_schema(configuration.dbusr)
 
+    def post_generate_project_validations(self, configuration):
+        result = False
+        message = ''
+
+        connector = self.get_db_connector(configuration.uri, configuration.dbschema)
+
+        if not connector._postgis_exists():
+            message = 'The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'
+        else:
+            result = True
+
+        return result, message
+
     def save_settings(self, configuration):
         # TODO repair string path settings
         settings = QSettings()

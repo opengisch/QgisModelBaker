@@ -41,6 +41,9 @@ class GpkgFactory(DbFactory):
     def pre_generate_project(self, configuration):
         pass
 
+    def post_generate_project_validations(self, configuration):
+        return True, ''
+
     def save_settings(self, configuration):
         # TODO repair string path settings
         settings = QSettings()
