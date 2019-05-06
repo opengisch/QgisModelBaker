@@ -241,8 +241,15 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
 
-        if self.tool == DbIliMode.ili2pg:
-            args += ["--setupPgExt"]
+        db_simple_factory = DbSimpleFactory()
+        db_factory = db_simple_factory.create_factory(self.tool)
+
+        if db_factory:
+        # TODO rename mgr_db_args
+            mgr_db_args = db_factory.get_db_uri()
+            db_args = mgr_db_args.get_specific_params_schema_import()
+
+            args += db_args
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)
 

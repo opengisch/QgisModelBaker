@@ -54,3 +54,8 @@ class PgUri(DbUri):
         db_args += ["--dbschema",
                  configuration.dbschema or configuration.database]
         return db_args
+
+    def get_specific_params_schema_import(self):
+        args = list()
+        args += ["--setupPgExt"]
+        return args

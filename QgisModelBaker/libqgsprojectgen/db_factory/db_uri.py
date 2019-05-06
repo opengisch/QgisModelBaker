@@ -27,3 +27,7 @@ class DbUri:
     @abstractmethod
     def get_db_args_from_conf(self, configuration, hide_password=False):
         pass
+
+    @abstractmethod
+    def get_specific_params_schema_import(self):
+        pass

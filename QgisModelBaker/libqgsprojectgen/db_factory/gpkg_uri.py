@@ -26,3 +26,6 @@ class GpkgUri(DbUri):
 
     def get_db_args_from_conf(self, configuration, hide_password=False):
         return ["--dbfile", configuration.dbfile]
+
+    def get_specific_params_schema_import(self):
+        return list()
