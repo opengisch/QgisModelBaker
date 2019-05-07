@@ -126,7 +126,7 @@ class PgConfigPanel(DbConfigPanel):
         configuration.dbhost = self.pg_host_line_edit.text().strip()
         configuration.dbport = self.pg_port_line_edit.text().strip()
         configuration.dbusr = self.pg_user_line_edit.text().strip()
-        configuration.database = "'{}'".format(self.pg_database_line_edit.text().strip())
+        configuration.database = self.pg_database_line_edit.text().strip()
         configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
         configuration.dbpwd = self.pg_password_line_edit.text()
 

@@ -70,7 +70,7 @@ class PgFactory(DbFactory):
         settings.setValue(self._settings_base_path + 'host', configuration.dbhost)
         settings.setValue(self._settings_base_path + 'port', configuration.dbport)
         settings.setValue(self._settings_base_path + 'user', configuration.dbusr)
-        settings.setValue(self._settings_base_path + 'database', configuration.database.strip("'"))
+        settings.setValue(self._settings_base_path + 'database', configuration.database)
         settings.setValue(self._settings_base_path + 'schema', configuration.dbschema)
         settings.setValue(self._settings_base_path + 'password', configuration.dbpwd)
         settings.setValue(self._settings_base_path + 'usesuperlogin', configuration.db_use_super_login)

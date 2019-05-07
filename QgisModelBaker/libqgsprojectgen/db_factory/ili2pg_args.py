@@ -32,7 +32,7 @@ class Ili2pgArgs(IliArgs):
                 db_args += ["--dbpwd", '******']
             else:
                 db_args += ["--dbpwd", configuration.dbpwd]
-        db_args += ["--dbdatabase", configuration.database.strip("'")]
+        db_args += ["--dbdatabase", configuration.database]
         db_args += ["--dbschema",
                  configuration.dbschema or configuration.database]
         return db_args

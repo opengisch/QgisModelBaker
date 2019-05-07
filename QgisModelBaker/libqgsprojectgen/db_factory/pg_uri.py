@@ -24,7 +24,7 @@ class PgUri(DbUri):
     def get_uri_from_conf(self, configuration, su=False):
         uri = []
 
-        uri += ['dbname={}'.format(configuration.database)]
+        uri += ['dbname=\'{}\''.format(configuration.database)]
         if su:
             uri += ['user={}'.format(configuration.base_configuration.super_pg_user)]
             if configuration.base_configuration.super_pg_password:
