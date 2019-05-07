@@ -119,8 +119,12 @@ class PgConfigPanel(DbConfigPanel):
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]"))
         else:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to load all schemas in the database]"))
+            if self._db_action_type == DbActionType.IMPORT_DATA:
+                self.pg_schema_line_edit.setPlaceholderText(
+                    self.tr("[Leave empty to import data into a default schema]"))
+            else:
+                self.pg_schema_line_edit.setPlaceholderText(
+                    self.tr("[Leave empty to load all schemas in the database]"))
 
     def get_fields(self, configuration):
         configuration.dbhost = self.pg_host_line_edit.text().strip()
