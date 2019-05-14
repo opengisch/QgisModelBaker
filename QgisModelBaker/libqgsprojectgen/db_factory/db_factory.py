@@ -30,15 +30,11 @@ class DbFactory:
         pass
 
     @abstractmethod
-    def get_db_uri(self):
+    def get_db_command_config_manager(self, configuration):
         pass
 
     @abstractmethod
     def get_layer_uri(self, uri):
-        pass
-
-    @abstractmethod
-    def get_ili_args(self):
         pass
 
     @abstractmethod
@@ -50,20 +46,15 @@ class DbFactory:
         pass
 
     @abstractmethod
-    def save_settings(self, configuration):
-        pass
-
-    @abstractmethod
-    def load_settings(self, configuration):
-        pass
-
-    @abstractmethod
     def get_tool_version(self):
         pass
 
     @abstractmethod
     def get_tool_url(self):
         pass
+
+    def get_schema_import_args(self):
+        return list()
 
     def get_specific_messages(self):
         messages = {

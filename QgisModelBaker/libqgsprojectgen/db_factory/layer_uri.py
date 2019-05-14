@@ -25,6 +25,7 @@ class LayerUri:
         # TODO specific field for postgres
         self.pg_estimated_metadata = 'false'
         self.uri = uri
+        self.provider = None
 
     @abstractmethod
     def get_data_source_uri(self, record):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    25/04/19
+    begin                :    13/05/19
     git sha              :    :%H$
     copyright            :    (C) 2019 by Yesid Polania
     email                :    yesidpol.3@gmail.com
@@ -16,25 +16,27 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_uri import DbUri
+from .db_command_config_manager import DbCommandConfigManager
+from qgis.PyQt.QtCore import QSettings
 
 
-class PgUri(DbUri):
+class GpkgCommandConfigManager(DbCommandConfigManager):
 
-    def get_uri_from_conf(self, configuration, su=False):
-        uri = []
+    _settings_base_path = 'QgisModelBaker/ili2pg/'
 
-        uri += ['dbname=\'{}\''.format(configuration.database)]
-        if su:
-            uri += ['user={}'.format(configuration.base_configuration.super_pg_user)]
-            if configuration.base_configuration.super_pg_password:
-                uri += ['password={}'.format(configuration.base_configuration.super_pg_password)]
-        else:
-            uri += ['user={}'.format(configuration.dbusr)]
-            if configuration.dbpwd:
-                uri += ['password={}'.format(configuration.dbpwd)]
-        uri += ['host={}'.format(configuration.dbhost)]
-        if configuration.dbport:
-            uri += ['port={}'.format(configuration.dbport)]
+    def __init__(self, configuration):
+        DbCommandConfigManager.__init__(self, configuration)
 
-        return ' '.join(uri)
+    def get_uri(self, su=False):
+        return self.configuration.dbfile
+
+    def get_db_args(self, hide_password=False):
+        return ["--dbfile", self.configuration.dbfile]
+
+    def save_config_in_qsettings(self):
+        settings = QSettings()
+        settings.setValue(self._settings_base_path + 'dbfile', self.configuration.dbfile)
+
+    def load_config_from_qsettings(self):
+        settings = QSettings()
+        self.configuration.dbfile = settings.value(self._settings_base_path + 'dbfile')

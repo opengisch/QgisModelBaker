@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-    begin                :    06/05/19
+    begin                :    13/05/19
     git sha              :    :%H$
-    copyright            :    (C) 2019 by Yesid Polania (BSF Swissphoto)
+    copyright            :    (C) 2019 by Yesid Polania
     email                :    yesidpol.3@gmail.com
  ***************************************************************************/
 
@@ -17,13 +17,25 @@
  ***************************************************************************/
 """
 from abc import ABC, abstractmethod
-from .ili_args import IliArgs
 
 
-class Ili2gpkgArgs(IliArgs):
+class DbCommandConfigManager:
 
-    def get_db_args_from_conf(self, configuration, hide_password=False):
-        return ["--dbfile", configuration.dbfile]
+    def __init__(self, configuration):
+        self.configuration = configuration
 
-    def get_schema_import_args(self):
-        return list()
+    @abstractmethod
+    def get_uri(self, su):
+        pass
+
+    @abstractmethod
+    def get_db_args(self, hide_password=False):
+        pass
+
+    @abstractmethod
+    def save_config_in_qsettings(self):
+        pass
+
+    @abstractmethod
+    def load_config_from_qsettings(self):
+        pass

@@ -127,7 +127,8 @@ class Ili2DbCommandConfiguration(object):
         '''
         db_simple_factory = DbSimpleFactory()
         db_factory = db_simple_factory.create_factory(self.tool)
-        uri_string = db_factory.get_db_uri().get_uri_from_conf(self, su)
+        config_manager = db_factory.get_db_command_config_manager(self)
+        uri_string = config_manager.get_uri(su)
         return uri_string
 
     def to_ili2db_args(self, hide_password=False):
@@ -141,8 +142,8 @@ class Ili2DbCommandConfiguration(object):
         db_factory = db_simple_factory.create_factory(self.tool)
 
         if db_factory:
-            ili_args = db_factory.get_ili_args()
-            db_args = ili_args.get_db_args_from_conf(self, hide_password)
+            config_manager = db_factory.get_db_command_config_manager(self)
+            db_args = config_manager.get_db_args(hide_password)
 
             args += db_args
 
@@ -244,9 +245,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         db_factory = db_simple_factory.create_factory(self.tool)
 
         if db_factory:
-            ili_args = db_factory.get_ili_args()
-            db_args = ili_args.get_schema_import_args()
-
+            db_args = db_factory.get_schema_import_args()
             args += db_args
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)
