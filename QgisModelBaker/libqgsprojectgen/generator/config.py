@@ -63,7 +63,7 @@ READONLY_FIELDNAMES = [
 # prefix-suffix matches, here we define some known prefix-suffix pairs
 GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX = [{
         'prefix': 'rtree_',
-        'suffix': ['_geometry','_geometry_node','_geometry_parent','_geometry_rowid']
+        'suffix': ['_geometry','_geometry_node','_geometry_parent','_geometry_rowid', '_geom','_geom_node','_geom_parent','_geom_rowid']
     },
     {
         'prefix': 'vgpkg_',
