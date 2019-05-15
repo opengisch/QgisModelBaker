@@ -148,11 +148,6 @@ class ExportDialog(QDialog, DIALOG_UI):
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
-        self.type_combo_box.currentIndexChanged.connect(self.type_changed)
-
-        self.base_configuration = base_config
-        self.restore_configuration()
-
         self.validators = Validators()
 
         fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
@@ -173,11 +168,16 @@ class ExportDialog(QDialog, DIALOG_UI):
         for key, value in self._lst_panel.items():
             value.notify_fields_modified.connect(self.request_for_refresh_models)
 
+        self.base_configuration = base_config
+        self.restore_configuration()
+
         self.export_models_model = ExportModels(None, None, None)
         self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
+
+        self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
     def request_for_refresh_models(self):
         # hold refresh back
@@ -348,7 +348,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
-        self.type_changed()
+        self.refresh_db_panel()
 
     def disable(self):
         for key, value in self._lst_panel.items():
@@ -363,6 +363,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.refresh_db_panel()
+        self.refresh_models()
+
+    def refresh_db_panel(self):
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()
