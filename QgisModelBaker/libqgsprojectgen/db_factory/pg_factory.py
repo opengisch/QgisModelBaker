@@ -22,6 +22,7 @@ from .pg_layer_uri import PgLayerUri
 from QgisModelBaker.gui.panel.pg_config_panel import PgConfigPanel
 from .pg_command_config_manager import PgCommandConfigManager
 from qgis.PyQt.QtCore import QCoreApplication
+from psycopg2 import OperationalError
 
 
 class PgFactory(DbFactory):
@@ -39,10 +40,23 @@ class PgFactory(DbFactory):
         return PgLayerUri(uri)
 
     def pre_generate_project(self, configuration):
+        result = not configuration.db_use_super_login
+        message = ''
+
         if configuration.db_use_super_login:
-            _db_connector = self.get_db_connector(configuration.super_user_uri, configuration.dbschema)
-            if not _db_connector.db_or_schema_exists():
-                _db_connector.create_db_or_schema(configuration.dbusr)
+            try:
+                _db_connector = self.get_db_connector(configuration.super_user_uri, configuration.dbschema)
+
+                result = schema_exist = _db_connector.db_or_schema_exists()
+
+                if not schema_exist:
+                    _db_connector.create_db_or_schema(configuration.dbusr)
+                    result = True
+
+            except OperationalError:
+                message = QCoreApplication.translate("PgFactory", "There was an error generating schema with superuser. Check superuser login parameters from settings > General.")
+
+        return result, message
 
     def post_generate_project_validations(self, configuration):
         result = False

@@ -146,7 +146,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         # create schema with superuser
         db_factory = self.db_simple_factory.create_factory(db_id)
-        db_factory.pre_generate_project(configuration)
+        res, message = db_factory.pre_generate_project(configuration)
+
+        if not res:
+            self.txtStdout.setText(message)
+            return
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()

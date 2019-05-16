@@ -38,7 +38,7 @@ class GpkgFactory(DbFactory):
         return GpkgLayerUri(uri)
 
     def pre_generate_project(self, configuration):
-        pass
+        return True, ''
 
     def post_generate_project_validations(self, configuration):
         return True, ''
