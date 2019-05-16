@@ -72,6 +72,7 @@ from ..libili2db.globals import DbIliMode
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
@@ -230,7 +231,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 generator = Generator(configuration.tool, configuration.uri,
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
-            except OperationalError:
+            except DBConnectorError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
                 self.enable()

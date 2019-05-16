@@ -27,6 +27,7 @@ import psycopg2
 import psycopg2.extras
 
 from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
@@ -51,8 +52,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         generator = None
         try:
             generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
-        except psycopg2.OperationalError as e:
-            # psycopg2.OperationalError: FATAL:  database "not_exists_database" does not exist
+        except DBConnectorError as e:
+            # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
 
     def test_postgres_db_without_schema(self):

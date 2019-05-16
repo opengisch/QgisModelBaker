@@ -145,3 +145,14 @@ class DBConnector:
     def get_attrili_attrdb_mapping_by_owner(self, owners):
         """TODO: remove when ili2db issue #19 is solved"""
         return {}
+
+
+class DBConnectorError(Exception):
+    """
+    This error is raised when DbConnector could not connect to database
+    This exception wraps different database exceptions to unify them in a single exception
+    """
+
+    def __init__(self, message, base_exception=None):
+        super().__init__(message)
+        self.base_exception = base_exception

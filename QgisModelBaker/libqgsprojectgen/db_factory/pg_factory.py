@@ -22,7 +22,7 @@ from .pg_layer_uri import PgLayerUri
 from QgisModelBaker.gui.panel.pg_config_panel import PgConfigPanel
 from .pg_command_config_manager import PgCommandConfigManager
 from qgis.PyQt.QtCore import QCoreApplication
-from psycopg2 import OperationalError
+from ..dbconnector.db_connector import DBConnectorError
 
 
 class PgFactory(DbFactory):
@@ -53,7 +53,7 @@ class PgFactory(DbFactory):
                     _db_connector.create_db_or_schema(configuration.dbusr)
                     result = True
 
-            except OperationalError:
+            except DBConnectorError:
                 message = QCoreApplication.translate("PgFactory", "There was an error generating schema with superuser. Check superuser login parameters from settings > General.")
 
         return result, message

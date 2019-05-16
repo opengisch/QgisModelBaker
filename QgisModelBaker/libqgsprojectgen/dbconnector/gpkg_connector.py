@@ -21,17 +21,23 @@ import re
 import sqlite3
 import qgis.utils
 from qgis.core import Qgis
-from .db_connector import DBConnector
+from .db_connector import (DBConnector, DBConnectorError)
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 
+
 class GPKGConnector(DBConnector):
 
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
-        self.conn = qgis.utils.spatialite_connect(uri)
+
+        try:
+            self.conn = qgis.utils.spatialite_connect(uri)
+        except sqlite3.Error as e:
+            raise DBConnectorError(str(e), e)
+
         self.conn.row_factory = sqlite3.Row
         self.uri = uri
         self._bMetadataTable = self._metadata_exists()
