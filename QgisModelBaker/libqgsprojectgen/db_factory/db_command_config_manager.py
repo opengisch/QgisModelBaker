@@ -25,7 +25,7 @@ class DbCommandConfigManager:
         self.configuration = configuration
 
     @abstractmethod
-    def get_uri(self, su):
+    def get_uri(self, su=False):
         pass
 
     @abstractmethod
