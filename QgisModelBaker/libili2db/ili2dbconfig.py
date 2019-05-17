@@ -111,6 +111,7 @@ class Ili2DbCommandConfiguration(object):
         self.ilifile = ''
         self.ilimodels = ''
         self.tomlfile = ''
+        self.dbinstance = ''
 
     @property
     def uri(self):
