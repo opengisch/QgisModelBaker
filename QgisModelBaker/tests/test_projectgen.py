@@ -574,6 +574,51 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 2)
 
+    def test_meta_attr_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+
+        self.assertEqual(count, 2)
+
     def test_meta_attr_toml_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -616,6 +661,54 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_meta_attr_toml_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
+        importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'typeofroute':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+            if layer.name == 'route':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+            if layer.name == 'obstacle':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'type')
+
+        self.assertEqual(count, 3)
+
     def test_meta_attr_hidden_toml_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -631,6 +724,55 @@ class TestProjectGen(unittest.TestCase):
 
         generator = Generator(
             DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in project.layers:
+            if layer.name == 'predio':
+                efc = layer.layer.editFormConfig()
+                for tab in efc.tabs():
+                    if tab.name() == 'General':
+                        count = 1
+                        attribute_names = [child.name() for child in tab.children()]
+                        self.assertEqual(len(attribute_names), 9)
+                        self.assertNotIn('tipo', attribute_names)
+                        self.assertNotIn('avaluo', attribute_names)
+
+        self.assertEqual(count, 1)
+
+    def test_meta_attr_hidden_toml_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
