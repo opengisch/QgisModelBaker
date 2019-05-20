@@ -178,6 +178,67 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             conn.commit()
             cur.close()
 
+    def test_mssql_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
+        schema_name = "no_interlis_schema_spatial"
+
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        conn = pyodbc.connect(uri)
+        cur = conn.cursor()
+
+        try:
+            cur.execute("CREATE SCHEMA {};".format(schema_name))
+            cur.commit()
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42S01:
+            # schema exist
+            self.assertEqual(sqlstate, '42S01')
+
+        try:
+            cur.execute("""
+                CREATE TABLE {schema_name}.point (
+                    id INT PRIMARY KEY,
+                    name text,
+                    geometry GEOMETRY NOT NULL
+                );
+
+                CREATE TABLE {schema_name}.region (
+                    id INT PRIMARY KEY,
+                    name text,
+                    geometry GEOMETRY NOT NULL,
+                    id_point integer
+                );
+            """.format(schema_name=schema_name))
+            cur.execute("""
+                ALTER TABLE {schema_name}.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                REFERENCES {schema_name}.point;
+            """.format(schema_name=schema_name))
+            conn.commit()
+
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
+            layers = generator.layers()
+
+            self.assertEqual(len(layers), 2)
+            relations, _ = generator.relations(layers)
+            self.assertEqual(len(relations), 1)
+
+            for layer in layers:
+                self.assertIsNotNone(layer.geometry_column)
+        finally:
+            cur.execute("""
+            drop table {schema_name}.region;
+                drop table {schema_name}.point;
+                drop schema {schema_name};""".format(schema_name=schema_name))
+            conn.commit()
+            cur.close()
+
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
         conn = psycopg2.connect(uri)
