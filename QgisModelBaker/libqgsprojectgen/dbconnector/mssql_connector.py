@@ -91,11 +91,17 @@ class MssqlConnector(DBConnector):
             alias_left_join = ''
             model_name = ''
             model_where = ''
+            srid = "null as srid,"
+            srid_where = ''
+            simple_type = "null as simple_type,"
+            simple_type_where = ''
 
             if self.metadata_exists():
                 kind_settings_field = "p.setting AS kind_settings,"
                 table_alias = "alias.setting AS table_alias,"
                 ili_name = "c.iliname AS ili_name,"
+                srid = 'tsrid.setting as srid,'
+                simple_type = "tgeomtype.setting as simple_type,"
                 extent = """STUFF((SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))  
                     FROM {}.t_ili2db_column_prop cp
                         WHERE tbls.table_name = cp.tablename and clm.COLUMN_NAME = cp.columnname
@@ -121,6 +127,10 @@ class MssqlConnector(DBConnector):
                                """.format(self.schema)
                 model_where = """LEFT JOIN {}.t_ili2db_classname c
                       ON tbls.TABLE_NAME = c.sqlname""".format(self.schema)
+                srid_where = """LEFT JOIN {}.T_ILI2DB_COLUMN_PROP as tsrid
+                    on tbls.TABLE_NAME = tsrid.tablename and clm.COLUMN_NAME = tsrid.columnname and tsrid.tag='ch.ehi.ili2db.srid'""".format(self.schema)
+                simple_type_where = """LEFT JOIN {}.T_ILI2DB_COLUMN_PROP as tgeomtype
+                    on tbls.TABLE_NAME = tgeomtype.tablename and clm.COLUMN_NAME = tgeomtype.columnname and tgeomtype.tag= 'ch.ehi.ili2db.geomType'""".format(self.schema)
                       
             schema_where = "AND tbls.TABLE_SCHEMA = '{}'".format(self.schema)
 
@@ -132,13 +142,13 @@ class MssqlConnector(DBConnector):
                     tbls.TABLE_NAME AS tablename, 
                     Col.Column_Name AS primary_key,
                     clm.COLUMN_NAME AS geometry_column,
-                    tsrid.setting as srid,
+                    {srid}
                     {kind_settings_field}
                     {table_alias}
                     {model_name}
                     {ili_name}
                     {extent}
-                    tgeomtype.setting as simple_type,
+                    {simple_type}
                     null as formatted_type
                 FROM
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab 
@@ -157,14 +167,13 @@ class MssqlConnector(DBConnector):
                     on clm.TABLE_NAME = tbls.TABLE_NAME
                     AND clm.TABLE_SCHEMA = tbls.TABLE_SCHEMA
                     AND clm.DATA_TYPE = 'geometry'
-                LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP as tsrid
-                    on tbls.TABLE_NAME = tsrid.tablename and clm.COLUMN_NAME = tsrid.columnname and tsrid.tag='ch.ehi.ili2db.srid'
-                LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP as tgeomtype
-                    on tbls.TABLE_NAME = tgeomtype.tablename and clm.COLUMN_NAME = tgeomtype.columnname and tgeomtype.tag= 'ch.ehi.ili2db.geomType' 
+                {srid_where}
+                {simple_type_where}
                 WHERE tbls.TABLE_TYPE = 'BASE TABLE' {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias, model_name=model_name, ili_name=ili_name, extent=extent,
                     domain_left_join=domain_left_join, alias_left_join=alias_left_join, model_where=model_where,
-                    schema_where=schema_where,schema=self.schema)
+                    schema_where=schema_where,schema=self.schema, srid=srid, srid_where=srid_where, simple_type=simple_type,simple_type_where=simple_type_where)
+
             cur.execute(query)
 
             columns = [column[0] for column in cur.description]
@@ -172,6 +181,7 @@ class MssqlConnector(DBConnector):
             for row in cur.fetchall():
                 my_rec = dict(zip(columns, row))
                 # TODO type != simple_type
+                my_rec['srid'] = int(my_rec['srid']) if my_rec['srid'] else None
                 my_rec['type'] = my_rec['simple_type']
                 res.append(my_rec)
 
