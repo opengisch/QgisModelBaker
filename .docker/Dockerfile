@@ -11,7 +11,7 @@ RUN apt-get update && \
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 RUN curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
 RUN apt-get update
-RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc unixodbc-dev
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc unixodbc-dev libqt5sql5-odbc
 
 COPY ./requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
