@@ -106,6 +106,35 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
 
+    def test_mssql_db_with_empty_schema(self):
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        conn = pyodbc.connect(uri)
+        cur = conn.cursor()
+
+        try:
+            cur.execute("CREATE SCHEMA empty_schema;")
+            cur.commit()
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42S01:
+            # schema exist
+            self.assertEqual(sqlstate, '42S01')
+
+        try:
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', 'empty_schema')
+            self.assertEqual(len(generator.layers()), 0)
+        finally:
+            cur.execute("DROP SCHEMA empty_schema")
+            cur.commit()
+
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
         conn = psycopg2.connect(uri)
