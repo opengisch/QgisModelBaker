@@ -19,7 +19,8 @@
 
 import re
 import pyodbc
-from .db_connector import DBConnector
+from pyodbc import (ProgrammingError, InterfaceError)
+from .db_connector import (DBConnector, DBConnectorError)
 
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
@@ -27,7 +28,12 @@ METAATTRS_TABLE = 't_ili2db_meta_attrs'
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
-        self.conn = pyodbc.connect(uri)
+
+        try:
+            self.conn = pyodbc.connect(uri)
+        except (ProgrammingError, InterfaceError) as e:
+            raise DBConnectorError(str(e), e)
+
         self.schema = schema
         
         self._bMetadataTable = self._metadata_exists()
