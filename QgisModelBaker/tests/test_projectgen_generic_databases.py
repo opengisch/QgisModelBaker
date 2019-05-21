@@ -69,8 +69,9 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                         uid=configuration.dbusr,
                         pwd=configuration.dbpwd)
             generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', '')
-        except pyodbc.ProgrammingError as e:
-            sqlstate = e.args[0]
+        except DBConnectorError as e:
+            base_exception = e.base_exception
+            sqlstate = base_exception.args[0]
             # pyodbc.ProgrammingError + error code 42000:
             # Cannot open database "not_exists_database" requested by the login. The login failed
             self.assertEqual(int(sqlstate), 42000)

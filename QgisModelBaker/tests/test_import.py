@@ -43,13 +43,6 @@ class TestImport(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
-    def test_import_mssql(self):
-        uri = "DSN={dsn};UID={uid};PWD={pwd}"\
-            .format(dsn="testsqlserver",
-                    uid="sa",
-                    pwd="<YourStrong!Passw0rd>")
-        con = pyodbc.connect(uri)
-
     def test_import_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
