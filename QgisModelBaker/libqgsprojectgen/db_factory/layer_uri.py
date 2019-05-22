@@ -22,8 +22,6 @@ from abc import ABC, abstractmethod
 class LayerUri:
 
     def __init__(self, uri):
-        # TODO specific field for postgres
-        self.pg_estimated_metadata = 'false'
         self.uri = uri
         self.provider = None
 

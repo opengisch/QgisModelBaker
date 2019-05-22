@@ -22,7 +22,7 @@ from qgis.PyQt.QtCore import QSettings
 
 class GpkgCommandConfigManager(DbCommandConfigManager):
 
-    _settings_base_path = 'QgisModelBaker/ili2pg/'
+    _settings_base_path = 'QgisModelBaker/ili2gpkg/'
 
     def __init__(self, configuration):
         DbCommandConfigManager.__init__(self, configuration)
