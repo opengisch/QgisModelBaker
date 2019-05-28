@@ -17,20 +17,34 @@
  ***************************************************************************/
 """
 from abc import ABC, abstractmethod
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration, SchemaImportConfiguration
 
 
 class DbCommandConfigManager:
 
-    def __init__(self, configuration):
+    def __init__(self, configuration: Ili2DbCommandConfiguration):
         self.configuration = configuration
 
     @abstractmethod
-    def get_uri(self, su):
+    def get_uri(self, su: bool):
         pass
 
     @abstractmethod
     def get_db_args(self, hide_password=False):
         pass
+
+    def get_schema_import_args(self):
+        return list()
+
+    def get_ili2db_args(self, hide_password=False):
+        db_args = self.get_db_args(hide_password)
+
+        if type(self.configuration) is SchemaImportConfiguration:
+            db_args += self.get_schema_import_args()
+
+        ili2dbargs = self.configuration.to_ili2db_args(db_args)
+
+        return ili2dbargs
 
     @abstractmethod
     def save_config_in_qsettings(self):

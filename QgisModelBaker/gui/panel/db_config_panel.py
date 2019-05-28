@@ -19,6 +19,8 @@
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import Qgis
 from qgis.PyQt.QtWidgets import QWidget
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
+from QgisModelBaker.libili2db.globals import DbActionType
 from abc import ABC, abstractmethod
 
 
@@ -26,7 +28,7 @@ class DbConfigPanel(QWidget):
 
     notify_fields_modified = pyqtSignal(str)
 
-    def __init__(self, parent, db_action_type):
+    def __init__(self, parent: QWidget, db_action_type: DbActionType):
         QWidget.__init__(self, parent)
         self._db_action_type = db_action_type
         self.interlis_mode = False
@@ -36,7 +38,7 @@ class DbConfigPanel(QWidget):
         pass
 
     @abstractmethod
-    def get_fields(self, configuration):
+    def get_fields(self, configuration: Ili2DbCommandConfiguration):
         """
         Get Panel fields into 'configuration' parameter
         :param configuration: (Ili2DbCommandConfiguration)
@@ -44,7 +46,7 @@ class DbConfigPanel(QWidget):
         pass
 
     @abstractmethod
-    def set_fields(self, configuration):
+    def set_fields(self, configuration: Ili2DbCommandConfiguration):
         """
         Set Panel fields
         :param configuration: (Ili2DbCommandConfiguration)

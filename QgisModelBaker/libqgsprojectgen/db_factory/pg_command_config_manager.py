@@ -60,6 +60,11 @@ class PgCommandConfigManager(DbCommandConfigManager):
         db_args += ["--dbschema",
                     self.configuration.dbschema or self.configuration.database]
         return db_args
+    
+    def get_schema_import_args(self):
+        args = list()
+        args += ["--setupPgExt"]
+        return args
 
     def save_config_in_qsettings(self):
         settings = QSettings()

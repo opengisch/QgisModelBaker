@@ -17,32 +17,34 @@
  ***************************************************************************/
 """
 from abc import ABC, abstractmethod
+from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
 
 class DbFactory:
 
     @abstractmethod
-    def get_db_connector(self, uri, schema):
+    def get_db_connector(self, uri: str, schema: str):
         pass
 
     @abstractmethod
-    def get_config_panel(self, parent, db_action_type):
+    def get_config_panel(self, parent, db_action_type: DbActionType):
         pass
 
     @abstractmethod
-    def get_db_command_config_manager(self, configuration):
+    def get_db_command_config_manager(self, configuration: Ili2DbCommandConfiguration):
         pass
 
     @abstractmethod
-    def get_layer_uri(self, uri):
+    def get_layer_uri(self, uri: str):
         pass
 
     @abstractmethod
-    def pre_generate_project(self, configuration):
+    def pre_generate_project(self, configuration: Ili2DbCommandConfiguration):
         pass
 
     @abstractmethod
-    def post_generate_project_validations(self, configuration):
+    def post_generate_project_validations(self, configuration: Ili2DbCommandConfiguration):
         pass
 
     @abstractmethod
@@ -52,9 +54,6 @@ class DbFactory:
     @abstractmethod
     def get_tool_url(self):
         pass
-
-    def get_schema_import_args(self):
-        return list()
 
     def get_specific_messages(self):
         messages = {

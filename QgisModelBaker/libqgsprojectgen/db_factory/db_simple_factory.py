@@ -26,7 +26,7 @@ class DbSimpleFactory:
     _available_databases = [DbIliMode.pg, DbIliMode.gpkg]
     _index_default_db = 0
 
-    def create_factory(self, ili_mode):
+    def create_factory(self, ili_mode: DbIliMode):
         if not ili_mode:
             return None
 

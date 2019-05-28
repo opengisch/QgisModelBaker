@@ -21,7 +21,6 @@
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libili2db.globals import DbIliMode
 
 
@@ -112,21 +111,12 @@ class Ili2DbCommandConfiguration(object):
         self.ilimodels = ''
         self.tomlfile = ''
 
-    def to_ili2db_args(self, hide_password=False):
+    def to_ili2db_args(self):
 
         # Valid ili file, don't pass --modeldir (it can cause ili2db errors)
         with_modeldir = not self.ilifile
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
-
-        db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool)
-
-        if db_factory:
-            config_manager = db_factory.get_db_command_config_manager(self)
-            db_args = config_manager.get_db_args(hide_password)
-
-            args += db_args
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
@@ -139,9 +129,6 @@ class Ili2DbCommandConfiguration(object):
         if self.tomlfile:
             args += ["--iliMetaAttrs", self.tomlfile]
 
-        if self.ilifile:
-            args += [self.ilifile]
-
         return args
 
 
@@ -152,16 +139,18 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         self.xtffile = ''
         self.iliexportmodels = ''
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
 
         if with_action:
             args += ["--export"]
 
+        args += extra_args
+        
         if self.iliexportmodels:
             args += ['--exportModels', self.iliexportmodels]
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password=hide_password)
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
         args += [self.xtffile]
 
@@ -178,7 +167,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.epsg = 21781  # Default EPSG code in ili2pg
         self.stroke_arcs = True
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         """
         Create an ili2db argument array, with the password masked with ****** and optionally with the ``action``
         argument (--schemaimport) removed
@@ -187,6 +176,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
 
         if with_action:
             args += ["--schemaimport"]
+
+        args += extra_args
 
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
@@ -222,15 +213,11 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
 
-        db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool)
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
-        if db_factory:
-            db_args = db_factory.get_schema_import_args()
-            args += db_args
-
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)
-
+        if self.ilifile:
+            args += [self.ilifile]
+        
         return args
 
 
@@ -241,7 +228,7 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         self.xtffile = ''
         self.delete_data = False
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
 
         if with_action:
@@ -250,6 +237,8 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         if self.delete_data:
             args += ["--deleteData"]
 
-        args += SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
+        args += SchemaImportConfiguration.to_ili2db_args(self, extra_args=extra_args, with_action=False)
+
+        args += [self.xtffile]
 
         return args

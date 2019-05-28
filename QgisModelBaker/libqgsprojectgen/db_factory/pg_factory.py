@@ -82,8 +82,3 @@ class PgFactory(DbFactory):
 
     def get_tool_url(self):
         return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(self.get_tool_version())
-
-    def get_schema_import_args(self):
-        args = list()
-        args += ["--setupPgExt"]
-        return args
