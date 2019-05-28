@@ -29,6 +29,7 @@ from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
+from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
 start_app()
 
@@ -128,8 +129,11 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
         generator = Generator(DbIliMode.ili2gpkg,
-                              importer.configuration.uri,
+                              uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -283,9 +287,12 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
-
+        
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+        
         generator = Generator(DbIliMode.ili2gpkg,
-                              importer.configuration.uri,
+                              uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -479,8 +486,11 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
         generator = Generator(DbIliMode.ili2gpkg,
-                              importer.configuration.uri,
+                              uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()
@@ -664,8 +674,11 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
         generator = Generator(DbIliMode.ili2gpkg,
-                              importer.configuration.uri,
+                              uri,
                               importer.configuration.inheritance)
 
         available_layers = generator.layers()

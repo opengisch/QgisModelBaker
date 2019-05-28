@@ -228,7 +228,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool, configuration.uri,
+                config_manager = db_factory.get_db_command_config_manager(configuration)
+                uri = config_manager.get_uri()
+                generator = Generator(configuration.tool, uri,
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
             except DBConnectorError:

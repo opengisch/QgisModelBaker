@@ -112,25 +112,6 @@ class Ili2DbCommandConfiguration(object):
         self.ilimodels = ''
         self.tomlfile = ''
 
-    @property
-    def uri(self):
-        return self._uri(False)
-
-    @property
-    def super_user_uri(self):
-        return self._uri(True)
-
-    def _uri(self, su = False):
-        '''
-        The superuser url if su is True - the user configured in the options.
-        Otherwise it's the url with the user information entered in the current interface.
-        '''
-        db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool)
-        config_manager = db_factory.get_db_command_config_manager(self)
-        uri_string = config_manager.get_uri(su)
-        return uri_string
-
     def to_ili2db_args(self, hide_password=False):
 
         # Valid ili file, don't pass --modeldir (it can cause ili2db errors)
