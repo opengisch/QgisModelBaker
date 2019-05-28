@@ -20,7 +20,7 @@ from abc import ABC, abstractmethod
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration, SchemaImportConfiguration
 
 
-class DbCommandConfigManager:
+class DbCommandConfigManager(ABC):
 
     def __init__(self, configuration: Ili2DbCommandConfiguration):
         self.configuration = configuration

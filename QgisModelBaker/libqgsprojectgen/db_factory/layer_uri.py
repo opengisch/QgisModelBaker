@@ -19,7 +19,7 @@
 from abc import ABC, abstractmethod
 
 
-class LayerUri:
+class LayerUri(ABC):
 
     def __init__(self, uri):
         self.uri = uri

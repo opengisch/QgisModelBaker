@@ -21,7 +21,7 @@ from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
 
-class DbFactory:
+class DbFactory(ABC):
 
     @abstractmethod
     def get_db_connector(self, uri: str, schema: str):

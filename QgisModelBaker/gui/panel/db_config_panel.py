@@ -21,11 +21,15 @@ from qgis.core import Qgis
 from qgis.PyQt.QtWidgets import QWidget
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.globals import DbActionType
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class DbConfigPanel(QWidget):
+class AbstractQWidgetMeta(ABCMeta, type(QWidget)):
+    pass
 
+
+class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
+    
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent: QWidget, db_action_type: DbActionType):
