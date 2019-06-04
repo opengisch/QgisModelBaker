@@ -148,9 +148,9 @@ class DBConnector:
 
 
 class DBConnectorError(Exception):
-    """
-    This error is raised when DbConnector could not connect to database
-    This exception wraps different database exceptions to unify them in a single exception
+    """This error is raised when DbConnector could not connect to database.
+
+    This exception wraps different database exceptions to unify them in a single exception.
     """
 
     def __init__(self, message, base_exception=None):

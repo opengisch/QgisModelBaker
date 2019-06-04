@@ -21,7 +21,7 @@ import re
 import sqlite3
 import qgis.utils
 from qgis.core import Qgis
-from .db_connector import (DBConnector, DBConnectorError)
+from .db_connector import DBConnector, DBConnectorError
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
