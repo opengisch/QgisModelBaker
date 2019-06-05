@@ -20,13 +20,17 @@ from abc import ABC, abstractmethod
 from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from typing import Tuple
+from ..dbconnector.db_connector import DBConnector
+from .layer_uri import LayerUri
+from QgisModelBaker.gui.panel.db_config_panel import DbConfigPanel
+from .db_command_config_manager import DbCommandConfigManager
 
 
 class DbFactory(ABC):
     """Creates an entire set of objects so that QgisModelBaker supports some database. This is a abstract class.
     """
     @abstractmethod
-    def get_db_connector(self, uri: str, schema: str):
+    def get_db_connector(self, uri: str, schema: str) -> DBConnector:
         """Returns an instance of connector to database (:class:`DBConnector`).
 
         :param str uri: Database connection string.
@@ -38,7 +42,7 @@ class DbFactory(ABC):
         pass
 
     @abstractmethod
-    def get_config_panel(self, parent, db_action_type: DbActionType):
+    def get_config_panel(self, parent, db_action_type: DbActionType) -> DbConfigPanel:
         """Returns an instance of a panel where users to fill out connection parameters to database.
 
         :param parent: The parent of this widget.
@@ -50,7 +54,7 @@ class DbFactory(ABC):
         pass
 
     @abstractmethod
-    def get_db_command_config_manager(self, configuration: Ili2DbCommandConfiguration):
+    def get_db_command_config_manager(self, configuration: Ili2DbCommandConfiguration) -> DbCommandConfigManager:
         """Returns an instance of a database command config manager.
 
         :param configuration: Configuration object that will be managed.
@@ -61,7 +65,7 @@ class DbFactory(ABC):
         pass
 
     @abstractmethod
-    def get_layer_uri(self, uri: str):
+    def get_layer_uri(self, uri: str) -> LayerUri:
         """Returns an instance of a layer uri.
 
         :param str uri: Database connection string.
