@@ -26,7 +26,8 @@ from ..dbconnector.db_connector import DBConnectorError
 
 
 class PgFactory(DbFactory):
-
+    """Creates an entire set of objects so that QgisModelBaker supports Postgres/Postgis database.
+    """
     def get_db_connector(self, uri, schema):
         return PGConnector(uri, schema)
 
@@ -78,7 +79,15 @@ class PgFactory(DbFactory):
         return result, message
 
     def get_tool_version(self):
+        """Returns ili2pg version.
+
+        :return: str ili2pg version.
+        """
         return '3.11.2'
 
     def get_tool_url(self):
+        """Returns download url of ili2pg.
+
+        :return str A download url.
+        """
         return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(self.get_tool_version())

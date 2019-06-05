@@ -24,7 +24,8 @@ from .gpkg_command_config_manager import GpkgCommandConfigManager
 
 
 class GpkgFactory(DbFactory):
-
+    """Creates an entire set of objects so that QgisModelBaker supports Geopackage database.
+    """
     def get_db_connector(self, uri, schema):
         return GPKGConnector(uri, None)
 
@@ -44,9 +45,17 @@ class GpkgFactory(DbFactory):
         return True, ''
 
     def get_tool_version(self):
+        """Returns ili2gpkg version.
+
+        :return: str ili2gpkg version.
+        """
         return '3.11.3'
 
     def get_tool_url(self):
+        """Returns download url of ili2gpkg.
+
+        :return str A download url.
+        """
         return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(self.get_tool_version())
 
     def get_specific_messages(self):

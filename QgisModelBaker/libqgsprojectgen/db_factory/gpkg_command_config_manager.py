@@ -21,7 +21,13 @@ from qgis.PyQt.QtCore import QSettings
 
 
 class GpkgCommandConfigManager(DbCommandConfigManager):
+    """Manages a configuration object to return specific information of Geopackage.
 
+    Provides database uri, arguments to ili2db and a way to save and load configurations parameters
+    based on a object configuration.
+
+    :ivar configuration object that will be managed
+    """
     _settings_base_path = 'QgisModelBaker/ili2gpkg/'
 
     def __init__(self, configuration):

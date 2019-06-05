@@ -30,7 +30,7 @@ class DbFactory(ABC):
         """Returns an instance of connector to database (:class:`DBConnector`).
 
         :param str uri: Database connection string.
-        :param schema: Database schema.
+        :param str schema: Database schema.
         :return: A connector to specific database.
         :rtype: :class:`DBConnector`
         :raises :class:`DBConnectorError`: when the connection fails.
@@ -43,6 +43,7 @@ class DbFactory(ABC):
 
         :param parent: The parent of this widget.
         :param db_action_type: The action type of QgisModelBaker that will be executed.
+        :type db_action_type: :class:`DbActionType`
         :return: A panel where users to fill out connection parameters to database.
         :rtype: :class:`DbConfigPanel`
         """
@@ -53,6 +54,7 @@ class DbFactory(ABC):
         """Returns an instance of a database command config manager.
 
         :param configuration: Configuration object that will be managed.
+        :type configuration: :class:`Ili2DbCommandConfiguration`
         :return: Object that manages a configuration object to return specific information of some database.
         :rtype :class:`DbCommandConfigManager`
         """
@@ -73,6 +75,7 @@ class DbFactory(ABC):
         """This method will be called before an operation of generate project is executed.
 
         :param configuration: Configuration parameters with which will be executed the operation of generate project.
+        :type configuration: :class:`Ili2DbCommandConfiguration`
         :return: *True* and an empty message if the called method was succeeded, *False* and a warning message otherwise.
         """
         pass
@@ -82,6 +85,7 @@ class DbFactory(ABC):
         """This method will be called after an operation of generate project is executed.
 
         :param configuration: Configuration parameters with which were executed the operation of generate project.
+        :type configuration: :class:`Ili2DbCommandConfiguration`
         :return: *True* and an empty message if the called method was succeeded, *False* and a warning message otherwise.
         """
         pass

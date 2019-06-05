@@ -32,6 +32,7 @@ class DbCommandConfigManager(ABC):
     def __init__(self, configuration: Ili2DbCommandConfiguration):
         """
         :param configuration: Configuration object that will be managed.
+        :type configuration: :class:`Ili2DbCommandConfiguration`
         """
         self.configuration = configuration
 
