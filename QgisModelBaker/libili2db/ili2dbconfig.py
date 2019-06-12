@@ -204,12 +204,16 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         super().__init__()
         self.xtffile = ''
         self.iliexportmodels = ''
+        self.disable_validation = False
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
         args = list()
 
         if with_action:
             args += ["--export"]
+
+        if self.disable_validation:
+            args += ["--disableValidation"]
 
         if self.iliexportmodels:
             args += ['--exportModels', self.iliexportmodels]
@@ -289,12 +293,16 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         super().__init__()
         self.xtffile = ''
         self.delete_data = False
+        self.disable_validation = False
 
     def to_ili2db_args(self, hide_password=False, with_action=True):
         args = list()
 
         if with_action:
             args += ["--import"]
+
+        if self.disable_validation:
+            args += ["--disableValidation"]
 
         if self.delete_data:
             args += ["--deleteData"]
