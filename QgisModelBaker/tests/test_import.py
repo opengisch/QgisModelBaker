@@ -31,6 +31,7 @@ from QgisModelBaker.libili2db import iliimporter, iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
+from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import PgCommandConfigManager
 from qgis import utils
 
 start_app()
@@ -72,8 +73,10 @@ class TestImport(unittest.TestCase):
         self.assertEqual(dataImporter.run(),
                          iliimporter.Importer.SUCCESS)
 
+        config_manager = PgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
         # Check expected data is there in the database schema
-        conn = psycopg2.connect(importer.configuration.uri)
+        conn = psycopg2.connect(uri)
 
         # Expected predio data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)

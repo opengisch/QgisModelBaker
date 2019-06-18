@@ -45,46 +45,40 @@ from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 DIALOG_UI = get_ui_class('export.ui')
 
 
 class ExportModels(QStringListModel):
 
-    def __init__(self, tool, uri, schema=None):
+    blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
+                    'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
+                    'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
+                    'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
+                    'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
+                    'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
+                    'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
+                    'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
+                    'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
+                    'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
+                    'Time', 'Units']
+
+    def __init__(self):
         super().__init__()
+        self._checked_models = None
 
-        blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
-                     'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
-                     'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
-                     'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
-                     'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
-                     'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
-                     'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
-                     'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
-                     'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
-                     'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
-                     'Time', 'Units']
-
+    def refresh_models(self, db_connector=None):
         modelnames = list()
-
-        if tool:
-            try:
-                db_simple_factory = DbSimpleFactory()
-                db_factory = db_simple_factory.create_factory(tool)
-                self._db_connector = db_factory.get_db_connector(uri, schema)
-                
-                if self._db_connector.db_or_schema_exists():
-                    db_models = self._db_connector.get_models()
-                    for db_model in db_models:
-                        regex = re.compile(r'(?:\{[^\}]*\}|\s)')
-                        for modelname in regex.split(db_model['modelname']):
-                            if modelname and modelname not in blacklist:
-                                modelnames.append(modelname.strip())
-            except:
-                # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
-                # The exception can be a lot of different things (depending on the backend) so let's catch all
-                pass
+        
+        if db_connector:
+            if db_connector.db_or_schema_exists():
+                db_models = db_connector.get_models()
+                for db_model in db_models:
+                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
+                    for modelname in regex.split(db_model['modelname']):
+                        if modelname and modelname not in ExportModels.blacklist:
+                            modelnames.append(modelname.strip())
 
         self.setStringList(modelnames)
 
@@ -171,11 +165,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.base_configuration = base_config
         self.restore_configuration()
 
-        self.export_models_model = ExportModels(None, None, None)
-        self.refreshed_export_models_model()
-        self.export_models_view.setModel(self.export_models_model)
-        self.export_models_view.clicked.connect(self.export_models_model.check)
-        self.export_models_view.space_pressed.connect(self.export_models_model.check)
+        self.export_models_model = ExportModels()
+        self.refresh_models()
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
@@ -184,7 +175,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.refreshTimer.start(500)
 
     def refresh_models(self):
-        self.export_models_model=self.refreshed_export_models_model()
+        self.refreshed_export_models_model()
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
@@ -199,9 +190,15 @@ class ExportDialog(QDialog, DIALOG_UI):
         config_manager = db_factory.get_db_command_config_manager(configuration)
         uri_string = config_manager.get_uri()
 
-        self.export_models_model = ExportModels(tool, uri_string, schema)
+        db_connector = None
 
-        return self.export_models_model
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+        except DBConnectorError:
+            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+            pass
+
+        self.export_models_model.refresh_models(db_connector)
 
     def accepted(self):
         configuration = self.updated_configuration()

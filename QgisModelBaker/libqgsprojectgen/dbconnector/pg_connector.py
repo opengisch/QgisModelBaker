@@ -21,7 +21,7 @@ import psycopg2
 import psycopg2.extras
 import re
 from psycopg2 import OperationalError
-from .db_connector import (DBConnector, DBConnectorError)
+from .db_connector import DBConnector, DBConnectorError
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'

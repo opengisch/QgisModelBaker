@@ -19,14 +19,27 @@
 from abc import ABC, abstractmethod
 
 
-class LayerUri:
+class LayerUri(ABC):
+    """Provides layer uri based on database uri (connection string) and specific information of the data source. This is a abstract class.
 
+    This **layer uri** is used to create a Qgis layer.
+
+    :ivar str uri: Database uri.
+    :ivar str provider: Database provider.
+    """
     def __init__(self, uri):
-        # TODO specific field for postgres
-        self.pg_estimated_metadata = 'false'
+        """
+        :param str uri: Database uri. This is the same database uri of the db connectors.
+        """
         self.uri = uri
         self.provider = None
 
     @abstractmethod
-    def get_data_source_uri(self, record):
+    def get_data_source_uri(self, record: dict):
+        """Provides layer uri based on database uri and specific information of the data source.
+
+        :param str record: Dictionary containing specific information of the data source.
+        :return: Layer uri.
+        :rtype: str
+        """
         pass

@@ -26,7 +26,8 @@ from ..dbconnector.db_connector import DBConnectorError
 
 
 class PgFactory(DbFactory):
-
+    """Creates an entire set of objects so that QgisModelBaker supports Postgres/Postgis database.
+    """
     def get_db_connector(self, uri, schema):
         return PGConnector(uri, schema)
 
@@ -45,7 +46,10 @@ class PgFactory(DbFactory):
 
         if configuration.db_use_super_login:
             try:
-                _db_connector = self.get_db_connector(configuration.super_user_uri, configuration.dbschema)
+                config_manager = self.get_db_command_config_manager(configuration)
+                uri = config_manager.get_uri(True)
+                
+                _db_connector = self.get_db_connector(uri, configuration.dbschema)
 
                 result = schema_exist = _db_connector.db_or_schema_exists()
 
@@ -62,7 +66,10 @@ class PgFactory(DbFactory):
         result = False
         message = ''
 
-        connector = self.get_db_connector(configuration.uri, configuration.dbschema)
+        config_manager = self.get_db_command_config_manager(configuration)
+        uri = config_manager.get_uri()
+
+        connector = self.get_db_connector(uri, configuration.dbschema)
 
         if not connector._postgis_exists():
             message = QCoreApplication.translate("PgFactory", "The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.")
@@ -72,12 +79,15 @@ class PgFactory(DbFactory):
         return result, message
 
     def get_tool_version(self):
+        """Returns ili2pg version.
+
+        :return: str ili2pg version.
+        """
         return '3.11.2'
 
     def get_tool_url(self):
-        return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(self.get_tool_version())
+        """Returns download url of ili2pg.
 
-    def get_schema_import_args(self):
-        args = list()
-        args += ["--setupPgExt"]
-        return args
+        :return str A download url.
+        """
+        return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(self.get_tool_version())

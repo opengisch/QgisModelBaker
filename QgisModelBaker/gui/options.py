@@ -20,6 +20,7 @@
 import webbrowser
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
+from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
     ExportConfiguration
 from QgisModelBaker.utils import get_ui_class
@@ -27,7 +28,6 @@ from QgisModelBaker.utils import qt_utils
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
 from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView
 from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal, pyqtSlot, Qt, QModelIndex
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
 DIALOG_UI = get_ui_class('options.ui')

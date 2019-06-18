@@ -32,6 +32,7 @@ from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
 start_app()
 
@@ -125,7 +126,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart1')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -256,7 +260,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -370,7 +377,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -470,7 +480,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -548,7 +561,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -816,7 +832,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator(DbIliMode.ili2gpkg, importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)

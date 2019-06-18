@@ -21,7 +21,13 @@ from qgis.PyQt.QtCore import QSettings
 
 
 class PgCommandConfigManager(DbCommandConfigManager):
+    """Manages a configuration object to return specific information of Postgres/Postgis.
 
+    Provides database uri, arguments to ili2db and a way to save and load configurations parameters
+    based on a object configuration.
+
+    :ivar configuration object that will be managed
+    """
     _settings_base_path = 'QgisModelBaker/ili2pg/'
 
     def __init__(self, configuration):
@@ -60,6 +66,11 @@ class PgCommandConfigManager(DbCommandConfigManager):
         db_args += ["--dbschema",
                     self.configuration.dbschema or self.configuration.database]
         return db_args
+    
+    def get_schema_import_args(self):
+        args = list()
+        args += ["--setupPgExt"]
+        return args
 
     def save_config_in_qsettings(self):
         settings = QSettings()

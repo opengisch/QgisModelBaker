@@ -51,6 +51,8 @@ displayDbIliMode = {
 
 
 class DbActionType(Enum):
+    """Defines constants for generate, import data, or export actions of QgisModelBaker.
+    """
     GENERATE = 1
     IMPORT_DATA = 2
     EXPORT = 3

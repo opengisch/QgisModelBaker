@@ -34,6 +34,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
         SchemaImportConfiguration,
         ImportDataConfiguration
 )
+from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 
 class Importer(QObject):
@@ -72,11 +73,13 @@ class Importer(QObject):
         ili2db_jar_arg = ["-jar", ili2db_bin]
 
         self.configuration.tool = self.tool
+        db_simple_factory = DbSimpleFactory()
+        db_factory = db_simple_factory.create_factory(self.tool)
 
-        args = self.configuration.to_ili2db_args()
+        config_manager = db_factory.get_db_command_config_manager(self.configuration)
 
-        if self.dataImport:
-            args += [self.configuration.xtffile]
+        args = config_manager.get_ili2db_args(False)
+        args_hide_password = config_manager.get_ili2db_args(True)
 
         java_path = get_java_path(self.configuration.base_configuration)
 
@@ -94,7 +97,7 @@ class Importer(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        safe_args = ili2db_jar_arg + self.configuration.to_ili2db_args(hide_password=True)
+        safe_args = ili2db_jar_arg + args_hide_password
         safe_command = java_path + ' ' + ' '.join(safe_args)
         self.process_started.emit(safe_command)
 

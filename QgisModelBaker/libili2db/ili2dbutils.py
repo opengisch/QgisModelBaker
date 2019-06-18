@@ -30,9 +30,11 @@ from qgis.PyQt.QtGui import QColor
 
 from QgisModelBaker.utils.qt_utils import download_file, NetworkError
 from .globals import DbIliMode, displayDbIliMode
-from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+
 
 def get_ili2db_bin(tool, stdout, stderr):
+    from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+    
     if tool not in DbIliMode or tool == DbIliMode.ili:
         return None
 

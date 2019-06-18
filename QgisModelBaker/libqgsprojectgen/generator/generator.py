@@ -40,7 +40,7 @@ class Generator:
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None
-        self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
+        self.pg_estimated_metadata = pg_estimated_metadata
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
