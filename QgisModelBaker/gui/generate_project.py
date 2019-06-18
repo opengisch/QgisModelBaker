@@ -27,14 +27,13 @@ from psycopg2 import OperationalError
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
-    make_save_file_selector,
     Validators,
     FileValidator,
     NonEmptyStringValidator,
@@ -69,9 +68,11 @@ from qgis.gui import (
 )
 from ..utils import get_ui_class
 from ..libili2db import iliimporter
+from ..libili2db.globals import DbIliMode
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
-from ..libqgsprojectgen.dbconnector import pg_connector
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
@@ -82,6 +83,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.iface = iface
+        self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
         self.buttonBox.accepted.disconnect()
         self.buttonBox.accepted.connect(self.accepted)
@@ -104,13 +106,19 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.multiple_models_dialog.open)
         self.multiple_models_dialog.accepted.connect(
             self.fill_models_line_edit)
+
         self.type_combo_box.clear()
-        self.type_combo_box.addItem(
-            self.tr('Interlis (use PostGIS)'), 'ili2pg')
-        self.type_combo_box.addItem(
-            self.tr('Interlis (use GeoPackage)'), 'ili2gpkg')
-        self.type_combo_box.addItem(self.tr('PostGIS'), 'pg')
-        self.type_combo_box.addItem(self.tr('GeoPackage'), 'gpkg')
+        self._lst_panel = dict()
+
+        for db_id in self.db_simple_factory.get_db_list(True):
+            self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
+
+        for db_id in self.db_simple_factory.get_db_list(False):
+            db_factory = self.db_simple_factory.create_factory(db_id)
+            item_panel = db_factory.get_config_panel(self, DbActionType.GENERATE)
+            self._lst_panel[db_id] = item_panel
+            self.db_layout.addWidget(item_panel)
+
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         self.txtStdout.anchorClicked.connect(self.link_activated)
         self.crsSelector.crsChanged.connect(self.crs_changed)
@@ -125,32 +133,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
         fileValidator = FileValidator(pattern='*.ili', allow_empty=True)
-        self.gpkgSaveFileValidator = FileValidator(
-            pattern='*.gpkg', allow_non_existing=True)
-        self.gpkgOpenFileValidator = FileValidator(pattern='*.gpkg')
-        self.gpkg_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
 
         self.restore_configuration()
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
-        self.pg_host_line_edit.setValidator(nonEmptyValidator)
-        self.pg_database_line_edit.setValidator(nonEmptyValidator)
-        self.pg_user_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
 
-        self.pg_host_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
-        self.pg_database_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(
-            self.pg_database_line_edit.text())
-        self.pg_user_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_user_line_edit.textChanged.emit(self.pg_user_line_edit.text())
-        self.pg_use_super_login.setText(
-            self.tr('Generate schema with superuser login from settings ({})').format(base_config.super_pg_user))
         self.ili_models_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
         self.ili_models_line_edit.textChanged.emit(
@@ -172,7 +160,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def accepted(self):
         configuration = self.updated_configuration()
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg']:
+        ili_mode = self.type_combo_box.currentData()
+        db_id = ili_mode & ~DbIliMode.ili
+        interlis_mode = ili_mode & DbIliMode.ili
+
+        if interlis_mode:
             if not self.ili_file_line_edit.text().strip():
                 if not self.ili_models_line_edit.text().strip():
                     self.txtStdout.setText(
@@ -187,38 +179,22 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ili_file_line_edit.setFocus()
                 return
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
-            if not configuration.dbhost:
-                self.txtStdout.setText(
-                    self.tr('Please set a host before creating the project.'))
-                self.pg_host_line_edit.setFocus()
-                return
-            if not configuration.database:
-                self.txtStdout.setText(
-                    self.tr('Please set a database before creating the project.'))
-                self.pg_database_line_edit.setFocus()
-                return
-            if not configuration.dbusr:
-                self.txtStdout.setText(
-                    self.tr('Please set a database user before creating the project.'))
-                self.pg_user_line_edit.setFocus()
-                return
+        res, message = self._lst_panel[db_id].is_valid()
 
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            if not configuration.dbfile or self.gpkg_file_line_edit.validator().validate(configuration.dbfile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(
-                    self.tr('Please set a valid database file before creating the project.'))
-                self.gpkg_file_line_edit.setFocus()
-                return
+        if not res:
+            self.txtStdout.setText(message)
+            return
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
 
         # create schema with superuser
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg'] and configuration.db_use_super_login:
-            _db_connector = pg_connector.PGConnector(configuration.super_user_uri, configuration.dbschema)
-            if not _db_connector.db_or_schema_exists():
-                _db_connector.create_db_or_schema(configuration.dbusr)
+        db_factory = self.db_simple_factory.create_factory(db_id)
+        res, message = db_factory.pre_generate_project(configuration)
+
+        if not res:
+            self.txtStdout.setText(message)
+            return
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()
@@ -228,10 +204,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor('#000000'))
             self.txtStdout.clear()
 
-            if self.type_combo_box.currentData() in ['ili2pg', 'ili2gpkg']:
+            if interlis_mode:
                 importer = iliimporter.Importer()
 
-                importer.tool_name = self.type_combo_box.currentData()
+                importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
                 importer.stderr.connect(self.on_stderr)
@@ -252,43 +228,44 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     return
 
             try:
-                generator = Generator(configuration.tool_name, configuration.uri,
+                config_manager = db_factory.get_db_command_config_manager(configuration)
+                uri = config_manager.get_uri()
+                generator = Generator(configuration.tool, uri,
                                       configuration.inheritance, configuration.dbschema)
                 self.progress_bar.setValue(50)
-            except OperationalError:
+            except DBConnectorError:
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
                 self.enable()
                 self.progress_bar.hide()
                 return
 
-            if self.type_combo_box.currentData() in ['pg', 'gpkg']:
+            if not interlis_mode:
                 if not generator.db_or_schema_exists():
                     self.txtStdout.setText(
                         self.tr('Source {} does not exist. Check connection parameters.').format(
-                            'database' if self.type_combo_box.currentData() == 'gpkg' else 'schema'
+                            db_factory.get_specific_messages()['db_or_schema']
                         ))
                     self.enable()
                     self.progress_bar.hide()
                     return
 
-            if self.type_combo_box.currentData() == 'pg':
-                if not generator._postgis_exists():
-                    self.txtStdout.setText(
-                        self.tr('The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.'))
-                    self.enable()
-                    self.progress_bar.hide()
-                    return
+            res, message = db_factory.post_generate_project_validations(configuration)
+
+            if not res:
+                self.txtStdout.setText(message)
+                self.enable()
+                self.progress_bar.hide()
+                return
 
             self.print_info(
                 self.tr('\nObtaining available layers from the database…'))
             available_layers = generator.layers()
 
             if not available_layers:
-                if self.type_combo_box.currentData() == 'gpkg':
-                    text = self.tr('The GeoPackage has no layers to load into QGIS.')
-                else:
-                    text = self.tr('The schema has no layers to load into QGIS.')
+                text = self.tr('The {} has no layers to load into QGIS.').format(
+                            db_factory.get_specific_messages()['layers_source'])
+
                 self.txtStdout.setText(text)
                 self.enable()
                 self.progress_bar.hide()
@@ -365,20 +342,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         """
         configuration = SchemaImportConfiguration()
 
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
-            # PostgreSQL specific options
-            configuration.tool_name = 'ili2pg'
-            configuration.dbhost = self.pg_host_line_edit.text().strip()
-            configuration.dbport = self.pg_port_line_edit.text().strip()
-            configuration.dbusr = self.pg_user_line_edit.text().strip()
-            configuration.database = "'{}'".format(self.pg_database_line_edit.text().strip())
-            configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
-            configuration.dbpwd = self.pg_password_line_edit.text()
-            configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            configuration.tool_name = 'ili2gpkg'
-            configuration.dbfile = self.gpkg_file_line_edit.text().strip()
+        mode = self.type_combo_box.currentData()
+        db_id = mode & ~DbIliMode.ili
 
+        self._lst_panel[db_id].get_fields(configuration)
+
+        configuration.tool = mode
         configuration.epsg = self.epsg
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.tomlfile = self.ili2db_options.toml_file()
@@ -401,26 +370,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                           configuration.ilifile)
         settings.setValue('QgisModelBaker/ili2db/epsg', self.epsg)
         settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData())
-        if self.type_combo_box.currentData() in ['ili2pg', 'pg']:
-            # PostgreSQL specific options
-            settings.setValue(
-                'QgisModelBaker/ili2pg/host', configuration.dbhost)
-            settings.setValue(
-                'QgisModelBaker/ili2pg/port', configuration.dbport)
-            settings.setValue(
-                'QgisModelBaker/ili2pg/user', configuration.dbusr)
-            settings.setValue(
-                'QgisModelBaker/ili2pg/database', configuration.database.strip("'"))
-            settings.setValue(
-                'QgisModelBaker/ili2pg/schema', configuration.dbschema)
-            settings.setValue(
-                'QgisModelBaker/ili2pg/password', configuration.dbpwd)
-            settings.setValue(
-                'QgisModelBaker/ili2pg/usesuperlogin', configuration.db_use_super_login)
-        elif self.type_combo_box.currentData() in ['ili2gpkg', 'gpkg']:
-            settings.setValue(
-                'QgisModelBaker/ili2gpkg/dbfile', configuration.dbfile)
+                          self.type_combo_box.currentData().name)
+
+        mode = self.type_combo_box.currentData()
+        db_factory = self.db_simple_factory.create_factory(mode)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager.save_config_in_qsettings()
 
     def restore_configuration(self):
         settings = QSettings()
@@ -432,80 +387,45 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
         self.update_crs_info()
 
-        self.pg_host_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/host', 'localhost'))
-        self.pg_port_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/port'))
-        self.pg_user_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/user'))
-        self.pg_database_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/database'))
-        self.pg_schema_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/schema'))
-        self.pg_password_line_edit.setText(
-            settings.value('QgisModelBaker/ili2pg/password'))
-        self.pg_use_super_login.setChecked(
-            settings.value('QgisModelBaker/ili2pg/usesuperlogin', defaultValue=False, type=bool))
-        self.gpkg_file_line_edit.setText(
-            settings.value('QgisModelBaker/ili2gpkg/dbfile'))
+        for db_id in self.db_simple_factory.get_db_list(False):
+            configuration = SchemaImportConfiguration()
+            db_factory = self.db_simple_factory.create_factory(db_id)
+            config_manager = db_factory.get_db_command_config_manager(configuration)
+            config_manager.load_config_from_qsettings()
+            self._lst_panel[db_id].set_fields(configuration)
 
-        self.type_combo_box.setCurrentIndex(
-            self.type_combo_box.findData(settings.value('QgisModelBaker/importtype', 'pg')))
+        mode = settings.value('QgisModelBaker/importtype')
+        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+
+        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
         self.crs_changed()
 
     def disable(self):
-        self.pg_config.setEnabled(False)
+        for key, value in self._lst_panel.items():
+            value.setEnabled(False)
         self.ili_config.setEnabled(False)
         self.buttonBox.setEnabled(False)
 
     def enable(self):
-        self.pg_config.setEnabled(True)
+        for key, value in self._lst_panel.items():
+            value.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
         self.progress_bar.hide()
-        if self.type_combo_box.currentData() == 'ili2pg':
-            self.ili_config.show()
-            self.pg_config.show()
-            self.gpkg_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]"))
-        elif self.type_combo_box.currentData() == 'pg':
-            self.ili_config.hide()
-            self.pg_config.show()
-            self.gpkg_config.hide()
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to load all schemas in the database]"))
-        elif self.type_combo_box.currentData() == 'gpkg':
-            self.ili_config.hide()
-            self.pg_config.hide()
-            self.gpkg_config.show()
-            self.gpkg_file_line_edit.setValidator(self.gpkgOpenFileValidator)
-            self.gpkg_file_line_edit.textChanged.emit(
-                self.gpkg_file_line_edit.text())
-            try:
-                self.gpkg_file_browse_button.clicked.disconnect()
-            except:
-                pass
-            self.gpkg_file_browse_button.clicked.connect(
-                make_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                   file_filter=self.tr('GeoPackage Database (*.gpkg)')))
-        elif self.type_combo_box.currentData() == 'ili2gpkg':
-            self.ili_config.show()
-            self.pg_config.hide()
-            self.gpkg_config.show()
-            self.gpkg_file_line_edit.setValidator(self.gpkgSaveFileValidator)
-            self.gpkg_file_line_edit.textChanged.emit(
-                self.gpkg_file_line_edit.text())
-            try:
-                self.gpkg_file_browse_button.clicked.disconnect()
-            except:
-                pass
-            self.gpkg_file_browse_button.clicked.connect(
-                make_save_file_selector(self.gpkg_file_line_edit, title=self.tr('Open GeoPackage database file'),
-                                        file_filter=self.tr('GeoPackage Database (*.gpkg)'), extension='.gpkg'))
+
+        ili_mode = self.type_combo_box.currentData()
+        db_id = ili_mode & ~DbIliMode.ili
+        interlis_mode = bool(ili_mode & DbIliMode.ili)
+
+        self.ili_config.setVisible(interlis_mode)
+        self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
+
+        for key, value in self._lst_panel.items():
+            value.interlis_mode = interlis_mode
+            value.setVisible(db_id == key)
 
     def on_model_changed(self, text):
         if not text:

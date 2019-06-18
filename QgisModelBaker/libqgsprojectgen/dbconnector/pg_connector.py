@@ -20,8 +20,8 @@
 import psycopg2
 import psycopg2.extras
 import re
-
-from .db_connector import DBConnector
+from psycopg2 import OperationalError
+from .db_connector import DBConnector, DBConnectorError
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
@@ -32,7 +32,12 @@ class PGConnector(DBConnector):
 
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
-        self.conn = psycopg2.connect(uri)
+
+        try:
+            self.conn = psycopg2.connect(uri)
+        except OperationalError as e:
+            raise DBConnectorError(str(e), e)
+
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'ilicode'

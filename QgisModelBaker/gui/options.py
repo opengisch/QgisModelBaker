@@ -19,15 +19,15 @@
 """
 import webbrowser
 
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
+from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
     ExportConfiguration
-from QgisModelBaker.libili2db.ili2dbutils import get_ili2db_bin
 from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.utils import qt_utils
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
 from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView
 from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal, pyqtSlot, Qt, QModelIndex
-
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
 DIALOG_UI = get_ui_class('options.ui')
@@ -39,6 +39,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.configuration = configuration
+        self.db_simple_factory = DbSimpleFactory()
 
         self.pg_user_line_edit.setText(configuration.super_pg_user)
         self.pg_password_line_edit.setText(configuration.super_pg_password)
@@ -65,8 +66,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.custom_models_dir_button.clicked.connect(
             self.show_custom_model_dir)
 
-        self.ili2db_tool_combobox.addItem('ili2pg', 'ili2pg')
-        self.ili2db_tool_combobox.addItem('ili2gpkg', 'ili2gpkg')
+        for db_id in self.db_simple_factory.get_db_list(False):
+            db_id |= DbIliMode.ili
+            self.ili2db_tool_combobox.addItem(db_id.name, db_id)
 
         self.ili2db_action_combobox.addItem(
             self.tr('Schema Import'), 'schemaimport')
@@ -116,7 +118,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
             config = ExportConfiguration()
 
         executable = 'java -jar {}.jar'.format(
-            self.ili2db_tool_combobox.currentData())
+            self.ili2db_tool_combobox.currentData().name)
         command = '\n  '.join([executable] + config.to_ili2db_args())
 
         self.ili2db_options_textedit.setText(command)

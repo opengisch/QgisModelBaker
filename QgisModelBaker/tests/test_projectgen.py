@@ -26,11 +26,13 @@ import nose2
 import logging
 
 from QgisModelBaker.libili2db import iliimporter
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
 start_app()
 
@@ -44,8 +46,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_kbs_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -54,7 +56,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -114,8 +116,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -124,7 +126,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart1')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -202,9 +207,9 @@ class TestProjectGen(unittest.TestCase):
 
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
+        importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -215,7 +220,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -243,9 +248,9 @@ class TestProjectGen(unittest.TestCase):
 
     def test_ranges_geopackage(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -255,7 +260,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -283,9 +291,9 @@ class TestProjectGen(unittest.TestCase):
 
     def test_extent_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
+        importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -296,7 +304,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         count = 0
@@ -309,9 +317,9 @@ class TestProjectGen(unittest.TestCase):
 
     def test_extent_geopackage(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_extent_gpkg.gpkg')
@@ -321,7 +329,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -339,8 +350,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_nmrel_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'CoordSys'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -349,7 +360,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -378,8 +389,8 @@ class TestProjectGen(unittest.TestCase):
     def test_nmrel_geopackage(self):
 
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name)
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'CoordSys'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -389,7 +400,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -417,8 +431,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_meta_attr_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -427,7 +441,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -455,8 +469,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_meta_attr_geopackage(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
 
         importer.configuration.dbfile = os.path.join(
@@ -467,7 +481,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -495,8 +512,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_meta_attr_toml_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
         importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
@@ -506,7 +523,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -537,8 +554,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_meta_attr_hidden_toml_postgis(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
         importer.configuration.inheritance = 'smart2'
@@ -549,7 +566,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -580,8 +597,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_meta_attr_toml_geopackage(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
         importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
 
@@ -593,7 +610,10 @@ class TestProjectGen(unittest.TestCase):
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
-        generator = Generator('ili2gpkg', importer.configuration.uri, 'smart2')
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -624,8 +644,8 @@ class TestProjectGen(unittest.TestCase):
 
     def test_unit(self):
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name, 'ilimodels')
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
 
         importer.configuration.dbschema = 'nue_{:%Y%m%d%H%M%S%f}'.format(
@@ -637,7 +657,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            'ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
 

@@ -19,6 +19,7 @@
 
 import nose2
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
@@ -36,7 +37,7 @@ class TestCustomDump(unittest.TestCase):
         myenv['PGPASSWORD'] = 'docker'
         call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/_nupla_dump")], env=myenv)
 
-        generator = Generator('ili2pg',
+        generator = Generator(DbIliMode.ili2pg,
                               'dbname=gis user=docker password=docker host=postgres',
                               'smart1',
                               '_nupla')

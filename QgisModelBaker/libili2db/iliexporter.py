@@ -29,7 +29,8 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
-from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, ili2db_tools
+from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration
+from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 
 class Exporter(QObject):
@@ -48,7 +49,7 @@ class Exporter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.filename = None
-        self.tool_name = None
+        self.tool = None
         self.configuration = ExportConfiguration()
         self.encoding = locale.getlocale()[1]
         # This might be unset
@@ -57,15 +58,20 @@ class Exporter(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool_name, self.stdout, self.stderr, ili2db_tools)
+        ili2db_bin = get_ili2db_bin(self.tool, self.stdout, self.stderr)
         if not ili2db_bin:
             return
 
         ili2db_jar_arg = ["-jar", ili2db_bin]
 
-        self.configuration.tool_name = self.tool_name
+        self.configuration.tool = self.tool
+        db_simple_factory = DbSimpleFactory()
+        db_factory = db_simple_factory.create_factory(self.tool)
 
-        args = self.configuration.to_ili2db_args()
+        config_manager = db_factory.get_db_command_config_manager(self.configuration)
+
+        args = config_manager.get_ili2db_args(False)
+        args_hide_password = config_manager.get_ili2db_args(True)
 
         java_path = get_java_path(self.configuration.base_configuration)
 
@@ -83,7 +89,7 @@ class Exporter(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        safe_args = ili2db_jar_arg + self.configuration.to_ili2db_args(hide_password=True)
+        safe_args = ili2db_jar_arg + args_hide_password
         safe_command = java_path + ' ' + ' '.join(safe_args)
         self.process_started.emit(safe_command)
 

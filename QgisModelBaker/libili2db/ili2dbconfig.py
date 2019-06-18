@@ -21,22 +21,7 @@
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
 from qgis.PyQt.QtNetwork import QNetworkProxy
 from qgis.core import QgsNetworkAccessManager
-
-import os
-
-ili2db_tools = {
-    'ili2pg': {
-        'version': '3.11.2'
-    },
-    'ili2gpkg': {
-        'version': '3.11.3'
-    }
-}
-ili2db_tools['ili2pg'][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{}.zip'.format(ili2db_tools['ili2pg']['version'])
-ili2db_tools['ili2gpkg'][
-    'url'] = 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(
-    ili2db_tools['ili2gpkg']['version'])
+from ..libili2db.globals import DbIliMode
 
 
 class BaseConfiguration(object):
@@ -121,65 +106,17 @@ class Ili2DbCommandConfiguration(object):
         self.database = ''
         self.dbschema = ''
         self.dbfile = ''
-        self.tool_name = None
+        self.tool = None
         self.ilifile = ''
         self.ilimodels = ''
         self.tomlfile = ''
 
-    @property
-    def uri(self):
-        return self._uri(False)
-
-    @property
-    def super_user_uri(self):
-        return self._uri(True)
-
-    def _uri(self, su = False):
-        '''
-        The superuser url if su is True - the user configured in the options.
-        Otherwise it's the url with the user information entered in the current interface.
-        '''
-        uri = []
-        if self.tool_name == 'ili2pg':
-            uri += ['dbname={}'.format(self.database)]
-            if su:
-                uri += ['user={}'.format(self.base_configuration.super_pg_user)]
-                if self.base_configuration.super_pg_password:
-                    uri += ['password={}'.format(self.base_configuration.super_pg_password)]
-            else:
-                uri += ['user={}'.format(self.dbusr)]
-                if self.dbpwd:
-                    uri += ['password={}'.format(self.dbpwd)]
-            uri += ['host={}'.format(self.dbhost)]
-            if self.dbport:
-                uri += ['port={}'.format(self.dbport)]
-        elif self.tool_name == 'ili2gpkg':
-            uri = [self.dbfile]
-        return ' '.join(uri)
-
-    def to_ili2db_args(self, hide_password=False):
+    def to_ili2db_args(self):
 
         # Valid ili file, don't pass --modeldir (it can cause ili2db errors)
         with_modeldir = not self.ilifile
 
         args = self.base_configuration.to_ili2db_args(with_modeldir=with_modeldir)
-
-        if self.tool_name == 'ili2pg':
-            # PostgreSQL specific options
-            args += ["--dbhost", self.dbhost]
-            if self.dbport:
-                args += ["--dbport", self.dbport]
-            args += ["--dbusr", self.dbusr]
-            if self.dbpwd:
-                if hide_password:
-                    args += ["--dbpwd", '******']
-                else:
-                    args += ["--dbpwd", self.dbpwd]
-            args += ["--dbdatabase", self.database.strip("'")]
-            args += ["--dbschema",
-                     self.dbschema or self.database]
-        elif self.tool_name == 'ili2gpkg':
-            args += ["--dbfile", self.dbfile]
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
@@ -192,9 +129,6 @@ class Ili2DbCommandConfiguration(object):
         if self.tomlfile:
             args += ["--iliMetaAttrs", self.tomlfile]
 
-        if self.ilifile:
-            args += [self.ilifile]
-
         return args
 
 
@@ -206,8 +140,10 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         self.iliexportmodels = ''
         self.disable_validation = False
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
+        
+        args += extra_args
 
         if with_action:
             args += ["--export"]
@@ -218,7 +154,7 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         if self.iliexportmodels:
             args += ['--exportModels', self.iliexportmodels]
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password=hide_password)
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
         args += [self.xtffile]
 
@@ -235,7 +171,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.epsg = 21781  # Default EPSG code in ili2pg
         self.stroke_arcs = True
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         """
         Create an ili2db argument array, with the password masked with ****** and optionally with the ``action``
         argument (--schemaimport) removed
@@ -244,6 +180,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
 
         if with_action:
             args += ["--schemaimport"]
+
+        args += extra_args
 
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
@@ -279,11 +217,11 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.epsg != 21781:
             args += ["--defaultSrsCode", "{}".format(self.epsg)]
 
-        if self.tool_name == 'ili2pg':
-            args += ["--setupPgExt"]
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self, hide_password)
-
+        if self.ilifile:
+            args += [self.ilifile]
+        
         return args
 
 
@@ -295,7 +233,7 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         self.delete_data = False
         self.disable_validation = False
 
-    def to_ili2db_args(self, hide_password=False, with_action=True):
+    def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
 
         if with_action:
@@ -307,6 +245,8 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         if self.delete_data:
             args += ["--deleteData"]
 
-        args += SchemaImportConfiguration.to_ili2db_args(self, hide_password=hide_password, with_action=False)
+        args += SchemaImportConfiguration.to_ili2db_args(self, extra_args=extra_args, with_action=False)
+
+        args += [self.xtffile]
 
         return args

@@ -26,6 +26,8 @@ import nose2
 import psycopg2
 import psycopg2.extras
 
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
@@ -49,13 +51,13 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def test_empty_postgres_db(self):
         generator = None
         try:
-            generator = Generator('ili2pg', 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
-        except psycopg2.OperationalError as e:
-            # psycopg2.OperationalError: FATAL:  database "not_exists_database" does not exist
+            generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
+        except DBConnectorError as e:
+            # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
 
     def test_postgres_db_without_schema(self):
-        generator = Generator('ili2pg', 'dbname=gis user=docker password=docker host=postgres', 'smart1')
+        generator = Generator(DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1')
         self.assertIsNotNone(generator)
         self.assertEqual(len(generator.layers()), 0)
 
@@ -66,7 +68,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
         try:
-            generator = Generator('ili2pg', uri, 'smart1', 'empty_schema')
+            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'empty_schema')
             self.assertEqual(len(generator.layers()), 0)
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
@@ -100,7 +102,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             """)
             conn.commit()
 
-            generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema_spatial')
+            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema_spatial')
             layers = generator.layers()
 
             self.assertEqual(len(layers), 2)
@@ -141,7 +143,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             """)
             conn.commit()
 
-            generator = Generator('ili2pg', uri, 'smart1', 'no_interlis_schema')
+            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema')
             layers = generator.layers()
 
             self.assertEqual(len(layers), 2)
@@ -156,15 +158,15 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             cur.close()
 
     def test_empty_geopackage_db(self):
-        generator = Generator('ili2gpkg', testdata_path('geopackage/test_empty.gpkg'), 'smart2')
+        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_empty.gpkg'), 'smart2')
         self.assertEqual(len(generator.layers()), 0)
 
     def test_non_empty_ogr_geopackage_db(self):
-        generator = Generator('ili2gpkg', testdata_path('geopackage/test_ogr_empty.gpkg'), 'smart2')
+        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_ogr_empty.gpkg'), 'smart2')
         self.assertEqual(len(generator.layers()), 0)
 
     def test_non_empty_geopackage_db(self):
-        generator = Generator('ili2gpkg', testdata_path('geopackage/test_relations.gpkg'), 'smart2')
+        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_relations.gpkg'), 'smart2')
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)

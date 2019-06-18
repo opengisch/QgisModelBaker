@@ -27,8 +27,10 @@ import psycopg2.extras
 import logging
 
 from QgisModelBaker.libili2db import iliimporter, iliimporter
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
 from qgis.testing import unittest, start_app
+from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import PgCommandConfigManager
 from qgis import utils
 
 start_app()
@@ -44,9 +46,9 @@ class TestImport(unittest.TestCase):
     def test_import_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
+        importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -58,9 +60,9 @@ class TestImport(unittest.TestCase):
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
-        dataImporter.tool_name = 'ili2pg'
+        dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+            dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
@@ -70,8 +72,10 @@ class TestImport(unittest.TestCase):
         self.assertEqual(dataImporter.run(),
                          iliimporter.Importer.SUCCESS)
 
+        config_manager = PgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
         # Check expected data is there in the database schema
-        conn = psycopg2.connect(importer.configuration.uri)
+        conn = psycopg2.connect(uri)
 
         # Expected predio data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -113,9 +117,9 @@ class TestImport(unittest.TestCase):
     def test_import_geopackage(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2gpkg'
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool_name, 'ilimodels/CIAF_LADM')
+            importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
@@ -127,9 +131,9 @@ class TestImport(unittest.TestCase):
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
-        dataImporter.tool_name = 'ili2gpkg'
+        dataImporter.tool = DbIliMode.ili2gpkg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+            dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.dbfile = importer.configuration.dbfile
         dataImporter.configuration.xtffile = testdata_path(

@@ -58,35 +58,6 @@
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="4" column="0">
-        <widget class="QGroupBox" name="gpkg_config">
-         <property name="title">
-          <string>GeoPackage</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Database File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="gpkg_file_line_edit"/>
-          </item>
-          <item row="0" column="3">
-           <widget class="QToolButton" name="gpkg_file_browse_button">
-            <property name="toolTip">
-             <string>Browse GeoPackage files</string>
-            </property>
-            <property name="text">
-             <string>…</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="ili_config">
          <property name="title">
@@ -176,13 +147,6 @@
          </layout>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QTextBrowser" name="txtStdout">
-         <property name="openLinks">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
@@ -201,110 +165,19 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="pg_config">
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="db_wrapper_group_box">
          <property name="title">
-          <string>PostgreSQL</string>
+          <string/>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>User</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QLineEdit" name="pg_schema_line_edit">
-            <property name="placeholderText">
-             <string>[Leave empty to import data into a default schema]</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Schema</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QLineEdit" name="pg_host_line_edit">
-            <property name="text">
-             <string>localhost</string>
-            </property>
-            <property name="placeholderText">
-             <string>Database Hostname</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Password</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="2">
-           <widget class="QLineEdit" name="pg_password_line_edit">
-            <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
-            </property>
-            <property name="placeholderText">
-             <string>[Leave empty to use system password]</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" rowspan="2" colspan="2">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Host</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLineEdit" name="pg_database_line_edit">
-            <property name="placeholderText">
-             <string>Database Name</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Database</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QLineEdit" name="pg_user_line_edit">
-            <property name="placeholderText">
-             <string>Database Username</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="pg_port_line_edit">
-            <property name="placeholderText">
-             <string>[Leave empty to use standard port 5432]</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Port</string>
-            </property>
-           </widget>
-          </item>
-          <item row="11" column="2">
-           <widget class="QCheckBox" name="pg_use_super_login">
-            <property name="text">
-             <string>Use logins from settings (superuser) for schema generation</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QVBoxLayout" name="db_layout"/>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QTextBrowser" name="txtStdout">
+         <property name="openLinks">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -350,14 +223,6 @@
   <tabstop>ili_models_line_edit</tabstop>
   <tabstop>multiple_models_button</tabstop>
   <tabstop>chk_delete_data</tabstop>
-  <tabstop>pg_host_line_edit</tabstop>
-  <tabstop>pg_port_line_edit</tabstop>
-  <tabstop>pg_database_line_edit</tabstop>
-  <tabstop>pg_schema_line_edit</tabstop>
-  <tabstop>pg_user_line_edit</tabstop>
-  <tabstop>pg_password_line_edit</tabstop>
-  <tabstop>gpkg_file_line_edit</tabstop>
-  <tabstop>gpkg_file_browse_button</tabstop>
   <tabstop>txtStdout</tabstop>
  </tabstops>
  <resources/>

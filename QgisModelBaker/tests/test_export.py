@@ -27,6 +27,7 @@ import logging
 
 from QgisModelBaker.libili2db import (iliexporter,
                                         iliimporter)
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import (iliimporter_config,
                                           iliexporter_config,
                                           ilidataimporter_config,
@@ -45,8 +46,8 @@ class TestExport(unittest.TestCase):
 
     def test_export_geopackage(self):
         exporter = iliexporter.Exporter()
-        exporter.tool_name = 'ili2gpkg'
-        exporter.configuration = iliexporter_config(exporter.tool_name)
+        exporter.tool = DbIliMode.ili2gpkg
+        exporter.configuration = iliexporter_config(exporter.tool)
         exporter.configuration.ilimodels = 'CIAF_LADM'
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
@@ -61,8 +62,8 @@ class TestExport(unittest.TestCase):
         # This test passes without --createBasketCol option in schemaimport
         # First we need a dbfile with empty tables
         importer_e = iliimporter.Importer()
-        importer_e.tool_name = 'ili2pg'
-        importer_e.configuration = iliimporter_config(importer_e.tool_name,
+        importer_e.tool = DbIliMode.ili2pg
+        importer_e.configuration = iliimporter_config(importer_e.tool,
                                                       'ilimodels/CIAF_LADM')
         importer_e.configuration.ilimodels = 'CIAF_LADM'
         importer_e.configuration.dbschema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
@@ -74,8 +75,8 @@ class TestExport(unittest.TestCase):
         self.assertEqual(importer_e.run(), iliimporter.Importer.SUCCESS)
 
         exporter_e = iliexporter.Exporter()
-        exporter_e.tool_name = 'ili2pg'
-        exporter_e.configuration = iliexporter_config(exporter_e.tool_name)
+        exporter_e.tool = DbIliMode.ili2pg
+        exporter_e.configuration = iliexporter_config(exporter_e.tool)
         exporter_e.configuration.ilimodels = 'CIAF_LADM'
         exporter_e.configuration.dbschema = importer_e.configuration.dbschema
         obtained_xtf_path = os.path.join(
@@ -90,8 +91,8 @@ class TestExport(unittest.TestCase):
     def test_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
-        importer.tool_name = 'ili2pg'
-        importer.configuration = iliimporter_config(importer.tool_name,
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool,
                                                     'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
@@ -104,9 +105,9 @@ class TestExport(unittest.TestCase):
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
-        dataImporter.tool_name = 'ili2pg'
+        dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool_name, 'ilimodels/CIAF_LADM')
+            dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
@@ -118,8 +119,8 @@ class TestExport(unittest.TestCase):
 
         # Export
         exporter = iliexporter.Exporter()
-        exporter.tool_name = 'ili2pg'
-        exporter.configuration = iliexporter_config(exporter.tool_name)
+        exporter.tool = DbIliMode.ili2pg
+        exporter.configuration = iliexporter_config(exporter.tool)
         exporter.configuration.ilimodels = 'CIAF_LADM'
         exporter.configuration.dbschema = importer.configuration.dbschema
         obtained_xtf_path = os.path.join(

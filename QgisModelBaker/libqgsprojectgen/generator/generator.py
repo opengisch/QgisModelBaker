@@ -22,6 +22,7 @@ import re
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
@@ -29,25 +30,30 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
-
+from ..db_factory.db_simple_factory import DbSimpleFactory
 
 class Generator:
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool_name, uri, inheritance, schema=None, pg_estimated_metadata=False):
-        self.tool_name = tool_name
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+        self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
         self.schema = schema or None
-        self.pg_estimated_metadata = 'true' if pg_estimated_metadata else 'false'
-        if self.tool_name == 'ili2pg':
-            self._db_connector = pg_connector.PGConnector(uri, schema)
-        elif self.tool_name == 'ili2gpkg':
-            self._db_connector = gpkg_connector.GPKGConnector(uri, None)
+        self.pg_estimated_metadata = pg_estimated_metadata
+
+        self.db_simple_factory = DbSimpleFactory()
+        db_factory = self.db_simple_factory.create_factory(self.tool)
+        self._db_connector = db_factory.get_db_connector(uri, schema)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
         layers = list()
+
+        db_factory = self.db_simple_factory.create_factory(self.tool)
+
+        layer_uri = db_factory.get_layer_uri(self.uri)
+        layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
@@ -64,33 +70,6 @@ class Generator:
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            if self.tool_name == 'ili2pg':
-                provider = 'postgres'
-                if record['geometry_column']:
-                    data_source_uri = '{uri} key={primary_key} estimatedmetadata={estimated_metadata} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
-                        uri=self.uri,
-                        primary_key=record['primary_key'],
-                        estimated_metadata=self.pg_estimated_metadata,
-                        srid=record['srid'],
-                        type=record['type'],
-                        schema=record['schemaname'],
-                        table=record['tablename'],
-                        geometry_column=record['geometry_column']
-                    )
-                else:
-                    data_source_uri = '{uri} key={primary_key} table="{schema}"."{table}"'.format(
-                        uri=self.uri,
-                        primary_key=record['primary_key'],
-                        schema=record['schemaname'],
-                        table=record['tablename']
-                    )
-            elif self.tool_name == 'ili2gpkg':
-                provider = 'ogr'
-                data_source_uri = '{uri}|layername={table}'.format(
-                    uri=self.uri,
-                    table=record['tablename']
-                )
-
             alias = record['table_alias'] if 'table_alias' in record else ''
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
@@ -104,8 +83,8 @@ class Generator:
                     if attr_record['attr_name'] == 'dispExpression':
                         display_expression = attr_record['attr_value']
 
-            layer = Layer(provider,
-                          data_source_uri,
+            layer = Layer(layer_uri.provider,
+                          layer_uri.get_data_source_uri(record),
                           record['tablename'],
                           record['extent'] if 'extent' in record else None,
                           record['geometry_column'],
@@ -272,9 +251,6 @@ class Generator:
             legend.append(domains)
 
         return legend
-
-    def _postgis_exists(self):
-        return self._db_connector._postgis_exists()
 
     def db_or_schema_exists(self):
         return self._db_connector.db_or_schema_exists()
