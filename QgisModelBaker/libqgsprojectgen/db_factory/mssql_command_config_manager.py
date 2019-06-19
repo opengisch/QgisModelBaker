@@ -30,7 +30,7 @@ class MssqlCommandConfigManager(DbCommandConfigManager):
     def get_uri(self, su=False):
         separator = ';'
         uri = []
-        uri += ['DRIVER={SQL Server}']
+        uri += ['DRIVER={{{}}}'.format(self.configuration.db_odbc_driver)]
         host = self.configuration.dbhost
         if self.configuration.dbinstance:
             host += '\\' + self.configuration.dbinstance
@@ -72,6 +72,7 @@ class MssqlCommandConfigManager(DbCommandConfigManager):
         settings.setValue(self._settings_base_path + 'database', self.configuration.database)
         settings.setValue(self._settings_base_path + 'schema', self.configuration.dbschema)
         settings.setValue(self._settings_base_path + 'password', self.configuration.dbpwd)
+        settings.setValue(self._settings_base_path + 'odbc_driver', self.configuration.db_odbc_driver)
 
     def load_config_from_qsettings(self):
         settings = QSettings()
@@ -83,3 +84,4 @@ class MssqlCommandConfigManager(DbCommandConfigManager):
         self.configuration.database = settings.value(self._settings_base_path + 'database')
         self.configuration.dbschema = settings.value(self._settings_base_path + 'schema')
         self.configuration.dbpwd = settings.value(self._settings_base_path + 'password')
+        self.configuration.db_odbc_driver = settings.value(self._settings_base_path + 'odbc_driver')

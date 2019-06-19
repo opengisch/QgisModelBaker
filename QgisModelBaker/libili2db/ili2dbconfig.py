@@ -111,6 +111,7 @@ class Ili2DbCommandConfiguration(object):
         self.ilimodels = ''
         self.tomlfile = ''
         self.dbinstance = ''
+        self.db_odbc_driver = ''
 
     def to_ili2db_args(self):
 

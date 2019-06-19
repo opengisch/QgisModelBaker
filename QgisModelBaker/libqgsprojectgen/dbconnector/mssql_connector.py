@@ -25,13 +25,14 @@ from .db_connector import (DBConnector, DBConnectorError)
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
 
+
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
 
         try:
             self.conn = pyodbc.connect(uri)
-        except (ProgrammingError, InterfaceError) as e:
+        except (ProgrammingError, InterfaceError, pyodbc.Error, pyodbc.OperationalError) as e:
             raise DBConnectorError(str(e), e)
 
         self.schema = schema

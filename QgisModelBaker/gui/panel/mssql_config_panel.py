@@ -20,12 +20,14 @@ from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import (QLabel,
                                  QGridLayout,
                                  QLineEdit,
-                                 QCheckBox)
+                                 QCheckBox,
+                                 QComboBox)
 
 from .db_config_panel import DbConfigPanel
 from QgisModelBaker.utils.qt_utils import (
     Validators,
     NonEmptyStringValidator)
+from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 from QgisModelBaker.libili2db.globals import DbActionType
 
 
@@ -36,6 +38,7 @@ class MssqlConfigPanel(DbConfigPanel):
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
 
+        lbl_odbc_driver = QLabel(self.tr("Odbc Driver"))
         lbl_host = QLabel(self.tr("Host"))
         lbl_instance = QLabel(self.tr("Instance"))
         lbl_port = QLabel(self.tr("Port"))
@@ -43,6 +46,11 @@ class MssqlConfigPanel(DbConfigPanel):
         lbl_schema = QLabel(self.tr("Schema"))
         lbl_user = QLabel(self.tr("User"))
         lbl_password = QLabel(self.tr("Password"))
+
+        self.mssql_odbc_driver = QComboBox()
+
+        for item_odbc_driver in get_odbc_drivers():
+            self.mssql_odbc_driver.addItem(item_odbc_driver)
 
         self.mssql_host_line_edit = QLineEdit()
         self.mssql_host_line_edit.setPlaceholderText(self.tr("Database Hostname"))
@@ -67,21 +75,23 @@ class MssqlConfigPanel(DbConfigPanel):
         self.mssql_password_line_edit.setEchoMode(QLineEdit.Password)
 
         layout = QGridLayout(self)
-        layout.addWidget(lbl_host, 0, 0)
-        layout.addWidget(lbl_instance, 1, 0)
-        layout.addWidget(lbl_port, 2, 0)
-        layout.addWidget(lbl_database, 3, 0)
-        layout.addWidget(lbl_schema, 4, 0)
-        layout.addWidget(lbl_user, 5, 0)
-        layout.addWidget(lbl_password, 6, 0)
+        layout.addWidget(lbl_odbc_driver, 0, 0)
+        layout.addWidget(lbl_host, 1, 0)
+        layout.addWidget(lbl_instance, 2, 0)
+        layout.addWidget(lbl_port, 3, 0)
+        layout.addWidget(lbl_database, 4, 0)
+        layout.addWidget(lbl_schema, 5, 0)
+        layout.addWidget(lbl_user, 6, 0)
+        layout.addWidget(lbl_password, 7, 0)
 
-        layout.addWidget(self.mssql_host_line_edit, 0, 1)
-        layout.addWidget(self.mssql_instance_line_edit, 1, 1)
-        layout.addWidget(self.mssql_port_line_edit, 2, 1)
-        layout.addWidget(self.mssql_database_line_edit, 3, 1)
-        layout.addWidget(self.mssql_schema_line_edit, 4, 1)
-        layout.addWidget(self.mssql_user_line_edit, 5, 1)
-        layout.addWidget(self.mssql_password_line_edit, 6, 1)
+        layout.addWidget(self.mssql_odbc_driver, 0, 1)
+        layout.addWidget(self.mssql_host_line_edit, 1, 1)
+        layout.addWidget(self.mssql_instance_line_edit, 2, 1)
+        layout.addWidget(self.mssql_port_line_edit, 3, 1)
+        layout.addWidget(self.mssql_database_line_edit, 4, 1)
+        layout.addWidget(self.mssql_schema_line_edit, 5, 1)
+        layout.addWidget(self.mssql_user_line_edit, 6, 1)
+        layout.addWidget(self.mssql_password_line_edit, 7, 1)
 
         # define validators
         self.validators = Validators()
@@ -130,6 +140,7 @@ class MssqlConfigPanel(DbConfigPanel):
         configuration.database = self.mssql_database_line_edit.text().strip()
         configuration.dbschema = self.mssql_schema_line_edit.text().strip().lower()
         configuration.dbpwd = self.mssql_password_line_edit.text()
+        configuration.db_odbc_driver = self.mssql_odbc_driver.currentText()
 
     def set_fields(self, configuration):
         self.mssql_host_line_edit.setText(configuration.dbhost)
@@ -139,6 +150,10 @@ class MssqlConfigPanel(DbConfigPanel):
         self.mssql_database_line_edit.setText(configuration.database)
         self.mssql_schema_line_edit.setText(configuration.dbschema)
         self.mssql_password_line_edit.setText(configuration.dbpwd)
+
+        index = self.mssql_odbc_driver.findText(configuration.db_odbc_driver)
+        if index != -1:
+            self.mssql_odbc_driver.setCurrentIndex(index)
 
     def is_valid(self):
         result = False
@@ -152,6 +167,8 @@ class MssqlConfigPanel(DbConfigPanel):
         elif not self.mssql_user_line_edit.text().strip():
             message = self.tr("Please set a database user before creating the project.")
             self.mssql_user_line_edit.setFocus()
+        elif not self.mssql_odbc_driver.currentText():
+            message = self.tr("Please set a odbc driver before creating the project.")
         else:
             result = True
 
