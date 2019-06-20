@@ -98,18 +98,22 @@ class MssqlConnector(DBConnector):
             alias_left_join = ''
             model_name = ''
             model_where = ''
-            srid = "null as srid,"
+            srid = ''
             srid_where = ''
-            simple_type = "null as simple_type,"
+            simple_type = ''
             simple_type_where = ''
+            formatted_type = ''
 
-            if self.metadata_exists():
-                kind_settings_field = "p.setting AS kind_settings,"
-                table_alias = "alias.setting AS table_alias,"
-                ili_name = "c.iliname AS ili_name,"
-                srid = 'tsrid.setting as srid,'
-                simple_type = "tgeomtype.setting as simple_type,"
-                extent = """STUFF((SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))  
+            metadata_exists = self.metadata_exists()
+
+            if metadata_exists:
+                kind_settings_field = ",p.setting AS kind_settings"
+                table_alias = ",alias.setting AS table_alias"
+                ili_name = ",c.iliname AS ili_name"
+                srid = ',tsrid.setting as srid'
+                simple_type = ",tgeomtype.setting as simple_type"
+                formatted_type = ",null as formatted_type"
+                extent = """,STUFF((SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))  
                     FROM {}.t_ili2db_column_prop cp
                         WHERE tbls.table_name = cp.tablename and clm.COLUMN_NAME = cp.columnname
                         and cp.tag IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
@@ -120,8 +124,8 @@ class MssqlConnector(DBConnector):
                              WHEN 'ch.ehi.ili2db.c2Max' THEN 4
                              END 
                     FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''
-                    ) AS extent,""".format(self.schema)
-                model_name = "left(c.iliname, charindex('.', c.iliname)-1) AS model,"
+                    ) AS extent""".format(self.schema)
+                model_name = ",left(c.iliname, charindex('.', c.iliname)-1) AS model"
                 domain_left_join = """
                     LEFT JOIN        {}.T_ILI2DB_TABLE_PROP p
                         ON p.tablename = tbls.TABLE_NAME 
@@ -145,10 +149,10 @@ class MssqlConnector(DBConnector):
 
             query = """
                 SELECT distinct
-                    tbls.TABLE_SCHEMA AS schemaname,
-                    tbls.TABLE_NAME AS tablename, 
-                    Col.Column_Name AS primary_key,
-                    clm.COLUMN_NAME AS geometry_column,
+                    tbls.TABLE_SCHEMA AS schemaname
+                    ,tbls.TABLE_NAME AS tablename
+                    ,Col.Column_Name AS primary_key
+                    ,clm.COLUMN_NAME AS geometry_column
                     {srid}
                     {kind_settings_field}
                     {table_alias}
@@ -156,7 +160,7 @@ class MssqlConnector(DBConnector):
                     {ili_name}
                     {extent}
                     {simple_type}
-                    null as formatted_type
+                    {formatted_type}
                 FROM
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab 
                 INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE Col 
@@ -179,7 +183,11 @@ class MssqlConnector(DBConnector):
                 WHERE tbls.TABLE_TYPE = 'BASE TABLE' {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias, model_name=model_name, ili_name=ili_name, extent=extent,
                     domain_left_join=domain_left_join, alias_left_join=alias_left_join, model_where=model_where,
-                    schema_where=schema_where,schema=self.schema, srid=srid, srid_where=srid_where, simple_type=simple_type,simple_type_where=simple_type_where)
+                    schema_where=schema_where,schema=self.schema, srid=srid, srid_where=srid_where,
+                    simple_type=simple_type,simple_type_where=simple_type_where, formatted_type=formatted_type)
+
+            if not metadata_exists:
+                query = self._def_cursor(query)
 
             cur.execute(query)
 
@@ -193,6 +201,71 @@ class MssqlConnector(DBConnector):
                 res.append(my_rec)
 
         return res
+
+    def _def_cursor(self, query):
+        cursor = """
+            DECLARE @schemaname VARCHAR(1000)
+            DECLARE @tablename VARCHAR(1000)
+            DECLARE @primary_key VARCHAR(1000)
+            DECLARE @geometry_column VARCHAR(1000)
+            DECLARE @query NVARCHAR(MAX)
+            DECLARE @row_counter NVARCHAR(MAX)
+            DECLARE @separator NVARCHAR(200)
+            declare @full_tabname nvarchar(300)
+            declare @count int
+            set @query = ''
+            set @row_counter = ''
+            set @separator = ''
+            
+            DECLARE db_cursor CURSOR FOR {query}
+            OPEN db_cursor  
+            FETCH NEXT FROM db_cursor INTO @schemaname, @tablename, @primary_key, @geometry_column
+            WHILE @@FETCH_STATUS = 0  
+            BEGIN
+                if @schemaname is null	set @full_tabname = @tablename else set @full_tabname = concat(@schemaname,'.', @tablename)
+                if @schemaname is not null set @schemaname = CONCAT('''', @schemaname, '''') else set @schemaname = 'NULL'
+                if @primary_key is not null set @primary_key = CONCAT('''', @primary_key, '''') else set @primary_key = 'NULL'
+                set @tablename = CONCAT('''', @tablename, '''')
+            
+                if @geometry_column is not null begin -- table has geometry
+                    select @row_counter = concat('SELECT @C=count(concat(',@geometry_column,'.STSrid,', @geometry_column,'.STGeometryType()))', ' from ', @full_tabname)
+                    execute sp_executesql @row_counter, N'@C INT OUTPUT', @C=@count OUTPUT
+                    
+                    if @count > 0 begin -- table containts geometry data, geometry types are got from data
+                        set @query = concat('SELECT distinct '
+                        , @schemaname, ' as schemaname,'
+                        , @tablename, ' as tablename,'
+                        , @primary_key, ' as primary_key,'
+                        , '''', @geometry_column, ''' as geometry_column,'
+                        , @geometry_column,'.STSrid as srid,'
+                        , @geometry_column,'.STGeometryType() as simple_type'
+                        , ' from ', @full_tabname, @separator, @query)
+                    end else begin -- otherwise, geometry type is set null
+                        set @query = concat('SELECT '
+                        , @schemaname, ' as schemaname,'
+                        , @tablename, ' as tablename,'
+                        , @primary_key, ' as primary_key,'
+                        , '''', @geometry_column, ''' as geometry_column,'
+                        , 'NULL as srid, NULL as simple_type'
+                        , @separator, @query)
+                    end
+                end	else begin -- table does not have geometry
+                    set @query = concat('SELECT '
+                        , @schemaname, ' as schemaname,'
+                        , @tablename, ' as tablename,'
+                        , @primary_key, ' as primary_key,'
+                        , N'NULL as geometry_column'
+                        , N', NULL as srid, NULL as simple_type'
+                        , @separator, @query)
+                end
+                set @separator = ' union '
+                FETCH NEXT FROM db_cursor INTO @schemaname, @tablename, @primary_key, @geometry_column
+            END
+            CLOSE db_cursor  
+            DEALLOCATE db_cursor
+            execute sp_executesql @query """.format(query=query)
+
+        return cursor
 
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(METAATTRS_TABLE):
