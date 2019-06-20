@@ -30,7 +30,7 @@ from qgis.core import (
     QgsRectangle,
     QgsCoordinateReferenceSystem
 )
-from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 
 class Layer(object):
@@ -87,7 +87,14 @@ class Layer(object):
     def create(self):
         if self.__layer is None:
             layer_name = self.alias or self.name
+
+            settings = QSettings()
+            # Take the "CRS for new layers" config, overwrite it while loading layers and...
+            old_proj_value = settings.value("/Projections/defaultBehaviour", "prompt", type=str)
+            settings.setValue("/Projections/defaultBehaviour", "useProject")
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+            settings.setValue("/Projections/defaultBehavior", old_proj_value)
+
             if self.srid is not None and not self.__layer.crs().authid() == "EPSG:{}".format(self.srid):
                 self.__layer.setCrs(QgsCoordinateReferenceSystem().fromEpsgId(self.srid))
             if self.is_domain:
