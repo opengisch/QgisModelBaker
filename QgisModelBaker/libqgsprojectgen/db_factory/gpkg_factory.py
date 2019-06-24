@@ -49,14 +49,14 @@ class GpkgFactory(DbFactory):
 
         :return: str ili2gpkg version.
         """
-        return '3.11.3'
+        return '4.1.0'
 
     def get_tool_url(self):
         """Returns download url of ili2gpkg.
 
         :return str A download url.
         """
-        return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{}.zip'.format(self.get_tool_version())
+        return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{version}.zip'.format(version=self.get_tool_version())
 
     def get_specific_messages(self):
         messages = {

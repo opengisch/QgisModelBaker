@@ -51,10 +51,10 @@ def get_ili2db_bin(tool, stdout, stderr):
     ili2db_dir = '{}-{}'.format(tool_name, ili_tool_version)
 
     ili2db_file = os.path.join(
-        dir_path, 'bin', ili2db_dir, '{}.jar'.format(tool_name))
+        dir_path, 'bin', ili2db_dir, '{}-{}.jar'.format(tool_name, ili_tool_version))
     if not os.path.isfile(ili2db_file):
         try:
-            os.mkdir(os.path.join(dir_path, 'bin'))
+            os.mkdir(os.path.join(dir_path, 'bin', ili2db_dir))
         except FileExistsError:
             pass
 
@@ -79,7 +79,7 @@ def get_ili2db_bin(tool, stdout, stderr):
 
         try:
             with zipfile.ZipFile(tmpfile.name, "r") as z:
-                z.extractall(os.path.join(dir_path, 'bin'))
+                z.extractall(os.path.join(dir_path, 'bin', ili2db_dir))
         except zipfile.BadZipFile:
             # We will realize soon enough that the files were not extracted
             pass
