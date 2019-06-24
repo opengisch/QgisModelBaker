@@ -54,7 +54,7 @@ def get_ili2db_bin(tool, stdout, stderr):
         dir_path, 'bin', ili2db_dir, '{}-{}.jar'.format(tool_name, ili_tool_version))
     if not os.path.isfile(ili2db_file):
         try:
-            os.mkdir(os.path.join(dir_path, 'bin', ili2db_dir))
+            os.makedirs(os.path.join(dir_path, 'bin', ili2db_dir), exist_ok=True)
         except FileExistsError:
             pass
 
