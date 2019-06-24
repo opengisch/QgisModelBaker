@@ -273,7 +273,7 @@ class PGConnector(DBConnector):
                                         c.column_name=alias.columnname AND
                                         alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
                 full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
-                                        ON full_name.owner='{}' AND
+                                        ON full_name.colowner='{}' AND
                                         c.column_name=full_name.sqlname
                                         """.format(self.schema, table_name)
 
@@ -404,7 +404,7 @@ class PGConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             attr_names = "'" + "','".join(attrs_list) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute("""SELECT iliname, sqlname, colowner
                            FROM {schema}.t_ili2db_attrname
                            WHERE iliname IN ({attr_names})
                         """.format(schema=self.schema, attr_names=attr_names))
@@ -417,9 +417,9 @@ class PGConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             owner_names = "'" + "','".join(owners) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute("""SELECT iliname, sqlname, colowner
                            FROM {schema}.t_ili2db_attrname
-                           WHERE owner IN ({owner_names})
+                           WHERE colowner IN ({owner_names})
                         """.format(schema=self.schema, owner_names=owner_names))
             return cur
 

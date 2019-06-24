@@ -203,7 +203,7 @@ class GPKGConnector(DBConnector):
             cursor.execute("""
                 SELECT SqlName, IliName
                 FROM t_ili2db_attrname
-                WHERE owner = '{}'
+                WHERE colowner = '{}'
                 """.format(table_name))
             columns_full_name = cursor.fetchall()
 
@@ -329,7 +329,7 @@ class GPKGConnector(DBConnector):
         """TODO: remove when ili2db issue #19 is solved"""
         cursor = self.conn.cursor()
         attr_names = "'" + "','".join(attrs_list) + "'"
-        cursor.execute("""SELECT iliname, sqlname, owner
+        cursor.execute("""SELECT iliname, sqlname, colowner
                           FROM t_ili2db_attrname
                           WHERE iliname IN ({attr_names})
                        """.format(attr_names=attr_names))
@@ -339,8 +339,8 @@ class GPKGConnector(DBConnector):
         """TODO: remove when ili2db issue #19 is solved"""
         cursor = self.conn.cursor()
         owner_names = "'" + "','".join(owners) + "'"
-        cursor.execute("""SELECT iliname, sqlname, owner
+        cursor.execute("""SELECT iliname, sqlname, colowner
                           FROM t_ili2db_attrname
-                          WHERE owner IN ({owner_names})
+                          WHERE colowner IN ({owner_names})
                        """.format(owner_names=owner_names))
         return cursor

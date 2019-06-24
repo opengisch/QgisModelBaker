@@ -93,7 +93,7 @@ class DomainRelationGenerator:
                 models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes,
                                                                         self.inheritance)
 
-        # Map attr ili name and owner (pg class name) with its correspondent
+        # Map attr ili name and owner (pg class nadomain_relations_generator.pyme) with its correspondent
         # attr pg name
         all_attrs = list()
         for c, dict_attr_domain in models_info_with_ext.items():
@@ -102,11 +102,11 @@ class DomainRelationGenerator:
         attr_records = self._get_attrili_attrdb_mapping(all_attrs)
         attrs_ili_pg_owner = dict()
         for record in attr_records:
-            if record['owner'] in attrs_ili_pg_owner:
-                attrs_ili_pg_owner[record['owner']].update(
+            if record['colowner'] in attrs_ili_pg_owner:
+                attrs_ili_pg_owner[record['colowner']].update(
                     {record['iliname']: record['sqlname']})
             else:
-                attrs_ili_pg_owner[record['owner']] = {
+                attrs_ili_pg_owner[record['colowner']] = {
                     record['iliname']: record['sqlname']}
         if self.debug:
             print("attrs_ili_pg_owner:", attrs_ili_pg_owner)
@@ -191,7 +191,7 @@ class DomainRelationGenerator:
         structure_domain_attr_ili_sql = self._get_attrili_attrdb_mapping_by_owner(owners)
         structure_domain_attr = dict()
         for record in structure_domain_attr_ili_sql:
-            structure_domain_attr[record['owner']] = [
+            structure_domain_attr[record['colowner']] = [
                 record['iliname'],
                 record['sqlname']
             ]
