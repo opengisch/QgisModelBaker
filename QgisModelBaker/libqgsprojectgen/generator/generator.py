@@ -99,12 +99,12 @@ class Generator:
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
             constraints_info = self.get_constraints_info(record['tablename'])
-            re_iliname = re.compile(r'^@iliname (.*)$')
+            re_iliname = re.compile(r'.*\.(.*)$')
 
             for fielddef in fields_info:
                 column_name = fielddef['column_name']
-                comment = fielddef['comment']
-                m = re_iliname.match(comment) if comment else None
+                fully_qualified_name = fielddef['fully_qualified_name'] if 'fully_qualified_name' in fielddef else None
+                m = re_iliname.match(fully_qualified_name) if fully_qualified_name else None
 
                 alias = None
                 if 'column_alias' in fielddef:
