@@ -232,6 +232,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
 
             for layer in layers:
                 self.assertIsNotNone(layer.geometry_column)
+            generator._db_connector.conn.close()
         finally:
             cur.execute("""
             drop table {schema_name}.region;

@@ -191,14 +191,15 @@ class MssqlConnector(DBConnector):
 
             cur.execute(query)
 
-            columns = [column[0] for column in cur.description]
+            if cur.description:
+                columns = [column[0] for column in cur.description]
 
-            for row in cur.fetchall():
-                my_rec = dict(zip(columns, row))
-                # TODO type != simple_type
-                my_rec['srid'] = int(my_rec['srid']) if my_rec['srid'] else None
-                my_rec['type'] = my_rec['simple_type']
-                res.append(my_rec)
+                for row in cur.fetchall():
+                    my_rec = dict(zip(columns, row))
+                    # TODO type != simple_type
+                    my_rec['srid'] = int(my_rec['srid']) if my_rec['srid'] else None
+                    my_rec['type'] = my_rec['simple_type']
+                    res.append(my_rec)
 
         return res
 
