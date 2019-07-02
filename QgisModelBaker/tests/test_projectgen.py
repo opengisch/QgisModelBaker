@@ -558,6 +558,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
+        importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
