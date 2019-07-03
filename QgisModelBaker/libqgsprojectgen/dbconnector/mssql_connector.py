@@ -403,11 +403,10 @@ class MssqlConnector(DBConnector):
                     KCU1.CONSTRAINT_NAME AS constraint_name 
                     ,KCU1.TABLE_NAME AS referencing_table 
                     ,KCU1.COLUMN_NAME AS referencing_column 
-                    -- ,KCU2.CONSTRAINT_NAME AS REFERENCED_CONSTRAINT_NAME 
+                    ,KCU2.CONSTRAINT_SCHEMA AS constraint_schema
                     ,KCU2.TABLE_NAME AS referenced_table 
                     ,KCU2.COLUMN_NAME AS referenced_column 
                     ,KCU1.ORDINAL_POSITION AS ordinal_position 
-                    -- ,KCU2.ORDINAL_POSITION AS REFERENCED_ORDINAL_POSITION 
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
 
                 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 

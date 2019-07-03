@@ -121,3 +121,6 @@ class DbFactory(ABC):
         }
 
         return messages
+
+    def customize_widget_editor(self, field, data_type: str):
+        pass

@@ -48,3 +48,9 @@ class MssqlFactory(DbFactory):
 
     def get_tool_url(self):
         return 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(self.get_tool_version())
+
+    def customize_widget_editor(self, field, data_type: str):
+        if 'bit' in data_type:
+            field.widget = 'CheckBox'
+            field.widget_config['CheckedState'] = '1'
+            field.widget_config['UncheckedState'] = '0'
