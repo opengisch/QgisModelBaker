@@ -27,7 +27,10 @@ from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
-from qgis.core import QgsProject
+from qgis.core import (QgsProject,
+                       QgsMessageLog)
+
+from qgis.utils import available_plugins
 
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
@@ -70,9 +73,11 @@ class QgisModelBakerPlugin(QObject):
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
         pyplugin_installer.installer_data.plugins.rebuild()
-        if 'projectgenerator' in pyplugin_installer.installer_data.plugins.all().keys():
+        if 'projectgenerator' in available_plugins:
             import qgis
             pyplugin_installer.instance().uninstallPlugin('projectgenerator', quiet=True)
+        else: 
+            QgsMessageLog.logMessage(self.tr('The plugin Project Generator is not installed, so it was not removed.'), self.tr('QGIS Model Baker'))
 
         self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-icon.svg')),
             self.tr('Generate'), None)
