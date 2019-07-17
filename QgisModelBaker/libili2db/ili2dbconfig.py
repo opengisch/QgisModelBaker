@@ -240,6 +240,9 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         if with_action:
             args += ["--import"]
 
+        # No schema import, see https://github.com/opengisch/QgisModelBaker/issues/322
+        # args += ["--doSchemaImport"]
+
         if self.disable_validation:
             args += ["--disableValidation"]
 
