@@ -156,13 +156,16 @@ class IliCache(QObject):
             for model_metadata in repo.findall('ili23:IliRepository09.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
-                model['version'] = model_metadata.find(
-                    'ili23:Version', self.ns).text
+                version = model['version'] = model_metadata.find( 'ili23:Version', self.ns)
+                if version:
+                    model['version'] = version.text
+                else:
+                    model['version'] = None
                 model['repository'] = netloc
                 repo_models.append(model)
 
         self.repositories[netloc] = sorted(
-            repo_models, key=lambda m: m['version'], reverse=True)
+            repo_models, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
         self.model.set_repositories(self.repositories)
 
