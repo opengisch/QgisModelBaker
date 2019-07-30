@@ -28,7 +28,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
 from qgis.core import QgsProject
-
+from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
@@ -70,7 +70,8 @@ class QgisModelBakerPlugin(QObject):
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
         pyplugin_installer.installer_data.plugins.rebuild()
-        if 'projectgenerator' in pyplugin_installer.installer_data.plugins.all().keys():
+
+        if 'projectgenerator' in available_plugins:
             import qgis
             pyplugin_installer.instance().uninstallPlugin('projectgenerator', quiet=True)
 
