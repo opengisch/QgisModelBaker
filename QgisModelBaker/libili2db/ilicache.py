@@ -70,7 +70,8 @@ class IliCache(QObject):
             for directory in self.base_configuration.model_directories:
                 self.process_model_directory(directory)
         if not self.single_ili_file is None:
-            self.process_single_ili_file()
+            if os.path.exists(self.single_ili_file):
+                self.process_single_ili_file()
 
     def process_model_directory(self, path):
         if path[0] == '%':
