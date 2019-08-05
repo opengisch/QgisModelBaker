@@ -72,7 +72,7 @@ class ExportModels(QStringListModel):
         modelnames = list()
         
         if db_connector:
-            if db_connector.db_or_schema_exists():
+            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 for db_model in db_models:
                     regex = re.compile(r'(?:\{[^\}]*\}|\s)')
