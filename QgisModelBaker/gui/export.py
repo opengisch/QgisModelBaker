@@ -24,9 +24,7 @@ import os.path
 import re
 
 from QgisModelBaker.gui.options import OptionsDialog, ModelListView
-from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
     JavaNotFoundError
@@ -37,10 +35,9 @@ from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     OverrideCursor
 )
-from qgis.PyQt.QtGui import QColor, QDesktopServices, QFont, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QApplication, QCompleter, QMessageBox
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
-from qgis.core import QgsProject
 from qgis.gui import QgsGui
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
@@ -118,7 +115,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.clicked.connect(self.accepted_export_data)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
         self.buttonBox.addButton(
@@ -154,6 +151,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
 
+        # Remove export without validate button when xtf change
+        self.xtf_file_line_edit.textChanged.connect(
+            self.remove_export_without_validate_button)
+
         #refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
         self.refreshTimer.setSingleShot(True)
@@ -162,6 +163,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         for key, value in self._lst_panel.items():
             value.notify_fields_modified.connect(self.request_for_refresh_models)
 
+        self.validate_data = True # validates exported data by default, We use --disableValidation when is False
         self.base_configuration = base_config
         self.restore_configuration()
 
@@ -199,6 +201,14 @@ class ExportDialog(QDialog, DIALOG_UI):
             pass
 
         self.export_models_model.refresh_models(db_connector)
+
+    def accepted_export_data(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
+            if button.text() == self.tr('Export'):
+                self.validate_data = True
+            elif button.text() == self.tr('Export without validating'):
+                self.validate_data = False
+            self.accepted()
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -298,7 +308,35 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
+            if self.export_without_validate():
+
+                # button is removed to define order in GUI
+                for button in self.buttonBox.buttons():
+                    if button.text() == self.tr('Export'):
+                        self.buttonBox.removeButton(button)
+                # Check if button was previously added
+                self.remove_export_without_validate_button()
+
+                self.buttonBox.addButton(self.tr('Export without validating'),
+                                         QDialogButtonBox.AcceptRole).setStyleSheet("color: aa2222;")
+                self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
             self.enable()
+
+    def export_without_validate(self):
+        """
+        Valid if an error occurred that prevents executing the export without validations
+        :return: True if you can execute the export without validations, False in other case
+        """
+        log = self.txtStdout.toPlainText()
+        if "Permission denied" in log:
+            return False
+        return True
+
+    def remove_export_without_validate_button(self):
+        for button in self.buttonBox.buttons():
+            if button.text() == self.tr('Export without validating'):
+                self.buttonBox.removeButton(button)
+                self.validate_data = True
 
     def updated_configuration(self):
         """
@@ -316,6 +354,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
 
+        if not self.validate_data:
+            configuration.disable_validation = True
         return configuration
 
     def save_configuration(self, configuration):
@@ -360,8 +400,10 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.remove_export_without_validate_button()
         self.refresh_db_panel()
         self.refresh_models()
+        self.txtStdout.clear()
 
     def refresh_db_panel(self):
         self.progress_bar.hide()
