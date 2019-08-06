@@ -318,7 +318,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.remove_export_without_validate_button()
 
                 self.buttonBox.addButton(self.tr('Export without validating'),
-                                         QDialogButtonBox.AcceptRole).setStyleSheet("color: aa2222;")
+                                         QDialogButtonBox.AcceptRole).setStyleSheet("color: #aa2222;")
                 self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
             self.enable()
 
@@ -327,8 +327,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         Valid if an error occurred that prevents executing the export without validations
         :return: True if you can execute the export without validations, False in other case
         """
-        log = self.txtStdout.toPlainText()
-        if "Permission denied" in log:
+        log = self.txtStdout.toPlainText().lower()
+        if "permission denied" in log or "access is denied" in log:
             return False
         return True
 

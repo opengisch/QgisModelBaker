@@ -249,10 +249,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         Valid if an error occurred that prevents executing the import without validations
         :return: True if you can execute the import without validations, False in other case
         """
-        log = self.txtStdout.toPlainText()
+        log = self.txtStdout.toPlainText().lower()
         if "no models given" in log:
             return False
-        if "Attribute BID missing in basket" in log:
+        if "attribute bid missing in basket" in log:
             return False
         return True
 
