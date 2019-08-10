@@ -17,19 +17,18 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.PyQt.QtWidgets import (QLabel,
-                                 QGridLayout,
-                                 QLineEdit,
-                                 QCheckBox)
 
 from .db_config_panel import DbConfigPanel
+from ...utils import get_ui_class
 from QgisModelBaker.utils.qt_utils import (
     Validators,
     NonEmptyStringValidator)
 from QgisModelBaker.libili2db.globals import DbActionType
 
+WIDGET_UI = get_ui_class('pg_settings_panel.ui')
 
-class PgConfigPanel(DbConfigPanel):
+
+class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     """Panel where users fill out connection parameters to Postgres/Postgis database.
 
     :ivar bool interlis_mode: Value that determines whether the config panel is displayed with messages or fields interlis.
@@ -40,58 +39,19 @@ class PgConfigPanel(DbConfigPanel):
 
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
-
-        lbl_host = QLabel(self.tr("Host"))
-        lbl_port = QLabel(self.tr("Port"))
-        lbl_database = QLabel(self.tr("Database"))
-        lbl_schema = QLabel(self.tr("Schema"))
-        lbl_user = QLabel(self.tr("User"))
-        lbl_password = QLabel(self.tr("Password"))
-
-        self.pg_host_line_edit = QLineEdit()
-        self.pg_host_line_edit.setPlaceholderText(self.tr("Database Hostname"))
-        self.pg_host_line_edit.setText('localhost')
-
-        self.pg_port_line_edit = QLineEdit()
-        self.pg_port_line_edit.setPlaceholderText(self.tr("[Leave empty to use standard port 5432]"))
-
-        self.pg_database_line_edit = QLineEdit()
-        self.pg_database_line_edit.setPlaceholderText(self.tr("Database Name"))
-
-        self.pg_schema_line_edit = QLineEdit()
-        self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
-
-        self.pg_user_line_edit = QLineEdit()
-        self.pg_user_line_edit.setPlaceholderText(self.tr("Database Username"))
-
-        self.pg_password_line_edit = QLineEdit()
-        self.pg_password_line_edit.setEchoMode(QLineEdit.Password)
-        self.pg_password_line_edit.setPlaceholderText(self.tr("[Leave empty to use system password]"))
+        self.setupUi(self)
 
         from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+        self.pg_use_super_login.setText(
+            self.tr("Generate schema with superuser login from settings ({})").format(BaseConfiguration().super_pg_user))
 
-        if self._db_action_type != DbActionType.EXPORT:
-            self.pg_use_super_login = QCheckBox()
-            self.pg_use_super_login.setText(
-                self.tr("Generate schema with superuser login from settings ({})").format(BaseConfiguration().super_pg_user))
-
-        layout = QGridLayout(self)
-        layout.addWidget(lbl_host, 0, 0)
-        layout.addWidget(lbl_port, 1, 0)
-        layout.addWidget(lbl_database, 2, 0)
-        layout.addWidget(lbl_schema, 3, 0)
-        layout.addWidget(lbl_user, 4, 0)
-        layout.addWidget(lbl_password, 5, 0)
-
-        layout.addWidget(self.pg_host_line_edit, 0, 1)
-        layout.addWidget(self.pg_port_line_edit, 1, 1)
-        layout.addWidget(self.pg_database_line_edit, 2, 1)
-        layout.addWidget(self.pg_schema_line_edit, 3, 1)
-        layout.addWidget(self.pg_user_line_edit, 4, 1)
-        layout.addWidget(self.pg_password_line_edit, 5, 1)
-
-        if self._db_action_type != DbActionType.EXPORT:
-            layout.addWidget(self.pg_use_super_login,6,1)
+        if self._db_action_type == DbActionType.GENERATE:
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
+        elif self._db_action_type == DbActionType.IMPORT_DATA:
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to import data into a default schema]"))
+        elif self._db_action_type == DbActionType.EXPORT:
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
+            self.pg_use_super_login.hide()
 
         # define validators
         self.validators = Validators()
