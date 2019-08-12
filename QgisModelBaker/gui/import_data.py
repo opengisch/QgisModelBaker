@@ -279,18 +279,21 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.type_changed()
 
     def disable(self):
+        self.type_combo_box.setEnabled(False)
         for key, value in self._lst_panel.items():
             value.setEnabled(False)
         self.ili_config.setEnabled(False)
         self.buttonBox.setEnabled(False)
 
     def enable(self):
+        self.type_combo_box.setEnabled(True)
         for key, value in self._lst_panel.items():
             value.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.txtStdout.clear()
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()
