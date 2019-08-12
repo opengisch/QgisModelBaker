@@ -115,11 +115,14 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.clicked.connect(self.accepted_export_data)
+        self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(
-            self.tr('Export'), QDialogButtonBox.AcceptRole)
+
+        self.export_button_name = self.tr('Export')
+        self.export_without_validate_button_name = self.tr('Export without validation')
+
+        self.buttonBox.addButton(self.export_button_name, QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
@@ -202,11 +205,11 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.export_models_model.refresh_models(db_connector)
 
-    def accepted_export_data(self, button):
+    def button_box_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
-            if button.text() == self.tr('Export'):
+            if button.text() == self.export_button_name:
                 self.validate_data = True
-            elif button.text() == self.tr('Export without validating'):
+            elif button.text() == self.export_without_validate_button_name:
                 self.validate_data = False
             self.accepted()
 
@@ -312,14 +315,14 @@ class ExportDialog(QDialog, DIALOG_UI):
 
                 # button is removed to define order in GUI
                 for button in self.buttonBox.buttons():
-                    if button.text() == self.tr('Export'):
+                    if button.text() == self.export_button_name:
                         self.buttonBox.removeButton(button)
                 # Check if button was previously added
                 self.remove_export_without_validate_button()
 
-                self.buttonBox.addButton(self.tr('Export without validating'),
+                self.buttonBox.addButton(self.export_without_validate_button_name,
                                          QDialogButtonBox.AcceptRole).setStyleSheet("color: #aa2222;")
-                self.buttonBox.addButton(self.tr('Export'), QDialogButtonBox.AcceptRole)
+                self.buttonBox.addButton(self.export_button_name, QDialogButtonBox.AcceptRole)
             self.enable()
 
     def export_without_validate(self):
@@ -334,7 +337,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def remove_export_without_validate_button(self):
         for button in self.buttonBox.buttons():
-            if button.text() == self.tr('Export without validating'):
+            if button.text() == self.export_without_validate_button_name:
                 self.buttonBox.removeButton(button)
                 self.validate_data = True
 

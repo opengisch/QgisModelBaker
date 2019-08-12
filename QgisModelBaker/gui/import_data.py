@@ -71,11 +71,14 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.db_simple_factory = DbSimpleFactory()
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.clicked.connect(self.accepted_import_data)
+        self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(
-            self.tr('Import Data'), QDialogButtonBox.AcceptRole)
+
+        self.import_button_name = self.tr('Import Data')
+        self.import_without_validate_button_name = self.tr('Import without validation')
+
+        self.buttonBox.addButton(self.import_button_name, QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
@@ -122,7 +125,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
 
-        # Remove import without validate button when xtf change
+        # Remove import without validate button when xtf changes
         self.xtf_file_line_edit.textChanged.connect(
             self.remove_import_without_validate_button)
 
@@ -132,11 +135,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.update_models_completer()
         self.ilicache.refresh()
 
-    def accepted_import_data(self, button):
+    def button_box_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
-            if button.text() == self.tr('Import Data'):
+            if button.text() == self.import_button_name:
                 self.validate_data = True
-            elif button.text() == self.tr('Import without validating'):
+            elif button.text() == self.import_without_validate_button_name:
                 self.validate_data = False
             self.accepted()
 
@@ -233,14 +236,14 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
                 # button is removed to define order in GUI
                 for button in self.buttonBox.buttons():
-                    if button.text() == self.tr('Import Data'):
+                    if button.text() == self.import_button_name:
                         self.buttonBox.removeButton(button)
                 # Check if button was previously added
                 self.remove_import_without_validate_button()
 
-                self.buttonBox.addButton(self.tr('Import without validating'),
+                self.buttonBox.addButton(self.import_without_validate_button_name,
                                          QDialogButtonBox.AcceptRole).setStyleSheet("color: #aa2222;")
-                self.buttonBox.addButton(self.tr('Import Data'), QDialogButtonBox.AcceptRole)
+                self.buttonBox.addButton(self.import_button_name, QDialogButtonBox.AcceptRole)
 
             self.enable()
 
@@ -258,7 +261,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def remove_import_without_validate_button(self):
         for button in self.buttonBox.buttons():
-            if button.text() == self.tr('Import without validating'):
+            if button.text() == self.import_without_validate_button_name:
                 self.buttonBox.removeButton(button)
                 self.validate_data = True
 
@@ -338,7 +341,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def type_changed(self):
         self.remove_import_without_validate_button()
         self.progress_bar.hide()
-        self.txtStdout.clear()
 
         db_id = self.type_combo_box.currentData()
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
