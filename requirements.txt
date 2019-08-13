@@ -3,4 +3,4 @@ pyodbc
 nose2
 pyyaml
 future
-transifex-client
+qgis-plugin-ci
