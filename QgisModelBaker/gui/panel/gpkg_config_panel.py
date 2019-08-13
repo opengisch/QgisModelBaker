@@ -17,10 +17,6 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.PyQt.QtWidgets import (QLabel,
-                                 QGridLayout,
-                                 QLineEdit,
-                                 QToolButton)
 from qgis.PyQt.QtGui import QValidator
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -30,9 +26,11 @@ from QgisModelBaker.utils.qt_utils import (
 )
 
 from .db_config_panel import DbConfigPanel
+from ...utils import get_ui_class
+WIDGET_UI = get_ui_class('gpkg_settings_panel.ui')
 
 
-class GpkgConfigPanel(DbConfigPanel):
+class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
     """Panel where users fill out connection parameters to Geopackage database.
 
     :ivar bool interlis_mode: Value that determines whether the config panel is displayed with messages or fields interlis.
@@ -43,20 +41,7 @@ class GpkgConfigPanel(DbConfigPanel):
 
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
-
-        lbl_db_file = QLabel(self.tr("Database File"))
-
-        self.gpkg_file_line_edit = QLineEdit()
-
-        self.gpkg_file_browse_button = QToolButton()
-        self.gpkg_file_browse_button.setText('…')
-        self.gpkg_file_browse_button.setToolTip(self.tr("Browse GeoPackage files"))
-
-        layout = QGridLayout(self)
-
-        layout.addWidget(lbl_db_file, 0, 0)
-        layout.addWidget(self.gpkg_file_line_edit, 0, 1)
-        layout.addWidget(self.gpkg_file_browse_button, 0, 2)
+        self.setupUi(self)
 
         # validators
         self.validators = Validators()

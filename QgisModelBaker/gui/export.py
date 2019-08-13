@@ -69,7 +69,7 @@ class ExportModels(QStringListModel):
         modelnames = list()
         
         if db_connector:
-            if db_connector.db_or_schema_exists():
+            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 for db_model in db_models:
                     regex = re.compile(r'(?:\{[^\}]*\}|\s)')
@@ -391,18 +391,21 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.refresh_db_panel()
 
     def disable(self):
+        self.type_combo_box.setEnabled(False)
         for key, value in self._lst_panel.items():
             value.setEnabled(False)
         self.ili_config.setEnabled(False)
         self.buttonBox.setEnabled(False)
 
     def enable(self):
+        self.type_combo_box.setEnabled(True)
         for key, value in self._lst_panel.items():
             value.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.txtStdout.clear()
         self.remove_export_without_validate_button()
         self.refresh_db_panel()
         self.refresh_models()
