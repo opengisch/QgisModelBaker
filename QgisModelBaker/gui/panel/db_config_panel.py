@@ -79,5 +79,3 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
         """
         pass
 
-    def showEvent(self, event):
-        self._show_panel()
