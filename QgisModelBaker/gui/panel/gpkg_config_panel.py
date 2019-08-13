@@ -68,10 +68,8 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         except:
             pass
 
-        self.gpkg_file_line_edit.textChanged.emit(
-                self.gpkg_file_line_edit.text())
-
         self.gpkg_file_line_edit.setValidator(validator)
+        self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
         self.gpkg_file_browse_button.clicked.connect(file_selector)
 
     def get_fields(self, configuration):
