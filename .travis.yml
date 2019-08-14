@@ -8,7 +8,6 @@ services:
 before_install:
 
 install:
-  - pip install -r requirements.txt
   - docker build --build-arg QGIS_TEST_VERSION=${QGIS_TEST_VERSION} -f .docker/Dockerfile .
 
 jobs:
@@ -24,6 +23,8 @@ jobs:
 
     - stage: deploy
       if: tag IS present
+      install:
+        - pip install qgis-plugin-ci
       script:
         - >
          qgis-plugin-ci release ${TRAVIS_TAG}
@@ -34,6 +35,8 @@ jobs:
 
     - stage: deploy
       if: branch = master
+      install:
+        - pip install qgis-plugin-ci
       script: qgis-plugin-ci push-translation ${TX_TOKEN}
 
 env:
