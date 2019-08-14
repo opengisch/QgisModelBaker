@@ -426,9 +426,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_config.setVisible(interlis_mode)
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
+        # Refresh panels
         for key, value in self._lst_panel.items():
             value.interlis_mode = interlis_mode
-            value.setVisible(db_id == key)
+            is_current_panel_selected = db_id == key
+            value.setVisible(is_current_panel_selected)
+            if is_current_panel_selected:
+                value._show_panel()
 
     def on_model_changed(self, text):
         if not text:
