@@ -3,4 +3,3 @@ pyodbc
 nose2
 pyyaml
 future
-qgis-plugin-ci
