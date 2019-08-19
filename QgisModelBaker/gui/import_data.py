@@ -28,7 +28,6 @@ from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
     JavaNotFoundError
 )
-from QgisModelBaker.libqgsprojectgen.dbconnector import pg_connector
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 
@@ -72,11 +71,14 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.db_simple_factory = DbSimpleFactory()
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(
-            self.tr('Import Data'), QDialogButtonBox.AcceptRole)
+
+        self.import_button_name = self.tr('Import Data')
+        self.import_without_validate_button_name = self.tr('Import without validation')
+
+        self.buttonBox.addButton(self.import_button_name, QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
@@ -104,6 +106,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.multiple_models_dialog.accepted.connect(
             self.fill_models_line_edit)
 
+        self.validate_data = True # validates imported data by default, We use --disableValidation when is False
         self.base_configuration = base_config
         self.restore_configuration()
 
@@ -122,11 +125,23 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
 
+        # Remove import without validate button when xtf changes
+        self.xtf_file_line_edit.textChanged.connect(
+            self.remove_import_without_validate_button)
+
         settings = QSettings()
         ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
         self.ilicache = IliCache(base_config, ilifile or None)
         self.update_models_completer()
         self.ilicache.refresh()
+
+    def button_box_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
+            if button.text() == self.import_button_name:
+                self.validate_data = True
+            elif button.text() == self.import_without_validate_button_name:
+                self.validate_data = False
+            self.accepted()
 
     def accepted(self):
         configuration = self.updated_configuration()
@@ -217,7 +232,38 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
+            if self.import_without_validate():
+
+                # button is removed to define order in GUI
+                for button in self.buttonBox.buttons():
+                    if button.text() == self.import_button_name:
+                        self.buttonBox.removeButton(button)
+                # Check if button was previously added
+                self.remove_import_without_validate_button()
+
+                self.buttonBox.addButton(self.import_without_validate_button_name,
+                                         QDialogButtonBox.AcceptRole).setStyleSheet("color: #aa2222;")
+                self.buttonBox.addButton(self.import_button_name, QDialogButtonBox.AcceptRole)
+
             self.enable()
+
+    def import_without_validate(self):
+        """
+        Valid if an error occurred that prevents executing the import without validations
+        :return: True if you can execute the import without validations, False in other case
+        """
+        log = self.txtStdout.toPlainText().lower()
+        if "no models given" in log:
+            return False
+        if "attribute bid missing in basket" in log:
+            return False
+        return True
+
+    def remove_import_without_validate_button(self):
+        for button in self.buttonBox.buttons():
+            if button.text() == self.import_without_validate_button_name:
+                self.buttonBox.removeButton(button)
+                self.validate_data = True
 
     def updated_configuration(self):
         """
@@ -239,6 +285,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
         configuration.base_configuration = self.base_configuration
 
+        if not self.validate_data:
+            configuration.disable_validation = True
         return configuration
 
     def save_configuration(self, configuration):
@@ -294,6 +342,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.txtStdout.clear()
+        self.remove_import_without_validate_button()
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()
