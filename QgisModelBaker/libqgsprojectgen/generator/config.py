@@ -41,7 +41,15 @@ IGNORED_TABLES = [
     'T_ILI2DB_IMPORT_OBJECT',
     'T_ILI2DB_IMPORT_BASKET',
     'T_ILI2DB_META_ATTRS',
-    'ogr_empty_table'
+    'ogr_empty_table',
+    'gm_curve2dlistvalue',
+    'gm_curve3dlistvalue',
+    'gm_multicurve2d',
+    'gm_multicurve3d',
+    'gm_surface2dlistvalue',
+    'gm_surface3dlistvalue',
+    'gm_multisurface2d',
+    'gm_multisurface3d'
 ]
 
 IGNORED_FIELDNAMES = [

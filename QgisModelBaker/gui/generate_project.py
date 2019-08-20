@@ -402,18 +402,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crs_changed()
 
     def disable(self):
+        self.type_combo_box.setEnabled(False)
         for key, value in self._lst_panel.items():
             value.setEnabled(False)
         self.ili_config.setEnabled(False)
         self.buttonBox.setEnabled(False)
 
     def enable(self):
+        self.type_combo_box.setEnabled(True)
         for key, value in self._lst_panel.items():
             value.setEnabled(True)
         self.ili_config.setEnabled(True)
         self.buttonBox.setEnabled(True)
 
     def type_changed(self):
+        self.txtStdout.clear()
         self.progress_bar.hide()
 
         ili_mode = self.type_combo_box.currentData()
@@ -423,9 +426,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_config.setVisible(interlis_mode)
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
+        # Refresh panels
         for key, value in self._lst_panel.items():
             value.interlis_mode = interlis_mode
-            value.setVisible(db_id == key)
+            is_current_panel_selected = db_id == key
+            value.setVisible(is_current_panel_selected)
+            if is_current_panel_selected:
+                value._show_panel()
 
     def on_model_changed(self, text):
         if not text:
