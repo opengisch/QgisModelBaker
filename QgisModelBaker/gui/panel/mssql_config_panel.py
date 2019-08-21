@@ -17,81 +17,27 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.PyQt.QtWidgets import (QLabel,
-                                 QGridLayout,
-                                 QLineEdit,
-                                 QCheckBox,
-                                 QComboBox)
 
 from .db_config_panel import DbConfigPanel
+from ...utils import get_ui_class
 from QgisModelBaker.utils.qt_utils import (
     Validators,
     NonEmptyStringValidator)
 from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 from QgisModelBaker.libili2db.globals import DbActionType
 
+WIDGET_UI = get_ui_class('mssql_settings_panel.ui')
 
-class MssqlConfigPanel(DbConfigPanel):
+class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
 
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
-
-        lbl_odbc_driver = QLabel(self.tr("Odbc Driver"))
-        lbl_host = QLabel(self.tr("Host"))
-        lbl_instance = QLabel(self.tr("Instance"))
-        lbl_port = QLabel(self.tr("Port"))
-        lbl_database = QLabel(self.tr("Database"))
-        lbl_schema = QLabel(self.tr("Schema"))
-        lbl_user = QLabel(self.tr("User"))
-        lbl_password = QLabel(self.tr("Password"))
-
-        self.mssql_odbc_driver = QComboBox()
+        self.setupUi(self)
 
         for item_odbc_driver in get_odbc_drivers():
             self.mssql_odbc_driver.addItem(item_odbc_driver)
-
-        self.mssql_host_line_edit = QLineEdit()
-        self.mssql_host_line_edit.setPlaceholderText(self.tr("Database Hostname"))
-        self.mssql_host_line_edit.setText('localhost')
-
-        self.mssql_instance_line_edit = QLineEdit()
-        self.mssql_instance_line_edit.setPlaceholderText(self.tr("[Leave empty to use default instance]"))
-
-        self.mssql_port_line_edit = QLineEdit()
-        self.mssql_port_line_edit.setPlaceholderText(self.tr("[Leave empty to use dynamic or standard port 1433]"))
-
-        self.mssql_database_line_edit = QLineEdit()
-        self.mssql_database_line_edit.setPlaceholderText(self.tr("Database Name"))
-
-        self.mssql_schema_line_edit = QLineEdit()
-        self.mssql_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
-
-        self.mssql_user_line_edit = QLineEdit()
-        self.mssql_user_line_edit.setPlaceholderText(self.tr("Database Username"))
-
-        self.mssql_password_line_edit = QLineEdit()
-        self.mssql_password_line_edit.setEchoMode(QLineEdit.Password)
-
-        layout = QGridLayout(self)
-        layout.addWidget(lbl_odbc_driver, 0, 0)
-        layout.addWidget(lbl_host, 1, 0)
-        layout.addWidget(lbl_instance, 2, 0)
-        layout.addWidget(lbl_port, 3, 0)
-        layout.addWidget(lbl_database, 4, 0)
-        layout.addWidget(lbl_schema, 5, 0)
-        layout.addWidget(lbl_user, 6, 0)
-        layout.addWidget(lbl_password, 7, 0)
-
-        layout.addWidget(self.mssql_odbc_driver, 0, 1)
-        layout.addWidget(self.mssql_host_line_edit, 1, 1)
-        layout.addWidget(self.mssql_instance_line_edit, 2, 1)
-        layout.addWidget(self.mssql_port_line_edit, 3, 1)
-        layout.addWidget(self.mssql_database_line_edit, 4, 1)
-        layout.addWidget(self.mssql_schema_line_edit, 5, 1)
-        layout.addWidget(self.mssql_user_line_edit, 6, 1)
-        layout.addWidget(self.mssql_password_line_edit, 7, 1)
 
         # define validators
         self.validators = Validators()
