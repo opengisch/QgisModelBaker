@@ -24,6 +24,7 @@ from ..dbconnector.db_connector import DBConnector
 from .layer_uri import LayerUri
 from QgisModelBaker.gui.panel.db_config_panel import DbConfigPanel
 from .db_command_config_manager import DbCommandConfigManager
+from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 
 
 class DbFactory(ABC):
@@ -122,5 +123,14 @@ class DbFactory(ABC):
 
         return messages
 
-    def customize_widget_editor(self, field, data_type: str):
+    def customize_widget_editor(self, field: Field, data_type: str):
+        """Allows customizing the way a field is shown in the widget editor.
+
+        For instance, a boolean field can be shown as a checkbox.
+
+        :param field: The field that will be customized
+        :type field: :class:`Field`
+        :param data_type: The type of field
+        :return None
+        """
         pass
