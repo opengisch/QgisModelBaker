@@ -87,116 +87,85 @@ class MssqlConnector(DBConnector):
 
     def get_tables_info(self):
         res = []
-        
-        if self.schema:
-            kind_settings_field = ''
-            domain_left_join = ''
-            schema_where = ''
-            table_alias = ''
-            ili_name = ''
-            extent = ''
-            alias_left_join = ''
-            model_name = ''
-            model_where = ''
-            srid = ''
-            srid_where = ''
-            simple_type = ''
-            simple_type_where = ''
-            formatted_type = ''
 
+        if self.schema:
             metadata_exists = self.metadata_exists()
 
+            ln = "\n"
+            stmt = ""
+            stmt += ln + "SELECT distinct"
+            stmt += ln + "     tbls.TABLE_SCHEMA AS schemaname"
+            stmt += ln + "    , tbls.TABLE_NAME AS tablename"
+            stmt += ln + "    , Col.Column_Name AS primary_key"
+            stmt += ln + "    , clm.COLUMN_NAME AS geometry_column"
             if metadata_exists:
-                kind_settings_field = ",p.setting AS kind_settings"
-                table_alias = ",alias.setting AS table_alias"
-                ili_name = ",c.iliname AS ili_name"
-                srid = ',tsrid.setting as srid'
-                simple_type = ",tgeomtype.setting as simple_type"
-                formatted_type = ",null as formatted_type"
-                extent = """,STUFF((SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))  
-                    FROM {}.t_ili2db_column_prop cp
-                        WHERE tbls.table_name = cp.tablename and clm.COLUMN_NAME = cp.columnname
-                        and cp.tag IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
-                        'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
-                        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1
-                             WHEN 'ch.ehi.ili2db.c2Min' THEN 2
-                             WHEN 'ch.ehi.ili2db.c1Max' THEN 3
-                             WHEN 'ch.ehi.ili2db.c2Max' THEN 4
-                             END 
-                    FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''
-                    ) AS extent""".format(self.schema)
-                model_name = ",left(c.iliname, charindex('.', c.iliname)-1) AS model"
-                domain_left_join = """
-                    LEFT JOIN        {}.T_ILI2DB_TABLE_PROP p
-                        ON p.tablename = tbls.TABLE_NAME 
-                        AND p.tag = 'ch.ehi.ili2db.tableKind' 
-                              """.format(self.schema)
-                alias_left_join = """
-                    LEFT JOIN        {}.T_ILI2DB_TABLE_PROP as alias
-                        on    alias.tablename = tbls.TABLE_NAME
-                        AND alias.tag = 'ch.ehi.ili2db.dispName'
-                               """.format(self.schema)
-                model_where = """LEFT JOIN {}.t_ili2db_classname c
-                      ON tbls.TABLE_NAME = c.sqlname""".format(self.schema)
-                srid_where = """LEFT JOIN {}.T_ILI2DB_COLUMN_PROP as tsrid
-                    on tbls.TABLE_NAME = tsrid.tablename and clm.COLUMN_NAME = tsrid.columnname and tsrid.tag='ch.ehi.ili2db.srid'""".format(self.schema)
-                simple_type_where = """LEFT JOIN {}.T_ILI2DB_COLUMN_PROP as tgeomtype
-                    on tbls.TABLE_NAME = tgeomtype.tablename and clm.COLUMN_NAME = tgeomtype.columnname and tgeomtype.tag= 'ch.ehi.ili2db.geomType'""".format(self.schema)
-                      
-            schema_where = "AND tbls.TABLE_SCHEMA = '{}'".format(self.schema)
-
-            cur = self.conn.cursor()
-
-            query = """
-                SELECT distinct
-                    tbls.TABLE_SCHEMA AS schemaname
-                    ,tbls.TABLE_NAME AS tablename
-                    ,Col.Column_Name AS primary_key
-                    ,clm.COLUMN_NAME AS geometry_column
-                    {srid}
-                    {kind_settings_field}
-                    {table_alias}
-                    {model_name}
-                    {ili_name}
-                    {extent}
-                    {simple_type}
-                    {formatted_type}
-                FROM
-                INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab 
-                INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE Col 
-                    on Col.Constraint_Name = Tab.Constraint_Name
-                    AND Col.Table_Name = Tab.Table_Name
-                    AND Col.CONSTRAINT_SCHEMA = Tab.CONSTRAINT_SCHEMA
-                RIGHT JOIN INFORMATION_SCHEMA.TABLES as tbls
-                    on Tab.TABLE_NAME = tbls.TABLE_NAME 
-                    AND Tab.CONSTRAINT_SCHEMA = tbls.TABLE_SCHEMA
-                    AND Tab.Constraint_Type = 'PRIMARY KEY'
-                {domain_left_join}
-                {alias_left_join}
-                {model_where}
-                LEFT JOIN INFORMATION_SCHEMA.COLUMNS as clm
-                    on clm.TABLE_NAME = tbls.TABLE_NAME
-                    AND clm.TABLE_SCHEMA = tbls.TABLE_SCHEMA
-                    AND clm.DATA_TYPE = 'geometry'
-                {srid_where}
-                {simple_type_where}
-                WHERE tbls.TABLE_TYPE = 'BASE TABLE' {schema_where}
-            """.format(kind_settings_field=kind_settings_field, table_alias=table_alias, model_name=model_name, ili_name=ili_name, extent=extent,
-                    domain_left_join=domain_left_join, alias_left_join=alias_left_join, model_where=model_where,
-                    schema_where=schema_where,schema=self.schema, srid=srid, srid_where=srid_where,
-                    simple_type=simple_type,simple_type_where=simple_type_where, formatted_type=formatted_type)
+                stmt += ln + "    , tsrid.setting AS srid"
+                stmt += ln + "    , p.setting AS kind_settings"
+                stmt += ln + "    , alias.setting AS table_alias"
+                stmt += ln + "    , left(c.iliname, charindex('.', c.iliname)-1) AS model"
+                stmt += ln + "    , c.iliname AS ili_name"
+                stmt += ln + "    , STUFF("
+                stmt += ln + "       (SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))"
+                stmt += ln + "        FROM {schema}.t_ili2db_column_prop cp"
+                stmt += ln + "        WHERE tbls.table_name = cp.tablename"
+                stmt += ln + "            AND clm.COLUMN_NAME = cp.columnname"
+                stmt += ln + "            AND cp.tag IN"
+                stmt += ln + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
+                stmt += ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
+                stmt += ln + "        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1"
+                stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Min' THEN 2"
+                stmt += ln + "            WHEN 'ch.ehi.ili2db.c1Max' THEN 3"
+                stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Max' THEN 4"
+                stmt += ln + "            END"
+                stmt += ln + "        FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''"
+                stmt += ln + "        ) AS extent"
+                stmt += ln + "    , tgeomtype.setting AS simple_type"
+                stmt += ln + "    , null AS formatted_type"
+            stmt += ln + "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS Tab"
+            stmt += ln + "INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS Col"
+            stmt += ln + "    ON Col.Constraint_Name = Tab.Constraint_Name"
+            stmt += ln + "    AND Col.Table_Name = Tab.Table_Name"
+            stmt += ln + "    AND Col.CONSTRAINT_SCHEMA = Tab.CONSTRAINT_SCHEMA"
+            stmt += ln + "RIGHT JOIN INFORMATION_SCHEMA.TABLES AS tbls"
+            stmt += ln + "    ON Tab.TABLE_NAME = tbls.TABLE_NAME"
+            stmt += ln + "    AND Tab.CONSTRAINT_SCHEMA = tbls.TABLE_SCHEMA"
+            stmt += ln + "    AND Tab.Constraint_Type = 'PRIMARY KEY'"
+            if metadata_exists:
+                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS p"
+                stmt += ln + "    ON p.tablename = tbls.TABLE_NAME"
+                stmt += ln + "    AND p.tag = 'ch.ehi.ili2db.tableKind'"
+                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS alias"
+                stmt += ln + "    ON alias.tablename = tbls.TABLE_NAME"
+                stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_classname AS c"
+                stmt += ln + "    ON tbls.TABLE_NAME = c.sqlname"
+            stmt += ln + "LEFT JOIN INFORMATION_SCHEMA.COLUMNS AS clm"
+            stmt += ln + "    ON clm.TABLE_NAME = tbls.TABLE_NAME"
+            stmt += ln + "    AND clm.TABLE_SCHEMA = tbls.TABLE_SCHEMA"
+            stmt += ln + "    AND clm.DATA_TYPE = 'geometry'"
+            if metadata_exists:
+                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tsrid"
+                stmt += ln + "    ON tbls.TABLE_NAME = tsrid.tablename"
+                stmt += ln + "    AND clm.COLUMN_NAME = tsrid.columnname"
+                stmt += ln + "    AND tsrid.tag='ch.ehi.ili2db.srid'"
+                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tgeomtype"
+                stmt += ln + "    ON tbls.TABLE_NAME = tgeomtype.tablename"
+                stmt += ln + "    AND clm.COLUMN_NAME = tgeomtype.columnname"
+                stmt += ln + "    AND tgeomtype.tag= 'ch.ehi.ili2db.geomType'"
+            stmt += ln + "WHERE tbls.TABLE_TYPE = 'BASE TABLE' AND tbls.TABLE_SCHEMA = '{schema}'"
+            stmt = stmt.format(schema=self.schema)
 
             if not metadata_exists:
-                query = self._def_cursor(query)
+                stmt = self._def_cursor(stmt)
 
-            cur.execute(query)
+            cur = self.conn.cursor()
+            cur.execute(stmt)
 
             if cur.description:
                 columns = [column[0] for column in cur.description]
 
                 for row in cur.fetchall():
                     my_rec = dict(zip(columns, row))
-                    # TODO type != simple_type
                     my_rec['srid'] = int(my_rec['srid']) if my_rec['srid'] else None
                     my_rec['type'] = my_rec['simple_type']
                     res.append(my_rec)
@@ -289,66 +258,49 @@ class MssqlConnector(DBConnector):
         return result
 
     def get_fields_info(self, table_name):
+        res = []
         # Get all fields for this table
-        if self.schema: 
-            fields_cur = self.conn.cursor()
-            
-            unit_field = ''
-            text_kind_field = ''
-            full_name_field = ''
-            column_alias = ''
-            unit_join = ''
-            text_kind_join = ''
-            disp_name_join = ''
-            full_name_join = ''
-            
+        if self.schema:
+            metadata_exists = self.metadata_exists()
+            ln = "\n"
+            stmt = ""
+
             # TODO description column is missing
-            if self.metadata_exists():
-                unit_field = 'unit.setting AS unit,'
-                text_kind_field = 'txttype.setting AS texttype,'
-                column_alias = 'alias.setting AS column_alias,'
-                full_name_field = 'full_name.iliname AS fully_qualified_name,'
-                unit_join = """                
-                LEFT JOIN {}.t_ili2db_column_prop unit ON c.table_name = unit.tablename
-                    AND c.column_name = unit.columnname
-                    AND unit.tag = 'ch.ehi.ili2db.unit'""".format(self.schema)
-                text_kind_join = """
-                LEFT JOIN {}.t_ili2db_column_prop txttype ON c.table_name = txttype.tablename
-                    AND c.column_name = txttype.columnname
-                    AND txttype.tag = 'ch.ehi.ili2db.textKind'""".format(self.schema)
-                disp_name_join = """
-                LEFT JOIN {}.t_ili2db_column_prop alias ON c.table_name = alias.tablename
-                    AND c.column_name = alias.columnname
-                    AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
-                full_name_join = """
-                LEFT JOIN {}.t_ili2db_attrname full_name ON full_name.owner='{}'
-                    AND c.column_name=full_name.sqlname""".format(self.schema, table_name)
-            
             # TODO Remove 'distinct' when issue 255 is solved
-            query = """
-                SELECT distinct c.column_name,
-                    case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type,
-                    c.numeric_scale,
-                    {unit_field}
-                    {text_kind_field}
-                    {column_alias}
-                    {full_name_field}
-                    '------' AS comment
-                FROM INFORMATION_SCHEMA.COLUMNS AS c
-                {unit_join}
-                {text_kind_join}
-                {disp_name_join}
-                {full_name_join}
-                WHERE TABLE_NAME = '{table}'
-                    AND TABLE_SCHEMA = '{schema}'
-                """.format(schema=self.schema, table=table_name, unit_field=unit_field,
-                            text_kind_field=text_kind_field, column_alias=column_alias,
-                            full_name_field=full_name_field,unit_join=unit_join, text_kind_join=text_kind_join,
-                            disp_name_join=disp_name_join,
-                            full_name_join=full_name_join)
-            fields_cur.execute(query)
-            res = self._get_dict_result(fields_cur)
-            return res
+            stmt += ln + "SELECT distinct "
+            stmt += ln + "     c.column_name"
+            stmt += ln + "    , case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type"
+            stmt += ln + "    , c.numeric_scale"
+            if metadata_exists:
+                stmt += ln + "    , unit.setting AS unit"
+                stmt += ln + "    , txttype.setting AS texttype"
+                stmt += ln + "    , alias.setting AS column_alias"
+                stmt += ln + "    , full_name.iliname AS fully_qualified_name"
+            stmt += ln + "    , null AS comment"
+            stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
+            if metadata_exists:
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop unit"
+                stmt += ln + "    ON c.table_name = unit.tablename"
+                stmt += ln + "    AND c.column_name = unit.columnname"
+                stmt += ln + "    AND unit.tag = 'ch.ehi.ili2db.unit'"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop txttype"
+                stmt += ln + "    ON c.table_name = txttype.tablename"
+                stmt += ln + "    AND c.column_name = txttype.columnname"
+                stmt += ln + "    AND txttype.tag = 'ch.ehi.ili2db.textKind'"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop alias"
+                stmt += ln + "    ON c.table_name = alias.tablename"
+                stmt += ln + "    AND c.column_name = alias.columnname"
+                stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
+                stmt += ln + "    ON full_name.owner='{table}'"
+                stmt += ln + "    AND c.column_name=full_name.sqlname"
+            stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
+            stmt = stmt.format(schema=self.schema, table=table_name)
+
+            cur = self.conn.cursor()
+            cur.execute(stmt)
+            res = self._get_dict_result(cur)
+        return res
 
     def get_constraints_info(self, table_name):
         result = {}
