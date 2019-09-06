@@ -348,8 +348,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         db_id = self.type_combo_box.currentData()
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
+        # Refresh panels
         for key, value in self._lst_panel.items():
-            value.setVisible(db_id == key)
+            value.interlis_mode = False
+            is_current_panel_selected = db_id == key
+            value.setVisible(is_current_panel_selected)
+            if is_current_panel_selected:
+                value._show_panel()
 
     def link_activated(self, link):
         if link.url() == '#configure':
