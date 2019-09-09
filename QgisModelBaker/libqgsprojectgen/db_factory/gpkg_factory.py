@@ -49,7 +49,7 @@ class GpkgFactory(DbFactory):
 
         :return: str ili2gpkg version.
         """
-        return '4.1.0'
+        return '4.2.0'
 
     def get_tool_url(self):
         """Returns download url of ili2gpkg.
