@@ -293,54 +293,10 @@ class GPKGConnector(DBConnector):
         cursor.close()
         return complete_records
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """TODO: remove when ili2db issue #19 is solved"""
-        # Map domain ili name with its correspondent pg name
-        cursor = self.conn.cursor()
-        names = "'" + "','".join(sqlnames) + "'"
-        cursor.execute("""SELECT iliname, sqlname
-                          FROM t_ili2db_classname
-                          WHERE sqlname IN ({names})
-                       """.format(names=names))
-        return cursor
-
     def get_models(self):
-        """TODO: remove when ili2db issue #19 is solved"""
         """Needed for exportmodels"""
         # Get MODELS
         cursor = self.conn.cursor()
         cursor.execute("""SELECT modelname, content
                           FROM t_ili2db_model """)
-        return cursor
-
-    def get_classili_classdb_mapping(self, models_info, extended_classes):
-        """TODO: remove when ili2db issue #19 is solved"""
-        cursor = self.conn.cursor()
-        class_names = "'" + \
-            "','".join(list(models_info.keys()) +
-                       list(extended_classes.keys())) + "'"
-        cursor.execute("""SELECT *
-                          FROM t_ili2db_classname
-                          WHERE iliname IN ({class_names})
-                       """.format(class_names=class_names))
-        return cursor
-
-    def get_attrili_attrdb_mapping(self, attrs_list):
-        """TODO: remove when ili2db issue #19 is solved"""
-        cursor = self.conn.cursor()
-        attr_names = "'" + "','".join(attrs_list) + "'"
-        cursor.execute("""SELECT iliname, sqlname, colowner
-                          FROM t_ili2db_attrname
-                          WHERE iliname IN ({attr_names})
-                       """.format(attr_names=attr_names))
-        return cursor
-
-    def get_attrili_attrdb_mapping_by_owner(self, owners):
-        """TODO: remove when ili2db issue #19 is solved"""
-        cursor = self.conn.cursor()
-        owner_names = "'" + "','".join(owners) + "'"
-        cursor.execute("""SELECT iliname, sqlname, colowner
-                          FROM t_ili2db_attrname
-                          WHERE colowner IN ({owner_names})
-                       """.format(owner_names=owner_names))
         return cursor

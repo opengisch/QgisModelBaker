@@ -357,70 +357,13 @@ class PGConnector(DBConnector):
 
         return []
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """TODO: remove when ili2db issue #19 is solved"""
-        # Map domain ili name with its correspondent pg name
-        if self.schema:
-            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            names = "'" + "','".join(sqlnames) + "'"
-            cur.execute("""SELECT iliname, sqlname
-                            FROM {schema}.t_ili2db_classname
-                            WHERE sqlname IN ({names})
-                        """.format(schema=self.schema, names=names))
-            return cur
-
-        return {}
-
     def get_models(self):
-        """TODO: remove when ili2db issue #19 is solved"""
-        """Needed for exportmodels"""
         # Get MODELS
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute("""SELECT modelname, content
                            FROM {schema}.t_ili2db_model
                         """.format(schema=self.schema))
-            return cur
-
-        return {}
-
-    def get_classili_classdb_mapping(self, models_info, extended_classes):
-        """TODO: remove when ili2db issue #19 is solved"""
-        if self.schema:
-            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            class_names = "'" + \
-                "','".join(list(models_info.keys()) +
-                           list(extended_classes.keys())) + "'"
-            cur.execute("""SELECT *
-                           FROM {schema}.t_ili2db_classname
-                           WHERE iliname IN ({class_names})
-                        """.format(schema=self.schema, class_names=class_names))
-            return cur
-
-        return {}
-
-    def get_attrili_attrdb_mapping(self, attrs_list):
-        """TODO: remove when ili2db issue #19 is solved"""
-        if self.schema:
-            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            attr_names = "'" + "','".join(attrs_list) + "'"
-            cur.execute("""SELECT iliname, sqlname, colowner
-                           FROM {schema}.t_ili2db_attrname
-                           WHERE iliname IN ({attr_names})
-                        """.format(schema=self.schema, attr_names=attr_names))
-            return cur
-
-        return {}
-
-    def get_attrili_attrdb_mapping_by_owner(self, owners):
-        """TODO: remove when ili2db issue #19 is solved"""
-        if self.schema:
-            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            owner_names = "'" + "','".join(owners) + "'"
-            cur.execute("""SELECT iliname, sqlname, colowner
-                           FROM {schema}.t_ili2db_attrname
-                           WHERE colowner IN ({owner_names})
-                        """.format(schema=self.schema, owner_names=owner_names))
             return cur
 
         return {}

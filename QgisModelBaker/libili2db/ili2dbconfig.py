@@ -194,6 +194,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createUnique"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
+        args += ["--createEnumTabsWithId"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
         args += ["--expandMultilingual"]
