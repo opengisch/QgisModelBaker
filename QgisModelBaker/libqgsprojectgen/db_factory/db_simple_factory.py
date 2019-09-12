@@ -19,6 +19,7 @@
 from .db_factory import DbFactory
 from .pg_factory import PgFactory
 from .gpkg_factory import GpkgFactory
+from .mssql_factory import MssqlFactory
 from QgisModelBaker.libili2db.globals import DbIliMode
 
 
@@ -26,7 +27,7 @@ class DbSimpleFactory:
     """Provides a single point (simple factory) to create a database factory (:class:`DbFactory`).
     """
 
-    _available_databases = [DbIliMode.pg, DbIliMode.gpkg]
+    _available_databases = [DbIliMode.pg, DbIliMode.gpkg, DbIliMode.mssql]
     _index_default_db = 0
 
     def create_factory(self, ili_mode: DbIliMode) -> DbFactory:
@@ -45,6 +46,8 @@ class DbSimpleFactory:
             result = PgFactory()
         elif ili_mode & DbIliMode.gpkg:
             result = GpkgFactory()
+        elif ili_mode & DbIliMode.mssql:
+            result = MssqlFactory()
 
         return result
 
@@ -77,3 +80,4 @@ class DbSimpleFactory:
         :rtype: :class:`DbIliMode`
         """
         return self._available_databases[self._index_default_db]
+

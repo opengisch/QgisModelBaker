@@ -86,6 +86,7 @@ class Generator:
             layer = Layer(layer_uri.provider,
                           layer_uri.get_data_source_uri(record),
                           record['tablename'],
+                          record['srid'],
                           record['extent'] if 'extent' in record else None,
                           record['geometry_column'],
                           QgsWkbTypes.parseType(
@@ -171,6 +172,8 @@ class Generator:
                         field.widget_config['display_format'] = dateTimeFormat
                     elif data_type == self._db_connector.QGIS_DATE_TYPE:
                         field.widget_config['display_format'] = dateFormat
+
+                db_factory.customize_widget_editor(field, data_type)
 
                 if 'default_value_expression' in fielddef:
                     field.default_value_expression = fielddef['default_value_expression']
