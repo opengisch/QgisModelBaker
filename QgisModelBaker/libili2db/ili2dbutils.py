@@ -193,7 +193,7 @@ def get_java_path(base_configuration):
             java_paths += ['java']
 
         version_output = None
-        java_version_re = re.compile(r'.*version "([0-9\.]+)_.*')
+        java_version_re = re.compile(r'.*version "([0-9\.]+).*')
         for java_path in java_paths:
             try:
                 startupinfo = None

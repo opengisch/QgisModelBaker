@@ -22,13 +22,10 @@ import re
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
-from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
-from ..dbconnector import pg_connector, gpkg_connector
-from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
 
@@ -202,13 +199,7 @@ class Generator:
                         relation.name = record['constraint_name']
                         relations.append(relation)
 
-        # TODO: Remove these 3 lines when
-        # https://github.com/claeis/ili2db/issues/19 is solved!
-        domain_relations_generator = DomainRelationGenerator(
-            self._db_connector, self.inheritance)
-        domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
-            layers)
-        relations = relations + domain_relations
+        bags_of_enum = {}
 
         return (relations, bags_of_enum)
 

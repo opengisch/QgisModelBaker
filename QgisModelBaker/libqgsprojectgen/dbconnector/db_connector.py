@@ -126,24 +126,7 @@ class DBConnector:
         '''
         return []
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """TODO: remove when ili2db issue #19 is solved"""
-        return {}
-
     def get_models(self):
-        """TODO: remove when ili2db issue #19 is solved"""
-        return {}
-
-    def get_classili_classdb_mapping(self, models_info, extended_classes):
-        """TODO: remove when ili2db issue #19 is solved"""
-        return {}
-
-    def get_attrili_attrdb_mapping(self, attrs_list):
-        """TODO: remove when ili2db issue #19 is solved"""
-        return {}
-
-    def get_attrili_attrdb_mapping_by_owner(self, owners):
-        """TODO: remove when ili2db issue #19 is solved"""
         return {}
 
 
