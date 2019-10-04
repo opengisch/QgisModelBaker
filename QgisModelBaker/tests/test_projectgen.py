@@ -86,19 +86,15 @@ class TestProjectGen(unittest.TestCase):
                                               'geo_lage_polygon',
                                               'inbetrieb',
                                               'ersteintrag',
-                                              'bemerkung_en',
-                                              'bemerkung_rm',
                                               'katasternummer',
-                                              'bemerkung_it',
                                               'nachsorge',
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_fr',
+                                              'bemerkung_lang',
                                               'standorttyp',
                                               'bemerkung',
-                                              'geo_lage_punkt',
-                                              'bemerkung_de']))
+                                              'geo_lage_punkt']))
 
                 # This might need to be adjusted if we get better names
                 self.assertEqual(tabs[1].name(), 'deponietyp_')
@@ -158,18 +154,14 @@ class TestProjectGen(unittest.TestCase):
                                               'geo_lage_polygon',
                                               'inbetrieb',
                                               'ersteintrag',
-                                              'bemerkung_en',
-                                              'bemerkung_rm',
                                               'katasternummer',
-                                              'bemerkung_it',
                                               'nachsorge',
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_fr',
+                                              'bemerkung_lang',
                                               'standorttyp',
-                                              'bemerkung',
-                                              'bemerkung_de']))
+                                              'bemerkung']))
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',

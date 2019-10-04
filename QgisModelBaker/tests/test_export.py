@@ -48,7 +48,7 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;another;ISO19107_V1_MAGNABOG'
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
@@ -94,7 +94,7 @@ class TestExport(unittest.TestCase):
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool,
                                                     'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
@@ -108,7 +108,7 @@ class TestExport(unittest.TestCase):
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+        dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
@@ -121,7 +121,7 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2pg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         exporter.configuration.dbschema = importer.configuration.dbschema
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')

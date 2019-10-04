@@ -35,6 +35,8 @@ class TestCustomDump(unittest.TestCase):
     def test_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
         myenv['PGPASSWORD'] = 'docker'
+
+        call(["psql", "-Fc", "-Fc", "-hpostgres", "-Udocker", "-dgis", "--command=CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""], env=myenv)
         call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/_nupla_dump")], env=myenv)
 
         generator = Generator(DbIliMode.ili2pg,
