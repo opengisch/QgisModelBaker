@@ -58,6 +58,20 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
+    def test_ili2db4_export_geopackage(self):
+        exporter = iliexporter.Exporter()
+        exporter.tool = DbIliMode.ili2gpkg
+        exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_ili2db4_export.gpkg')
+        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;another;ISO19107_V1_MAGNABOG'
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
+        exporter.stdout.connect(self.print_info)
+        exporter.stderr.connect(self.print_error)
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
+
     def _test_export_postgis_empty_schema(self):
         # This test passes without --createBasketCol option in schemaimport
         # First we need a dbfile with empty tables
@@ -131,6 +145,50 @@ class TestExport(unittest.TestCase):
         self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+
+    def test_ili2db4_export_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool,
+                                                    'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2pg
+        dataImporter.configuration = ilidataimporter_config(
+            dataImporter.tool, 'ilimodels/CIAF_LADM')
+        dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_ili2db4_ciaf_ladm.xtf')
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        self.assertEqual(dataImporter.run(),
+                         iliimporter.Importer.SUCCESS)
+
+        # Export
+        exporter = iliexporter.Exporter()
+        exporter.tool = DbIliMode.ili2pg
+        exporter.configuration = iliexporter_config(exporter.tool)
+        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+        exporter.configuration.dbschema = importer.configuration.dbschema
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
+        exporter.stdout.connect(self.print_info)
+        exporter.stderr.connect(self.print_error)
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         logging.info(text)

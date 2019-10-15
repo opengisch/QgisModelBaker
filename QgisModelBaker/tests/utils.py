@@ -43,7 +43,7 @@ def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
     return configuration
 
 
-def iliexporter_config(tool=DbIliMode.ili2pg, modeldir=None):
+def iliexporter_config(tool=DbIliMode.ili2pg, modeldir=None, gpkg_path='geopackage/test_export.gpkg'):
     base_config = BaseConfiguration()
     if modeldir is None:
         base_config.custom_model_directories_enabled = False
@@ -58,7 +58,7 @@ def iliexporter_config(tool=DbIliMode.ili2pg, modeldir=None):
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
     elif tool == DbIliMode.ili2gpkg:
-        configuration.dbfile = testdata_path('geopackage/test_export.gpkg')
+        configuration.dbfile = testdata_path(gpkg_path)
     configuration.base_configuration = base_config
 
     return configuration
