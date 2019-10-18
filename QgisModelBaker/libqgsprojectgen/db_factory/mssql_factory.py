@@ -45,7 +45,7 @@ class MssqlFactory(DbFactory):
         return True, ''
 
     def get_tool_version(self):
-        return '3.12.2'
+        return '4.3.0'
 
     def get_tool_url(self):
         return 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(self.get_tool_version())
