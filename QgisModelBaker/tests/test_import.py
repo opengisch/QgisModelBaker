@@ -223,13 +223,13 @@ class TestImport(unittest.TestCase):
         # Expected predio data
         cursor = conn.cursor()
         cursor.execute("""
-                SELECT tipo, geometria.STAsText(), geometria.STSrid, t_id
-                FROM {}.Predio
-            """.format(importer.configuration.dbschema))
+                SELECT ut.iliCode as tipo, geometria.STAsText(), geometria.STSrid, p.t_id
+                FROM {schema}.Predio as p INNER JOIN {schema}.LA_BAUnitTipo as ut on p.tipo=ut.T_Id
+            """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Unidad_Derecho')
-        self.assertEqual(record[1], 'POLYGON ((1000257.4255576647 1002020.3757097842, 1000437.6884391493 1002196.4946169816, 1000275.4718973016 1002428.1895664315, 1000072.2500615012 1002291.538672403, 1000158.571719431 1002164.9135226171, 1000159.9415303215 1002163.1279974865, 1000257.4255576647 1002020.3757097842))')
+        self.assertEqual(record[1], 'POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))')
         self.assertEqual(record[2], 3116)
         predio_id = record[3]
 
@@ -248,9 +248,10 @@ class TestImport(unittest.TestCase):
         # Expected derecho data
         cursor = conn.cursor()
         cursor.execute("""
-                SELECT tipo, interesado, unidad
-                FROM {}.derecho
-            """.format(importer.configuration.dbschema))
+                SELECT dt.iliCode as tipo, interesado, unidad
+                FROM {schema}.derecho as d INNER JOIN {schema}.COL_DerechoTipo as dt
+                on dt.T_id=d.tipo
+            """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Posesion')
