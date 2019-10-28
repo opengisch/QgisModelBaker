@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 import re
+import sys
 
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
@@ -28,11 +29,15 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class Generator:
+class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+    stdout = pyqtSignal(str)
+
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
+        QObject.__init__(self, parent)
         self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
@@ -42,6 +47,10 @@ class Generator:
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
+        self._db_connector.stdout.connect(self.print_info)
+
+    def print_info(self, text):
+        self.stdout.emit(text)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()

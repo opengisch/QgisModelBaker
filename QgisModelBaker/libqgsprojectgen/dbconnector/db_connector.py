@@ -17,11 +17,14 @@
  ***************************************************************************/
 """
 
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class DBConnector:
+class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
+    stdout = pyqtSignal(str)
 
-    def __init__(self, uri, schema):
+    def __init__(self, uri, schema, parent=None):
+        QObject.__init__(self, parent)
         self.QGIS_DATE_TYPE = 'date'
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'

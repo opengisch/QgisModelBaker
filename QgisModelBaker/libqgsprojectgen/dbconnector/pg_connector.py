@@ -26,7 +26,6 @@ from .db_connector import DBConnector, DBConnectorError
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 
-
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
 
@@ -307,6 +306,7 @@ class PGConnector(DBConnector):
             try:
                 fields_cur.execute(self._get_fields_command(table_name ))
             except psycopg2.ProgrammingError as e:
+                self.stdout.emit("Generating project from DB schema created by ili2db V3.")
                 self.conn.rollback()
                 fields_cur.execute(self._get_fields_command(table_name, True))
             return fields_cur
