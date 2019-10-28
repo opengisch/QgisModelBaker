@@ -49,13 +49,23 @@ class Generator(QObject):
         db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
         self._db_connector.stdout.connect(self.print_info)
-        self._db_connector.new_message.connect(self.print_message)
+        self._db_connector.new_message.connect(self.append_print_message)
+
+        self.collected_print_messages = []
 
     def print_info(self, text):
         self.stdout.emit(text)
 
-    def print_message(self, level, text):
-        self.new_message.emit(level, text)
+    def print_messages(self):
+        for message in self.collected_print_messages:
+            self.new_message.emit(message["level"], message["text"])
+        self.collected_print_messages.clear()
+
+    def append_print_message(self, level, text):
+        message = {'level': level, 'text': text}
+
+        if message not in self.collected_print_messages:
+          self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
@@ -189,6 +199,8 @@ class Generator(QObject):
                 layer.fields.append(field)
 
             layers.append(layer)
+
+        self.print_messages()
 
         return layers
 

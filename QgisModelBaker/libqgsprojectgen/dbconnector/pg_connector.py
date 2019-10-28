@@ -307,8 +307,7 @@ class PGConnector(DBConnector):
             try:
                 fields_cur.execute(self._get_fields_command(table_name ))
             except psycopg2.ProgrammingError as e:
-                self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3."
-                                      "It's preferable to use Version 4.")
+                self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
                 self.conn.rollback()
                 fields_cur.execute(self._get_fields_command(table_name, True))
             return fields_cur
