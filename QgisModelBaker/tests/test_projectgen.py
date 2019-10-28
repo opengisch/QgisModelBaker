@@ -114,6 +114,72 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
+    def test_ili2db4_kbs_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+                belasteter_standort_punkt_layer = layer
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                fields = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(fields, set(['letzteanpassung',
+                                              'zustaendigkeitkataster',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'katasternummer',
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'bemerkung_lang',
+                                              'standorttyp',
+                                              'bemerkung',
+                                              'geo_lage_punkt']))
+
+                # This might need to be adjusted if we get better names
+                self.assertEqual(tabs[1].name(), 'deponietyp_')
+
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                belasteter_standort_polygon_layer = layer
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(available_layers), 16)
+
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+
     def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
@@ -170,6 +236,93 @@ class TestProjectGen(unittest.TestCase):
                                               'standorttyp',
                                               'bemerkung',
                                               'bemerkung_de']))
+
+                tab_list = [tab.name() for tab in tabs]
+                expected_tab_list = ['General',
+                                     'parzellenidentifikation',
+                                     'belasteter_standort_geo_lage_punkt',
+                                     'egrid_',
+                                     'deponietyp_',
+                                     'untersmassn_']
+                self.assertEqual(set(tab_list), set(expected_tab_list))
+
+                for tab in tabs:
+                    if len(tab.findElements(tab.AeTypeRelation)) == 0:
+                        self.assertEqual(tab.columnCount(), 2)
+                    else:
+                        self.assertEqual(tab.columnCount(), 1)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(set(['statusaltlv',
+                              'multilingualtext',
+                              'untersmassn',
+                              'multilingualmtext',
+                              'languagecode_iso639_1',
+                              'deponietyp',
+                              'zustaendigkeitkataster',
+                              'standorttyp',
+                              'localisedtext',
+                              'localisedmtext',
+                              'belasteter_standort',
+                              'deponietyp_',
+                              'egrid_',
+                              'untersmassn_',
+                              'parzellenidentifikation',
+                              'belasteter_standort_geo_lage_punkt']),
+                         set([layer.name for layer in available_layers]))
+
+    def test_ili2db4_kbs_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg.gpkg')
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort':  # Polygon
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                fields = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(fields, set(['letzteanpassung',
+                                              'zustaendigkeitkataster',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'katasternummer',
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'bemerkung_lang',
+                                              'standorttyp',
+                                              'bemerkung']))
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
