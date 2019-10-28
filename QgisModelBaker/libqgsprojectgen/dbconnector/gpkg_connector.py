@@ -308,3 +308,6 @@ class GPKGConnector(DBConnector):
         cursor.execute("""SELECT modelname, content
                           FROM t_ili2db_model """)
         return cursor
+
+    def version3(self):
+        return False

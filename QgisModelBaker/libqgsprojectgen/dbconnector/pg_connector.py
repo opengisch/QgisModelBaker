@@ -376,3 +376,13 @@ class PGConnector(DBConnector):
             return cur
 
         return {}
+
+    def version3(self):
+        cur = self.conn.cursor()
+        cur.execute("""SELECT *
+                       FROM information_schema.columns
+                       WHERE table_schema = '{schema}'
+                       AND(table_name='t_ili2db_attrname' OR table_name = 't_ili2db_model' )
+                       AND(column_name='owner' OR column_name = 'file' )
+                    """.format(schema=self.schema))
+        return cur.rowcount > 1

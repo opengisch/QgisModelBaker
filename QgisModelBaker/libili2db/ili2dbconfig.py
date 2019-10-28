@@ -152,7 +152,10 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
             args += ["--disableValidation"]
 
         if self.iliexportmodels:
-            args += ['--exportModels', self.iliexportmodels]
+            args += ["--exportModels", self.iliexportmodels]
+
+        if self.version3:
+            args += ["--export3"]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 

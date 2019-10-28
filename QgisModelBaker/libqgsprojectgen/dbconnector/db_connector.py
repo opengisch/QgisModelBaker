@@ -134,6 +134,9 @@ class DBConnector(QObject):
     def get_models(self):
         return {}
 
+    def version3(self):
+        return False
+
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.
