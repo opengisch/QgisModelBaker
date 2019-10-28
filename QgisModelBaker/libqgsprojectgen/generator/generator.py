@@ -35,6 +35,7 @@ class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
     stdout = pyqtSignal(str)
+    new_message = pyqtSignal(int, str)
 
     def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
         QObject.__init__(self, parent)
@@ -48,9 +49,13 @@ class Generator(QObject):
         db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
         self._db_connector.stdout.connect(self.print_info)
+        self._db_connector.new_message.connect(self.print_message)
 
     def print_info(self, text):
         self.stdout.emit(text)
+
+    def print_message(self, level, text):
+        self.new_message.emit(level, text)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()

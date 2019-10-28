@@ -232,6 +232,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 uri = config_manager.get_uri()
                 generator = Generator(configuration.tool, uri,
                                       configuration.inheritance, configuration.dbschema)
+                generator.stdout.connect(self.print_info)
+                generator.new_message.connect(self.show_message)
                 self.progress_bar.setValue(50)
             except DBConnectorError:
                 self.txtStdout.setText(
@@ -260,7 +262,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.print_info(
                 self.tr('\nObtaining available layers from the database…'))
-            generator.stdout.connect(self.print_info)
             available_layers = generator.layers()
 
             if not available_layers:
