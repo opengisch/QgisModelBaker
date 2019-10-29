@@ -314,14 +314,12 @@ class GPKGConnector(DBConnector):
         cursor.execute("""PRAGMA table_info(t_ili2db_attrname)""")
         table_info = cursor.fetchall()
         result = 0
-        for table_record in table_info:
-            if table_record['Owner'] > 0:
+        for column_info in table_info:
+            if column_info[1] == 'Owner':
                 result += 1
         cursor.execute("""PRAGMA table_info(t_ili2db_model)""")
         table_info = cursor.fetchall()
-        result = 0
-        for table_record in table_info:
-            if table_record['file'] > 0:
+        for column_info in table_info:
+            if column_info[1] == 'file':
                 result += 1
-
         return result > 1
