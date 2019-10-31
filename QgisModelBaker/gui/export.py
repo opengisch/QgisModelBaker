@@ -205,7 +205,10 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.export_models_model.refresh_models(db_connector)
 
-    def check_db_version(self, configuration):
+    def db_ili_version(self, configuration):
+        """
+        Returns the ili2db version the database has been created with
+        """
         schema = configuration.dbschema
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
@@ -216,9 +219,9 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
-            return db_connector.version3()
+            return db_connector.ili_version()
         except DBConnectorError:
-            False
+            return None
 
     def button_box_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
@@ -371,7 +374,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
         configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
-        configuration.version3 = self.check_db_version(configuration)
+        configuration.dbiliversion = self.db_ili_version(configuration)
 
         if not self.validate_data:
             configuration.disable_validation = True

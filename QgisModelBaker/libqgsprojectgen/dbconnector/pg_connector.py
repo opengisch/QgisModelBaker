@@ -272,12 +272,11 @@ class PGConnector(DBConnector):
                                                         ON c.table_name=alias.tablename AND
                                                         c.column_name=alias.columnname AND
                                                         alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
-
                 full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
                                                             ON full_name.{}='{}' AND
                                                             c.column_name=full_name.sqlname
                                                             """.format(self.schema,
-                                                                       "owner" if self.version3() else "colowner",
+                                                                       "owner" if self.ili_version() == 3 else "colowner",
                                                                        table_name)
                 fields_cur.execute("""
                     SELECT DISTINCT
@@ -371,7 +370,7 @@ class PGConnector(DBConnector):
 
         return {}
 
-    def version3(self):
+    def ili_version(self):
         cur = self.conn.cursor()
         cur.execute("""SELECT *
                        FROM information_schema.columns
@@ -381,6 +380,6 @@ class PGConnector(DBConnector):
                     """.format(schema=self.schema))
         if cur.rowcount > 1:
             self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
-            return True
+            return 3
         else:
-            return False
+            return 4

@@ -200,7 +200,7 @@ class GPKGConnector(DBConnector):
             columns_prop = cursor.fetchall()
 
         if self.metadata_exists():
-            if self.version3():
+            if self.ili_version() == 3:
                 cursor.execute("""
                     SELECT SqlName, IliName
                     FROM t_ili2db_attrname
@@ -308,7 +308,7 @@ class GPKGConnector(DBConnector):
                           FROM t_ili2db_model """)
         return cursor
 
-    def version3(self):
+    def ili_version(self):
         cursor = self.conn.cursor()
         cursor.execute("""PRAGMA table_info(t_ili2db_attrname)""")
         table_info = cursor.fetchall()
@@ -323,6 +323,6 @@ class GPKGConnector(DBConnector):
                 result += 1
         if result > 1:
             self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
-            return True
+            return 3
         else:
-            return False
+            return 4

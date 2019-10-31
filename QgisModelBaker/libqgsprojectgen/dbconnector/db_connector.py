@@ -134,8 +134,11 @@ class DBConnector(QObject):
     def get_models(self):
         return {}
 
-    def version3(self):
-        return False
+    def ili_version(self):
+        """
+        Returns the version of the ili2db application that was used to create the schema
+        """
+        return None
 
 
 class DBConnectorError(Exception):
