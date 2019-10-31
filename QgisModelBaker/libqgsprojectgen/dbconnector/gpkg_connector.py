@@ -200,18 +200,17 @@ class GPKGConnector(DBConnector):
             columns_prop = cursor.fetchall()
 
         if self.metadata_exists():
-            try:
-                cursor.execute("""
-                    SELECT SqlName, IliName
-                    FROM t_ili2db_attrname
-                    WHERE colowner = '{}'
-                    """.format(table_name))
-            except sqlite3.OperationalError as e:
-                self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            if self.version3():
                 cursor.execute("""
                     SELECT SqlName, IliName
                     FROM t_ili2db_attrname
                     WHERE owner = '{}'
+                    """.format(table_name))
+            else:
+                cursor.execute("""
+                    SELECT SqlName, IliName
+                    FROM t_ili2db_attrname
+                    WHERE colowner = '{}'
                     """.format(table_name))
             columns_full_name = cursor.fetchall()
 
@@ -322,4 +321,8 @@ class GPKGConnector(DBConnector):
         for column_info in table_info:
             if column_info[1] == 'file':
                 result += 1
-        return result > 1
+        if result > 1:
+            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            return True
+        else:
+            return False
