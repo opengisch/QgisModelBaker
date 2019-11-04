@@ -45,13 +45,12 @@ class GpkgFactory(DbFactory):
         return True, ''
 
     def get_tool_version(self, db_ili_version):
-        """Returns ili2gpkg version.
+        """Returns ili2gpkg version, regarding to the given version of the used database
 
         :return: str ili2gpkg version.
         """
-        return '4.2.0'
         if db_ili_version == 3:
-            return '3.11.2'
+            return '3.11.3'
         else:
             return '4.2.0'
 

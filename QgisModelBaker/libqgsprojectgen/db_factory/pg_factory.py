@@ -79,7 +79,7 @@ class PgFactory(DbFactory):
         return result, message
 
     def get_tool_version(self, db_ili_version):
-        """Returns ili2pg version.
+        """Returns ili2pg version, regarding to the given version of the used database
 
         :return: str ili2pg version.
         """

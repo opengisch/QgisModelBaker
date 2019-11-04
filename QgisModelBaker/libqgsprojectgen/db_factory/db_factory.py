@@ -96,7 +96,7 @@ class DbFactory(ABC):
 
     @abstractmethod
     def get_tool_version(self, db_ili_version):
-        """Returns the version of ili2db implementation.
+        """Returns the version of ili2db implementation, regarding to the given version of the used database
 
         :return: str ili2db version.
         """
