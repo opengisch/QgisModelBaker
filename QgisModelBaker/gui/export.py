@@ -207,7 +207,8 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def db_ili_version(self, configuration):
         """
-        Returns the ili2db version the database has been created with
+        Returns the ili2db version the database has been created with or None if the database
+        could not be detected as a ili2db database
         """
         schema = configuration.dbschema
 
