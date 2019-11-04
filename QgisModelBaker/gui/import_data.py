@@ -265,6 +265,25 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                 self.buttonBox.removeButton(button)
                 self.validate_data = True
 
+    def db_ili_version(self, configuration):
+        """
+        Returns the ili2db version the database has been created with or None if the database
+        could not be detected as a ili2db database
+        """
+        schema = configuration.dbschema
+
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri()
+
+        db_connector = None
+
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+            return db_connector.ili_version()
+        except DBConnectorError:
+            return None
+
     def updated_configuration(self):
         """
         Get the configuration that is updated with the user configuration changes on the dialog.
@@ -284,6 +303,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
         configuration.base_configuration = self.base_configuration
+        configuration.db_ili_version = self.db_ili_version(configuration)
 
         if not self.validate_data:
             configuration.disable_validation = True
