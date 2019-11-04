@@ -45,7 +45,9 @@ from qgis.PyQt.QtGui import (
 from qgis.PyQt.QtWidgets import (
     QDialog,
     QDialogButtonBox,
-    QCompleter
+    QCompleter,
+    QSizePolicy,
+    QGridLayout
 )
 from qgis.PyQt.QtCore import (
     QCoreApplication,
@@ -58,7 +60,13 @@ from ..libili2db import (
     iliimporter,
     ili2dbconfig
 )
-from qgis.gui import QgsGui
+
+from qgis.gui import (
+    QgsMessageBar,
+    QgsGui
+)
+
+from qgis.core import Qgis
 
 DIALOG_UI = get_ui_class('import_data.ui')
 
@@ -134,6 +142,12 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.ilicache = IliCache(base_config, ilifile or None)
         self.update_models_completer()
         self.ilicache.refresh()
+
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.txtStdout.setLayout(QGridLayout())
+        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
+        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
 
     def button_box_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
@@ -216,6 +230,12 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
 
+    def show_message(self, level, message):
+        if level == Qgis.Warning:
+            self.bar.pushMessage(message, Qgis.Info, 10)
+        elif level == Qgis.Critical:
+            self.bar.pushMessage(message, Qgis.Warning, 10)
+
     def on_process_started(self, command):
         self.disable()
         self.txtStdout.setTextColor(QColor('#000000'))
@@ -280,6 +300,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
+            db_connector.new_message.connect(self.show_message)
             return db_connector.ili_version()
         except DBConnectorError:
             return None
