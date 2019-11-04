@@ -375,7 +375,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
         configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
-        configuration.dbiliversion = self.db_ili_version(configuration)
+        configuration.db_ili_version = self.db_ili_version(configuration)
 
         if not self.validate_data:
             configuration.disable_validation = True
