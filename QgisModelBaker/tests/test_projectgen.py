@@ -51,6 +51,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
+        importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
@@ -190,6 +191,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
+        importer.configuration.db_ili_version = 3
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
