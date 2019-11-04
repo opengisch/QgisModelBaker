@@ -52,6 +52,7 @@ class TestExport(unittest.TestCase):
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
         exporter.configuration.xtffile = obtained_xtf_path
+        exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
@@ -113,6 +114,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
@@ -126,6 +128,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
+        importer.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
