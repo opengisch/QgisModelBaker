@@ -44,7 +44,7 @@ class TestProjectGen(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
-    def test_kbs_postgis(self):
+    def test_ili2db3_kbs_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
@@ -115,7 +115,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
-    def test_ili2db4_kbs_postgis(self):
+    def test_kbs_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
@@ -181,7 +181,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
-    def test_kbs_geopackage(self):
+    def test_ili2db3_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
@@ -274,7 +274,7 @@ class TestProjectGen(unittest.TestCase):
                               'belasteter_standort_geo_lage_punkt']),
                          set([layer.name for layer in available_layers]))
 
-    def test_ili2db4_kbs_geopackage(self):
+    def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)

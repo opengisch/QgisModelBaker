@@ -44,7 +44,7 @@ class TestExport(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
-    def test_export_geopackage(self):
+    def test_ili2db3_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
         exporter.configuration = iliexporter_config(exporter.tool)
@@ -59,7 +59,7 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    def test_ili2db4_export_geopackage(self):
+    def test_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
         exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_ili2db4_export.gpkg')
@@ -103,7 +103,7 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    def test_export_postgis(self):
+    def test_ili2db3_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -150,7 +150,7 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    def test_ili2db4_export_postgis(self):
+    def test_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
