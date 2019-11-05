@@ -187,7 +187,8 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -279,7 +280,8 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
