@@ -131,6 +131,22 @@ class DBConnector(QObject):
         '''
         return []
 
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """Used for ili2db version 3 relation creation"""
+        return {}
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """Used for ili2db version 3"""
+        return {}
+
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """Used for ili2db version 3"""
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """Used for ili2db version 3"""
+        return {}
+
     def get_models(self):
         return {}
 
