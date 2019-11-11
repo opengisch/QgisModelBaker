@@ -61,7 +61,7 @@ class Importer(QObject):
             self.configuration = SchemaImportConfiguration()
         self.encoding = locale.getlocale()[1]
 
-        # Let's python try to determine the default locale
+        # Lets python try to determine the default locale
         if not self.encoding:
             self.encoding = locale.getdefaultlocale()[1]
 
