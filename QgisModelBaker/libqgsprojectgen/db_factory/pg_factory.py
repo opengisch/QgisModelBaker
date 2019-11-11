@@ -83,7 +83,7 @@ class PgFactory(DbFactory):
 
         :return: str ili2pg version.
         """
-        return '4.2.0'
+        return '4.3.2'
 
     def get_tool_url(self):
         """Returns download url of ili2pg.
