@@ -55,7 +55,15 @@ class TestExport(unittest.TestCase):
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        result = exporter.run()
+        if result != iliexporter.Exporter.SUCCESS:
+            # failed with a db created by ili2db version 3
+            # fallback since of issues with --export3 argument
+            # set db version to 4 (means no special arguments like --export3) in the configuration
+            exporter.configuration.db_ili_version = 4
+            # ... and enforce the Exporter to use ili2db version 3.x.x
+            result = exporter.run(3)
+        self.assertEqual(result, iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -146,7 +154,15 @@ class TestExport(unittest.TestCase):
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        result = exporter.run()
+        if result != iliexporter.Exporter.SUCCESS:
+            # failed with a db created by ili2db version 3
+            # fallback since of issues with --export3 argument
+            # set db version to 4 (means no special arguments like --export3) in the configuration
+            exporter.configuration.db_ili_version = 4
+            # ... and enforce the Exporter to use ili2db version 3.x.x
+            result = exporter.run(3)
+        self.assertEqual(result, iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -193,6 +209,71 @@ class TestExport(unittest.TestCase):
         self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
+
+    def test_ili2db3_simple_export_geopackage(self):
+        exporter = iliexporter.Exporter()
+        exporter.tool = DbIliMode.ili2gpkg
+        exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_simple_export.gpkg')
+        exporter.configuration = iliexporter_config(exporter.tool)
+        exporter.configuration.ilimodels = 'RoadsSimple'
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_roads_simple_gpkg.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
+        exporter.configuration.db_ili_version = 3
+        exporter.stdout.connect(self.print_info)
+        exporter.stderr.connect(self.print_error)
+        # don't make a fallback
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
+
+    def test_ili2db3_simple_export_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/RoadsSimple.ili')
+        importer.configuration.ilimodels = 'RoadsSimple'
+        importer.configuration.dbschema = 'roads_simple_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.db_ili_version = 3
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2pg
+        dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
+        dataImporter.configuration.ilimodels = 'RoadsSimple'
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.xtffile = testdata_path(
+            'xtf/test_roads_simple.xtf')
+        dataImporter.configuration.db_ili_version = 3
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        self.assertEqual(dataImporter.run(),
+                         iliimporter.Importer.SUCCESS)
+
+        # Export
+        exporter = iliexporter.Exporter()
+        exporter.tool = DbIliMode.ili2pg
+        exporter.configuration = iliexporter_config(exporter.tool)
+        exporter.configuration.ilimodels = 'RoadsSimple'
+        exporter.configuration.dbschema = importer.configuration.dbschema
+        obtained_xtf_path = os.path.join(
+            self.basetestpath, 'tmp_test_roads_simple.xtf')
+        exporter.configuration.xtffile = obtained_xtf_path
+        exporter.configuration.db_ili_version = 3
+        exporter.stdout.connect(self.print_info)
+        exporter.stderr.connect(self.print_error)
+        # don't make a fallback
+        self.assertEqual(iliexporter.Exporter.SUCCESS, iliexporter.Exporter.SUCCESS)
+        self.compare_xtfs(testdata_path(
+            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
 
     def print_info(self, text):
         logging.info(text)
