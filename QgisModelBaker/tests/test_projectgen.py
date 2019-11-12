@@ -162,9 +162,13 @@ class TestProjectGen(unittest.TestCase):
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_lang',
                                               'standorttyp',
                                               'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en',
                                               'geo_lage_punkt']))
 
                 # This might need to be adjusted if we get better names
@@ -324,9 +328,13 @@ class TestProjectGen(unittest.TestCase):
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_lang',
                                               'standorttyp',
-                                              'bemerkung']))
+                                              'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en']))
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
