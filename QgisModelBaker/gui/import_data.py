@@ -65,8 +65,9 @@ DIALOG_UI = get_ui_class('import_data.ui')
 
 class ImportDataDialog(QDialog, DIALOG_UI):
 
-    def __init__(self, base_config, parent=None):
+    def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
+        self.iface = iface
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.db_simple_factory = DbSimpleFactory()
@@ -206,6 +207,15 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
             self.progress_bar.setValue(100)
+
+            self.refresh_layers()
+
+    def refresh_layers(self):
+        # refresh layers
+        for layer in self.iface.mapCanvas().layers():
+            layer.setDataSource(layer.source(), layer.name(), layer.providerType())
+            self.iface.layerTreeView().setCurrentLayer(layer)
+        self.iface.layerTreeView().setCurrentLayer(None)
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
