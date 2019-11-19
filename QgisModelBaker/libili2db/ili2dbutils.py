@@ -25,6 +25,8 @@ import platform
 import re
 import subprocess
 
+from packaging import version
+
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
@@ -50,9 +52,10 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     ili2db_dir = '{}-{}'.format(tool_name, ili_tool_version)
 
-    if db_ili_version == 3:
-         ili2db_file = os.path.join( dir_path, 'bin', ili2db_dir, '{tool}-{version}/{tool}.jar'
-                                     .format(tool=tool_name, version=ili_tool_version))
+    # the structure changed since 3.12.2
+    if version.Version(ili_tool_version) < version.Version('3.12.2'):
+        ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}/{tool}.jar'
+                                   .format(tool=tool_name, version=ili_tool_version))
     else:
         ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}.jar'
                                    .format(tool=tool_name, version=ili_tool_version))
