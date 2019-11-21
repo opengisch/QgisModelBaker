@@ -200,11 +200,18 @@ class GPKGConnector(DBConnector):
             columns_prop = cursor.fetchall()
 
         if self.metadata_exists():
-            cursor.execute("""
-                SELECT SqlName, IliName
-                FROM t_ili2db_attrname
-                WHERE colowner = '{}'
-                """.format(table_name))
+            if self.ili_version() == 3:
+                cursor.execute("""
+                    SELECT SqlName, IliName
+                    FROM t_ili2db_attrname
+                    WHERE owner = '{}'
+                    """.format(table_name))
+            else:
+                cursor.execute("""
+                    SELECT SqlName, IliName
+                    FROM t_ili2db_attrname
+                    WHERE colowner = '{}'
+                    """.format(table_name))
             columns_full_name = cursor.fetchall()
 
         complete_records = list()
@@ -293,6 +300,49 @@ class GPKGConnector(DBConnector):
         cursor.close()
         return complete_records
 
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """Used for ili2db version 3 relation creation"""
+        # Map domain ili name with its correspondent pg name
+        cursor = self.conn.cursor()
+        names = "'" + "','".join(sqlnames) + "'"
+        cursor.execute("""SELECT iliname, sqlname
+                          FROM t_ili2db_classname
+                          WHERE sqlname IN ({names})
+                       """.format(names=names))
+        return cursor
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """Used for ili2db version 3 relation creation"""
+        cursor = self.conn.cursor()
+        class_names = "'" + \
+                      "','".join(list(models_info.keys()) +
+                                 list(extended_classes.keys())) + "'"
+        cursor.execute("""SELECT *
+                           FROM t_ili2db_classname
+                           WHERE iliname IN ({class_names})
+                        """.format(class_names=class_names))
+        return cursor
+
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """Used for ili2db version 3 relation creation"""
+        cursor = self.conn.cursor()
+        attr_names = "'" + "','".join(attrs_list) + "'"
+        cursor.execute("""SELECT iliname, sqlname, owner
+                           FROM t_ili2db_attrname
+                           WHERE iliname IN ({attr_names})
+                        """.format(attr_names=attr_names))
+        return cursor
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """Used for ili2db version 3 relation creation"""
+        cursor = self.conn.cursor()
+        owner_names = "'" + "','".join(owners) + "'"
+        cursor.execute("""SELECT iliname, sqlname, owner
+                           FROM t_ili2db_attrname
+                           WHERE owner IN ({owner_names})
+                        """.format(owner_names=owner_names))
+        return cursor
+
     def get_models(self):
         """Needed for exportmodels"""
         # Get MODELS
@@ -300,3 +350,22 @@ class GPKGConnector(DBConnector):
         cursor.execute("""SELECT modelname, content
                           FROM t_ili2db_model """)
         return cursor
+
+    def ili_version(self):
+        cursor = self.conn.cursor()
+        cursor.execute("""PRAGMA table_info(t_ili2db_attrname)""")
+        table_info = cursor.fetchall()
+        result = 0
+        for column_info in table_info:
+            if column_info[1] == 'Owner':
+                result += 1
+        cursor.execute("""PRAGMA table_info(t_ili2db_model)""")
+        table_info = cursor.fetchall()
+        for column_info in table_info:
+            if column_info[1] == 'file':
+                result += 1
+        if result > 1:
+            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            return 3
+        else:
+            return 4

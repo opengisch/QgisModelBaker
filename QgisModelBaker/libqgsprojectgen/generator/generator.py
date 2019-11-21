@@ -18,21 +18,30 @@
  ***************************************************************************/
 """
 import re
+import sys
 
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
+from ..dbconnector import pg_connector, gpkg_connector
+from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class Generator:
+class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+    stdout = pyqtSignal(str)
+    new_message = pyqtSignal(int, str)
+
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
+        QObject.__init__(self, parent)
         self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
@@ -42,6 +51,24 @@ class Generator:
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
+        self._db_connector.stdout.connect(self.print_info)
+        self._db_connector.new_message.connect(self.append_print_message)
+
+        self.collected_print_messages = []
+
+    def print_info(self, text):
+        self.stdout.emit(text)
+
+    def print_messages(self):
+        for message in self.collected_print_messages:
+            self.new_message.emit(message["level"], message["text"])
+        self.collected_print_messages.clear()
+
+    def append_print_message(self, level, text):
+        message = {'level': level, 'text': text}
+
+        if message not in self.collected_print_messages:
+          self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
@@ -176,6 +203,8 @@ class Generator:
 
             layers.append(layer)
 
+        self.print_messages()
+
         return layers
 
     def relations(self, layers, filter_layer_list=[]):
@@ -199,7 +228,15 @@ class Generator:
                         relation.name = record['constraint_name']
                         relations.append(relation)
 
-        bags_of_enum = {}
+        if self._db_connector.ili_version() == 3:
+            """Used for ili2db version 3 relation creation"""
+            domain_relations_generator = DomainRelationGenerator(
+                self._db_connector, self.inheritance)
+            domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
+                layers)
+            relations = relations + domain_relations
+        else:
+            bags_of_enum = {}
 
         return (relations, bags_of_enum)
 

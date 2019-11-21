@@ -36,13 +36,15 @@ from QgisModelBaker.utils.qt_utils import (
     OverrideCursor
 )
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QSizePolicy, QGridLayout
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
-from qgis.gui import QgsGui
+from qgis.gui import QgsGui, QgsMessageBar
+from qgis.core import Qgis
 from ..utils import get_ui_class
 from ..libili2db import iliexporter, ili2dbconfig
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+
 
 DIALOG_UI = get_ui_class('export.ui')
 
@@ -175,6 +177,12 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.txtStdout.setLayout(QGridLayout())
+        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
+        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+
     def request_for_refresh_models(self):
         # hold refresh back
         self.refreshTimer.start(500)
@@ -204,6 +212,25 @@ class ExportDialog(QDialog, DIALOG_UI):
             pass
 
         self.export_models_model.refresh_models(db_connector)
+
+    def db_ili_version(self, configuration):
+        """
+        Returns the ili2db version the database has been created with or None if the database
+        could not be detected as a ili2db database
+        """
+        schema = configuration.dbschema
+
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri()
+
+        db_connector = None
+
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+            return db_connector.ili_version()
+        except DBConnectorError:
+            return None
 
     def button_box_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
@@ -269,9 +296,21 @@ class ExportDialog(QDialog, DIALOG_UI):
 
             try:
                 if exporter.run() != iliexporter.Exporter.SUCCESS:
-                    self.enable()
-                    self.progress_bar.hide()
-                    return
+                    if configuration.db_ili_version == 3:
+                        # failed with a db created by ili2db version 3
+                        # fallback since of issues with --export3 argument
+                        self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
+                        # set db version to 4 (means no special arguments like --export3) in the configuration
+                        configuration.db_ili_version = 4
+                        # ... and enforce the Exporter to use ili2db version 3.x.x
+                        if exporter.run(3) != iliexporter.Exporter.SUCCESS:
+                            self.enable()
+                            self.progress_bar.hide()
+                            return
+                    else:
+                        self.enable()
+                        self.progress_bar.hide()
+                        return
             except JavaNotFoundError as e:
                 self.txtStdout.setTextColor(QColor('#000000'))
                 self.txtStdout.clear()
@@ -294,6 +333,12 @@ class ExportDialog(QDialog, DIALOG_UI):
         color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
         QCoreApplication.processEvents()
+
+    def show_message(self, level, message):
+        if level == Qgis.Warning:
+            self.bar.pushMessage(message, Qgis.Info, 10)
+        elif level == Qgis.Critical:
+            self.bar.pushMessage(message, Qgis.Warning, 10)
 
     def on_process_started(self, command):
         self.disable()
@@ -356,6 +401,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
         configuration.ilimodels = ';'.join(self.export_models_model.stringList())
         configuration.base_configuration = self.base_configuration
+        configuration.db_ili_version = self.db_ili_version(configuration)
 
         if not self.validate_data:
             configuration.disable_validation = True

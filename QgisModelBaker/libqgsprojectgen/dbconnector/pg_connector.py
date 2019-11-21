@@ -22,10 +22,10 @@ import psycopg2.extras
 import re
 from psycopg2 import OperationalError
 from .db_connector import DBConnector, DBConnectorError
+from qgis.core import Qgis
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
-
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -261,48 +261,49 @@ class PGConnector(DBConnector):
                 column_alias = "alias.setting AS column_alias,"
                 full_name_field = "full_name.iliname as fully_qualified_name,"
                 unit_join = """LEFT JOIN {}.t_ili2db_column_prop unit
-                                    ON c.table_name=unit.tablename AND
-                                    c.column_name=unit.columnname AND
-                                    unit.tag = 'ch.ehi.ili2db.unit'""".format(self.schema)
+                                                    ON c.table_name=unit.tablename AND
+                                                    c.column_name=unit.columnname AND
+                                                    unit.tag = 'ch.ehi.ili2db.unit'""".format(self.schema)
                 text_kind_join = """LEFT JOIN {}.t_ili2db_column_prop txttype
-                                        ON c.table_name=txttype.tablename AND
-                                        c.column_name=txttype.columnname AND
-                                        txttype.tag = 'ch.ehi.ili2db.textKind'""".format(self.schema)
+                                                        ON c.table_name=txttype.tablename AND
+                                                        c.column_name=txttype.columnname AND
+                                                        txttype.tag = 'ch.ehi.ili2db.textKind'""".format(self.schema)
                 disp_name_join = """LEFT JOIN {}.t_ili2db_column_prop alias
-                                        ON c.table_name=alias.tablename AND
-                                        c.column_name=alias.columnname AND
-                                        alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+                                                        ON c.table_name=alias.tablename AND
+                                                        c.column_name=alias.columnname AND
+                                                        alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
                 full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
-                                        ON full_name.colowner='{}' AND
-                                        c.column_name=full_name.sqlname
-                                        """.format(self.schema, table_name)
+                                                            ON full_name.{}='{}' AND
+                                                            c.column_name=full_name.sqlname
+                                                            """.format(self.schema,
+                                                                       "owner" if self.ili_version() == 3 else "colowner",
+                                                                       table_name)
+                fields_cur.execute("""
+                    SELECT DISTINCT
+                      c.column_name,
+                      c.data_type,
+                      c.numeric_scale,
+                      {unit_field}
+                      {text_kind_field}
+                      {column_alias}
+                      {full_name_field}
+                      pgd.description AS comment
+                    FROM pg_catalog.pg_statio_all_tables st
+                    LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
+                    LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
+                    {unit_join}
+                    {text_kind_join}
+                    {disp_name_join}
+                    {full_name_join}
+                    WHERE st.relid = '{schema}."{table}"'::regclass;
+                    """.format(schema=self.schema, table=table_name, unit_field=unit_field,
+                               text_kind_field=text_kind_field, column_alias=column_alias,
+                               full_name_field=full_name_field,
+                               unit_join=unit_join, text_kind_join=text_kind_join,
+                               disp_name_join=disp_name_join,
+                               full_name_join=full_name_join))
 
-            fields_cur.execute("""
-                SELECT DISTINCT
-                  c.column_name,
-                  c.data_type,
-                  c.numeric_scale,
-                  {unit_field}
-                  {text_kind_field}
-                  {column_alias}
-                  {full_name_field}
-                  pgd.description AS comment
-                FROM pg_catalog.pg_statio_all_tables st
-                LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
-                LEFT JOIN pg_catalog.pg_description pgd ON pgd.objoid=st.relid AND pgd.objsubid=c.ordinal_position
-                {unit_join}
-                {text_kind_join}
-                {disp_name_join}
-                {full_name_join}
-                WHERE st.relid = '{schema}."{table}"'::regclass;
-                """.format(schema=self.schema, table=table_name, unit_field=unit_field,
-                            text_kind_field=text_kind_field, column_alias=column_alias,
-                            full_name_field=full_name_field,
-                            unit_join=unit_join, text_kind_join=text_kind_join,
-                            disp_name_join=disp_name_join,
-                            full_name_join=full_name_join))
-
-            return fields_cur
+                return fields_cur
 
         return []
 
@@ -352,10 +353,66 @@ class PGConnector(DBConnector):
                               AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
                             GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION
                             ORDER BY KCU1.ORDINAL_POSITION
-                            """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where))
+                            """.format(schema_where1=schema_where1, schema_where2=schema_where2,
+                                       filter_layer_where=filter_layer_where))
             return cur
 
         return []
+
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """Used for ili2db version 3 relation creation"""
+        # Map domain ili name with its correspondent pg name
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            names = "'" + "','".join(sqlnames) + "'"
+            cur.execute("""SELECT iliname, sqlname
+                               FROM {schema}.t_ili2db_classname
+                               WHERE sqlname IN ({names})
+                           """.format(schema=self.schema, names=names))
+            return cur
+
+        return {}
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """Used for ili2db version 3 relation creation"""
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            class_names = "'" + \
+                "','".join(list(models_info.keys()) +
+                           list(extended_classes.keys())) + "'"
+            cur.execute("""SELECT *
+                           FROM {schema}.t_ili2db_classname
+                           WHERE iliname IN ({class_names})
+                        """.format(schema=self.schema, class_names=class_names))
+            return cur
+
+        return {}
+
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """Used for ili2db version 3 relation creation"""
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            attr_names = "'" + "','".join(attrs_list) + "'"
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE iliname IN ({attr_names})
+                        """.format(schema=self.schema, attr_names=attr_names))
+            return cur
+
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """Used for ili2db version 3 relation creation"""
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            owner_names = "'" + "','".join(owners) + "'"
+            cur.execute("""SELECT iliname, sqlname, owner
+                           FROM {schema}.t_ili2db_attrname
+                           WHERE owner IN ({owner_names})
+                        """.format(schema=self.schema, owner_names=owner_names))
+            return cur
+
+        return {}
 
     def get_models(self):
         # Get MODELS
@@ -367,3 +424,17 @@ class PGConnector(DBConnector):
             return cur
 
         return {}
+
+    def ili_version(self):
+        cur = self.conn.cursor()
+        cur.execute("""SELECT *
+                       FROM information_schema.columns
+                       WHERE table_schema = '{schema}'
+                       AND(table_name='t_ili2db_attrname' OR table_name = 't_ili2db_model' )
+                       AND(column_name='owner' OR column_name = 'file' )
+                    """.format(schema=self.schema))
+        if cur.rowcount > 1:
+            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            return 3
+        else:
+            return 4

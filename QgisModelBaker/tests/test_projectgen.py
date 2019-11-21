@@ -44,13 +44,14 @@ class TestProjectGen(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
-    def test_kbs_postgis(self):
+    def test_ili2db3_kbs_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
+        importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
@@ -114,7 +115,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
-    def test_ili2db4_kbs_postgis(self):
+    def test_kbs_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
@@ -161,9 +162,13 @@ class TestProjectGen(unittest.TestCase):
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_lang',
                                               'standorttyp',
                                               'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en',
                                               'geo_lage_punkt']))
 
                 # This might need to be adjusted if we get better names
@@ -180,16 +185,18 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
-    def test_kbs_geopackage(self):
+    def test_ili2db3_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
+        importer.configuration.db_ili_version = 3
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
@@ -271,13 +278,14 @@ class TestProjectGen(unittest.TestCase):
                               'belasteter_standort_geo_lage_punkt']),
                          set([layer.name for layer in available_layers]))
 
-    def test_ili2db4_kbs_geopackage(self):
+    def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -320,9 +328,13 @@ class TestProjectGen(unittest.TestCase):
                                               'url_kbs_auszug',
                                               'url_standort',
                                               'statusaltlv',
-                                              'bemerkung_lang',
                                               'standorttyp',
-                                              'bemerkung']))
+                                              'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en']))
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',

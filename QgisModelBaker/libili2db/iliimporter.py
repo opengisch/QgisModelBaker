@@ -66,7 +66,7 @@ class Importer(QObject):
             self.encoding = 'UTF8'
 
     def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool, self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(self.tool, self.configuration.db_ili_version, self.stdout, self.stderr)
         if not ili2db_bin:
             return
 

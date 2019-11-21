@@ -139,6 +139,7 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         self.xtffile = ''
         self.iliexportmodels = ''
         self.disable_validation = False
+        self.db_ili_version = None
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
@@ -152,7 +153,10 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
             args += ["--disableValidation"]
 
         if self.iliexportmodels:
-            args += ['--exportModels', self.iliexportmodels]
+            args += ["--exportModels", self.iliexportmodels]
+
+        if self.db_ili_version == 3:
+            args += ["--export3"]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
@@ -170,6 +174,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.create_import_tid = True
         self.epsg = 21781  # Default EPSG code in ili2pg
         self.stroke_arcs = True
+        self.db_ili_version = None
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         """
@@ -194,11 +199,12 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createUnique"]
         args += ["--createGeomIdx"]
         args += ["--createFk"]
-        args += ["--createEnumTabsWithId"]
         args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
         args += ["--expandMultilingual"]
-        args += ["--createTidCol"]
+        if self.db_ili_version is None or self.db_ili_version > 3:
+            args += ["--createEnumTabsWithId"]
+            args += ["--createTidCol"]
 
         if self.create_import_tid:
             args += ["--importTid"]

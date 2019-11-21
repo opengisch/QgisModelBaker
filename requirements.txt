@@ -3,3 +3,4 @@ nose2
 pyyaml
 future
 transifex-client
+packaging

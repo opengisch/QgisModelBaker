@@ -57,8 +57,9 @@ class Exporter(QObject):
         if not self.encoding:
             self.encoding = 'UTF8'
 
-    def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool, self.stdout, self.stderr)
+    def run(self, version=4):
+        # we usually use version 4 except in case of a fallback
+        ili2db_bin = get_ili2db_bin(self.tool, version, self.stdout, self.stderr)
         if not ili2db_bin:
             return
 
@@ -71,6 +72,7 @@ class Exporter(QObject):
         config_manager = db_factory.get_db_command_config_manager(self.configuration)
 
         args = config_manager.get_ili2db_args(False)
+
         args_hide_password = config_manager.get_ili2db_args(True)
 
         java_path = get_java_path(self.configuration.base_configuration)

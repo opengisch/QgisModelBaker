@@ -17,11 +17,16 @@
  ***************************************************************************/
 """
 
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class DBConnector:
+class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
 
-    def __init__(self, uri, schema):
+    stdout = pyqtSignal(str)
+    new_message = pyqtSignal(int, str)
+
+    def __init__(self, uri, schema, parent=None):
+        QObject.__init__(self, parent)
         self.QGIS_DATE_TYPE = 'date'
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
@@ -126,8 +131,30 @@ class DBConnector:
         '''
         return []
 
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """Used for ili2db version 3 relation creation"""
+        return {}
+
+    def get_classili_classdb_mapping(self, models_info, extended_classes):
+        """Used for ili2db version 3"""
+        return {}
+
+    def get_attrili_attrdb_mapping(self, attrs_list):
+        """Used for ili2db version 3"""
+        return {}
+
+    def get_attrili_attrdb_mapping_by_owner(self, owners):
+        """Used for ili2db version 3"""
+        return {}
+
     def get_models(self):
         return {}
+
+    def ili_version(self):
+        """
+        Returns the version of the ili2db application that was used to create the schema
+        """
+        return None
 
 
 class DBConnectorError(Exception):
