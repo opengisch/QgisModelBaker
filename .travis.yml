@@ -28,13 +28,13 @@ jobs:
     - stage: deploy
       if: tag IS present
       install:
-        - sudo apt install -y python3-pyodbc
+        - sudo apt-get install -y python3-pyodbc
         - pip install -r requirements.txt
       script: plugin_ci/release/release.sh
     - stage: deploy
       if: branch = master
       install:
-        - sudo apt install -y python3-pyodbc pyqt5-dev-tools
+        - sudo apt-get install -y python3-pyodbc pyqt5-dev-tools
         - pip install -r requirements.txt
       script: scripts/ci/update-translations.sh
 
