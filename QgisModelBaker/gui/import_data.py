@@ -302,7 +302,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             db_connector = db_factory.get_db_connector(uri_string, schema)
             db_connector.new_message.connect(self.show_message)
             return db_connector.ili_version()
-        except DBConnectorError:
+        except (DBConnectorError, FileNotFoundError):
             return None
 
     def updated_configuration(self):

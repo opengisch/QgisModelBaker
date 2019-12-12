@@ -235,7 +235,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
                 self.progress_bar.setValue(50)
-            except DBConnectorError:
+            except (DBConnectorError, FileNotFoundError):
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
                 self.enable()
@@ -354,7 +354,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             db_connector = db_factory.get_db_connector(uri_string, schema)
             db_connector.new_message.connect(self.show_message)
             return db_connector.ili_version()
-        except:
+        except (DBConnectorError, FileNotFoundError):
             return None
 
     def updated_configuration(self):
