@@ -17,6 +17,7 @@
  ***************************************************************************/
 """
 import os
+import errno
 import re
 import sqlite3
 import qgis.utils
@@ -32,6 +33,9 @@ class GPKGConnector(DBConnector):
 
     def __init__(self, uri, schema):
         DBConnector.__init__(self, uri, schema)
+
+        if not os.path.isfile(uri):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), uri)
 
         try:
             self.conn = qgis.utils.spatialite_connect(uri)
