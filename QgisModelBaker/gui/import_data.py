@@ -65,7 +65,10 @@ DIALOG_UI = get_ui_class('import_data.ui')
 
 class ImportDataDialog(QDialog, DIALOG_UI):
 
+    ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
+
     def __init__(self, iface, base_config, parent=None):
+
         QDialog.__init__(self, parent)
         self.iface = iface
         self.setupUi(self)
@@ -84,7 +87,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.xtf_file_browse_button.clicked.connect(
             make_file_selector(self.xtf_file_line_edit, title=self.tr('Open Transfer or Catalog File'),
-                               file_filter=self.tr('Transfer File (*.xtf *.itf);;Catalogue File (*.xml *.xls *.xlsx)')))
+                               file_filter=self.tr('Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -112,8 +115,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.validators = Validators()
-        fileValidator = FileValidator(
-            pattern=['*.xtf', '*.itf', '*.pdf', '*.xml', '*.xls', '*.xlsx'])
+        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions])
 
         self.xtf_file_line_edit.setValidator(fileValidator)
 

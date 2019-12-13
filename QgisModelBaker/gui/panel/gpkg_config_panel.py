@@ -39,6 +39,8 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
     """
     notify_fields_modified = pyqtSignal(str)
 
+    ValidExtensions = ['gpkg', 'GPKG']
+
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
@@ -47,8 +49,8 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.validators = Validators()
 
         self.gpkgSaveFileValidator = FileValidator(
-            pattern='*.gpkg', allow_non_existing=True)
-        self.gpkgOpenFileValidator = FileValidator(pattern='*.gpkg')
+            pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
+        self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions])
         self.gpkg_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
 
@@ -58,11 +60,12 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         if self.interlis_mode:
             validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
-                                        file_filter=self.tr("GeoPackage Database (*.gpkg)"), extension='.gpkg')
+                                        file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"),
+                                                    extensions=['.' + ext for ext in self.ValidExtensions])
         else:
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
-                                        file_filter=self.tr("GeoPackage Database (*.gpkg)"))
+                                        file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"))
         try:
             self.gpkg_file_browse_button.clicked.disconnect()
         except:
