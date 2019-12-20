@@ -207,7 +207,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
-        except DBConnectorError:
+        except (DBConnectorError, FileNotFoundError):
             # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
             pass
 
@@ -229,7 +229,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
             return db_connector.ili_version()
-        except DBConnectorError:
+        except (DBConnectorError, FileNotFoundError):
             return None
 
     def button_box_clicked(self, button):
