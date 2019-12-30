@@ -39,7 +39,7 @@ jobs:
       if: branch = master
       install:
         - pip install qgis-plugin-ci
-      script: qgis-plugin-ci push-translation ${TX_TOKEN}
+      script: LD_LIBRARY_PATH=/home/travis/virtualenv/python$(python3 --version | cut -d ' ' -f2)/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/PyQt5/Qt/lib:$LD_LIBRARY_PATH qgis-plugin-ci push-translation ${TX_TOKEN}
 
 env:
   global:
