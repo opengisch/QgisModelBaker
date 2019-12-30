@@ -1,15 +1,11 @@
 language: python
 python:
-  - 3.5
-
-git:
-  submodules: false
+  - 3.7
  
 services:
   - docker
 
 before_install:
-  - git submodule update --init --recursive
 
 install:
   - docker build --build-arg QGIS_TEST_VERSION=${QGIS_TEST_VERSION} -f .docker/Dockerfile .
@@ -28,15 +24,22 @@ jobs:
     - stage: deploy
       if: tag IS present
       install:
-        - sudo apt-get install -y python3-pyodbc
-        - pip install -r requirements.txt
-      script: plugin_ci/release/release.sh
+        - pip install qgis-plugin-ci
+      script:
+        - >
+         LD_LIBRARY_PATH=/home/travis/virtualenv/python$(python3 --version | cut -d ' ' -f2)/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/PyQt5/Qt/lib:$LD_LIBRARY_PATH
+         qgis-plugin-ci release ${TRAVIS_TAG}
+         --transifex-token ${TX_TOKEN}
+         --github-token ${GH_TOKEN}
+         --create-plugin-repo
+         --osgeo-username ${OSGEO_USERNAME}
+         --osgeo-password ${OSGEO_PASSWORD}
+
     - stage: deploy
       if: branch = master
       install:
-        - sudo apt-get install -y unixodbc unixodbc-dev pyqt5-dev-tools
-        - pip install -r requirements.txt
-      script: scripts/ci/update-translations.sh
+        - pip install qgis-plugin-ci
+      script: LD_LIBRARY_PATH=/home/travis/virtualenv/python$(python3 --version | cut -d ' ' -f2)/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/PyQt5/Qt/lib:$LD_LIBRARY_PATH qgis-plugin-ci push-translation ${TX_TOKEN}
 
 env:
   global:
