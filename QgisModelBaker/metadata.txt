@@ -11,5 +11,6 @@ about=QGIS Model Baker (previously QgsProjectGenerator) creates QGIS projects fr
 tags=model,schema,postgres,postgis,geopackage,gpkg,interlis,ili,xtf,projectgenerator,project
 tracker=https://github.com/opengisch/QgisModelBaker/issues
 repository=https://github.com/opengisch/QgisModelBaker
+homepage=https://github.com/opengisch/QgisModelBaker
 experimental=False
 deprecated=False
