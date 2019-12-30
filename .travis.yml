@@ -27,6 +27,7 @@ jobs:
         - pip install qgis-plugin-ci
       script:
         - >
+         LD_LIBRARY_PATH=/home/travis/virtualenv/python$(python3 --version | cut -d ' ' -f2)/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/PyQt5/Qt/lib:$LD_LIBRARY_PATH
          qgis-plugin-ci release ${TRAVIS_TAG}
          --transifex-token ${TX_TOKEN}
          --github-token ${GH_TOKEN}
