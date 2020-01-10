@@ -1,6 +1,7 @@
 language: python
 python:
   - 3.7
+dist: bionic
  
 services:
   - docker
