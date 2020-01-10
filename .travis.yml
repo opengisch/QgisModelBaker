@@ -34,14 +34,14 @@ jobs:
          --osgeo-password ${OSGEO_PASSWORD}
 
     - stage: deploy testing branches
-        if: tag IS present AND branch != master
-        install:
-          - pip install qgis-plugin-ci
-        script:
-          - >
-           qgis-plugin-ci release ${TRAVIS_TAG}
-           --transifex-token ${TX_TOKEN}
-           --github-token ${GH_TOKEN}
+      if: tag IS present AND branch != master
+      install:
+        - pip install qgis-plugin-ci
+      script:
+        - >
+         qgis-plugin-ci release ${TRAVIS_TAG}
+         --transifex-token ${TX_TOKEN}
+         --github-token ${GH_TOKEN}
 
 
     - stage: deploy
