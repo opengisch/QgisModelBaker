@@ -236,8 +236,19 @@ class Generator(QObject):
                 layers)
             relations = relations + domain_relations
         else:
+            """Create the bags_of_enum structure"""
+            bags_of_info = self.get_bags_of_info()
             bags_of_enum = {}
-
+            for record in bags_of_info:
+                new_item_list = [layer_map[record['current_layer_name']][0],
+                                 record['cardinality_min'] + '..' + record['cardinality_max'],
+                                 layer_map[record['target_layer_name']][0],
+                                 't_id',
+                                 'dispname']
+                if record['current_layer_name'] in bags_of_enum.keys():
+                    bags_of_enum[record['current_layer_name']][record['attribute']] = new_item_list
+                else:
+                    bags_of_enum[record['current_layer_name']] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
@@ -317,3 +328,6 @@ class Generator(QObject):
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
+
+    def get_bags_of_info(self):
+        return self._db_connector.get_bags_of_info()

@@ -131,6 +131,22 @@ class DBConnector(QObject):
         '''
         return []
 
+    def get_bags_of_info(self):
+        '''
+        Info about bags_of found in a database (or database schema).
+
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                current_layer_name
+                attribute
+                target_layer_name
+                cardinality_max
+                cardinality_min
+        '''
+        return []
+
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""
         return {}
