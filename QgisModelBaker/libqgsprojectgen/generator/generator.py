@@ -243,8 +243,8 @@ class Generator(QObject):
                 new_item_list = [layer_map[record['current_layer_name']][0],
                                  record['cardinality_min'] + '..' + record['cardinality_max'],
                                  layer_map[record['target_layer_name']][0],
-                                 't_id',
-                                 'dispname']
+                                 self._db_connector.tid,
+                                 self._db_connector.dispName]
                 if record['current_layer_name'] in bags_of_enum.keys():
                     bags_of_enum[record['current_layer_name']][record['attribute']] = new_item_list
                 else:

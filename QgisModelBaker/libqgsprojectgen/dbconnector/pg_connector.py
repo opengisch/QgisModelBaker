@@ -41,6 +41,7 @@ class PGConnector(DBConnector):
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'ilicode'
+        self.tid = 't_id'
         self.dispName = 'dispname'
 
     def map_data_types(self, data_type):
