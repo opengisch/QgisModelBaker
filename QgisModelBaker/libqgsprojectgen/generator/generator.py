@@ -245,10 +245,11 @@ class Generator(QObject):
                                  layer_map[record['target_layer_name']][0],
                                  self._db_connector.tid,
                                  self._db_connector.dispName]
-                if record['current_layer_name'] in bags_of_enum.keys():
-                    bags_of_enum[record['current_layer_name']][record['attribute']] = new_item_list
+                unique_current_layer_name = record['current_layer_name']+'_'+layer_map[record['current_layer_name']][0].geometry_column
+                if unique_current_layer_name in bags_of_enum.keys():
+                    bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
                 else:
-                    bags_of_enum[record['current_layer_name']] = {record['attribute']: new_item_list}
+                    bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
