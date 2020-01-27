@@ -57,7 +57,12 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
         ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}/{tool}.jar'
                                    .format(tool=tool_name, version=ili_tool_version))
     else:
-        ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}.jar'
+        # remove this if when 4.4.0 is released
+        if version.Version(ili_tool_version) >= version.Version('4.4.0'):
+            ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}-SNAPSHOT.jar'
+                                   .format(tool=tool_name, version=ili_tool_version))
+        else:
+            ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}.jar'
                                    .format(tool=tool_name, version=ili_tool_version))
 
     if not os.path.isfile(ili2db_file):
