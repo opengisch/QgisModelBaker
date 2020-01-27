@@ -307,19 +307,20 @@ class GPKGConnector(DBConnector):
 
     def get_bags_of_info(self):
         cursor = self.conn.cursor()
-        cursor.execute("""SELECT cprop.tablename as current_layer_name, cprop.columnname as attribute, cprop.setting as target_layer_name, 
-                        meta_attrs_cardinality_min.attr_value as cardinality_min, meta_attrs_cardinality_max.attr_value as cardinality_max
-                        FROM t_ili2db_column_prop as cprop
-                        LEFT JOIN t_ili2db_classname as cname
-                        ON cname.sqlname = cprop.tablename 
-                        LEFT JOIN t_ili2db_meta_attrs as meta_attrs_array
-                        ON LOWER(meta_attrs_array.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_array.attr_name = 'ili2db.mapping'
-                        LEFT JOIN t_ili2db_meta_attrs as meta_attrs_cardinality_min
-                        ON LOWER(meta_attrs_cardinality_min.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_cardinality_min.attr_name = 'ili2db.ili.attrCardinalityMin'
-                        LEFT JOIN t_ili2db_meta_attrs as meta_attrs_cardinality_max
-                        ON LOWER(meta_attrs_cardinality_max.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_cardinality_max.attr_name = 'ili2db.ili.attrCardinalityMax'
-                        WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
-                        """)
+        if self.metadata_exists():
+            cursor.execute("""SELECT cprop.tablename as current_layer_name, cprop.columnname as attribute, cprop.setting as target_layer_name, 
+                            meta_attrs_cardinality_min.attr_value as cardinality_min, meta_attrs_cardinality_max.attr_value as cardinality_max
+                            FROM t_ili2db_column_prop as cprop
+                            LEFT JOIN t_ili2db_classname as cname
+                            ON cname.sqlname = cprop.tablename 
+                            LEFT JOIN t_ili2db_meta_attrs as meta_attrs_array
+                            ON LOWER(meta_attrs_array.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_array.attr_name = 'ili2db.mapping'
+                            LEFT JOIN t_ili2db_meta_attrs as meta_attrs_cardinality_min
+                            ON LOWER(meta_attrs_cardinality_min.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_cardinality_min.attr_name = 'ili2db.ili.attrCardinalityMin'
+                            LEFT JOIN t_ili2db_meta_attrs as meta_attrs_cardinality_max
+                            ON LOWER(meta_attrs_cardinality_max.ilielement) = LOWER(cname.iliname||'.'||cprop.columnname) AND meta_attrs_cardinality_max.attr_name = 'ili2db.ili.attrCardinalityMax'
+                            WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
+                            """)
         return cursor
 
     def get_iliname_dbname_mapping(self, sqlnames):

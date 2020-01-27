@@ -361,7 +361,7 @@ class PGConnector(DBConnector):
         return []
 
     def get_bags_of_info(self):
-        if self.schema:
+        if self.schema and self.metadata_exists():
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute("""SELECT cprop.tablename as current_layer_name, cprop.columnname as attribute, cprop.setting as target_layer_name, 
                             meta_attrs_cardinality_min.attr_value as cardinality_min, meta_attrs_cardinality_max.attr_value as cardinality_max
