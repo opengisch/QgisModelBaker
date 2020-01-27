@@ -1,0 +1,33 @@
+INTERLIS 2.3;
+
+MODEL CardinalityBag
+  AT "mailto:david@opengis.ch" VERSION "2015-09-23" =
+  
+  DOMAIN
+    EI_Typen = (Fischers, Fritz, Fischt, Frische, Fische);
+
+  TOPIC Topic =
+  
+    STRUCTURE StructText=
+       text : TEXT*10;
+    END StructText;
+    
+    STRUCTURE EI_Typ =
+      EI_Typen: EI_Typen;
+    END EI_Typ;
+
+    CLASS Fische =
+       Name : TEXT*10;
+       !!@ili2db.mapping=ARRAY
+       TextList_0 : BAG {0..*} OF StructText;
+       !!@ili2db.mapping=ARRAY
+       TextList_1 : BAG {1..*} OF StructText;
+       !!@ili2db.mapping=ARRAY
+       ValueRelation_0: BAG {0..*} OF EI_Typ;
+       !!@ili2db.mapping=ARRAY
+       ValueRelation_1: BAG {1..*} OF EI_Typ;
+    END Fische;
+
+  END Topic;
+END CardinalityBag.
+
