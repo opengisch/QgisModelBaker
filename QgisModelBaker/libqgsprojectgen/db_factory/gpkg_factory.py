@@ -62,7 +62,7 @@ class GpkgFactory(DbFactory):
         """
         # remove this if when 4.4.0 is released
         if self.get_tool_version(db_ili_version) == '4.4.0':
-            return 'http://jars.interlis.ch/ch/interlis/ili2gpkg/4.4.0-SNAPSHOT/ili2gpkg-4.4.0-20200127.103509-7-bindist.zip'
+            return 'http://jars.interlis.ch/ch/interlis/ili2gpkg/4.4.0-SNAPSHOT/ili2gpkg-4.4.0-20200127.103444-7-bindist.zip'
         else:
             return 'http://www.eisenhutinformatik.ch/interlis/ili2gpkg/ili2gpkg-{version}.zip'.format(version=self.get_tool_version(db_ili_version))
 
