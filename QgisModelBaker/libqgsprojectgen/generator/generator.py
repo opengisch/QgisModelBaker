@@ -236,17 +236,12 @@ class Generator(QObject):
                 layers)
             relations = relations + domain_relations
         else:
-            """Create the bags_of_enum structure
-            record['cardinality_min'] + '..' + record['cardinality_max'] provided from >= ili2db 4.4.0
-            still they are not really used in the creation of the Value Relation Widget since:
-            - When it's a bag of here, it's always multi-selection (otherwise it's no ARRAY and created as a Relation Reference)
-            - multi-selection Value Relations are never null (just empty list []), so a minimum 0 is not yet implemented in QGIS
-            """
+            """Create the bags_of_enum structure"""
             bags_of_info = self.get_bags_of_info()
             bags_of_enum = {}
             for record in bags_of_info:
                 new_item_list = [layer_map[record['current_layer_name']][0],
-                                 '0..*',
+                                 record['cardinality_min'] + '..' + record['cardinality_max'],
                                  layer_map[record['target_layer_name']][0],
                                  self._db_connector.tid,
                                  self._db_connector.dispName]

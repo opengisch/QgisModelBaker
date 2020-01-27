@@ -139,27 +139,28 @@ class Project(QObject):
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
 
-                allow_null = cardinality.startswith('0')
-                allow_multi = cardinality.endswith('*')
+                minimal_selection = cardinality.startswith('1')
 
                 current_layer = layer_obj.create()
 
                 field_widget = 'ValueRelation'
                 field_widget_config = {
-                    'AllowMulti': allow_multi,
+                    'AllowMulti': True,
                     'UseCompleter': False,
                     'Value': value_field,
                     'OrderByValue': False,
-                    'AllowNull': allow_null,
+                    'AllowNull': True,
                     'Layer': domain_table.create().id(),
                     'FilterExpression': '',
                     'Key': key_field,
                     'NofColumns': 1
                 }
-
                 field_idx = current_layer.fields().indexOf(attribute)
                 setup = QgsEditorWidgetSetup(field_widget, field_widget_config)
                 current_layer.setEditorWidgetSetup(field_idx, setup)
+                if minimal_selection:
+                    constraint_expression = 'array_length("{}")>0'.format(attribute)
+                    current_layer.setConstraintExpression(field_idx, constraint_expression, 'The minimal selection is 1')
 
         for layer in self.layers:
             layer.create_form(self)
