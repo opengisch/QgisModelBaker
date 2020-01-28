@@ -160,7 +160,7 @@ class Project(QObject):
                 current_layer.setEditorWidgetSetup(field_idx, setup)
                 if minimal_selection:
                     constraint_expression = 'array_length("{}")>0'.format(attribute)
-                    current_layer.setConstraintExpression(field_idx, constraint_expression, 'The minimal selection is 1')
+                    current_layer.setConstraintExpression(field_idx, constraint_expression, self.tr('The minimal selection is 1'))
 
         for layer in self.layers:
             layer.create_form(self)

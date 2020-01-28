@@ -229,14 +229,14 @@ class Generator(QObject):
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:
-            """Used for ili2db version 3 relation creation"""
+            # Used for ili2db version 3 relation creation
             domain_relations_generator = DomainRelationGenerator(
                 self._db_connector, self.inheritance)
             domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
                 layers)
             relations = relations + domain_relations
         else:
-            """Create the bags_of_enum structure"""
+            # Create the bags_of_enum structure
             bags_of_info = self.get_bags_of_info()
             bags_of_enum = {}
             for record in bags_of_info:
