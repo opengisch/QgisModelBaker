@@ -214,9 +214,12 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def refresh_layers(self):
         # refresh layers
-        for layer in self.iface.mapCanvas().layers():
-            layer.dataProvider().reloadData()
-        self.iface.layerTreeView().layerTreeModel().recursivelyEmitDataChanged()
+        try:
+            for layer in self.iface.mapCanvas().layers():
+                layer.dataProvider().reloadData()
+            self.iface.layerTreeView().layerTreeModel().recursivelyEmitDataChanged()
+        except AttributeError:
+            pass
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
