@@ -67,8 +67,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
-    def __init__(self, base_config, parent=None):
+    def __init__(self, iface, base_config, parent=None):
+
         QDialog.__init__(self, parent)
+        self.iface = iface
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self);
         self.db_simple_factory = DbSimpleFactory()
@@ -207,6 +209,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
             self.progress_bar.setValue(100)
+
+            self.refresh_layers()
+
+    def refresh_layers(self):
+        # refresh layers
+        try:
+            for layer in self.iface.mapCanvas().layers():
+                layer.dataProvider().reloadData()
+            self.iface.layerTreeView().layerTreeModel().recursivelyEmitDataChanged()
+        except AttributeError:
+            pass
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
