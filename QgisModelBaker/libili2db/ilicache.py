@@ -213,7 +213,7 @@ class IliCache(QObject):
         Parses an ili file returning models and version data
         """
         models = list()
-        re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+)\s.*')
+        re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+)\s*[\(].*')
         re_model_version = re.compile(r'VERSION "([ \w\d\._-]+)".*')
         with open(ilipath, 'r', encoding=encoding) as file:
             for line in file:
