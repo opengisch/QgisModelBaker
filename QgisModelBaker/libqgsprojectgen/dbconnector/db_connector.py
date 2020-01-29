@@ -31,6 +31,7 @@ class DBConnector(QObject):
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
+        self.tid = ''  # For BAG OF config, specific for each DB
         self.dispName = ''  # For BAG OF config, specific for each DB
 
     def map_data_types(self, data_type):
@@ -128,6 +129,22 @@ class DBConnector(QObject):
                 constraint_schema
                 referenced_table_name
                 referenced_column_name
+        '''
+        return []
+
+    def get_bags_of_info(self):
+        '''
+        Info about bags_of found in a database (or database schema).
+
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                current_layer_name
+                attribute
+                target_layer_name
+                cardinality_max
+                cardinality_min
         '''
         return []
 

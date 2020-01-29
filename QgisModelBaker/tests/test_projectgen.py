@@ -808,6 +808,137 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_bagof_cardinalities_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/CardinalityBag.ili')
+        importer.configuration.ilimodels = 'CardinalityBag'
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(DbIliMode.ili2pg,
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.bags_of_enum = bags_of_enum
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['fische_None', 'valuerelation_0', '0..*', 'ei_typen', 't_id', 'dispname'],
+            ['fische_None', 'valuerelation_1', '1..*', 'ei_typen', 't_id', 'dispname']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
+                              expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
+        # Test constraints
+        for layer in available_layers:
+            if layer.name == 'fische':
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
+                    'array_length("valuerelation_1")>0')
+
+    def test_bagof_cardinalities_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/CardinalityBag.ili')
+        importer.configuration.ilimodels = 'CardinalityBag'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_bags_of_enum_CardinalityBag_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.epsg = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg,
+                              uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.bags_of_enum = bags_of_enum
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['fische_None', 'valuerelation_0', '0..*', 'ei_typen', 'T_Id', 'dispName'],
+            ['fische_None', 'valuerelation_1', '1..*', 'ei_typen', 'T_Id', 'dispName']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
+                              expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
+        # Test constraints
+        for layer in available_layers:
+            if layer.name == 'fische':
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
+                    'array_length("valuerelation_1")>0')
+
     def test_unit(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg

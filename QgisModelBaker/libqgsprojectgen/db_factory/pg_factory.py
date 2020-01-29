@@ -86,11 +86,15 @@ class PgFactory(DbFactory):
         if db_ili_version == 3:
             return '3.11.2'
         else:
-            return '4.3.2'
+            return '4.4.0'
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2pg.
 
         :return str A download url.
         """
-        return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{version}.zip'.format(version=self.get_tool_version(db_ili_version))
+        # remove this if when 4.4.0 is released
+        if self.get_tool_version(db_ili_version) == '4.4.0':
+            return 'http://jars.interlis.ch/ch/interlis/ili2pg/4.4.0-SNAPSHOT/ili2pg-4.4.0-20200127.103509-7-bindist.zip'
+        else:
+            return 'http://www.eisenhutinformatik.ch/interlis/ili2pg/ili2pg-{version}.zip'.format(version=self.get_tool_version(db_ili_version))

@@ -807,7 +807,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 value_field = bag_of_enum_info[4]
                 self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
 
-        self.assertEqual(count, 0)  # 9
+        self.assertEqual(count, 9)
 
     def test_ili2db3_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_postgis(self):
         # Schema Import
@@ -1040,7 +1040,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 value_field = bag_of_enum_info[4]
                 self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
 
-        self.assertEqual(count, 0)  # 9
+        self.assertEqual(count, 9)
 
     def test_ili2db3_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_geopackage(self):
         # Schema Import
@@ -1232,7 +1232,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 value_field = bag_of_enum_info[4]
                 self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
 
-        self.assertEqual(count, 0)  # 4
+        self.assertEqual(count, 4)
 
     def test_ili2db3_domain_structure_relations_KbS_LV95_V1_3_postgis(self):
         # Schema Import
@@ -1383,7 +1383,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 value_field = bag_of_enum_info[4]
                 self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
 
-        self.assertEqual(count, 0)  # 2
+        self.assertEqual(count, 2)
 
     def test_ili2db3_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
         # Schema Import

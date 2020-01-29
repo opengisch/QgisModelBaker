@@ -229,15 +229,29 @@ class Generator(QObject):
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:
-            """Used for ili2db version 3 relation creation"""
+            # Used for ili2db version 3 relation creation
             domain_relations_generator = DomainRelationGenerator(
                 self._db_connector, self.inheritance)
             domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
                 layers)
             relations = relations + domain_relations
         else:
+            # Create the bags_of_enum structure
+            bags_of_info = self.get_bags_of_info()
             bags_of_enum = {}
-
+            for record in bags_of_info:
+                for layer in layers:
+                    if record['current_layer_name'] == layer.name:
+                        new_item_list = [layer,
+                                         record['cardinality_min'] + '..' + record['cardinality_max'],
+                                         layer_map[record['target_layer_name']][0],
+                                         self._db_connector.tid,
+                                         self._db_connector.dispName]
+                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'],layer.geometry_column)
+                        if unique_current_layer_name in bags_of_enum.keys():
+                            bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
+                        else:
+                            bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
@@ -317,3 +331,6 @@ class Generator(QObject):
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
+
+    def get_bags_of_info(self):
+        return self._db_connector.get_bags_of_info()
