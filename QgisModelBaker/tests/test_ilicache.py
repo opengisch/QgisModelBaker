@@ -14,9 +14,13 @@ class IliCacheTest(unittest.TestCase):
         models = ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'RoadsSimpleNoSpace.ili'), 'utf-8')
         self.assertEqual(models[0]['name'], 'RoadsSimple')
         self.assertEqual(models[0]['version'], '2016-08-11')
+
         models = ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'RoadsSimple.ili'), 'utf-8')
         self.assertEqual(models[0]['name'], 'RoadsSimple')
         self.assertEqual(models[0]['version'], '2016-08-11')
+
+        with self.assertRaises(RuntimeError):
+            ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'RoadsInvalid.ili'), 'utf-8')
 
 
 if __name__ == '__main__':
