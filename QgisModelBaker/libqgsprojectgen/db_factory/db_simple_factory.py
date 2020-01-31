@@ -17,18 +17,29 @@
  ***************************************************************************/
 """
 from .db_factory import DbFactory
-from .pg_factory import PgFactory
-from .gpkg_factory import GpkgFactory
-from .mssql_factory import MssqlFactory
 from QgisModelBaker.libili2db.globals import DbIliMode
+
+available_database_factories = dict()
+try:
+    from .pg_factory import PgFactory
+    available_database_factories.update({DbIliMode.pg: PgFactory})
+except ModuleNotFoundError:
+    pass
+try:
+    from .gpkg_factory import GpkgFactory
+    available_database_factories.update({DbIliMode.gpkg: GpkgFactory})
+except ModuleNotFoundError:
+    pass
+try:
+    from .mssql_factory import MssqlFactory
+    available_database_factories.update({DbIliMode.mssql: MssqlFactory})
+except ModuleNotFoundError:
+    pass
 
 
 class DbSimpleFactory:
     """Provides a single point (simple factory) to create a database factory (:class:`DbFactory`).
     """
-
-    _available_databases = [DbIliMode.pg, DbIliMode.gpkg, DbIliMode.mssql]
-    _index_default_db = 0
 
     def create_factory(self, ili_mode: DbIliMode) -> DbFactory:
         """Creates an instance of :class:`DbFactory` based on ili_mode parameter.
@@ -40,14 +51,11 @@ class DbSimpleFactory:
         if not ili_mode:
             return None
 
+        index = ili_mode & (~DbIliMode.ili)
         result = None
 
-        if ili_mode & DbIliMode.pg:
-            result = PgFactory()
-        elif ili_mode & DbIliMode.gpkg:
-            result = GpkgFactory()
-        elif ili_mode & DbIliMode.mssql:
-            result = MssqlFactory()
+        if DbIliMode(index) in available_database_factories:
+            result = available_database_factories[DbIliMode(index)]() # instantiate factory
 
         return result
 
@@ -62,13 +70,13 @@ class DbSimpleFactory:
         :rtype: list
         """
         ili = []
-        result = self._available_databases.copy()
+        result = available_database_factories.keys()
 
         if is_schema_import:
             for item in result:
                 ili += [item | DbIliMode.ili]
 
-            result = ili + result
+            result = ili + list(result)
 
         return result
 
@@ -79,5 +87,4 @@ class DbSimpleFactory:
         :return: Default database for QgisModelBaker.
         :rtype: :class:`DbIliMode`
         """
-        return self._available_databases[self._index_default_db]
-
+        return list(available_database_factories.keys())[0]
