@@ -370,9 +370,29 @@ class GPKGConnector(DBConnector):
         """Needed for exportmodels"""
         # Get MODELS
         cursor = self.conn.cursor()
+
+        cursor.execute("""SELECT distinct substr(iliname, 1, pos-1) AS modelname from 
+                                    (SELECT *, instr(iliname,'.') AS pos FROM t_ili2db_trafo)""")
+
+        models = cursor.fetchall()
+
         cursor.execute("""SELECT modelname, content
                           FROM t_ili2db_model """)
-        return cursor
+
+        contents = cursor.fetchall()
+
+        result = dict()
+        list_result = []
+
+        for content in contents:
+            for model in models:
+                if model['modelname'] in re.sub(r'(?:\{[^\}]*\}|\s)', '', content['modelname']):
+                    result['modelname'] = model['modelname']
+                    result['content'] = content['content']
+                    list_result.append(result)
+                    result = dict()
+
+        return list_result
 
     def ili_version(self):
         cursor = self.conn.cursor()

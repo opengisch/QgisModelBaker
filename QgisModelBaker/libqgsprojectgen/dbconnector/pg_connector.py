@@ -437,12 +437,31 @@ class PGConnector(DBConnector):
     def get_models(self):
         # Get MODELS
         if self.schema:
-            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""SELECT modelname, content
+            cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            cursor.execute("""SELECT distinct split_part(iliname,'.',1) as modelname 
+                            FROM {schema}.t_ili2db_trafo""".format(schema=self.schema))
+
+            models = cursor.fetchall()
+
+            cursor.execute("""SELECT modelname, content
                            FROM {schema}.t_ili2db_model
                         """.format(schema=self.schema))
-            return cur
 
+            contents = cursor.fetchall()
+
+            result = dict()
+            list_result = []
+
+            for content in contents:
+                for model in models:
+                    if model['modelname'] in re.sub(r'(?:\{[^\}]*\}|\s)', '', content['modelname']):
+                        result['modelname'] = model['modelname']
+                        result['content'] = content['content']
+                        list_result.append(result)
+                        result = dict()
+                        
+            return list_result
         return {}
 
     def ili_version(self):
