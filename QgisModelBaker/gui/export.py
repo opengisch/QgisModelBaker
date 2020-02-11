@@ -99,7 +99,7 @@ class ExportModels(QStringListModel):
             QStringListModel.setData(self, index, role, data)
 
     def check(self, index):
-        if self.data( index, Qt.CheckStateRole ) == Qt.Checked:
+        if self.data(index, Qt.CheckStateRole) == Qt.Checked:
             self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
         else:
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
@@ -173,6 +173,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.export_models_model = ExportModels()
+        self.export_models_view.setModel(self.export_models_model)
+        self.export_models_view.clicked.connect(self.export_models_model.check)
+        self.export_models_view.space_pressed.connect(self.export_models_model.check)
         self.refresh_models()
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
@@ -189,9 +192,6 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def refresh_models(self):
         self.refreshed_export_models_model()
-        self.export_models_view.setModel(self.export_models_model)
-        self.export_models_view.clicked.connect(self.export_models_model.check)
-        self.export_models_view.space_pressed.connect(self.export_models_model.check)
 
     def refreshed_export_models_model(self):
         tool = self.type_combo_box.currentData() & ~DbIliMode.ili
