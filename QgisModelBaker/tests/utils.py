@@ -18,10 +18,12 @@
  ***************************************************************************/
 """
 import os
+from subprocess import call
 
+from QgisModelBaker.libili2db import ili2dbconfig
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
-
+from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
     base_config = BaseConfiguration()
@@ -88,3 +90,27 @@ def ilidataimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
 def testdata_path(path):
     basepath = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(basepath, 'testdata', path)
+
+
+def get_pg_conn(schema):
+    myenv = os.environ.copy()
+    myenv['PGPASSWORD'] = 'docker'
+
+    call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/{}_dump".format(schema))], env=myenv)
+    db_factory = DbSimpleFactory().create_factory(DbIliMode.pg)
+    configuration = ili2dbconfig.ExportConfiguration()
+
+    configuration.database = "gis"
+    configuration.dbhost = "postgres"
+    configuration.dbusr = "docker"
+    configuration.dbpwd = "docker"
+    configuration.dbport = "5432"
+
+    config_manager = db_factory.get_db_command_config_manager(configuration)
+    db_connector = db_factory.get_db_connector(config_manager.get_uri(), schema)
+    return db_connector
+
+def get_gpkg_conn(gpkg):
+    db_factory = DbSimpleFactory().create_factory(DbIliMode.gpkg)
+    db_connector = db_factory.get_db_connector(testdata_path('geopackage/{}.gpkg'.format(gpkg)), None)
+    return db_connector
