@@ -505,8 +505,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ilicache = IliCache(None, self.ili_file_line_edit.text().strip())
             self.refresh_ili_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
-            self.ili_models_line_edit.setText(models[-1]['name'])
-            self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
+            try:
+                self.ili_models_line_edit.setText(models[-1]['name'])
+                self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
+            except IndexError:
+                self.ili_models_line_edit.setText('')
+                self.ili_models_line_edit.setPlaceholderText(self.tr('[No models found in ili file]'))
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)
