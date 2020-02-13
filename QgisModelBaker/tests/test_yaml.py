@@ -1,4 +1,3 @@
-import nose2
 from qgis.testing import unittest
 import yaml
 
@@ -38,7 +37,3 @@ class YamlInheritanceTest(unittest.TestCase):
         }
 
         self.assertEqual(expected, data['project'])
-
-
-if __name__ == '__main__':
-    nose2.main()

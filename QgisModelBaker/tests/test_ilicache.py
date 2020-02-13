@@ -1,4 +1,3 @@
-import nose2
 import pathlib
 import os
 from qgis.testing import unittest
@@ -31,7 +30,3 @@ class IliCacheTest(unittest.TestCase):
         ilicache = IliCache([])
         with self.assertRaises(RuntimeError):
             ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'RoadsInvalid.ili'), 'utf-8')
-
-
-if __name__ == '__main__':
-    nose2.main()

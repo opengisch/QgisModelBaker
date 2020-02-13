@@ -17,8 +17,6 @@
  ***************************************************************************/
 """
 
-import nose2
-
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
@@ -60,6 +58,3 @@ class TestCustomDump(unittest.TestCase):
         available_layers = generator.layers()
 
         self.assertEqual(len(available_layers), 15)
-
-if __name__ == '__main__':
-    nose2.main()
