@@ -13,11 +13,7 @@ start_app()
 
 class TestGetModels(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        print('setUp test_get_models')
-
     def test_pg_get_models(self):
-        print("\nINFO: Validate get models method() in postgres...")
         expected_dict = {'test_ladm_all_models': ['ANT_V2_9_6', 'Avaluos_V2_9_6', 'Cartografia_Referencia_V2_9_6', 
                                                         'Datos_Gestor_Catastral_V2_9_6', 'Datos_Integracion_Insumos_V2_9_6', 
                                                         'Datos_SNR_V2_9_6', 'Formulario_Catastro_V2_9_6', 'Operacion_V2_9_6', 
@@ -39,7 +35,6 @@ class TestGetModels(unittest.TestCase):
             db_connector.conn.close()
 
     def test_gpkg_get_models(self):
-        print("\nINFO: Validate get models method() in geopackage...")
         expected_dict = {'test_ladm_all_models_v2_9_6': ['ANT_V2_9_6', 'Avaluos_V2_9_6', 'Cartografia_Referencia_V2_9_6', 
                                                         'Datos_Gestor_Catastral_V2_9_6', 'Datos_Integracion_Insumos_V2_9_6', 
                                                         'Datos_SNR_V2_9_6', 'Formulario_Catastro_V2_9_6', 'Operacion_V2_9_6', 
