@@ -5,9 +5,6 @@ from QgisModelBaker.libili2db import ilicache
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
 import os
-import nose2
-
-
 import tempfile
 
 
@@ -19,6 +16,3 @@ class IliCacheTest(unittest.TestCase):
         ic = ilicache.IliCache(config)
         ic.cache_path = tempfile.mkdtemp()
         ic.refresh()
-
-if __name__ == '__main__':
-    nose2.main()

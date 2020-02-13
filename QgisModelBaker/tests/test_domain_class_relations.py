@@ -21,7 +21,6 @@ import os
 import datetime
 import shutil
 import tempfile
-import nose2
 import logging
 
 from QgisModelBaker.libili2db import iliimporter
@@ -2193,6 +2192,3 @@ class TestDomainClassRelation(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
-
-if __name__ == '__main__':
-    nose2.main()

@@ -1,5 +1,3 @@
-import nose2
-
 from qgis.testing import (start_app,
                           unittest)
 from QgisModelBaker.tests.utils import (testdata_path, 
@@ -54,6 +52,3 @@ class TestGetModels(unittest.TestCase):
                 model_names = {}
                             
             self.assertEqual(set(expected_dict[gpkg]), set(model_names))
-
-if __name__ == '__main__':
-    nose2.main()

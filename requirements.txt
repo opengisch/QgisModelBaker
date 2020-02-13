@@ -1,5 +1,5 @@
 psycopg2==2.7.4
-nose2
+pytest
 pyyaml
 future
 transifex-client
