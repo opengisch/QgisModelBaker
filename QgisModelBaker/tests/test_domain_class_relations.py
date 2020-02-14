@@ -22,6 +22,7 @@ import datetime
 import shutil
 import tempfile
 import logging
+import pytest
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
@@ -346,7 +347,7 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
-
+    @pytest.mark.skip('Not yet properly supported')
     def test_domain_class_relations_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()
