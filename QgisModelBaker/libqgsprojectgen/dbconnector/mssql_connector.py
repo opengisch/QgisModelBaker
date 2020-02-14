@@ -292,7 +292,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    AND c.column_name = alias.columnname"
                 stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
-                stmt += ln + "    ON full_name.owner='{table}'"
+                stmt += ln + "    ON full_name.colowner='{table}'"
                 stmt += ln + "    AND c.column_name=full_name.sqlname"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             stmt = stmt.format(schema=self.schema, table=table_name)
