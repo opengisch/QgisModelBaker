@@ -17,6 +17,10 @@
 #***************************************************************************
 
 set -e
+
+/usr/src/QgisModelBaker/tests/testdata/mssql/setup-mssql.sh
+
+
 # rationale: Wait for postgres container to become available
 echo "Wait a moment while loading the database."
 while ! PGPASSWORD='docker' psql -h postgres -U docker -p 5432 -l &> /dev/null
@@ -25,6 +29,7 @@ do
   sleep 2
 done
 echo ""
+
 
 pushd /usr/src
 xvfb-run pytest

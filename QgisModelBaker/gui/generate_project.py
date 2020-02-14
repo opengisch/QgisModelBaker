@@ -79,6 +79,8 @@ DIALOG_UI = get_ui_class('generate_project.ui')
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
 
+    ValidExtensions = ['ili', 'ILI']
+
     def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -94,7 +96,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         create_button.setDefault(True)
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
-                               file_filter=self.tr('Interlis Model File (*.ili)')))
+                               file_filter=self.tr('Interlis Model File (*.ili *.ILI)')))
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.crs = QgsCoordinateReferenceSystem()
@@ -132,7 +134,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
         nonEmptyValidator = NonEmptyStringValidator()
-        fileValidator = FileValidator(pattern='*.ili', allow_empty=True)
+        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
 
         self.restore_configuration()
 

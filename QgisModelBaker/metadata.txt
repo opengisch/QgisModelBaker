@@ -1,6 +1,6 @@
 [general]
 name=QGIS Model Baker
-description=QGIS Model Baker creates QGIS projects from models or dabase schemas
+description=QGIS Model Baker creates QGIS projects from models or database schemas
 version=dev
 icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.0
@@ -12,5 +12,6 @@ about=QGIS Model Baker (previously QgsProjectGenerator) creates QGIS projects fr
 tags=model,schema,postgres,postgis,geopackage,gpkg,interlis,ili,xtf,projectgenerator,project
 tracker=https://github.com/opengisch/QgisModelBaker/issues
 repository=https://github.com/opengisch/QgisModelBaker
+homepage=https://github.com/opengisch/QgisModelBaker
 experimental=False
 deprecated=False

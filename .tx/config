@@ -1,8 +1,0 @@
-[main]
-host = https://www.transifex.com
-
-[QgisModelBaker.QgisModelBaker]
-source_file = i18n/QgisModelBaker_en.ts
-source_lang = en
-file_filter = i18n/QgisModelBaker_<lang>.ts
-type = QT

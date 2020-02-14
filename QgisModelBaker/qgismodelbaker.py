@@ -154,7 +154,7 @@ class QgisModelBakerPlugin(QObject):
         dlg.exec_()
 
     def show_importdata_dialog(self):
-        dlg = ImportDataDialog(self.ili2db_configuration)
+        dlg = ImportDataDialog(self.iface, self.ili2db_configuration)
         dlg.exec_()
 
     def show_help_documentation(self):

@@ -1,5 +1,6 @@
 psycopg2==2.7.4
 pytest
+pyodbc
 pyyaml
 future
 transifex-client

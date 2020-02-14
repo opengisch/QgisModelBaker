@@ -24,6 +24,7 @@ import shutil
 import tempfile
 import psycopg2
 import psycopg2.extras
+import pyodbc
 
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -32,6 +33,7 @@ from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.tests.utils import iliimporter_config
 
 start_app()
 
@@ -55,8 +57,40 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
 
+    def test_empty_mssql_db(self):
+        generator = None
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        try:
+            uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+                .format(drv="{ODBC Driver 17 for SQL Server}",
+                        server=configuration.dbhost,
+                        db='not_exists_database',
+                        uid=configuration.dbusr,
+                        pwd=configuration.dbpwd)
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', '')
+        except DBConnectorError as e:
+            base_exception = e.base_exception
+            sqlstate = base_exception.args[0]
+            # pyodbc.ProgrammingError + error code 42000:
+            # Cannot open database "not_exists_database" requested by the login. The login failed
+            self.assertEqual(int(sqlstate), 42000)
+            self.assertIsNone(generator)
+
     def test_postgres_db_without_schema(self):
         generator = Generator(DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1')
+        self.assertIsNotNone(generator)
+        self.assertEqual(len(generator.layers()), 0)
+
+    def test_mssql_db_without_schema(self):
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart1')
         self.assertIsNotNone(generator)
         self.assertEqual(len(generator.layers()), 0)
 
@@ -71,6 +105,35 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             self.assertEqual(len(generator.layers()), 0)
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
+
+    def test_mssql_db_with_empty_schema(self):
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        conn = pyodbc.connect(uri)
+        cur = conn.cursor()
+
+        try:
+            cur.execute("CREATE SCHEMA empty_schema;")
+            cur.commit()
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42S01:
+            # schema exist
+            self.assertEqual(sqlstate, '42S01')
+
+        try:
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', 'empty_schema')
+            self.assertEqual(len(generator.layers()), 0)
+        finally:
+            cur.execute("DROP SCHEMA empty_schema")
+            cur.commit()
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
@@ -115,6 +178,68 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             conn.commit()
             cur.close()
 
+    def test_mssql_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
+        schema_name = "no_interlis_schema_spatial"
+
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        conn = pyodbc.connect(uri)
+        cur = conn.cursor()
+
+        try:
+            cur.execute("CREATE SCHEMA {};".format(schema_name))
+            cur.commit()
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42S01:
+            # schema exist
+            self.assertEqual(sqlstate, '42S01')
+
+        try:
+            cur.execute("""
+                CREATE TABLE {schema_name}.point (
+                    id INT PRIMARY KEY,
+                    name text,
+                    geometry GEOMETRY NOT NULL
+                );
+
+                CREATE TABLE {schema_name}.region (
+                    id INT PRIMARY KEY,
+                    name text,
+                    geometry GEOMETRY NOT NULL,
+                    id_point integer
+                );
+            """.format(schema_name=schema_name))
+            cur.execute("""
+                ALTER TABLE {schema_name}.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                REFERENCES {schema_name}.point;
+            """.format(schema_name=schema_name))
+            conn.commit()
+
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
+            layers = generator.layers()
+
+            self.assertEqual(len(layers), 2)
+            relations, _ = generator.relations(layers)
+            self.assertEqual(len(relations), 1)
+
+            for layer in layers:
+                self.assertIsNotNone(layer.geometry_column)
+            generator._db_connector.conn.close()
+        finally:
+            cur.execute("""
+            drop table {schema_name}.region;
+                drop table {schema_name}.point;
+                drop schema {schema_name};""".format(schema_name=schema_name))
+            conn.commit()
+            cur.close()
+
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
         uri = 'dbname=gis user=docker password=docker host=postgres'
         conn = psycopg2.connect(uri)
@@ -153,6 +278,65 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                 self.assertIsNone(layer.geometry_column)
         finally:
             cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
+            conn.commit()
+            cur.close()
+
+    def test_mssql_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
+        schema_name = "no_interlis_schema"
+
+        configuration = iliimporter_config(DbIliMode.ili2mssql)
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db=configuration.database,
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd)
+
+        conn = pyodbc.connect(uri)
+        cur = conn.cursor()
+
+        try:
+            cur.execute("CREATE SCHEMA {};".format(schema_name))
+            cur.commit()
+        except pyodbc.ProgrammingError as e:
+            sqlstate = e.args[0]
+            # pyodbc.ProgrammingError + error code 42S01:
+            # schema exist
+            self.assertEqual(sqlstate, '42S01')
+
+        try:
+            cur.execute("""
+                    CREATE TABLE {schema_name}.point (
+                        id INT PRIMARY KEY,
+                        name text
+                    );
+
+                    CREATE TABLE {schema_name}.region (
+                        id INT PRIMARY KEY,
+                        name text,
+                        id_point integer
+                    );
+                """.format(schema_name=schema_name))
+            cur.execute("""
+                    ALTER TABLE {schema_name}.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
+                    REFERENCES {schema_name}.point;
+                """.format(schema_name=schema_name))
+            conn.commit()
+
+            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
+            layers = generator.layers()
+
+            self.assertEqual(len(layers), 2)
+            relations, _ = generator.relations(layers)
+            self.assertEqual(len(relations), 1)
+
+            for layer in layers:
+                self.assertIsNone(layer.geometry_column)
+        finally:
+            cur.execute("""
+                drop table {schema_name}.region;
+                    drop table {schema_name}.point;
+                    drop schema {schema_name};""".format(schema_name=schema_name))
             conn.commit()
             cur.close()
 
