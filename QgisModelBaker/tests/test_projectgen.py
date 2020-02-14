@@ -23,7 +23,6 @@ import datetime
 import shutil
 import tempfile
 import logging
-import pytest
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
@@ -934,7 +933,6 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
-    @pytest.mark.skip('Not yet properly supported')
     def test_meta_attr_hidden_toml_mssql(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql

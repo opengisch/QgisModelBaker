@@ -23,7 +23,6 @@ import shutil
 import tempfile
 import xml.etree.ElementTree as ET
 import logging
-import pytest
 
 from QgisModelBaker.libili2db import (iliexporter,
                                         iliimporter)
@@ -378,7 +377,6 @@ class TestExport(unittest.TestCase):
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    @pytest.mark.skip('Not yet properly supported')
     def test_export_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()
