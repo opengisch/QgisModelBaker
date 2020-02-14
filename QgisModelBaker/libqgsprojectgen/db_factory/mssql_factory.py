@@ -53,8 +53,12 @@ class MssqlFactory(DbFactory):
         else:
             return '4.3.0'
 
-    def get_tool_url(self):
-        return 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(self.get_tool_version())
+    def get_tool_url(self, db_ili_version):
+        """Returns download url of ili2gpkg.
+
+        :return str A download url.
+        """
+        return 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{version}/ili2mssql.zip'.format(version=self.get_tool_version(db_ili_version))
 
     def customize_widget_editor(self, field: Field, data_type: str):
         if 'bit' in data_type:
