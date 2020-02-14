@@ -38,10 +38,10 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
     from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
     
     if tool not in DbIliMode or tool == DbIliMode.ili:
-        return None
+        raise RuntimeError('Tool {} not found'.format(tool))
 
-    tool |= DbIliMode.ili # Regardlless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
-    tool_name = tool.name # in fact, we need the name of the ili tool
+    tool |= DbIliMode.ili  # Regardless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
+    tool_name = tool.name  # in fact, we need the name of the ili tool
 
     db_simple_factory = DbSimpleFactory()
     db_factory = db_simple_factory.create_factory(tool)
