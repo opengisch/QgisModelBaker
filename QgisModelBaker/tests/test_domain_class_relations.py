@@ -346,6 +346,7 @@ class TestDomainClassRelation(unittest.TestCase):
         for expected_relation in expected_relations:
             self.assertIn(expected_relation, relations_dicts)
 
+
     def test_domain_class_relations_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()

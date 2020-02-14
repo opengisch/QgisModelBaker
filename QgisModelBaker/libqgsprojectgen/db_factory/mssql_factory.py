@@ -44,8 +44,14 @@ class MssqlFactory(DbFactory):
     def post_generate_project_validations(self, configuration):
         return True, ''
 
-    def get_tool_version(self):
-        return '3.12.2'
+    def get_tool_version(self, db_ili_version):
+        """Returns ili2gpkg version, regarding to the given version of the used database
+        :return: str ili2gpkg version.
+        """
+        if db_ili_version == 3:
+            return '3.12.2'
+        else:
+            return '4.3.0'
 
     def get_tool_url(self):
         return 'https://github.com/AgenciaImplementacion/ili2db/releases/download/ili2mssql-{}/ili2mssql.zip'.format(self.get_tool_version())
