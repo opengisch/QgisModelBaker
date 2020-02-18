@@ -130,6 +130,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)'),
+                                    extension='.xtf',
                                     extensions=['.' + ext for ext in self.ValidExtensions]))
         self.xtf_file_browse_button.clicked.connect(
             self.xtf_browser_opened_to_true)
