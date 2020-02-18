@@ -391,6 +391,87 @@ class TestDomainClassRelation(unittest.TestCase):
         expected_relations.append({"referencing_layer": "avaluo",
                                    "referenced_layer": "avaluo_usotipo",
                                    "referencing_field": "uso",
+                                   "referenced_field": "T_Id",
+                                   "name": "avaluo_uso_fkey"})
+        # Domain inherited from superclass and from another model
+        expected_relations.append({"referencing_layer": "derecho",
+                                   "referenced_layer": "col_derechotipo",
+                                   "referencing_field": "tipo",
+                                   "referenced_field": "T_Id",
+                                   "name": "derecho_tipo_fkey"})
+        # Domain from another model
+        expected_relations.append({"referencing_layer": "persona",
+                                   "referenced_layer": "col_interesadodocumentotipo",
+                                   "referencing_field": "documento_tipo",
+                                   "referenced_field": "T_Id",
+                                   "name": "persona_documento_tipo_fkey"})
+        # Domain from another model
+        expected_relations.append({"referencing_layer": "persona",
+                                   "referenced_layer": "col_genero",
+                                   "referencing_field": "genero",
+                                   "referenced_field": "T_Id",
+                                   "name": "persona_genero_fkey"})
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "persona",
+                                   "referenced_layer": "la_interesadotipo",
+                                   "referencing_field": "tipo",
+                                   "referenced_field": "T_Id",
+                                   "name": "persona_tipo_fkey"})
+        # Domain inherited from abstract class
+        expected_relations.append({"referencing_layer": "predio",
+                                   "referenced_layer": "la_baunittipo",
+                                   "referencing_field": "tipo",
+                                   "referenced_field": "T_Id",
+                                   "name": "predio_tipo_fkey"})
+
+        for expected_relation in expected_relations:
+            self.assertIn(expected_relation, relations_dicts)
+
+    def test_ili2db3_domain_class_relations_mssql(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(
+            importer.tool, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.db_ili_version = 3
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server="mssql",
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri,
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+
+
+        # Check domain class relations in the relations list
+        relations_dicts = list()
+        for relation in relations:
+            relations_dicts.append({"referencing_layer": relation.referencing_layer.name,
+                                    "referenced_layer": relation.referenced_layer.name,
+                                    "referencing_field": relation.referencing_field,
+                                    "referenced_field": relation.referenced_field,
+                                    "name": relation.name})
+
+        expected_relations = list()  # 6 domain-class relations are expected
+        # Domain from the same model, out of the topic
+        expected_relations.append({"referencing_layer": "avaluo",
+                                   "referenced_layer": "avaluo_usotipo",
+                                   "referencing_field": "uso",
                                    "referenced_field": "iliCode",
                                    "name": "avaluo_uso_avaluo_usotipo_iliCode"})
         # Domain inherited from superclass and from another model
