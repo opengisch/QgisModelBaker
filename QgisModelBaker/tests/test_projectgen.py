@@ -940,6 +940,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.epsg = 3116
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
@@ -948,7 +949,7 @@ class TestProjectGen(unittest.TestCase):
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=importer.configuration.dbhost,
+                    server="mssql",
                     db=importer.configuration.database,
                     uid=importer.configuration.dbusr,
                     pwd=importer.configuration.dbpwd)

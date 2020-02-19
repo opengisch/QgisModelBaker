@@ -339,7 +339,7 @@ class TestExport(unittest.TestCase):
         importer.tool = DbIliMode.ili2mssql
         importer.configuration = iliimporter_config(importer.tool,
                                                     'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.epsg = 3116
@@ -353,10 +353,10 @@ class TestExport(unittest.TestCase):
         dataImporter.tool = DbIliMode.ili2mssql
         dataImporter.configuration = ilidataimporter_config(
             dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+        dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+            'xtf/test_ili2db4_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
@@ -366,7 +366,7 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2mssql
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         exporter.configuration.dbschema = importer.configuration.dbschema
         obtained_xtf_path = os.path.join(
             self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
@@ -375,9 +375,9 @@ class TestExport(unittest.TestCase):
         exporter.stderr.connect(self.print_error)
         self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
-            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
 
-    def test_export_mssql(self):
+    def test_ili2db3_export_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql
@@ -388,6 +388,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
@@ -401,6 +402,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         self.assertEqual(dataImporter.run(),
@@ -417,7 +419,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        self.assertEqual(exporter.run(3), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
