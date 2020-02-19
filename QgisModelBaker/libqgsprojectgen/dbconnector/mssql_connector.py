@@ -20,6 +20,9 @@
 import re
 import pyodbc
 from pyodbc import (ProgrammingError, InterfaceError)
+
+from qgis.core import Qgis
+
 from .db_connector import (DBConnector, DBConnectorError)
 
 METADATA_TABLE = 't_ili2db_table_prop'
@@ -39,6 +42,8 @@ class MssqlConnector(DBConnector):
         
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'iliCode'
+        self.tid = 'T_Id'
+        self.dispName = 'dispName'
 
     def map_data_types(self, data_type):
         result = data_type.lower()
@@ -292,7 +297,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    AND c.column_name = alias.columnname"
                 stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
-                stmt += ln + "    ON full_name.colowner='{table}'"
+                stmt += ln + "    ON full_name.{}='{{table}}'".format("owner" if self.ili_version() == 3 else "colowner")
                 stmt += ln + "    AND c.column_name=full_name.sqlname"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             stmt = stmt.format(schema=self.schema, table=table_name)
@@ -407,3 +412,19 @@ class MssqlConnector(DBConnector):
             res.append(my_rec)
 
         return res
+
+    def ili_version(self):
+        cur = self.conn.cursor()
+        cur.execute("""SELECT count(COLUMN_NAME)
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA='{schema}'
+	AND(TABLE_NAME='t_ili2db_attrname' OR TABLE_NAME='t_ili2db_model')
+                       AND(COLUMN_NAME='owner' OR COLUMN_NAME='file')""".format(schema=self.schema))
+
+        res = cur.fetchone()[0]
+        print(res)
+        if res > 0:
+            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            return 3
+        else:
+            return 4
