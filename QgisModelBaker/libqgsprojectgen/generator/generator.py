@@ -123,7 +123,7 @@ class Generator(QObject):
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
-            constraints_info = self.get_constraints_info(record['tablename'])
+            constraints_info = self.get_min_max_info(record['tablename'])
             re_iliname = re.compile(r'.*\.(.*)$')
 
             for fielddef in fields_info:
@@ -329,8 +329,8 @@ class Generator(QObject):
 
         return new_tables_info
 
-    def get_constraints_info(self, table_name):
-        return self._db_connector.get_constraints_info(table_name)
+    def get_min_max_info(self, table_name):
+        return self._db_connector.get_min_max_info(table_name)
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)

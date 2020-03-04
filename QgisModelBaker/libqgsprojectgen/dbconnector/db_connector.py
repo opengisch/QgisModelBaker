@@ -105,7 +105,7 @@ class DBConnector(QObject):
         '''
         return []
 
-    def get_constraints_info(self, table_name):
+    def get_min_max_info(self, table_name):
         '''
         Info about range constraints found in a given table.
 

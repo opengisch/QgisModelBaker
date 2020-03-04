@@ -308,7 +308,7 @@ class PGConnector(DBConnector):
 
         return []
 
-    def get_constraints_info(self, table_name):
+    def get_min_max_info(self, table_name):
         # Get all 'c'heck constraints for this table
         if self.schema:
             constraints_cur = self.conn.cursor(

@@ -253,7 +253,7 @@ class GPKGConnector(DBConnector):
         cursor.close()
         return complete_records
 
-    def get_constraints_info(self, table_name):
+    def get_min_max_info(self, table_name):
         constraint_mapping = dict()
         cursor = self.conn.cursor()
         cursor.execute("""SELECT sql
