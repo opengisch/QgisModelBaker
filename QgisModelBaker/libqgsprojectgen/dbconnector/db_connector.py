@@ -115,6 +115,16 @@ class DBConnector(QObject):
         '''
         return {}
 
+    def get_value_map_info(self, table_name):
+        '''
+        Info about value map constraints found in a given table.
+
+        Return:
+            Dictionary with keys corresponding to column names and values
+            with lists of allowed values
+        '''
+        return {}
+
     def get_relations_info(self, filter_layer_list=[]):
         '''
         Info about relations found in a database (or database schema).
