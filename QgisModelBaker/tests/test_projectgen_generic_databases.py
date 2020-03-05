@@ -22,7 +22,6 @@ import os
 import datetime
 import shutil
 import tempfile
-import nose2
 import psycopg2
 import psycopg2.extras
 import pyodbc
@@ -54,7 +53,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         generator = None
         try:
             generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
-        except DBConnectorError as e:
+        except (DBConnectorError, FileNotFoundError):
             # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
 
@@ -374,6 +373,3 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
-
-if __name__ == '__main__':
-    nose2.main()

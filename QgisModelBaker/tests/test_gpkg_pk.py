@@ -18,7 +18,6 @@
 """
 import tempfile
 import os
-import nose2
 import logging
 
 from QgisModelBaker.libili2db import iliimporter
@@ -94,6 +93,3 @@ class TestGpkgPrimaryKey(unittest.TestCase):
 
     def print_error(self, text):
         logging.info(text)
-
-if __name__ == '__main__':
-    nose2.main()

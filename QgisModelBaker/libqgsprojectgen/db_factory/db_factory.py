@@ -96,15 +96,15 @@ class DbFactory(ABC):
         pass
 
     @abstractmethod
-    def get_tool_version(self):
-        """Returns the version of ili2db implementation.
+    def get_tool_version(self, db_ili_version):
+        """Returns the version of ili2db implementation, regarding to the given version of the used database
 
         :return: str ili2db version.
         """
         pass
 
     @abstractmethod
-    def get_tool_url(self):
+    def get_tool_url(self, db_ili_version):
         """Returns download url of ili2db implementation.
 
         :return str A download url.

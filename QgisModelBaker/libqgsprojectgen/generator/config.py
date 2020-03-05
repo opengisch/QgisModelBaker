@@ -16,6 +16,8 @@ IGNORED_TABLES = [
     't_ili2db_classname',
     't_ili2db_import_basket',
     'gpkg_contents',
+    'gpkg_data_column_constraints',
+    'gpkg_data_columns',
     'gpkg_geometry_columns',
     'gpkg_extensions',
     'gpkg_spatial_ref_sys',

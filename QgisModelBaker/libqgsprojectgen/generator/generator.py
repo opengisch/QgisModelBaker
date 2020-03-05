@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 import re
+import sys
 
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
@@ -31,11 +32,16 @@ from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
 from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class Generator:
+class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False):
+    stdout = pyqtSignal(str)
+    new_message = pyqtSignal(int, str)
+
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
+        QObject.__init__(self, parent)
         self.tool = tool
         self.uri = uri
         self.inheritance = inheritance
@@ -45,6 +51,24 @@ class Generator:
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
         self._db_connector = db_factory.get_db_connector(uri, schema)
+        self._db_connector.stdout.connect(self.print_info)
+        self._db_connector.new_message.connect(self.append_print_message)
+
+        self.collected_print_messages = []
+
+    def print_info(self, text):
+        self.stdout.emit(text)
+
+    def print_messages(self):
+        for message in self.collected_print_messages:
+            self.new_message.emit(message["level"], message["text"])
+        self.collected_print_messages.clear()
+
+    def append_print_message(self, level, text):
+        message = {'level': level, 'text': text}
+
+        if message not in self.collected_print_messages:
+          self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
@@ -100,12 +124,12 @@ class Generator:
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
             constraints_info = self.get_constraints_info(record['tablename'])
-            re_iliname = re.compile(r'^@iliname (.*)$')
+            re_iliname = re.compile(r'.*\.(.*)$')
 
             for fielddef in fields_info:
                 column_name = fielddef['column_name']
-                comment = fielddef['comment']
-                m = re_iliname.match(comment) if comment else None
+                fully_qualified_name = fielddef['fully_qualified_name'] if 'fully_qualified_name' in fielddef else None
+                m = re_iliname.match(fully_qualified_name) if fully_qualified_name else None
 
                 alias = None
                 if 'column_alias' in fielddef:
@@ -182,6 +206,8 @@ class Generator:
 
             layers.append(layer)
 
+        self.print_messages()
+
         return layers
 
     def relations(self, layers, filter_layer_list=[]):
@@ -205,14 +231,30 @@ class Generator:
                         relation.name = record['constraint_name']
                         relations.append(relation)
 
-        # TODO: Remove these 3 lines when
-        # https://github.com/claeis/ili2db/issues/19 is solved!
-        domain_relations_generator = DomainRelationGenerator(
-            self._db_connector, self.inheritance)
-        domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
-            layers)
-        relations = relations + domain_relations
-
+        if self._db_connector.ili_version() == 3:
+            # Used for ili2db version 3 relation creation
+            domain_relations_generator = DomainRelationGenerator(
+                self._db_connector, self.inheritance)
+            domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
+                layers)
+            relations = relations + domain_relations
+        else:
+            # Create the bags_of_enum structure
+            bags_of_info = self.get_bags_of_info()
+            bags_of_enum = {}
+            for record in bags_of_info:
+                for layer in layers:
+                    if record['current_layer_name'] == layer.name:
+                        new_item_list = [layer,
+                                         record['cardinality_min'] + '..' + record['cardinality_max'],
+                                         layer_map[record['target_layer_name']][0],
+                                         self._db_connector.tid,
+                                         self._db_connector.dispName]
+                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'],layer.geometry_column)
+                        if unique_current_layer_name in bags_of_enum.keys():
+                            bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
+                        else:
+                            bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
     def legend(self, layers, ignore_node_names=None):
@@ -292,3 +334,6 @@ class Generator:
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
+
+    def get_bags_of_info(self):
+        return self._db_connector.get_bags_of_info()

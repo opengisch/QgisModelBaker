@@ -17,15 +17,21 @@
  ***************************************************************************/
 """
 
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-class DBConnector:
+class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
 
-    def __init__(self, uri, schema):
+    stdout = pyqtSignal(str)
+    new_message = pyqtSignal(int, str)
+
+    def __init__(self, uri, schema, parent=None):
+        QObject.__init__(self, parent)
         self.QGIS_DATE_TYPE = 'date'
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
+        self.tid = ''  # For BAG OF config, specific for each DB
         self.dispName = ''  # For BAG OF config, specific for each DB
 
     def map_data_types(self, data_type):
@@ -126,25 +132,46 @@ class DBConnector:
         '''
         return []
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """TODO: remove when ili2db issue #19 is solved"""
-        return {}
+    def get_bags_of_info(self):
+        '''
+        Info about bags_of found in a database (or database schema).
 
-    def get_models(self):
-        """TODO: remove when ili2db issue #19 is solved"""
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                current_layer_name
+                attribute
+                target_layer_name
+                cardinality_max
+                cardinality_min
+        '''
+        return []
+
+    def get_iliname_dbname_mapping(self, sqlnames):
+        """Used for ili2db version 3 relation creation"""
         return {}
 
     def get_classili_classdb_mapping(self, models_info, extended_classes):
-        """TODO: remove when ili2db issue #19 is solved"""
+        """Used for ili2db version 3"""
         return {}
 
     def get_attrili_attrdb_mapping(self, attrs_list):
-        """TODO: remove when ili2db issue #19 is solved"""
+        """Used for ili2db version 3"""
         return {}
 
     def get_attrili_attrdb_mapping_by_owner(self, owners):
-        """TODO: remove when ili2db issue #19 is solved"""
+        """Used for ili2db version 3"""
         return {}
+
+    def get_models(self):
+        return {}
+
+    def ili_version(self):
+        """
+        Returns the version of the ili2db application that was used to create the schema
+        """
+        return None
 
 
 class DBConnectorError(Exception):

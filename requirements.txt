@@ -1,5 +1,7 @@
 psycopg2==2.7.4
+pytest
 pyodbc
-nose2
 pyyaml
 future
+transifex-client
+packaging

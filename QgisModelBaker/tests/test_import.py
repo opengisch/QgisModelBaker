@@ -21,7 +21,6 @@ import os
 import datetime
 import shutil
 import tempfile
-import nose2
 import psycopg2
 import psycopg2.extras
 import logging
@@ -86,8 +85,8 @@ class TestImport(unittest.TestCase):
             """.format(importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
-        self.assertEqual(record[0], 'Unidad_Derecho')
-        self.assertEqual(record[1], 'POLYGON((1000257.42555766 1002020.37570978,1000437.68843915 1002196.49461698,1000275.4718973 1002428.18956643,1000072.2500615 1002291.5386724,1000158.57171943 1002164.91352262,1000159.94153032 1002163.12799749,1000257.42555766 1002020.37570978))')
+        self.assertEqual(record[0], 12)  # t_id for 'Unidad_Derecho'
+        self.assertEqual(record[1], 'POLYGON((1000257.426 1002020.376,1000437.688 1002196.495,1000275.472 1002428.19,1000072.25 1002291.539,1000158.572 1002164.914,1000159.942 1002163.128,1000257.426 1002020.376))')
         self.assertEqual(record[2], 3116)
         predio_id = record[3]
 
@@ -111,7 +110,7 @@ class TestImport(unittest.TestCase):
             """.format(importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
-        self.assertEqual(record[0], 'Posesion')
+        self.assertEqual(record[0], 8)  # t_id for 'Posesion'
         self.assertEqual(record[1], persona_id)  # FK persona
         self.assertEqual(record[2], predio_id)  # FK predio
 
@@ -154,7 +153,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("SELECT tipo, st_srid(geometria), t_id FROM predio")
         for record in cursor:
             count += 1
-            self.assertEqual(record[0], 'Unidad_Derecho')
+            self.assertEqual(record[0], 2)  # t_id for 'Unidad_Derecho'
             self.assertEqual(record[1], 3116)
             predio_id = record[2]
 
@@ -171,7 +170,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("select tipo, interesado, unidad from derecho")
         for record in cursor:
             count += 1
-            self.assertEqual(record[0], 'Posesion')
+            self.assertEqual(record[0], 5)  # t_id for 'Posesion'
             self.assertEqual(record[1], persona_id)
             self.assertEqual(record[2], predio_id)
 
@@ -223,13 +222,13 @@ class TestImport(unittest.TestCase):
         # Expected predio data
         cursor = conn.cursor()
         cursor.execute("""
-                SELECT tipo, geometria.STAsText(), geometria.STSrid, t_id
-                FROM {}.Predio
-            """.format(importer.configuration.dbschema))
+                SELECT ut.iliCode as tipo, geometria.STAsText(), geometria.STSrid, p.t_id
+                FROM {schema}.Predio as p INNER JOIN {schema}.LA_BAUnitTipo as ut on p.tipo=ut.T_Id
+            """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Unidad_Derecho')
-        self.assertEqual(record[1], 'POLYGON ((1000257.4255576647 1002020.3757097842, 1000437.6884391493 1002196.4946169816, 1000275.4718973016 1002428.1895664315, 1000072.2500615012 1002291.538672403, 1000158.571719431 1002164.9135226171, 1000159.9415303215 1002163.1279974865, 1000257.4255576647 1002020.3757097842))')
+        self.assertEqual(record[1], 'POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))')
         self.assertEqual(record[2], 3116)
         predio_id = record[3]
 
@@ -248,9 +247,10 @@ class TestImport(unittest.TestCase):
         # Expected derecho data
         cursor = conn.cursor()
         cursor.execute("""
-                SELECT tipo, interesado, unidad
-                FROM {}.derecho
-            """.format(importer.configuration.dbschema))
+                SELECT dt.iliCode as tipo, interesado, unidad
+                FROM {schema}.derecho as d INNER JOIN {schema}.COL_DerechoTipo as dt
+                on dt.T_id=d.tipo
+            """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
         self.assertIsNotNone(record)
         self.assertEqual(record[0], 'Posesion')
@@ -267,6 +267,3 @@ class TestImport(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
-
-if __name__ == '__main__':
-    nose2.main()

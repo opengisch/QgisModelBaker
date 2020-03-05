@@ -22,7 +22,7 @@ import re
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 
 class DomainRelationGenerator:
-    """TODO: remove when ili2db issue #19 is solved"""
+    """Used for ili2db version 3 relation creation"""
 
     def __init__(self, db_connector, inheritance):
         self._db_connector = db_connector

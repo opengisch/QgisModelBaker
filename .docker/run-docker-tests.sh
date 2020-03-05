@@ -32,5 +32,5 @@ echo ""
 
 
 pushd /usr/src
-xvfb-run nose2-3
+xvfb-run pytest
 popd

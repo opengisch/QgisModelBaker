@@ -22,7 +22,6 @@ import os
 import datetime
 import shutil
 import tempfile
-import nose2
 import logging
 
 from QgisModelBaker.libili2db import iliimporter
@@ -44,13 +43,14 @@ class TestProjectGen(unittest.TestCase):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
 
-    def test_kbs_postgis(self):
+    def test_ili2db3_kbs_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
+        importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
@@ -114,16 +114,88 @@ class TestProjectGen(unittest.TestCase):
         self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
         self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
 
-    def test_kbs_geopackage(self):
+    def test_kbs_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+                belasteter_standort_punkt_layer = layer
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                fields = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(fields, set(['letzteanpassung',
+                                              'zustaendigkeitkataster',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'katasternummer',
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'standorttyp',
+                                              'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en',
+                                              'geo_lage_punkt']))
+
+                # This might need to be adjusted if we get better names
+                self.assertEqual(tabs[1].name(), 'deponietyp_')
+
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                belasteter_standort_polygon_layer = layer
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(available_layers), 16)
+
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
+        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
+        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+
+    def test_ili2db3_kbs_geopackage(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
+        importer.configuration.db_ili_version = 3
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
@@ -170,6 +242,98 @@ class TestProjectGen(unittest.TestCase):
                                               'standorttyp',
                                               'bemerkung',
                                               'bemerkung_de']))
+
+                tab_list = [tab.name() for tab in tabs]
+                expected_tab_list = ['General',
+                                     'parzellenidentifikation',
+                                     'belasteter_standort_geo_lage_punkt',
+                                     'egrid_',
+                                     'deponietyp_',
+                                     'untersmassn_']
+                self.assertEqual(set(tab_list), set(expected_tab_list))
+
+                for tab in tabs:
+                    if len(tab.findElements(tab.AeTypeRelation)) == 0:
+                        self.assertEqual(tab.columnCount(), 2)
+                    else:
+                        self.assertEqual(tab.columnCount(), 1)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(set(['statusaltlv',
+                              'multilingualtext',
+                              'untersmassn',
+                              'multilingualmtext',
+                              'languagecode_iso639_1',
+                              'deponietyp',
+                              'zustaendigkeitkataster',
+                              'standorttyp',
+                              'localisedtext',
+                              'localisedmtext',
+                              'belasteter_standort',
+                              'deponietyp_',
+                              'egrid_',
+                              'untersmassn_',
+                              'parzellenidentifikation',
+                              'belasteter_standort_geo_lage_punkt']),
+                         set([layer.name for layer in available_layers]))
+
+    def test_kbs_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort':  # Polygon
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                fields = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(fields, set(['letzteanpassung',
+                                              'zustaendigkeitkataster',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'katasternummer',
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'standorttyp',
+                                              'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en']))
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
@@ -731,6 +895,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
+        importer.configuration.epsg = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -775,6 +940,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.epsg = 3116
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
@@ -783,7 +949,7 @@ class TestProjectGen(unittest.TestCase):
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=importer.configuration.dbhost,
+                    server="mssql",
                     db=importer.configuration.database,
                     uid=importer.configuration.dbusr,
                     pwd=importer.configuration.dbpwd)
@@ -864,6 +1030,137 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_bagof_cardinalities_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/CardinalityBag.ili')
+        importer.configuration.ilimodels = 'CardinalityBag'
+        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.epsg = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(DbIliMode.ili2pg,
+                              'dbname=gis user=docker password=docker host=postgres',
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.bags_of_enum = bags_of_enum
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['fische_None', 'valuerelation_0', '0..*', 'ei_typen', 't_id', 'dispname'],
+            ['fische_None', 'valuerelation_1', '1..*', 'ei_typen', 't_id', 'dispname']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
+                              expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
+        # Test constraints
+        for layer in available_layers:
+            if layer.name == 'fische':
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
+                    'array_length("valuerelation_1")>0')
+
+    def test_bagof_cardinalities_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/CardinalityBag.ili')
+        importer.configuration.ilimodels = 'CardinalityBag'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_bags_of_enum_CardinalityBag_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.epsg = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg,
+                              uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.bags_of_enum = bags_of_enum
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # Test BAGs OF ENUM
+        expected_bags_of_enum = [
+            ['fische_None', 'valuerelation_0', '0..*', 'ei_typen', 'T_Id', 'dispName'],
+            ['fische_None', 'valuerelation_1', '1..*', 'ei_typen', 'T_Id', 'dispName']
+        ]
+
+        count = 0
+        for layer_name, bag_of_enum in bags_of_enum.items():
+            for attribute, bag_of_enum_info in bag_of_enum.items():
+                count += 1
+                layer_obj = bag_of_enum_info[0]
+                cardinality = bag_of_enum_info[1]
+                domain_table = bag_of_enum_info[2]
+                key_field = bag_of_enum_info[3]
+                value_field = bag_of_enum_info[4]
+                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
+                              expected_bags_of_enum)
+
+        self.assertEqual(count, 2)
+
+        # Test constraints
+        for layer in available_layers:
+            if layer.name == 'fische':
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
+                self.assertEqual(
+                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
+                    'array_length("valuerelation_1")>0')
+
     def test_unit(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -900,7 +1197,3 @@ class TestProjectGen(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
-
-
-if __name__ == '__main__':
-    nose2.main()

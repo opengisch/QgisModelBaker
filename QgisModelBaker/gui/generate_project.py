@@ -234,8 +234,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 uri = config_manager.get_uri()
                 generator = Generator(configuration.tool, uri,
                                       configuration.inheritance, configuration.dbschema)
+                generator.stdout.connect(self.print_info)
+                generator.new_message.connect(self.show_message)
                 self.progress_bar.setValue(50)
-            except DBConnectorError:
+            except (DBConnectorError, FileNotFoundError):
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
                 self.enable()
@@ -337,6 +339,26 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.txtStdout.append(message)
         self.progress_bar.setValue(50)
 
+    def db_ili_version(self, configuration):
+        """
+        Returns the ili2db version the database has been created with or None if the database
+        could not be detected as a ili2db database
+        """
+        schema = configuration.dbschema
+
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri()
+
+        db_connector = None
+
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+            db_connector.new_message.connect(self.show_message)
+            return db_connector.ili_version()
+        except (DBConnectorError, FileNotFoundError):
+            return None
+
     def updated_configuration(self):
         """
         Get the configuration that is updated with the user configuration changes on the dialog.
@@ -356,6 +378,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
+        configuration.db_ili_version = self.db_ili_version(configuration)
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():
@@ -484,8 +507,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ilicache = IliCache(None, self.ili_file_line_edit.text().strip())
             self.refresh_ili_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
-            self.ili_models_line_edit.setText(models[-1]['name'])
-            self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
+            try:
+                self.ili_models_line_edit.setText(models[-1]['name'])
+                self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
+            except IndexError:
+                self.ili_models_line_edit.setText('')
+                self.ili_models_line_edit.setPlaceholderText(self.tr('[No models found in ili file]'))
         else:
             nonEmptyValidator = NonEmptyStringValidator()
             self.ili_models_line_edit.setValidator(nonEmptyValidator)

@@ -25,6 +25,8 @@ import platform
 import re
 import subprocess
 
+from QgisModelBaker.libs.packaging import version
+
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
@@ -32,29 +34,35 @@ from QgisModelBaker.utils.qt_utils import download_file, NetworkError
 from .globals import DbIliMode, displayDbIliMode
 
 
-def get_ili2db_bin(tool, stdout, stderr):
+def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
     from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
     
     if tool not in DbIliMode or tool == DbIliMode.ili:
-        return None
+        raise RuntimeError('Tool {} not found'.format(tool))
 
-    tool |= DbIliMode.ili # Regardlless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
-    tool_name = tool.name # in fact, we need the name of the ili tool
+    tool |= DbIliMode.ili  # Regardless of the incoming form (i.e., pg or ili2pg), we need its corresponding ili tool
+    tool_name = tool.name  # in fact, we need the name of the ili tool
 
     db_simple_factory = DbSimpleFactory()
     db_factory = db_simple_factory.create_factory(tool)
 
-    ili_tool_version = db_factory.get_tool_version()
-    ili_tool_url = db_factory.get_tool_url()
+    ili_tool_version = db_factory.get_tool_version(db_ili_version)
+    ili_tool_url = db_factory.get_tool_url(db_ili_version)
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     ili2db_dir = '{}-{}'.format(tool_name, ili_tool_version)
 
-    ili2db_file = os.path.join(
-        dir_path, 'bin', ili2db_dir, '{}.jar'.format(tool_name))
+    # the structure changed since 3.12.2
+    if version.Version(ili_tool_version) < version.Version('3.12.2'):
+        ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}/{tool}.jar'
+                                   .format(tool=tool_name, version=ili_tool_version))
+    else:
+        ili2db_file = os.path.join(dir_path, 'bin', ili2db_dir, '{tool}-{version}.jar'
+                                   .format(tool=tool_name, version=ili_tool_version))
+
     if not os.path.isfile(ili2db_file):
         try:
-            os.mkdir(os.path.join(dir_path, 'bin'))
+            os.makedirs(os.path.join(dir_path, 'bin', ili2db_dir), exist_ok=True)
         except FileExistsError:
             pass
 
@@ -79,7 +87,7 @@ def get_ili2db_bin(tool, stdout, stderr):
 
         try:
             with zipfile.ZipFile(tmpfile.name, "r") as z:
-                z.extractall(os.path.join(dir_path, 'bin'))
+                z.extractall(os.path.join(dir_path, 'bin', ili2db_dir))
         except zipfile.BadZipFile:
             # We will realize soon enough that the files were not extracted
             pass
