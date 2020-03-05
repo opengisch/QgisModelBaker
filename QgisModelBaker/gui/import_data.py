@@ -19,6 +19,7 @@
 """
 
 import webbrowser
+import re
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
@@ -74,6 +75,8 @@ DIALOG_UI = get_ui_class('import_data.ui')
 class ImportDataDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
+
+    ModelMissingRegExp = re.compile('Error: failed to query .*\.t_ili2db_seq')
 
     def __init__(self, iface, base_config, parent=None):
 
@@ -242,6 +245,13 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def on_stderr(self, text):
         color_log_text(text, self.txtStdout)
+        match = re.match(ImportDataDialog.ModelMissingRegExp, text)
+        if match:
+            color_log_text('=======================================================================', self.txtStdout)
+            color_log_text(self.tr('It looks like the required schema for the imported data has not been generated.'), self.txtStdout)
+            color_log_text(self.tr('Did you generate the model in the database?'), self.txtStdout)
+            color_log_text(self.tr('Note: the model for a catalogue may be different from the data model itself.'), self.txtStdout)
+            color_log_text('=======================================================================', self.txtStdout)
         self.advance_progress_bar_by_text(text)
 
     def show_message(self, level, message):
