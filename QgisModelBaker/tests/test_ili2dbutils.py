@@ -3,7 +3,7 @@ from QgisModelBaker.tests.utils import testdata_path
 from qgis.testing import unittest
 
 
-class TestDomainClassRelation(unittest.TestCase):
+class TestILI2DBUtils(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -20,24 +20,20 @@ class TestDomainClassRelation(unittest.TestCase):
     def test_parse_subdirs_in_parent_dir(self):
         modeldirs = get_all_modeldir_in_path(self.parent_dir)  # Parent folder: testdata
         expected_dirs = [self.ilimodels, self.ciaf_ladm, self.repo, self.hidden, self.not_hidden]
-        self.assertEqual(";".join(expected_dirs), modeldirs)
+        self.assertEqual(sorted(expected_dirs), sorted(modeldirs.split(";")))
 
     def test_parse_subdirs_in_hidden_dir(self):
         modeldirs = get_all_modeldir_in_path(self.hidden)
-        expected_dirs = [self.hidden]
-        self.assertEqual(";".join(expected_dirs), modeldirs)
+        self.assertEqual(self.hidden, modeldirs)
 
     def test_parse_subdirs_in_not_hidden_dir(self):
         modeldirs = get_all_modeldir_in_path(self.not_hidden)
-        expected_dirs = [self.not_hidden]
-        self.assertEqual(";".join(expected_dirs), modeldirs)
+        self.assertEqual(self.not_hidden, modeldirs)
 
     def test_parse_subdirs_in_empty_dir(self):
         modeldirs = get_all_modeldir_in_path(self.empty)
-        expected_dirs = []
-        self.assertEqual(";".join(expected_dirs), modeldirs)
+        self.assertEqual('', modeldirs)
 
     def test_parse_subdirs_in_not_model_dir(self):
         modeldirs = get_all_modeldir_in_path(self.not_modeldir)
-        expected_dirs = []
-        self.assertEqual(";".join(expected_dirs), modeldirs)
+        self.assertEqual('', modeldirs)
