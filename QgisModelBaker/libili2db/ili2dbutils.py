@@ -107,7 +107,7 @@ def get_all_modeldir_in_path(path, lambdafunction=None):
     all_subdirs = [path[0] for path in os.walk(path)] # include path
     modeldir = ''
     for subdir in all_subdirs:
-        if os.path.isdir(subdir) and '/.' not in subdir and len(glob.glob(subdir + '/*.ili')) > 0:
+        if os.path.isdir(subdir) and len(glob.glob(subdir + '/*.ili')) > 0:
             if lambdafunction is not None:
                 lambdafunction(subdir)
             modeldir += subdir + ';'
