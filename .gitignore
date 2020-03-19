@@ -4,4 +4,6 @@ __pycache__
 *.orig
 i18n
 .DS_Store
+*.pyc
+.cache
 
