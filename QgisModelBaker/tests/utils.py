@@ -37,7 +37,7 @@ def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
     configuration = SchemaImportConfiguration()
     configuration.tool = tool
     if tool == DbIliMode.ili2pg:
-        configuration.dbhost = 'postgres'
+        configuration.dbhost = os.environ['PGHOST']
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
@@ -61,7 +61,7 @@ def iliexporter_config(tool=DbIliMode.ili2pg, modeldir=None, gpkg_path='geopacka
 
     configuration = ExportConfiguration()
     if tool == DbIliMode.ili2pg:
-        configuration.dbhost = 'postgres'
+        configuration.dbhost = os.environ['PGHOST']
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
@@ -87,7 +87,7 @@ def ilidataimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
 
     configuration = ImportDataConfiguration()
     if tool == DbIliMode.ili2pg:
-        configuration.dbhost = 'postgres'
+        configuration.dbhost = os.environ['PGHOST']
         configuration.dbusr = 'docker'
         configuration.dbpwd = 'docker'
         configuration.database = 'gis'
@@ -113,12 +113,12 @@ def get_pg_conn(schema):
     myenv = os.environ.copy()
     myenv['PGPASSWORD'] = 'docker'
 
-    call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/{}_dump".format(schema))], env=myenv)
+    call(["pg_restore", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", testdata_path("dumps/{}_dump".format(schema))], env=myenv)
     db_factory = DbSimpleFactory().create_factory(DbIliMode.pg)
     configuration = ili2dbconfig.ExportConfiguration()
 
     configuration.database = "gis"
-    configuration.dbhost = "postgres"
+    configuration.dbhost = os.environ['PGHOST']
     configuration.dbusr = "docker"
     configuration.dbpwd = "docker"
     configuration.dbport = "5432"
@@ -131,3 +131,8 @@ def get_gpkg_conn(gpkg):
     db_factory = DbSimpleFactory().create_factory(DbIliMode.gpkg)
     db_connector = db_factory.get_db_connector(testdata_path('geopackage/{}.gpkg'.format(gpkg)), None)
     return db_connector
+
+def get_pg_connection_string():
+    pg_host = os.environ['PGHOST']
+    return 'dbname=gis user=docker password=docker host={pg_host}'.format(pg_host=pg_host)
+

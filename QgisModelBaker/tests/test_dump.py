@@ -21,6 +21,7 @@ from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.tests.utils import testdata_path
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
+from QgisModelBaker.tests.utils import get_pg_connection_string
 
 from subprocess import call
 import os
@@ -33,10 +34,10 @@ class TestCustomDump(unittest.TestCase):
     def test_ili2db3_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
         myenv['PGPASSWORD'] = 'docker'
-        call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/_nupla_dump")], env=myenv)
+        call(["pg_restore", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", testdata_path("dumps/_nupla_dump")], env=myenv)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               'smart1',
                               '_nupla')
 
@@ -47,11 +48,11 @@ class TestCustomDump(unittest.TestCase):
     def test_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
         myenv['PGPASSWORD'] = 'docker'
-        call(["psql", "-Fc", "-Fc", "-hpostgres", "-Udocker", "-dgis", "--command=CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""], env=myenv)
-        call(["pg_restore", "-Fc", "-hpostgres", "-Udocker", "-dgis", testdata_path("dumps/_nupla_ili2db4_dump")], env=myenv)
+        call(["psql", "-Fc", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", "--command=CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""], env=myenv)
+        call(["pg_restore", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", testdata_path("dumps/_nupla_ili2db4_dump")], env=myenv)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               'smart1',
                               '_nupla_ili2db4')
 

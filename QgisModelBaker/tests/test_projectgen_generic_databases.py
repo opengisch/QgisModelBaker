@@ -30,6 +30,7 @@ from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import testdata_path
+from QgisModelBaker.tests.utils import get_pg_connection_string
 from qgis.testing import unittest, start_app
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
@@ -52,7 +53,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def test_empty_postgres_db(self):
         generator = None
         try:
-            generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host=postgres', 'smart1', '')
+            generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host={db_host}'.format(db_host=os.environ['PGHOST']), 'smart1', '')
         except (DBConnectorError, FileNotFoundError):
             # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             self.assertIsNone(generator)
@@ -77,7 +78,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             self.assertIsNone(generator)
 
     def test_postgres_db_without_schema(self):
-        generator = Generator(DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1')
+        generator = Generator(DbIliMode.ili2pg, get_pg_connection_string(), 'smart1')
         self.assertIsNotNone(generator)
         self.assertEqual(len(generator.layers()), 0)
 
@@ -95,7 +96,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         self.assertEqual(len(generator.layers()), 0)
 
     def test_postgres_db_with_empty_schema(self):
-        uri = 'dbname=gis user=docker password=docker host=postgres'
+        uri = get_pg_connection_string()
         conn = psycopg2.connect(uri)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
@@ -136,7 +137,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             cur.commit()
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_spatial_tables(self):
-        uri = 'dbname=gis user=docker password=docker host=postgres'
+        uri = get_pg_connection_string()
         conn = psycopg2.connect(uri)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
@@ -241,7 +242,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             cur.close()
 
     def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
-        uri = 'dbname=gis user=docker password=docker host=postgres'
+        uri = get_pg_connection_string()
         conn = psycopg2.connect(uri)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
