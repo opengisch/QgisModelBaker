@@ -29,6 +29,7 @@ from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
+from QgisModelBaker.tests.utils import get_pg_connection_string
 from qgis.core import QgsProject, QgsEditFormConfig
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
@@ -56,7 +57,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -126,7 +127,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart1', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -384,7 +385,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -516,7 +517,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         count = 0
@@ -604,7 +605,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -685,7 +686,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -812,7 +813,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -904,7 +905,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
@@ -1047,7 +1048,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -1176,7 +1177,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(
-            DbIliMode.ili2pg, 'dbname=gis user=docker password=docker host=postgres', 'smart2', importer.configuration.dbschema)
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
 
         available_layers = generator.layers()
 

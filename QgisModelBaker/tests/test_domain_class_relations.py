@@ -25,7 +25,7 @@ import logging
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
+from QgisModelBaker.tests.utils import iliimporter_config, testdata_path, get_pg_connection_string
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.testing import unittest, start_app
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
@@ -56,7 +56,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -133,7 +133,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -525,7 +525,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -612,7 +612,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -871,7 +871,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -988,7 +988,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -1337,7 +1337,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -1413,7 +1413,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -1642,7 +1642,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -1933,7 +1933,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -2217,7 +2217,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 
@@ -2291,7 +2291,7 @@ class TestDomainClassRelation(unittest.TestCase):
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
 
         generator = Generator(DbIliMode.ili2pg,
-                              'dbname=gis user=docker password=docker host=postgres',
+                              get_pg_connection_string(),
                               importer.configuration.inheritance,
                               importer.configuration.dbschema)
 

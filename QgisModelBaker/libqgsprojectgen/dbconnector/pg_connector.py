@@ -315,8 +315,8 @@ class PGConnector(DBConnector):
                 cursor_factory=psycopg2.extras.DictCursor)
             constraints_cur.execute(r"""
                 SELECT
-                  consrc,
-                  regexp_matches(consrc, '\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)') AS check_details
+                  pg_get_constraintdef(oid),
+                  regexp_matches(pg_get_constraintdef(oid), 'CHECK \(\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)\)') AS check_details
                 FROM pg_constraint
                 WHERE conrelid = '{schema}."{table}"'::regclass
                 AND contype = 'c'

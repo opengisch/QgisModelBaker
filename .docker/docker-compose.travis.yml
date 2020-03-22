@@ -1,7 +1,12 @@
 version: '3'
 services:
-  postgres:
-    image: kartoza/postgis:10.0-2.4
+  postgres11:
+    image: kartoza/postgis:11.0-2.5
+    environment:
+      - ALLOW_IP_RANGE="172.0.0.0/8"
+
+  postgres12:
+    image: kartoza/postgis:12.1
     environment:
       - ALLOW_IP_RANGE="172.0.0.0/8"
 
@@ -23,5 +28,6 @@ services:
     volumes:
       - ${TRAVIS_BUILD_DIR}:/usr/src
     links:
-      - postgres
+      - postgres11
+      - postgres12
       - mssql
