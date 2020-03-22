@@ -1188,7 +1188,7 @@ class TestProjectGen(unittest.TestCase):
         logging.info(text)
 
     def print_error(self, text):
-        logging.info(text)
+        logging.error(text)
 
     def tearDown(self):
         QgsProject.instance().removeAllMapLayers()

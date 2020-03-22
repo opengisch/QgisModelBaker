@@ -105,13 +105,23 @@ class DBConnector(QObject):
         '''
         return []
 
-    def get_constraints_info(self, table_name):
+    def get_min_max_info(self, table_name):
         '''
         Info about range constraints found in a given table.
 
         Return:
             Dictionary with keys corresponding to column names and values
             corresponding to tuples in the form (min_value, max_value)
+        '''
+        return {}
+
+    def get_value_map_info(self, table_name):
+        '''
+        Info about value map constraints found in a given table.
+
+        Return:
+            Dictionary with keys corresponding to column names and values
+            with lists of allowed values
         '''
         return {}
 

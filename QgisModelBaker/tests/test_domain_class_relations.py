@@ -2348,7 +2348,7 @@ class TestDomainClassRelation(unittest.TestCase):
         logging.info(text)
 
     def print_error(self, text):
-        logging.info(text)
+        logging.error(text)
 
     @classmethod
     def tearDownClass(cls):

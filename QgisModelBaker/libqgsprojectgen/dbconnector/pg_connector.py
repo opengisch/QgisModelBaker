@@ -308,7 +308,7 @@ class PGConnector(DBConnector):
 
         return []
 
-    def get_constraints_info(self, table_name):
+    def get_min_max_info(self, table_name):
         # Get all 'c'heck constraints for this table
         if self.schema:
             constraints_cur = self.conn.cursor(
@@ -329,6 +329,35 @@ class PGConnector(DBConnector):
             for constraint in constraints_cur:
                 constraint_mapping[constraint['check_details'][0]] = (
                     constraint['check_details'][1], constraint['check_details'][3])
+
+            return constraint_mapping
+
+        return {}
+
+    ValueMapRegExp = re.compile('.*\'(.*)\'::.*')
+
+    def get_value_map_info(self, table_name):
+        if self.schema:
+            constraints_cur = self.conn.cursor(
+                cursor_factory=psycopg2.extras.DictCursor)
+            constraints_cur.execute(r"""
+                SELECT
+                  regexp_matches(pg_get_constraintdef(oid), 'CHECK \(\(\((.*)\)::text = ANY \(\(ARRAY\[(.*)\]\)::text\[\]\)\)\)') AS check_details
+                FROM pg_constraint
+                WHERE conrelid = '{schema}."{table}"'::regclass
+                AND contype = 'c'
+                """.format(schema=self.schema, table=table_name))
+            # Returns value in the form of
+            #    {t_type,"'gl_ntznng_v1_4geobasisdaten_grundnutzung_zonenflaeche'::character varying, 'grundnutzung_zonenflaeche'::character varying"}
+
+            constraint_mapping = dict()
+            for constraint in constraints_cur:
+                values = list()
+                for value in constraint['check_details'][1].split(','):
+                    match = re.match(PGConnector.ValueMapRegExp, value)
+                    values.append(match.group(1))
+
+                constraint_mapping[constraint['check_details'][0]] = values
 
             return constraint_mapping
 

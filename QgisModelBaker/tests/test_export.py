@@ -427,7 +427,7 @@ class TestExport(unittest.TestCase):
         logging.info(text)
 
     def print_error(self, text):
-        logging.info(text)
+        logging.error(text)
 
     def compare_xtfs(self, expected, obtained):
         nsxtf = '{http://www.interlis.ch/INTERLIS2.3}'

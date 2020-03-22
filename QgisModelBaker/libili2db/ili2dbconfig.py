@@ -205,6 +205,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--createMetaInfo"]
         args += ["--expandMultilingual"]
         if self.db_ili_version is None or self.db_ili_version > 3:
+            args += ["--createTypeConstraint"]
             args += ["--createEnumTabsWithId"]
             args += ["--createTidCol"]
 

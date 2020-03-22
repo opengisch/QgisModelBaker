@@ -123,7 +123,8 @@ class Generator(QObject):
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
-            constraints_info = self.get_constraints_info(record['tablename'])
+            min_max_info = self.get_min_max_info(record['tablename'])
+            value_map_info = self.get_value_map_info(record['tablename'])
             re_iliname = re.compile(r'.*\.(.*)$')
 
             for fielddef in fields_info:
@@ -162,16 +163,20 @@ class Generator(QObject):
                 if column_name in READONLY_FIELDNAMES:
                     field.read_only = True
 
-                if column_name in constraints_info:
+                if column_name in min_max_info:
                     field.widget = 'Range'
-                    field.widget_config['Min'] = constraints_info[column_name][0]
-                    field.widget_config['Max'] = constraints_info[column_name][1]
+                    field.widget_config['Min'] = min_max_info[column_name][0]
+                    field.widget_config['Max'] = min_max_info[column_name][1]
                     if 'numeric_scale' in fielddef:
                         field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
                     # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
                     if 'unit' in fielddef and fielddef['unit'] is not None:
                         field.alias = '{alias} [{unit}]'.format(
                             alias=alias or column_name, unit=fielddef['unit'])
+
+                if column_name in value_map_info:
+                    field.widget = 'ValueMap'
+                    field.widget_config['map'] = [{val: val} for val in value_map_info[column_name]]
 
                 if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
                     field.widget = 'TextEdit'
@@ -329,8 +334,11 @@ class Generator(QObject):
 
         return new_tables_info
 
-    def get_constraints_info(self, table_name):
-        return self._db_connector.get_constraints_info(table_name)
+    def get_min_max_info(self, table_name):
+        return self._db_connector.get_min_max_info(table_name)
+
+    def get_value_map_info(self, table_name):
+        return self._db_connector.get_value_map_info(table_name)
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
