@@ -14,6 +14,13 @@ class IliCacheTest(unittest.TestCase):
         self.assertEqual(models[0]['name'], 'RoadsSimple')
         self.assertEqual(models[0]['version'], '2016-08-11')
 
+    # Test "!!" line comment
+    def test_modelparser_line_comment(self):
+        ilicache = IliCache([])
+        models = ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'SIA405_Base_f-20181005.ili'), 'utf-8')
+        self.assertEqual(models[0]['name'], 'SIA405_Base_f')
+        self.assertEqual(models[0]['version'], '05.10.2018')
+
     def test_modelparser(self):
         ilicache = IliCache([])
         models = ilicache.parse_ili_file(os.path.join(test_path, 'testdata', 'ilimodels', 'RoadsSimple.ili'), 'utf-8')

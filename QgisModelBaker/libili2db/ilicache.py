@@ -218,6 +218,7 @@ class IliCache(QObject):
         with open(ilipath, 'r', encoding=encoding) as file:
             model = None
             for lineno, line in enumerate(file):
+                line = line.split("!!")[0]
                 result = re_model.search(line)
                 if result:
                     model = dict()
