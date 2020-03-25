@@ -407,7 +407,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_file_line_edit.setText(
             settings.value('QgisModelBaker/ili2db/ilifile'))
-        self.crs = QgsCoordinateReferenceSystem(
+        self.crs = QgsCoordinateReferenceSystem.fromEpsgId(
             settings.value('QgisModelBaker/ili2db/epsg', 21781, int))
         self.fill_toml_file_info_label()
         self.update_crs_info()
@@ -464,7 +464,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
-                self.crs = QgsCoordinateReferenceSystem(crs)
+                self.crs = QgsCoordinateReferenceSystem.fromEpsgId(int(crs))
                 self.update_crs_info()
                 break
         self.ili2db_options.set_toml_file_key(text)
