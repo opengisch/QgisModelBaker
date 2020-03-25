@@ -1,0 +1,242 @@
+!! 10.4.2018 Neu auch mit Base_LV95 in der gleichen Datei
+
+INTERLIS 2.3;
+
+TYPE MODEL SIA405_Base_f (fr) AT "http://www.sia.ch/models" 
+  !! VERSION "4.4.2013"  =
+  VERSION "05.10.2018" TRANSLATION OF SIA405_Base [ "05.10.2018" ] =
+
+  IMPORTS UNQUALIFIED INTERLIS;		!! nouveaux 8.11.2004, importer INTERLIS 2.3. unitées de base
+  IMPORTS Base_f;
+  IMPORTS Units;
+
+!! Copyright 2003 - 2018 SIA
+
+!! Des changements et compléments sont permis pour l'utilisation personnelle. 
+!! Ceux-ci doivent être documentés visiblement, afin de repérer les modifications 
+!! apportées (insérer des commentaires INTERLIS). 
+!! Les fichiers modèles originaux  et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+
+!! Vérifié avec Compiler version 4.7.7 du 08.02.2018
+!! Greffier: Stefan Burckhardt / Commission SIA 405
+
+!! 18.4.2014 Largeur_nominale au lieu de largeur_nominale 
+!! 10./11.6.2014 Type_de_plan = Plan_d_ensemble, nouvelles valeurs PdE2, PdE5, PdE10
+!! 30.10.2017 SIA405_TextePos.TEXTE: MTEXT au lieu de MTEXT*80
+!! 25.4.2018 Checked with Compiler 4.7.7 du 08.02.2018
+!! 25.4.2018 Adaption DERNIERE_MODIFICATION: MANDATORY INTERLIS.INTERLIS_1_DATE;  !! Date de la dernière modification de l’enregistrement, si cette information est disponible. Sinon, 19000101. Format: yyyymmdd (INTERLIS_1_DATE) au lieu de ... Sinon, indiquer la date de la création de l’enregistrement. pour que on peut distinguer une modification d'auhourdhui ou inconnu.
+!! 5.10.2018 Correction
+
+
+  UNIT
+
+    KiloWatt [kW] = 1000 [Units.W];
+    Litre_par_seconde [ls] = (Units.L/s);
+    Litre_par_jour [ld] = (Units.L/Units.d);
+    Gramme_par_metre_cube [gm3] = (Units.g/Units.m3);
+    Metre_cube_par_seconde [m3s] = (Units.m3/s);
+    Metre_cube_par_jour [m3d] = (Units.m3/Units.d);
+    Metre_cube_par_heure [m3h] = (Units.m3/Units.h);
+    Metre_par_seconde [ms] EXTENDS Units.Velocity = (m/s);
+    Centimetre_carre [cm2] EXTENDS Units.Area = (Units.cm*Units.cm);
+  
+  DOMAIN
+
+    !! Types généraux pour tous les fluides de la norme SIA405
+    !! nouveau 1.2.2013
+    !! nouveau 21.2.2012
+    Metrage = 0 .. 4000 [Units.mm];    !! unité de mesure millimètre  [mm]
+    Largeur = 0 .. 4000 [Units.mm];    !! unité de mesure millimètre  [mm]
+    Determination_planimetrique = (   !! Définit la précision de la détermination du tracé. 
+                   precis,  !! +/- 10 cm, lors de la détermination du tracé par différentes mesures, le triple, c'est-à-dire +/- 30 cm (norme SIA 405)
+                   inconnue,
+                   imprecis  !! voyez precis
+                   );
+    Annee = 1800 .. 2100;  !! inconnu = 1800 (valeur la plus bas)
+
+    Epaisseur  = -99999 .. 99999 [Units.mm]; !! 11.6.2012, nouveau positive et négative, L'epaisseur résulte de la différence entre la CoteRef et la CoteZ et peut soit prendre une valeur positive ou négative. 
+
+    !! nouveau 21.2.2012
+    !! 18.4.2014 largeur_nominale = TEXT*10;  !! En tant que TEXT, car peut contenir des valeurs doubles avec barre oblique
+    Largeur_nominale = TEXT*10;  !! En tant que TEXT, car peut contenir des valeurs doubles avec barre oblique
+    
+	!! nouveau 21.2.2012
+    Organisation_Designation = TEXT*80;  !! Nouveau type de données pour PRORIETAIRE, EXPLOITANT, MAITRE_DES_DONNEES, FOURNISSEUR_DES_DONNEES, etc. La longueur du champ est préparée pour la désignation des UID (www.uid.admin.ch)
+
+    Type_de_plan = (
+                    cadastre_des_conduites_souterraines,
+                    plan_de_reseau, 
+                    plan_d_ensemble (  !! correction du 11.11.2004 plan_d_ensemble au lieu de plan_ensemble
+                       pe10,  !! 1:10'000
+                       pe2,  !! 1:2'000
+                       pe5  !! 1:5'000
+                       ) 
+                    );
+    
+    Etat = (
+            hors_service, 
+            en_service, 
+            abandonne, 
+            inconnu, 
+            autre
+            );
+
+    Couverture = 0.0 .. 999.9 [INTERLIS.m];   !! valeur moyenne d’un objet [m] (tube de protection / eaux / chauffage à distance)
+
+    STRUCTURE METAATTRIBUTS =
+      !! métainformations – aussi à saisir sous www.geocat.ch
+      MAITRE_DES_DONNEES: MANDATORY Organisation_Designation;  !! Maître des données est le gestionnaire de données, qui est la personne ou l’organisation autorisée à gérer, modifier ou supprimer les données de cette table/classe. Si un bureau d’ingénieurs exécute cette fonction mandaté par une commune, il faut saisir la commune comme MAITRE_DES_DONNEES et non le bureau d’ingénieurs. Ce dernier sera le fournisseur des données. 
+      FOURNISSEUR_DES_DONNEES: MANDATORY Organisation_Designation;  !! Organisation qui crée l’enregistrement de ces données (cf. MAITRE_DES_DONNEES et DERNIERE_MODIFICATION).
+      !! DERNIERE_MODIFICATION: MANDATORY INTERLIS.INTERLIS_1_DATE;  !! Date de la dernière modification de l’enregistrement, si cette information est disponible. Sinon, indiquer la date de la création de l’enregistrement.
+      DERNIERE_MODIFICATION: MANDATORY INTERLIS.INTERLIS_1_DATE;  !! Date de la dernière modification de l’enregistrement, si cette information est disponible. Sinon, 19000101. Format: yyyymmdd (INTERLIS_1_DATE)
+
+	  END METAATTRIBUTS;
+
+!! nouveau 25.1.2012	
+   CLASS SIA405_BaseClass (ABSTRACT) EXTENDS Base_f.BaseClass =
+   !! BaseClass pour toutes les classes supérieures (Superclass) avec des Metaattributs
+   	  OID AS STANDARDOID;  !! Option selectionnée pour la défintion ANYOID de base.ili. Voir également sous cahier technqiue 2015, chapitre 2.3.8 identifications d’objets 
+      !! Redondant comme attribut OBJ_ID pour l‚OID. Afin de rendre la compatibilité inverse possaible avec INTERLIS 1, il faut modéliser les conditions pour le TID. L’attribut doit être géré dans la base de données ou géré de manière stable lors de l’exportation/importation. . 
+	  ATTRIBUTE
+		OBJ_ID: TEXT*16; !! nouveau 23.5.2012 OID (STANDARDOID) et redondant comme attribut (voir SIA 405 cahier technique 2015, chapitre 2.3.
+		!! Les données des métaattributs doivent être introduites de manière centralisée à travers la STRUCTURE ManagementAttributes
+		METAATTRIBUTS: MANDATORY METAATTRIBUTS;
+      UNIQUE OBJ_ID;
+   END SIA405_BaseClass;  
+
+   CLASS SIA405_TextePos (ABSTRACT) EXTENDS Base_f.TextePos =
+      TYPE_DE_PLAN: MANDATORY Type_de_plan;
+      !! TEXTE: MANDATORY MTEXT*80; !! valeur calculée à partir d’attributs, nouveau 80 au lieu de 40 caractères est MTEXT au lieu de TEXT, pour qu'on puisset transformer aussi des multiples lignes de textes.
+      TEXTE: MANDATORY MTEXT; !! valeur calculée à partir d’attributs
+      REMARQUE: TEXT*80; !! pour des spécifications bilatérales (correction 27.6.2008 Remarque au lieu de Remarques)
+  END SIA405_TextePos;
+
+!! nouveau 30.8.2011 – pour chauffage à distance / 21.2.2012 l’échelle des symboles a été déplacée au lieu d‘être insérée à Base_f.ili
+   CLASS SIA405_SymbolePos (ABSTRACT) EXTENDS Base_f.SymbolePos =
+      TYPE_DE_PLAN: MANDATORY Type_de_plan;
+	  !! 3.4.2013 adaption en français
+      MISE_A_L_ECHELLE_EN_LONGUEUR: 0.0 .. 9.9;
+      MISE_A_L_ECHELLE_EN_HAUTEUR: 0.0 .. 9.9;
+   END SIA405_SymbolePos; 
+
+END SIA405_Base_f.
+
+
+
+TYPE MODEL SIA405_Base_f_LV95 (fr) AT "http://www.sia.ch/models" 
+  !! VERSION "4.4.2013"  =
+  VERSION "05.10.2018" TRANSLATION OF SIA405_Base_LV95 [ "05.10.2018" ] =
+
+  IMPORTS UNQUALIFIED INTERLIS;		!! nouveaux 8.11.2004, importer INTERLIS 2.3. unitées de base
+  IMPORTS Base_f_LV95;
+  IMPORTS Units;
+
+!! Copyright 2003 - 2018 SIA
+
+!! Des changements et compléments sont permis pour l'utilisation personnelle. 
+!! Ceux-ci doivent être documentés visiblement, afin de repérer les modifications 
+!! apportées (insérer des commentaires INTERLIS). 
+!! Les fichiers modèles originaux  et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+
+!! Vérifié avec Compiler version 4.7.7 du 08.02.2018
+!! Greffier: Stefan Burckhardt / Commission SIA 405
+
+!! 18.4.2014 Largeur_nominale au lieu de largeur_nominale 
+!! 10./11.6.2014 Type_de_plan = Plan_d_ensemble, nouvelles valeurs PdE2, PdE5, PdE10
+!! 30.10.2017 SIA405_TextePos.TEXTE: MTEXT au lieu de MTEXT*80
+!! 10.4.2018 Checked with Compiler 4.7.7 du 08.02.2018
+!! 05.10.2018 Correction
+
+  UNIT
+
+    KiloWatt [kW] = 1000 [Units.W];
+    Litre_par_seconde [ls] = (Units.L/s);
+    Litre_par_jour [ld] = (Units.L/Units.d);
+    Gramme_par_metre_cube [gm3] = (Units.g/Units.m3);
+    Metre_cube_par_seconde [m3s] = (Units.m3/s);
+    Metre_cube_par_jour [m3d] = (Units.m3/Units.d);
+    Metre_cube_par_heure [m3h] = (Units.m3/Units.h);
+    Metre_par_seconde [ms] EXTENDS Units.Velocity = (m/s);
+    Centimetre_carre [cm2] EXTENDS Units.Area = (Units.cm*Units.cm);
+  
+  DOMAIN
+
+    !! Types généraux pour tous les fluides de la norme SIA405
+    !! nouveau 1.2.2013
+    !! nouveau 21.2.2012
+    Metrage = 0 .. 4000 [Units.mm];    !! unité de mesure millimètre  [mm]
+    Largeur = 0 .. 4000 [Units.mm];    !! unité de mesure millimètre  [mm]
+    Determination_planimetrique = (   !! Définit la précision de la détermination du tracé. 
+                   precis,  !! +/- 10 cm, lors de la détermination du tracé par différentes mesures, le triple, c'est-à-dire +/- 30 cm (norme SIA 405)
+                   inconnue,
+                   imprecis  !! voyez precis
+                   );
+    Annee = 1800 .. 2100;  !! inconnu = 1800 (valeur la plus bas)
+
+    Epaisseur  = -99999 .. 99999 [Units.mm]; !! 11.6.2012, nouveau positive et négative, L'epaisseur résulte de la différence entre la CoteRef et la CoteZ et peut soit prendre une valeur positive ou négative. 
+
+    !! nouveau 21.2.2012
+    !! 18.4.2014 largeur_nominale = TEXT*10;  !! En tant que TEXT, car peut contenir des valeurs doubles avec barre oblique
+    Largeur_nominale = TEXT*10;  !! En tant que TEXT, car peut contenir des valeurs doubles avec barre oblique
+    
+	!! nouveau 21.2.2012
+    Organisation_Designation = TEXT*80;  !! Nouveau type de données pour PRORIETAIRE, EXPLOITANT, MAITRE_DES_DONNEES, FOURNISSEUR_DES_DONNEES, etc. La longueur du champ est préparée pour la désignation des UID (www.uid.admin.ch)
+
+    Type_de_plan = (
+                    cadastre_des_conduites_souterraines,
+                    plan_de_reseau, 
+                    plan_d_ensemble (  !! correction du 11.11.2004 plan_d_ensemble au lieu de plan_ensemble
+                       pe10,  !! 1:10'000
+                       pe2,  !! 1:2'000
+                       pe5  !! 1:5'000
+                       ) 
+                    );
+    
+    Etat = (
+            hors_service, 
+            en_service, 
+            abandonne, 
+            inconnu, 
+            autre
+            );
+
+    Couverture = 0.0 .. 999.9 [INTERLIS.m];   !! valeur moyenne d’un objet [m] (tube de protection / eaux / chauffage à distance)
+
+    STRUCTURE METAATTRIBUTS =
+      !! métainformations – aussi à saisir sous www.geocat.ch
+      MAITRE_DES_DONNEES: MANDATORY Organisation_Designation;  !! Maître des données est le gestionnaire de données, qui est la personne ou l’organisation autorisée à gérer, modifier ou supprimer les données de cette table/classe. Si un bureau d’ingénieurs exécute cette fonction mandaté par une commune, il faut saisir la commune comme MAITRE_DES_DONNEES et non le bureau d’ingénieurs. Ce dernier sera le fournisseur des données. 
+      FOURNISSEUR_DES_DONNEES: MANDATORY Organisation_Designation;  !! Organisation qui crée l’enregistrement de ces données (cf. MAITRE_DES_DONNEES et DERNIERE_MODIFICATION).
+      DERNIERE_MODIFICATION: MANDATORY INTERLIS.INTERLIS_1_DATE;  !! Date de la dernière modification de l’enregistrement, si cette information est disponible. Sinon, indiquer la date de la création de l’enregistrement.
+    END METAATTRIBUTS;
+
+!! nouveau 25.1.2012	
+   CLASS SIA405_BaseClass (ABSTRACT) EXTENDS Base_f_LV95.BaseClass =
+   !! BaseClass pour toutes les classes supérieures (Superclass) avec des Metaattributs
+   	  OID AS STANDARDOID;  !! Option selectionnée pour la défintion ANYOID de base.ili. Voir également sous cahier technqiue 2015, chapitre 2.3.8 identifications d’objets 
+      !! Redondant comme attribut OBJ_ID pour l‚OID. Afin de rendre la compatibilité inverse possaible avec INTERLIS 1, il faut modéliser les conditions pour le TID. L’attribut doit être géré dans la base de données ou géré de manière stable lors de l’exportation/importation. . 
+	  ATTRIBUTE
+		OBJ_ID: TEXT*16; !! nouveau 23.5.2012 OID (STANDARDOID) et redondant comme attribut (voir SIA 405 cahier technique 2015, chapitre 2.3.
+		!! Les données des métaattributs doivent être introduites de manière centralisée à travers la STRUCTURE ManagementAttributes
+		METAATTRIBUTS: MANDATORY METAATTRIBUTS;
+      UNIQUE OBJ_ID;
+   END SIA405_BaseClass;  
+
+   CLASS SIA405_TextePos (ABSTRACT) EXTENDS Base_f_LV95.TextePos =
+      TYPE_DE_PLAN: MANDATORY Type_de_plan;
+      !! TEXTE: MANDATORY MTEXT*80; !! valeur calculée à partir d’attributs, nouveau 80 au lieu de 40 caractères est MTEXT au lieu de TEXT, pour qu'on puisset transformer aussi des multiples lignes de textes.
+      TEXTE: MANDATORY MTEXT; !! valeur calculée à partir d’attributs
+      REMARQUE: TEXT*80; !! pour des spécifications bilatérales (correction 27.6.2008 Remarque au lieu de Remarques)
+  END SIA405_TextePos;
+
+!! nouveau 30.8.2011 – pour chauffage à distance / 21.2.2012 l’échelle des symboles a été déplacée au lieu d‘être insérée à Base_f_LV95.ili
+   CLASS SIA405_SymbolePos (ABSTRACT) EXTENDS Base_f_LV95.SymbolePos =
+      TYPE_DE_PLAN: MANDATORY Type_de_plan;
+	  !! 3.4.2013 adaption en français
+      MISE_A_L_ECHELLE_EN_LONGUEUR: 0.0 .. 9.9;
+      MISE_A_L_ECHELLE_EN_HAUTEUR: 0.0 .. 9.9;
+   END SIA405_SymbolePos; 
+
+END SIA405_Base_f_LV95.
+
