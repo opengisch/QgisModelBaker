@@ -86,7 +86,7 @@ class PgFactory(DbFactory):
         if db_ili_version == 3:
             return '3.11.2'
         else:
-            return '4.4.0'
+            return '4.4.2'
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2pg.
