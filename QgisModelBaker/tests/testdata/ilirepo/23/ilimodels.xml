@@ -1,0 +1,989 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="KOGIS-20200115" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="IliRepository09" VERSION="2009-12-01" URI="mailto:ce@eisenhutinformatik.ch"/>
+      <MODEL NAME="IliRepository20" VERSION="2020-01-15" URI="http://models.interlis.ch/core"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <!-- ===================================================================== -->
+    <!-- INTERLIS REFERENCE MODELS OF THE SWISS CONFEDERATION (ili2_2, ili2_3) -->
+    <IliRepository09.RepositoryIndex BID="ch.interlis.ilimodels.b1">
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="1">
+        <Name>IliRepository09</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/IliRepository09_o0.ili</File>
+        <Version>2009-11-19</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>b2bd836d761de6a1324e3a6c3f7d3650</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="2">
+        <Name>IliRepository09</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/IliRepository09_o1.ili</File>
+        <Version>2009-12-01</Version>
+        <precursorVersion>2009-11-19</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>d4ca2847fee23bcc4332918394e4830b</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="3">
+        <Name>IliSite09</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>core/IliSite09-20091119.ili</File>
+        <Version>2009-11-19</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>6fa61b0163bbafa5df541fc86b142948</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="4">
+        <Name>IlisMeta07</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/IlisMeta07_o0.ili</File>
+        <Version>2008-02-07</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>c5d11adfe45b53d3962bc376f7dc8616</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="5">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/AbstractSymbology_o0.ili</File>
+        <Version>2003-03-18</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>bcdd38ff69b6e9aa62302a4c1536310f</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="6">
+        <Name>CoordSys</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/CoordSys_o0.ili</File>
+        <Version>2003-03-18</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>d8b5aa87bf3f9ded17caeb5a0cbffd7c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="7">
+        <Name>RoadsExdm2ben_10</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/RoadsExdm2ben-20030226.ili</File>
+        <Version>2003-02-26</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>cfa0cfda12d0d1b1911944682b32e89d</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="8">
+        <Name>RoadsExdm2ien_10</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/RoadsExdm2ien_10_o0.ili</File>
+        <Version>2003-02-26</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben_10</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>df7aa897a7a3800d4e0abeb9ad710cbd</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="9">
+        <Name>RoadsExgm2ien_10</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/RoadsExgm2ien-20030226.ili</File>
+        <Version>2003-02-26</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben_10</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ien_10</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>StandardSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>15911c80234a512b78cbdea1b51c9ea7</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="10">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/StandardSymbology_o0.ili</File>
+        <Version>2003-03-18</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>223ff253d6b352f9a6b6b0e6686bfbcb</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="11">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/Time_o0.ili</File>
+        <Version>2003-03-18</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>f6201ebafb641f2e78893ab6919dd9cc</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="12">
+        <Name>Units</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/Units_o0.ili</File>
+        <Version>2003-03-18</Version>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>71a8ccd32bb3dd51f1e666aa833d58f4</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="13">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/AbstractSymbology_o1.ili</File>
+        <Version>2005-06-16</Version>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>be66beba06650e6083ea009aca792ecb</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="14">
+        <Name>CoordSys</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/CoordSys_o1.ili</File>
+        <Version>2005-06-16</Version>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>520e0544a9833f216b7d84ba7c89262c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="15">
+        <Name>RoadsExdm2ben</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/RoadsExdm2ben-20050616.ili</File>
+        <Version>2005-06-16</Version>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>33b3b2c8d518061b8f01168cd1ee65a1</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="16">
+        <Name>RoadsExdm2ien</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/RoadsExdm2ien_o0.ili</File>
+        <Version>2005-06-16</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>7862b3381dc90d857ed7f8e28a20bd41</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="17">
+        <Name>RoadsExgm2ien</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/RoadsExgm2ien-20050616.ili</File>
+        <Version>2005-06-16</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ien</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>StandardSymbology</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>c207c14dade2c4b857b6b4151e66bc10</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="18">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/StandardSymbology_o1.ili</File>
+        <Version>2005-06-16</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>b712287b7269242ffe0ab6d4d63448a3</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="19">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/Time_o1.ili</File>
+        <Version>2005-06-16</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>3d3bd4f8367a5bc1ba3395f0e1cf882c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="20">
+        <Name>Units</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/Units_o1.ili</File>
+        <Version>2005-06-16</Version>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>66ad28cb2d65ffacdee360c6f4f6cb69</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="21">
+        <Name>GM03Core</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/GM03_V23.ili</File>
+        <Version>2005-04-15</Version>
+        <publishingDate>2005-04-15</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.geocat.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>719211af31d874eafb20fcc1af5cce25</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="22">
+        <Name>GM03Comprehensive</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>geocat.ch/GM03_V23.ili</File>
+        <Version>2005-04-15</Version>
+        <publishingDate>2005-04-15</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>GM03Core</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.geocat.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>99c34fcc6409d7effe3892dd7ee2204c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="23">
+        <Name>CodeISO</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>geocat.ch/CodeISO.ili</File>
+        <Version>2005-04-15</Version>
+        <publishingDate>2005-04-15</publishingDate>
+        <Issuer>http://www.geocat.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>5f1ca062b739f7c034b03477344da9b2</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="24">
+        <Name>GM03_2Core</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2.ili</File>
+        <Version>20081211</Version>
+        <publishingDate>2008-12-11</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>656111cd9083881f2fecce0a3f308814</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="25">
+        <Name>GM03_2Comprehensive</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2.ili</File>
+        <Version>20081211</Version>
+        <publishingDate>2008-12-11</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>GM03_2Core</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>1dc1e126ac75b9f6c69774485861a1dc</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="26">
+        <Name>CodeISO</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/CodeISO_2.ili</File>
+        <Version>20060808</Version>
+        <publishingDate>2006-08-08</publishingDate>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>00bc9fa4a6e6b885dc42490853178be3</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="27">
+        <Name>GM03_2_1Core</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2_1.ili</File>
+        <Version>20130121</Version>
+        <publishingDate>2013-05-14</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>1c326df8e57bf403993c3788d00c7351</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="28">
+        <Name>GM03_2_1Comprehensive</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2_1.ili</File>
+        <Version>20130121</Version>
+        <publishingDate>2013-05-14</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>GM03_2_1Core</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>ca8c7a94a827ff7566c5da800169ce64</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="29">
+        <Name>IlisMeta07</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/IlisMeta07_o1.ili</File>
+        <Version>2008-08-29</Version>
+        <publishingDate>2008-08-29</publishingDate>
+        <precursorVersion>2008-02-07</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>2f476c335784de2fdcc27dd3e27ebcd8</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="30">
+        <Name>Units</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/Units-20120220.ili</File>
+        <Version>2012-02-20</Version>
+        <publishingDate>2012-02-20</publishingDate>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>e2a198a0599581673d55bbc2c968a9f8</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="31">
+        <Name>IlisMeta07</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>core/IlisMeta07-20111222.ili</File>
+        <Version>2011-12-22</Version>
+        <publishingDate>2011-12-22</publishingDate>
+        <precursorVersion>2008-08-29</precursorVersion>
+        <Issuer>http://interlis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>6d0346598e55c35dfe8e19a7c9c55bd5</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="32">
+        <Name>IliRepository09</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>core/IliRepository09-20120220.ili</File>
+        <Version>2012-02-20</Version>
+        <publishingDate>2012-02-20</publishingDate>
+        <precursorVersion>2009-12-01</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>562cd4f06241c815a42fc5a92d340829</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="33">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>obsolete/StandardSymbology_o2.ili</File>
+        <Version>2015-04-01</Version>
+        <publishingDate>2015-04-01</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2003-03-18</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>8c32ce70641aae3f16904655bb6cc248</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="34">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/StandardSymbology_o3.ili</File>
+        <Version>2015-04-02</Version>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>43a1d5c8d92d2f47a75f60d10cc35977</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="35">
+        <Name>GM03Core</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>geocat.ch/GM03_V23.ili</File>
+        <Version>2015-12-04</Version>
+        <publishingDate>2015-12-04</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2005-04-15</precursorVersion>
+        <Issuer>http://www.geocat.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>99c34fcc6409d7effe3892dd7ee2204c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="36">
+        <Name>GM03_2Core</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2.ili</File>
+        <Version>2015-12-04</Version>
+        <publishingDate>2015-12-04</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>20081211</precursorVersion>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>1dc1e126ac75b9f6c69774485861a1dc</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="37">
+        <Name>GM03_2_1Core</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>geocat.ch/GM03_2_1.ili</File>
+        <Version>2015-12-04</Version>
+        <publishingDate>2015-12-04</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>CodeISO</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>20130121</precursorVersion>
+        <Issuer>http://www.kogis.ch</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>ca8c7a94a827ff7566c5da800169ce64</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="38">
+        <Name>CoordSys</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/CoordSys-20151124.ili</File>
+        <Version>2015-11-24</Version>
+        <publishingDate>2016-01-21</publishingDate>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>56943b1a4277052f63a2ca401b1feabe</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="39">
+        <Name>INTERLIS_ext</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/INTERLIS_exto0.ili</File>
+        <Version>2016-02-11</Version>
+        <publishingDate>2016-02-12</publishingDate>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>2f8d49c2dd6cd1bd2eacc6c652d8a865</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="40">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/StandardSymbology-20160121.ili</File>
+        <Version>2016-01-21</Version>
+        <publishingDate>2016-03-03</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2015-04-02</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>ad21e1e4ae96465b4e30fd1815589158</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="41">
+        <Name>INTERLIS_ext</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/INTERLIS_ext.ili</File>
+        <Version>2016-05-30</Version>
+        <publishingDate>2016-05-30</publishingDate>
+        <precursorVersion>2016-02-11</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>56bef86426384cd3122963508e797a25</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="42">
+        <Name>IliVErrors</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>tools/IliVErrors.ili</File>
+        <Version>2016-06-10</Version>
+        <publishingDate>2017-01-12</publishingDate>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>b41ab92753368ad32890d04bc77cc47f</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="43">
+        <Name>RoadsExdm2ien_10</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/RoadsExdm2ien-20170405.ili</File>
+        <Version>2017-04-05</Version>
+        <publishingDate>2017-04-05</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben_10</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2003-02-26</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>4b1341515b81821259048ba2bf1648a8</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="44">
+        <Name>RoadsExdm2ien</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/RoadsExdm2ien-20170405.ili</File>
+        <Version>2017-04-05</Version>
+        <publishingDate>2017-04-05</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>RoadsExdm2ben</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>83a4a01f18f184d74d86e07d27d59a80</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="45">
+        <Name>CoordSys</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/CoordSys-20151123.ili</File>
+        <Version>2015-11-23</Version>
+        <publishingDate>2017-04-10</publishingDate>
+        <precursorVersion>2003-03-18</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>5e12919a0dff1fb23dd0d92a4873748d</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="46">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/StandardSymbology-20160120.ili</File>
+        <Version>2016-01-20</Version>
+        <publishingDate>2017-04-10</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2015-04-01</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>34f535881a0d89639be4d4db656ef929</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="47">
+        <Name>Units</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/Units-20120219.ili</File>
+        <Version>2012-02-19</Version>
+        <publishingDate>2017-04-10</publishingDate>
+        <precursorVersion>2003-03-18</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>ce2f5833386b6b8b5acceef87f0b492a</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="48">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/Time-20170412.ili</File>
+        <Version>2017-04-12</Version>
+        <publishingDate>2017-04-13</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2003-03-18</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>196c9799ac39d9f05d95e96cbdf0e481</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="49">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>obsolete/Time_o2.ili</File>
+        <Version>2017-04-13</Version>
+        <publishingDate>2017-04-13</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>26ed79dec1e50e4326707930ef39adf3</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="50">
+        <Name>Base</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/Base_d-20140418.ili</File>
+        <Version>2014-04-18</Version>
+        <publishingDate>2017-08-24</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>8497f27210dad68925150cb64e1d3b77</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="51">
+        <Name>Base_f</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/Base_f-20140418.ili</File>
+        <Version>2014-04-18</Version>
+        <publishingDate>2017-08-24</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Base</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>1f553bf4281aed032194e25672039b58</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="52">
+        <Name>SIA405_Base</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/SIA405_Base_d-20140618.ili</File>
+        <Version>2014-06-18</Version>
+        <publishingDate>2017-08-24</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Base</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>56cd4835a84d4bd5a5d95f8f07562eef</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="53">
+        <Name>SIA405_Base_f</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/SIA405_Base_f-20140618.ili</File>
+        <Version>2014-06-18</Version>
+        <publishingDate>2017-08-24</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>SIA405_Base</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Base_f</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>ab96e29ea01edbc8784b6ed49eed4cd1</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="54">
+        <Name>Base_LV95</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/Base_d-20140418.ili</File>
+        <Version>2014-04-18</Version>
+        <publishingDate>2017-10-23</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>8497f27210dad68925150cb64e1d3b77</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="55">
+        <Name>Base_f_MN95</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/Base_f-20140418.ili</File>
+        <Version>2014-04-18</Version>
+        <publishingDate>2017-10-23</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Base_LV95</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>1f553bf4281aed032194e25672039b58</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="56">
+        <Name>SIA405_Base_LV95</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/SIA405_Base_d-20140618.ili</File>
+        <Version>2014-06-18</Version>
+        <publishingDate>2017-10-23</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Base_LV95</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>56cd4835a84d4bd5a5d95f8f07562eef</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="57">
+        <Name>SIA405_Base_f_MN95</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>SIA405/SIA405_Base_f-20140618.ili</File>
+        <Version>2014-06-18</Version>
+        <publishingDate>2017-10-23</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>SIA405_Base_LV95</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Base_f_MN95</value>
+          </IliRepository09.ModelName_>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.sia.ch/405</Issuer>
+        <md5>ab96e29ea01edbc8784b6ed49eed4cd1</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="58">
+        <Name>Math</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/Math.ili</File>
+        <Version>2018-11-19</Version>
+        <publishingDate>2019-03-27</publishingDate>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>bf0b6f23197f0e2f1e743959e5656984</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="59">
+        <Name>Text</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/Text.ili</File>
+        <Version>2018-11-19</Version>
+        <publishingDate>2019-03-27</publishingDate>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>163637b12e86ab81ec50937e74c76fee</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="60">
+        <Name>DatasetIdx16</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>core/DatasetIdx16.ili</File>
+        <Version>2018-11-21</Version>
+        <publishingDate>2019-05-08</publishingDate>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>b71b1c4aca1eb705fdba9f9ea31adbd8</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="61">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_2</SchemaLanguage>
+        <File>refhb22/AbstractSymbology-20200218.ili</File>
+        <Version>2020-02-18</Version>
+        <publishingDate>2020-02-19</publishingDate>
+        <precursorVersion>2003-03-18</precursorVersion>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>041975acceac2dc5b05aaef45fa5b828</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="62">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/AbstractSymbology-20200219.ili</File>
+        <Version>2020-02-19</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <precursorVersion>2005-06-16</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>29032727ca547415e221845a95ebe9f2</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="63">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb23/Time-20200219.ili</File>
+        <Version>2020-02-19</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <dependsOnModel>
+          <IliRepository09.ModelName_>
+            <value>Units</value>
+          </IliRepository09.ModelName_>
+        </dependsOnModel>
+        <precursorVersion>2017-04-13</precursorVersion>
+        <Issuer>http://www.interlis.ch/models</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>db2a04f9162426e342dac0972461ba1b</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+      <IliRepository09.RepositoryIndex.ModelMetadata TID="64">
+        <Name>IliRepository20</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>core/IliRepository20.ili</File>
+        <Version>2020-01-15</Version>
+        <publishingDate>2020-04-01</publishingDate>
+        <Issuer>http://models.interlis.ch/core</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>46cba395b5412de0232619a99cecb65c</md5>
+      </IliRepository09.RepositoryIndex.ModelMetadata>
+
+    </IliRepository09.RepositoryIndex>
+  </DATASECTION>
+</TRANSFER>
