@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2pg-4.2.0-7d8336d9f98b5278983a8cb6610683b2f2b09b73" VERSION="2.3"><MODELS><MODEL NAME="ISO19107_V1_MAGNABOG" VERSION="2016-03-07" URI="http://www.swisslm.ch/models"></MODEL><MODEL NAME="Catastro_COL_ES_V2_1_6" VERSION="2017-07-12 V2.1.6" URI="http://www.igac.gov.co/models"></MODEL><MODEL NAME="CIAF_LADM" VERSION="2017-08-01" URI="mailto:user@localhost"></MODEL><MODEL NAME="another" VERSION="2017-08-01" URI="mailto:user@localhost"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
-<Catastro_COL_ES_V2_1_6.Catastro_Registro BID="Catastro_COL_ES_V2_1_6.Catastro_Registro">
-</Catastro_COL_ES_V2_1_6.Catastro_Registro>
 <CIAF_LADM.Catastro BID="CIAF_LADM.Catastro">
 <CIAF_LADM.Catastro.Avaluo TID="353"><Area_Terreno>1</Area_Terreno><Area_Construida>1</Area_Construida><Num_Habitaciones>3</Num_Habitaciones><Num_Banios>3</Num_Banios><Uso>Comercial</Uso></CIAF_LADM.Catastro.Avaluo>
 <CIAF_LADM.Catastro.Persona TID="354"><Comienzo_Vida_Util_Version>2017-08-02T11:32:49.000</Comienzo_Vida_Util_Version><Nombre>Pepito Perez</Nombre><Tipo>Persona_Natural</Tipo><p_Espacio_De_Nombres>Prueba</p_Espacio_De_Nombres><p_Local_Id>Prueba</p_Local_Id><Documento_Tipo>Cedula_Ciudadania</Documento_Tipo><Documento_Numero>1234354656</Documento_Numero><Fecha_Nacimiento>1950-03-01</Fecha_Nacimiento><Genero>Masculino</Genero></CIAF_LADM.Catastro.Persona>
