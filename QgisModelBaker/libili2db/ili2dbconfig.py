@@ -141,6 +141,7 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         self.xtffile = ''
         self.iliexportmodels = ''
         self.disable_validation = False
+        self.with_exporttid = False
         self.db_ili_version = None
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
@@ -153,6 +154,9 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
 
         if self.disable_validation:
             args += ["--disableValidation"]
+
+        if self.with_exporttid:
+            args += ["--exportTid"]
 
         if self.iliexportmodels:
             args += ["--exportModels", self.iliexportmodels]
@@ -243,6 +247,7 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         self.xtffile = ''
         self.delete_data = False
         self.disable_validation = False
+        self.with_importtid = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
@@ -258,6 +263,9 @@ class ImportDataConfiguration(SchemaImportConfiguration):
 
         if self.delete_data:
             args += ["--deleteData"]
+
+        if self.with_importtid:
+            args += ["--importTid"]
 
         args += SchemaImportConfiguration.to_ili2db_args(self, extra_args=extra_args, with_action=False)
 
