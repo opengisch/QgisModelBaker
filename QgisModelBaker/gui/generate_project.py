@@ -372,7 +372,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self._lst_panel[db_id].get_fields(configuration)
 
         configuration.tool = mode
-        configuration.epsg = self.epsg
+        configuration.srs_auth = self.srs_auth
+        configuration.srs_code = self.srs_code
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.tomlfile = self.ili2db_options.toml_file()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
@@ -393,7 +394,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         settings = QSettings()
         settings.setValue('QgisModelBaker/ili2db/ilifile',
                           configuration.ilifile)
-        settings.setValue('QgisModelBaker/ili2db/epsg', self.epsg)
+        settings.setValue('QgisModelBaker/ili2db/srs_auth', self.srs_auth)
+        settings.setValue('QgisModelBaker/ili2db/srs_code', self.srs_code)
         settings.setValue('QgisModelBaker/importtype',
                           self.type_combo_box.currentData().name)
 
@@ -407,8 +409,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_file_line_edit.setText(
             settings.value('QgisModelBaker/ili2db/ilifile'))
-        self.crs = QgsCoordinateReferenceSystem.fromEpsgId(
-            settings.value('QgisModelBaker/ili2db/epsg', 21781, int))
+        srs_auth = settings.value('QgisModelBaker/ili2db/srs_auth', 'EPSG')
+        srs_code = settings.value('QgisModelBaker/ili2db/srs_code', 21781, int)
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
         self.fill_toml_file_info_label()
         self.update_crs_info()
 
@@ -484,16 +490,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.crsSelector.setCrs(self.crs)
 
     def crs_changed(self):
-        if self.crsSelector.crs().authid()[:5] != 'EPSG:':
+        self.srs_auth = 'EPSG'  # Default
+        self.srs_code = 21781  # Default
+        srs_auth, srs_code = self.crsSelector.crs().authid().split(":")
+        if  srs_auth == 'USER':
             self.crs_label.setStyleSheet('color: orange')
             self.crs_label.setToolTip(
-                self.tr('Please select an EPSG Coordinate Reference System'))
-            self.epsg = 21781
+                self.tr('Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, not recommended.\nA default EPSG:21781 will be used.'))
         else:
             self.crs_label.setStyleSheet('')
             self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
-            authid = self.crsSelector.crs().authid()
-            self.epsg = int(authid[5:])
+            try:
+                self.srs_code = int(srs_code)
+                self.srs_auth = srs_auth
+            except ValueError:
+                # Preserve defaults if srs_code is not an integer
+                self.crs_label.setStyleSheet('color: orange')
+                self.crs_label.setToolTip(
+                    self.tr("The srs code ('{}') should be an integer.\nA default EPSG:21781 will be used.".format(srs_code)))
 
     def ili_file_changed(self):
         # If ili file is valid, models is optional

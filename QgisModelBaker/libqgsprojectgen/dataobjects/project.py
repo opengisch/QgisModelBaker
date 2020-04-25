@@ -94,8 +94,10 @@ class Project(QObject):
             if isinstance(self.crs, QgsCoordinateReferenceSystem):
                 qgis_project.setCrs(self.crs)
             else:
-                qgis_project.setCrs(
-                    QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+                crs = QgsCoordinateReferenceSystem.fromEpsgId(self.crs)
+                if not crs.isValid():
+                    crs = QgsCoordinateReferenceSystem(self.crs)  # Fallback
+                qgis_project.setCrs(crs)
 
         qgis_relations = list(
             qgis_project.relationManager().relations().values())
