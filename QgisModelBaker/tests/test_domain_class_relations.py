@@ -49,7 +49,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -125,7 +125,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -200,7 +200,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -279,7 +279,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -356,7 +356,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -436,7 +436,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -518,7 +518,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -604,7 +604,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'Abfallsammelstellen_ZEBA_LV03_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -689,7 +689,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg_2_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -778,7 +778,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg_2_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -864,7 +864,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -980,7 +980,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -1095,7 +1095,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1214,7 +1214,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -1330,7 +1330,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1405,7 +1405,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -1479,7 +1479,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1557,7 +1557,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -1635,7 +1635,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'Hazard_Mapping_LV95_V1_2'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 2056
+        importer.configuration.srs_code = 2056
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1925,7 +1925,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'Hazard_Mapping_LV95_V1_2'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 2056
+        importer.configuration.srs_code = 2056
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -2210,7 +2210,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -2283,7 +2283,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)

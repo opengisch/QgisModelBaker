@@ -178,7 +178,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.inheritance = 'smart1'
         self.create_basket_col = False
         self.create_import_tid = True
-        self.epsg = 21781  # Default EPSG code in ili2pg
+        self.srs_auth = 'EPSG'  # Default SRS auth in ili2db
+        self.srs_code = 21781  # Default SRS code in ili2db
         self.stroke_arcs = True
         self.db_ili_version = None
 
@@ -229,8 +230,11 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.create_basket_col:
             args += ["--createBasketCol"]
 
-        if self.epsg != 21781:
-            args += ["--defaultSrsCode", "{}".format(self.epsg)]
+        if self.srs_auth != 'EPSG':
+            args += ["--defaultSrsAuth", self.srs_auth]
+
+        if self.srs_code != 21781:
+            args += ["--defaultSrsCode", "{}".format(self.srs_code)]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 

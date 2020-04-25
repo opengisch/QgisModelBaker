@@ -378,7 +378,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -419,7 +419,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -462,7 +462,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -510,7 +510,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -536,7 +536,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_extent_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -569,7 +569,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -639,7 +639,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CoordSys'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -720,7 +720,7 @@ class TestProjectGen(unittest.TestCase):
 
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -896,7 +896,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
@@ -941,7 +941,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.tomlfile = testdata_path('toml/hidden_fields.toml')
         importer.configuration.inheritance = 'smart2'
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
@@ -993,7 +993,7 @@ class TestProjectGen(unittest.TestCase):
 
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1041,7 +1041,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'CardinalityBag'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 2056
+        importer.configuration.srs_code = 2056
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1106,7 +1106,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_CardinalityBag_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
-        importer.configuration.epsg = 2056
+        importer.configuration.srs_code = 2056
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1170,7 +1170,7 @@ class TestProjectGen(unittest.TestCase):
 
         importer.configuration.dbschema = 'nue_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 21781
+        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)

@@ -52,7 +52,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -123,7 +123,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_gpkg.gpkg')
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -188,7 +188,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)

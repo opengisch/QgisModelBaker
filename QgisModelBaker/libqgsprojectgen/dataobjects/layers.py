@@ -96,7 +96,10 @@ class Layer(object):
             settings.setValue("/Projections/defaultBehavior", old_proj_value)
 
             if self.srid is not None and not self.__layer.crs().authid() == "EPSG:{}".format(self.srid):
-                self.__layer.setCrs(QgsCoordinateReferenceSystem().fromEpsgId(self.srid))
+                crs = QgsCoordinateReferenceSystem().fromEpsgId(self.srid)
+                if not crs.isValid():
+                    crs = QgsCoordinateReferenceSystem(self.srid)  # Fallback
+                self.__layer.setCrs(crs)
             if self.is_domain:
                 self.__layer.setReadOnly()
             if self.display_expression:

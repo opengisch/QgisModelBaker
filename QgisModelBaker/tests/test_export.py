@@ -90,7 +90,7 @@ class TestExport(unittest.TestCase):
         importer_e.configuration.ilimodels = 'CIAF_LADM'
         importer_e.configuration.dbschema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer_e.configuration.epsg = 3116
+        importer_e.configuration.srs_code = 3116
         importer_e.configuration.inheritance = 'smart2'
         importer_e.stdout.connect(self.print_info)
         importer_e.stderr.connect(self.print_error)
@@ -119,7 +119,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -174,7 +174,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -250,7 +250,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'RoadsSimple'
         importer.configuration.dbschema = 'roads_simple_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
@@ -298,7 +298,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'RoadsSimple'
         importer.configuration.dbschema = 'roads_simple_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -342,7 +342,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -386,7 +386,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
-        importer.configuration.epsg = 3116
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)

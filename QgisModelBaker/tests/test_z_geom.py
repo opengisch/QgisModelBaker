@@ -39,7 +39,7 @@ class TestGeomZ(unittest.TestCase):
             importer.tool, 'ilimodels')
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
         importer.configuration.dbschema = 'exceptional_loads_route'
-        importer.configuration.epsg = 2056
+        importer.configuration.srs_code = 2056
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
