@@ -229,8 +229,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.srs_auth != 'EPSG':
             args += ["--defaultSrsAuth", self.srs_auth]
 
-        if self.srs_code != 21781:
-            args += ["--defaultSrsCode", "{}".format(self.srs_code)]
+        args += ["--defaultSrsCode", "{}".format(self.srs_code)]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 
