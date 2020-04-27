@@ -496,7 +496,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if  srs_auth == 'USER':
             self.crs_label.setStyleSheet('color: orange')
             self.crs_label.setToolTip(
-                self.tr('Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, not recommended.\nA default EPSG:21781 will be used.'))
+                self.tr('Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, a default EPSG:21781 will be used instead.'))
         else:
             self.crs_label.setStyleSheet('')
             self.crs_label.setToolTip(self.tr('Coordinate Reference System'))
