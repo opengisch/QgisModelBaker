@@ -181,7 +181,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="0" column="1">
        <widget class="QLineEdit" name="pre_script_file_line_edit">
         <property name="toolTip">
-         <string>Choose optional TOML file</string>
+         <string>Choose optional (pre-script) SQL file</string>
         </property>
         <property name="placeholderText">
          <string>[Optional]</string>
@@ -191,7 +191,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="0" column="2">
        <widget class="QToolButton" name="pre_script_file_browse_button">
         <property name="toolTip">
-         <string>Browse TOML files</string>
+         <string>Browse SQL files</string>
         </property>
         <property name="text">
          <string>…</string>
@@ -211,7 +211,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="1" column="1">
        <widget class="QLineEdit" name="post_script_file_line_edit">
         <property name="toolTip">
-         <string>Choose optional TOML file</string>
+         <string>Choose optional (post-script) SQL file</string>
         </property>
         <property name="placeholderText">
          <string>[Optional]</string>
@@ -221,7 +221,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="1" column="2">
        <widget class="QToolButton" name="post_script_file_browse_button">
         <property name="toolTip">
-         <string>Browse TOML files</string>
+         <string>Browse SQL files</string>
         </property>
         <property name="text">
          <string>…</string>

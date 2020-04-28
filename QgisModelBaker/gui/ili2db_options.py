@@ -17,16 +17,26 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.PyQt.QtCore import (
+    QSettings,
+    Qt
+)
+from qgis.PyQt.QtGui import QValidator
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QSizePolicy
+)
+from qgis.gui import (
+    QgsGui,
+    QgsMessageBar
+)
 
+from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     Validators,
     FileValidator
 )
-from qgis.PyQt.QtWidgets import QDialog
-from qgis.PyQt.QtCore import QSettings
-from ..utils import get_ui_class
-from qgis.gui import QgsGui
 
 DIALOG_UI = get_ui_class('ili2db_options.ui')
 
@@ -73,8 +83,18 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.post_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.post_script_file_line_edit.textChanged.emit(self.post_script_file_line_edit.text())
 
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+
     def accepted(self):
         """ Save settings before accepting the dialog """
+        for line_edit in [self.pre_script_file_line_edit, self.post_script_file_line_edit, self.toml_file_line_edit]:
+            if line_edit.validator().validate(line_edit.text().strip(), 0)[0] != QValidator.Acceptable:
+                self.bar.pushWarning("Warning", "Please fix the '{}' value before saving the options.".format(
+                    line_edit.objectName().split("_file_line_edit")[0].replace("_", " ")))
+                return
+
         self.save_configuration()
         self.done(1)
 
