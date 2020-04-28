@@ -182,6 +182,8 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.srs_code = 21781  # Default SRS code in ili2db
         self.stroke_arcs = True
         self.db_ili_version = None
+        self.pre_script = ''
+        self.post_script = ''
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         """
@@ -234,6 +236,12 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
             args += ["--defaultSrsAuth", self.srs_auth]
 
         args += ["--defaultSrsCode", "{}".format(self.srs_code)]
+
+        if self.pre_script:
+            args += ["--preScript", self.pre_script]
+
+        if self.post_script:
+            args += ["--postScript", self.post_script]
 
         args += Ili2DbCommandConfiguration.to_ili2db_args(self)
 

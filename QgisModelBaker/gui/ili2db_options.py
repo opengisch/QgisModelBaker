@@ -34,6 +34,7 @@ DIALOG_UI = get_ui_class('ili2db_options.ui')
 class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ['toml', 'TOML']
+    SQLValidExtensions = ['sql', 'SQL']
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
@@ -48,16 +49,29 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(self.toml_file_line_edit, title=self.tr('Open Extra Model Information File (*.toml)'),
                                file_filter=self.tr('Extra Model Info File (*.toml *.TOML)')))
+        self.pre_script_file_browse_button.clicked.connect(
+            make_file_selector(self.pre_script_file_line_edit, title=self.tr('SQL script to run before (*.sql)'),
+                               file_filter=self.tr('SQL script to run before (*.sql *.SQL)')))
+        self.post_script_file_browse_button.clicked.connect(
+            make_file_selector(self.post_script_file_line_edit, title=self.tr('SQL script to run after (*.sql)'),
+                               file_filter=self.tr('SQL script to run after (*.sql *.SQL)')))
+
         self.validators = Validators()
         self.fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
         self.toml_file_line_edit.setValidator(self.fileValidator)
 
+        self.SQLFileValidator = FileValidator(pattern=['*.' + ext for ext in self.SQLValidExtensions], allow_empty=True)
+        self.pre_script_file_line_edit.setValidator(self.SQLFileValidator)
+        self.post_script_file_line_edit.setValidator(self.SQLFileValidator)
+
         self.restore_configuration()
 
-        self.toml_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.toml_file_line_edit.textChanged.emit(
-            self.toml_file_line_edit.text())
+        self.toml_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
+        self.pre_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pre_script_file_line_edit.textChanged.emit(self.pre_script_file_line_edit.text())
+        self.post_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.post_script_file_line_edit.textChanged.emit(self.post_script_file_line_edit.text())
 
     def accepted(self):
         """ Save settings before accepting the dialog """
@@ -89,6 +103,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def toml_file(self):
         return self.toml_file_line_edit.text().strip()
+
+    def pre_script(self):
+        return self.pre_script_file_line_edit.text().strip()
+
+    def post_script(self):
+        return self.post_script_file_line_edit.text().strip()
 
     def stroke_arcs(self):
         return self.stroke_arcs_checkbox.isChecked()
