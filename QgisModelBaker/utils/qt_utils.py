@@ -19,7 +19,6 @@
 """
 
 import os.path
-import inspect
 import functools
 from qgis.PyQt.QtWidgets import (
     QFileDialog,

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>320</height>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -78,26 +78,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Create Basket Column</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="create_basket_col_checkbox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column T_basket in class tables which references entries in the additional table t_ili2db_baskets.&lt;/p&gt;&lt;p&gt;The T_basket column needs to be filled with the basket to which an object belongs.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled by the database, by default values on QGIS side or manually from the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Create Basket Column</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -105,6 +86,25 @@
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Stroke arcs</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="stroke_arcs_checkbox">
+        <property name="toolTip">
+         <string>If this option is activated, circular arcs are stroked when importing the data</string>
+        </property>
+        <property name="text">
+         <string>Stroke Arcs</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="0">
@@ -143,19 +143,88 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_3">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Stroke arcs</string>
+      <string>Create Basket Column</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_5">
+     <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QCheckBox" name="stroke_arcs_checkbox">
+       <widget class="QCheckBox" name="create_basket_col_checkbox">
         <property name="toolTip">
-         <string>If this option is activated, circular arcs are stroked when importing the data</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column T_basket in class tables which references entries in the additional table t_ili2db_baskets.&lt;/p&gt;&lt;p&gt;The T_basket column needs to be filled with the basket to which an object belongs.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled by the database, by default values on QGIS side or manually from the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Stroke Arcs</string>
+         <string>Create Basket Column</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>SQL scripts</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
+       <widget class="QLabel" name="pre_script_file_label">
+        <property name="toolTip">
+         <string>SQL script that runs before the (schema) import.</string>
+        </property>
+        <property name="text">
+         <string>Pre-script</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="pre_script_file_line_edit">
+        <property name="toolTip">
+         <string>Choose optional (pre-script) SQL file</string>
+        </property>
+        <property name="placeholderText">
+         <string>[Optional]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="pre_script_file_browse_button">
+        <property name="toolTip">
+         <string>Browse SQL files</string>
+        </property>
+        <property name="text">
+         <string>…</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="post_script_file_label">
+        <property name="toolTip">
+         <string>SQL script that runs after the (schema) import.</string>
+        </property>
+        <property name="text">
+         <string>Post-script</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="post_script_file_line_edit">
+        <property name="toolTip">
+         <string>Choose optional (post-script) SQL file</string>
+        </property>
+        <property name="placeholderText">
+         <string>[Optional]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QToolButton" name="post_script_file_browse_button">
+        <property name="toolTip">
+         <string>Browse SQL files</string>
+        </property>
+        <property name="text">
+         <string>…</string>
         </property>
        </widget>
       </item>

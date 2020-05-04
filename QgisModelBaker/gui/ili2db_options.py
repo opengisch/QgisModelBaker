@@ -17,16 +17,26 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.PyQt.QtCore import (
+    QSettings,
+    Qt
+)
+from qgis.PyQt.QtGui import QValidator
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QSizePolicy
+)
+from qgis.gui import (
+    QgsGui,
+    QgsMessageBar
+)
 
+from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     Validators,
     FileValidator
 )
-from qgis.PyQt.QtWidgets import QDialog
-from qgis.PyQt.QtCore import QSettings
-from ..utils import get_ui_class
-from qgis.gui import QgsGui
 
 DIALOG_UI = get_ui_class('ili2db_options.ui')
 
@@ -34,6 +44,7 @@ DIALOG_UI = get_ui_class('ili2db_options.ui')
 class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ['toml', 'TOML']
+    SQLValidExtensions = ['sql', 'SQL']
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
@@ -48,19 +59,42 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(self.toml_file_line_edit, title=self.tr('Open Extra Model Information File (*.toml)'),
                                file_filter=self.tr('Extra Model Info File (*.toml *.TOML)')))
+        self.pre_script_file_browse_button.clicked.connect(
+            make_file_selector(self.pre_script_file_line_edit, title=self.tr('SQL script to run before (*.sql)'),
+                               file_filter=self.tr('SQL script to run before (*.sql *.SQL)')))
+        self.post_script_file_browse_button.clicked.connect(
+            make_file_selector(self.post_script_file_line_edit, title=self.tr('SQL script to run after (*.sql)'),
+                               file_filter=self.tr('SQL script to run after (*.sql *.SQL)')))
+
         self.validators = Validators()
-        self.fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
-        self.toml_file_line_edit.setValidator(self.fileValidator)
+        self.file_validator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
+        self.toml_file_line_edit.setValidator(self.file_validator)
+
+        self.sql_file_validator = FileValidator(pattern=['*.' + ext for ext in self.SQLValidExtensions], allow_empty=True)
+        self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
+        self.post_script_file_line_edit.setValidator(self.sql_file_validator)
 
         self.restore_configuration()
 
-        self.toml_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.toml_file_line_edit.textChanged.emit(
-            self.toml_file_line_edit.text())
+        self.toml_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
+        self.pre_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pre_script_file_line_edit.textChanged.emit(self.pre_script_file_line_edit.text())
+        self.post_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.post_script_file_line_edit.textChanged.emit(self.post_script_file_line_edit.text())
+
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
 
     def accepted(self):
         """ Save settings before accepting the dialog """
+        for line_edit in [self.pre_script_file_line_edit, self.post_script_file_line_edit, self.toml_file_line_edit]:
+            if line_edit.validator().validate(line_edit.text().strip(), 0)[0] != QValidator.Acceptable:
+                self.bar.pushWarning(self.tr("Warning"), self.tr("Please fix the '{}' value before saving the options.").format(
+                    line_edit.objectName().split("_file_line_edit")[0].replace("_", " ")))
+                return
+
         self.save_configuration()
         self.done(1)
 
@@ -89,6 +123,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def toml_file(self):
         return self.toml_file_line_edit.text().strip()
+
+    def pre_script(self):
+        return self.pre_script_file_line_edit.text().strip()
+
+    def post_script(self):
+        return self.post_script_file_line_edit.text().strip()
 
     def stroke_arcs(self):
         return self.stroke_arcs_checkbox.isChecked()

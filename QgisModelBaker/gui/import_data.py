@@ -347,6 +347,8 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
+        configuration.pre_script = self.ili2db_options.pre_script()
+        configuration.post_script = self.ili2db_options.post_script()
         configuration.base_configuration = self.base_configuration
         configuration.db_ili_version = self.db_ili_version(configuration)
 
