@@ -67,12 +67,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                                file_filter=self.tr('SQL script to run after (*.sql *.SQL)')))
 
         self.validators = Validators()
-        self.fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
-        self.toml_file_line_edit.setValidator(self.fileValidator)
+        self.file_validator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
+        self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.SQLFileValidator = FileValidator(pattern=['*.' + ext for ext in self.SQLValidExtensions], allow_empty=True)
-        self.pre_script_file_line_edit.setValidator(self.SQLFileValidator)
-        self.post_script_file_line_edit.setValidator(self.SQLFileValidator)
+        self.sql_file_validator = FileValidator(pattern=['*.' + ext for ext in self.SQLValidExtensions], allow_empty=True)
+        self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
+        self.post_script_file_line_edit.setValidator(self.sql_file_validator)
 
         self.restore_configuration()
 
@@ -91,7 +91,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         """ Save settings before accepting the dialog """
         for line_edit in [self.pre_script_file_line_edit, self.post_script_file_line_edit, self.toml_file_line_edit]:
             if line_edit.validator().validate(line_edit.text().strip(), 0)[0] != QValidator.Acceptable:
-                self.bar.pushWarning("Warning", "Please fix the '{}' value before saving the options.".format(
+                self.bar.pushWarning(self.tr("Warning"), self.tr("Please fix the '{}' value before saving the options.").format(
                     line_edit.objectName().split("_file_line_edit")[0].replace("_", " ")))
                 return
 
