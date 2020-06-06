@@ -14,6 +14,23 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="pg_use_super_login">
+     <property name="text">
+      <string>Use logins from settings (superuser) for schema generation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QgsAuthSettingsWidget" name="pg_auth_settings" native="true"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="pg_schema_line_edit">
+     <property name="placeholderText">
+      <string/>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
@@ -31,27 +48,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Port</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="pg_port_line_edit">
-     <property name="placeholderText">
-      <string>[Leave empty to use standard port 5432]</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Database</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QLineEdit" name="pg_database_line_edit">
      <property name="placeholderText">
@@ -66,53 +62,37 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="pg_schema_line_edit">
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="pg_port_line_edit">
      <property name="placeholderText">
-      <string/>
+      <string>[Leave empty to use standard port 5432]</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_4">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>User</string>
+      <string>Port</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="pg_user_line_edit">
-     <property name="placeholderText">
-      <string>Database Username</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_5">
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Password</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QLineEdit" name="pg_password_line_edit">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
-     <property name="placeholderText">
-      <string>[Leave empty to use system password]</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="QCheckBox" name="pg_use_super_login">
-     <property name="text">
-      <string>Use logins from settings (superuser) for schema generation</string>
+      <string>Database</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsAuthSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>qgis.gui</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

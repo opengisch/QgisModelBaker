@@ -67,7 +67,7 @@ class PgFactory(DbFactory):
         message = ''
 
         config_manager = self.get_db_command_config_manager(configuration)
-        uri = config_manager.get_uri()
+        uri = config_manager.get_uri(configuration.db_use_super_login)
 
         connector = self.get_db_connector(uri, configuration.dbschema)
 

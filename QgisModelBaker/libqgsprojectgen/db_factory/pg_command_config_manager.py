@@ -37,10 +37,13 @@ class PgCommandConfigManager(DbCommandConfigManager):
         uri = []
 
         uri += ['dbname=\'{}\''.format(self.configuration.database)]
+
         if su:
             uri += ['user={}'.format(self.configuration.base_configuration.super_pg_user)]
             if self.configuration.base_configuration.super_pg_password:
                 uri += ['password={}'.format(self.configuration.base_configuration.super_pg_password)]
+        elif self.configuration.dbauthid:
+            uri += ['authcfg={}'.format(self.configuration.dbauthid)]
         else:
             uri += ['user={}'.format(self.configuration.dbusr)]
             if self.configuration.dbpwd:
@@ -51,17 +54,23 @@ class PgCommandConfigManager(DbCommandConfigManager):
 
         return ' '.join(uri)
 
-    def get_db_args(self, hide_password=False):
+    def get_db_args(self, hide_password=False, su=False):
         db_args = list()
         db_args += ["--dbhost", self.configuration.dbhost]
         if self.configuration.dbport:
             db_args += ["--dbport", self.configuration.dbport]
-        db_args += ["--dbusr", self.configuration.dbusr]
-        if self.configuration.dbpwd:
+        if su:
+            db_args  += ["--dbusr", self.configuration.base_configuration.super_pg_user]
+        else:
+            db_args += ["--dbusr", self.configuration.dbusr]
+        if not su and self.configuration.dbpwd or su and self.configuration.base_configuration.super_pg_password:
             if hide_password:
                 db_args += ["--dbpwd", '******']
             else:
-                db_args += ["--dbpwd", self.configuration.dbpwd]
+                if su:
+                    db_args += ["--dbpwd", self.configuration.base_configuration.super_pg_password]
+                else:
+                    db_args += ["--dbpwd", self.configuration.dbpwd]
         db_args += ["--dbdatabase", self.configuration.database]
         db_args += ["--dbschema",
                     self.configuration.dbschema or self.configuration.database]
@@ -82,6 +91,7 @@ class PgCommandConfigManager(DbCommandConfigManager):
         settings.setValue(self._settings_base_path + 'schema', self.configuration.dbschema)
         settings.setValue(self._settings_base_path + 'password', self.configuration.dbpwd)
         settings.setValue(self._settings_base_path + 'usesuperlogin', self.configuration.db_use_super_login)
+        settings.setValue(self._settings_base_path + 'authid', self.configuration.dbauthid)
 
     def load_config_from_qsettings(self):
         settings = QSettings()
@@ -92,5 +102,6 @@ class PgCommandConfigManager(DbCommandConfigManager):
         self.configuration.database = settings.value(self._settings_base_path + 'database')
         self.configuration.dbschema = settings.value(self._settings_base_path + 'schema')
         self.configuration.dbpwd = settings.value(self._settings_base_path + 'password')
+        self.configuration.dbauthid = settings.value(self._settings_base_path + 'authid')
         self.configuration.db_use_super_login = settings.value(
             self._settings_base_path + 'usesuperlogin', defaultValue=False, type=bool)

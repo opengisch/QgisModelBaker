@@ -232,8 +232,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             try:
                 config_manager = db_factory.get_db_command_config_manager(configuration)
                 uri = config_manager.get_uri()
+                mgmt_uri = config_manager.get_uri(configuration.db_use_super_login)
                 generator = Generator(configuration.tool, uri,
-                                      configuration.inheritance, configuration.dbschema)
+                                      configuration.inheritance, configuration.dbschema, mgmt_uri=mgmt_uri)
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
                 self.progress_bar.setValue(50)
@@ -348,9 +349,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri()
-
-        db_connector = None
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)

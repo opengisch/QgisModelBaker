@@ -47,10 +47,11 @@ class DbCommandConfigManager(ABC):
         pass
 
     @abstractmethod
-    def get_db_args(self, hide_password=False):
+    def get_db_args(self, hide_password=False, su=False):
         """Gets a list of ili2db arguments related to database.
 
         :param bool hide_password: *True* to mask the password, *False* otherwise.
+        :param bool su: *True* to use super user password, *False* otherwise. Default is False.
         :return: ili2db arguments list.
         :rtype: list
         """
@@ -71,7 +72,7 @@ class DbCommandConfigManager(ABC):
         :return: ili2db arguments list.
         :rtype: list
         """
-        db_args = self.get_db_args(hide_password)
+        db_args = self.get_db_args(hide_password, self.configuration.db_use_super_login)
 
         if type(self.configuration) is SchemaImportConfiguration:
             db_args += self.get_schema_import_args()

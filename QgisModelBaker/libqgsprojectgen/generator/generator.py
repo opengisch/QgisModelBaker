@@ -34,23 +34,29 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
+
 class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
     stdout = pyqtSignal(str)
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None, mgmt_uri=None):
+        """
+        Creates a new Generator objects.
+        :param mgmt_uri:
+        """
         QObject.__init__(self, parent)
         self.tool = tool
         self.uri = uri
+        self.mgmt_uri = mgmt_uri
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = pg_estimated_metadata
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
-        self._db_connector = db_factory.get_db_connector(uri, schema)
+        self._db_connector = db_factory.get_db_connector(mgmt_uri, schema)
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
 
