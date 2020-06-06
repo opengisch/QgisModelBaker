@@ -74,7 +74,7 @@ class Generator(QObject):
         message = {'level': level, 'text': text}
 
         if message not in self.collected_print_messages:
-          self.collected_print_messages.append(message)
+            self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
@@ -261,7 +261,7 @@ class Generator(QObject):
                                          layer_map[record['target_layer_name']][0],
                                          self._db_connector.tid,
                                          self._db_connector.dispName]
-                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'],layer.geometry_column)
+                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'], layer.geometry_column)
                         if unique_current_layer_name in bags_of_enum.keys():
                             bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
                         else:
