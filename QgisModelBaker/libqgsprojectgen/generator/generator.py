@@ -44,7 +44,8 @@ class Generator(QObject):
     def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None, mgmt_uri=None):
         """
         Creates a new Generator objects.
-        :param mgmt_uri:
+        :param uri: The uri that should be used in the resulting project. If authcfg is used, make sure the mgmt_uri is set as well.
+        :param mgmt_uri: The uri that should be used to create schemas, tables and query meta information. Does not support authcfg.
         """
         QObject.__init__(self, parent)
         self.tool = tool
@@ -56,7 +57,7 @@ class Generator(QObject):
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
-        self._db_connector = db_factory.get_db_connector(mgmt_uri, schema)
+        self._db_connector = db_factory.get_db_connector(mgmt_uri or uri, schema)
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
 

@@ -36,7 +36,7 @@ class GpkgCommandConfigManager(DbCommandConfigManager):
     def get_uri(self, su=False):
         return self.configuration.dbfile
 
-    def get_db_args(self, hide_password=False):
+    def get_db_args(self, hide_password=False, su=False):
         return ["--dbfile", self.configuration.dbfile]
 
     def save_config_in_qsettings(self):
