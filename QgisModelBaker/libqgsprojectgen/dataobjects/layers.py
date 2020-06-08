@@ -126,7 +126,12 @@ class Layer(object):
                 break
 
         if has_tabs:
-            tab = FormTab(QCoreApplication.translate('FormTab', 'General'), 2)
+            num_fields = len([f for f in self.fields if not f.hidden])
+            if num_fields > 5:
+                num_tabs = 2
+            else:
+                num_tabs = 1
+            tab = FormTab(QCoreApplication.translate('FormTab', 'General'), num_tabs)
             for field in self.fields:
                 if not field.hidden:
                     widget = FormFieldWidget(field.alias, field.name)
