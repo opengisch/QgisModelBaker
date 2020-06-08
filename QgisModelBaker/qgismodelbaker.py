@@ -20,6 +20,8 @@
 import locale
 import os
 import webbrowser
+import configparser
+import pathlib
 
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
@@ -51,6 +53,10 @@ class QgisModelBakerPlugin(QObject):
         self.__help_action = None
         self.__about_action = None
         self.__separator = None
+        basepath = pathlib.Path(__file__).parent.absolute()
+        metadata = configparser.ConfigParser()
+        metadata.read(os.path.join(basepath, 'metadata.txt'))
+        self.__version__ = metadata['general']['version']
         if locale.getlocale() == (None, None):
             locale.setlocale(locale.LC_ALL, '')
 
@@ -172,13 +178,18 @@ class QgisModelBakerPlugin(QObject):
         self.msg.setIcon(QMessageBox.Information)
         self.msg.setTextFormat(Qt.RichText)
         self.msg.setWindowTitle(self.tr('About Model Baker'))
-        self.msg.setText(self.tr(
-            """<h1>Model Baker</h1>
-        <p align="justify">Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta
-        information to preconfigure the layer tree, widget configuration, relations and more.</p>
-        <p align="justify">This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/QgisModelBaker">github</a>.</p>
-        <p align="justify">This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with
-        <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>.</p></p>"""))
+        self.msg.setText("""<h1>{title}</h1>
+        <p align="justify"><small>{version}</small></p>
+        <p align="justify">{p1}</p>
+        <p align="justify">{p2}</p>
+        <p align="justify">{p3}</p>""".format
+        (
+            title=self.tr('QGIS Model Baker'),
+            version=self.tr('Version {version}').format(version=self.__version__),
+            p1=self.tr('Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta information to preconfigure the layer tree, widget configuration, relations and more.'),
+            p2=self.tr('This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/QgisModelBaker">github</a>.'),
+            p3=self.tr('This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>')
+            ))
         self.msg.setStandardButtons(QMessageBox.Close)
         msg_box = self.msg.exec_()
 
