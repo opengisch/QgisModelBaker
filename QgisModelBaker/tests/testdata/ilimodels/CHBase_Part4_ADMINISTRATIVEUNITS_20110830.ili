@@ -2,7 +2,7 @@
    CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
    ======
    BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
-   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+   FÃœR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
    
    PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
    PUBLISHED: 2011-08-30
@@ -19,15 +19,20 @@ INTERLIS 2.3;
    - Package AdministrativeUnitsCH
 */
 
+!! Version    | Who   | Modification
+!!------------------------------------------------------------------------------
+!! 2018-02-19 | KOGIS | Enumeration CHCantonCode adapted (FL and CH added)
+!! 2020-04-24 | KOGIS | Constraint in Association Hierarchy in Model AdministrativeUnitsCH_V1 corrected (#CHE)
+
 !! ########################################################################
 !!@technicalContact=models@geo.admin.ch
-!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
 TYPE MODEL CHAdminCodes_V1 (en)
-  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+  AT "http://www.geo.admin.ch" VERSION "2018-02-19" =
 
   DOMAIN
     CHCantonCode = (ZH,BE,LU,UR,SZ,OW,NW,GL,ZG,FR,SO,BS,BL,SH,AR,AI,SG,
-                    GR,AG,TG,TI,VD,VS,NE,GE,JU);
+                    GR,AG,TG,TI,VD,VS,NE,GE,JU,FL,CH);
 
     CHMunicipalityCode = 1..9999;  !! BFS-Nr
 
@@ -114,10 +119,10 @@ MODEL AdministrativeUnits_V1 (en)
 END AdministrativeUnits_V1.
 
 !! ########################################################################
-!!@technicalContact=models@geo.admin.ch
-!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
 MODEL AdministrativeUnitsCH_V1 (en)
-  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+  AT "http://www.geo.admin.ch" VERSION "2020-04-24" =
 
   IMPORTS UNQUALIFIED INTERLIS;
   IMPORTS UNQUALIFIED CHAdminCodes_V1;
@@ -139,7 +144,7 @@ MODEL AdministrativeUnitsCH_V1 (en)
       UpperLevelUnit (EXTENDED, EXTERNAL) -<> {1..1} AdministrativeUnits_V1.Countries.Country;
       LowerLevelUnit (EXTENDED) -- CHCanton;
     MANDATORY CONSTRAINT
-      UpperLevelUnit->Code == "CHE";
+      UpperLevelUnit->Code == #CHE;
     END Hierarchy;
 
   END CHCantons;
