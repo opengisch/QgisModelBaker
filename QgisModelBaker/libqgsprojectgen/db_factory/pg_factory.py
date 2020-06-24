@@ -57,8 +57,8 @@ class PgFactory(DbFactory):
                     _db_connector.create_db_or_schema(configuration.dbusr)
                     result = True
 
-            except (DBConnectorError, FileNotFoundError):
-                message = QCoreApplication.translate("PgFactory", "There was an error generating schema with superuser. Check superuser login parameters from settings > General.")
+            except (DBConnectorError, FileNotFoundError) as e:
+                message = QCoreApplication.translate("PgFactory", "There was an error generating schema with superuser. Check superuser login parameters from settings > General.\n\nReason:\n\n{}").format(str(e))
 
         return result, message
 
