@@ -188,7 +188,7 @@ class QgisModelBakerPlugin(QObject):
             version=self.tr('Version {version}').format(version=self.__version__),
             p1=self.tr('Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta information to preconfigure the layer tree, widget configuration, relations and more.'),
             p2=self.tr('This project is open source under the terms of the GPLv2 or later and the source code can be found on <a href="https://github.com/opengisch/QgisModelBaker">github</a>.'),
-            p3=self.tr('This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with <a href="https://www.proadmintierra.info/">Agencia de Implementación (BSF-Swissphoto AG / INCIGE S.A.S.)</a>')
+            p3=self.tr('This plugin is developed by <a href="https://www.opengis.ch/">OPENGIS.ch</a> in collaboration with <a href="https://swisstierrascolombia.com">SwissTierras Colombia</a>')
             ))
         self.msg.setStandardButtons(QMessageBox.Close)
         msg_box = self.msg.exec_()
