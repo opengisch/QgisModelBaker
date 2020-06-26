@@ -372,12 +372,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def restore_configuration(self):
         settings = QSettings()
-
         self.fill_toml_file_info_label()
         self.xtf_file_line_edit.setText(settings.value(
             'QgisModelBaker/ili2pg/xtffile_import'))
-        self.chk_delete_data.setChecked(settings.value(
-            'QgisModelBaker/ili2pg/deleteData', False, bool))
+        # set chk_delete_data always to unchecked
+        self.chk_delete_data.setChecked(False)
 
         for db_id in self.db_simple_factory.get_db_list(False):
             configuration = iliimporter.ImportDataConfiguration()
