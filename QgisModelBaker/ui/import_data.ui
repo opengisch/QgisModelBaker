@@ -129,6 +129,9 @@
             <property name="text">
              <string>Delete existing data in affected tables</string>
             </property>
+            <property name="toolTip">
+             <string>Delete existing data including dependencies like catalogues etc.</string>
+            </property>
            </widget>
           </item>
           <item row="2" column="2">
