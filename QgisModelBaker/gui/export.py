@@ -250,7 +250,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
             self.xtf_file_line_edit.setFocus()
             return
-        if not configuration.iliexportmodels:
+        if not configuration.ilimodels:
             self.txtStdout.setText(
                 self.tr('Please set a model before exporting data.'))
             self.export_models_view.setFocus()
@@ -400,8 +400,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         configuration.tool = mode
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.iliexportmodels = ';'.join(self.export_models_model.checked_models())
-        configuration.ilimodels = ';'.join(self.export_models_model.stringList())
+        configuration.ilimodels = ';'.join(self.export_models_model.checked_models())
         configuration.base_configuration = self.base_configuration
         configuration.db_ili_version = self.db_ili_version(configuration)
 

@@ -139,7 +139,6 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.xtffile = ''
-        self.iliexportmodels = ''
         self.disable_validation = False
         self.with_exporttid = False
         self.db_ili_version = None
@@ -157,9 +156,6 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
 
         if self.with_exporttid:
             args += ["--exportTid"]
-
-        if self.iliexportmodels:
-            args += ["--exportModels", self.iliexportmodels]
 
         if self.db_ili_version == 3:
             args += ["--export3"]
