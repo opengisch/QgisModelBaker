@@ -375,7 +375,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
         self.xtf_file_line_edit.setText(settings.value(
             'QgisModelBaker/ili2pg/xtffile_import'))
-        # set chk_delete_data always to unchecked
+        # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
         self.chk_delete_data.setChecked(False)
 
         for db_id in self.db_simple_factory.get_db_list(False):
