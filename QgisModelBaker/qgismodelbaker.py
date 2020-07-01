@@ -154,7 +154,7 @@ class QgisModelBakerPlugin(QObject):
             self.generate_dlg.reject()
         else:
             print('generate dialog')
-            self.generate_dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
+            self.generate_dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration, self.iface.mainWindow())
             self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
             print('show dialog')
@@ -170,7 +170,7 @@ class QgisModelBakerPlugin(QObject):
         if self.export_dlg:
             self.export_dlg.reject()
         else:
-            self.export_dlg = ExportDialog(self.ili2db_configuration)
+            self.export_dlg = ExportDialog(self.ili2db_configuration, self.iface.mainWindow())
             self.export_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.export_dlg.setWindowFlags(self.export_dlg.windowFlags() | Qt.Tool)
             self.export_dlg.show()
@@ -185,7 +185,7 @@ class QgisModelBakerPlugin(QObject):
         if self.importdata_dlg:
             self.importdata_dlg.reject()
         else:
-            self.importdata_dlg = ImportDataDialog(self.iface, self.ili2db_configuration)
+            self.importdata_dlg = ImportDataDialog(self.iface, self.ili2db_configuration, self.iface.mainWindow())
             self.importdata_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.importdata_dlg.setWindowFlags(self.importdata_dlg.windowFlags() | Qt.Tool)
             self.importdata_dlg.show()
