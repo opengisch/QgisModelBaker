@@ -172,10 +172,10 @@ class QgisModelBakerPlugin(QObject):
         self.importdata_dlg.setWindowFlags(self.importdata_dlg.windowFlags() | Qt.Tool)
         self.importdata_dlg.show()
         self.importdata_dlg.finished.connect(self.importdata_dialog_finished)
-        self.__importdata_action.setChecked(False)
+        self.__importdata_action.setEnabled(False)
 
     def importdata_dialog_finished(self):
-        self.__importdata_action.setChecked(True)
+        self.__importdata_action.setEnabled(True)
 
     def show_options_dialog(self):
         dlg = OptionsDialog(self.ili2db_configuration)
