@@ -95,6 +95,11 @@ class QgisModelBakerPlugin(QObject):
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
 
+        # set these actions checkable to visualize that the dialog is open
+        self.__generate_action.setCheckable(True)
+        self.__export_action.setCheckable(True)
+        self.__importdata_action.setCheckable(True)
+
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__importdata_action.triggered.connect(self.show_importdata_dialog)
@@ -145,37 +150,51 @@ class QgisModelBakerPlugin(QObject):
         del self.__about_action
 
     def show_generate_dialog(self):
-        self.generate_dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
-        self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
-        self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
-        self.generate_dlg.show()
-        self.generate_dlg.finished.connect(self.generate_dialog_finished)
-        self.__generate_action.setEnabled(False)
+        if self.generate_dlg:
+            self.generate_dlg.reject()
+        else:
+            print('generate dialog')
+            self.generate_dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration)
+            self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
+            print('show dialog')
+            self.generate_dlg.show()
+            self.generate_dlg.finished.connect(self.generate_dialog_finished)
+            self.__generate_action.setChecked(True)
 
     def generate_dialog_finished(self):
-        self.__generate_action.setEnabled(True)
+        self.__generate_action.setChecked(False)
+        self.generate_dlg = None
 
     def show_export_dialog(self):
-        self.export_dlg = ExportDialog(self.ili2db_configuration)
-        self.export_dlg.setAttribute(Qt.WA_DeleteOnClose)
-        self.export_dlg.setWindowFlags(self.export_dlg.windowFlags() | Qt.Tool)
-        self.export_dlg.show()
-        self.export_dlg.finished.connect(self.export_dialog_finished)
-        self.__export_action.setEnabled(False)
+        if self.export_dlg:
+            self.export_dlg.reject()
+        else:
+            self.export_dlg = ExportDialog(self.ili2db_configuration)
+            self.export_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.export_dlg.setWindowFlags(self.export_dlg.windowFlags() | Qt.Tool)
+            self.export_dlg.show()
+            self.export_dlg.finished.connect(self.export_dialog_finished)
+            self.__export_action.setChecked(True)
 
     def export_dialog_finished(self):
-        self.__export_action.setEnabled(True)
+        self.__export_action.setChecked(False)
+        self.export_dlg = None
 
     def show_importdata_dialog(self):
-        self.importdata_dlg = ImportDataDialog(self.iface, self.ili2db_configuration)
-        self.importdata_dlg.setAttribute(Qt.WA_DeleteOnClose)
-        self.importdata_dlg.setWindowFlags(self.importdata_dlg.windowFlags() | Qt.Tool)
-        self.importdata_dlg.show()
-        self.importdata_dlg.finished.connect(self.importdata_dialog_finished)
-        self.__importdata_action.setEnabled(False)
+        if self.importdata_dlg:
+            self.importdata_dlg.reject()
+        else:
+            self.importdata_dlg = ImportDataDialog(self.iface, self.ili2db_configuration)
+            self.importdata_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.importdata_dlg.setWindowFlags(self.importdata_dlg.windowFlags() | Qt.Tool)
+            self.importdata_dlg.show()
+            self.importdata_dlg.finished.connect(self.importdata_dialog_finished)
+            self.__importdata_action.setChecked(True)
 
     def importdata_dialog_finished(self):
-        self.__importdata_action.setEnabled(True)
+        self.__importdata_action.setChecked(False)
+        self.importdata_dlg = None
 
     def show_options_dialog(self):
         dlg = OptionsDialog(self.ili2db_configuration)
