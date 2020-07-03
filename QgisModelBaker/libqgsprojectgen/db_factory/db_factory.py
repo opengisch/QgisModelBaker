@@ -123,7 +123,7 @@ class DbFactory(ABC):
 
         return messages
 
-    def customize_widget_editor(self, field: Field, data_type: str):
+    def customize_widget_editor(self, field: Field, data_type: str, fielddef: dict):
         """Allows customizing the way a field is shown in the widget editor.
 
         For instance, a boolean field can be shown as a checkbox.
@@ -131,6 +131,7 @@ class DbFactory(ABC):
         :param field: The field that will be customized
         :type field: :class:`Field`
         :param data_type: The type of field
+        :param fielddef: The field information that **get_tables_info** method returns. See more in :class:`DBConnector`
         :return None
         """
         pass

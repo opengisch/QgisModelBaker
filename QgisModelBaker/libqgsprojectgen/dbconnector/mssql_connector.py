@@ -282,6 +282,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , alias.setting AS column_alias"
                 stmt += ln + "    , full_name.iliname AS fully_qualified_name"
             stmt += ln + "    , null AS comment"
+            stmt += ln + "    , case c.IS_NULLABLE when 'NO' then 1 else 0 end as not_null"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
             if metadata_exists:
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop unit"

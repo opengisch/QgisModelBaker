@@ -22,6 +22,7 @@ from qgis.core import (
     QgsEditorWidgetSetup,
     QgsDefaultValue
 )
+from qgis.core import QgsFieldConstraints
 
 
 class Field:
@@ -32,6 +33,7 @@ class Field:
         self.widget = None
         self.widget_config = dict()
         self.default_value_expression = None
+        self.not_null = None
 
     def dump(self):
         definition = dict()
@@ -57,3 +59,7 @@ class Field:
         if self.default_value_expression:
             default_value = QgsDefaultValue(self.default_value_expression)
             layer.layer.setDefaultValueDefinition(field_idx, default_value)
+
+        # Additionally, some DB engines like MSSQL require NotNull constraints being set explicitly
+        if self.not_null:
+            layer.layer.setFieldConstraint(field_idx, QgsFieldConstraints.ConstraintNotNull)

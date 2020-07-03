@@ -209,7 +209,7 @@ class Generator(QObject):
                     elif data_type == self._db_connector.QGIS_DATE_TYPE:
                         field.widget_config['display_format'] = dateFormat
 
-                db_factory.customize_widget_editor(field, data_type)
+                db_factory.customize_widget_editor(field, data_type, fielddef)
 
                 if 'default_value_expression' in fielddef:
                     field.default_value_expression = fielddef['default_value_expression']

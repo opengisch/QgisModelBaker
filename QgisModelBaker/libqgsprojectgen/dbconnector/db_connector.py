@@ -71,6 +71,7 @@ class DBConnector(QObject):
                 extent [a string: "xmin;ymin;xmax;ymax"]
                 table_alias
                 model
+                not_null (optional)
         '''
         return []
 
