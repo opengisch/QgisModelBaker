@@ -158,11 +158,9 @@ class QgisModelBakerPlugin(QObject):
         if self.generate_dlg:
             self.generate_dlg.reject()
         else:
-            print('generate dialog')
             self.generate_dlg = GenerateProjectDialog(self.iface, self.ili2db_configuration, self.iface.mainWindow())
             self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
-            print('show dialog')
             self.generate_dlg.show()
             self.generate_dlg.finished.connect(self.generate_dialog_finished)
             self.__generate_action.setChecked(True)
