@@ -22,7 +22,10 @@ from typing import List
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from .layers import Layer
 from .legend import LegendGroup
-from qgis.core import QgsCoordinateReferenceSystem, QgsProject, QgsEditorWidgetSetup
+from qgis.core import (QgsCoordinateReferenceSystem,
+                       QgsProject,
+                       QgsEditorWidgetSetup,
+                       QgsFieldConstraints)
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
@@ -108,12 +111,17 @@ class Project(QObject):
             assert rel.isValid()
             qgis_relations.append(rel)
 
+            referencing_layer = rel.referencingLayer()
+            referencing_field_constraints = referencing_layer.fieldConstraints(rel.referencingFields()[0])
+            allow_null = not bool(referencing_field_constraints & QgsFieldConstraints.ConstraintNotNull)
+
             if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
                     'Relation': rel.id(),
                     'ShowForm': False,
                     'OrderByValue': True,
-                    'ShowOpenFormButton': False
+                    'ShowOpenFormButton': False,
+                    'AllowNULL': allow_null
                 }
                 )
             else:
@@ -122,9 +130,10 @@ class Project(QObject):
                     'ShowForm': False,
                     'OrderByValue': True,
                     'ShowOpenFormButton': False,
-                    'AllowAddFeatures': True
+                    'AllowAddFeatures': True,
+                    'AllowNULL': allow_null
                 }
-                                                           )
+                )
 
             referencing_layer = rel.referencingLayer()
             referencing_layer.setEditorWidgetSetup(
