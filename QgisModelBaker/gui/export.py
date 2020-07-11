@@ -203,7 +203,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         db_factory = self.db_simple_factory.create_factory(tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri()
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         db_connector = None
 
@@ -224,7 +224,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri()
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         db_connector = None
 
