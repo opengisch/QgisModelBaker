@@ -178,7 +178,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
-        self.refresh_models()
+        self.request_for_refresh_models()
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
