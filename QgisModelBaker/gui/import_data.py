@@ -76,7 +76,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
-    ModelMissingRegExp = re.compile('Error: failed to query .*\.t_ili2db_seq')
+    ModelMissingRegExp = re.compile(r'Error: failed to query .*\.t_ili2db_seq')
 
     def __init__(self, iface, base_config, parent=None):
 
