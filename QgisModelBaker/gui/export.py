@@ -115,7 +115,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.db_simple_factory = DbSimpleFactory()
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.buttonBox.accepted.disconnect()
         self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
