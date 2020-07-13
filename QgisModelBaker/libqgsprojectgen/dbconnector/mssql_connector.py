@@ -62,7 +62,7 @@ class MssqlConnector(DBConnector):
             cur.execute("""
                 SELECT case when count(schema_name)>0 then 1 else 0 end
                 FROM information_schema.schemata
-                where schema_name = '{}'
+                WHERE schema_name = '{}'
             """.format(self.schema))
 
             return bool(cur.fetchone()[0])
@@ -79,10 +79,10 @@ class MssqlConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor()
             cur.execute("""
-            SELECT count(TABLE_NAME) as 'count'
+                SELECT count(TABLE_NAME) as 'count'
                 FROM INFORMATION_SCHEMA.TABLES
                 WHERE TABLE_TYPE = 'BASE TABLE'
-                AND TABLE_SCHEMA = '{}'
+                    AND TABLE_SCHEMA = '{}'
                     AND TABLE_NAME = '{}'
             """.format(self.schema, tablename))
 
@@ -96,72 +96,76 @@ class MssqlConnector(DBConnector):
         if self.schema:
             metadata_exists = self.metadata_exists()
 
-            ln = "\n"
-            stmt = ""
-            stmt += ln + "SELECT distinct"
-            stmt += ln + "     tbls.TABLE_SCHEMA AS schemaname"
-            stmt += ln + "    , tbls.TABLE_NAME AS tablename"
-            stmt += ln + "    , Col.Column_Name AS primary_key"
-            stmt += ln + "    , clm.COLUMN_NAME AS geometry_column"
+            stmt = """
+                SELECT distinct
+                    tbls.TABLE_SCHEMA AS schemaname
+                    , tbls.TABLE_NAME AS tablename
+                    , Col.Column_Name AS primary_key
+                    , clm.COLUMN_NAME AS geometry_column"""
             if metadata_exists:
-                stmt += ln + "    , tsrid.setting AS srid"
-                stmt += ln + "    , p.setting AS kind_settings"
-                stmt += ln + "    , alias.setting AS table_alias"
-                stmt += ln + "    , left(c.iliname, charindex('.', c.iliname)-1) AS model"
-                stmt += ln + "    , c.iliname AS ili_name"
-                stmt += ln + "    , STUFF("
-                stmt += ln + "       (SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))"
-                stmt += ln + "        FROM {schema}.t_ili2db_column_prop cp"
-                stmt += ln + "        WHERE tbls.table_name = cp.tablename"
-                stmt += ln + "            AND clm.COLUMN_NAME = cp.columnname"
-                stmt += ln + "            AND cp.tag IN"
-                stmt += ln + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
-                stmt += ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
-                stmt += ln + "        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1"
-                stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Min' THEN 2"
-                stmt += ln + "            WHEN 'ch.ehi.ili2db.c1Max' THEN 3"
-                stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Max' THEN 4"
-                stmt += ln + "            END"
-                stmt += ln + "        FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''"
-                stmt += ln + "        ) AS extent"
-                stmt += ln + "    , tgeomtype.setting AS simple_type"
-                stmt += ln + "    , null AS formatted_type"
-            stmt += ln + "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS Tab"
-            stmt += ln + "INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS Col"
-            stmt += ln + "    ON Col.Constraint_Name = Tab.Constraint_Name"
-            stmt += ln + "    AND Col.Table_Name = Tab.Table_Name"
-            stmt += ln + "    AND Col.CONSTRAINT_SCHEMA = Tab.CONSTRAINT_SCHEMA"
-            stmt += ln + "RIGHT JOIN INFORMATION_SCHEMA.TABLES AS tbls"
-            stmt += ln + "    ON Tab.TABLE_NAME = tbls.TABLE_NAME"
-            stmt += ln + "    AND Tab.CONSTRAINT_SCHEMA = tbls.TABLE_SCHEMA"
-            stmt += ln + "    AND Tab.Constraint_Type = 'PRIMARY KEY'"
+                stmt += """
+                    , tsrid.setting AS srid
+                    , p.setting AS kind_settings
+                    , alias.setting AS table_alias
+                    , left(c.iliname, charindex('.', c.iliname)-1) AS model
+                    , c.iliname AS ili_name
+                    , STUFF(
+                       (SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))
+                        FROM {schema}.t_ili2db_column_prop cp
+                        WHERE tbls.table_name = cp.tablename
+                            AND clm.COLUMN_NAME = cp.columnname
+                            AND cp.tag IN
+                                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1
+                            WHEN 'ch.ehi.ili2db.c2Min' THEN 2
+                            WHEN 'ch.ehi.ili2db.c1Max' THEN 3
+                            WHEN 'ch.ehi.ili2db.c2Max' THEN 4
+                            END
+                        FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''
+                        ) AS extent
+                    , tgeomtype.setting AS simple_type
+                    , null AS formatted_type"""
+            stmt += """
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS Tab
+                    INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS Col
+                        ON Col.Constraint_Name = Tab.Constraint_Name
+                        AND Col.Table_Name = Tab.Table_Name
+                        AND Col.CONSTRAINT_SCHEMA = Tab.CONSTRAINT_SCHEMA
+                    RIGHT JOIN INFORMATION_SCHEMA.TABLES AS tbls
+                        ON Tab.TABLE_NAME = tbls.TABLE_NAME
+                        AND Tab.CONSTRAINT_SCHEMA = tbls.TABLE_SCHEMA
+                        AND Tab.Constraint_Type = 'PRIMARY KEY'"""
             if metadata_exists:
-                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS p"
-                stmt += ln + "    ON p.tablename = tbls.TABLE_NAME"
-                stmt += ln + "    AND p.tag = 'ch.ehi.ili2db.tableKind'"
-                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS alias"
-                stmt += ln + "    ON alias.tablename = tbls.TABLE_NAME"
-                stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
-                stmt += ln + "LEFT JOIN {schema}.t_ili2db_classname AS c"
-                stmt += ln + "    ON tbls.TABLE_NAME = c.sqlname"
-            stmt += ln + "LEFT JOIN INFORMATION_SCHEMA.COLUMNS AS clm"
-            stmt += ln + "    ON clm.TABLE_NAME = tbls.TABLE_NAME"
-            stmt += ln + "    AND clm.TABLE_SCHEMA = tbls.TABLE_SCHEMA"
-            stmt += ln + "    AND clm.DATA_TYPE = 'geometry'"
+                stmt += """
+                    LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS p
+                        ON p.tablename = tbls.TABLE_NAME
+                        AND p.tag = 'ch.ehi.ili2db.tableKind'
+                    LEFT JOIN {schema}.T_ILI2DB_TABLE_PROP AS alias
+                        ON alias.tablename = tbls.TABLE_NAME
+                        AND alias.tag = 'ch.ehi.ili2db.dispName'
+                    LEFT JOIN {schema}.t_ili2db_classname AS c
+                        ON tbls.TABLE_NAME = c.sqlname"""
+            stmt += """
+                    LEFT JOIN INFORMATION_SCHEMA.COLUMNS AS clm
+                        ON clm.TABLE_NAME = tbls.TABLE_NAME
+                        AND clm.TABLE_SCHEMA = tbls.TABLE_SCHEMA
+                        AND clm.DATA_TYPE = 'geometry'"""
             if metadata_exists:
-                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tsrid"
-                stmt += ln + "    ON tbls.TABLE_NAME = tsrid.tablename"
-                stmt += ln + "    AND clm.COLUMN_NAME = tsrid.columnname"
-                stmt += ln + "    AND tsrid.tag='ch.ehi.ili2db.srid'"
-                stmt += ln + "LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tgeomtype"
-                stmt += ln + "    ON tbls.TABLE_NAME = tgeomtype.tablename"
-                stmt += ln + "    AND clm.COLUMN_NAME = tgeomtype.columnname"
-                stmt += ln + "    AND tgeomtype.tag= 'ch.ehi.ili2db.geomType'"
-            stmt += ln + "WHERE tbls.TABLE_TYPE = 'BASE TABLE' AND tbls.TABLE_SCHEMA = '{schema}'"
+                stmt += """
+                    LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tsrid
+                        ON tbls.TABLE_NAME = tsrid.tablename
+                        AND clm.COLUMN_NAME = tsrid.columnname
+                        AND tsrid.tag='ch.ehi.ili2db.srid'
+                    LEFT JOIN {schema}.T_ILI2DB_COLUMN_PROP AS tgeomtype
+                        ON tbls.TABLE_NAME = tgeomtype.tablename
+                        AND clm.COLUMN_NAME = tgeomtype.columnname
+                        AND tgeomtype.tag= 'ch.ehi.ili2db.geomType'"""
+            stmt += "  WHERE tbls.TABLE_TYPE = 'BASE TABLE' AND tbls.TABLE_SCHEMA = '{schema}'"
             stmt = stmt.format(schema=self.schema)
 
             if not metadata_exists:
-                stmt = self._def_cursor(stmt)
+                stmt = self.__def_cursor(stmt)
 
             cur = self.conn.cursor()
             cur.execute(stmt)
@@ -177,7 +181,8 @@ class MssqlConnector(DBConnector):
 
         return res
 
-    def _def_cursor(self, query):
+    @staticmethod
+    def __def_cursor(query):
         cursor = """
             DECLARE @schemaname VARCHAR(1000)
             DECLARE @tablename VARCHAR(1000)
@@ -251,14 +256,14 @@ class MssqlConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor()
             cur.execute("""
-                        SELECT
-                          attr_name,
-                          attr_value
-                        FROM {schema}.{metaattrs_table}
-                        WHERE ilielement='{ili_name}';
+                SELECT
+                    attr_name,
+                    attr_value
+                FROM {schema}.{metaattrs_table}
+                WHERE ilielement='{ili_name}';
             """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE, ili_name=ili_name))
 
-            result = self._get_dict_result(cur)
+            result = self.__get_dict_result(cur)
 
         return result
 
@@ -267,45 +272,48 @@ class MssqlConnector(DBConnector):
         # Get all fields for this table
         if self.schema:
             metadata_exists = self.metadata_exists()
-            ln = "\n"
-            stmt = ""
 
             # TODO description column is missing
             # TODO Remove 'distinct' when issue 255 is solved
-            stmt += ln + "SELECT distinct "
-            stmt += ln + "     c.column_name"
-            stmt += ln + "    , case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type"
-            stmt += ln + "    , c.numeric_scale"
+            stmt = """
+                SELECT distinct
+                     c.column_name
+                    , case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type
+                    , c.numeric_scale"""
             if metadata_exists:
-                stmt += ln + "    , unit.setting AS unit"
-                stmt += ln + "    , txttype.setting AS texttype"
-                stmt += ln + "    , alias.setting AS column_alias"
-                stmt += ln + "    , full_name.iliname AS fully_qualified_name"
-            stmt += ln + "    , null AS comment"
-            stmt += ln + "    , case c.IS_NULLABLE when 'NO' then 1 else 0 end as not_null"
-            stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
+                stmt += """
+                    , unit.setting AS unit
+                    , txttype.setting AS texttype
+                    , alias.setting AS column_alias
+                    , full_name.iliname AS fully_qualified_name"""
+            stmt += """
+                    , null AS comment
+                    , case c.IS_NULLABLE when 'NO' then 1 else 0 end as not_null
+                FROM INFORMATION_SCHEMA.COLUMNS AS c"""
             if metadata_exists:
-                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop unit"
-                stmt += ln + "    ON c.table_name = unit.tablename"
-                stmt += ln + "    AND c.column_name = unit.columnname"
-                stmt += ln + "    AND unit.tag = 'ch.ehi.ili2db.unit'"
-                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop txttype"
-                stmt += ln + "    ON c.table_name = txttype.tablename"
-                stmt += ln + "    AND c.column_name = txttype.columnname"
-                stmt += ln + "    AND txttype.tag = 'ch.ehi.ili2db.textKind'"
-                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop alias"
-                stmt += ln + "    ON c.table_name = alias.tablename"
-                stmt += ln + "    AND c.column_name = alias.columnname"
-                stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
-                stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
-                stmt += ln + "    ON full_name.{}='{{table}}'".format("owner" if self.ili_version() == 3 else "colowner")
-                stmt += ln + "    AND c.column_name=full_name.sqlname"
-            stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
+                stmt += """
+                LEFT JOIN {schema}.t_ili2db_column_prop unit
+                    ON c.table_name = unit.tablename
+                    AND c.column_name = unit.columnname
+                    AND unit.tag = 'ch.ehi.ili2db.unit'
+                LEFT JOIN {schema}.t_ili2db_column_prop txttype
+                    ON c.table_name = txttype.tablename
+                    AND c.column_name = txttype.columnname
+                    AND txttype.tag = 'ch.ehi.ili2db.textKind'
+                LEFT JOIN {schema}.t_ili2db_column_prop alias
+                    ON c.table_name = alias.tablename
+                    AND c.column_name = alias.columnname
+                    AND alias.tag = 'ch.ehi.ili2db.dispName'
+                LEFT JOIN {schema}.t_ili2db_attrname full_name"""
+                stmt += """
+                    ON full_name.{}='{{table}}'
+                    AND c.column_name=full_name.sqlname""".format("owner" if self.ili_version() == 3 else "colowner")
+            stmt += "  WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             stmt = stmt.format(schema=self.schema, table=table_name)
 
             cur = self.conn.cursor()
             cur.execute(stmt)
-            res = self._get_dict_result(cur)
+            res = self.__get_dict_result(cur)
         return res
 
     def get_min_max_info(self, table_name):
@@ -385,7 +393,7 @@ class MssqlConnector(DBConnector):
                 order by constraint_name, ordinal_position
                 """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where)
             cur.execute(query)
-            result = self._get_dict_result(cur)
+            result = self.__get_dict_result(cur)
 
         return result
 
@@ -396,12 +404,12 @@ class MssqlConnector(DBConnector):
             cur = self.conn.cursor()
             names = "'" + "','".join(sqlnames) + "'"
 
-            cur.execute("""SELECT iliname, sqlname
-                            FROM {schema}.t_ili2db_classname
-                            WHERE sqlname IN ({names})
-                        """.format(schema=self.schema, names=names))
+            cur.execute("""
+                SELECT iliname, sqlname
+                    FROM {schema}.t_ili2db_classname
+                    WHERE sqlname IN ({names})""".format(schema=self.schema, names=names))
 
-            result = self._get_dict_result(cur)
+            result = self.__get_dict_result(cur)
         return result
 
     def get_models(self):
@@ -411,10 +419,8 @@ class MssqlConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor()
             
-            cur.execute("""SELECT modelname, content
-                           FROM {schema}.t_ili2db_model
-                        """.format(schema=self.schema))
-            result = self._get_dict_result(cur)
+            cur.execute("""SELECT modelname, content FROM {schema}.t_ili2db_model""".format(schema=self.schema))
+            result = self.__get_dict_result(cur)
 
         return result
 
@@ -425,11 +431,11 @@ class MssqlConnector(DBConnector):
             class_names = "'" + \
                 "','".join(list(models_info.keys()) +
                            list(extended_classes.keys())) + "'"
-            cur.execute("""SELECT iliname, sqlname
-                           FROM {schema}.t_ili2db_classname
-                           WHERE iliname IN ({class_names})
-                        """.format(schema=self.schema, class_names=class_names))
-            result = self._get_dict_result(cur) 
+            cur.execute("""
+                SELECT iliname, sqlname
+                    FROM {schema}.t_ili2db_classname
+                    WHERE iliname IN ({class_names})""".format(schema=self.schema, class_names=class_names))
+            result = self.__get_dict_result(cur)
         return result
 
     def get_attrili_attrdb_mapping(self, attrs_list):
@@ -438,11 +444,11 @@ class MssqlConnector(DBConnector):
             cur = self.conn.cursor()
             attr_names = "'" + "','".join(attrs_list) + "'"
 
-            cur.execute("""SELECT iliname, sqlname, owner
-                           FROM {schema}.t_ili2db_attrname
-                           WHERE iliname IN ({attr_names})
-                        """.format(schema=self.schema, attr_names=attr_names))
-            result = self._get_dict_result(cur)
+            cur.execute("""
+                SELECT iliname, sqlname, owner
+                    FROM {schema}.t_ili2db_attrname
+                    WHERE iliname IN ({attr_names})""".format(schema=self.schema, attr_names=attr_names))
+            result = self.__get_dict_result(cur)
         return result
 
     def get_attrili_attrdb_mapping_by_owner(self, owners):
@@ -450,14 +456,15 @@ class MssqlConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor()
             owner_names = "'" + "','".join(owners) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
-                           FROM {schema}.t_ili2db_attrname
-                           WHERE owner IN ({owner_names})
-                        """.format(schema=self.schema, owner_names=owner_names))
-            result = self._get_dict_result(cur)
+            cur.execute("""
+                SELECT iliname, sqlname, owner
+                    FROM {schema}.t_ili2db_attrname
+                    WHERE owner IN ({owner_names})""".format(schema=self.schema, owner_names=owner_names))
+            result = self.__get_dict_result(cur)
         return result
-    
-    def _get_dict_result(self, cur):
+
+    @staticmethod
+    def __get_dict_result(cur):
         columns = [column[0] for column in cur.description]
 
         res = []
@@ -469,14 +476,15 @@ class MssqlConnector(DBConnector):
 
     def ili_version(self):
         cur = self.conn.cursor()
-        cur.execute("""SELECT count(COLUMN_NAME)
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA='{schema}'
-	AND(TABLE_NAME='t_ili2db_attrname' OR TABLE_NAME='t_ili2db_model')
-                       AND(COLUMN_NAME='owner' OR COLUMN_NAME='file')""".format(schema=self.schema))
+        cur.execute("""
+            SELECT count(COLUMN_NAME)
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA='{schema}'
+                    AND(TABLE_NAME='t_ili2db_attrname' OR TABLE_NAME='t_ili2db_model')
+                    AND(COLUMN_NAME='owner' OR COLUMN_NAME='file')""".format(schema=self.schema))
 
         res = cur.fetchone()[0]
-        print(res)
+
         if res > 0:
             self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
             return 3
