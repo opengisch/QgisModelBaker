@@ -102,6 +102,7 @@ class Ili2DbCommandConfiguration(object):
         self.dbhost = ''
         self.dbpwd = ''
         self.dbusr = ''
+        self.dbauthid = ''
         self.db_use_super_login = False
         self.database = ''
         self.dbschema = ''

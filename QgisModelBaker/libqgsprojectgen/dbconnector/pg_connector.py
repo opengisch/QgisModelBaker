@@ -81,9 +81,13 @@ class PGConnector(DBConnector):
 
     def create_db_or_schema(self, usr):
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if usr:
+            authorization_string = ' AUTHORIZATION {}'.format(usr)
+        else:
+            authorization_string = ''
         cur.execute("""
-                    CREATE SCHEMA {} AUTHORIZATION {};
-        """.format(self.schema, usr))
+                    CREATE SCHEMA {schema}{authorization};
+        """.format(schema=self.schema, authorization=authorization_string))
         self.conn.commit()
 
     def metadata_exists(self):

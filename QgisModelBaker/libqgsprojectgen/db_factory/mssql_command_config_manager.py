@@ -44,7 +44,7 @@ class MssqlCommandConfigManager(DbCommandConfigManager):
 
         return separator.join(uri)
 
-    def get_db_args(self, hide_password=False):
+    def get_db_args(self, hide_password=False, su=False):
         db_args = list()
         db_args += ["--dbhost", self.configuration.dbhost]
         if self.configuration.dbport:

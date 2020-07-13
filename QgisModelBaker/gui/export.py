@@ -115,7 +115,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.db_simple_factory = DbSimpleFactory()
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.buttonBox.accepted.disconnect()
         self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
@@ -178,7 +178,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.export_models_view.setModel(self.export_models_model)
         self.export_models_view.clicked.connect(self.export_models_model.check)
         self.export_models_view.space_pressed.connect(self.export_models_model.check)
-        self.refresh_models()
+        self.request_for_refresh_models()
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
@@ -203,7 +203,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         db_factory = self.db_simple_factory.create_factory(tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri()
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         db_connector = None
 
@@ -224,7 +224,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri()
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         db_connector = None
 

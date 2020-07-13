@@ -34,23 +34,30 @@ from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONL
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
+
 class Generator(QObject):
     """Builds Model Baker objects from data extracted from databases."""
 
     stdout = pyqtSignal(str)
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None):
+    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None, mgmt_uri=None):
+        """
+        Creates a new Generator objects.
+        :param uri: The uri that should be used in the resulting project. If authcfg is used, make sure the mgmt_uri is set as well.
+        :param mgmt_uri: The uri that should be used to create schemas, tables and query meta information. Does not support authcfg.
+        """
         QObject.__init__(self, parent)
         self.tool = tool
         self.uri = uri
+        self.mgmt_uri = mgmt_uri
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = pg_estimated_metadata
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
-        self._db_connector = db_factory.get_db_connector(uri, schema)
+        self._db_connector = db_factory.get_db_connector(mgmt_uri or uri, schema)
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
 
@@ -68,7 +75,7 @@ class Generator(QObject):
         message = {'level': level, 'text': text}
 
         if message not in self.collected_print_messages:
-          self.collected_print_messages.append(message)
+            self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info()
@@ -255,7 +262,7 @@ class Generator(QObject):
                                          layer_map[record['target_layer_name']][0],
                                          self._db_connector.tid,
                                          self._db_connector.dispName]
-                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'],layer.geometry_column)
+                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'], layer.geometry_column)
                         if unique_current_layer_name in bags_of_enum.keys():
                             bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
                         else:
