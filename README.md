@@ -1,6 +1,6 @@
 [![Read the documentation](https://img.shields.io/badge/Read-the%20docs-green.svg)](https://opengisch.github.io/QgisModelBaker/docs/en/)
 [![Release](https://img.shields.io/github/release/opengisch/QgisModelBaker.svg)](https://github.com/opengisch/QgisModelBaker/releases)
-[![Build Status](https://travis-ci.org/opengisch/QgisModelBaker.svg?branch=master)](https://travis-ci.org/opengisch/QgisModelBaker)
+[![Build Status](https://travis-ci.org/opengisch/QgisModelBaker.svg?branch=master)](https://travis-ci.com/opengisch/QgisModelBaker)
 
 # QGIS Model Baker
 
