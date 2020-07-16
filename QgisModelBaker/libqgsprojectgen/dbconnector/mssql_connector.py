@@ -250,6 +250,23 @@ class MssqlConnector(DBConnector):
 
         return cursor
 
+    def get_meta_attrs_info(self):
+        if not self._table_exists(METAATTRS_TABLE):
+            return []
+
+        result = []
+
+        if self.schema:
+            cur = self.conn.cursor()
+            cur.execute("""
+                        SELECT *
+                        FROM {schema}.{metaattrs_table};
+            """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE,))
+
+            result = self._get_dict_result(cur)
+
+        return result
+
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(METAATTRS_TABLE):
             return []

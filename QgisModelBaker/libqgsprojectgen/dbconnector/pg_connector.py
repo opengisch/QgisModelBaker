@@ -213,6 +213,21 @@ class PGConnector(DBConnector):
 
         return []
 
+    def get_meta_attrs_info(self):
+        if not self._table_exists(PG_METAATTRS_TABLE):
+            return []
+
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT *
+                        FROM {schema}.{metaattrs_table};
+            """.format(schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE))
+
+            return cur
+
+        return []
+
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(PG_METAATTRS_TABLE):
             return []
