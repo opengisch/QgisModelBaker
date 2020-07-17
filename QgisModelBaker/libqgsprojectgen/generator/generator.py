@@ -78,7 +78,6 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def omitted_layers(self):
-        # todo dave what about one huge command instead of 3
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
@@ -111,11 +110,10 @@ class Generator(QObject):
 
         return tables + referencing_tables
 
-    def layers(self, filter_layer_list=[], omitted_layers=[]):
+    def layers(self, filter_layer_list=[]):
+        omitted_layers = self.omitted_layers()
         tables_info = self.get_tables_info()
         layers = list()
-        #todo dave remove this print
-        print(omitted_layers)
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
 
