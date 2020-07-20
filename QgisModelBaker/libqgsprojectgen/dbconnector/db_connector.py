@@ -74,6 +74,20 @@ class DBConnector(QObject):
         '''
         return []
 
+    def get_meta_attrs_info(self):
+        '''
+        Info about meta attributes
+
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                ilielement
+                attr_name
+                attr_value
+        '''
+        raise NotImplementedError
+
     def get_meta_attr(self, ili_name):
         '''
         Info about meta attributes of a given ili element
