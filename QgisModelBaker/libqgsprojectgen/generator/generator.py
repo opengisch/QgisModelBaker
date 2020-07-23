@@ -102,8 +102,9 @@ class Generator(QObject):
             if record['attr_name'] == 'ili2db.mapping':
                 mapping_ili_elements.append(record['ilielement'])
         for record in tables_info:
-            if record['ili_name'] in mapping_ili_elements or record['ili_name'] in exception_ili_elements:
-                tables.append(record['tablename'])
+            if 'ili_name' in record:
+                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in exception_ili_elements:
+                    tables.append(record['tablename'])
         for record in relations_info:
             if record['referenced_table'] in tables:
                 referencing_tables.append(record['referencing_table'])
