@@ -139,6 +139,7 @@ class DBConnector(QObject):
                 constraint_schema
                 referenced_table_name
                 referenced_column_name
+                strength
         '''
         return []
 
