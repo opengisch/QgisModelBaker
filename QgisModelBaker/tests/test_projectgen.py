@@ -1196,7 +1196,6 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        'agg3_agg3_a_fkey', 'agg3_agg3_b_fkey', 'assoc3_assoc3_a_fkey', 'assoc3_assoc3_b_fkey', 'classb1_agg1_a_fkey', 'classb1_agg2_a_fkey', 'classb1_assoc1_a_fkey', 'classb1_assoc2_a_fkey', 'classb1_comp1_a_fkey
         self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), 0)
         self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), 0)
         self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), 0)
@@ -1255,6 +1254,56 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength(), 0)
         # and that's the one with the strength 1 (composition)
         self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength(), 1)
+
+    def test_relation_strength_mssql(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels//Assoc23.ili')
+        importer.configuration.ilimodels = 'Assoc3'
+        importer.configuration.dbschema = 'assoc23_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.srs_code = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(
+            DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), 0)
+        # and that's the one with the strength 1 (composition)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), 1)
 
     def test_unit(self):
         importer = iliimporter.Importer()
