@@ -358,7 +358,18 @@ class MssqlConnector(DBConnector):
             filter_layer_where = ""
             if filter_layer_list:
                 filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
-            
+
+            strength_field = ''
+            strength_join = ''
+            if self.metadata_exists():
+                strength_field = ",META_ATTRS.attr_value as strength"
+                strength_join = """
+                LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
+                    ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
+                LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
+                    ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
+                    """.format(schema=self.schema, colowner="owner" if self.ili_version() == 3 else "colowner")
+
             query = """
                 SELECT  
                     KCU1.CONSTRAINT_NAME AS constraint_name 
@@ -368,7 +379,7 @@ class MssqlConnector(DBConnector):
                     ,KCU2.TABLE_NAME AS referenced_table 
                     ,KCU2.COLUMN_NAME AS referenced_column 
                     ,KCU1.ORDINAL_POSITION AS ordinal_position
-                    ,META_ATTRS.attr_value as strength
+                    {strength_field}
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
 
                 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 
@@ -381,19 +392,12 @@ class MssqlConnector(DBConnector):
                     AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
                     AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION
-        
-                
-                LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
-                    ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
-                
-                LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
-                    ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
+                {strength_join}
                              
                 WHERE 1=1 {schema_where1} {schema_where2} {filter_layer_where}
                 order by constraint_name, ordinal_position
                 """.format(schema_where1=schema_where1, schema_where2=schema_where2,
-                           filter_layer_where=filter_layer_where, schema=self.schema,
-                           colowner="owner" if self.ili_version() == 3 else "colowner")
+                           filter_layer_where=filter_layer_where, strength_field=strength_field, strength_join=strength_join)
             cur.execute(query)
             result = self._get_dict_result(cur)
 
