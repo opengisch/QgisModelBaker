@@ -163,6 +163,43 @@ class PGConnector(DBConnector):
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            print("""
+                                    SELECT
+                                      tbls.schemaname AS schemaname,
+                                      tbls.tablename AS tablename,
+                                      a.attname AS primary_key,
+                                      g.f_geometry_column AS geometry_column,
+                                      g.srid AS srid,
+                                      {kind_settings_field}
+                                      {table_alias}
+                                      {model_name}
+                                      {ili_name}
+                                      {extent}
+                                      g.type AS simple_type,
+                                      format_type(ga.atttypid, ga.atttypmod) as formatted_type
+                                    FROM pg_catalog.pg_tables tbls
+                                    LEFT JOIN pg_index i
+                                      ON i.indrelid = CONCAT(tbls.schemaname, '."', tbls.tablename, '"')::regclass
+                                    LEFT JOIN pg_attribute a
+                                      ON a.attrelid = i.indrelid
+                                      AND a.attnum = ANY(i.indkey)
+                                    {domain_left_join}
+                                    {alias_left_join}
+                                    {model_where}
+                                    LEFT JOIN public.geometry_columns g
+                                      ON g.f_table_schema = tbls.schemaname
+                                      AND g.f_table_name = tbls.tablename
+                                    LEFT JOIN pg_attribute ga
+                                      ON ga.attrelid = i.indrelid
+                                      AND ga.attname = g.f_geometry_column
+                                    WHERE i.indisprimary {schema_where}
+                        """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
+                                   model_name=model_name, ili_name=ili_name, extent=extent,
+                                   domain_left_join=domain_left_join,
+                                   alias_left_join=alias_left_join, model_where=model_where,
+                                   schema_where=schema_where))
+
             cur.execute("""
                         SELECT
                           tbls.schemaname AS schemaname,
@@ -386,13 +423,14 @@ class PGConnector(DBConnector):
                              ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
                              AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
                             INNER JOIN {schema}.t_ili2db_attrname AS ATTRNAME
-                             ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.colowner = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
+                             ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
                             INNER JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
                              ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
                             GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION, META_ATTRS.attr_value
                             ORDER BY KCU1.ORDINAL_POSITION
                             """.format(schema_where1=schema_where1, schema_where2=schema_where2,
-                                       filter_layer_where=filter_layer_where, schema=self.schema))
+                                       filter_layer_where=filter_layer_where, schema=self.schema,
+                                       colowner="owner" if self.ili_version() == 3 else "colowner"))
 
 
             return cur

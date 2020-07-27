@@ -383,14 +383,16 @@ class MssqlConnector(DBConnector):
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION
         
                 INNER JOIN {schema}.t_ili2db_attrname AS ATTRNAME
-                    ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.colowner = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
+                    ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
                 
                 INNER JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
                     ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
                              
                 WHERE 1=1 {schema_where1} {schema_where2} {filter_layer_where}
                 order by constraint_name, ordinal_position
-                """.format(schema_where1=schema_where1, schema_where2=schema_where2, filter_layer_where=filter_layer_where, schema=self.schema )
+                """.format(schema_where1=schema_where1, schema_where2=schema_where2,
+                           filter_layer_where=filter_layer_where, schema=self.schema,
+                           colowner="owner" if self.ili_version() == 3 else "colowner")
             cur.execute(query)
             result = self._get_dict_result(cur)
 
