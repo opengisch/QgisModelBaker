@@ -10,7 +10,7 @@ class Relation(object):
         self.referencing_field = None
         self.referenced_field = None
         self.name = None
-        self.strength = None
+        self.strength = 0
         self.qgis_relation = None
         self._id = None
 
