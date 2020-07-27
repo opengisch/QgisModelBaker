@@ -241,7 +241,7 @@ class Generator(QObject):
                         relation.referencing_field = record['referencing_column']
                         relation.referenced_field = record['referenced_column']
                         relation.name = record['constraint_name']
-                        relation.strength = 1 if record['strength'] == 'COMPOSITE' else 0
+                        relation.strength = 1 if 'strength' in record and record['strength'] == 'COMPOSITE' else 0
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:
