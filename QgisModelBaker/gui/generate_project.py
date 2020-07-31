@@ -91,14 +91,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
 
-        self.create_action = QAction( self.tr('Generate'), None)
         self.edit_command_action = QAction( self.tr('Edit ili2db command'), None)
-        self.create_tool_button.addAction(self.create_action)
-        self.create_tool_button.addAction(self.edit_command_action)
-        self.create_tool_button.setDefaultAction(self.create_action)
-        self.create_action.triggered.connect(self.accepted)
         self.edit_command_action.triggered.connect(self.edit_command)
 
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.tr('Create'))
+        self.create_tool_button.clicked.connect(self.accepted)
+
+        self.create_button.setText(self.tr('Create'))
+        self.create_button.clicked.connect(self.accepted)
+
+        self.buttonBox.accepted.disconnect()
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
 
@@ -475,12 +478,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_config.setVisible(interlis_mode)
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
-        self.edit_command_action.setVisible(interlis_mode)
 
-        if interlis_mode and len(self.create_tool_button.actions()) == 1:
-            self.create_tool_button.addAction(self.edit_command_action)
-        if not interlis_mode and not len(self.create_tool_button.actions()) == 1:
-            self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_button.setVisible(not interlis_mode)
+        self.create_tool_button.setVisible(interlis_mode)
 
         # Refresh panels
         for key, value in self._lst_panel.items():

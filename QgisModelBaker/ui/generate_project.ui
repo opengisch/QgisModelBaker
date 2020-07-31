@@ -228,7 +228,14 @@
             <string>...</string>
            </property>
            <property name="popupMode">
-            <enum>QToolButton::DelayedPopup</enum>
+            <enum>QToolButton::MenuButtonPopup</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="create_button">
+           <property name="text">
+            <string>PushButton</string>
            </property>
           </widget>
          </item>

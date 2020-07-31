@@ -35,7 +35,7 @@ class EditCommandDialog(QDialog, DIALOG_UI):
         self.parent = parent
         self.command_edit.setEnabled(False)
         self.chk_activate.stateChanged.connect(self.enable_command_edit)
-        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr('Generate'))
+        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr('Run'))
 
     def enable_command_edit(self, state):
         self.command_edit.setEnabled(state)
