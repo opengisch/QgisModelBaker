@@ -24,6 +24,7 @@ import os.path
 import re
 
 from QgisModelBaker.gui.options import OptionsDialog, ModelListView
+from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
@@ -36,7 +37,7 @@ from QgisModelBaker.utils.qt_utils import (
     OverrideCursor
 )
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QSizePolicy, QGridLayout
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QSizePolicy, QGridLayout, QAction, QToolButton
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
 from qgis.gui import QgsGui, QgsMessageBar
 from qgis.core import Qgis
@@ -117,16 +118,27 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.clicked.connect(self.button_box_clicked)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-
-        self.export_button_name = self.tr('Export')
-        self.export_without_validate_button_name = self.tr('Export without validation')
-
-        self.buttonBox.addButton(self.export_button_name, QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
+
+        self.export_text = self.tr('Export')
+        self.set_export_action = QAction(self.export_text, None)
+        self.set_export_action.triggered.connect(self.set_export)
+
+        self.export_without_validation_text = self.tr('Export without validation')
+        self.set_export_without_validation_action = QAction(self.export_without_validation_text, None)
+        self.set_export_without_validation_action.triggered.connect(self.set_export_without_validation)
+
+        self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
+        self.edit_command_action.triggered.connect(self.edit_command)
+
+        self.export_tool_button.addAction(self.set_export_without_validation_action)
+        self.export_tool_button.addAction(self.edit_command_action)
+        self.export_tool_button.setText(self.export_text)
+        self.export_tool_button.clicked.connect(self.accepted)
+
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
                                     file_filter=self.tr('XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)'),
@@ -158,9 +170,8 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
 
-        # Remove export without validate button when xtf change
-        self.xtf_file_line_edit.textChanged.connect(
-            self.remove_export_without_validate_button)
+        # Reset to export as default text
+        self.xtf_file_line_edit.textChanged.connect(self.set_export)
 
         #refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
@@ -234,34 +245,55 @@ class ExportDialog(QDialog, DIALOG_UI):
         except (DBConnectorError, FileNotFoundError):
             return None
 
-    def button_box_clicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
-            if button.text() == self.export_button_name:
-                self.validate_data = True
-            elif button.text() == self.export_without_validate_button_name:
-                self.validate_data = False
-            self.accepted()
+    def set_export(self):
+        self.validate_data = True
+        self.export_tool_button.removeAction(self.set_export_action)
+        self.export_tool_button.removeAction(self.edit_command_action)
+        self.export_tool_button.addAction(self.set_export_without_validation_action)
+        self.export_tool_button.addAction(self.edit_command_action)
+        self.export_tool_button.setText(self.export_text)
 
-    def accepted(self):
+    def set_export_without_validation(self):
+        self.validate_data = False
+        self.export_tool_button.removeAction(self.set_export_without_validation_action)
+        self.export_tool_button.removeAction(self.edit_command_action)
+        self.export_tool_button.addAction(self.set_export_action)
+        self.export_tool_button.addAction(self.edit_command_action)
+        self.export_tool_button.setText(self.export_without_validation_text)
+
+    def edit_command(self):
+        exporter = iliexporter.Exporter()
+        exporter.tool = self.type_combo_box.currentData()
+        exporter.configuration = self.updated_configuration()
+        command = exporter.command(True)
+        edit_command_dialog = EditCommandDialog(self)
+        edit_command_dialog.command_edit.setPlainText(command)
+        if edit_command_dialog.exec_():
+            edited_command = edit_command_dialog.command_edit.toPlainText()
+            self.accepted(edited_command)
+
+    def accepted(self, edited_command=None):
         configuration = self.updated_configuration()
 
-        if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
-            self.txtStdout.setText(
-                self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
-            self.xtf_file_line_edit.setFocus()
-            return
-        if not configuration.ilimodels:
-            self.txtStdout.setText(
-                self.tr('Please set a model before exporting data.'))
-            self.export_models_view.setFocus()
-            return
-
         db_id = self.type_combo_box.currentData()
-        res, message = self._lst_panel[db_id].is_valid()
 
-        if not res:
-            self.txtStdout.setText(message)
-            return
+        if not edited_command:
+            if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
+                self.txtStdout.setText(
+                    self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+                self.xtf_file_line_edit.setFocus()
+                return
+            if not configuration.ilimodels:
+                self.txtStdout.setText(
+                    self.tr('Please set a model before exporting data.'))
+                self.export_models_view.setFocus()
+                return
+
+            res, message = self._lst_panel[db_id].is_valid()
+
+            if not res:
+                self.txtStdout.setText(message)
+                return
 
         # If xtf browser was opened and the file exists, the user already chose
         # to overwrite the file
@@ -297,17 +329,21 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(25)
 
             try:
-                if exporter.run() != iliexporter.Exporter.SUCCESS:
+                if exporter.run(4, edited_command) != iliexporter.Exporter.SUCCESS:
                     if configuration.db_ili_version == 3:
                         # failed with a db created by ili2db version 3
-                        # fallback since of issues with --export3 argument
-                        self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
-                        # set db version to 4 (means no special arguments like --export3) in the configuration
-                        configuration.db_ili_version = 4
-                        # ... and enforce the Exporter to use ili2db version 3.x.x
-                        if exporter.run(3) != iliexporter.Exporter.SUCCESS:
-                            self.enable()
-                            self.progress_bar.hide()
+                        if not edited_command:
+                            # fallback since of issues with --export3 argument
+                            self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
+                            # set db version to 4 (means no special arguments like --export3) in the configuration
+                            configuration.db_ili_version = 4
+                            # ... and enforce the Exporter to use ili2db version 3.x.x
+                            if exporter.run(3) != iliexporter.Exporter.SUCCESS:
+                                self.enable()
+                                self.progress_bar.hide()
+                                return
+                        else:
+                            self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (no fallback with editted command)'))
                             return
                     else:
                         self.enable()
@@ -359,17 +395,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
             if self.export_without_validate():
-
-                # button is removed to define order in GUI
-                for button in self.buttonBox.buttons():
-                    if button.text() == self.export_button_name:
-                        self.buttonBox.removeButton(button)
-                # Check if button was previously added
-                self.remove_export_without_validate_button()
-
-                self.buttonBox.addButton(self.export_without_validate_button_name,
-                                         QDialogButtonBox.AcceptRole).setStyleSheet("color: #aa2222;")
-                self.buttonBox.addButton(self.export_button_name, QDialogButtonBox.AcceptRole)
+                self.set_export_without_validation()
             self.enable()
 
     def export_without_validate(self):
@@ -381,12 +407,6 @@ class ExportDialog(QDialog, DIALOG_UI):
         if "permission denied" in log or "access is denied" in log:
             return False
         return True
-
-    def remove_export_without_validate_button(self):
-        for button in self.buttonBox.buttons():
-            if button.text() == self.export_without_validate_button_name:
-                self.buttonBox.removeButton(button)
-                self.validate_data = True
 
     def updated_configuration(self):
         """
@@ -453,7 +473,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.txtStdout.clear()
-        self.remove_export_without_validate_button()
+        self.set_export()
         self.refresh_db_panel()
         self.refresh_models()
         self.txtStdout.clear()
