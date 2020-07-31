@@ -104,7 +104,7 @@ class Exporter(QObject):
     def run(self, version=4, command=None):
         if not command:
             # we usually use version 4 except in case of a fallback
-            command = self.command(version,False)
+            command = self.command(False,version)
 
         proc = QProcess()
         proc.readyReadStandardError.connect(
