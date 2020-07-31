@@ -153,6 +153,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.xtf_file_line_edit.textChanged.emit(
             self.xtf_file_line_edit.text())
 
+        # Reset to import as default text
+        self.xtf_file_line_edit.textChanged.connect( self.set_import)
+
         settings = QSettings()
         ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
         self.ilicache = IliCache(base_config, ilifile or None)
@@ -422,6 +425,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.txtStdout.clear()
+        self.set_import()
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()
