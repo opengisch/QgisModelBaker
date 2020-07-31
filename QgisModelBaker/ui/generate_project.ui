@@ -227,6 +227,9 @@
            <property name="text">
             <string>...</string>
            </property>
+           <property name="popupMode">
+            <enum>QToolButton::DelayedPopup</enum>
+           </property>
           </widget>
          </item>
         </layout>
