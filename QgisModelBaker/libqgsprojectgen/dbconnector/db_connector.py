@@ -18,6 +18,7 @@
 """
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
+from .config import IGNORED_TABLES
 
 class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
@@ -205,7 +206,7 @@ class DBConnector(QObject):
             if record['referenced_table'] in tables:
                 referencing_tables.append(record['referencing_table'])
 
-        return tables + referencing_tables
+        return tables + referencing_tables + IGNORED_TABLES
 
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""

@@ -96,9 +96,6 @@ class Generator(QObject):
             elif record['schemaname'] in IGNORED_SCHEMAS:
                 continue
 
-            if record['tablename'] in IGNORED_TABLES:
-                continue
-
             if omitted_layers and record['tablename'] in omitted_layers:
                 continue
 
