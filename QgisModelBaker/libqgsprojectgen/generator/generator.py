@@ -77,42 +77,8 @@ class Generator(QObject):
         if message not in self.collected_print_messages:
             self.collected_print_messages.append(message)
 
-    def omitted_layers(self):
-        tables_info = self.get_tables_info()
-        relations_info = self.get_relations_info()
-        meta_attrs_info = self.get_meta_attrs_info()
-        mapping_ili_elements = []
-        exception_ili_elements = [
-            'GeometryCHLV03_V1.MultiSurface',
-            'GeometryCHLV03_V1.MultiLine',
-            'GeometryCHLV03_V1.MultiDirectedLine',
-            'GeometryCHLV95_V1.MultiSurface',
-            'GeometryCHLV95_V1.MultiLine',
-            'GeometryCHLV95_V1.MultiDirectedLine',
-            'CatalogueObjects_V1.Catalogues.CatalogueReference',
-            'CatalogueObjects_V1.Catalogues.MandatoryCatalogueReference',
-            'LocalisationCH_V1.MultilingualMText',
-            'LocalisationCH_V1.MultilingualText',
-            'LocalisationCH_V1.LocalisedMText',
-            'LocalisationCH_V1.LocalisedText'
-        ]
-        tables = []
-        referencing_tables = []
-        for record in meta_attrs_info:
-            if record['attr_name'] == 'ili2db.mapping':
-                mapping_ili_elements.append(record['ilielement'])
-        for record in tables_info:
-            if 'ili_name' in record:
-                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in exception_ili_elements:
-                    tables.append(record['tablename'])
-        for record in relations_info:
-            if record['referenced_table'] in tables:
-                referencing_tables.append(record['referencing_table'])
-
-        return tables + referencing_tables
-
     def layers(self, filter_layer_list=[]):
-        omitted_layers = self.omitted_layers()
+        omitted_layers = self.get_omitted_layers()
         tables_info = self.get_tables_info()
         layers = list()
 
@@ -359,6 +325,9 @@ class Generator(QObject):
 
     def metadata_exists(self):
         return self._db_connector.metadata_exists()
+
+    def get_omitted_layers(self):
+        return self._db_connector.get_omitted_layers()
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
