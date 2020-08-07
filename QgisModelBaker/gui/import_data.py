@@ -95,17 +95,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.helpRequested.connect(self.help_requested)
 
         self.import_text = self.tr('Import Data')
-        self.set_import_action = QAction(self.import_text, None)
-        self.set_import_action.triggered.connect(self.set_import)
+        self.set_button_to_import_action = QAction(self.import_text, None)
+        self.set_button_to_import_action.triggered.connect(self.set_button_to_import)
 
         self.import_without_validation_text = self.tr('Import without validation')
-        self.set_import_without_validation_action = QAction(self.import_without_validation_text, None)
-        self.set_import_without_validation_action.triggered.connect(self.set_import_without_validation)
+        self.set_button_to_import_without_validation_action = QAction(self.import_without_validation_text, None)
+        self.set_button_to_import_without_validation_action.triggered.connect(self.set_button_to_import_without_validation)
 
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.import_tool_button.addAction(self.set_import_without_validation_action)
+        self.import_tool_button.addAction(self.set_button_to_import_without_validation_action)
         self.import_tool_button.addAction(self.edit_command_action)
         self.import_tool_button.setText(self.import_text)
         self.import_tool_button.clicked.connect(self.accepted)
@@ -154,7 +154,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.xtf_file_line_edit.text())
 
         # Reset to import as default text
-        self.xtf_file_line_edit.textChanged.connect( self.set_import)
+        self.xtf_file_line_edit.textChanged.connect( self.set_button_to_import)
 
         settings = QSettings()
         ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
@@ -168,23 +168,36 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
         self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
 
-    def set_import(self):
+    def set_button_to_import(self):
+        """
+        Changes the text of the button to import (with validation) and sets the validate_data to true.
+        So on clicking the button the import will start with validation.
+        The buttons actions are changed to be able to switch the without-validation mode.
+        """
         self.validate_data = True
-        self.import_tool_button.removeAction(self.set_import_action)
+        self.import_tool_button.removeAction(self.set_button_to_import_action)
         self.import_tool_button.removeAction(self.edit_command_action)
-        self.import_tool_button.addAction(self.set_import_without_validation_action)
+        self.import_tool_button.addAction(self.set_button_to_import_without_validation_action)
         self.import_tool_button.addAction(self.edit_command_action)
         self.import_tool_button.setText(self.import_text)
 
-    def set_import_without_validation(self):
+    def set_button_to_import_without_validation(self):
+        """
+        Changes the text of the button to import without validation and sets the validate_data to false.
+        So on clicking the button the import will start without validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
         self.validate_data = False
-        self.import_tool_button.removeAction(self.set_import_without_validation_action)
+        self.import_tool_button.removeAction(self.set_button_to_import_without_validation_action)
         self.import_tool_button.removeAction(self.edit_command_action)
-        self.import_tool_button.addAction(self.set_import_action)
+        self.import_tool_button.addAction(self.set_button_to_import_action)
         self.import_tool_button.addAction(self.edit_command_action)
         self.import_tool_button.setText(self.import_without_validation_text)
 
     def edit_command(self):
+        """
+        A dialog opens giving the user the possibility to edit the ili2db command used for the import
+        """
         importer = iliimporter.Importer()
         importer.tool = self.type_combo_box.currentData()
         importer.configuration = self.updated_configuration()
@@ -311,7 +324,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
             if self.import_without_validate():
-                self.set_import_without_validation()
+                self.set_button_to_import_without_validation()
             self.enable()
 
     def import_without_validate(self):
@@ -425,7 +438,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.txtStdout.clear()
-        self.set_import()
+        self.set_button_to_import()
         self.progress_bar.hide()
 
         db_id = self.type_combo_box.currentData()

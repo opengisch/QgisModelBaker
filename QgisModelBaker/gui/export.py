@@ -124,12 +124,12 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.helpRequested.connect(self.help_requested)
 
         self.export_text = self.tr('Export')
-        self.set_export_action = QAction(self.export_text, None)
-        self.set_export_action.triggered.connect(self.set_export)
+        self.set_button_to_export_action = QAction(self.export_text, None)
+        self.set_button_to_export_action.triggered.connect(self.set_button_to_export)
 
         self.export_without_validation_text = self.tr('Export without validation')
-        self.set_export_without_validation_action = QAction(self.export_without_validation_text, None)
-        self.set_export_without_validation_action.triggered.connect(self.set_export_without_validation)
+        self.set_button_to_export_without_validation_action = QAction(self.export_without_validation_text, None)
+        self.set_button_to_export_without_validation_action.triggered.connect(self.set_button_to_export_without_validation)
 
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
@@ -171,7 +171,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.xtf_file_line_edit.text())
 
         # Reset to export as default text
-        self.xtf_file_line_edit.textChanged.connect(self.set_export)
+        self.xtf_file_line_edit.textChanged.connect(self.set_button_to_export)
 
         #refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
@@ -245,23 +245,36 @@ class ExportDialog(QDialog, DIALOG_UI):
         except (DBConnectorError, FileNotFoundError):
             return None
 
-    def set_export(self):
+    def set_button_to_export(self):
+        """
+        Changes the text of the button to export (with validation) and sets the validate_data to true.
+        So on clicking the button the export will start with validation.
+        The buttons actions are changed to be able to switch the without-validation mode.
+        """
         self.validate_data = True
-        self.export_tool_button.removeAction(self.set_export_action)
+        self.export_tool_button.removeAction(self.set_button_to_export_action)
         self.export_tool_button.removeAction(self.edit_command_action)
-        self.export_tool_button.addAction(self.set_export_without_validation_action)
+        self.export_tool_button.addAction(self.set_button_to_export_without_validation_action)
         self.export_tool_button.addAction(self.edit_command_action)
         self.export_tool_button.setText(self.export_text)
 
-    def set_export_without_validation(self):
+    def set_button_to_export_without_validation(self):
+        """
+        Changes the text of the button to export without validation and sets the validate_data to false.
+        So on clicking the button the export will start without validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
         self.validate_data = False
-        self.export_tool_button.removeAction(self.set_export_without_validation_action)
+        self.export_tool_button.removeAction(self.set_button_to_export_without_validation_action)
         self.export_tool_button.removeAction(self.edit_command_action)
-        self.export_tool_button.addAction(self.set_export_action)
+        self.export_tool_button.addAction(self.set_button_to_export_action)
         self.export_tool_button.addAction(self.edit_command_action)
         self.export_tool_button.setText(self.export_without_validation_text)
 
     def edit_command(self):
+        """
+        A dialog opens giving the user the possibility to edit the ili2db command used for the export
+        """
         exporter = iliexporter.Exporter()
         exporter.tool = self.type_combo_box.currentData()
         exporter.configuration = self.updated_configuration()
@@ -395,7 +408,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.buttonBox.addButton(QDialogButtonBox.Close)
         else:
             if self.export_without_validate():
-                self.set_export_without_validation()
+                self.set_button_to_export_without_validation()
             self.enable()
 
     def export_without_validate(self):
@@ -473,7 +486,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def type_changed(self):
         self.txtStdout.clear()
-        self.set_export()
+        self.set_button_to_export()
         self.refresh_db_panel()
         self.refresh_models()
         self.txtStdout.clear()
