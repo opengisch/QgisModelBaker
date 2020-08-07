@@ -32,9 +32,4 @@ class EditCommandDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.command_edit.setEnabled(False)
-        self.chk_activate.stateChanged.connect(self.enable_command_edit)
         self.button_box.button(QDialogButtonBox.Ok).setText(self.tr('Run'))
-
-    def enable_command_edit(self, state):
-        self.command_edit.setEnabled(state)
