@@ -333,7 +333,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                     if configuration.db_ili_version == 3:
                         # failed with a db created by ili2db version 3
                         if not edited_command:
-                            # fallback since of issues with --export3 argument
+                            # fallback because of issues with --export3 argument
                             self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
                             # set db version to 4 (means no special arguments like --export3) in the configuration
                             configuration.db_ili_version = 4
