@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 

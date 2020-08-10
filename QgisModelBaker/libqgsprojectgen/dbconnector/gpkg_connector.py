@@ -24,6 +24,7 @@ import qgis.utils
 from qgis.core import Qgis
 from .db_connector import DBConnector, DBConnectorError
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
+from .config import IGNORED_GPKG_TABLES, IGNORED_ILI_ELEMENTS
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
@@ -357,6 +358,31 @@ class GPKGConnector(DBConnector):
                             WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
                             """)
         return cursor
+
+    def get_ignored_layers(self):
+        tables_info = self.get_tables_info()
+        relations_info = self.get_relations_info()
+        meta_attrs_info = self.get_meta_attrs_info()
+        mapping_ili_elements = []
+        tables = []
+        referencing_tables = []
+        for record in meta_attrs_info:
+            if record['attr_name'] == 'ili2db.mapping':
+                mapping_ili_elements.append(record['ilielement'])
+        for record in tables_info:
+            if 'ili_name' in record:
+                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in IGNORED_ILI_ELEMENTS:
+                    tables.append(record['tablename'])
+                    continue
+            if 'tablename' in record:
+                if record['tablename'] in IGNORED_GPKG_TABLES:
+                    tables.append(record['tablename'])
+        # get the referencing tables
+        for record in relations_info:
+            if record['referenced_table'] in tables:
+                referencing_tables.append(record['referencing_table'])
+
+        return tables + referencing_tables
 
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""

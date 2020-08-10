@@ -18,7 +18,6 @@
 """
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
-from .config import IGNORED_TABLES
 
 class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
@@ -175,46 +174,13 @@ class DBConnector(QObject):
         return []
 
     def get_ignored_layers(self):
-        tables_info = self.get_tables_info()
-        relations_info = self.get_relations_info()
-        meta_attrs_info = self.get_meta_attrs_info()
-        mapping_ili_elements = []
-        exception_ili_elements = [
-            'GeometryCHLV03_V1.MultiSurface',
-            'GeometryCHLV03_V1.MultiLine',
-            'GeometryCHLV03_V1.MultiDirectedLine',
-            'GeometryCHLV95_V1.MultiSurface',
-            'GeometryCHLV95_V1.MultiLine',
-            'GeometryCHLV95_V1.MultiDirectedLine',
-            'CatalogueObjects_V1.Catalogues.CatalogueReference',
-            'CatalogueObjects_V1.Catalogues.MandatoryCatalogueReference',
-            'LocalisationCH_V1.MultilingualMText',
-            'LocalisationCH_V1.MultilingualText',
-            'LocalisationCH_V1.LocalisedMText',
-            'LocalisationCH_V1.LocalisedText'
-        ]
-        tables = []
-        referencing_tables = []
-        for record in meta_attrs_info:
-            if record['attr_name'] == 'ili2db.mapping':
-                mapping_ili_elements.append(record['ilielement'])
-        for record in tables_info:
-            if 'ili_name' in record:
-                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in exception_ili_elements:
-                    tables.append(record['tablename'])
-                    continue;
-            if 'schemaname' in record:
-                if record['schemaname'] in IGNORED_SCHEMAS:
-                    tables.append(record['tablename'])
-            if 'tablename' in record:
-                if record['tablename'] in IGNORED_TABLES:
-                    tables.append(record['tablename'])
-        # get the referencing tables
-        for record in relations_info:
-            if record['referenced_table'] in tables:
-                referencing_tables.append(record['referencing_table'])
-
-        return tables + referencing_tables
+        '''
+        The ignored layers according to the ignored schemas and ignored tables and the ignored ili elements
+        listed in the config.py.
+        Additionally all the ili elements that have the attribute name ili2db.mapping in the meta attribute
+        table.
+        '''
+        return []
 
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""
