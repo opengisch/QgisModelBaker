@@ -202,11 +202,19 @@ class DBConnector(QObject):
             if 'ili_name' in record:
                 if record['ili_name'] in mapping_ili_elements or record['ili_name'] in exception_ili_elements:
                     tables.append(record['tablename'])
+                    continue;
+            if 'schemaname' in record:
+                if record['schemaname'] in IGNORED_SCHEMAS:
+                    tables.append(record['tablename'])
+            if 'tablename' in record:
+                if record['tablename'] in IGNORED_TABLES:
+                    tables.append(record['tablename'])
+        # get the referencing tables
         for record in relations_info:
             if record['referenced_table'] in tables:
                 referencing_tables.append(record['referencing_table'])
 
-        return tables + referencing_tables + IGNORED_TABLES
+        return tables + referencing_tables
 
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""
