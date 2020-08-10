@@ -78,7 +78,7 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
-        omitted_layers = self.get_omitted_layers()
+        ignored_layers = self.get_ignored_layers()
         tables_info = self.get_tables_info()
         layers = list()
 
@@ -96,7 +96,7 @@ class Generator(QObject):
             elif record['schemaname'] in IGNORED_SCHEMAS:
                 continue
 
-            if omitted_layers and record['tablename'] in omitted_layers:
+            if ignored_layers and record['tablename'] in ignored_layers:
                 continue
 
             if filter_layer_list and record['tablename'] not in filter_layer_list:
@@ -323,8 +323,8 @@ class Generator(QObject):
     def metadata_exists(self):
         return self._db_connector.metadata_exists()
 
-    def get_omitted_layers(self):
-        return self._db_connector.get_omitted_layers()
+    def get_ignored_layers(self):
+        return self._db_connector.get_ignored_layers()
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()

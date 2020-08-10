@@ -384,11 +384,11 @@ class TestProjectGen(unittest.TestCase):
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
-        omitted_layers = generator.omitted_layers()
+        ignored_layers = generator.ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(omitted_layers), 6)
+        self.assertEqual(len(ignored_layers), 6)
         self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
@@ -410,16 +410,16 @@ class TestProjectGen(unittest.TestCase):
 
         generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
 
-        omitted_layers = generator.omitted_layers()
+        ignored_layers = generator.ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(omitted_layers), 6)
+        self.assertEqual(len(ignored_layers), 6)
         self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
     def test_naturschutz_nometa_postgis(self):
-        #model with missing meta attributes for multigeometry - no layers should be omitted
+        #model with missing meta attributes for multigeometry - no layers should be ignored
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
@@ -433,16 +433,16 @@ class TestProjectGen(unittest.TestCase):
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
-        omitted_layers = generator.omitted_layers()
+        ignored_layers = generator.ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(omitted_layers), 0)
+        self.assertEqual(len(ignored_layers), 0)
         self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 
     def test_naturschutz_nometa_geopackage(self):
-        #model with missing meta attributes for multigeometry - no layers should be omitted
+        #model with missing meta attributes for multigeometry - no layers should be ignored
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
@@ -460,11 +460,11 @@ class TestProjectGen(unittest.TestCase):
 
         generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
 
-        omitted_layers = generator.omitted_layers()
+        ignored_layers = generator.ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(omitted_layers), 0)
+        self.assertEqual(len(ignored_layers), 0)
         self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 

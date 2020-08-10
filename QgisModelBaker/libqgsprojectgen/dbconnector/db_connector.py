@@ -174,7 +174,7 @@ class DBConnector(QObject):
         '''
         return []
 
-    def get_omitted_layers(self):
+    def get_ignored_layers(self):
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
