@@ -3,7 +3,7 @@ IGNORED_SCHEMAS = [
     'information_schema'
 ]
 
-IGNORED_SQL_TABLES = [
+IGNORED_TABLES = [
     'spatial_ref_sys',
     't_ili2db_import_object',
     't_ili2db_dataset',
@@ -39,10 +39,7 @@ IGNORED_SQL_TABLES = [
     'gm_surface2dlistvalue',
     'gm_surface3dlistvalue',
     'gm_multisurface2d',
-    'gm_multisurface3d'
-]
-
-IGNORED_GPKG_TABLES = [
+    'gm_multisurface3d',
     'gpkg_contents',
     'gpkg_data_column_constraints',
     'gpkg_data_columns',

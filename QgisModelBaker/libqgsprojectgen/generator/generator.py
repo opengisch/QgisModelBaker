@@ -338,15 +338,14 @@ class Generator(QObject):
 
     def get_tables_info_without_ignored_tables(self):
         tables_info = self.get_tables_info()
+        ignored_layers = self.get_ignored_layers()
         new_tables_info = []
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-            elif record['schemaname'] in IGNORED_SCHEMAS:
-                continue
 
-            if record['tablename'] in IGNORED_TABLES:
+            if ignored_layers and record['tablename'] in ignored_layers:
                 continue
 
             new_tables_info.append(record)

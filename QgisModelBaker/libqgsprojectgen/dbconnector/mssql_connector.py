@@ -25,7 +25,7 @@ from qgis.core import Qgis
 
 from .db_connector import (DBConnector, DBConnectorError)
 
-from .config import IGNORED_SCHEMAS, IGNORED_SQL_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
 
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
@@ -449,7 +449,7 @@ class MssqlConnector(DBConnector):
                 if record['schemaname'] in IGNORED_SCHEMAS:
                     tables.append(record['tablename'])
             if 'tablename' in record:
-                if record['tablename'] in IGNORED_SQL_TABLES:
+                if record['tablename'] in IGNORED_TABLES:
                     tables.append(record['tablename'])
         # get the referencing tables
         for record in relations_info:

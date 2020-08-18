@@ -24,7 +24,7 @@ import qgis.utils
 from qgis.core import Qgis
 from .db_connector import DBConnector, DBConnectorError
 from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
-from .config import IGNORED_GPKG_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_TABLES, IGNORED_ILI_ELEMENTS
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
@@ -375,7 +375,7 @@ class GPKGConnector(DBConnector):
                     tables.append(record['tablename'])
                     continue
             if 'tablename' in record:
-                if record['tablename'] in IGNORED_GPKG_TABLES:
+                if record['tablename'] in IGNORED_TABLES:
                     tables.append(record['tablename'])
         # get the referencing tables
         for record in relations_info:

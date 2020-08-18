@@ -23,7 +23,7 @@ import re
 from psycopg2 import OperationalError
 from .db_connector import DBConnector, DBConnectorError
 from qgis.core import Qgis
-from .config import IGNORED_SCHEMAS, IGNORED_SQL_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
@@ -472,7 +472,7 @@ class PGConnector(DBConnector):
                 if record['schemaname'] in IGNORED_SCHEMAS:
                     tables.append(record['tablename'])
             if 'tablename' in record:
-                if record['tablename'] in IGNORED_SQL_TABLES:
+                if record['tablename'] in IGNORED_TABLES:
                     tables.append(record['tablename'])
         # get the referencing tables
         for record in relations_info:
