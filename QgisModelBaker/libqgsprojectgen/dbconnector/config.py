@@ -54,7 +54,7 @@ IGNORED_TABLES = [
     'sqlite_sequence'
 ]
 
-IGNORED_ILI_ELEMENTS= [
+IGNORED_ILI_ELEMENTS = [
     'GeometryCHLV03_V1.MultiSurface',
     'GeometryCHLV03_V1.MultiLine',
     'GeometryCHLV03_V1.MultiDirectedLine',

@@ -388,7 +388,7 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 6)
+        self.assertEqual(len(ignored_layers), 16)
         self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
@@ -414,7 +414,7 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 6)
+        self.assertEqual(len(ignored_layers), 29)
         self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
@@ -437,7 +437,7 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 0)
+        self.assertEqual(len(ignored_layers), 10)
         self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 
@@ -464,7 +464,7 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 0)
+        self.assertEqual(len(ignored_layers), 23)
         self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 

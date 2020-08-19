@@ -377,6 +377,7 @@ class GPKGConnector(DBConnector):
             if 'tablename' in record:
                 if record['tablename'] in IGNORED_TABLES:
                     tables.append(record['tablename'])
+                    continue
         # get the referencing tables
         for record in relations_info:
             if record['referenced_table'] in tables:
