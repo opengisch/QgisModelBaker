@@ -305,8 +305,8 @@ class GPKGConnector(DBConnector):
                         FROM t_ili2db_attrname AS ATTRNAME 
                         INNER JOIN t_ili2db_meta_attrs AS META_ATTRS
                         ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
-                        WHERE ATTRNAME.sqlname = '{referncing_column}' AND ATTRNAME.{colowner} = '{referencing_table}' AND ATTRNAME.target = '{referenced_table}'
-                    """.format(referncing_column=foreign_key['from'],referencing_table=table_info['tablename'],
+                        WHERE ATTRNAME.sqlname = '{referencing_column}' AND ATTRNAME.{colowner} = '{referencing_table}' AND ATTRNAME.target = '{referenced_table}'
+                    """.format(referencing_column=foreign_key['from'],referencing_table=table_info['tablename'],
                                referenced_table=foreign_key['table'], colowner="owner" if self.ili_version() == 3 else "colowner" ))
                     strength_record = cursor.fetchone()
                     record['strength'] = strength_record['strength'] if strength_record else ''
