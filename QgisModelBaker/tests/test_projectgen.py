@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from QgisModelBaker.tests.utils import get_pg_connection_string
-from qgis.core import QgsProject, QgsEditFormConfig
+from qgis.core import QgsProject, QgsEditFormConfig, QgsRelation
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
@@ -1196,16 +1196,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), 1)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
     def test_relation_strength_geopackage(self):
         # Schema Import
@@ -1244,16 +1244,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_classa1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_classb1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_classa1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_classb1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_classa1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_classa1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_classa1_T_Id').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_classb1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_classb1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength(), QgsRelation.Association)
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength(), 1)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength(), QgsRelation.Composition)
 
     def test_relation_strength_mssql(self):
         # Schema Import
@@ -1294,16 +1294,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), 0)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), 0)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), 1)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
     def test_unit(self):
         importer = iliimporter.Importer()

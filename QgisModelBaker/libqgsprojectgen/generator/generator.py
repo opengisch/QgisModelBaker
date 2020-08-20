@@ -20,7 +20,7 @@
 import re
 import sys
 
-from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
+from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication, QgsRelation
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
 from QgisModelBaker.libili2db.globals import DbIliMode
@@ -241,7 +241,7 @@ class Generator(QObject):
                         relation.referencing_field = record['referencing_column']
                         relation.referenced_field = record['referenced_column']
                         relation.name = record['constraint_name']
-                        relation.strength = 1 if 'strength' in record and record['strength'] == 'COMPOSITE' else 0
+                        relation.strength = QgsRelation.Composition if 'strength' in record and record['strength'] == 'COMPOSITE' else QgsRelation.Association
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:
