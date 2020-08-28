@@ -103,12 +103,13 @@ class Generator(QObject):
 
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
+            is_attribute = bool(record['attribute_name'])
             is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
 
             alias = record['table_alias'] if 'table_alias' in record else ''
             if not alias:
-                if is_domain:
+                if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
                     short_name = record['ili_name'].split('.')[-1] if 'ili_name' in record else ''

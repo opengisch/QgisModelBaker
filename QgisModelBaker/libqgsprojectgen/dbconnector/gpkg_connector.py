@@ -109,7 +109,8 @@ class GPKGConnector(DBConnector):
                     ) WHERE g.geometry_type_name IS NOT NULL
                     GROUP BY tablename
                 ) AS extent,
-                substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
+                substr(c.iliname, 0, instr(c.iliname, '.')) AS model,
+                attrs.sqlname as attribute_name, """
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
                    ON p.tablename = s.name
                       AND p.tag = 'ch.ehi.ili2db.tableKind'
@@ -117,7 +118,9 @@ class GPKGConnector(DBConnector):
                    ON alias.tablename = s.name
                       AND alias.tag = 'ch.ehi.ili2db.dispName'
                 LEFT JOIN t_ili2db_classname c
-                   ON s.name == c.sqlname """
+                   ON s.name == c.sqlname 
+                LEFT JOIN t_ili2db_attrname attrs
+                   ON c.iliname = attrs.iliname """
 
         try:
             cursor.execute("""
