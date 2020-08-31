@@ -202,13 +202,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if db_connector.db_or_schema_exists():
                 if interlis_mode:
                     warning_box = QMessageBox(self)
-                    warning_box.setIcon(QMessageBox.Warning)
+                    warning_box.setIcon(QMessageBox.Information)
                     warning_title = self.tr("{} already exists").format(
                         db_factory.get_specific_messages()['db_or_schema']
                     ).capitalize()
                     warning_box.setWindowTitle(warning_title)
-                    warning_box.setText(self.tr("{db_or_schema}: {db_or_schema_name}\n\nDo you want to "
+                    warning_box.setText(self.tr("{warning_title}:\n{db_or_schema_name}\n\nDo you want to "
                                                 "import anyway?").format(
+                        warning_title=warning_title,
                         db_or_schema=db_factory.get_specific_messages()['db_or_schema'].capitalize(),
                         db_or_schema_name=configuration.dbschema or config_manager.get_uri()
                     ))
