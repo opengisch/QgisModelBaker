@@ -217,7 +217,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     warning_box_result = warning_box.exec_()
                     if warning_box_result == QMessageBox.No:
                         return
-        except FileNotFoundError:
+        except (DBConnectorError, FileNotFoundError):
             # we don't mind when the database file is not yet created
             pass
 
