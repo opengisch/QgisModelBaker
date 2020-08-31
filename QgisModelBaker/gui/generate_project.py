@@ -27,6 +27,7 @@ from psycopg2 import OperationalError
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
@@ -49,7 +50,9 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QCompleter,
     QSizePolicy,
-    QGridLayout
+    QGridLayout,
+    QAction,
+    QToolButton
 )
 from qgis.PyQt.QtCore import (
     QCoreApplication,
@@ -87,13 +90,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.iface = iface
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
+
+        self.edit_command_action = QAction( self.tr('Edit ili2db command'), None)
+        self.edit_command_action.triggered.connect(self.edit_command)
+
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.tr('Create'))
+        self.create_tool_button.clicked.connect(self.accepted)
+
+        self.create_button.setText(self.tr('Create'))
+        self.create_button.clicked.connect(self.accepted)
+
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        create_button = self.buttonBox.addButton(
-            self.tr('Create'), QDialogButtonBox.AcceptRole)
-        create_button.setDefault(True)
+
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili *.ILI)')))
@@ -159,33 +170,45 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_line_edit.textChanged.emit(
             self.ili_file_line_edit.text())
 
-    def accepted(self):
+    def edit_command(self):
+        importer = iliimporter.Importer()
+        importer.tool = self.type_combo_box.currentData()
+        importer.configuration = self.updated_configuration()
+        command = importer.command(True)
+        edit_command_dialog = EditCommandDialog(self)
+        edit_command_dialog.command_edit.setPlainText(command)
+        if edit_command_dialog.exec_():
+            edited_command = edit_command_dialog.command_edit.toPlainText()
+            self.accepted(edited_command)
+
+    def accepted(self, edited_command=None):
         configuration = self.updated_configuration()
 
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
         interlis_mode = ili_mode & DbIliMode.ili
 
-        if interlis_mode:
-            if not self.ili_file_line_edit.text().strip():
-                if not self.ili_models_line_edit.text().strip():
+        if not edited_command:
+            if interlis_mode:
+                if not self.ili_file_line_edit.text().strip():
+                    if not self.ili_models_line_edit.text().strip():
+                        self.txtStdout.setText(
+                            self.tr('Please set a valid INTERLIS model before creating the project.'))
+                        self.ili_models_line_edit.setFocus()
+                        return
+
+                if self.ili_file_line_edit.text().strip() and \
+                        self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                     self.txtStdout.setText(
-                        self.tr('Please set a valid INTERLIS model before creating the project.'))
-                    self.ili_models_line_edit.setFocus()
+                        self.tr('Please set a valid INTERLIS file before creating the project.'))
+                    self.ili_file_line_edit.setFocus()
                     return
 
-            if self.ili_file_line_edit.text().strip() and \
-                    self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file before creating the project.'))
-                self.ili_file_line_edit.setFocus()
+            res, message = self._lst_panel[db_id].is_valid()
+
+            if not res:
+                self.txtStdout.setText(message)
                 return
-
-        res, message = self._lst_panel[db_id].is_valid()
-
-        if not res:
-            self.txtStdout.setText(message)
-            return
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
@@ -208,16 +231,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             if interlis_mode:
                 importer = iliimporter.Importer()
-
                 importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
                 importer.stderr.connect(self.on_stderr)
                 importer.process_started.connect(self.on_process_started)
                 importer.process_finished.connect(self.on_process_finished)
-
                 try:
-                    if importer.run() != iliimporter.Importer.SUCCESS:
+                    if importer.run(edited_command) != iliimporter.Importer.SUCCESS:
                         self.enable()
                         self.progress_bar.hide()
                         return
@@ -457,6 +478,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_config.setVisible(interlis_mode)
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
+
+        self.create_button.setVisible(not interlis_mode)
+        self.create_tool_button.setVisible(interlis_mode)
 
         # Refresh panels
         for key, value in self._lst_panel.items():
