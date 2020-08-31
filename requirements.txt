@@ -1,5 +1,4 @@
-psycopg2==2.7.4; python_version < '3.8'
-psycopg2==2.8.5; python_version >= '3.8'
+psycopg2>=2.7.4
 pytest
 pyodbc
 pyyaml
