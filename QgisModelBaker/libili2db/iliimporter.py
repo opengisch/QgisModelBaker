@@ -71,23 +71,48 @@ class Importer(QObject):
         if not self.encoding:
             self.encoding = 'UTF8'
 
-    def run(self):
-        ili2db_bin = get_ili2db_bin(self.tool, self.configuration.db_ili_version, self.stdout, self.stderr)
-        if not ili2db_bin:
-            return Importer.ILI2DB_NOT_FOUND
-
-        ili2db_jar_arg = ["-jar", ili2db_bin]
-
+    def args(self, hide_password ):
         self.configuration.tool = self.tool
         db_simple_factory = DbSimpleFactory()
         db_factory = db_simple_factory.create_factory(self.tool)
 
         config_manager = db_factory.get_db_command_config_manager(self.configuration)
 
-        args = config_manager.get_ili2db_args(False)
-        args_hide_password = config_manager.get_ili2db_args(True)
+        return config_manager.get_ili2db_args(hide_password)
+
+    def command(self, hide_password):
+        ili2db_bin = get_ili2db_bin(self.tool, self.configuration.db_ili_version, self.stdout, self.stderr)
+        if not ili2db_bin:
+            return Importer.ILI2DB_NOT_FOUND
+
+        ili2db_jar_arg = ["-jar", ili2db_bin]
+
+        args = self.args(hide_password)
 
         java_path = get_java_path(self.configuration.base_configuration)
+
+        command_args = ili2db_jar_arg + args
+        command = java_path + ' ' + ' '.join(command_args)
+
+        return command
+
+    def command_with_password(self, command):
+        if '--dbpwd ******' in command:
+            args = self.args(False)
+            i = args.index('--dbpwd')
+            command = command.replace('--dbpwd ******', '--dbpwd '+args[i+1])
+        return command
+
+    def command_without_password(self, command):
+        regex = re.compile('--dbpwd [^ ]*')
+        match = regex.match(command)
+        if match:
+            command = command.replace(match.group(1), '--dbpwd ******')
+        return command
+
+    def run(self, command=None):
+        if not command:
+            command = self.command(False)
 
         proc = QProcess()
         proc.readyReadStandardError.connect(
@@ -95,7 +120,7 @@ class Importer(QObject):
         proc.readyReadStandardOutput.connect(
             functools.partial(self.stdout_ready, proc=proc))
 
-        proc.start(java_path, ili2db_jar_arg + args)
+        proc.start(self.command_with_password(command))
 
         if not proc.waitForStarted():
             proc = None
@@ -103,9 +128,7 @@ class Importer(QObject):
         if not proc:
             raise JavaNotFoundError()
 
-        safe_args = ili2db_jar_arg + args_hide_password
-        safe_command = java_path + ' ' + ' '.join(safe_args)
-        self.process_started.emit(safe_command)
+        self.process_started.emit(self.command_without_password(command))
 
         self.__result = Importer.ERROR
 
