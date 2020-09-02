@@ -185,6 +185,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.db_ili_version = None
         self.pre_script = ''
         self.post_script = ''
+        self.disable_constraint_parameters = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         """
@@ -200,16 +201,22 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
 
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
+
+        if not self.disable_constraint_parameters:
+            args += ["--createNumChecks"]
+            args += ["--createFk"]
+            args += ["--createFkIdx"]
+            args += ["--createUnique"]
+
+        if self.disable_constraint_parameters:
+            args += ["--sqlEnableNull"]
+
         args += ["--coalesceMultiSurface"]
         args += ["--coalesceMultiLine"]
         args += ["--coalesceMultiPoint"]
         args += ["--coalesceArray"]
         args += ["--beautifyEnumDispName"]
-        args += ["--createUnique"]
         args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
         args += ["--expandMultilingual"]
         if self.db_ili_version is None or self.db_ili_version > 3:

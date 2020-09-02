@@ -450,6 +450,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.ili_models_line_edit.text().strip():
             configuration.ilimodels = self.ili_models_line_edit.text().strip()
 
+        if not self.validate_data:
+            configuration.disable_constraint_parameters = True
+
         return configuration
 
     def save_configuration(self, configuration):
