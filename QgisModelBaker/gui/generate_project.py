@@ -231,7 +231,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     ).capitalize()
                     warning_box.setWindowTitle(warning_title)
                     warning_box.setText(self.tr("{warning_title}:\n{db_or_schema_name}\n\nDo you want to "
-                                                "import anyway?").format(
+                                                "import into the existing {db_or_schema}?").format(
                         warning_title=warning_title,
                         db_or_schema=db_factory.get_specific_messages()['db_or_schema'].capitalize(),
                         db_or_schema_name=configuration.dbschema or config_manager.get_uri()
