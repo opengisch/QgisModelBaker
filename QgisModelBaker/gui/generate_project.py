@@ -91,19 +91,30 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
 
-        self.edit_command_action = QAction( self.tr('Edit ili2db command'), None)
+        self.create_text = self.tr('Create')
+        self.set_button_to_create_action = QAction(self.create_text, None)
+        self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
+
+        self.create_without_validation_text = self.tr('Create without validation')
+        self.set_button_to_create_without_validation_action = QAction(self.create_without_validation_text, None)
+        self.set_button_to_create_without_validation_action.triggered.connect(self.set_button_to_create_without_validation)
+
+        self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
+        self.create_tool_button.addAction(self.set_button_to_create_without_validation_action)
         self.create_tool_button.addAction(self.edit_command_action)
-        self.create_tool_button.setText(self.tr('Create'))
+        self.create_tool_button.setText(self.create_text)
         self.create_tool_button.clicked.connect(self.accepted)
-
-        self.create_button.setText(self.tr('Create'))
-        self.create_button.clicked.connect(self.accepted)
 
         self.buttonBox.accepted.disconnect()
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
+
+        self.validate_data = True
+
+        self.create_button.setText(self.tr('Create'))
+        self.create_button.clicked.connect(self.accepted)
 
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
@@ -170,7 +181,36 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_line_edit.textChanged.emit(
             self.ili_file_line_edit.text())
 
+    def set_button_to_create(self):
+        """
+        Changes the text of the button to create (with validation) and sets the validate_data to true.
+        So on clicking the button the creation will start with validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
+        self.validate_data = True
+        self.create_tool_button.removeAction(self.set_button_to_create_action)
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.set_button_to_create_without_validation_action)
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.create_text)
+
+    def set_button_to_create_without_validation(self):
+        """
+        Changes the text of the button to create without validation and sets the validate_data to false.
+        So on clicking the button the creation will start without validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
+        self.validate_data = False
+        self.create_tool_button.removeAction(self.set_button_to_create_without_validation_action)
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.set_button_to_create_action)
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.create_without_validation_text)
+
     def edit_command(self):
+        """
+        A dialog opens giving the user the possibility to edit the ili2db command used for the creation
+        """
         importer = iliimporter.Importer()
         importer.tool = self.type_combo_box.currentData()
         importer.configuration = self.updated_configuration()
