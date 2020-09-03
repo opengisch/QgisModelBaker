@@ -202,15 +202,15 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
 
-        if not self.disable_constraint_parameters:
-            args += ["--createNumChecks"]
-            args += ["--createFk"]
-            args += ["--createFkIdx"]
-            args += ["--createUnique"]
-
         if self.disable_constraint_parameters:
             args += ["--sqlEnableNull"]
 
+        if not self.disable_constraint_parameters:
+            args += ["--createNumChecks"]
+            args += ["--createUnique"]
+            args += ["--createFk"]
+
+        args += ["--createFkIdx"]
         args += ["--coalesceMultiSurface"]
         args += ["--coalesceMultiLine"]
         args += ["--coalesceMultiPoint"]
