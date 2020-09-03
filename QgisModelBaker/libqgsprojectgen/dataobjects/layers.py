@@ -35,7 +35,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -62,6 +62,8 @@ class Layer(object):
 
         self.display_expression = display_expression
 
+        self.coordinate_precision = coordinate_precision
+
         self.__form = Form()
 
     def dump(self):
@@ -72,6 +74,7 @@ class Layer(object):
         definition['isstructure'] = self.is_structure
         definition['isnmrel'] = self.is_nmrel
         definition['displayexpression'] = self.display_expression
+        definition['coordinateprecision'] = self.coordinate_precision
         definition['form'] = self.__form.dump()
         return definition
 
@@ -82,6 +85,7 @@ class Layer(object):
         self.is_structure = definition['isstructure']
         self.is_nmrel = definition['isnmrel']
         self.display_expression = definition['displayexpression']
+        self.coordinate_precision = definition['coordinateprecision']
         self.__form.load(definition['form'])
 
     def create(self):
@@ -104,6 +108,9 @@ class Layer(object):
                 self.__layer.setReadOnly()
             if self.display_expression:
                 self.__layer.setDisplayExpression(self.display_expression)
+            if self.coordinate_precision and self.coordinate_precision < 1:
+                self.__layer.geometryOptions().setGeometryPrecision(self.coordinate_precision)
+                self.__layer.geometryOptions().setRemoveDuplicateNodes(True)
         for field in self.fields:
             field.create(self)
 
