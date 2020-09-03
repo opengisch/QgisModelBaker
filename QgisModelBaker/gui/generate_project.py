@@ -95,14 +95,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.set_button_to_create_action = QAction(self.create_text, None)
         self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
 
-        self.create_without_validation_text = self.tr('Create without validation')
-        self.set_button_to_create_without_validation_action = QAction(self.create_without_validation_text, None)
-        self.set_button_to_create_without_validation_action.triggered.connect(self.set_button_to_create_without_validation)
+        self.create_without_constraints_text = self.tr('Create without constraints')
+        self.set_button_to_create_without_constraints_action = QAction(self.create_without_constraints_text, None)
+        self.set_button_to_create_without_constraints_action.triggered.connect(self.set_button_to_create_without_constraints)
 
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.create_tool_button.addAction(self.set_button_to_create_without_validation_action)
+        self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.setText(self.create_text)
         self.create_tool_button.clicked.connect(self.accepted)
@@ -111,7 +111,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
 
-        self.validate_data = True
+        self.create_constraints = True
 
         self.create_button.setText(self.tr('Create'))
         self.create_button.clicked.connect(self.accepted)
@@ -187,25 +187,25 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         So on clicking the button the creation will start with validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.validate_data = True
+        self.create_constraints = True
         self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
-        self.create_tool_button.addAction(self.set_button_to_create_without_validation_action)
+        self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.setText(self.create_text)
 
-    def set_button_to_create_without_validation(self):
+    def set_button_to_create_without_constraints(self):
         """
         Changes the text of the button to create without validation and sets the validate_data to false.
         So on clicking the button the creation will start without validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.validate_data = False
-        self.create_tool_button.removeAction(self.set_button_to_create_without_validation_action)
+        self.create_constraints = False
+        self.create_tool_button.removeAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(self.set_button_to_create_action)
         self.create_tool_button.addAction(self.edit_command_action)
-        self.create_tool_button.setText(self.create_without_validation_text)
+        self.create_tool_button.setText(self.create_without_constraints_text)
 
     def edit_command(self):
         """
@@ -450,7 +450,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.ili_models_line_edit.text().strip():
             configuration.ilimodels = self.ili_models_line_edit.text().strip()
 
-        if not self.validate_data:
+        if not self.create_constraints:
             configuration.disable_constraint_parameters = True
 
         return configuration
