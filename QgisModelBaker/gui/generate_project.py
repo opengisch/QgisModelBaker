@@ -51,6 +51,7 @@ from qgis.PyQt.QtWidgets import (
     QCompleter,
     QSizePolicy,
     QGridLayout,
+    QMessageBox,
     QAction,
     QToolButton
 )
@@ -213,10 +214,38 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
 
-        # create schema with superuser
         db_factory = self.db_simple_factory.create_factory(db_id)
-        res, message = db_factory.pre_generate_project(configuration)
 
+        try:
+            # raise warning when the schema or the database file already exists
+            config_manager = db_factory.get_db_command_config_manager(configuration)
+            db_connector = db_factory.get_db_connector(
+                config_manager.get_uri(configuration.db_use_super_login) or config_manager.get_uri(), configuration.dbschema)
+
+            if db_connector.db_or_schema_exists():
+                if interlis_mode:
+                    warning_box = QMessageBox(self)
+                    warning_box.setIcon(QMessageBox.Information)
+                    warning_title = self.tr("{} already exists").format(
+                        db_factory.get_specific_messages()['db_or_schema']
+                    ).capitalize()
+                    warning_box.setWindowTitle(warning_title)
+                    warning_box.setText(self.tr("{warning_title}:\n{db_or_schema_name}\n\nDo you want to "
+                                                "import into the existing {db_or_schema}?").format(
+                        warning_title=warning_title,
+                        db_or_schema=db_factory.get_specific_messages()['db_or_schema'].capitalize(),
+                        db_or_schema_name=configuration.dbschema or config_manager.get_uri()
+                    ))
+                    warning_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    warning_box_result = warning_box.exec_()
+                    if warning_box_result == QMessageBox.No:
+                        return
+        except (DBConnectorError, FileNotFoundError):
+            # we don't mind when the database file is not yet created
+            pass
+
+        # create schema with superuser
+        res, message = db_factory.pre_generate_project(configuration)
         if not res:
             self.txtStdout.setText(message)
             return
