@@ -129,6 +129,7 @@ class PGConnector(DBConnector):
             table_alias = ''
             ili_name = ''
             extent = ''
+            coord_decimals = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
