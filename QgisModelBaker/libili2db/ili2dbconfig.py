@@ -113,6 +113,7 @@ class Ili2DbCommandConfiguration(object):
         self.tomlfile = ''
         self.dbinstance = ''
         self.db_odbc_driver = ''
+        self.disable_validation = False
 
     def to_ili2db_args(self):
 
@@ -140,7 +141,6 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.xtffile = ''
-        self.disable_validation = False
         self.with_exporttid = False
         self.iliexportmodels = ''
         self.db_ili_version = None
@@ -185,7 +185,6 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.db_ili_version = None
         self.pre_script = ''
         self.post_script = ''
-        self.disable_constraint_parameters = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         """
@@ -202,10 +201,10 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
 
-        if self.disable_constraint_parameters:
+        if self.disable_validation:
             args += ["--sqlEnableNull"]
 
-        if not self.disable_constraint_parameters:
+        if not self.disable_validation:
             args += ["--createNumChecks"]
             args += ["--createUnique"]
             args += ["--createFk"]
@@ -265,7 +264,6 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         super().__init__()
         self.xtffile = ''
         self.delete_data = False
-        self.disable_validation = False
         self.with_importtid = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):

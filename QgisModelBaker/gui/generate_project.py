@@ -451,7 +451,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.ilimodels = self.ili_models_line_edit.text().strip()
 
         if not self.create_constraints:
-            configuration.disable_constraint_parameters = True
+            configuration.disable_validation = True
 
         return configuration
 
