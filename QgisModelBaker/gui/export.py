@@ -134,7 +134,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.export_tool_button.addAction(self.set_export_without_validation_action)
+        self.export_tool_button.addAction(self.set_button_to_export_without_validation_action)
         self.export_tool_button.addAction(self.edit_command_action)
         self.export_tool_button.setText(self.export_text)
         self.export_tool_button.clicked.connect(self.accepted)
