@@ -100,6 +100,7 @@ class GPKGConnector(DBConnector):
                     ON cprop.tablename == g.table_name
                         WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                          'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                        AND cprop.tablename = s.name
                     ORDER BY CASE TAG
                         WHEN 'ch.ehi.ili2db.c1Min' THEN 1
                         WHEN 'ch.ehi.ili2db.c2Min' THEN 2
