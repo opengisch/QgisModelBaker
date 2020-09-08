@@ -145,7 +145,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_classname AS c"
                 stmt += ln + "    ON tbls.TABLE_NAME = c.sqlname"
-                stmt += ln + "LEFT JOIN {}.t_ili2db_attrname AS attrs"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname AS attrs"
                 stmt += ln + "    ON c.iliname = attrs.iliname"
             stmt += ln + "LEFT JOIN INFORMATION_SCHEMA.COLUMNS AS clm"
             stmt += ln + "    ON clm.TABLE_NAME = tbls.TABLE_NAME"
