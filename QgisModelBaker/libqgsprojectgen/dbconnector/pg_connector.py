@@ -129,6 +129,7 @@ class PGConnector(DBConnector):
             table_alias = ''
             ili_name = ''
             extent = ''
+            coord_decimals = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
@@ -150,6 +151,14 @@ class PGConnector(DBConnector):
                     AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                      'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
                 ) AS extent,""".format(self.schema)
+                coord_decimals = """(
+                    SELECT CASE MAX(position('.' in cprop.setting)) WHEN 0 THEN 0 ELSE MAX( char_length(cprop.setting) -  position('.' in cprop.setting) ) END
+                    FROM {}."t_ili2db_column_prop" AS cprop
+                    WHERE tbls.tablename = cprop.tablename
+                    AND cprop.columnname = g.f_geometry_column
+                    AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                     'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                ) AS coord_decimals,""".format(self.schema)
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
@@ -175,6 +184,7 @@ class PGConnector(DBConnector):
                           {model_name}
                           {ili_name}
                           {extent}
+                          {coord_decimals}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
                         FROM pg_catalog.pg_tables tbls
@@ -194,7 +204,7 @@ class PGConnector(DBConnector):
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
-                       model_name=model_name, ili_name=ili_name, extent=extent, domain_left_join=domain_left_join,
+                       model_name=model_name, ili_name=ili_name, extent=extent, coord_decimals=coord_decimals, domain_left_join=domain_left_join,
                        alias_left_join=alias_left_join, model_where=model_where,
                        schema_where=schema_where))
 

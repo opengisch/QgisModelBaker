@@ -1,0 +1,80 @@
+
+INTERLIS 2.3;
+
+MODEL RoadsSimple (en) AT "http://www.interlis.ch/models"
+  VERSION "2016-08-11" =
+
+  UNIT
+    Angle_Degree = 180 / PI [INTERLIS.rad];
+
+  DOMAIN
+    Point2D = COORD
+      0.000 .. 200.000 [INTERLIS.m], !! Min_East  Max_East
+      0.000 .. 200.000 [INTERLIS.m], !! Min_North Max_North
+      ROTATION 2 -> 1;
+    Orientation = 0.0 .. 359.9 CIRCULAR [Angle_Degree];
+
+    Point2D_LandCover = COORD
+      0.000002 .. 200.000008 [INTERLIS.m], !! Min_East  Max_East
+      0.000004 .. 200.000006 [INTERLIS.m], !! Min_North Max_North
+      ROTATION 2 -> 1;
+
+    Point2D_StreetAxis = COORD
+      0 .. 200 [INTERLIS.m], !! Min_East  Max_East
+      0 .. 200 [INTERLIS.m], !! Min_North Max_North
+      ROTATION 2 -> 1;
+
+    Point2D_RoadSign = COORD
+      0.0 .. 200.0 [INTERLIS.m], !! Min_East  Max_East
+      0.0 .. 200.0 [INTERLIS.m], !! Min_North Max_North
+      ROTATION 2 -> 1;
+
+  TOPIC Roads =
+
+    CLASS LandCover =
+      Type: MANDATORY (
+        building,
+        street,
+        water,
+        other);
+      Geometry: MANDATORY SURFACE WITH (STRAIGHTS)
+        VERTEX Point2D_LandCover WITHOUT OVERLAPS > 0.100;
+    END LandCover;
+
+    CLASS Street =
+      Name: MANDATORY TEXT*32;
+    END Street;
+
+    CLASS StreetAxis =
+      Geometry: MANDATORY POLYLINE WITH (STRAIGHTS)
+        VERTEX Point2D_StreetAxis;
+    END StreetAxis;
+
+    ASSOCIATION StreetAxisAssoc =
+      Street -- {1} Street;
+      StreetAxis -- StreetAxis;
+    END StreetAxisAssoc;
+
+    CLASS StreetNamePosition =
+      NamPos: MANDATORY Point2D;
+      NamOri: MANDATORY Orientation;
+    END StreetNamePosition;
+
+    ASSOCIATION StreetNamePositionAssoc =
+      Street -- {0..1} Street;
+      StreetNamePosition -- StreetNamePosition;
+    END StreetNamePositionAssoc;
+
+    CLASS RoadSign =
+      Type: MANDATORY (
+        prohibition, 
+        indication, 
+        danger,
+        velocity);
+      Position: MANDATORY Point2D_RoadSign;
+    END RoadSign;
+
+  END Roads; !! of TOPIC
+
+END RoadsSimple. !! of MODEL
+

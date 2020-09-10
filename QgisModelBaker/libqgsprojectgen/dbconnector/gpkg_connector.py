@@ -100,6 +100,7 @@ class GPKGConnector(DBConnector):
                     ON cprop.tablename == g.table_name
                         WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                          'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                        AND cprop.tablename = s.name
                     ORDER BY CASE TAG
                         WHEN 'ch.ehi.ili2db.c1Min' THEN 1
                         WHEN 'ch.ehi.ili2db.c2Min' THEN 2
@@ -109,6 +110,16 @@ class GPKGConnector(DBConnector):
                     ) WHERE g.geometry_type_name IS NOT NULL
                     GROUP BY tablename
                 ) AS extent,
+                (
+                SELECT ( CASE MAX(INSTR("setting",'.')) WHEN 0 THEN 0 ELSE MAX( LENGTH("setting") -  INSTR("setting",'.') ) END)
+                    FROM T_ILI2DB_COLUMN_PROP AS cprop
+                    LEFT JOIN gpkg_geometry_columns g
+                    ON cprop.tablename == g.table_name
+                        WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                         'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+						AND cprop.tablename = s.name
+                    GROUP BY tablename
+                )  as coord_decimals,
                 substr(c.iliname, 0, instr(c.iliname, '.')) AS model,"""
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
                    ON p.tablename = s.name
