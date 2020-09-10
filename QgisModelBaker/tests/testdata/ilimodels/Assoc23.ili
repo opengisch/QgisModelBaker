@@ -1,0 +1,60 @@
+INTERLIS 2.3;
+
+MODEL Assoc3
+  AT "mailto:ce@eisenhutinformatik.ch" VERSION "2015-09-23" =
+    
+  TOPIC Test =
+  
+    CLASS ClassA1=
+    END ClassA1;
+
+    CLASS ClassB1 =
+    END ClassB1;
+
+    /* 1..n */
+    
+    !! Komposition
+    ASSOCIATION comp1 =
+      comp1_a -<#> {0..1} ClassA1;
+      comp1_b -- {0..*} ClassB1;
+    END comp1;
+    
+    !! Aggregation
+    ASSOCIATION agg1 =
+      agg1_a -<> {0..1} ClassA1;
+      agg1_b -- {0..*} ClassB1;
+    END agg1;
+    ASSOCIATION agg2 =
+      agg2_a -- {0..1} ClassA1;
+      agg2_b -<> {0..*} ClassB1;
+    END agg2;
+    
+    !! Assoziation
+    ASSOCIATION assoc1 =
+      assoc1_a -- {0..1} ClassA1;
+      assoc1_b -- {0..*} ClassB1;
+    END assoc1;
+    ASSOCIATION assoc2 =
+      assoc2_a -- {0..1} ClassA1;
+      assoc2_b -- {0..*} ClassB1;
+    END assoc2;
+    
+    /* n..n */
+    
+    !! kein n..n Komposition
+    
+    !! Aggregation
+    ASSOCIATION agg3 =
+      agg3_a -<> {0..*} ClassA1;
+      agg3_b -- {0..*} ClassB1;
+    END agg3;
+    
+    !! Assoziation
+    ASSOCIATION assoc3 =
+      assoc3_a -- {0..*} ClassA1;
+      assoc3_b -- {0..*} ClassB1;
+    END assoc3;
+
+  END Test;
+END Assoc3.
+
