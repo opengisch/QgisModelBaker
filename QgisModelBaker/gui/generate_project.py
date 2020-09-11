@@ -27,6 +27,7 @@ from psycopg2 import OperationalError
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
@@ -49,7 +50,10 @@ from qgis.PyQt.QtWidgets import (
     QDialogButtonBox,
     QCompleter,
     QSizePolicy,
-    QGridLayout
+    QGridLayout,
+    QMessageBox,
+    QAction,
+    QToolButton
 )
 from qgis.PyQt.QtCore import (
     QCoreApplication,
@@ -87,13 +91,32 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.iface = iface
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
+
+        self.create_text = self.tr('Create')
+        self.set_button_to_create_action = QAction(self.create_text, None)
+        self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
+
+        self.create_without_constraints_text = self.tr('Create without constraints')
+        self.set_button_to_create_without_constraints_action = QAction(self.create_without_constraints_text, None)
+        self.set_button_to_create_without_constraints_action.triggered.connect(self.set_button_to_create_without_constraints)
+
+        self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
+        self.edit_command_action.triggered.connect(self.edit_command)
+
+        self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.create_text)
+        self.create_tool_button.clicked.connect(self.accepted)
+
         self.buttonBox.accepted.disconnect()
-        self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.clear()
         self.buttonBox.addButton(QDialogButtonBox.Cancel)
-        create_button = self.buttonBox.addButton(
-            self.tr('Create'), QDialogButtonBox.AcceptRole)
-        create_button.setDefault(True)
+
+        self.create_constraints = True
+
+        self.create_button.setText(self.tr('Create'))
+        self.create_button.clicked.connect(self.accepted)
+
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili *.ILI)')))
@@ -159,41 +182,110 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_file_line_edit.textChanged.emit(
             self.ili_file_line_edit.text())
 
-    def accepted(self):
+    def set_button_to_create(self):
+        """
+        Changes the text of the button to create (with validation) and sets the validate_data to true.
+        So on clicking the button the creation will start with validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
+        self.create_constraints = True
+        self.create_tool_button.removeAction(self.set_button_to_create_action)
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.create_text)
+
+    def set_button_to_create_without_constraints(self):
+        """
+        Changes the text of the button to create without validation and sets the validate_data to false.
+        So on clicking the button the creation will start without validation.
+        The buttons actions are changed to be able to switch the with-validation mode.
+        """
+        self.create_constraints = False
+        self.create_tool_button.removeAction(self.set_button_to_create_without_constraints_action)
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.set_button_to_create_action)
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.setText(self.create_without_constraints_text)
+
+    def edit_command(self):
+        """
+        A dialog opens giving the user the possibility to edit the ili2db command used for the creation
+        """
+        importer = iliimporter.Importer()
+        importer.tool = self.type_combo_box.currentData()
+        importer.configuration = self.updated_configuration()
+        command = importer.command(True)
+        edit_command_dialog = EditCommandDialog(self)
+        edit_command_dialog.command_edit.setPlainText(command)
+        if edit_command_dialog.exec_():
+            edited_command = edit_command_dialog.command_edit.toPlainText()
+            self.accepted(edited_command)
+
+    def accepted(self, edited_command=None):
         configuration = self.updated_configuration()
 
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
         interlis_mode = ili_mode & DbIliMode.ili
 
-        if interlis_mode:
-            if not self.ili_file_line_edit.text().strip():
-                if not self.ili_models_line_edit.text().strip():
+        if not edited_command:
+            if interlis_mode:
+                if not self.ili_file_line_edit.text().strip():
+                    if not self.ili_models_line_edit.text().strip():
+                        self.txtStdout.setText(
+                            self.tr('Please set a valid INTERLIS model before creating the project.'))
+                        self.ili_models_line_edit.setFocus()
+                        return
+
+                if self.ili_file_line_edit.text().strip() and \
+                        self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
                     self.txtStdout.setText(
-                        self.tr('Please set a valid INTERLIS model before creating the project.'))
-                    self.ili_models_line_edit.setFocus()
+                        self.tr('Please set a valid INTERLIS file before creating the project.'))
+                    self.ili_file_line_edit.setFocus()
                     return
 
-            if self.ili_file_line_edit.text().strip() and \
-                    self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
-                self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS file before creating the project.'))
-                self.ili_file_line_edit.setFocus()
+            res, message = self._lst_panel[db_id].is_valid()
+
+            if not res:
+                self.txtStdout.setText(message)
                 return
-
-        res, message = self._lst_panel[db_id].is_valid()
-
-        if not res:
-            self.txtStdout.setText(message)
-            return
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)
 
-        # create schema with superuser
         db_factory = self.db_simple_factory.create_factory(db_id)
-        res, message = db_factory.pre_generate_project(configuration)
 
+        try:
+            # raise warning when the schema or the database file already exists
+            config_manager = db_factory.get_db_command_config_manager(configuration)
+            db_connector = db_factory.get_db_connector(
+                config_manager.get_uri(configuration.db_use_super_login) or config_manager.get_uri(), configuration.dbschema)
+
+            if db_connector.db_or_schema_exists():
+                if interlis_mode:
+                    warning_box = QMessageBox(self)
+                    warning_box.setIcon(QMessageBox.Information)
+                    warning_title = self.tr("{} already exists").format(
+                        db_factory.get_specific_messages()['db_or_schema']
+                    ).capitalize()
+                    warning_box.setWindowTitle(warning_title)
+                    warning_box.setText(self.tr("{warning_title}:\n{db_or_schema_name}\n\nDo you want to "
+                                                "import into the existing {db_or_schema}?").format(
+                        warning_title=warning_title,
+                        db_or_schema=db_factory.get_specific_messages()['db_or_schema'].capitalize(),
+                        db_or_schema_name=configuration.dbschema or config_manager.get_uri()
+                    ))
+                    warning_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    warning_box_result = warning_box.exec_()
+                    if warning_box_result == QMessageBox.No:
+                        return
+        except (DBConnectorError, FileNotFoundError):
+            # we don't mind when the database file is not yet created
+            pass
+
+        # create schema with superuser
+        res, message = db_factory.pre_generate_project(configuration)
         if not res:
             self.txtStdout.setText(message)
             return
@@ -208,16 +300,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             if interlis_mode:
                 importer = iliimporter.Importer()
-
                 importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
                 importer.stderr.connect(self.on_stderr)
                 importer.process_started.connect(self.on_process_started)
                 importer.process_finished.connect(self.on_process_finished)
-
                 try:
-                    if importer.run() != iliimporter.Importer.SUCCESS:
+                    if importer.run(edited_command) != iliimporter.Importer.SUCCESS:
                         self.enable()
                         self.progress_bar.hide()
                         return
@@ -389,6 +479,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if self.ili_models_line_edit.text().strip():
             configuration.ilimodels = self.ili_models_line_edit.text().strip()
 
+        if not self.create_constraints:
+            configuration.disable_validation = True
+
         return configuration
 
     def save_configuration(self, configuration):
@@ -457,6 +550,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_config.setVisible(interlis_mode)
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
+
+        self.create_button.setVisible(not interlis_mode)
+        self.create_tool_button.setVisible(interlis_mode)
 
         # Refresh panels
         for key, value in self._lst_panel.items():

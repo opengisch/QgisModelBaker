@@ -20,7 +20,7 @@
 import re
 import sys
 
-from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication
+from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication, QgsRelation
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
 from QgisModelBaker.libili2db.globals import DbIliMode
@@ -122,19 +122,25 @@ class Generator(QObject):
                     if attr_record['attr_name'] == 'dispExpression':
                         display_expression = attr_record['attr_value']
 
+            coord_decimals = record['coord_decimals'] if 'coord_decimals' in record else None
+            coordinate_precision = None
+            if coord_decimals:
+                coordinate_precision = 1 / (10 ** coord_decimals)
+
             layer = Layer(layer_uri.provider,
-                          layer_uri.get_data_source_uri(record),
-                          record['tablename'],
-                          record['srid'],
-                          record['extent'] if 'extent' in record else None,
-                          record['geometry_column'],
-                          QgsWkbTypes.parseType(
-                              record['type']) or QgsWkbTypes.Unknown,
-                          alias,
-                          is_domain,
-                          is_structure,
-                          is_nmrel,
-                          display_expression)
+                layer_uri.get_data_source_uri(record),
+                record['tablename'],
+                record['srid'],
+                record['extent'] if 'extent' in record else None,
+                record['geometry_column'],
+                QgsWkbTypes.parseType(
+                  record['type']) or QgsWkbTypes.Unknown,
+                alias,
+                is_domain,
+                is_structure,
+                is_nmrel,
+                display_expression,
+                coordinate_precision )
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
@@ -249,6 +255,7 @@ class Generator(QObject):
                         relation.referencing_field = record['referencing_column']
                         relation.referenced_field = record['referenced_column']
                         relation.name = record['constraint_name']
+                        relation.strength = QgsRelation.Composition if 'strength' in record and record['strength'] == 'COMPOSITE' else QgsRelation.Association
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:

@@ -113,6 +113,7 @@ class Ili2DbCommandConfiguration(object):
         self.tomlfile = ''
         self.dbinstance = ''
         self.db_odbc_driver = ''
+        self.disable_validation = False
 
     def to_ili2db_args(self):
 
@@ -140,7 +141,6 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.xtffile = ''
-        self.disable_validation = False
         self.with_exporttid = False
         self.iliexportmodels = ''
         self.db_ili_version = None
@@ -200,16 +200,22 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
 
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
+
+        if self.disable_validation:
+            args += ["--sqlEnableNull"]
+
+        else:
+            args += ["--createNumChecks"]
+            args += ["--createUnique"]
+            args += ["--createFk"]
+
+        args += ["--createFkIdx"]
         args += ["--coalesceMultiSurface"]
         args += ["--coalesceMultiLine"]
         args += ["--coalesceMultiPoint"]
         args += ["--coalesceArray"]
         args += ["--beautifyEnumDispName"]
-        args += ["--createUnique"]
         args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        args += ["--createFkIdx"]
         args += ["--createMetaInfo"]
         args += ["--expandMultilingual"]
         if self.db_ili_version is None or self.db_ili_version > 3:
@@ -258,7 +264,6 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         super().__init__()
         self.xtffile = ''
         self.delete_data = False
-        self.disable_validation = False
         self.with_importtid = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):

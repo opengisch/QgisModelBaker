@@ -129,6 +129,7 @@ class PGConnector(DBConnector):
             table_alias = ''
             ili_name = ''
             extent = ''
+            coord_decimals = ''
             alias_left_join = ''
             model_name = ''
             model_where = ''
@@ -152,6 +153,14 @@ class PGConnector(DBConnector):
                     AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                      'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
                 ) AS extent,""".format(self.schema)
+                coord_decimals = """(
+                    SELECT CASE MAX(position('.' in cprop.setting)) WHEN 0 THEN 0 ELSE MAX( char_length(cprop.setting) -  position('.' in cprop.setting) ) END
+                    FROM {}."t_ili2db_column_prop" AS cprop
+                    WHERE tbls.tablename = cprop.tablename
+                    AND cprop.columnname = g.f_geometry_column
+                    AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                     'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                ) AS coord_decimals,""".format(self.schema)
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
@@ -168,6 +177,7 @@ class PGConnector(DBConnector):
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
             cur.execute("""
                         SELECT
                           tbls.schemaname AS schemaname,
@@ -181,6 +191,7 @@ class PGConnector(DBConnector):
                           {ili_name}
                           {extent}
                           {attribute_name}
+                          {coord_decimals}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
                         FROM pg_catalog.pg_tables tbls
@@ -201,7 +212,7 @@ class PGConnector(DBConnector):
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
-                       model_name=model_name, ili_name=ili_name, extent=extent, domain_left_join=domain_left_join,
+                       model_name=model_name, ili_name=ili_name, extent=extent, coord_decimals=coord_decimals, domain_left_join=domain_left_join,
                        alias_left_join=alias_left_join, model_where=model_where, attribute_name=attribute_name,
                        attribute_left_join=attribute_left_join, schema_where=schema_where))
 
@@ -385,17 +396,31 @@ class PGConnector(DBConnector):
             if filter_layer_list:
                 filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
 
-            cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION
+            strength_field = ''
+            strength_join = ''
+            strength_group_by = ''
+            if self.metadata_exists():
+                strength_field = ", META_ATTRS.attr_value as strength"
+                strength_join = """
+                            LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
+                             ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
+                            LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
+                             ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'""".format(schema=self.schema,
+                                       colowner="owner" if self.ili_version() == 3 else "colowner")
+                strength_group_by = ", META_ATTRS.attr_value"
+
+            cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION{strength_field}
                             FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
                             INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
-                            ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1} {filter_layer_where}
+                             ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1} {filter_layer_where}
                             INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2
-                              ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
-                              AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
-                            GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION
+                             ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
+                             AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION {schema_where2}
+                            {strength_join}
+                            GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION{strength_group_by}
                             ORDER BY KCU1.ORDINAL_POSITION
                             """.format(schema_where1=schema_where1, schema_where2=schema_where2,
-                                       filter_layer_where=filter_layer_where))
+                                       filter_layer_where=filter_layer_where, strength_field=strength_field, strength_join=strength_join, strength_group_by=strength_group_by))
             return cur
 
         return []

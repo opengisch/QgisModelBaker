@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from QgisModelBaker.tests.utils import get_pg_connection_string
-from qgis.core import QgsProject, QgsEditFormConfig
+from qgis.core import QgsProject, QgsEditFormConfig, QgsRelation
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
@@ -191,7 +191,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+            self.basetestpath, 'tmp_import_kbs_3_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
@@ -284,7 +284,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+            self.basetestpath, 'tmp_import_kbs_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
@@ -418,7 +418,8 @@ class TestProjectGen(unittest.TestCase):
             importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_ranges_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -502,6 +503,193 @@ class TestProjectGen(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
+    def test_precision_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/RoadsSimpleIndividualExtents.ili')
+        importer.configuration.ilimodels = 'RoadsSimple'
+        importer.configuration.dbschema = 'roads_simple_prec_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.layer.name().lower() == 'streetnameposition':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'streetaxis':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
+                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'roadsign':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'landcover':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+        self.assertEqual(count, 4)
+
+    def test_precision_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/RoadsSimpleIndividualExtents.ili')
+        importer.configuration.ilimodels = 'RoadsSimple'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_precision_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.layer.name().lower() == 'streetnameposition':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'streetaxis':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
+                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'roadsign':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'landcover':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+        self.assertEqual(count, 4)
+
+    def test_precision_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels/RoadsSimpleIndividualExtents.ili')
+        importer.configuration.ilimodels = 'RoadsSimple'
+        importer.configuration.dbschema = 'roads_simple_prec_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server="mssql",
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.layer.name().lower() == 'streetnameposition':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'streetaxis':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
+                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'roadsign':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+            if layer.layer.name().lower() == 'landcover':
+                count += 1
+                self.assertEqual(layer.extent.toString(),
+                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
+                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
+                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+        self.assertEqual(count, 4)
+
     def test_extent_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -535,7 +723,8 @@ class TestProjectGen(unittest.TestCase):
             importer.tool, 'ilimodels/CIAF_LADM')
         importer.configuration.ilimodels = 'CIAF_LADM'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_extent_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_extent_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -638,7 +827,8 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'CoordSys'
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_nmrel_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -719,7 +909,8 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
 
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_meta_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -992,7 +1183,8 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.tomlfile = testdata_path('toml/ExceptionalLoadsRoute_V1.toml')
 
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, 'tmp_import_toml_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
@@ -1161,6 +1353,149 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(
                     layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
                     'array_length("valuerelation_1")>0')
+
+    def test_relation_strength_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels//Assoc23.ili')
+        importer.configuration.ilimodels = 'Assoc3'
+        importer.configuration.dbschema = 'assoc23_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.srs_code = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(DbIliMode.ili2pg,
+                              get_pg_connection_string(),
+                              importer.configuration.inheritance,
+                              importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
+        # and that's the one with the strength 1 (composition)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
+
+    def test_relation_strength_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels//Assoc23.ili')
+        importer.configuration.ilimodels = 'Assoc3'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_assoc23_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.srs_code = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg,
+                              uri,
+                              importer.configuration.inheritance)
+
+        available_layers = generator.layers()
+        relations, bags_of_enum = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_classb1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_classb1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_classa1_T_Id').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength(), QgsRelation.Association)
+        # and that's the one with the strength 1 (composition)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength(), QgsRelation.Composition)
+
+    def test_relation_strength_mssql(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path(
+            'ilimodels//Assoc23.ili')
+        importer.configuration.ilimodels = 'Assoc3'
+        importer.configuration.dbschema = 'assoc23_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.configuration.srs_code = 2056
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(
+            DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
+        # and that's the one with the strength 1 (composition)
+        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
     def test_unit(self):
         importer = iliimporter.Importer()

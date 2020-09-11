@@ -100,6 +100,7 @@ class GPKGConnector(DBConnector):
                     ON cprop.tablename == g.table_name
                         WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                          'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+                        AND cprop.tablename = s.name
                     ORDER BY CASE TAG
                         WHEN 'ch.ehi.ili2db.c1Min' THEN 1
                         WHEN 'ch.ehi.ili2db.c2Min' THEN 2
@@ -109,6 +110,16 @@ class GPKGConnector(DBConnector):
                     ) WHERE g.geometry_type_name IS NOT NULL
                     GROUP BY tablename
                 ) AS extent,
+                (
+                SELECT ( CASE MAX(INSTR("setting",'.')) WHEN 0 THEN 0 ELSE MAX( LENGTH("setting") -  INSTR("setting",'.') ) END)
+                    FROM T_ILI2DB_COLUMN_PROP AS cprop
+                    LEFT JOIN gpkg_geometry_columns g
+                    ON cprop.tablename == g.table_name
+                        WHERE cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
+                         'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
+						AND cprop.tablename = s.name
+                    GROUP BY tablename
+                )  as coord_decimals,
                 substr(c.iliname, 0, instr(c.iliname, '.')) AS model,
                 attrs.sqlname as attribute_name, """
             interlis_joins = """LEFT JOIN T_ILI2DB_TABLE_PROP p
@@ -303,6 +314,17 @@ class GPKGConnector(DBConnector):
                                                                  record[
                                                                      'referenced_table'],
                                                                  record['referenced_column'])
+                if self.metadata_exists():
+                    cursor.execute("""SELECT META_ATTRS.attr_value as strength
+                        FROM t_ili2db_attrname AS ATTRNAME 
+                        INNER JOIN t_ili2db_meta_attrs AS META_ATTRS
+                        ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
+                        WHERE ATTRNAME.sqlname = '{referencing_column}' AND ATTRNAME.{colowner} = '{referencing_table}' AND ATTRNAME.target = '{referenced_table}'
+                    """.format(referencing_column=foreign_key['from'],referencing_table=table_info['tablename'],
+                               referenced_table=foreign_key['table'], colowner="owner" if self.ili_version() == 3 else "colowner" ))
+                    strength_record = cursor.fetchone()
+                    record['strength'] = strength_record['strength'] if strength_record else ''
+
                 complete_records.append(record)
 
         cursor.close()
