@@ -289,3 +289,36 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         args += [self.xtffile]
 
         return args
+
+
+class UpdateDataConfiguration(Ili2DbCommandConfiguration):
+
+    def __init__(self):
+        super().__init__()
+        self.xtffile = ''
+        self.dataset = ''
+        self.with_importtid = False
+        self.with_importbid = False
+
+    def to_ili2db_args(self, extra_args=[], with_action=True):
+        args = list()
+
+        if with_action:
+            args += ["--update"]
+
+        if self.disable_validation:
+            args += ["--disableValidation"]
+
+        if self.with_importtid:
+            args += ["--importTid"]
+
+        if self.with_importbid:
+            args += ["--importBid"]
+
+        args += ["--dataset", self.dataset]
+
+        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
+
+        args += [self.xtffile]
+
+        return args
