@@ -31,8 +31,7 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from QgisModelBaker.libili2db.iliimporter import JavaNotFoundError
-from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
     Validators,

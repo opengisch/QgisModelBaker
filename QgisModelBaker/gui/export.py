@@ -342,16 +342,16 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(25)
 
             try:
-                if exporter.run(4, edited_command) != iliexporter.Exporter.SUCCESS:
+                if exporter.run(edited_command) != iliexporter.Exporter.SUCCESS:
                     if configuration.db_ili_version == 3:
                         # failed with a db created by ili2db version 3
                         if not edited_command:
                             # fallback because of issues with --export3 argument
                             self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
-                            # set db version to 4 (means no special arguments like --export3) in the configuration
-                            configuration.db_ili_version = 4
+
+                            exporter.version = 3
                             # ... and enforce the Exporter to use ili2db version 3.x.x
-                            if exporter.run(3) != iliexporter.Exporter.SUCCESS:
+                            if exporter.run() != iliexporter.Exporter.SUCCESS:
                                 self.enable()
                                 self.progress_bar.hide()
                                 return
