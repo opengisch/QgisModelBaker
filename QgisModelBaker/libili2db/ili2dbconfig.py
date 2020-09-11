@@ -204,7 +204,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if self.disable_validation:
             args += ["--sqlEnableNull"]
 
-        if not self.disable_validation:
+        else:
             args += ["--createNumChecks"]
             args += ["--createUnique"]
             args += ["--createFk"]
