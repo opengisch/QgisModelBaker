@@ -23,7 +23,6 @@ import re
 from psycopg2 import OperationalError
 from .db_connector import DBConnector, DBConnectorError
 from qgis.core import Qgis
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
 
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
@@ -452,36 +451,6 @@ class PGConnector(DBConnector):
                             """.format(schema=self.schema))
             return cur
         return []
-
-    def get_ignored_layers(self):
-        tables_info = self.get_tables_info()
-        relations_info = self.get_relations_info()
-        meta_attrs_info = self.get_meta_attrs_info()
-        mapping_ili_elements = []
-        tables = []
-        referencing_tables = []
-        for record in meta_attrs_info:
-            if record['attr_name'] == 'ili2db.mapping':
-                mapping_ili_elements.append(record['ilielement'])
-        for record in tables_info:
-            if 'ili_name' in record:
-                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in IGNORED_ILI_ELEMENTS:
-                    tables.append(record['tablename'])
-                    continue
-            if 'schemaname' in record:
-                if record['schemaname'] in IGNORED_SCHEMAS:
-                    tables.append(record['tablename'])
-                    continue
-            if 'tablename' in record:
-                if record['tablename'] in IGNORED_TABLES:
-                    tables.append(record['tablename'])
-                    continue
-        # get the referencing tables
-        for record in relations_info:
-            if record['referenced_table'] in tables:
-                referencing_tables.append(record['referencing_table'])
-
-        return tables + referencing_tables
 
     def get_iliname_dbname_mapping(self, sqlnames):
         """Used for ili2db version 3 relation creation"""
