@@ -133,6 +133,8 @@ class PGConnector(DBConnector):
             alias_left_join = ''
             model_name = ''
             model_where = ''
+            attribute_name = ''
+            attribute_left_join = ''
 
             if self.metadata_exists():
                 kind_settings_field = "p.setting AS kind_settings,"
@@ -168,6 +170,9 @@ class PGConnector(DBConnector):
                               AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
                 model_where = """LEFT JOIN {}.t_ili2db_classname c
                       ON tbls.tablename = c.sqlname""".format(self.schema)
+                attribute_name = "attrs.sqlname as attribute_name,"
+                attribute_left_join = """LEFT JOIN {}.t_ili2db_attrname attrs
+                      ON c.iliname = attrs.iliname""".format(self.schema)
 
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
@@ -185,6 +190,7 @@ class PGConnector(DBConnector):
                           {model_name}
                           {ili_name}
                           {extent}
+                          {attribute_name}
                           {coord_decimals}
                           g.type AS simple_type,
                           format_type(ga.atttypid, ga.atttypmod) as formatted_type
@@ -197,6 +203,7 @@ class PGConnector(DBConnector):
                         {domain_left_join}
                         {alias_left_join}
                         {model_where}
+                        {attribute_left_join}
                         LEFT JOIN public.geometry_columns g
                           ON g.f_table_schema = tbls.schemaname
                           AND g.f_table_name = tbls.tablename
@@ -206,8 +213,8 @@ class PGConnector(DBConnector):
                         WHERE i.indisprimary {schema_where}
             """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
                        model_name=model_name, ili_name=ili_name, extent=extent, coord_decimals=coord_decimals, domain_left_join=domain_left_join,
-                       alias_left_join=alias_left_join, model_where=model_where,
-                       schema_where=schema_where))
+                       alias_left_join=alias_left_join, model_where=model_where, attribute_name=attribute_name,
+                       attribute_left_join=attribute_left_join, schema_where=schema_where))
 
             return self._preprocess_table(cur)
 

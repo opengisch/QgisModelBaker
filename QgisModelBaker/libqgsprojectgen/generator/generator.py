@@ -101,11 +101,19 @@ class Generator(QObject):
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            alias = record['table_alias'] if 'table_alias' in record else ''
             is_domain = record['kind_settings'] == 'ENUM' or record[
                 'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
+            is_attribute = bool(record['attribute_name']) if 'attribute_name' in record else False
             is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
+
+            alias = record['table_alias'] if 'table_alias' in record else None
+            if not alias:
+                if is_domain and is_attribute:
+                    short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
+                else:
+                    short_name = record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
+                alias = short_name
 
             display_expression = ''
             if 'ili_name' in record:
