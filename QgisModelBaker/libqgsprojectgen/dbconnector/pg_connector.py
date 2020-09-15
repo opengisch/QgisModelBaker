@@ -407,7 +407,7 @@ class PGConnector(DBConnector):
             strength_field = ''
             strength_join = ''
             strength_group_by = ''
-            if self.metadata_exists():
+            if self._table_exists(PG_METAATTRS_TABLE):
                 strength_field = ", META_ATTRS.attr_value as strength"
                 strength_join = """
                             LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME

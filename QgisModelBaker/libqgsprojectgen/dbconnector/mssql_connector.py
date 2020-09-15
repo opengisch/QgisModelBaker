@@ -386,7 +386,7 @@ class MssqlConnector(DBConnector):
 
             strength_field = ''
             strength_join = ''
-            if self.metadata_exists():
+            if self._table_exists(METAATTRS_TABLE):
                 strength_field = ",META_ATTRS.attr_value as strength"
                 strength_join = """
                 LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
