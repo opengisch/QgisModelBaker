@@ -186,6 +186,19 @@ class GPKGConnector(DBConnector):
         cursor.close()
         return complete_records
 
+    def get_meta_attrs_info(self):
+        if not self._table_exists(GPKG_METAATTRS_TABLE):
+            return []
+
+        cursor = self.conn.cursor()
+        cursor.execute("""
+                        SELECT *
+                        FROM {meta_attr_table}
+        """.format(meta_attr_table=GPKG_METAATTRS_TABLE))
+        records = cursor.fetchall()
+        cursor.close()
+        return records
+
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(GPKG_METAATTRS_TABLE):
             return []
@@ -314,7 +327,7 @@ class GPKGConnector(DBConnector):
                                                                  record[
                                                                      'referenced_table'],
                                                                  record['referenced_column'])
-                if self.metadata_exists():
+                if self._table_exists(GPKG_METAATTRS_TABLE):
                     cursor.execute("""SELECT META_ATTRS.attr_value as strength
                         FROM t_ili2db_attrname AS ATTRNAME 
                         INNER JOIN t_ili2db_meta_attrs AS META_ATTRS

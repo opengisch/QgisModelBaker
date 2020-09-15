@@ -355,6 +355,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.print_info(
                 self.tr('\nObtaining available layers from the database…'))
+
             available_layers = generator.layers()
 
             if not available_layers:

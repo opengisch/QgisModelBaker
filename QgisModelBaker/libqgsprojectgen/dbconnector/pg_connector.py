@@ -220,6 +220,21 @@ class PGConnector(DBConnector):
 
         return []
 
+    def get_meta_attrs_info(self):
+        if not self._table_exists(PG_METAATTRS_TABLE):
+            return []
+
+        if self.schema:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                        SELECT *
+                        FROM {schema}.{metaattrs_table};
+            """.format(schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE))
+
+            return cur
+
+        return []
+
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(PG_METAATTRS_TABLE):
             return []
@@ -399,7 +414,7 @@ class PGConnector(DBConnector):
             strength_field = ''
             strength_join = ''
             strength_group_by = ''
-            if self.metadata_exists():
+            if self._table_exists(PG_METAATTRS_TABLE):
                 strength_field = ", META_ATTRS.attr_value as strength"
                 strength_join = """
                             LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME

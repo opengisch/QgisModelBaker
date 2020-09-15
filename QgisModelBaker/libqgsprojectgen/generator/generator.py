@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
@@ -78,6 +78,7 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
+        ignored_layers = self.get_ignored_layers()
         tables_info = self.get_tables_info()
         layers = list()
 
@@ -92,10 +93,8 @@ class Generator(QObject):
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-            elif record['schemaname'] in IGNORED_SCHEMAS:
-                continue
 
-            if record['tablename'] in IGNORED_TABLES:
+            if ignored_layers and record['tablename'] in ignored_layers:
                 continue
 
             if filter_layer_list and record['tablename'] not in filter_layer_list:
@@ -330,8 +329,14 @@ class Generator(QObject):
     def metadata_exists(self):
         return self._db_connector.metadata_exists()
 
+    def get_ignored_layers(self):
+        return self._db_connector.get_ignored_layers()
+
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
+
+    def get_meta_attrs_info(self):
+        return self._db_connector.get_meta_attrs_info()
 
     def get_meta_attrs(self, ili_name):
         return self._db_connector.get_meta_attrs(ili_name)
@@ -341,15 +346,14 @@ class Generator(QObject):
 
     def get_tables_info_without_ignored_tables(self):
         tables_info = self.get_tables_info()
+        ignored_layers = self.get_ignored_layers()
         new_tables_info = []
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-            elif record['schemaname'] in IGNORED_SCHEMAS:
-                continue
 
-            if record['tablename'] in IGNORED_TABLES:
+            if ignored_layers and record['tablename'] in ignored_layers:
                 continue
 
             new_tables_info.append(record)

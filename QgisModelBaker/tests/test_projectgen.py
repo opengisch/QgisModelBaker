@@ -370,6 +370,104 @@ class TestProjectGen(unittest.TestCase):
                               'belasteter_standort_geo_lage_punkt']),
                          set([layer.name for layer in available_layers]))
 
+    def test_naturschutz_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbschema = 'naturschutz_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 16)
+        self.assertEqual(len(available_layers), 23)
+        self.assertEqual(len(relations), 13)
+
+    def test_naturschutz_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_naturschutz_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 29)
+        self.assertEqual(len(available_layers), 23)
+        self.assertEqual(len(relations), 13)
+
+    def test_naturschutz_nometa_postgis(self):
+        #model with missing meta attributes for multigeometry - no layers should be ignored
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1_noMeta'
+        importer.configuration.dbschema = 'naturschutz_nometa_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 10)
+        self.assertEqual(len(available_layers), 29)
+        self.assertEqual(len(relations), 23)
+
+    def test_naturschutz_nometa_geopackage(self):
+        #model with missing meta attributes for multigeometry - no layers should be ignored
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1_noMeta'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_naturschutz_nometa_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 23)
+        self.assertEqual(len(available_layers), 29)
+        self.assertEqual(len(relations), 23)
+
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
