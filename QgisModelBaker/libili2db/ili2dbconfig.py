@@ -299,12 +299,15 @@ class UpdateDataConfiguration(Ili2DbCommandConfiguration):
         self.dataset = ''
         self.with_importtid = False
         self.with_importbid = False
+        self.db_ili_version = None
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
 
         if with_action:
             args += ["--update"]
+
+        args += extra_args
 
         if self.disable_validation:
             args += ["--disableValidation"]
