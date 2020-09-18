@@ -27,21 +27,8 @@ from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 class Updater(IliExecutable):
 
-    stdout = pyqtSignal(str)
-    stderr = pyqtSignal(str)
-    process_started = pyqtSignal(str)
-    process_finished = pyqtSignal(int, int)
-
-    __done_pattern = None
-
     def __init__(self, parent=None):
         super(Updater, self).__init__(parent)
 
     def _create_config(self):
         return UpdateDataConfiguration()
-
-    def _get_done_pattern(self):
-        if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: \.\.\.update done")
-
-        return self.__done_pattern

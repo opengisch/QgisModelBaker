@@ -27,13 +27,6 @@ from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 class Importer(IliExecutable):
 
-    stdout = pyqtSignal(str)
-    stderr = pyqtSignal(str)
-    process_started = pyqtSignal(str)
-    process_finished = pyqtSignal(int, int)
-
-    __done_pattern = None
-
     def __init__(self, dataImport=False, parent=None):
         self.__data_import = dataImport
         super(Importer, self).__init__(parent)
@@ -45,12 +38,3 @@ class Importer(IliExecutable):
             configuration = SchemaImportConfiguration()
 
         return configuration
-
-    def _get_done_pattern(self):
-        if not self.__done_pattern:
-            if self.__data_import:
-                self.__done_pattern = re.compile(r"Info: \.\.\.import done")
-            else:
-                self.__done_pattern = re.compile(r"Info: \.\.\.done")
-
-        return self.__done_pattern

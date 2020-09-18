@@ -27,25 +27,12 @@ from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 class Exporter(IliExecutable):
 
-    stdout = pyqtSignal(str)
-    stderr = pyqtSignal(str)
-    process_started = pyqtSignal(str)
-    process_finished = pyqtSignal(int, int)
-
-    __done_pattern = None
-
     def __init__(self, parent=None):
         super(Exporter, self).__init__(parent)
         self.version = 4
 
     def _create_config(self):
         return ExportConfiguration()
-
-    def _get_done_pattern(self):
-        if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: ...export done")
-
-        return self.__done_pattern
 
     def _get_ili2db_version(self):
         return self.version

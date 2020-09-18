@@ -41,6 +41,7 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
     process_started = pyqtSignal(str)
     process_finished = pyqtSignal(int, int)
 
+    __done_pattern = None
     __result = None
 
     def __init__(self, parent=None):
@@ -61,10 +62,6 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
 
     @abstractmethod
     def _create_config(self):
-        pass
-
-    @abstractmethod
-    def _get_done_pattern(self):
         pass
 
     def _get_ili2db_version(self):
@@ -142,9 +139,10 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
     def stderr_ready(self, proc):
         text = bytes(proc.readAllStandardError()).decode(self.encoding)
 
-        done_pattern = self._get_done_pattern()
+        if not self.__done_pattern:
+            self.__done_pattern = re.compile(r"Info: \.\.\.([a-z]+ )?done")
 
-        if done_pattern.search(text):
+        if self.__done_pattern.search(text):
             self.__result = self.SUCCESS
 
         self.stderr.emit(text)
