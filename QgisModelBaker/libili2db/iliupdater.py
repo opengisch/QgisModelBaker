@@ -26,7 +26,8 @@ from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
 class Updater(IliExecutable):
-
+    """Executes an update operation on ili2db.
+    """
     def __init__(self, parent=None):
         super(Updater, self).__init__(parent)
 

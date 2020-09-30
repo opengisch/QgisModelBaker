@@ -20,14 +20,12 @@ import functools
 import locale
 import re
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.ili2dbutils import get_java_path, get_ili2db_bin, JavaNotFoundError
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-
-
-class AbstractQObjectMeta(ABCMeta, type(QObject)):
-    pass
+from QgisModelBaker.utils.qt_utils import AbstractQObjectMeta
 
 
 class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
@@ -41,7 +39,7 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
     process_started = pyqtSignal(str)
     process_finished = pyqtSignal(int, int)
 
-    __done_pattern = None
+    __done_pattern = re.compile(r"Info: \.\.\.([a-z]+ )?done")
     __result = None
 
     def __init__(self, parent=None):
@@ -49,11 +47,11 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         self.filename = None
         self.tool = None
         self.configuration = self._create_config()
-        self.encoding = locale.getlocale()[1]
+        _, self.encoding = locale.getlocale()
 
         # Lets python try to determine the default locale
         if not self.encoding:
-            self.encoding = locale.getdefaultlocale()[1]
+            _, self.encoding = locale.getdefaultlocale()
 
         # This might be unset
         # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
@@ -61,13 +59,22 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
             self.encoding = 'UTF8'
 
     @abstractmethod
-    def _create_config(self):
+    def _create_config(self) -> Ili2DbCommandConfiguration:
+        """Creates the configuration that will be used by *run* method.
+
+        :return: ili2db configuration"""
         pass
 
     def _get_ili2db_version(self):
         return self.configuration.db_ili_version
 
     def _args(self, hide_password):
+        """Gets the list of ili2db arguments from configuration.
+
+        :param bool hide_password: *True* to mask the password, *False* otherwise.
+        :return: ili2db arguments list.
+        :rtype: list
+        """
         self.configuration.tool = self.tool
         db_simple_factory = DbSimpleFactory()
         db_factory = db_simple_factory.create_factory(self.tool)
@@ -138,9 +145,6 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
 
     def stderr_ready(self, proc):
         text = bytes(proc.readAllStandardError()).decode(self.encoding)
-
-        if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: \.\.\.([a-z]+ )?done")
 
         if self.__done_pattern.search(text):
             self.__result = self.SUCCESS

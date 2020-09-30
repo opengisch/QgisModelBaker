@@ -17,11 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-import re
-
-from qgis.PyQt.QtCore import pyqtSignal
-
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
+    Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
@@ -31,7 +28,7 @@ class Importer(IliExecutable):
         self.__data_import = dataImport
         super(Importer, self).__init__(parent)
 
-    def _create_config(self):
+    def _create_config(self) -> Ili2DbCommandConfiguration:
         if self.__data_import:
             configuration = ImportDataConfiguration()
         else:

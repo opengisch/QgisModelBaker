@@ -17,11 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-import re
-
-from qgis.PyQt.QtCore import pyqtSignal
-
-from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
@@ -31,7 +27,7 @@ class Exporter(IliExecutable):
         super(Exporter, self).__init__(parent)
         self.version = 4
 
-    def _create_config(self):
+    def _create_config(self) -> Ili2DbCommandConfiguration:
         return ExportConfiguration()
 
     def _get_ili2db_version(self):

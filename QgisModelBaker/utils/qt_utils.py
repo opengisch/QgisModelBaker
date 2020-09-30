@@ -20,6 +20,8 @@
 
 import os.path
 import functools
+from abc import ABCMeta
+
 from qgis.PyQt.QtWidgets import (
     QFileDialog,
     QApplication
@@ -238,3 +240,14 @@ class OverrideCursor():
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         QApplication.restoreOverrideCursor()
+
+
+class AbstractQObjectMeta(ABCMeta, type(QObject)):
+    """Metaclass that is used by any class that must be abstract and inherit from QObject.
+
+    If a class must be abstract (ABC or ABCMeta) and inherit from QObject, multiple inheritance fails because
+    the classes have different metaclasses. See more:
+
+    https://stackoverflow.com/questions/46837947/how-to-create-an-abstract-base-class-in-python-which-derived-from-qobject
+    """
+    pass
