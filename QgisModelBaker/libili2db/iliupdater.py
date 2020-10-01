@@ -17,21 +17,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
-    Ili2DbCommandConfiguration
+import re
+
+from qgis.PyQt.QtCore import pyqtSignal
+
+from QgisModelBaker.libili2db.ili2dbconfig import UpdateDataConfiguration
 from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
-class Importer(IliExecutable):
+class Updater(IliExecutable):
+    """Executes an update operation on ili2db.
+    """
+    def __init__(self, parent=None):
+        super(Updater, self).__init__(parent)
 
-    def __init__(self, dataImport=False, parent=None):
-        self.__data_import = dataImport
-        super(Importer, self).__init__(parent)
-
-    def _create_config(self) -> Ili2DbCommandConfiguration:
-        if self.__data_import:
-            configuration = ImportDataConfiguration()
-        else:
-            configuration = SchemaImportConfiguration()
-
-        return configuration
+    def _create_config(self):
+        return UpdateDataConfiguration()

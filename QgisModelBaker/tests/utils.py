@@ -23,7 +23,8 @@ from subprocess import call
 
 from QgisModelBaker.libili2db import ili2dbconfig
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, ImportDataConfiguration, BaseConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ExportConfiguration, \
+    ImportDataConfiguration, BaseConfiguration, UpdateDataConfiguration
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
@@ -102,6 +103,30 @@ def ilidataimporter_config(tool=DbIliMode.ili2pg, modeldir=None):
 
     return configuration
 
+
+def iliupdater_config(tool=DbIliMode.ili2pg, modeldir=None):
+    base_config = BaseConfiguration()
+    if modeldir is None:
+        base_config.custom_model_directories_enabled = False
+    else:
+        base_config.custom_model_directories = testdata_path(modeldir)
+        base_config.custom_model_directories_enabled = True
+
+    configuration = UpdateDataConfiguration()
+    if tool == DbIliMode.ili2pg:
+        configuration.dbhost = os.environ['PGHOST']
+        configuration.dbusr = 'docker'
+        configuration.dbpwd = 'docker'
+        configuration.database = 'gis'
+    elif tool == DbIliMode.ili2mssql:
+        configuration.dbhost = 'mssql'
+        configuration.dbusr = 'sa'
+        configuration.dbpwd = '<YourStrong!Passw0rd>'
+        configuration.database = 'gis'
+
+    configuration.base_configuration = base_config
+
+    return configuration
 
 @pytest.mark.skip('This is a utility function, not a test function')
 def testdata_path(path):

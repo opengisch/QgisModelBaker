@@ -58,10 +58,9 @@ class TestExport(unittest.TestCase):
         if result != iliexporter.Exporter.SUCCESS:
             # failed with a db created by ili2db version 3
             # fallback since of issues with --export3 argument
-            # set db version to 4 (means no special arguments like --export3) in the configuration
-            exporter.configuration.db_ili_version = 4
             # ... and enforce the Exporter to use ili2db version 3.x.x
-            result = exporter.run(3)
+            exporter.version = 3
+            result = exporter.run()
         self.assertEqual(result, iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
@@ -157,10 +156,9 @@ class TestExport(unittest.TestCase):
         if result != iliexporter.Exporter.SUCCESS:
             # failed with a db created by ili2db version 3
             # fallback since of issues with --export3 argument
-            # set db version to 4 (means no special arguments like --export3) in the configuration
-            exporter.configuration.db_ili_version = 4
             # ... and enforce the Exporter to use ili2db version 3.x.x
-            result = exporter.run(3)
+            exporter.version = 3
+            result = exporter.run()
         self.assertEqual(result, iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
@@ -419,7 +417,8 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(3), iliexporter.Exporter.SUCCESS)
+        exporter.version = 3
+        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
