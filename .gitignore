@@ -6,4 +6,4 @@ i18n
 .DS_Store
 *.pyc
 .cache
-
+.vscode
