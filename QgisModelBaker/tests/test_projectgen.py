@@ -23,6 +23,7 @@ import datetime
 import shutil
 import tempfile
 import logging
+from decimal import Decimal
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
@@ -504,6 +505,11 @@ class TestProjectGen(unittest.TestCase):
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
                 self.assertEqual(config['Min'], '-100.0')
                 self.assertEqual(config['Max'], '100000.0')
+
+                config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
+                self.assertEqual(config['Min'], '0.0')
+                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '9.9999999999999906e+013'
+
                 count += 1
                 break
 
@@ -548,10 +554,16 @@ class TestProjectGen(unittest.TestCase):
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
                 self.assertEqual(config['Min'], '-100.0')
                 self.assertEqual(config['Max'], '100000.0')
+
+                config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
+                self.assertEqual(config['Min'], '0.0')
+                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '9.99999999999999E13'
+
                 count += 1
                 break
 
         self.assertEqual(count, 1)
+
 
     def test_ranges_mssql(self):
         importer = iliimporter.Importer()
@@ -596,6 +608,11 @@ class TestProjectGen(unittest.TestCase):
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
                 self.assertEqual(config['Min'], '-100.0')
                 self.assertEqual(config['Max'], '100000.0')
+
+                config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
+                self.assertEqual(config['Min'], '0.0')
+                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '99999999999999.9'
+
                 count += 1
                 break
 

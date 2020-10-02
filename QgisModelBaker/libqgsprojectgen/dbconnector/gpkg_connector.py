@@ -293,7 +293,7 @@ class GPKGConnector(DBConnector):
         # fieldname: (min, max)
         res1 = re.findall(r'CHECK\((.*)\)', cursor.fetchone()[0])
         for res in res1:
-            res2 = re.search(r'(\w+) BETWEEN ([-?\d\.]+) AND ([-?\d\.]+)', res)
+            res2 = re.search(r'(\w+) BETWEEN ([-?\d\.E]+) AND ([-?\d\.E]+)', res)  # Might contain scientific notation
             if res2:
                 constraint_mapping[res2.group(1)] = (
                     res2.group(2), res2.group(3))
