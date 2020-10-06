@@ -23,9 +23,10 @@ INTERLIS 2.3;
 !!------------------------------------------------------------------------------
 !! 2018-02-19 | KOGIS | Enumeration CHCantonCode adapted (FL and CH added)
 !! 2020-04-24 | KOGIS | Constraint in Association Hierarchy in Model AdministrativeUnitsCH_V1 corrected (#CHE)
+!! 2020-08-25 | KOGIS | Classes AdministrativeUnit and AdministrativeUnion declared as not abstract.
 
 !! ########################################################################
-!!@technicalContact=models@geo.admin.ch
+!!@technicalContact=mailto:models@geo.admin.ch
 !!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
 TYPE MODEL CHAdminCodes_V1 (en)
   AT "http://www.geo.admin.ch" VERSION "2018-02-19" =
@@ -39,10 +40,10 @@ TYPE MODEL CHAdminCodes_V1 (en)
 END CHAdminCodes_V1.
 
 !! ########################################################################
-!!@technicalContact=models@geo.admin.ch
-!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
 MODEL AdministrativeUnits_V1 (en)
-  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+  AT "http://www.geo.admin.ch" VERSION "2020-08-25" =
 
   IMPORTS UNQUALIFIED INTERLIS;
   IMPORTS UNQUALIFIED CHAdminCodes_V1;
@@ -55,7 +56,7 @@ MODEL AdministrativeUnits_V1 (en)
     CLASS AdministrativeElement (ABSTRACT) =
     END AdministrativeElement;
 
-    CLASS AdministrativeUnit (ABSTRACT) EXTENDS AdministrativeElement =
+    CLASS AdministrativeUnit EXTENDS AdministrativeElement =
     END AdministrativeUnit;
 
     ASSOCIATION Hierarchy =
@@ -63,7 +64,7 @@ MODEL AdministrativeUnits_V1 (en)
       LowerLevelUnit -- AdministrativeUnit;
     END Hierarchy;
 
-    CLASS AdministrativeUnion (ABSTRACT) EXTENDS AdministrativeElement =
+    CLASS AdministrativeUnion EXTENDS AdministrativeElement =
     END AdministrativeUnion;
 
     ASSOCIATION UnionMembers =
