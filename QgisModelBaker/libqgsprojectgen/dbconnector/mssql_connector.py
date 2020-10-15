@@ -309,6 +309,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , txttype.setting AS texttype"
                 stmt += ln + "    , alias.setting AS column_alias"
                 stmt += ln + "    , full_name.iliname AS fully_qualified_name"
+                stmt += ln + "    , enum_domain.setting as enum_domain"
             stmt += ln + "    , null AS comment"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
             if metadata_exists:
@@ -327,6 +328,10 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
                 stmt += ln + "    ON full_name.{}='{{table}}'".format("owner" if self.ili_version() == 3 else "colowner")
                 stmt += ln + "    AND c.column_name=full_name.sqlname"
+                stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop enum_domain"
+                stmt += ln + "    ON c.table_name = enum_domain.tablename"
+                stmt += ln + "    AND c.column_name = enum_domain.columnname"
+                stmt += ln + "    AND enum_domain.tag = 'ch.ehi.ili2db.enumDomain'"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             stmt = stmt.format(schema=self.schema, table=table_name)
 
@@ -431,19 +436,25 @@ class MssqlConnector(DBConnector):
 
         return result
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        result = []
+    def get_iliname_dbname_mapping(self, sqlnames=list()):
+        """Note: the parameter sqlnames is only used for ili2db version 3 relation creation"""
+        result = {}
         # Map domain ili name with its correspondent mssql name
-        if self.schema:
+        if self.schema and self.metadata_exists():
             cur = self.conn.cursor()
-            names = "'" + "','".join(sqlnames) + "'"
+
+            where = ''
+            if sqlnames:
+                names = "'" + "','".join(sqlnames) + "'"
+                where = 'WHERE sqlname IN ({})'.format(names)
 
             cur.execute("""SELECT iliname, sqlname
-                            FROM {schema}.t_ili2db_classname
-                            WHERE sqlname IN ({names})
-                        """.format(schema=self.schema, names=names))
+                           FROM {schema}.t_ili2db_classname
+                           {where}
+                        """.format(schema=self.schema, where=where))
 
             result = self._get_dict_result(cur)
+
         return result
 
     def get_models(self):

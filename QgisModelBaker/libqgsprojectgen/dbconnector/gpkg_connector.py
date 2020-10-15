@@ -255,6 +255,7 @@ class GPKGConnector(DBConnector):
             record['unit'] = None
             record['texttype'] = None
             record['column_alias'] = None
+            record['enum_domain'] = None
 
             if record['column_name'] == 'T_Id' and Qgis.QGIS_VERSION_INT >= 30500:
                 # The default value needs to be calculated client side,
@@ -274,6 +275,8 @@ class GPKGConnector(DBConnector):
                         record['texttype'] = column_prop['setting']
                     elif column_prop['tag'] == 'ch.ehi.ili2db.dispName':
                         record['column_alias'] = column_prop['setting']
+                    elif column_prop['tag'] == 'ch.ehi.ili2db.enumDomain':
+                        record['enum_domain'] = column_prop['setting']
 
             complete_records.append(record)
 
@@ -361,16 +364,24 @@ class GPKGConnector(DBConnector):
                             """)
         return cursor
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """Used for ili2db version 3 relation creation"""
-        # Map domain ili name with its correspondent pg name
-        cursor = self.conn.cursor()
-        names = "'" + "','".join(sqlnames) + "'"
-        cursor.execute("""SELECT iliname, sqlname
-                          FROM t_ili2db_classname
-                          WHERE sqlname IN ({names})
-                       """.format(names=names))
-        return cursor
+    def get_iliname_dbname_mapping(self, sqlnames=list()):
+        """Note: the parameter sqlnames is only used for ili2db version 3 relation creation"""
+        # Map domain ili name with its correspondent sql name
+        if self.metadata_exists():
+            cursor = self.conn.cursor()
+
+            where = ''
+            if sqlnames:
+                names = "'" + "','".join(sqlnames) + "'"
+                where = 'WHERE sqlname IN ({})'.format(names)
+
+            cursor.execute("""SELECT iliname, sqlname
+                              FROM t_ili2db_classname
+                              {where}
+                           """.format(where=where))
+            return cursor
+
+        return {}
 
     def get_classili_classdb_mapping(self, models_info, extended_classes):
         """Used for ili2db version 3 relation creation"""

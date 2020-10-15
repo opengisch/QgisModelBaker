@@ -227,6 +227,9 @@ class Generator(QObject):
                 if 'default_value_expression' in fielddef:
                     field.default_value_expression = fielddef['default_value_expression']
 
+                if 'enum_domain' in fielddef and fielddef['enum_domain']:
+                    field.enum_domain = fielddef['enum_domain']
+
                 layer.fields.append(field)
 
             layers.append(layer)
@@ -244,6 +247,8 @@ class Generator(QObject):
             layer_map[layer.name].append(layer)
         relations = list()
 
+        classname_info = [record['iliname'] for record in self.get_iliname_dbname_mapping()]
+
         for record in relations_info:
             if record['referencing_table'] in layer_map.keys() and record['referenced_table'] in layer_map.keys():
                 for referencing_layer in layer_map[record['referencing_table']]:
@@ -255,6 +260,18 @@ class Generator(QObject):
                         relation.referenced_field = record['referenced_column']
                         relation.name = record['constraint_name']
                         relation.strength = QgsRelation.Composition if 'strength' in record and record['strength'] == 'COMPOSITE' else QgsRelation.Association
+
+                        # For domain-class relations, if we have an extended domain, get its child name
+                        child_name = None
+                        if referenced_layer.is_domain:
+                            # Get child name (if domain is extended)
+                            fields = [field for field in referencing_layer.fields if field.name == record['referencing_column']]
+                            if fields:
+                                field = fields[0]
+                                if field.enum_domain and field.enum_domain not in classname_info:
+                                    child_name = field.enum_domain
+                        relation.child_domain_name = child_name
+
                         relations.append(relation)
 
         if self._db_connector.ili_version() == 3:
@@ -371,3 +388,6 @@ class Generator(QObject):
 
     def get_bags_of_info(self):
         return self._db_connector.get_bags_of_info()
+
+    def get_iliname_dbname_mapping(self):
+        return self._db_connector.get_iliname_dbname_mapping()

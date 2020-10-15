@@ -11,6 +11,7 @@ class Relation(object):
         self.referenced_field = None
         self.name = None
         self.strength = QgsRelation.Association
+        self.child_domain_name = None
         self.qgis_relation = None
         self._id = None
 
@@ -21,6 +22,7 @@ class Relation(object):
         definition['referencedLayer'] = self.referenced_layer
         definition['referencedField'] = self.referenced_field
         definition['strength'] = self.strength
+        definition['child_domain_name'] = self.child_domain_name
 
         return definition
 
@@ -30,6 +32,7 @@ class Relation(object):
         self.referenced_layer = definition['referencedLayer']
         self.referenced_field = definition['referencedField']
         self.strength = definition['strength']
+        self.child_domain_name = definition['child_domain_name']
 
     def create(self, qgis_project, relations):
         relation = QgsRelation()
