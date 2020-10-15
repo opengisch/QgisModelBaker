@@ -258,8 +258,7 @@ class GPKGConnector(DBConnector):
             record['enum_domain'] = None
 
             if record['column_name'] == 'T_Id' and Qgis.QGIS_VERSION_INT >= 30500:
-                # The default value needs to be calculated client side,
-                # sqlite doesn't provide the means to pre-evaluate serials
+                # Calculated on client side, since sqlite doesn't provide the means to pre-evaluate serials
                 record['default_value_expression'] = "sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))"
 
             for column_full_name in columns_full_name:
@@ -277,6 +276,10 @@ class GPKGConnector(DBConnector):
                         record['column_alias'] = column_prop['setting']
                     elif column_prop['tag'] == 'ch.ehi.ili2db.enumDomain':
                         record['enum_domain'] = column_prop['setting']
+                    elif column_prop['tag'] == 'ch.ehi.ili2db.oidDomain':
+                        # Calculated on client side, since sqlite doesn't provide the means to pre-evaluate UUID
+                        if record['column_name'] == 'T_Ili_Tid' and column_prop['setting'] == 'INTERLIS.UUIDOID':
+                            record['default_value_expression'] = "substr(uuid(), 2, 36)"
 
             complete_records.append(record)
 
