@@ -1,0 +1,37 @@
+INTERLIS 2.3;
+
+MODEL Colors (es)
+AT "mailto:PC-1@localhost"
+VERSION "2020-08-26"  =
+
+  DOMAIN
+
+    DomBaseColorType = (
+      Green,
+      Red,
+      Blue
+    );
+
+    DomChildColorType
+    EXTENDS DomBaseColorType = (
+      Blue(
+        Dark_Blue,
+        Light_Blue,
+        Medium_Blue
+      )
+    );
+
+  TOPIC Colors =
+
+    CLASS BaseColor (ABSTRACT) =
+      ColorType : Colors.DomBaseColorType;
+    END BaseColor;
+
+    CLASS ChildColor
+    EXTENDS BaseColor =
+      ColorType (EXTENDED) : Colors.DomChildColorType;
+    END ChildColor;
+
+  END Colors;
+
+END Colors.
