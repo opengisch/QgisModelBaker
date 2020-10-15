@@ -210,19 +210,6 @@ VERSION "2017-07-12 V2.1.6"  =
       Otro
     );
 
-    COL_MonumentacionTipo = (
-      Incrustacion,
-      Mojon,
-      No_Materializado,
-      Otros,
-      Pilastra
-    );
-
-    COL_InteresadoJuridicoTipo = (
-      Publico,
-      Privado
-    );
-
     COL_PuntoControlTipo = (
       Control,
       Apoyo
@@ -362,12 +349,6 @@ VERSION "2017-07-12 V2.1.6"  =
       Otros
     );
 
-    COL_InterpolacionTipo = (
-      Aislado,
-      Intermedio_Arco,
-      Intermedio_Linea
-    );
-
     COL_TipoConstruccionTipo = (
       Anexo,
       No_PH,
@@ -453,6 +434,11 @@ VERSION "2017-07-12 V2.1.6"  =
       Persona_Natural,
       Persona_No_Natural,
       Otro
+    );
+
+    COL_InteresadoJuridicoTipo EXTENDS LA_InteresadoTipo = (
+      Publico,
+      Privado
     );
 
     LA_BAUnitTipo = (
@@ -570,10 +556,24 @@ VERSION "2017-07-12 V2.1.6"  =
       Otro
     );
 
+    COL_InterpolacionTipo EXTENDS LA_InterpolacionTipo = (
+      Aislado,
+      Intermedio_Arco,
+      Intermedio_Linea
+    );
+
     LA_MonumentacionTipo = (
       Baliza,
       Poste,
       Otro
+    );
+
+    COL_MonumentacionTipo EXTENDS LA_MonumentacionTipo = (
+      Incrustacion,
+      Mojon,
+      No_Materializado,
+      Otros,
+      Pilastra
     );
 
     LA_PuntoTipo = (
