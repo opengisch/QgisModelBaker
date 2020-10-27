@@ -287,17 +287,20 @@ class PGConnector(DBConnector):
             unit_field = ''
             text_kind_field = ''
             full_name_field = ''
+            enum_domain_field = ''
             column_alias = ''
             unit_join = ''
             text_kind_join = ''
             disp_name_join = ''
             full_name_join = ''
+            enum_domain_join = ''
 
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"
                 text_kind_field = "txttype.setting AS texttype,"
                 column_alias = "alias.setting AS column_alias,"
                 full_name_field = "full_name.iliname as fully_qualified_name,"
+                enum_domain_field = "enum_domain.setting as enum_domain,"
                 unit_join = """LEFT JOIN {}.t_ili2db_column_prop unit
                                                     ON c.table_name=unit.tablename AND
                                                     c.column_name=unit.columnname AND
@@ -316,6 +319,10 @@ class PGConnector(DBConnector):
                                                             """.format(self.schema,
                                                                        "owner" if self.ili_version() == 3 else "colowner",
                                                                        table_name)
+                enum_domain_join = """LEFT JOIN {}.t_ili2db_column_prop enum_domain
+                                                    ON c.table_name=enum_domain.tablename AND
+                                                    c.column_name=enum_domain.columnname AND
+                                                    enum_domain.tag = 'ch.ehi.ili2db.enumDomain'""".format(self.schema)
                 fields_cur.execute("""
                     SELECT DISTINCT
                       c.column_name,
@@ -325,6 +332,7 @@ class PGConnector(DBConnector):
                       {text_kind_field}
                       {column_alias}
                       {full_name_field}
+                      {enum_domain_field}
                       pgd.description AS comment
                     FROM pg_catalog.pg_statio_all_tables st
                     LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
@@ -333,13 +341,15 @@ class PGConnector(DBConnector):
                     {text_kind_join}
                     {disp_name_join}
                     {full_name_join}
+                    {enum_domain_join}
                     WHERE st.relid = '{schema}."{table}"'::regclass;
                     """.format(schema=self.schema, table=table_name, unit_field=unit_field,
                                text_kind_field=text_kind_field, column_alias=column_alias,
-                               full_name_field=full_name_field,
+                               full_name_field=full_name_field, enum_domain_field=enum_domain_field,
                                unit_join=unit_join, text_kind_join=text_kind_join,
                                disp_name_join=disp_name_join,
-                               full_name_join=full_name_join))
+                               full_name_join=full_name_join,
+                               enum_domain_join=enum_domain_join))
 
                 return fields_cur
 
@@ -459,16 +469,21 @@ class PGConnector(DBConnector):
             return cur
         return []
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """Used for ili2db version 3 relation creation"""
+    def get_iliname_dbname_mapping(self, sqlnames=list()):
+        """Note: the parameter sqlnames is only used for ili2db version 3 relation creation"""
         # Map domain ili name with its correspondent pg name
-        if self.schema:
+        if self.schema and self.metadata_exists():
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            names = "'" + "','".join(sqlnames) + "'"
+
+            where = ''
+            if sqlnames:
+                names = "'" + "','".join(sqlnames) + "'"
+                where = 'WHERE sqlname IN ({})'.format(names)
+
             cur.execute("""SELECT iliname, sqlname
                                FROM {schema}.t_ili2db_classname
-                               WHERE sqlname IN ({names})
-                           """.format(schema=self.schema, names=names))
+                               {where}
+                           """.format(schema=self.schema, where=where))
             return cur
 
         return {}

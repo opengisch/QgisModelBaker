@@ -211,8 +211,8 @@ class DBConnector(QObject):
 
         return tables + referencing_tables
 
-    def get_iliname_dbname_mapping(self, sqlnames):
-        """Used for ili2db version 3 relation creation"""
+    def get_iliname_dbname_mapping(self, sqlnames=list()):
+        """Note: the parameter sqlnames is only used for ili2db version 3 relation creation"""
         return {}
 
     def get_classili_classdb_mapping(self, models_info, extended_classes):
