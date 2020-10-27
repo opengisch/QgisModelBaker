@@ -1616,7 +1616,7 @@ class TestProjectGen(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
-        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
 
         importer.configuration.dbschema = 'nue_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())

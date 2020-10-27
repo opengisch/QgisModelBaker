@@ -1092,8 +1092,8 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
-            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
-        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+            'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.srs_code = 21781
@@ -1208,8 +1208,8 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
-            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
-        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+            'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.srs_code = 21781
@@ -1322,8 +1322,8 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
-            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
-        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+            'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
@@ -1441,8 +1441,8 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path(
-            'ilimodels/repo/ZG_Naturschutz_und_Erholung_V1_0.ili')
-        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholung_V1_0'
+            'ilimodels/ZG_Naturschutz_und_Erholungsinfrastruktur_V1.ili')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, 'tmp_import_bags_of_enum_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))

@@ -11,7 +11,6 @@ class TestILI2DBUtils(unittest.TestCase):
         cls.parent_dir = testdata_path('')
         cls.ilimodels = testdata_path('ilimodels')
         cls.ciaf_ladm = testdata_path('ilimodels/CIAF_LADM')
-        cls.repo = testdata_path('ilimodels/repo')
         cls.empty = testdata_path('ilimodels/subparent_dir/empty')
         cls.hidden = testdata_path('ilimodels/subparent_dir/.hidden')
         cls.not_hidden = testdata_path('ilimodels/subparent_dir/not_hidden')
@@ -19,7 +18,7 @@ class TestILI2DBUtils(unittest.TestCase):
 
     def test_parse_subdirs_in_parent_dir(self):
         modeldirs = get_all_modeldir_in_path(self.parent_dir)  # Parent folder: testdata
-        expected_dirs = [self.ilimodels, self.ciaf_ladm, self.repo, self.hidden, self.not_hidden]
+        expected_dirs = [self.ilimodels, self.ciaf_ladm, self.hidden, self.not_hidden]
         self.assertEqual(sorted(expected_dirs), sorted(modeldirs.split(";")))
 
     def test_parse_subdirs_in_hidden_dir(self):
