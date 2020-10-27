@@ -327,7 +327,7 @@ class PGConnector(DBConnector):
                                                     c.column_name=enum_domain.columnname AND
                                                     enum_domain.tag = 'ch.ehi.ili2db.enumDomain'""".format(self.schema)
                 if self._table_exists(PG_METAATTRS_TABLE):
-                    attr_order_field = "to_number(form_order.attr_value, '999') as attr_order,"
+                    attr_order_field = "COALESCE(to_number(form_order.attr_value, '999'), 999) as attr_order,"
                     attr_order_join = """LEFT JOIN {}.t_ili2db_meta_attrs form_order
                                                             ON full_name.iliname=form_order.ilielement AND
                                                             form_order.attr_name='form_order'

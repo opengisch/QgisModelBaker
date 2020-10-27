@@ -1234,7 +1234,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        self.assertEqual(len(attribute_names), 9)
+                        self.assertEqual(len(attribute_names), 18)
                         self.assertNotIn('tipo', attribute_names)
                         self.assertNotIn('avaluo', attribute_names)
 
@@ -1284,7 +1284,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        self.assertEqual(len(attribute_names), 9)
+                        self.assertEqual(len(attribute_names), 18)
                         self.assertNotIn('tipo', attribute_names)
                         self.assertNotIn('avaluo', attribute_names)
 
@@ -1337,6 +1337,160 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
 
         self.assertEqual(count, 3)
+
+    def test_meta_attr_order_toml_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels/CIAF_LADM')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.tomlfile = testdata_path('toml/attribute_order.toml')
+
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_order_toml_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart2')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'predio':
+                efc = layer.layer.editFormConfig()
+                for tab in efc.tabs():
+                    if tab.name() == 'General':
+                        count += 1
+                        names = [child.name() for child in tab.children()]
+
+                        # More than 10 to test numeric order instead of string order (1-10-11-2)
+                        # 'tipo' is an inherited attribute pointing to a domain
+                        expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
+
+                        for i, val in enumerate(expected_order):
+                            self.assertEqual(val, names[i])
+
+        self.assertEqual(count, 1)
+
+    def test_meta_attr_order_toml_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.tomlfile = testdata_path('toml/attribute_order.toml')
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'predio':
+                efc = layer.layer.editFormConfig()
+                for tab in efc.tabs():
+                    if tab.name() == 'General':
+                        count += 1
+                        names = [child.name() for child in tab.children()]
+
+                        # More than 10 to test numeric order instead of string order (1-10-11-2)
+                        # 'tipo' is an inherited attribute pointing to a domain
+                        expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
+
+                        for i, val in enumerate(expected_order):
+                            self.assertEqual(val, names[i])
+
+        self.assertEqual(count, 1)
+
+    def test_meta_attr_order_toml_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration.tomlfile = testdata_path('toml/attribute_order.toml')
+        importer.configuration.inheritance = 'smart2'
+        importer.configuration.srs_code = 3116
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server="mssql",
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        generator = Generator(DbIliMode.ili2mssql, uri, 'smart2', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'predio':
+                efc = layer.layer.editFormConfig()
+                for tab in efc.tabs():
+                    if tab.name() == 'General':
+                        count += 1
+                        names = [child.name() for child in tab.children()]
+
+                        # More than 10 to test numeric order instead of string order (1-10-11-2)
+                        # 'tipo' is an inherited attribute pointing to a domain
+                        expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
+
+                        for i, val in enumerate(expected_order):
+                            self.assertEqual(val, names[i])
+
+        self.assertEqual(count, 1)
 
     def test_bagof_cardinalities_postgis(self):
         # Schema Import

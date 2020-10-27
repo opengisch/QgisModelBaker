@@ -312,7 +312,7 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , full_name.iliname AS fully_qualified_name"
                 stmt += ln + "    , enum_domain.setting as enum_domain"
                 if metaattrs_exists:
-                    stmt += ln + "    , CAST(form_order.attr_value AS int) AS attr_order"
+                    stmt += ln + "    , COALESCE(CAST(form_order.attr_value AS int), 999) AS attr_order"
             stmt += ln + "    , null AS comment"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
             if metadata_exists:
@@ -341,7 +341,7 @@ class MssqlConnector(DBConnector):
                     stmt += ln + "    form_order.attr_name='form_order'"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             if metadata_exists and metaattrs_exists:
-                stmt += ln + "ORDER BY attr_order"
+                stmt += ln + "ORDER BY attr_order;"
             stmt = stmt.format(schema=self.schema, table=table_name)
 
             cur = self.conn.cursor()
