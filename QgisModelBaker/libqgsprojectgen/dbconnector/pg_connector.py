@@ -288,12 +288,15 @@ class PGConnector(DBConnector):
             text_kind_field = ''
             full_name_field = ''
             enum_domain_field = ''
+            attr_order_field = ''
             column_alias = ''
             unit_join = ''
             text_kind_join = ''
             disp_name_join = ''
             full_name_join = ''
             enum_domain_join = ''
+            attr_order_join = ''
+            order_by_attr_order= ''
 
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"
@@ -323,6 +326,14 @@ class PGConnector(DBConnector):
                                                     ON c.table_name=enum_domain.tablename AND
                                                     c.column_name=enum_domain.columnname AND
                                                     enum_domain.tag = 'ch.ehi.ili2db.enumDomain'""".format(self.schema)
+                if self._table_exists(PG_METAATTRS_TABLE):
+                    attr_order_field = "to_number(form_order.attr_value, '999') as attr_order,"
+                    attr_order_join = """LEFT JOIN {}.t_ili2db_meta_attrs form_order
+                                                            ON full_name.iliname=form_order.ilielement AND
+                                                            form_order.attr_name='form_order'
+                                                            """.format(self.schema)
+                    order_by_attr_order = """ORDER BY attr_order"""
+
                 fields_cur.execute("""
                     SELECT DISTINCT
                       c.column_name,
@@ -333,6 +344,7 @@ class PGConnector(DBConnector):
                       {column_alias}
                       {full_name_field}
                       {enum_domain_field}
+                      {attr_order_field}
                       pgd.description AS comment
                     FROM pg_catalog.pg_statio_all_tables st
                     LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
@@ -342,14 +354,19 @@ class PGConnector(DBConnector):
                     {disp_name_join}
                     {full_name_join}
                     {enum_domain_join}
-                    WHERE st.relid = '{schema}."{table}"'::regclass;
+                    {attr_order_join}
+                    WHERE st.relid = '{schema}."{table}"'::regclass
+                    {order_by_attr_order};
                     """.format(schema=self.schema, table=table_name, unit_field=unit_field,
                                text_kind_field=text_kind_field, column_alias=column_alias,
                                full_name_field=full_name_field, enum_domain_field=enum_domain_field,
+                               attr_order_field=attr_order_field,
                                unit_join=unit_join, text_kind_join=text_kind_join,
                                disp_name_join=disp_name_join,
                                full_name_join=full_name_join,
-                               enum_domain_join=enum_domain_join))
+                               enum_domain_join=enum_domain_join,
+                               attr_order_join=attr_order_join,
+                               order_by_attr_order=order_by_attr_order))
 
                 return fields_cur
 
