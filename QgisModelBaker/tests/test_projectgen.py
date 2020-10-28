@@ -419,6 +419,132 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
+    def test_naturschutz_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbschema = 'naturschutz_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2mssql, uri, 'smart1', importer.configuration.dbschema)
+
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 20)
+        self.assertEqual(len(available_layers), 23)
+        self.assertEqual(len(relations), 22)
+
+    def test_naturschutz_set_ignored_layers_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbschema = 'naturschutz_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 18)
+        self.assertEqual(len(available_layers), 21)
+        self.assertEqual(len(relations), 12)
+
+    def test_naturschutz_set_ignored_layers_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_naturschutz_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        legend = generator.legend(available_layers)
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 31)
+        self.assertEqual(len(available_layers), 21)
+        self.assertEqual(len(relations), 12)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        layer_names = [l.name().lower() for l in qgis_project.mapLayers().values()]
+        self.assertNotIn('einzelbaum', layer_names)
+        self.assertNotIn('datenbestand', layer_names)
+        self.assertIn('hochstamm_obstgarten', layer_names)
+
+    def test_naturschutz_set_ignored_layers_mssql(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool, 'ilimodels')
+        importer.configuration.ilimodels = 'ZG_Naturschutz_und_Erholungsinfrastruktur_V1'
+        importer.configuration.dbschema = 'naturschutz_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+
+        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
+            .format(drv="{ODBC Driver 17 for SQL Server}",
+                    server=importer.configuration.dbhost,
+                    db=importer.configuration.database,
+                    uid=importer.configuration.dbusr,
+                    pwd=importer.configuration.dbpwd)
+
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2mssql, uri, 'smart1', importer.configuration.dbschema)
+
+        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        ignored_layers = generator.get_ignored_layers()
+        available_layers = generator.layers([])
+        relations, _ = generator.relations(available_layers)
+
+        self.assertEqual(len(ignored_layers), 22)
+        self.assertEqual(len(available_layers), 21)
+        self.assertEqual(len(relations), 21)
+
     def test_naturschutz_nometa_postgis(self):
         #model with missing meta attributes for multigeometry - no layers should be ignored
         importer = iliimporter.Importer()
