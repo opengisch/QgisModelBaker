@@ -61,6 +61,8 @@ class Generator(QObject):
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
 
+        self._additional_ignored_layers = []  # List of layers to ignore set by 3rd parties
+
         self.collected_print_messages = []
 
     def print_info(self, text):
@@ -346,8 +348,11 @@ class Generator(QObject):
     def metadata_exists(self):
         return self._db_connector.metadata_exists()
 
+    def set_additional_ignored_layers(self, layer_list):
+        self._additional_ignored_layers = layer_list
+
     def get_ignored_layers(self):
-        return self._db_connector.get_ignored_layers()
+        return self._db_connector.get_ignored_layers() + self._additional_ignored_layers
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
