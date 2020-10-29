@@ -222,6 +222,7 @@ class GPKGConnector(DBConnector):
 
         columns_prop = list()
         columns_full_name = list()
+        meta_attrs = list()
 
         if self.metadata_exists():
             cursor.execute("""
@@ -245,6 +246,9 @@ class GPKGConnector(DBConnector):
                     WHERE colowner = '{}'
                     """.format(table_name))
             columns_full_name = cursor.fetchall()
+
+        if self.metadata_exists() and self._table_exists(GPKG_METAATTRS_TABLE):
+            meta_attrs = self.get_meta_attrs_info()
 
         complete_records = list()
         for column_info in columns_info:
@@ -281,7 +285,18 @@ class GPKGConnector(DBConnector):
                         if record['column_name'] == 'T_Ili_Tid' and column_prop['setting'] == 'INTERLIS.UUIDOID':
                             record['default_value_expression'] = "substr(uuid(), 2, 36)"
 
+            record['attr_order'] = '999'
+            if 'fully_qualified_name' in record:  # e.g., t_id's don't have a fully qualified name
+                for meta_attr in meta_attrs:
+                    if record['fully_qualified_name'] == meta_attr['ilielement'] and \
+                            meta_attr['attr_name'] == 'form_order':
+                        record['attr_order'] = meta_attr['attr_value']
+                        break
+
             complete_records.append(record)
+
+        # Finally, let's order the records by attr_order
+        complete_records = sorted(complete_records, key=lambda k: int(k['attr_order']))
 
         cursor.close()
         return complete_records

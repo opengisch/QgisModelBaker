@@ -44,6 +44,15 @@ VERSION "2017-08-01"  =
       FMI : TEXT*20;
       Avaluo : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.COP];
       Geometria : ISO19107_V1_MAGNABOG.GM_Surface2D;
+      Attr9 : BOOLEAN;
+      Attr8 : TEXT*30;
+      Attr7 : INTERLIS.XMLDate;
+      Attr6 : BOOLEAN;
+      Attr5 : 0 .. 99;
+      Attr4 : INTERLIS.XMLDate;
+      Attr3 : BOOLEAN;
+      Attr2 : TEXT*80;
+      Attr1 : INTERLIS.XMLDate;
     END Predio;
 
     ASSOCIATION Predio_Avaluo =

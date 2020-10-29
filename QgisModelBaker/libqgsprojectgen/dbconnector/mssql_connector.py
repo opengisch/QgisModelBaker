@@ -295,6 +295,7 @@ class MssqlConnector(DBConnector):
         # Get all fields for this table
         if self.schema:
             metadata_exists = self.metadata_exists()
+            metaattrs_exists = self._table_exists(METAATTRS_TABLE)
             ln = "\n"
             stmt = ""
 
@@ -310,6 +311,8 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , alias.setting AS column_alias"
                 stmt += ln + "    , full_name.iliname AS fully_qualified_name"
                 stmt += ln + "    , enum_domain.setting as enum_domain"
+                if metaattrs_exists:
+                    stmt += ln + "    , COALESCE(CAST(form_order.attr_value AS int), 999) AS attr_order"
             stmt += ln + "    , null AS comment"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
             if metadata_exists:
@@ -332,7 +335,13 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    ON c.table_name = enum_domain.tablename"
                 stmt += ln + "    AND c.column_name = enum_domain.columnname"
                 stmt += ln + "    AND enum_domain.tag = 'ch.ehi.ili2db.enumDomain'"
+                if metaattrs_exists:
+                    stmt += ln + "LEFT JOIN {schema}.t_ili2db_meta_attrs form_order"
+                    stmt += ln + "    ON full_name.iliname=form_order.ilielement AND"
+                    stmt += ln + "    form_order.attr_name='form_order'"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
+            if metadata_exists and metaattrs_exists:
+                stmt += ln + "ORDER BY attr_order;"
             stmt = stmt.format(schema=self.schema, table=table_name)
 
             cur = self.conn.cursor()
