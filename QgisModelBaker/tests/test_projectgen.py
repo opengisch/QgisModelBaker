@@ -463,7 +463,7 @@ class TestProjectGen(unittest.TestCase):
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
-        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        generator.set_additional_ignored_layers(['einzelbaum', 'datenbestand'])
         ignored_layers = generator.get_ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
@@ -490,7 +490,7 @@ class TestProjectGen(unittest.TestCase):
 
         generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
 
-        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        generator.set_additional_ignored_layers(['einzelbaum', 'datenbestand'])
         ignored_layers = generator.get_ignored_layers()
         available_layers = generator.layers([])
         legend = generator.legend(available_layers)
@@ -536,7 +536,7 @@ class TestProjectGen(unittest.TestCase):
         generator = Generator(
             DbIliMode.ili2mssql, uri, 'smart1', importer.configuration.dbschema)
 
-        generator.set_ignored_layers(['einzelbaum', 'datenbestand'])
+        generator.set_additional_ignored_layers(['einzelbaum', 'datenbestand'])
         ignored_layers = generator.get_ignored_layers()
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
