@@ -32,6 +32,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
