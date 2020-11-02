@@ -383,6 +383,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.base_configuration = self.base_configuration
         configuration.db_ili_version = self.db_ili_version(configuration)
 
+        try:
+            db_factory = self.db_simple_factory.create_factory(configuration.tool)
+            config_manager = db_factory.get_db_command_config_manager(configuration)
+            db_connector = db_factory.get_db_connector(
+                config_manager.get_uri(configuration.db_use_super_login) or config_manager.get_uri(),
+                configuration.dbschema)
+            if not db_connector.db_or_schema_exists():
+                configuration.with_schemaimport = True
+        except (DBConnectorError, FileNotFoundError):
+            configuration.with_schemaimport = True
+
         if not self.validate_data:
             configuration.disable_validation = True
         return configuration

@@ -53,7 +53,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.gpkgSaveFileValidator = FileValidator(
             pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
         self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions],
-                                                   allow_non_existing=(True if self._db_action_type == DbActionType.IMPORT_DATA else False))
+                                                   allow_non_existing=(self._db_action_type == DbActionType.IMPORT_DATA))
         self.gpkg_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
 
