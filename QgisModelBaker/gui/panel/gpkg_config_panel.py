@@ -27,6 +27,8 @@ from QgisModelBaker.utils.qt_utils import (
 
 from .db_config_panel import DbConfigPanel
 from ...utils import get_ui_class
+from QgisModelBaker.libili2db.globals import DbActionType
+
 WIDGET_UI = get_ui_class('gpkg_settings_panel.ui')
 
 
@@ -50,7 +52,8 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.gpkgSaveFileValidator = FileValidator(
             pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
-        self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions])
+        self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions],
+                                                   allow_non_existing=(self._db_action_type == DbActionType.IMPORT_DATA))
         self.gpkg_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
 

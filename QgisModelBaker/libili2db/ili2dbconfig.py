@@ -275,6 +275,7 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         self.with_importtid = False
         self.dataset = ''
         self.baskets = list()
+        self.with_schemaimport = False
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
@@ -282,8 +283,8 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         if with_action:
             args += ["--import"]
 
-        # No schema import, see https://github.com/opengisch/QgisModelBaker/issues/322
-        # args += ["--doSchemaImport"]
+        if self.with_schemaimport:
+            args += ["--doSchemaImport"]
 
         if self.disable_validation:
             args += ["--disableValidation"]

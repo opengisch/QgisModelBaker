@@ -32,6 +32,7 @@ from QgisModelBaker.libili2db.ili2dbutils import (
 )
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -344,20 +345,12 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         Returns the ili2db version the database has been created with or None if the database
         could not be detected as a ili2db database
         """
-        schema = configuration.dbschema
+        db_connector = self.__db_connector(configuration)
 
-        db_factory = self.db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        db_connector = None
-
-        try:
-            db_connector = db_factory.get_db_connector(uri_string, schema)
-            db_connector.new_message.connect(self.show_message)
+        if db_connector:
             return db_connector.ili_version()
-        except (DBConnectorError, FileNotFoundError):
-            return None
+
+        return None
 
     def updated_configuration(self):
         """
@@ -381,6 +374,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         configuration.post_script = self.ili2db_options.post_script()
         configuration.base_configuration = self.base_configuration
         configuration.db_ili_version = self.db_ili_version(configuration)
+
+        configuration.with_schemaimport = True
+        db_connector = self.__db_connector(configuration)
+        if db_connector and db_connector.db_or_schema_exists():
+            configuration.with_schemaimport = False
 
         if not self.validate_data:
             configuration.disable_validation = True
@@ -506,3 +504,15 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         elif text.strip() == 'Info: create table structure...':
             self.progress_bar.setValue(75)
             QCoreApplication.processEvents()
+
+    def __db_connector(self, configuration):
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        try:
+            db_connector = db_factory.get_db_connector(
+                config_manager.get_uri(configuration.db_use_super_login) or config_manager.get_uri(),
+                configuration.dbschema)
+            db_connector.new_message.connect(self.show_message)
+            return db_connector
+        except (DBConnectorError, FileNotFoundError):
+            return None
