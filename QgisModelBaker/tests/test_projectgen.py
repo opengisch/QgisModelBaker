@@ -390,7 +390,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 15)
-        self.assertEqual(len(available_layers), 24)
+        self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
     def test_naturschutz_geopackage(self):
@@ -416,7 +416,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 24)
-        self.assertEqual(len(available_layers), 28)
+        self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 13)
 
     def test_naturschutz_mssql(self):
@@ -446,7 +446,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 19)
-        self.assertEqual(len(available_layers), 24)
+        self.assertEqual(len(available_layers), 23)
         self.assertEqual(len(relations), 22)
 
     def test_naturschutz_set_ignored_layers_postgis(self):
@@ -469,7 +469,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 17)
-        self.assertEqual(len(available_layers), 22)
+        self.assertEqual(len(available_layers), 21)
         self.assertEqual(len(relations), 12)
 
     def test_naturschutz_set_ignored_layers_geopackage(self):
@@ -497,7 +497,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 26)
-        self.assertEqual(len(available_layers), 26)
+        self.assertEqual(len(available_layers), 21)
         self.assertEqual(len(relations), 12)
 
         project = Project()
@@ -542,7 +542,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 21)
-        self.assertEqual(len(available_layers), 22)
+        self.assertEqual(len(available_layers), 21)
         self.assertEqual(len(relations), 21)
 
     def test_naturschutz_nometa_postgis(self):
@@ -565,7 +565,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 9)
-        self.assertEqual(len(available_layers), 30)
+        self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 
     def test_naturschutz_nometa_geopackage(self):
@@ -592,7 +592,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
 
         self.assertEqual(len(ignored_layers), 18)
-        self.assertEqual(len(available_layers), 34)
+        self.assertEqual(len(available_layers), 29)
         self.assertEqual(len(relations), 23)
 
     def test_ranges_postgis(self):
