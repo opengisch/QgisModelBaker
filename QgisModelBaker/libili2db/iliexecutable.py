@@ -135,6 +135,8 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
 
         if not edited_command:
             ili2db_jar_arg = self._ili2db_jar_arg()
+            if ili2db_jar_arg == self.ILI2DB_NOT_FOUND:
+                return self.ILI2DB_NOT_FOUND
             args = self._args(False)
             java_path = get_java_path(self.configuration.base_configuration)
             proc.start(java_path, ili2db_jar_arg + args)
