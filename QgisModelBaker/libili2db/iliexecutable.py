@@ -89,17 +89,28 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
             return self.ILI2DB_NOT_FOUND
         return ["-jar", ili2db_bin]
 
+    def _escaped_arg(self, argument):
+        if '"' in argument:
+            argument = argument.replace('"', '"""')
+        if ' ' in argument:
+            argument = ('"'+argument+'"')
+        return argument
+
     def command(self, hide_password):
         ili2db_jar_arg = self._ili2db_jar_arg()
         args = self._args(hide_password)
-        java_path = get_java_path(self.configuration.base_configuration)
-
+        java_path = self._escaped_arg(get_java_path(self.configuration.base_configuration))
         command_args = ili2db_jar_arg + args
-        command = java_path + ' ' + ' '.join(command_args)
+
+        valid_args = []
+        for command_arg in command_args:
+            valid_args.append(self._escaped_arg(command_arg))
+
+        command = java_path + ' ' + ' '.join(valid_args)
 
         return command
 
-    def command_with_password(self, edited_command=None):
+    def command_with_password(self, edited_command):
         if '--dbpwd ******' in edited_command:
             args = self._args(False)
             i = args.index('--dbpwd')
