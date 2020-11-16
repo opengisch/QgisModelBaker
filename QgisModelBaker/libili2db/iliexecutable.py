@@ -83,15 +83,15 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
 
         return config_manager.get_ili2db_args(hide_password)
 
-    def command(self, hide_password):
+    def _ili2db_jar_arg(self):
         ili2db_bin = get_ili2db_bin(self.tool, self._get_ili2db_version(), self.stdout, self.stderr)
         if not ili2db_bin:
             return self.ILI2DB_NOT_FOUND
+        return ["-jar", ili2db_bin]
 
-        ili2db_jar_arg = ["-jar", ili2db_bin]
-
+    def command(self, hide_password):
+        ili2db_jar_arg = self._ili2db_jar_arg()
         args = self._args(hide_password)
-
         java_path = get_java_path(self.configuration.base_configuration)
 
         command_args = ili2db_jar_arg + args
@@ -99,32 +99,36 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
 
         return command
 
-    def command_with_password(self, command):
-        if '--dbpwd ******' in command:
+    def command_with_password(self, edited_command=None):
+        if '--dbpwd ******' in edited_command:
             args = self._args(False)
             i = args.index('--dbpwd')
-            command = command.replace('--dbpwd ******', '--dbpwd '+args[i+1])
-        return command
+            edited_command = edited_command.replace('--dbpwd ******', '--dbpwd '+args[i+1])
+        return edited_command
 
-    def command_without_password(self, command):
+    def command_without_password(self, edited_command=None):
+        if not edited_command:
+            return self.command(True)
         regex = re.compile('--dbpwd [^ ]*')
-        match = regex.match(command)
+        match = regex.match(edited_command)
         if match:
-            command = command.replace(match.group(1), '--dbpwd ******')
-        return command
+            edited_command = edited_command.replace(match.group(1), '--dbpwd ******')
+        return edited_command
 
-    def run(self, command=None):
-        if not command:
-            # we usually use version 4 except in case of a fallback
-            command = self.command(False)
-
+    def run(self, edited_command=None):
         proc = QProcess()
         proc.readyReadStandardError.connect(
             functools.partial(self.stderr_ready, proc=proc))
         proc.readyReadStandardOutput.connect(
             functools.partial(self.stdout_ready, proc=proc))
 
-        proc.start(self.command_with_password(command))
+        if not edited_command:
+            ili2db_jar_arg = self._ili2db_jar_arg()
+            args = self._args(False)
+            java_path = get_java_path(self.configuration.base_configuration)
+            proc.start(java_path, ili2db_jar_arg + args)
+        else:
+            proc.start(self.command_with_password(edited_command))
 
         if not proc.waitForStarted():
             proc = None
@@ -132,7 +136,7 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         if not proc:
             raise JavaNotFoundError()
 
-        self.process_started.emit(self.command_without_password(command))
+        self.process_started.emit(self.command_without_password(edited_command))
 
         self.__result = self.ERROR
 
