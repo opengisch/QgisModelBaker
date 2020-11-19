@@ -93,7 +93,7 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         if '"' in argument:
             argument = argument.replace('"', '"""')
         if ' ' in argument:
-            argument = ('"'+argument+'"')
+            argument = '"' + argument + '"'
         return argument
 
     def command(self, hide_password):
