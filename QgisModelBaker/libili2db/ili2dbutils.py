@@ -30,6 +30,8 @@ from QgisModelBaker.libs.packaging import version
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
+from packaging import version
+
 from QgisModelBaker.utils.qt_utils import download_file, NetworkError
 from .globals import DbIliMode, displayDbIliMode
 
@@ -212,7 +214,8 @@ def get_java_path(base_configuration):
                 output, err = p.communicate()
                 version_output = err.decode('utf-8')
                 java_version = java_version_re.match(version_output)
-                if java_version.group(1) == '1.8.0':
+                java_version_parsed = version.parse(java_version.group(1))
+                if java_version_parsed >= version.parse('1.8.0'):
                     return java_path
             except FileNotFoundError:
                 pass
@@ -246,6 +249,6 @@ class JavaNotFoundError(FileNotFoundError):
     @property
     def error_string(self):
         if self.java_version:
-            return QCoreApplication.translate('ili2dbutils', 'Wrong java version found. Qgis Model Baker requires java version 8. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>.<br/><br/>Java Version:<br/>{}').format(self.html_java_version)
+            return QCoreApplication.translate('ili2dbutils', 'Wrong java version found. Qgis Model Baker requires at least java version 8. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>.<br/><br/>Java Version:<br/>{}').format(self.html_java_version)
         else:
             return QCoreApplication.translate('ili2dbutils', 'Java 8 could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>.')
