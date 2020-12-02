@@ -30,8 +30,6 @@ from QgisModelBaker.libs.packaging import version
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
-from packaging import version
-
 from QgisModelBaker.utils.qt_utils import download_file, NetworkError
 from .globals import DbIliMode, displayDbIliMode
 
