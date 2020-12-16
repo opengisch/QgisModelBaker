@@ -29,7 +29,7 @@ from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
 from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent
@@ -293,8 +293,15 @@ class DropFileFilter(QObject):
         self.parent = parent
 
     def eventFilter(self, obj, event):
+        """
+        When exactly one valid import file is dropped, then use it in import dialog.
+        """
         if event.type() == QEvent.Drop:
-            for url in event.mimeData().urls():
-                if self.parent.handle_dropped_file(url.toLocalFile()):
-                    return True
+            file_extensions = [pathlib.Path(url.toLocalFile()).suffix[1:] for url in event.mimeData().urls()]
+            if any(ext in file_extensions for ext in ImportDataDialog.ValidExtensions):
+                if len(event.mimeData().urls()) == 1:
+                    self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile())
+                else:
+                    self.parent.iface.messageBar().pushMessage(self.tr('Cannot open multiple files in Model Baker dialog'), Qgis.Warning, 10)
+                return True
         return False
