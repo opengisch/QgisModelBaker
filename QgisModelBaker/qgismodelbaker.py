@@ -32,7 +32,7 @@ from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.core import QgsProject
 from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
-from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent, pyqtSignal
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent
 from qgis.PyQt.QtGui import QIcon
 
 from QgisModelBaker.gui.options import OptionsDialog
