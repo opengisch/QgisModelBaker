@@ -32,7 +32,7 @@ from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.core import QgsProject
 from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
-from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent, pyqtSignal
 from qgis.PyQt.QtGui import QIcon
 
 from QgisModelBaker.gui.options import OptionsDialog
@@ -77,6 +77,18 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         settings.beginGroup('QgisModelBaker/ili2db')
         self.ili2db_configuration.restore(settings)
+
+        self.event_filter = DropFileFilter(self)
+
+    def register_event_filter(self):
+        if not self.event_filter:
+            self.event_filter = DropFileFilter(self)
+        self.iface.mainWindow().installEventFilter(self.event_filter)
+
+    def unregister_event_filter(self):
+        if self.event_filter:
+            self.iface.mainWindow().removeEventFilter(self.event_filter)
+            self.event_filter.deleteLater()
 
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
@@ -133,8 +145,10 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.register_event_filter()
 
     def unload(self):
+        self.unregister_event_filter()
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(
@@ -263,3 +277,24 @@ class QgisModelBakerPlugin(QObject):
         project.post_generate()
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
+
+    def handle_dropped_file(self, file_path):
+        if pathlib.Path(file_path).suffix[1:] in ImportDataDialog.ValidExtensions:
+            if not self.importdata_dlg:
+                self.show_importdata_dialog()
+            self.importdata_dlg.set_xtf_file(file_path)
+            return True
+        return False
+
+
+class DropFileFilter(QObject):
+    def __init__(self, parent=None):
+        super(DropFileFilter, self).__init__(parent.iface.mainWindow())
+        self.parent = parent
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Drop:
+            for url in event.mimeData().urls():
+                if self.parent.handle_dropped_file(url.toLocalFile()):
+                    return True
+        return False
