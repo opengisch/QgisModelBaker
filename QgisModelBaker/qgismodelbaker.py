@@ -279,7 +279,7 @@ class QgisModelBakerPlugin(QObject):
         project.create(None, qgis_project)
 
     def handle_dropped_file(self, file_path):
-        if pathlib.Path(file_path).suffix[1:] in ImportDataDialog.ValidExtensions:
+        if pathlib.Path(file_path).suffix[1:] in ['xtf', 'XTF', 'itf', 'ITF']:
             if not self.importdata_dlg:
                 self.show_importdata_dialog()
             self.importdata_dlg.set_xtf_file(file_path)
@@ -298,10 +298,10 @@ class DropFileFilter(QObject):
         """
         if event.type() == QEvent.Drop:
             file_extensions = [pathlib.Path(url.toLocalFile()).suffix[1:] for url in event.mimeData().urls()]
-            if any(ext in file_extensions for ext in ImportDataDialog.ValidExtensions):
+            if any(ext in file_extensions for ext in ['xtf', 'XTF', 'itf', 'ITF']):
                 if len(event.mimeData().urls()) == 1:
                     self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile())
                 else:
-                    self.parent.iface.messageBar().pushMessage(self.tr('Cannot open multiple files in Model Baker dialog'), Qgis.Warning, 10)
+                    self.parent.iface.messageBar().pushMessage(self.tr('Cannot open multiple files for Model Baker import'), Qgis.Warning, 10)
                 return True
         return False
