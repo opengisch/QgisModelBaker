@@ -19,6 +19,7 @@ VERSION "2017-08-01"  =
     CLASS Avaluo =
       Area_Terreno : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.m2];
       Area_Terreno2 : -100.0 .. 100000.0 [Catastro_COL_ES_V2_1_6.m2];
+      Area_Terreno3 : 0.0 .. 99999999999999.9 [Catastro_COL_ES_V2_1_6.m2];
       Area_Construida : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.m2];
       Num_Habitaciones : Catastro_COL_ES_V2_1_6.Integer;
       Num_Banios : Catastro_COL_ES_V2_1_6.Integer;
@@ -43,6 +44,15 @@ VERSION "2017-08-01"  =
       FMI : TEXT*20;
       Avaluo : 0 .. 999999999999 [Catastro_COL_ES_V2_1_6.COP];
       Geometria : ISO19107_V1_MAGNABOG.GM_Surface2D;
+      Attr9 : BOOLEAN;
+      Attr8 : TEXT*30;
+      Attr7 : INTERLIS.XMLDate;
+      Attr6 : BOOLEAN;
+      Attr5 : 0 .. 99;
+      Attr4 : INTERLIS.XMLDate;
+      Attr3 : BOOLEAN;
+      Attr2 : TEXT*80;
+      Attr1 : INTERLIS.XMLDate;
     END Predio;
 
     ASSOCIATION Predio_Avaluo =

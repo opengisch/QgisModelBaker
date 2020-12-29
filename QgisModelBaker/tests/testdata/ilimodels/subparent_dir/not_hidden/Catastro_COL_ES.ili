@@ -16,12 +16,12 @@ INTERLIS 2.3;
  * !! 25.11.2016/aa: Ajustes FichaPredio
  * !! 02.12.2016/ss: Nuevas clases, atributos y tipos
  * !! 15.12.2016/lj: Ajuste tipos (IGAC/SNR), BAUnit GM_surface
- * !! 31.03.2017/fm: Simplificación de herencia
+ * !! 31.03.2017/fm: Simplificaciï¿½n de herencia
  * !! 25.05.2017/fm: Se elimina la relacion HipotecaDerecho, se elimina la clase InteresadoBAUnit, se elimina marca abstract en las clases derivadas de RRR
- * !! 26.05.2017/fm: Se cambian las clases terreno servidumbre de paso y construccion al paquete de unidades espaciales. Se acorta el nombre del Modelo. ajuste al diseño del diagrama de clases. Se elimina InteresadoNacion
- * !! 09.06.2017/vm: Referido al modelo LADM traducido al español
- * !! 09.06.2017/vm: cambio de version a 2.1.1, incluye cambios por LADM en español y de  nombres de atributo por no seguir las convenciones adoptadas.
- * !! 15.06.2017/fm: cambio de version a 2.1.2, se quita el atributo geometría de la clase predio. se reemplaza el atributo OID por los atributos atributos namespace y localId. Se añaden atributos folio matriz y segregados al predio. se elimina el dominio transaccion_registral_tipo
+ * !! 26.05.2017/fm: Se cambian las clases terreno servidumbre de paso y construccion al paquete de unidades espaciales. Se acorta el nombre del Modelo. ajuste al diseï¿½o del diagrama de clases. Se elimina InteresadoNacion
+ * !! 09.06.2017/vm: Referido al modelo LADM traducido al espaï¿½ol
+ * !! 09.06.2017/vm: cambio de version a 2.1.1, incluye cambios por LADM en espaï¿½ol y de  nombres de atributo por no seguir las convenciones adoptadas.
+ * !! 15.06.2017/fm: cambio de version a 2.1.2, se quita el atributo geometrï¿½a de la clase predio. se reemplaza el atributo OID por los atributos atributos namespace y localId. Se aï¿½aden atributos folio matriz y segregados al predio. se elimina el dominio transaccion_registral_tipo
  * !! 20.06.2017/fm: Ajuste a nombres de las clases y atributos LA_
  * !! 04.07.2017/sr: Ajuste de nombres de clases y atributos, creacion de relaciones, ajuste subdominios
  * !! 04.07.2017/fm: Se unifican los modelos LADM_ES y Catastro_COL, se eliminan las clases que extienden de responsabilidad, restriccion, derecho, hipoteca, fuente_administrativa y fuente espacial. eliminan atributos opcionales no usados de la clase hipoteca
@@ -72,20 +72,20 @@ VERSION "2017-07-12 V2.1.6"  =
     );
 
     COL_EstadoNupreTipo = (
-      /** El código ha sido asignado por el gestor catastral y refiere a un único predio de acuerdo al proceso de conformación o mantenimiento catastral multipropósito.
+      /** El cï¿½digo ha sido asignado por el gestor catastral y refiere a un ï¿½nico predio de acuerdo al proceso de conformaciï¿½n o mantenimiento catastral multipropï¿½sito.
        */
       G,
-      /** El código ha sido asignado por el gestor catastral y refiere a un único predio de acuerdo al proceso de conformación o mantenimiento catastral multipropósito.
+      /** El cï¿½digo ha sido asignado por el gestor catastral y refiere a un ï¿½nico predio de acuerdo al proceso de conformaciï¿½n o mantenimiento catastral multipropï¿½sito.
        */
       C,
-      /** El código ha sido anotado o inscrito en el sistema de registro de instrumentos públicos, en este estado el ciudadano podrá solicitar el Certificado Predial Registral, que contiene la información jurídica del Registro de Instrumentos Públicos y la información física y económica del Sistema Único de Información Catastral Multipropósito esta información goza con pleno mérito probatorio, cuya expedición está a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedición.
+      /** El cï¿½digo ha sido anotado o inscrito en el sistema de registro de instrumentos pï¿½blicos, en este estado el ciudadano podrï¿½ solicitar el Certificado Predial Registral, que contiene la informaciï¿½n jurï¿½dica del Registro de Instrumentos Pï¿½blicos y la informaciï¿½n fï¿½sica y econï¿½mica del Sistema ï¿½nico de Informaciï¿½n Catastral Multipropï¿½sito esta informaciï¿½n goza con pleno mï¿½rito probatorio, cuya expediciï¿½n estï¿½ a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expediciï¿½n.
        * 
-       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vía de actuación privada o pública y para todas las transacciones inmobiliarias, y permite prescindir de la transcripción de linderos en todos los documentos públicos que contengan actos jurídicos.
+       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vï¿½a de actuaciï¿½n privada o pï¿½blica y para todas las transacciones inmobiliarias, y permite prescindir de la transcripciï¿½n de linderos en todos los documentos pï¿½blicos que contengan actos jurï¿½dicos.
        */
       R,
-      /** El código ha sido anotado o inscrito en el sistema de registro de instrumentos públicos, en este estado el ciudadano podrá solicitar el Certificado Predial Registral, que contiene la información jurídica del Registro de Instrumentos Públicos y la información física y económica del Sistema Único de Información Catastral Multipropósito esta información goza con pleno mérito probatorio, cuya expedición está a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedición.
+      /** El cï¿½digo ha sido anotado o inscrito en el sistema de registro de instrumentos pï¿½blicos, en este estado el ciudadano podrï¿½ solicitar el Certificado Predial Registral, que contiene la informaciï¿½n jurï¿½dica del Registro de Instrumentos Pï¿½blicos y la informaciï¿½n fï¿½sica y econï¿½mica del Sistema ï¿½nico de Informaciï¿½n Catastral Multipropï¿½sito esta informaciï¿½n goza con pleno mï¿½rito probatorio, cuya expediciï¿½n estï¿½ a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expediciï¿½n.
        * 
-       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vía de actuación privada o pública y para todas las transacciones inmobiliarias, y permite prescindir de la transcripción de linderos en todos los documentos públicos que contengan actos jurídicos.
+       * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por vï¿½a de actuaciï¿½n privada o pï¿½blica y para todas las transacciones inmobiliarias, y permite prescindir de la transcripciï¿½n de linderos en todos los documentos pï¿½blicos que contengan actos jurï¿½dicos.
        */
       E
     );
@@ -208,19 +208,6 @@ VERSION "2017-07-12 V2.1.6"  =
       Femenino,
       Masculino,
       Otro
-    );
-
-    COL_MonumentacionTipo = (
-      Incrustacion,
-      Mojon,
-      No_Materializado,
-      Otros,
-      Pilastra
-    );
-
-    COL_InteresadoJuridicoTipo = (
-      Publico,
-      Privado
     );
 
     COL_PuntoControlTipo = (
@@ -362,12 +349,6 @@ VERSION "2017-07-12 V2.1.6"  =
       Otros
     );
 
-    COL_InterpolacionTipo = (
-      Aislado,
-      Intermedio_Arco,
-      Intermedio_Linea
-    );
-
     COL_TipoConstruccionTipo = (
       Anexo,
       No_PH,
@@ -453,6 +434,11 @@ VERSION "2017-07-12 V2.1.6"  =
       Persona_Natural,
       Persona_No_Natural,
       Otro
+    );
+
+    COL_InteresadoJuridicoTipo EXTENDS LA_InteresadoTipo = (
+      Publico,
+      Privado
     );
 
     LA_BAUnitTipo = (
@@ -570,10 +556,24 @@ VERSION "2017-07-12 V2.1.6"  =
       Otro
     );
 
+    COL_InterpolacionTipo EXTENDS LA_InterpolacionTipo = (
+      Aislado,
+      Intermedio_Arco,
+      Intermedio_Linea
+    );
+
     LA_MonumentacionTipo = (
       Baliza,
       Poste,
       Otro
+    );
+
+    COL_MonumentacionTipo EXTENDS LA_MonumentacionTipo = (
+      Incrustacion,
+      Mojon,
+      No_Materializado,
+      Otros,
+      Pilastra
     );
 
     LA_PuntoTipo = (
@@ -628,7 +628,7 @@ VERSION "2017-07-12 V2.1.6"  =
     type : MANDATORY COL_AreaTipo;
   END COL_AreaValor;
 
-  TOPIC Catastro_Registro =
+  TOPIC Catastro_Registro (ABSTRACT) =
 
     STRUCTURE Oid =
       localId : MANDATORY Catastro_COL_ES_V2_1_6.CharacterString;
