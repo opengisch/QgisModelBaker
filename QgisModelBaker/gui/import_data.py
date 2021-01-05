@@ -505,9 +505,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(75)
             QCoreApplication.processEvents()
 
-    def set_xtf_file(self, xtf_file):
-        self.xtf_file_line_edit.setText(xtf_file)
-
     def __db_connector(self, configuration):
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)

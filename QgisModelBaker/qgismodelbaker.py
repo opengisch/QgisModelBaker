@@ -22,6 +22,7 @@ import os
 import webbrowser
 import configparser
 import pathlib
+import datetime
 
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
@@ -32,7 +33,7 @@ from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from qgis.core import Qgis, QgsProject
 from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
-from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent, QStandardPaths
 from qgis.PyQt.QtGui import QIcon
 
 from QgisModelBaker.gui.options import OptionsDialog
@@ -281,10 +282,17 @@ class QgisModelBakerPlugin(QObject):
     def handle_dropped_file(self, file_path):
         if pathlib.Path(file_path).suffix[1:] in ['xtf', 'XTF', 'itf', 'ITF']:
             if not self.importdata_dlg:
+                self.set_dropped_file_configuration(file_path)
                 self.show_importdata_dialog()
-            self.importdata_dlg.set_xtf_file(file_path)
             return True
         return False
+
+    def set_dropped_file_configuration(self, file_path):
+        settings = QSettings()
+        settings.setValue('QgisModelBaker/ili2pg/xtffile_import', file_path)
+        settings.setValue('QgisModelBaker/importtype','gpkg')
+        output_file_name = '{}_{:%Y%m%d%H%M%S%f}.gpkg'.format(os.path.splitext(os.path.basename(file_path))[0], datetime.datetime.now())
+        settings.setValue('QgisModelBaker/ili2gpkg/dbfile', os.path.join(QStandardPaths.writableLocation(QStandardPaths.TempLocation), output_file_name))
 
 
 class DropFileFilter(QObject):
