@@ -22,6 +22,7 @@ import os
 import webbrowser
 import configparser
 import pathlib
+import datetime
 
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
@@ -29,10 +30,10 @@ from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.utils import available_plugins
 from qgis.PyQt.QtWidgets import QAction, QMenu, QMessageBox
-from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt
+from qgis.PyQt.QtCore import QObject, QTranslator, QSettings, QLocale, QCoreApplication, Qt, QEvent, QStandardPaths
 from qgis.PyQt.QtGui import QIcon
 
 from QgisModelBaker.gui.options import OptionsDialog
@@ -77,6 +78,18 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         settings.beginGroup('QgisModelBaker/ili2db')
         self.ili2db_configuration.restore(settings)
+
+        self.event_filter = DropFileFilter(self)
+
+    def register_event_filter(self):
+        if not self.event_filter:
+            self.event_filter = DropFileFilter(self)
+        self.iface.mainWindow().installEventFilter(self.event_filter)
+
+    def unregister_event_filter(self):
+        if self.event_filter:
+            self.iface.mainWindow().removeEventFilter(self.event_filter)
+            self.event_filter.deleteLater()
 
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
@@ -133,8 +146,10 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.register_event_filter()
 
     def unload(self):
+        self.unregister_event_filter()
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__generate_action)
         self.iface.removePluginDatabaseMenu(
@@ -263,3 +278,38 @@ class QgisModelBakerPlugin(QObject):
         project.post_generate()
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
+
+    def handle_dropped_file(self, file_path):
+        if pathlib.Path(file_path).suffix[1:] in ['xtf', 'XTF', 'itf', 'ITF']:
+            if not self.importdata_dlg:
+                self.set_dropped_file_configuration(file_path)
+                self.show_importdata_dialog()
+            return True
+        return False
+
+    def set_dropped_file_configuration(self, file_path):
+        settings = QSettings()
+        settings.setValue('QgisModelBaker/ili2pg/xtffile_import', file_path)
+        settings.setValue('QgisModelBaker/importtype','gpkg')
+        output_file_name = '{}_{:%Y%m%d%H%M%S%f}.gpkg'.format(os.path.splitext(os.path.basename(file_path))[0], datetime.datetime.now())
+        settings.setValue('QgisModelBaker/ili2gpkg/dbfile', os.path.join(QStandardPaths.writableLocation(QStandardPaths.TempLocation), output_file_name))
+
+
+class DropFileFilter(QObject):
+    def __init__(self, parent=None):
+        super(DropFileFilter, self).__init__(parent.iface.mainWindow())
+        self.parent = parent
+
+    def eventFilter(self, obj, event):
+        """
+        When exactly one valid import file is dropped, then use it in import dialog.
+        """
+        if event.type() == QEvent.Drop:
+            file_extensions = [pathlib.Path(url.toLocalFile()).suffix[1:] for url in event.mimeData().urls()]
+            if any(ext in file_extensions for ext in ['xtf', 'XTF', 'itf', 'ITF']):
+                if len(event.mimeData().urls()) == 1:
+                    self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile())
+                else:
+                    self.parent.iface.messageBar().pushMessage(self.tr('Cannot open multiple files for Model Baker import'), Qgis.Warning, 10)
+                return True
+        return False
