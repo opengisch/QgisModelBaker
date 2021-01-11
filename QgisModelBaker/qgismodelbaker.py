@@ -39,6 +39,7 @@ from qgis.PyQt.QtGui import QIcon
 
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libili2db.globals import DropMode
 
 import pyplugin_installer
 
@@ -303,11 +304,13 @@ class DropFileFilter(QObject):
 
     def handle_dropped_file(self):
         settings = QSettings()
-        if settings.value('QgisModelBaker/handle_dropped_file/ask', defaultValue=True, type=bool):
+        drop_mode = settings.value('QgisModelBaker/drop_mode', defaultValue=DropMode.ask, type=DropMode)
+
+        if drop_mode == DropMode.ask:
             drop_message_dialog = DropMessageDialog()
             return drop_message_dialog.exec_()
         else:
-            return settings.value('QgisModelBaker/handle_dropped_file/handle', defaultValue=True, type=bool)
+            return drop_mode == DropMode.yes
 
     def eventFilter(self, obj, event):
         """

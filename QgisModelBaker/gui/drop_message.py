@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.libili2db.globals import DropMode
 
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 from qgis.PyQt.QtCore import QSettings
@@ -36,5 +37,9 @@ class DropMessageDialog(QDialog, DIALOG_UI):
 
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
-        settings.setValue('QgisModelBaker/handle_dropped_file/ask', not self.chk_dontask.isChecked())
-        settings.setValue('QgisModelBaker/handle_dropped_file/handle', handle_dropped)
+        if not self.chk_dontask.isChecked():
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.ask)
+        elif handle_dropped:
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.yes)
+        else:
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.no)

@@ -92,6 +92,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.configuration.super_pg_user = self.pg_user_line_edit.text()
         self.configuration.super_pg_password = self.pg_password_line_edit.text()
 
+        self.configuration.ask_to_handle_dropped_files = self.chk_dontask.isChecked()
+
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(
             self.custom_model_directories_line_edit.text(), self)

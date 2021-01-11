@@ -49,6 +49,10 @@ displayDbIliMode = {
     DbIliMode.ili2mssql: QCoreApplication.translate('QgisModelBaker', 'Interlis (use SQL Server)')
 }
 
+class DropMode(IntFlag):
+    yes = 1
+    no = 2
+    ask = 3
 
 class DbActionType(Enum):
     """Defines constants for generate, import data, or export actions of QgisModelBaker.
