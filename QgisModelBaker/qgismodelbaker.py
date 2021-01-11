@@ -27,6 +27,7 @@ import datetime
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
+from QgisModelBaker.gui.drop_message import DropMessageDialog
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
@@ -300,6 +301,14 @@ class DropFileFilter(QObject):
         super(DropFileFilter, self).__init__(parent.iface.mainWindow())
         self.parent = parent
 
+    def handle_dropped_file(self):
+        settings = QSettings()
+        if settings.value('QgisModelBaker/handle_dropped_file/ask', defaultValue=True, type=bool):
+            drop_message_dialog = DropMessageDialog()
+            return drop_message_dialog.exec_()
+        else:
+            return settings.value('QgisModelBaker/handle_dropped_file/handle', defaultValue=True, type=bool)
+
     def eventFilter(self, obj, event):
         """
         When exactly one valid import file is dropped, then use it in import dialog.
@@ -308,8 +317,8 @@ class DropFileFilter(QObject):
             file_extensions = [pathlib.Path(url.toLocalFile()).suffix[1:] for url in event.mimeData().urls()]
             if any(ext in file_extensions for ext in ['xtf', 'XTF', 'itf', 'ITF']):
                 if len(event.mimeData().urls()) == 1:
-                    self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile())
-                else:
-                    self.parent.iface.messageBar().pushMessage(self.tr('Cannot open multiple files for Model Baker import'), Qgis.Warning, 10)
-                return True
+                    if self.handle_dropped_file():
+                        if self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile()):
+                            return True
+
         return False
