@@ -19,7 +19,7 @@
 """
 import webbrowser
 
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DropMode
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
     ExportConfiguration
@@ -43,6 +43,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
         self.pg_user_line_edit.setText(configuration.super_pg_user)
         self.pg_password_line_edit.setText(configuration.super_pg_password)
+        settings = QSettings()
+        print(settings.fileName())
+        self.chk_dontask_to_handle_dropped_files.setChecked(DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3)) != DropMode.ask)
 
         self.custom_model_directories_line_edit.setText(
             configuration.custom_model_directories)
@@ -92,7 +95,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.configuration.super_pg_user = self.pg_user_line_edit.text()
         self.configuration.super_pg_password = self.pg_password_line_edit.text()
 
-        self.configuration.ask_to_handle_dropped_files = self.chk_dontask.isChecked()
+        settings = QSettings()
+        if not self.chk_dontask_to_handle_dropped_files.isChecked():
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.ask.value)
 
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(

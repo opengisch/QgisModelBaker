@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>516</width>
-    <height>95</height>
+    <width>481</width>
+    <height>112</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,9 +25,9 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QLabel" name="label_info">
+    <widget class="QLabel" name="info_label">
      <property name="text">
-      <string>Do you want to use the Qgis Model Baker plugin to handle XTF/ ITF files?</string>
+      <string>Do you want to use the Model Baker plugin to handle XTF/ ITF files?</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="chk_dontask">
      <property name="text">
-      <string>Don't ask again (you can undo this in the Qgis Model Baker settigns)</string>
+      <string>Apply behavior for all XTF / ITF files (you can undo this in the Model Baker settings)</string>
      </property>
     </widget>
    </item>

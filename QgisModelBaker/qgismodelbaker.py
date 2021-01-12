@@ -302,26 +302,22 @@ class DropFileFilter(QObject):
         super(DropFileFilter, self).__init__(parent.iface.mainWindow())
         self.parent = parent
 
-    def handle_dropped_file(self):
+    def is_handling_requested(self, file_path):
         settings = QSettings()
-        drop_mode = settings.value('QgisModelBaker/drop_mode', defaultValue=DropMode.ask, type=DropMode)
-
+        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3))
         if drop_mode == DropMode.ask:
-            drop_message_dialog = DropMessageDialog()
+            drop_message_dialog = DropMessageDialog(os.path.basename(file_path))
             return drop_message_dialog.exec_()
-        else:
-            return drop_mode == DropMode.yes
+        return drop_mode == DropMode.yes
 
     def eventFilter(self, obj, event):
         """
-        When exactly one valid import file is dropped, then use it in import dialog.
+        When exactly one valid import file is dropped, then ask to use it in import dialog.
         """
         if event.type() == QEvent.Drop:
-            file_extensions = [pathlib.Path(url.toLocalFile()).suffix[1:] for url in event.mimeData().urls()]
-            if any(ext in file_extensions for ext in ['xtf', 'XTF', 'itf', 'ITF']):
-                if len(event.mimeData().urls()) == 1:
-                    if self.handle_dropped_file():
-                        if self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile()):
-                            return True
+            if len(event.mimeData().urls()) == 1:
+                if self.is_handling_requested(event.mimeData().urls()[0].toLocalFile()):
+                    if self.parent.handle_dropped_file(event.mimeData().urls()[0].toLocalFile()):
+                        return True
 
         return False

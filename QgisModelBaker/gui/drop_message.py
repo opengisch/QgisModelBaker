@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.libili2db.globals import DropMode
 
@@ -28,18 +29,19 @@ DIALOG_UI = get_ui_class('drop_message.ui')
 
 class DropMessageDialog(QDialog, DIALOG_UI):
 
-    def __init__(self, parent=None):
+    def __init__(self, file_name, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
+        self.info_label.setText(self.tr('Do you want to use the Model Baker plugin to handle file {}?').format(file_name))
         self.accepted.connect(lambda: self.handle_dropped_file_configuration(True))
         self.rejected.connect(lambda: self.handle_dropped_file_configuration(False))
 
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
         if not self.chk_dontask.isChecked():
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.ask)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.ask.value)
         elif handle_dropped:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.yes)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.yes.value)
         else:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.no)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.no.value)
