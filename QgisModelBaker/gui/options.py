@@ -43,9 +43,6 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
         self.pg_user_line_edit.setText(configuration.super_pg_user)
         self.pg_password_line_edit.setText(configuration.super_pg_password)
-        settings = QSettings()
-        print(settings.fileName())
-        self.chk_dontask_to_handle_dropped_files.setChecked(DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3)) != DropMode.ask)
 
         self.custom_model_directories_line_edit.setText(
             configuration.custom_model_directories)
@@ -84,6 +81,11 @@ class OptionsDialog(QDialog, DIALOG_UI):
             self.ili2db_command_reload)
 
         self.ili2db_command_reload()
+
+        settings = QSettings()
+        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3))
+        self.chk_dontask_to_handle_dropped_files.setEnabled(drop_mode != DropMode.ask)
+        self.chk_dontask_to_handle_dropped_files.setChecked(drop_mode != DropMode.ask)
 
     def accepted(self):
         self.configuration.custom_model_directories = self.custom_model_directories_line_edit.text()
