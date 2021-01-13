@@ -50,9 +50,9 @@ displayDbIliMode = {
 }
 
 class DropMode(Enum):
-    yes = 1
-    no = 2
-    ask = 3
+    YES = 1
+    NO = 2
+    ASK = 3
 
 class DbActionType(Enum):
     """Defines constants for generate, import data, or export actions of QgisModelBaker.
