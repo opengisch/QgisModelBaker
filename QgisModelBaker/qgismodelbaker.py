@@ -304,7 +304,7 @@ class DropFileFilter(QObject):
 
     def is_handling_requested(self, file_path):
         settings = QSettings()
-        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3))
+        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', 3, int))
         if drop_mode == DropMode.ask:
             drop_message_dialog = DropMessageDialog(os.path.basename(file_path))
             return drop_message_dialog.exec_()

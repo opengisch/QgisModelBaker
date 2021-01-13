@@ -83,7 +83,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.ili2db_command_reload()
 
         settings = QSettings()
-        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', defaultValue=3))
+        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', 3, int))
         self.chk_dontask_to_handle_dropped_files.setEnabled(drop_mode != DropMode.ask)
         self.chk_dontask_to_handle_dropped_files.setChecked(drop_mode != DropMode.ask)
 

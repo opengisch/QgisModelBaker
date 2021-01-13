@@ -49,7 +49,7 @@ displayDbIliMode = {
     DbIliMode.ili2mssql: QCoreApplication.translate('QgisModelBaker', 'Interlis (use SQL Server)')
 }
 
-class DropMode(IntFlag):
+class DropMode(Enum):
     yes = 1
     no = 2
     ask = 3
