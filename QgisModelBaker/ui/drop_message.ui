@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="chk_dontask">
      <property name="text">
-      <string>Apply behavior for all XTF / ITF files (you can undo this in the Model Baker settings)</string>
+      <string>Remember my decision and don't ask me again (you can undo this in the Model Baker settings)</string>
      </property>
     </widget>
    </item>
