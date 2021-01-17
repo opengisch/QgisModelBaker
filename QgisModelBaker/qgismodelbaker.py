@@ -303,12 +303,14 @@ class DropFileFilter(QObject):
         self.parent = parent
 
     def is_handling_requested(self, file_path):
-        settings = QSettings()
-        drop_mode = DropMode(settings.value('QgisModelBaker/drop_mode', 3, int))
-        if drop_mode == DropMode.ASK:
-            drop_message_dialog = DropMessageDialog(os.path.basename(file_path))
-            return drop_message_dialog.exec_()
-        return drop_mode == DropMode.YES
+        if pathlib.Path(file_path).suffix[1:] in ['xtf', 'XTF', 'itf', 'ITF']:
+            settings = QSettings()
+            drop_mode = DropMode[settings.value('QgisModelBaker/drop_mode', DropMode.ASK.name, str)]
+            if drop_mode == DropMode.ASK:
+                drop_message_dialog = DropMessageDialog(os.path.basename(file_path))
+                return drop_message_dialog.exec_()
+            return drop_mode == DropMode.YES
+        return False
 
     def eventFilter(self, obj, event):
         """

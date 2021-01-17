@@ -40,8 +40,8 @@ class DropMessageDialog(QDialog, DIALOG_UI):
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
         if not self.chk_dontask.isChecked():
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.ASK.value)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.ASK.name)
         elif handle_dropped:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.YES.value)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.YES.name)
         else:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.NO.value)
+            settings.setValue('QgisModelBaker/drop_mode', DropMode.NO.name)
