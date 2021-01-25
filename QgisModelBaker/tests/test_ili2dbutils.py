@@ -18,7 +18,7 @@ class TestILI2DBUtils(unittest.TestCase):
 
     def test_parse_subdirs_in_parent_dir(self):
         modeldirs = get_all_modeldir_in_path(self.parent_dir)  # Parent folder: testdata
-        expected_dirs = [self.ilimodels, self.ciaf_ladm, self.hidden, self.not_hidden]
+        expected_dirs = [self.parent_dir, self.ilimodels, self.ciaf_ladm, self.hidden, self.not_hidden]
         self.assertEqual(sorted(expected_dirs), sorted(modeldirs.split(";")))
 
     def test_parse_subdirs_in_hidden_dir(self):
@@ -29,10 +29,20 @@ class TestILI2DBUtils(unittest.TestCase):
         modeldirs = get_all_modeldir_in_path(self.not_hidden)
         self.assertEqual(self.not_hidden, modeldirs)
 
+    def test_parse_mixed_dir(self):
+        subparent_dir = testdata_path('ilimodels/subparent_dir')
+        modeldirs = get_all_modeldir_in_path(subparent_dir)
+        expected_dirs = [subparent_dir, self.hidden, self.not_hidden]
+        self.assertEqual(sorted(expected_dirs), sorted(modeldirs.split(";")))
+
     def test_parse_subdirs_in_empty_dir(self):
         modeldirs = get_all_modeldir_in_path(self.empty)
-        self.assertEqual('', modeldirs)
+        self.assertEqual(self.empty, modeldirs)
 
     def test_parse_subdirs_in_not_model_dir(self):
         modeldirs = get_all_modeldir_in_path(self.not_modeldir)
-        self.assertEqual('', modeldirs)
+        self.assertEqual(self.not_modeldir, modeldirs)
+
+    def test_parse_special_strings(self):
+        modeldirs = get_all_modeldir_in_path('%XTF_DIR')
+        self.assertEqual('%XTF_DIR', modeldirs)

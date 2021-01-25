@@ -105,13 +105,17 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
 
 def get_all_modeldir_in_path(path, lambdafunction=None):
     all_subdirs = [path[0] for path in os.walk(path)] # include path
-    modeldir = ''
+    # Make sure path is included, it can be a special string like `%XTF_DIR`
+    modeldirs = [path]
     for subdir in all_subdirs:
         if os.path.isdir(subdir) and len(glob.glob(subdir + '/*.ili')) > 0:
             if lambdafunction is not None:
                 lambdafunction(subdir)
-            modeldir += subdir + ';'
-    return modeldir[:-1]  # remove last ';'
+            modeldirs += [subdir]
+
+    # Remove duplicates
+    modeldirs = list(dict.fromkeys(modeldirs))
+    return ';'.join(modeldirs)
 
 
 def color_log_text(text, txt_edit):
