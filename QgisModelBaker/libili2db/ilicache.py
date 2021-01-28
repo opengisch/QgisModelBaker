@@ -60,15 +60,20 @@ class IliCache(QObject):
     def __init__(self, configuration, single_ili_file=None):
         QObject.__init__(self)
         self.cache_path = os.path.expanduser('~/.ilicache')
+        self.information_file = 'ilimodels.xml'
         self.repositories = dict()
         self.base_configuration = configuration
         self.single_ili_file = single_ili_file
         self.model = IliModelItemModel()
+        self.directories = None
+        if self.base_configuration:
+            self.directories = self.base_configuration.model_directories
 
     def refresh(self):
-        if not self.base_configuration is None:
-            for directory in self.base_configuration.model_directories:
+        if not self.directories is None:
+            for directory in self.directories:
                 self.process_model_directory(directory)
+
         if not self.single_ili_file is None:
             if os.path.exists(self.single_ili_file):
                 self.process_single_ili_file()
@@ -99,8 +104,8 @@ class IliCache(QObject):
 
         os.makedirs(modeldir, exist_ok=True)
 
-        ilimodels_url = urllib.parse.urljoin(url, 'ilimodels.xml')
-        ilimodels_path = os.path.join(self.cache_path, netloc, 'ilimodels.xml')
+        ilimodels_url = urllib.parse.urljoin(url, self.information_file)
+        ilimodels_path = os.path.join(self.cache_path, netloc, self.information_file)
         ilisite_url = urllib.parse.urljoin(url, 'ilisite.xml')
         ilisite_path = os.path.join(self.cache_path, netloc, 'ilisite.xml')
 
@@ -255,6 +260,64 @@ class IliCache(QObject):
             for model in repo:
                 names.append(model['name'])
         return names
+
+class IliToppingsCache(IliCache):
+
+    def __init__(self, configuration, models = None):
+        IliCache.__init__(self, configuration)
+        self.cache_path = os.path.expanduser('~/.ilitoppingscache')
+        self.information_file = 'ilidata.xml'
+        self.model = IliModelItemModel() #topping model
+        self.filter_models = models
+        if self.base_configuration:
+            self.directories = self.base_configuration.topping_directories
+
+    def _process_ilimodels(self, file, netloc):
+        """
+        Parses ilidata.xml provided in ``file`` and updates the local repositories cache.
+        """
+        print( 'parse '+file+' at '+netloc)
+        try:
+            root = ET.parse(file).getroot()
+        except ET.ParseError as e:
+            QgsMessageLog.logMessage(self.tr('Could not parse ilidata file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('QGIS Model Baker'))
+            return
+
+        model_code_regex = re.compile('http://codes.interlis.ch/model/(.*)')
+        type_code_regex = re.compile('http://codes.interlis.ch/tool/(.*)')
+        tool_code_regex = re.compile('http://codes.opengis.ch(.*)')
+
+        self.repositories[netloc] = list()
+        repo_models = list()
+        for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
+            for model_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
+                categories = model_metadata.find('ili23:categories', self.ns)
+                if categories:
+                    for category in categories.findall('ili23:DatasetIdx16.Code_', self.ns):
+                        category_value = category.find('ili23:value', self.ns).text
+                        if model_code_regex.search(category_value):
+                            model = model_code_regex.search(category_value).group(1)
+                            print('the model is: {}'.format(model))
+                        if type_code_regex.search(category_value):
+                            type = type_code_regex.search(category_value).group(1)
+                            print('the type is: {}'.format(type))
+
+                model = dict()
+                model['name'] = model_metadata.find('ili23:id', self.ns).text
+
+                version = model['version'] = model_metadata.find( 'ili23:version', self.ns)
+                if version:
+                    model['version'] = version.text
+                else:
+                    model['version'] = None
+                model['repository'] = netloc
+                repo_models.append(model)
+
+        self.repositories[netloc] = sorted(
+            repo_models, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
+
+        self.model.set_repositories(self.repositories)
 
 
 class IliModelItemModel(QStandardItemModel):
