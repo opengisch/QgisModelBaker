@@ -174,7 +174,7 @@ class IliCache(QObject):
             for model_metadata in repo.findall('ili23:IliRepository20.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
-                version = model['version'] = model_metadata.find( 'ili23:Version', self.ns)
+                version = model_metadata.find( 'ili23:Version', self.ns)
                 if version:
                     model['version'] = version.text
                 else:
@@ -261,13 +261,84 @@ class IliCache(QObject):
                 names.append(model['name'])
         return names
 
+
+class IliModelItemModel(QStandardItemModel):
+    class Roles(Enum):
+        ILIREPO = Qt.UserRole + 1
+        VERSION = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self, parent=None):
+        super().__init__(0, 1, parent)
+
+    def set_repositories(self, repositories):
+        self.clear()
+        row = 0
+        names = list()
+
+        for repository in repositories.values():
+
+            for model in repository:
+                # in case there is more than one version of the model with the same name, it shouldn't load it twice
+                if any(model['name'] in s for s in names):
+                    continue
+
+                item = QStandardItem()
+                item.setData(model['name'], int(Qt.DisplayRole))
+                item.setData(model['name'], int(Qt.EditRole))
+                item.setData(model['repository'], int(IliModelItemModel.Roles.ILIREPO))
+                item.setData(model['version'], int(IliModelItemModel.Roles.VERSION))
+
+                names.append(model['name'])
+                self.appendRow(item)
+                row += 1
+
+
+class ModelCompleterDelegate(QItemDelegate):
+    """
+    A item delegate for the autocompleter of model dialogs.
+    It shows the source repository next to the model name.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.widget = QWidget()
+        self.widget.setLayout(QGridLayout())
+        self.widget.layout().setContentsMargins(2, 0, 0, 0)
+        self.model_label = QLabel()
+        self.model_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.repository_label = QLabel()
+        self.repository_label.setAlignment(Qt.AlignRight)
+        self.widget.layout().addWidget(self.model_label, 0, 0)
+        self.widget.layout().addWidget(self.repository_label, 0, 1)
+
+    def paint(self, painter, option, index):
+        option.index = index
+        super().paint(painter, option, index)
+
+    def drawDisplay(self, painter, option, rect, text):
+        repository = option.index.data(int(IliModelItemModel.Roles.ILIREPO))
+        version = option.index.data(int(IliModelItemModel.Roles.VERSION))
+        self.repository_label.setText('<font color="#666666"><i>{repository}</i></font>'.format(repository=repository))
+        self.model_label.setText('{model}'.format(model=text))
+        self.widget.setMinimumSize(rect.size())
+
+        model_palette = option.palette
+        if option.state & QStyle.State_Selected:
+            model_palette.setColor(QPalette.WindowText, model_palette.color(QPalette.Active, QPalette.HighlightedText))
+
+        self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
+
+
 class IliToppingsCache(IliCache):
 
     def __init__(self, configuration, models = None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingscache')
         self.information_file = 'ilidata.xml'
-        self.model = IliModelItemModel() #topping model
+        self.model = IliToppingItemModel()
         self.filter_models = models
         if self.base_configuration:
             self.directories = self.base_configuration.topping_directories
@@ -315,14 +386,23 @@ class IliToppingsCache(IliCache):
                                     path = file.find('ili23:path', self.ns).text
 
                                     topping = dict()
-                                    topping['name'] = topping_metadata.find('ili23:id', self.ns).text
+                                    topping['id'] = topping_metadata.find('ili23:id', self.ns).text
 
-                                    version = topping['version'] = topping_metadata.find('ili23:version', self.ns)
+                                    version = topping_metadata.find('ili23:version', self.ns)
                                     if version:
                                         topping['version'] = version.text
                                     else:
                                         topping['version'] = None
+
+                                    owner = topping_metadata.find('ili23:owner', self.ns)
+                                    if owner:
+                                        topping['owner'] = owner.text
+                                    else:
+                                        topping['owner'] = None
+
                                     topping['repository'] = netloc
+                                    topping['model'] = model
+                                    topping['relative_file_path'] = path
                                     repo_toppings.append(topping)
 
         self.repositories[netloc] = sorted(
@@ -331,10 +411,13 @@ class IliToppingsCache(IliCache):
         self.model.set_repositories(self.repositories)
 
 
-class IliModelItemModel(QStandardItemModel):
+class IliToppingItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
+        MODEL = Qt.UserRole + 3
+        RELATIVEFILEPATH = Qt.UserRole + 4
+        OWNER = Qt.UserRole + 5
 
         def __int__(self):
             return self.value
@@ -345,30 +428,28 @@ class IliModelItemModel(QStandardItemModel):
     def set_repositories(self, repositories):
         self.clear()
         row = 0
-        names = list()
-                
+
         for repository in repositories.values():
 
-            for model in repository:
-                # in case there is more than one version of the model with the same name, it shouldn't load it twice
-                if any(model['name'] in s for s in names):
-                    continue
+            for toppings in repository:
 
                 item = QStandardItem()
-                item.setData(model['name'], int(Qt.DisplayRole))
-                item.setData(model['name'], int(Qt.EditRole))
-                item.setData(model['repository'], int(IliModelItemModel.Roles.ILIREPO))
-                item.setData(model['version'], int(IliModelItemModel.Roles.VERSION))
+                item.setData(toppings['id'], int(Qt.DisplayRole))
+                item.setData(toppings['id'], int(Qt.EditRole))
+                item.setData(toppings['repository'], int(IliToppingItemModel.Roles.ILIREPO))
+                item.setData(toppings['version'], int(IliToppingItemModel.Roles.VERSION))
+                item.setData(toppings['model'], int(IliToppingItemModel.Roles.MODEL))
+                item.setData(toppings['relative_file_path'], int(IliToppingItemModel.Roles.RELATIVEFILEPATH))
+                item.setData(toppings['owner'], int(IliToppingItemModel.Roles.OWNER))
 
-                names.append(model['name'])
                 self.appendRow(item)
                 row += 1
 
 
-class ModelCompleterDelegate(QItemDelegate):
+class ToppingCompleterDelegate(QItemDelegate):
     """
-    A item delegate for the autocompleter of model dialogs.
-    It shows the source repository next to the model name.
+    A item delegate for the autocompleter of topping dialogs.
+    It shows the source repository (including model) next to the topping id and the owner.
     """
 
     def __init__(self):
@@ -376,22 +457,23 @@ class ModelCompleterDelegate(QItemDelegate):
         self.widget = QWidget()
         self.widget.setLayout(QGridLayout())
         self.widget.layout().setContentsMargins(2, 0, 0, 0)
-        self.model_label = QLabel()
-        self.model_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.topping_label = QLabel()
+        self.topping_label.setAttribute(Qt.WA_TranslucentBackground)
         self.repository_label = QLabel()
         self.repository_label.setAlignment(Qt.AlignRight)
-        self.widget.layout().addWidget(self.model_label, 0, 0)
-        self.widget.layout().addWidget(self.repository_label, 0, 1)
+        self.widget.layout().addWidget(self.topping_label, 0, 0)
+        self.widget.layout().addWidget(self.repository_label, 0, 2)
 
     def paint(self, painter, option, index):
         option.index = index
         super().paint(painter, option, index)
 
     def drawDisplay(self, painter, option, rect, text):
-        repository = option.index.data(int(IliModelItemModel.Roles.ILIREPO))
-        version = option.index.data(int(IliModelItemModel.Roles.VERSION))
-        self.repository_label.setText('<font color="#666666"><i>{repository}</i></font>'.format(repository=repository))
-        self.model_label.setText('{model}'.format(model=text))
+        repository = option.index.data(int(IliToppingItemModel.Roles.ILIREPO))
+        model = option.index.data(int(IliToppingItemModel.Roles.MODEL))
+        owner = option.index.data(int(IliToppingItemModel.Roles.OWNER))
+        self.repository_label.setText('<font color="#666666"><i>{model} at {repository}</i></font>'.format(model=model,repository=repository))
+        self.topping_label.setText('{topping_id} of {owner}'.format(topping_id=text, owner=owner))
         self.widget.setMinimumSize(rect.size())
 
         model_palette = option.palette

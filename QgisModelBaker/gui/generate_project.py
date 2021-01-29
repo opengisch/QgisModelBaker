@@ -30,7 +30,7 @@ from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
-from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate
+from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -665,8 +665,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.delegate = ModelCompleterDelegate()
-        completer.popup().setItemDelegate(self.delegate)
+        self.model_delegate = ModelCompleterDelegate()
+        completer.popup().setItemDelegate(self.model_delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
@@ -687,8 +687,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilitoppingscache.model, self.ili_toppings_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.delegate = ModelCompleterDelegate()
-        completer.popup().setItemDelegate(self.delegate)
+        self.topping_delegate = ToppingCompleterDelegate()
+        completer.popup().setItemDelegate(self.topping_delegate)
         self.ili_toppings_line_edit.setCompleter(completer)
         #self.multiple_toppings_dialog.toppings_line_edit.setCompleter(completer)
 
