@@ -286,15 +286,15 @@ class IliToppingsCache(IliCache):
 
         model_code_regex = re.compile('http://codes.interlis.ch/model/(.*)')
         type_code_regex = re.compile('http://codes.interlis.ch/tool/(.*)')
-        tool_code_regex = re.compile('http://codes.opengis.ch(.*)')
+        tool_code_regex = re.compile('http://codes.opengis.ch/(.*)')
 
         self.repositories[netloc] = list()
-        repo_models = list()
+        repo_toppings = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
-            for model_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
-                categories = model_metadata.find('ili23:categories', self.ns)
-                if categories:
-                    for category in categories.findall('ili23:DatasetIdx16.Code_', self.ns):
+            for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
+                categories_element = topping_metadata.find('ili23:categories', self.ns)
+                if categories_element:
+                    for category in categories_element.findall('ili23:DatasetIdx16.Code_', self.ns):
                         category_value = category.find('ili23:value', self.ns).text
                         if model_code_regex.search(category_value):
                             model = model_code_regex.search(category_value).group(1)
@@ -302,20 +302,31 @@ class IliToppingsCache(IliCache):
                         if type_code_regex.search(category_value):
                             type = type_code_regex.search(category_value).group(1)
                             print('the type is: {}'.format(type))
+                        if tool_code_regex.search(category_value):
+                            tool = tool_code_regex.search(category_value).group(1)
+                            print('the tool is: {}'.format(tool))
+                    if model != self.filter_models or type != 'metaconfig' or tool != 'modelbaker':
+                        continue
 
-                model = dict()
-                model['name'] = model_metadata.find('ili23:id', self.ns).text
+                    for files_element in topping_metadata.findall('ili23:files', self.ns):
+                        for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
+                            for file_element in data_file.findall('ili23:file', self.ns):
+                                for file in file_element.findall('ili23:DatasetIdx16.File', self.ns):
+                                    path = file.find('ili23:path', self.ns).text
 
-                version = model['version'] = model_metadata.find( 'ili23:version', self.ns)
-                if version:
-                    model['version'] = version.text
-                else:
-                    model['version'] = None
-                model['repository'] = netloc
-                repo_models.append(model)
+                                    topping = dict()
+                                    topping['name'] = topping_metadata.find('ili23:id', self.ns).text
+
+                                    version = topping['version'] = topping_metadata.find('ili23:version', self.ns)
+                                    if version:
+                                        topping['version'] = version.text
+                                    else:
+                                        topping['version'] = None
+                                    topping['repository'] = netloc
+                                    repo_toppings.append(topping)
 
         self.repositories[netloc] = sorted(
-            repo_models, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
+            repo_toppings, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
         self.model.set_repositories(self.repositories)
 
