@@ -124,9 +124,6 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="CompletionLineEdit" name="ili_toppings_line_edit" native="true"/>
-          </item>
           <item row="3" column="0">
            <widget class="QLabel" name="crs_label">
             <property name="toolTip">
@@ -184,15 +181,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="3">
-           <widget class="QToolButton" name="multiple_toppings_button">
-            <property name="toolTip">
-             <string>Select multiple Interlis models</string>
-            </property>
-            <property name="text">
-             <string>…</string>
-            </property>
-           </widget>
+          <item row="2" column="1" colspan="3">
+           <widget class="CompletionLineEdit" name="ili_toppings_line_edit" native="true"/>
           </item>
          </layout>
         </widget>

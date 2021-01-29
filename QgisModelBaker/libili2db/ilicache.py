@@ -334,12 +334,13 @@ class ModelCompleterDelegate(QItemDelegate):
 
 class IliToppingsCache(IliCache):
 
-    def __init__(self, configuration, models = None):
+    def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingscache')
         self.information_file = 'ilidata.xml'
         self.model = IliToppingItemModel()
-        self.filter_models = models
+        if models:
+            self.filter_models = models.split(';')
         if self.base_configuration:
             self.directories = self.base_configuration.topping_directories
 
@@ -376,7 +377,7 @@ class IliToppingsCache(IliCache):
                         if tool_code_regex.search(category_value):
                             tool = tool_code_regex.search(category_value).group(1)
                             print('the tool is: {}'.format(tool))
-                    if model != self.filter_models or type != 'metaconfig' or tool != 'modelbaker':
+                    if model not in self.filter_models or type != 'metaconfig' or tool != 'modelbaker':
                         continue
 
                     for files_element in topping_metadata.findall('ili23:files', self.ns):
