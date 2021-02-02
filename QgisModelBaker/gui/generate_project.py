@@ -30,7 +30,7 @@ from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
-from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate
+from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate, IliToppingItemModel
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -58,7 +58,8 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
     QSettings,
     Qt,
-    QLocale
+    QLocale,
+    QModelIndex
 )
 from qgis.core import (
     QgsProject,
@@ -166,7 +167,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_toppings_line_edit.textChanged.emit(
             self.ili_toppings_line_edit.text())
-        # self.ili_toppings_line_edit.textChanged.connect(self.on_topping_changed)
         self.ili_toppings_line_edit.textChanged.connect(self.complete_toppings_completer)
         self.ili_toppings_line_edit.punched.connect(self.complete_toppings_completer)
 
@@ -685,12 +685,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def update_toppings_completer(self):
         completer = QCompleter(self.ilitoppingscache.model, self.ili_toppings_line_edit)
+        completer.activated[QModelIndex].connect(self.on_topping_completer_activated)
+
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         self.topping_delegate = ToppingCompleterDelegate()
         completer.popup().setItemDelegate(self.topping_delegate)
         self.ili_toppings_line_edit.setCompleter(completer)
         #self.multiple_toppings_dialog.toppings_line_edit.setCompleter(completer)
+
+    def on_topping_completer_activated(self, model_index ):
+        repository = self.ili_toppings_line_edit.completer().completionModel().data(model_index,
+                                                                                    IliToppingItemModel.Roles.ILIREPO)
+        path = self.ili_toppings_line_edit.completer().completionModel().data(model_index,
+                                                                              IliToppingItemModel.Roles.RELATIVEFILEPATH)
+
+        print( '{}/{}'.format( repository, path) )
+
+        self.ilitoppingscache.download_metaconfiguration_file(repository, path)
 
     def show_message(self, level, message):
         if level == Qgis.Warning:

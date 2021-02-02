@@ -23,7 +23,7 @@ import os
 import urllib.parse
 import xml.etree.ElementTree as ET
 
-import re
+import re, configparser
 
 from enum import Enum
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
@@ -344,6 +344,8 @@ class IliToppingsCache(IliCache):
         if self.base_configuration:
             self.directories = self.base_configuration.topping_directories
 
+        self.current_metaconfiguration = configparser.ConfigParser()
+
     def _process_ilimodels(self, file, netloc):
         """
         Parses ilidata.xml provided in ``file`` and updates the local repositories cache.
@@ -411,6 +413,43 @@ class IliToppingsCache(IliCache):
 
         self.model.set_repositories(self.repositories)
 
+    def _process_metaconfiguration_file(self, file, netloc):
+        """
+        Parses the metaconfiguration file provided in ``file`` and updates the current meta configuration
+        """
+        print( 'parse '+file+' at '+netloc)
+
+        self.current_metaconfiguration.read_file(open(file))
+        self.current_metaconfiguration.read(file)
+        print(self.current_metaconfiguration['qgis.modelbaker.qml']['polygonStructure'] )
+        # download topping_file_target
+        # parse topping_file_target
+        # store the config
+
+    def download_metaconfiguration_file(self, netloc, file):
+        """
+        Downloads the given file from the given url to the local cache.
+        Returns the parsed config
+        """
+
+        modeldir = os.path.join(self.cache_path, netloc, 'metaconfig')
+
+        os.makedirs(modeldir, exist_ok=True)
+
+        metaconfig_url = urllib.parse.urlparse( 'https://'+netloc+'/'+file, 'https' ).geturl()
+        metaconfig_path = os.path.join(self.cache_path, netloc, file)
+        print(metaconfig_url)
+        print(metaconfig_path)
+
+        logger = logging.getLogger(__name__)
+
+        # download file
+        download_file(metaconfig_url, metaconfig_path,
+                      on_success=lambda: self._process_metaconfiguration_file(
+                          metaconfig_path, netloc),
+                      on_error=lambda error, error_string: logger.warning(self.tr(
+                          'Could not download metaconfiguration file {url} ({message})').format(url=metaconfig_url, message=error_string))
+                      )
 
 class IliToppingItemModel(QStandardItemModel):
     class Roles(Enum):
