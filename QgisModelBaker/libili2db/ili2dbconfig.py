@@ -94,7 +94,7 @@ class BaseConfiguration(object):
         return dirs
 
     @property
-    def topping_directories(self):
+    def metaconfig_directories(self):
         # maybe in future there can be custom local directories as well
         dirs = [
             'http://usabilityhub.opengis.ch/'

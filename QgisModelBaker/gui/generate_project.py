@@ -33,12 +33,12 @@ from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbA
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
 from QgisModelBaker.libili2db.ilicache import (
     IliCache,
-    IliToppingsCache,
-    IliFilesCache,
     ModelCompleterDelegate,
-    ToppingCompleterDelegate,
-    IliToppingItemModel,
-    IliFileItemModel
+    IliMetaConfigCache,
+    IliMetaConfigItemModel,
+    MetaConfigCompleterDelegate,
+    IliToppingFileCache,
+    IliToppingFileItemModel
 )
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
@@ -170,15 +170,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
-        self.ilifilescache = IliFilesCache(self.base_configuration)
-        self.ilitoppingscache = IliToppingsCache(self.base_configuration)
-        self.ili_toppings_line_edit.setPlaceholderText(self.tr('[Search topping from usabILItyhub]'))
-        self.ili_toppings_line_edit.setEnabled(False)
+        self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration)
+        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
+        self.ili_metaconfig_line_edit.setEnabled(False)
 
-        self.ili_toppings_line_edit.textChanged.emit(
-            self.ili_toppings_line_edit.text())
-        self.ili_toppings_line_edit.textChanged.connect(self.complete_toppings_completer)
-        self.ili_toppings_line_edit.punched.connect(self.complete_toppings_completer)
+        self.ili_metaconfig_line_edit.textChanged.emit(
+            self.ili_metaconfig_line_edit.text())
+        self.ili_metaconfig_line_edit.textChanged.connect(self.complete_metaconfig_completer)
+        self.ili_metaconfig_line_edit.punched.connect(self.complete_metaconfig_completer)
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
@@ -417,15 +417,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             for layer in project.layers:
-                print(layer.name)
-                matches = self.ilifilescache.model.match(self.ilifilescache.model.index(0, 0),
-                                                         IliFileItemModel.Roles.LAYERNAME, layer.name, 1)
+                matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
+                                                         IliToppingFileItemModel.Roles.LAYERNAME, layer.name, 1)
                 if matches:
-                    print(matches)
-                    style_file_path = matches[0].data(IliFileItemModel.Roles.LOCALFILEPATH)
-                    print(style_file_path)
-                    if layer.layer:
-                        layer.layer.loadNamedStyle(style_file_path)
+                    style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                    self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
+                    layer.layer.loadNamedStyle(style_file_path)
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -595,7 +592,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def on_model_changed(self, text):
         if not text:
-            self.ili_toppings_line_edit.setEnabled(False)
+            self.ili_metaconfig_line_edit.setEnabled(False)
             return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
@@ -605,9 +602,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili2db_options.set_toml_file_key(text)
         self.fill_toml_file_info_label()
 
-        self.ilitoppingscache = IliToppingsCache(self.base_configuration, text)
-        self.ilitoppingscache.file_received.connect(self.on_metaconfig_received)
-        self.refresh_ili_toppings_cache()
+        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
+        self.ilimetaconfigcache.file_received.connect(self.on_metaconfig_received)
+        self.refresh_ili_metaconfig_cache()
 
     def link_activated(self, link):
         if link.url() == '#configure':
@@ -692,50 +689,46 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
-    def refresh_ili_toppings_cache(self):
-        self.ili_toppings_line_edit.setEnabled(True)
-        self.ilitoppingscache.new_message.connect(self.show_message)
-        self.ilitoppingscache.refresh()
-        self.update_toppings_completer()
+    def refresh_ili_metaconfig_cache(self):
+        self.ili_metaconfig_line_edit.setEnabled(True)
+        self.ilimetaconfigcache.new_message.connect(self.show_message)
+        self.ilimetaconfigcache.refresh()
+        self.update_metaconfig_completer()
 
-    def complete_toppings_completer(self):
-        if not self.ili_toppings_line_edit.text():
-            self.ili_toppings_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-            self.ili_toppings_line_edit.completer().complete()
+    def complete_metaconfig_completer(self):
+        if not self.ili_metaconfig_line_edit.text():
+            self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_metaconfig_line_edit.completer().complete()
         else:
-            self.ili_toppings_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
 
-    def update_toppings_completer(self):
-        completer = QCompleter(self.ilitoppingscache.model, self.ili_toppings_line_edit)
-        completer.activated[QModelIndex].connect(self.on_topping_completer_activated)
+    def update_metaconfig_completer(self):
+        completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
+        completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
 
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.topping_delegate = ToppingCompleterDelegate()
-        completer.popup().setItemDelegate(self.topping_delegate)
-        self.ili_toppings_line_edit.setCompleter(completer)
-        #self.multiple_toppings_dialog.toppings_line_edit.setCompleter(completer)
+        self.metaconfig_delegate = MetaConfigCompleterDelegate()
+        completer.popup().setItemDelegate(self.metaconfig_delegate)
+        self.ili_metaconfig_line_edit.setCompleter(completer)
+        #self.multiple_metaconfig_dialog.metaconfig_line_edit.setCompleter(completer)
 
-    def on_topping_completer_activated(self, model_index ):
-        repository = self.ili_toppings_line_edit.completer().completionModel().data(model_index,
-                                                                                    IliToppingItemModel.Roles.ILIREPO)
-        path = self.ili_toppings_line_edit.completer().completionModel().data(model_index,
-                                                                              IliToppingItemModel.Roles.RELATIVEFILEPATH)
-
-        print('{}/{}'.format(repository, path) )
-
-        self.ilitoppingscache.download_file(repository, path)
+    def on_metaconfig_completer_activated(self, model_index ):
+        repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                    IliMetaConfigItemModel.Roles.ILIREPO)
+        path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                              IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+        self.ilimetaconfigcache.download_file(repository, path)
 
     def on_metaconfig_received(self, path):
-        print('we received the meta config file')
         metaconfig = configparser.ConfigParser()
         metaconfig.read_file(open(path))
         metaconfig.read(path)
         qml_section = dict(metaconfig['qgis.modelbaker.qml'])
 
-        self.ilifilescache = IliFilesCache(self.base_configuration, qml_section)
-        self.ilifilescache.file_received.connect(lambda: print('well received a qml, but well... you know.'))
-        self.ilifilescache.refresh()
+        self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
+        self.ilitoppingfilecache.file_received.connect(lambda: print('well received a qml - we need to know somewhere...'))
+        self.ilitoppingfilecache.refresh()
 
     def show_message(self, level, message):
         if level == Qgis.Warning:

@@ -95,28 +95,28 @@ class IliCache(QObject):
 
     def download_repository(self, url):
         """
-        Downloads the ilimodels.xml and ilisite.xml files from the provided url
+        Downloads the informationfile (default: ilimodels.xml) and ilisite.xml files from the provided url
         and updates the local cache.
         """
         netloc = urllib.parse.urlsplit(url)[1]
 
-        modeldir = os.path.join(self.cache_path, netloc)
+        netloc_dir = os.path.join(self.cache_path, netloc)
 
-        os.makedirs(modeldir, exist_ok=True)
+        os.makedirs(netloc_dir, exist_ok=True)
 
-        ilimodels_url = urllib.parse.urljoin(url, self.information_file)
-        ilimodels_path = os.path.join(self.cache_path, netloc, self.information_file)
+        information_file_url = urllib.parse.urljoin(url, self.information_file)
+        information_file_path = os.path.join(self.cache_path, netloc, self.information_file)
         ilisite_url = urllib.parse.urljoin(url, 'ilisite.xml')
         ilisite_path = os.path.join(self.cache_path, netloc, 'ilisite.xml')
 
         logger = logging.getLogger(__name__)
 
         # download ilimodels.xml
-        download_file(ilimodels_url, ilimodels_path,
-                      on_success=lambda: self._process_ilimodels(
-                          ilimodels_path, netloc),
+        download_file(information_file_url, information_file_path,
+                      on_success=lambda: self._process_informationfile(
+                          information_file_path, netloc),
                       on_error=lambda error, error_string: logger.warning(self.tr(
-                          'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
+                          'Could not download {url} ({message})').format(url=information_file_url, message=error_string))
                       )
 
         # download ilisite.xml
@@ -144,7 +144,7 @@ class IliCache(QObject):
                     self.download_repository(
                         location.find('ili23:value', self.ns).text)
 
-    def _process_ilimodels(self, file, netloc):
+    def _process_informationfile(self, file, netloc):
         """
         Parses ilimodels.xml provided in ``file`` and updates the local repositories cache.
         """
@@ -332,27 +332,26 @@ class ModelCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliToppingsCache(IliCache):
+class IliMetaConfigCache(IliCache):
 
     file_received = pyqtSignal(str)
 
     def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
-        self.cache_path = os.path.expanduser('~/.ilitoppingscache')
+        self.cache_path = os.path.expanduser('~/.ilimetaconfigcache')
         self.information_file = 'ilidata.xml'
-        self.model = IliToppingItemModel()
+        self.model = IliMetaConfigItemModel()
         if models:
             self.filter_models = models.split(';')
         if self.base_configuration:
-            self.directories = self.base_configuration.topping_directories
+            self.directories = self.base_configuration.metaconfig_directories
 
         self.file_directory_name = 'metaconfig'
 
-    def _process_ilimodels(self, file, netloc):
+    def _process_informationfile(self, file, netloc):
         """
         Parses ilidata.xml provided in ``file`` and updates the local repositories cache.
         """
-        print( 'parse '+file+' at '+netloc)
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
@@ -365,10 +364,10 @@ class IliToppingsCache(IliCache):
         tool_code_regex = re.compile('http://codes.opengis.ch/(.*)')
 
         self.repositories[netloc] = list()
-        repo_toppings = list()
+        repo_metaconfigs = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
-            for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
-                categories_element = topping_metadata.find('ili23:categories', self.ns)
+            for metaconfig_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
+                categories_element = metaconfig_metadata.find('ili23:categories', self.ns)
                 if categories_element:
                     model=''
                     type=''
@@ -377,44 +376,41 @@ class IliToppingsCache(IliCache):
                         category_value = category.find('ili23:value', self.ns).text
                         if model_code_regex.search(category_value):
                             model = model_code_regex.search(category_value).group(1)
-                            print('the model is: {}'.format(model))
                         if type_code_regex.search(category_value):
                             type = type_code_regex.search(category_value).group(1)
-                            print('the type is: {}'.format(type))
                         if tool_code_regex.search(category_value):
                             tool = tool_code_regex.search(category_value).group(1)
-                            print('the tool is: {}'.format(tool))
                     if model not in self.filter_models or type != 'metaconfig' or tool != 'modelbaker':
                         continue
 
-                    for files_element in topping_metadata.findall('ili23:files', self.ns):
+                    for files_element in metaconfig_metadata.findall('ili23:files', self.ns):
                         for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
                             for file_element in data_file.findall('ili23:file', self.ns):
                                 for file in file_element.findall('ili23:DatasetIdx16.File', self.ns):
                                     path = file.find('ili23:path', self.ns).text
 
-                                    topping = dict()
-                                    topping['id'] = topping_metadata.find('ili23:id', self.ns).text
+                                    metaconfig = dict()
+                                    metaconfig['id'] = metaconfig_metadata.find('ili23:id', self.ns).text
 
-                                    version = topping_metadata.find('ili23:version', self.ns)
+                                    version = metaconfig_metadata.find('ili23:version', self.ns)
                                     if version:
-                                        topping['version'] = version.text
+                                        metaconfig['version'] = version.text
                                     else:
-                                        topping['version'] = None
+                                        metaconfig['version'] = None
 
-                                    owner = topping_metadata.find('ili23:owner', self.ns)
+                                    owner = metaconfig_metadata.find('ili23:owner', self.ns)
                                     if owner:
-                                        topping['owner'] = owner.text
+                                        metaconfig['owner'] = owner.text
                                     else:
-                                        topping['owner'] = None
+                                        metaconfig['owner'] = None
 
-                                    topping['repository'] = netloc
-                                    topping['model'] = model
-                                    topping['relative_file_path'] = path
-                                    repo_toppings.append(topping)
+                                    metaconfig['repository'] = netloc
+                                    metaconfig['model'] = model
+                                    metaconfig['relative_file_path'] = path
+                                    repo_metaconfigs.append(metaconfig)
 
         self.repositories[netloc] = sorted(
-            repo_toppings, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
+            repo_metaconfigs, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
         self.model.set_repositories(self.repositories)
 
@@ -442,7 +438,7 @@ class IliToppingsCache(IliCache):
         return file_path
 
 
-class IliToppingItemModel(QStandardItemModel):
+class IliMetaConfigItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
@@ -462,25 +458,25 @@ class IliToppingItemModel(QStandardItemModel):
 
         for repository in repositories.values():
 
-            for toppings in repository:
+            for metaconfig in repository:
 
                 item = QStandardItem()
-                item.setData(toppings['id'], int(Qt.DisplayRole))
-                item.setData(toppings['id'], int(Qt.EditRole))
-                item.setData(toppings['repository'], int(IliToppingItemModel.Roles.ILIREPO))
-                item.setData(toppings['version'], int(IliToppingItemModel.Roles.VERSION))
-                item.setData(toppings['model'], int(IliToppingItemModel.Roles.MODEL))
-                item.setData(toppings['relative_file_path'], int(IliToppingItemModel.Roles.RELATIVEFILEPATH))
-                item.setData(toppings['owner'], int(IliToppingItemModel.Roles.OWNER))
+                item.setData(metaconfig['id'], int(Qt.DisplayRole))
+                item.setData(metaconfig['id'], int(Qt.EditRole))
+                item.setData(metaconfig['repository'], int(IliMetaConfigItemModel.Roles.ILIREPO))
+                item.setData(metaconfig['version'], int(IliMetaConfigItemModel.Roles.VERSION))
+                item.setData(metaconfig['model'], int(IliMetaConfigItemModel.Roles.MODEL))
+                item.setData(metaconfig['relative_file_path'], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+                item.setData(metaconfig['owner'], int(IliMetaConfigItemModel.Roles.OWNER))
 
                 self.appendRow(item)
                 row += 1
 
 
-class ToppingCompleterDelegate(QItemDelegate):
+class MetaConfigCompleterDelegate(QItemDelegate):
     """
-    A item delegate for the autocompleter of topping dialogs.
-    It shows the source repository (including model) next to the topping id and the owner.
+    A item delegate for the autocompleter of metaconfig / topping dialogs.
+    It shows the source repository (including model) next to the metaconfig id and the owner.
     """
 
     def __init__(self):
@@ -488,11 +484,11 @@ class ToppingCompleterDelegate(QItemDelegate):
         self.widget = QWidget()
         self.widget.setLayout(QGridLayout())
         self.widget.layout().setContentsMargins(2, 0, 0, 0)
-        self.topping_label = QLabel()
-        self.topping_label.setAttribute(Qt.WA_TranslucentBackground)
+        self.metaconfig_label = QLabel()
+        self.metaconfig_label.setAttribute(Qt.WA_TranslucentBackground)
         self.repository_label = QLabel()
         self.repository_label.setAlignment(Qt.AlignRight)
-        self.widget.layout().addWidget(self.topping_label, 0, 0)
+        self.widget.layout().addWidget(self.metaconfig_label, 0, 0)
         self.widget.layout().addWidget(self.repository_label, 0, 2)
 
     def paint(self, painter, option, index):
@@ -500,11 +496,11 @@ class ToppingCompleterDelegate(QItemDelegate):
         super().paint(painter, option, index)
 
     def drawDisplay(self, painter, option, rect, text):
-        repository = option.index.data(int(IliToppingItemModel.Roles.ILIREPO))
-        model = option.index.data(int(IliToppingItemModel.Roles.MODEL))
-        owner = option.index.data(int(IliToppingItemModel.Roles.OWNER))
+        repository = option.index.data(int(IliMetaConfigItemModel.Roles.ILIREPO))
+        model = option.index.data(int(IliMetaConfigItemModel.Roles.MODEL))
+        owner = option.index.data(int(IliMetaConfigItemModel.Roles.OWNER))
         self.repository_label.setText('<font color="#666666"><i>{model} at {repository}</i></font>'.format(model=model,repository=repository))
-        self.topping_label.setText('{topping_id} of {owner}'.format(topping_id=text, owner=owner))
+        self.metaconfig_label.setText('{metaconfig_id} of {owner}'.format(metaconfig_id=text, owner=owner))
         self.widget.setMinimumSize(rect.size())
 
         model_palette = option.palette
@@ -514,20 +510,19 @@ class ToppingCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliFilesCache(IliToppingsCache):
+class IliToppingFileCache(IliMetaConfigCache):
 
     def __init__(self, configuration, qml_section=None):
-        IliToppingsCache.__init__(self, configuration)
-        self.cache_path = os.path.expanduser('~/.ilifilescache')
-        self.model = IliFileItemModel()
+        IliMetaConfigCache.__init__(self, configuration)
+        self.cache_path = os.path.expanduser('~/.ilitoppingfilescache')
+        self.model = IliToppingFileItemModel()
         self.qml_section = qml_section
         self.file_directory_name = 'qml'
 
-    def _process_ilimodels(self, file, netloc):
+    def _process_informationfile(self, file, netloc):
         """
         Parses ilidata.xml provided in ``file`` and updates the local repositories cache.
         """
-        print( 'parse '+file+' at '+netloc)
         try:
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
@@ -540,7 +535,6 @@ class IliFilesCache(IliToppingsCache):
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
             for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
                 dataset_id = 'data:{}'.format(topping_metadata.find('ili23:id', self.ns).text)
-                print(self.qml_section.values())
                 if dataset_id in self.qml_section.values():
                     for files_element in topping_metadata.findall('ili23:files', self.ns):
                         for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
@@ -548,28 +542,27 @@ class IliFilesCache(IliToppingsCache):
                                 for file in file_element.findall('ili23:DatasetIdx16.File', self.ns):
                                     path = file.find('ili23:path', self.ns).text
 
-                                    file = dict()
-                                    file['id'] = topping_metadata.find('ili23:id', self.ns).text
-                                    file['layer_name'] = list(self.qml_section.keys())[list(self.qml_section.values()).index(dataset_id)]
+                                    toppingfile = dict()
+                                    toppingfile['id'] = topping_metadata.find('ili23:id', self.ns).text
+                                    toppingfile['layer_name'] = list(self.qml_section.keys())[list(self.qml_section.values()).index(dataset_id)]
 
                                     version = topping_metadata.find('ili23:version', self.ns)
                                     if version:
-                                        file['version'] = version.text
+                                        toppingfile['version'] = version.text
                                     else:
-                                        file['version'] = None
+                                        toppingfile['version'] = None
 
                                     owner = topping_metadata.find('ili23:owner', self.ns)
                                     if owner:
-                                        file['owner'] = owner.text
+                                        toppingfile['owner'] = owner.text
                                     else:
-                                        file['owner'] = None
+                                        toppingfile['owner'] = None
 
-                                    file['repository'] = netloc
-                                    file['relative_file_path'] = path
+                                    toppingfile['repository'] = netloc
+                                    toppingfile['relative_file_path'] = path
 
-                                    file['local_file_path'] = self.download_file(netloc, path)
-                                    print(file['local_file_path'])
-                                    repo_files.append(file)
+                                    toppingfile['local_file_path'] = self.download_file(netloc, path)
+                                    repo_files.append(toppingfile)
 
                 self.repositories[netloc] = sorted(
                     repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
@@ -577,7 +570,7 @@ class IliFilesCache(IliToppingsCache):
                 self.model.set_repositories(self.repositories)
 
 
-class IliFileItemModel(QStandardItemModel):
+class IliToppingFileItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
@@ -598,17 +591,17 @@ class IliFileItemModel(QStandardItemModel):
 
         for repository in repositories.values():
 
-            for toppings in repository:
+            for toppingfile in repository:
 
                 item = QStandardItem()
-                item.setData(toppings['id'], int(Qt.DisplayRole))
-                item.setData(toppings['id'], int(Qt.EditRole))
-                item.setData(toppings['repository'], int(IliFileItemModel.Roles.ILIREPO))
-                item.setData(toppings['version'], int(IliFileItemModel.Roles.VERSION))
-                item.setData(toppings['layer_name'], int(IliFileItemModel.Roles.LAYERNAME))
-                item.setData(toppings['relative_file_path'], int(IliFileItemModel.Roles.RELATIVEFILEPATH))
-                item.setData(toppings['local_file_path'], int(IliFileItemModel.Roles.LOCALFILEPATH))
-                item.setData(toppings['owner'], int(IliFileItemModel.Roles.OWNER))
+                item.setData(toppingfile['id'], int(Qt.DisplayRole))
+                item.setData(toppingfile['id'], int(Qt.EditRole))
+                item.setData(toppingfile['repository'], int(IliToppingFileItemModel.Roles.ILIREPO))
+                item.setData(toppingfile['version'], int(IliToppingFileItemModel.Roles.VERSION))
+                item.setData(toppingfile['layer_name'], int(IliToppingFileItemModel.Roles.LAYERNAME))
+                item.setData(toppingfile['relative_file_path'], int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH))
+                item.setData(toppingfile['local_file_path'], int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                item.setData(toppingfile['owner'], int(IliToppingFileItemModel.Roles.OWNER))
 
                 self.appendRow(item)
                 row += 1
