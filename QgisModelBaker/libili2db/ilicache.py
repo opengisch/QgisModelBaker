@@ -23,7 +23,7 @@ import os
 import urllib.parse
 import xml.etree.ElementTree as ET
 
-import re, configparser
+import re
 
 from enum import Enum
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
@@ -334,6 +334,8 @@ class ModelCompleterDelegate(QItemDelegate):
 
 class IliToppingsCache(IliCache):
 
+    file_received = pyqtSignal(str)
+
     def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingscache')
@@ -344,7 +346,7 @@ class IliToppingsCache(IliCache):
         if self.base_configuration:
             self.directories = self.base_configuration.topping_directories
 
-        self.current_metaconfiguration = configparser.ConfigParser()
+        self.file_directory_name = 'metaconfig'
 
     def _process_ilimodels(self, file, netloc):
         """
@@ -359,7 +361,7 @@ class IliToppingsCache(IliCache):
             return
 
         model_code_regex = re.compile('http://codes.interlis.ch/model/(.*)')
-        type_code_regex = re.compile('http://codes.interlis.ch/tool/(.*)')
+        type_code_regex = re.compile('http://codes.interlis.ch/type/(.*)')
         tool_code_regex = re.compile('http://codes.opengis.ch/(.*)')
 
         self.repositories[netloc] = list()
@@ -368,6 +370,9 @@ class IliToppingsCache(IliCache):
             for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
                 categories_element = topping_metadata.find('ili23:categories', self.ns)
                 if categories_element:
+                    model=''
+                    type=''
+                    tool=''
                     for category in categories_element.findall('ili23:DatasetIdx16.Code_', self.ns):
                         category_value = category.find('ili23:value', self.ns).text
                         if model_code_regex.search(category_value):
@@ -413,43 +418,28 @@ class IliToppingsCache(IliCache):
 
         self.model.set_repositories(self.repositories)
 
-    def _process_metaconfiguration_file(self, file, netloc):
-        """
-        Parses the metaconfiguration file provided in ``file`` and updates the current meta configuration
-        """
-        print( 'parse '+file+' at '+netloc)
-
-        self.current_metaconfiguration.read_file(open(file))
-        self.current_metaconfiguration.read(file)
-        print(self.current_metaconfiguration['qgis.modelbaker.qml']['polygonStructure'] )
-        # download topping_file_target
-        # parse topping_file_target
-        # store the config
-
-    def download_metaconfiguration_file(self, netloc, file):
+    def download_file(self, netloc, file):
         """
         Downloads the given file from the given url to the local cache.
         Returns the parsed config
         """
 
-        modeldir = os.path.join(self.cache_path, netloc, 'metaconfig')
+        file_dir = os.path.join(self.cache_path, netloc, self.file_directory_name)
 
-        os.makedirs(modeldir, exist_ok=True)
+        os.makedirs(file_dir, exist_ok=True)
 
-        metaconfig_url = urllib.parse.urlparse( 'https://'+netloc+'/'+file, 'https' ).geturl()
-        metaconfig_path = os.path.join(self.cache_path, netloc, file)
-        print(metaconfig_url)
-        print(metaconfig_path)
+        file_url = urllib.parse.urlunsplit(('https',netloc, file, None, None))
+        file_path = os.path.join(self.cache_path, netloc, file)
 
         logger = logging.getLogger(__name__)
 
         # download file
-        download_file(metaconfig_url, metaconfig_path,
-                      on_success=lambda: self._process_metaconfiguration_file(
-                          metaconfig_path, netloc),
+        download_file(file_url, file_path,
+                      on_success=lambda: self.file_received.emit( file_path ),
                       on_error=lambda error, error_string: logger.warning(self.tr(
-                          'Could not download metaconfiguration file {url} ({message})').format(url=metaconfig_url, message=error_string))
+                          'Could not download metaconfiguration file {url} ({message})').format(url=file_url, message=error_string))
                       )
+
 
 class IliToppingItemModel(QStandardItemModel):
     class Roles(Enum):
@@ -521,3 +511,102 @@ class ToppingCompleterDelegate(QItemDelegate):
             model_palette.setColor(QPalette.WindowText, model_palette.color(QPalette.Active, QPalette.HighlightedText))
 
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
+
+
+class IliFilesCache(IliToppingsCache):
+
+    file_received = pyqtSignal()
+
+    def __init__(self, configuration, qml_section=None):
+        IliToppingsCache.__init__(self, configuration)
+        self.cache_path = os.path.expanduser('~/.ilifilescache')
+        self.model = IliFileItemModel()
+        self.qml_section = qml_section
+        self.file_directory_name = 'qml'
+
+    def _process_ilimodels(self, file, netloc):
+        """
+        Parses ilidata.xml provided in ``file`` and updates the local repositories cache.
+        """
+        print( 'parse '+file+' at '+netloc)
+        try:
+            root = ET.parse(file).getroot()
+        except ET.ParseError as e:
+            QgsMessageLog.logMessage(self.tr('Could not parse ilidata file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('QGIS Model Baker'))
+            return
+
+        self.repositories[netloc] = list()
+        repo_files = list()
+        for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
+            for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
+                dataset_id = 'data:{}'.format(topping_metadata.find('ili23:id', self.ns).text)
+                print(self.qml_section.values())
+                if dataset_id in self.qml_section.values():
+                    for files_element in topping_metadata.findall('ili23:files', self.ns):
+                        for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
+                            for file_element in data_file.findall('ili23:file', self.ns):
+                                for file in file_element.findall('ili23:DatasetIdx16.File', self.ns):
+                                    path = file.find('ili23:path', self.ns).text
+
+                                    file = dict()
+                                    file['id'] = topping_metadata.find('ili23:id', self.ns).text
+                                    file['layer_name'] = list(self.qml_section.keys())[list(self.qml_section.values()).index(dataset_id)]
+
+                                    version = topping_metadata.find('ili23:version', self.ns)
+                                    if version:
+                                        file['version'] = version.text
+                                    else:
+                                        file['version'] = None
+
+                                    owner = topping_metadata.find('ili23:owner', self.ns)
+                                    if owner:
+                                        file['owner'] = owner.text
+                                    else:
+                                        file['owner'] = None
+
+                                    file['repository'] = netloc
+                                    file['relative_file_path'] = path
+
+                                    print( 'we got the file path:'+ file['relative_file_path'])
+                                    repo_files.append(file)
+
+                self.repositories[netloc] = sorted(
+                    repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
+
+                self.model.set_repositories(self.repositories)
+
+
+class IliFileItemModel(QStandardItemModel):
+    class Roles(Enum):
+        ILIREPO = Qt.UserRole + 1
+        VERSION = Qt.UserRole + 2
+        LAYERNAME = Qt.UserRole + 3
+        RELATIVEFILEPATH = Qt.UserRole + 4
+        OWNER = Qt.UserRole + 5
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self, parent=None):
+        super().__init__(0, 1, parent)
+
+    def set_repositories(self, repositories):
+        self.clear()
+        row = 0
+
+        for repository in repositories.values():
+
+            for toppings in repository:
+
+                item = QStandardItem()
+                item.setData(toppings['id'], int(Qt.DisplayRole))
+                item.setData(toppings['id'], int(Qt.EditRole))
+                item.setData(toppings['repository'], int(IliFileItemModel.Roles.ILIREPO))
+                item.setData(toppings['version'], int(IliFileItemModel.Roles.VERSION))
+                item.setData(toppings['layer_name'], int(IliFileItemModel.Roles.LAYERNAME))
+                item.setData(toppings['relative_file_path'], int(IliFileItemModel.Roles.RELATIVEFILEPATH))
+                item.setData(toppings['owner'], int(IliFileItemModel.Roles.OWNER))
+
+                self.appendRow(item)
+                row += 1

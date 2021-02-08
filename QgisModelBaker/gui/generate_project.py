@@ -22,6 +22,7 @@ import os
 import webbrowser
 
 import re
+import configparser
 from psycopg2 import OperationalError
 
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
@@ -30,7 +31,7 @@ from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
-from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate, IliToppingItemModel
+from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate, IliToppingItemModel, IliFilesCache
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -161,6 +162,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
+        self.ilifilescache = IliFilesCache(self.base_configuration)
         self.ilitoppingscache = IliToppingsCache(self.base_configuration)
         self.ili_toppings_line_edit.setPlaceholderText(self.tr('[Search topping from usabILItyhub]'))
         self.ili_toppings_line_edit.setEnabled(False)
@@ -585,6 +587,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
 
         self.ilitoppingscache = IliToppingsCache(self.base_configuration, text)
+        self.ilitoppingscache.file_received.connect(self.on_metaconfig_received)
         self.refresh_ili_toppings_cache()
 
     def link_activated(self, link):
@@ -700,9 +703,19 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         path = self.ili_toppings_line_edit.completer().completionModel().data(model_index,
                                                                               IliToppingItemModel.Roles.RELATIVEFILEPATH)
 
-        print( '{}/{}'.format( repository, path) )
+        print('{}/{}'.format(repository, path) )
 
-        self.ilitoppingscache.download_metaconfiguration_file(repository, path)
+        self.ilitoppingscache.download_file(repository, path)
+
+    def on_metaconfig_received(self, path):
+        print('we received the meta config file')
+        metaconfig = configparser.ConfigParser()
+        metaconfig.read_file(open(path))
+        metaconfig.read(path)
+        qml_section = dict(metaconfig['qgis.modelbaker.qml'])
+
+        self.ilifilescache = IliFilesCache(self.base_configuration, qml_section)
+        self.ilifilescache.refresh()
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
