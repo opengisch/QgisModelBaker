@@ -435,10 +435,11 @@ class IliToppingsCache(IliCache):
 
         # download file
         download_file(file_url, file_path,
-                      on_success=lambda: self.file_received.emit( file_path ),
+                      on_success=lambda: self.file_received.emit(file_path),
                       on_error=lambda error, error_string: logger.warning(self.tr(
                           'Could not download metaconfiguration file {url} ({message})').format(url=file_url, message=error_string))
                       )
+        return file_path
 
 
 class IliToppingItemModel(QStandardItemModel):
@@ -515,8 +516,6 @@ class ToppingCompleterDelegate(QItemDelegate):
 
 class IliFilesCache(IliToppingsCache):
 
-    file_received = pyqtSignal()
-
     def __init__(self, configuration, qml_section=None):
         IliToppingsCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilifilescache')
@@ -568,7 +567,8 @@ class IliFilesCache(IliToppingsCache):
                                     file['repository'] = netloc
                                     file['relative_file_path'] = path
 
-                                    print( 'we got the file path:'+ file['relative_file_path'])
+                                    file['local_file_path'] = self.download_file(netloc, path)
+                                    print(file['local_file_path'])
                                     repo_files.append(file)
 
                 self.repositories[netloc] = sorted(
@@ -583,7 +583,8 @@ class IliFileItemModel(QStandardItemModel):
         VERSION = Qt.UserRole + 2
         LAYERNAME = Qt.UserRole + 3
         RELATIVEFILEPATH = Qt.UserRole + 4
-        OWNER = Qt.UserRole + 5
+        LOCALFILEPATH = Qt.UserRole + 5
+        OWNER = Qt.UserRole + 6
 
         def __int__(self):
             return self.value
@@ -606,6 +607,7 @@ class IliFileItemModel(QStandardItemModel):
                 item.setData(toppings['version'], int(IliFileItemModel.Roles.VERSION))
                 item.setData(toppings['layer_name'], int(IliFileItemModel.Roles.LAYERNAME))
                 item.setData(toppings['relative_file_path'], int(IliFileItemModel.Roles.RELATIVEFILEPATH))
+                item.setData(toppings['local_file_path'], int(IliFileItemModel.Roles.LOCALFILEPATH))
                 item.setData(toppings['owner'], int(IliFileItemModel.Roles.OWNER))
 
                 self.appendRow(item)

@@ -31,7 +31,15 @@ from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
-from QgisModelBaker.libili2db.ilicache import IliCache, IliToppingsCache, ModelCompleterDelegate, ToppingCompleterDelegate, IliToppingItemModel, IliFilesCache
+from QgisModelBaker.libili2db.ilicache import (
+    IliCache,
+    IliToppingsCache,
+    IliFilesCache,
+    ModelCompleterDelegate,
+    ToppingCompleterDelegate,
+    IliToppingItemModel,
+    IliFileItemModel
+)
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -408,6 +416,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.iface.mapCanvas().refresh()
                     break
 
+            for layer in project.layers:
+                print(layer.name)
+                matches = self.ilifilescache.model.match(self.ilifilescache.model.index(0, 0),
+                                                         IliFileItemModel.Roles.LAYERNAME, layer.name, 1)
+                if matches:
+                    print(matches)
+                    style_file_path = matches[0].data(IliFileItemModel.Roles.LOCALFILEPATH)
+                    print(style_file_path)
+                    if layer.layer:
+                        layer.layer.loadNamedStyle(style_file_path)
+
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
@@ -715,6 +734,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         qml_section = dict(metaconfig['qgis.modelbaker.qml'])
 
         self.ilifilescache = IliFilesCache(self.base_configuration, qml_section)
+        self.ilifilescache.file_received.connect(lambda: print('well received a qml, but well... you know.'))
         self.ilifilescache.refresh()
 
     def show_message(self, level, message):
