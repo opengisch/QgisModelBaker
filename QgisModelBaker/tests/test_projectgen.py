@@ -1139,7 +1139,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+                self.assertEqual(layer.layer.displayExpression(), '"t_ili_id"')
 
         self.assertEqual(count, 2)
 
@@ -1183,7 +1183,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(), '"T_Ili_Id"')
 
         self.assertEqual(count, 2)
 
@@ -1228,7 +1228,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(), '"T_Ili_Id"')
 
         self.assertEqual(count, 2)
 
@@ -1267,7 +1267,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+                self.assertEqual(layer.layer.displayExpression(), '"t_ili_id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
@@ -1315,7 +1315,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(), '"T_Ili_Id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
@@ -1457,7 +1457,7 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(), '"T_Ili_Id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
