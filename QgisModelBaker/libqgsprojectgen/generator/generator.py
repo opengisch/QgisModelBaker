@@ -113,7 +113,13 @@ class Generator(QObject):
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
-                    short_name = record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
+                    if 'ili_name' in record:
+                        match = re.search('([^\(]*).*', record['ili_name'])
+                        if match.group(0) == match.group(1):
+                            short_name = match.group(1).split('.')[-1]
+                        else:
+                            #additional brackets in the the name - extended layer in geopackage
+                            short_name = match.group(1).split('.')[-2] + ' (' + match.group(1).split('.')[-1]+')'
                 alias = short_name
 
             display_expression = ''
