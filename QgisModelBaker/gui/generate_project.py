@@ -68,8 +68,11 @@ from qgis.PyQt.QtCore import (
     QSettings,
     Qt,
     QLocale,
-    QModelIndex
+    QModelIndex,
+    QTimer,
+    QEventLoop
 )
+
 from qgis.core import (
     QgsProject,
     QgsCoordinateReferenceSystem,
@@ -170,6 +173,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
+        self.metaconfig = configparser.ConfigParser()
         self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration)
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
@@ -416,6 +420,30 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.iface.mapCanvas().refresh()
                     break
 
+            # Toppings: collect, download and apply
+            qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
+            self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
+
+            # we wait for the download or we timeout after 30 seconds and we apply what we have
+            loop = QEventLoop()
+            self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
+            timer = QTimer()
+            timer.setSingleShot(True)
+            timer.timeout.connect(lambda: loop.quit())
+            timer.start(30000)
+
+            self.ilitoppingfilecache.refresh()
+            loop.exec()
+
+            if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section):
+                self.print_info(self.tr('All topping files successfully downloaded'))
+            else:
+                missing_file_ids = list(qml_section.values())
+                for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
+                    if downloaded_file_id in missing_file_ids:
+                        missing_file_ids.remove(downloaded_file_id)
+                self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+
             for layer in project.layers:
                 matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
                                                          IliToppingFileItemModel.Roles.LAYERNAME, layer.name, 1)
@@ -603,7 +631,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
 
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
-        self.ilimetaconfigcache.file_received.connect(self.on_metaconfig_received)
+        self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
+        self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
         self.refresh_ili_metaconfig_cache()
 
     def link_activated(self, link):
@@ -718,17 +747,23 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                                                                     IliMetaConfigItemModel.Roles.ILIREPO)
         path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                               IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
-        self.ilimetaconfigcache.download_file(repository, path)
+        dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                              Qt.DisplayRole)
+        # disable the create button while downloading
+        self.create_tool_button.setEnabled(False)
+        self.ilimetaconfigcache.download_file(repository, path, dataset_id)
 
     def on_metaconfig_received(self, path):
-        metaconfig = configparser.ConfigParser()
-        metaconfig.read_file(open(path))
-        metaconfig.read(path)
-        qml_section = dict(metaconfig['qgis.modelbaker.qml'])
+        print( f"dave: feedback: download of metaconfig succeeded")
+        self.metaconfig.read_file(open(path))
+        self.metaconfig.read(path)
+        # enable the tool button again
+        self.create_tool_button.setEnabled(True)
 
-        self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
-        self.ilitoppingfilecache.file_received.connect(lambda: print('well received a qml - we need to know somewhere...'))
-        self.ilitoppingfilecache.refresh()
+    def on_metaconfig_failed(self, dataset_id, error_msg):
+        print( f"dave: feedback: download of metaconfig {dataset_id} failed {error_msg}")
+        # enable the tool button again
+        self.create_tool_button.setEnabled(True)
 
     def show_message(self, level, message):
         if level == Qgis.Warning:

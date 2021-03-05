@@ -24,6 +24,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 
 import re
+import time #remove later
 
 from enum import Enum
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
@@ -334,7 +335,8 @@ class ModelCompleterDelegate(QItemDelegate):
 
 class IliMetaConfigCache(IliCache):
 
-    file_received = pyqtSignal(str)
+    file_download_succeeded = pyqtSignal(str, str)
+    file_download_failed = pyqtSignal(str, str)
 
     def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
@@ -414,10 +416,11 @@ class IliMetaConfigCache(IliCache):
 
         self.model.set_repositories(self.repositories)
 
-    def download_file(self, netloc, file):
+    def download_file(self, netloc, file, dataset_id=None):
         """
         Downloads the given file from the given url to the local cache.
-        Returns the parsed config
+        passes the local file path or the id (for information) to signals.
+        Returns the file path immediately (might not be downloaded yet)
         """
 
         file_dir = os.path.join(self.cache_path, netloc, self.file_directory_name)
@@ -431,9 +434,8 @@ class IliMetaConfigCache(IliCache):
 
         # download file
         download_file(file_url, file_path,
-                      on_success=lambda: self.file_received.emit(file_path),
-                      on_error=lambda error, error_string: logger.warning(self.tr(
-                          'Could not download metaconfiguration file {url} ({message})').format(url=file_url, message=error_string))
+                      on_success=lambda: self.file_download_succeeded.emit(dataset_id, file_path),
+                      on_error=lambda error, error_string: self.file_download_failed.emit(dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
                       )
         return file_path
 
@@ -455,10 +457,13 @@ class IliMetaConfigItemModel(QStandardItemModel):
     def set_repositories(self, repositories):
         self.clear()
         row = 0
+        ids = list()
 
         for repository in repositories.values():
 
             for metaconfig in repository:
+                if any(metaconfig['id'] in s for s in ids):
+                    continue
 
                 item = QStandardItem()
                 item.setData(metaconfig['id'], int(Qt.DisplayRole))
@@ -469,6 +474,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
                 item.setData(metaconfig['relative_file_path'], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
                 item.setData(metaconfig['owner'], int(IliMetaConfigItemModel.Roles.OWNER))
 
+                ids.append(metaconfig['id'])
                 self.appendRow(item)
                 row += 1
 
@@ -512,12 +518,28 @@ class MetaConfigCompleterDelegate(QItemDelegate):
 
 class IliToppingFileCache(IliMetaConfigCache):
 
+    download_finished = pyqtSignal()
+
     def __init__(self, configuration, qml_section=None):
         IliMetaConfigCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingfilescache')
         self.model = IliToppingFileItemModel()
-        self.qml_section = qml_section
         self.file_directory_name = 'qml'
+        self.qml_section = qml_section
+        #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have atimeout in the waiting loop)
+        self.downloaded_files = list()
+        self.file_download_succeeded.connect(lambda dataset_id, path: self.on_download_status(dataset_id, path, True))
+        self.file_download_failed.connect(lambda dataset_id, path: self.on_download_status(dataset_id, path, False))
+
+    def on_download_status(self, dataset_id, path, success ):
+        # here we could add some more logic
+        print(f"downloaded {dataset_id} with {success}")
+        self.downloaded_files.append(dataset_id)
+
+        if len(self.downloaded_files) == len(self.qml_section):
+            print(f"downloaded FINISHED")
+            time.sleep(1)
+            self.download_finished.emit()
 
     def _process_informationfile(self, file, netloc):
         """
@@ -560,14 +582,15 @@ class IliToppingFileCache(IliMetaConfigCache):
 
                                     toppingfile['repository'] = netloc
                                     toppingfile['relative_file_path'] = path
-
-                                    toppingfile['local_file_path'] = self.download_file(netloc, path)
+                                    toppingfile['local_file_path'] = self.download_file(netloc, path, toppingfile['id'])
                                     repo_files.append(toppingfile)
 
-                self.repositories[netloc] = sorted(
-                    repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
+        self.repositories[netloc] = sorted(
+            repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
-                self.model.set_repositories(self.repositories)
+        self.model.set_repositories(self.repositories)
+
+        print(f"entries r {self.model.rowCount()}")
 
 
 class IliToppingFileItemModel(QStandardItemModel):
@@ -588,11 +611,13 @@ class IliToppingFileItemModel(QStandardItemModel):
     def set_repositories(self, repositories):
         self.clear()
         row = 0
+        ids = list()
 
         for repository in repositories.values():
 
             for toppingfile in repository:
-
+                if any(toppingfile['id'] in s for s in ids):
+                    continue
                 item = QStandardItem()
                 item.setData(toppingfile['id'], int(Qt.DisplayRole))
                 item.setData(toppingfile['id'], int(Qt.EditRole))
@@ -603,5 +628,6 @@ class IliToppingFileItemModel(QStandardItemModel):
                 item.setData(toppingfile['local_file_path'], int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                 item.setData(toppingfile['owner'], int(IliToppingFileItemModel.Roles.OWNER))
 
+                ids.append(toppingfile['id'])
                 self.appendRow(item)
                 row += 1
