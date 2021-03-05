@@ -421,36 +421,37 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             # Toppings: collect, download and apply
-            qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-            self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
+            if 'qgis.modelbaker.qml' in self.metaconfig.sections():
+                qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
+                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
 
-            # we wait for the download or we timeout after 30 seconds and we apply what we have
-            loop = QEventLoop()
-            self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
-            timer = QTimer()
-            timer.setSingleShot(True)
-            timer.timeout.connect(lambda: loop.quit())
-            timer.start(30000)
+                # we wait for the download or we timeout after 30 seconds and we apply what we have
+                loop = QEventLoop()
+                self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
+                timer = QTimer()
+                timer.setSingleShot(True)
+                timer.timeout.connect(lambda: loop.quit())
+                timer.start(30000)
 
-            self.ilitoppingfilecache.refresh()
-            loop.exec()
+                self.ilitoppingfilecache.refresh()
+                loop.exec()
 
-            if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section):
-                self.print_info(self.tr('All topping files successfully downloaded'))
-            else:
-                missing_file_ids = list(qml_section.values())
-                for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
-                    if downloaded_file_id in missing_file_ids:
-                        missing_file_ids.remove(downloaded_file_id)
-                self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+                if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section):
+                    self.print_info(self.tr('All topping files successfully downloaded'))
+                else:
+                    missing_file_ids = list(qml_section.values())
+                    for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
+                        if downloaded_file_id in missing_file_ids:
+                            missing_file_ids.remove(downloaded_file_id)
+                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
 
-            for layer in project.layers:
-                matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
-                                                         IliToppingFileItemModel.Roles.LAYERNAME, layer.name, 1)
-                if matches:
-                    style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
-                    self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
-                    layer.layer.loadNamedStyle(style_file_path)
+                for layer in project.layers:
+                    matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
+                                                             IliToppingFileItemModel.Roles.LAYERNAME, layer.name, 1)
+                    if matches:
+                        style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                        self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
+                        layer.layer.loadNamedStyle(style_file_path)
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
