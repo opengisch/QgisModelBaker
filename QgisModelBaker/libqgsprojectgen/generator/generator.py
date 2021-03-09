@@ -89,13 +89,25 @@ class Generator(QObject):
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
+        # When in PostGIS mode, there can be multiple geometries per table - this leads to multiple layers
+        table_appearances = {}
+        check_tables_info=self.get_tables_info()
+        for record in check_tables_info:
+            if self.schema:
+                if record['schemaname'] != self.schema:
+                    continue
+            if ignored_layers and record['tablename'] in ignored_layers:
+                continue
+            if filter_layer_list and record['tablename'] not in filter_layer_list:
+                continue
+            table_appearances[record['tablename']] = 1 if record['tablename'] not in table_appearances else table_appearances[record['tablename']]+1
+
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
             # all schemas, except the ignored ones
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-
             if ignored_layers and record['tablename'] in ignored_layers:
                 continue
 
@@ -113,7 +125,15 @@ class Generator(QObject):
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
-                    if 'ili_name' in record:
+                    if table_appearances[record['tablename']] > 1 and 'geometry_column' in record:
+                        # multiple layers for this table - append geometry column to name
+                        fields_info = self.get_fields_info(record['tablename'])
+                        for field_info in fields_info:
+                            if field_info['column_name'] == record['geometry_column']:
+                                short_name = field_info['fully_qualified_name'].split('.')[-2] + ' (' + \
+                                             field_info['fully_qualified_name'].split('.')[
+                                                 -1]+')' if 'fully_qualified_name' in field_info else record['tablename']
+                    elif 'ili_name' in record:
                         match = re.search('([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
                             short_name = match.group(1).split('.')[-1]
