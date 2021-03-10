@@ -80,8 +80,7 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
-        ignored_layers = self.get_ignored_layers()
-        tables_info = self.get_tables_info()
+        tables_info = self.get_tables_info_without_ignored_tables()
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -91,13 +90,10 @@ class Generator(QObject):
 
         # When in PostGIS mode, there can be multiple geometries per table - this leads to multiple layers
         table_appearances = {}
-        check_tables_info=self.get_tables_info()
-        for record in check_tables_info:
+        for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-            if ignored_layers and record['tablename'] in ignored_layers:
-                continue
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
             table_appearances[record['tablename']] = 1 if record['tablename'] not in table_appearances else table_appearances[record['tablename']]+1
@@ -108,8 +104,6 @@ class Generator(QObject):
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
-            if ignored_layers and record['tablename'] in ignored_layers:
-                continue
 
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
