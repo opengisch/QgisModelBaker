@@ -446,8 +446,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
 
                 for layer in project.layers:
+                    #dave the hack with the " could maybe be improved
+                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
+                    print( f'checking{layer_name}')
                     matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
-                                                             IliToppingFileItemModel.Roles.LAYERNAME, layer.name, 1)
+                                                             IliToppingFileItemModel.Roles.LAYERNAME, layer_name, 1)
                     if matches:
                         style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
                         self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
