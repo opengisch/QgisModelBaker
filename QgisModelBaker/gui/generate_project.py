@@ -173,9 +173,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
-        self.metaconfig = configparser.ConfigParser()
         self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration)
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.metaconfig = configparser.ConfigParser()
+        self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
 
@@ -423,7 +424,54 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Toppings: collect, download and apply
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, qml_section)
+                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
+
+                # we wait for the download or we timeout after 30 seconds and we apply what we have
+                loop = QEventLoop()
+                self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
+                timer = QTimer()
+                timer.setSingleShot(True)
+                timer.timeout.connect(lambda: loop.quit())
+                timer.start(30000)
+
+                self.ilitoppingfilecache.refresh()
+                self.print_info(self.tr('Waiting for the miracle...'))
+
+                loop.exec()
+
+                if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section.values()):
+                    self.print_info(self.tr('All topping files successfully downloaded'))
+                else:
+                    missing_file_ids = qml_section.values()
+                    for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
+                        if downloaded_file_id in missing_file_ids:
+                            missing_file_ids.remove(downloaded_file_id)
+                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+
+                print(qml_section)
+                for layer in project.layers:
+                    #dave the hack with the " could maybe be improved
+                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
+                    if layer_name.lower() in qml_section:
+                        matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
+                                                                   Qt.DisplayRole, qml_section[layer_name.lower()], 1)
+                        if matches:
+                            style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
+                            layer.layer.loadNamedStyle(style_file_path)
+
+            self.buttonBox.clear()
+            self.buttonBox.setEnabled(True)
+            self.buttonBox.addButton(QDialogButtonBox.Close)
+            self.progress_bar.setValue(100)
+            self.print_info(self.tr('\nDone!'), '#004905')
+
+            # Cataloges: collect, download and import
+            # Toppings: collect, download and apply
+            '''
+            if 'CONFIGURATION' in self.metaconfig.sections():
+                reference_data_list = self.metaconfig['CONFIGURATION']['qgis.modelbaker.referenceData']
+                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, reference_data_list, 'reference_data')
 
                 # we wait for the download or we timeout after 30 seconds and we apply what we have
                 loop = QEventLoop()
@@ -436,31 +484,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ilitoppingfilecache.refresh()
                 loop.exec()
 
-                if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section):
-                    self.print_info(self.tr('All topping files successfully downloaded'))
+                if len(self.ilitoppingfilecache.downloaded_files) == len(reference_data_list):
+                    self.print_info(self.tr('All catalogue files successfully downloaded'))
                 else:
-                    missing_file_ids = list(qml_section.values())
+                    missing_file_ids = reference_data_list
                     for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
                         if downloaded_file_id in missing_file_ids:
                             missing_file_ids.remove(downloaded_file_id)
-                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+                    self.print_info(self.tr('Some catalogue files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
 
-                for layer in project.layers:
-                    #dave the hack with the " could maybe be improved
-                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
-                    print( f'checking{layer_name}')
-                    matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
-                                                             IliToppingFileItemModel.Roles.LAYERNAME, layer_name, 1)
-                    if matches:
-                        style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
-                        self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
-                        layer.layer.loadNamedStyle(style_file_path)
-
-            self.buttonBox.clear()
-            self.buttonBox.setEnabled(True)
-            self.buttonBox.addButton(QDialogButtonBox.Close)
-            self.progress_bar.setValue(100)
-            self.print_info(self.tr('\nDone!'), '#004905')
+                #now import them
+            '''
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
@@ -635,7 +669,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
 
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
-        self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
+        self.ilimetaconfigcache.file_download_succeeded.connect(lambda netloc, dataset_id, path: self.on_metaconfig_received(path, netloc))
         self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
         self.refresh_ili_metaconfig_cache()
 
@@ -757,10 +791,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.create_tool_button.setEnabled(False)
         self.ilimetaconfigcache.download_file(repository, path, dataset_id)
 
-    def on_metaconfig_received(self, path):
+    def on_metaconfig_received(self, path, repository):
         print( f"dave: feedback: download of metaconfig succeeded")
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
+        self.metaconfig_repo = repository
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 

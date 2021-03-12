@@ -335,8 +335,8 @@ class ModelCompleterDelegate(QItemDelegate):
 
 class IliMetaConfigCache(IliCache):
 
-    file_download_succeeded = pyqtSignal(str, str)
-    file_download_failed = pyqtSignal(str, str)
+    file_download_succeeded = pyqtSignal(str, str, str)
+    file_download_failed = pyqtSignal(str, str, str)
 
     def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
@@ -422,9 +422,11 @@ class IliMetaConfigCache(IliCache):
         passes the local file path or the id (for information) to signals.
         Returns the file path immediately (might not be downloaded yet)
         """
-
+        print( dataset_id )
         file_dir = os.path.join(self.cache_path, netloc, self.file_directory_name)
-
+        print(self.cache_path)
+        print(netloc)
+        print( file_dir )
         os.makedirs(file_dir, exist_ok=True)
 
         file_url = urllib.parse.urlunsplit(('https',netloc, file, None, None))
@@ -434,9 +436,10 @@ class IliMetaConfigCache(IliCache):
 
         # download file
         download_file(file_url, file_path,
-                      on_success=lambda: self.file_download_succeeded.emit(dataset_id, file_path),
-                      on_error=lambda error, error_string: self.file_download_failed.emit(dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
+                      on_success=lambda: self.file_download_succeeded.emit(netloc, dataset_id, file_path),
+                      on_error=lambda error, error_string: self.file_download_failed.emit(netloc, dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
                       )
+        print( file_path )
         return file_path
 
 
@@ -519,24 +522,53 @@ class MetaConfigCompleterDelegate(QItemDelegate):
 class IliToppingFileCache(IliMetaConfigCache):
 
     download_finished = pyqtSignal()
+    """
+    meta_netloc is the repository (netloc) of the metaconfiguration file used for file paths in the file_ids
+    file_ids can contain ilidata: or file: information
+    """
 
-    def __init__(self, configuration, qml_section=None):
+    def __init__(self, configuration, metaconfig_netloc=None, file_ids=None, file_directory_name=None):
         IliMetaConfigCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingfilescache')
         self.model = IliToppingFileItemModel()
-        self.file_directory_name = 'qml'
-        self.qml_section = qml_section
+        self.metaconfig_netloc = metaconfig_netloc
+        self.file_directory_name = file_directory_name
+        self.file_ids = file_ids
         #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have atimeout in the waiting loop)
         self.downloaded_files = list()
-        self.file_download_succeeded.connect(lambda dataset_id, path: self.on_download_status(dataset_id, path, True))
-        self.file_download_failed.connect(lambda dataset_id, path: self.on_download_status(dataset_id, path, False))
+        self.file_download_succeeded.connect(lambda netloc, dataset_id, path: self.on_download_status(dataset_id, path, True))
+        self.file_download_failed.connect(lambda netloc, dataset_id, path: self.on_download_status(dataset_id, path, False))
+
+    def refresh(self):
+        if not self.directories is None:
+            for directory in self.directories:
+                self.process_model_directory(directory)
+        #used here?
+        if not self.single_ili_file is None:
+            if os.path.exists(self.single_ili_file):
+                self.process_single_ili_file()
+
+        #download local files
+        repo_files = list()
+        for file_path_id in [file_id for file_id in self.file_ids if file_id[0:5] == 'file:']:
+            toppingfile = dict()
+            toppingfile['id'] = file_path_id
+            toppingfile['version'] = None
+            toppingfile['owner'] = None
+            toppingfile['repository'] = self.metaconfig_netloc
+            toppingfile['relative_file_path'] = file_path_id[5:]
+            toppingfile['local_file_path'] = self.download_file(self.metaconfig_netloc, file_path_id[5:],  file_path_id)
+            repo_files.append(toppingfile)
+
+        self.repositories[f'files_{self.metaconfig_netloc}'] = repo_files
+        self.model.set_repositories(self.repositories)
 
     def on_download_status(self, dataset_id, path, success ):
         # here we could add some more logic
         print(f"downloaded {dataset_id} with {success}")
         self.downloaded_files.append(dataset_id)
 
-        if len(self.downloaded_files) == len(self.qml_section):
+        if len(self.downloaded_files) == len(self.file_ids):
             print(f"downloaded FINISHED")
             time.sleep(1)
             self.download_finished.emit()
@@ -556,8 +588,8 @@ class IliToppingFileCache(IliMetaConfigCache):
         repo_files = list()
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
             for topping_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
-                dataset_id = 'data:{}'.format(topping_metadata.find('ili23:id', self.ns).text)
-                if dataset_id in self.qml_section.values():
+                dataset_id = 'ilidata:{}'.format(topping_metadata.find('ili23:id', self.ns).text)
+                if dataset_id in self.file_ids:
                     for files_element in topping_metadata.findall('ili23:files', self.ns):
                         for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
                             for file_element in data_file.findall('ili23:file', self.ns):
@@ -565,8 +597,7 @@ class IliToppingFileCache(IliMetaConfigCache):
                                     path = file.find('ili23:path', self.ns).text
 
                                     toppingfile = dict()
-                                    toppingfile['id'] = topping_metadata.find('ili23:id', self.ns).text
-                                    toppingfile['layer_name'] = list(self.qml_section.keys())[list(self.qml_section.values()).index(dataset_id)]
+                                    toppingfile['id'] = dataset_id
 
                                     version = topping_metadata.find('ili23:version', self.ns)
                                     if version:
@@ -582,7 +613,7 @@ class IliToppingFileCache(IliMetaConfigCache):
 
                                     toppingfile['repository'] = netloc
                                     toppingfile['relative_file_path'] = path
-                                    toppingfile['local_file_path'] = self.download_file(netloc, path, toppingfile['id'])
+                                    toppingfile['local_file_path'] = self.download_file(netloc, path, dataset_id)
                                     repo_files.append(toppingfile)
 
         self.repositories[netloc] = sorted(
@@ -590,17 +621,14 @@ class IliToppingFileCache(IliMetaConfigCache):
 
         self.model.set_repositories(self.repositories)
 
-        print(f"entries r {self.model.rowCount()}")
-
 
 class IliToppingFileItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
-        LAYERNAME = Qt.UserRole + 3
-        RELATIVEFILEPATH = Qt.UserRole + 4
-        LOCALFILEPATH = Qt.UserRole + 5
-        OWNER = Qt.UserRole + 6
+        RELATIVEFILEPATH = Qt.UserRole + 3
+        LOCALFILEPATH = Qt.UserRole + 4
+        OWNER = Qt.UserRole + 5
 
         def __int__(self):
             return self.value
@@ -623,7 +651,6 @@ class IliToppingFileItemModel(QStandardItemModel):
                 item.setData(toppingfile['id'], int(Qt.EditRole))
                 item.setData(toppingfile['repository'], int(IliToppingFileItemModel.Roles.ILIREPO))
                 item.setData(toppingfile['version'], int(IliToppingFileItemModel.Roles.VERSION))
-                item.setData(toppingfile['layer_name'], int(IliToppingFileItemModel.Roles.LAYERNAME))
                 item.setData(toppingfile['relative_file_path'], int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH))
                 item.setData(toppingfile['local_file_path'], int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                 item.setData(toppingfile['owner'], int(IliToppingFileItemModel.Roles.OWNER))
