@@ -615,6 +615,7 @@ class IliToppingFileCache(IliMetaConfigCache):
         self.repositories[netloc] = sorted(
             repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
+        # Dave: check mal aus weshalb jedes mal alle repositories gesetzt werden
         self.model.set_repositories(self.repositories)
 
 

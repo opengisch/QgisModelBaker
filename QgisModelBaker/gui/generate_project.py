@@ -421,8 +421,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             # Toppings: collect, download and apply
-            self.print_info(self.tr('Check out the toppings'))
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
+                self.print_info(self.tr('Check out the toppings'))
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
                 qml_ToppingFileCache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
 
@@ -460,10 +460,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                             layer.layer.loadNamedStyle(style_file_path)
 
             # Cataloges: collect, download and import
-            self.print_info(self.tr('Check out the cats'))
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.referenceData' in configuration_section:
+                    self.print_info(self.tr('Check out the cats'))
                     reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(',')
                     catalogue_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, reference_data_list, 'catalogue')
 
@@ -857,7 +857,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache.download_file(repository, path, dataset_id)
 
     def on_metaconfig_received(self, path, repository):
-        print( f"dave: feedback: download of metaconfig succeeded")
+        print( f"dave: feedback: download of metaconfig succeeded - maybe make metaconfig field green")
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
         self.metaconfig_repo = repository
@@ -865,7 +865,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.create_tool_button.setEnabled(True)
 
     def on_metaconfig_failed(self, dataset_id, error_msg):
-        print( f"dave: feedback: download of metaconfig {dataset_id} failed {error_msg}")
+        print( f"dave: feedback: download of metaconfig {dataset_id} failed {error_msg} - maybe make metaconfig field red")
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
