@@ -30,7 +30,7 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration
 from QgisModelBaker.libili2db.ilicache import (
     IliCache,
     ModelCompleterDelegate,
@@ -173,7 +173,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
-        self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration)
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
         self.metaconfig = configparser.ConfigParser()
         self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
@@ -422,79 +421,124 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             # Toppings: collect, download and apply
+            self.print_info(self.tr('Check out the toppings'))
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
+                qml_ToppingFileCache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
 
                 # we wait for the download or we timeout after 30 seconds and we apply what we have
                 loop = QEventLoop()
-                self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
+                qml_ToppingFileCache.download_finished.connect(lambda: loop.quit())
                 timer = QTimer()
                 timer.setSingleShot(True)
                 timer.timeout.connect(lambda: loop.quit())
                 timer.start(30000)
 
-                self.ilitoppingfilecache.refresh()
+                qml_ToppingFileCache.refresh()
                 self.print_info(self.tr('Waiting for the miracle...'))
 
                 loop.exec()
 
-                if len(self.ilitoppingfilecache.downloaded_files) == len(qml_section.values()):
+                if len(qml_ToppingFileCache.downloaded_files) == len(qml_section.values()):
                     self.print_info(self.tr('All topping files successfully downloaded'))
                 else:
                     missing_file_ids = qml_section.values()
-                    for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
+                    for downloaded_file_id in qml_ToppingFileCache.downloaded_files:
                         if downloaded_file_id in missing_file_ids:
                             missing_file_ids.remove(downloaded_file_id)
                     self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
 
-                print(qml_section)
                 for layer in project.layers:
                     #dave the hack with the " could maybe be improved
                     layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
                     if layer_name.lower() in qml_section:
-                        matches = self.ilitoppingfilecache.model.match(self.ilitoppingfilecache.model.index(0, 0),
+                        matches = qml_ToppingFileCache.model.match(qml_ToppingFileCache.model.index(0, 0),
                                                                    Qt.DisplayRole, qml_section[layer_name.lower()], 1)
                         if matches:
                             style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
                             self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
                             layer.layer.loadNamedStyle(style_file_path)
 
+            # Cataloges: collect, download and import
+            self.print_info(self.tr('Check out the cats'))
+            if 'CONFIGURATION' in self.metaconfig.sections():
+                configuration_section = self.metaconfig['CONFIGURATION']
+                if 'qgis.modelbaker.referenceData' in configuration_section:
+                    reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(',')
+                    catalogue_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, reference_data_list, 'catalogue')
+
+                    # we wait for the download or we timeout after 30 seconds and we apply what we have
+                    loop = QEventLoop()
+                    catalogue_ToppingFileCache.download_finished.connect(lambda: loop.quit())
+                    timer = QTimer()
+                    timer.setSingleShot(True)
+                    timer.timeout.connect(lambda: loop.quit())
+                    timer.start(30000)
+
+                    catalogue_ToppingFileCache.refresh()
+                    self.print_info(self.tr('Waiting for the miracle...'))
+
+                    loop.exec()
+
+                    if len(catalogue_ToppingFileCache.downloaded_files) == len(reference_data_list):
+                        self.print_info(self.tr('All catalogue files successfully downloaded'))
+                    else:
+                        missing_file_ids = reference_data_list
+                        for downloaded_file_id in catalogue_ToppingFileCache.downloaded_files:
+                            if downloaded_file_id in missing_file_ids:
+                                missing_file_ids.remove(downloaded_file_id)
+                        self.print_info(self.tr('Some catalogue files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+
+                    for cat_file_id in reference_data_list:
+                        matches = catalogue_ToppingFileCache.model.match(catalogue_ToppingFileCache.model.index(0, 0),
+                                                                   Qt.DisplayRole, cat_file_id, 1)
+                        if matches:
+                            cat_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            self.print_info(
+                                self.tr('Import catalogue {}..').format(cat_file_path))
+
+                            configuration = self.updated_catalogue_import_configuration(cat_file_path)
+
+                            # create schema with superuser
+                            db_factory = self.db_simple_factory.create_factory(db_id)
+                            res, message = db_factory.pre_generate_project(configuration)
+
+                            if not res:
+                                self.txtStdout.setText(message)
+                                return
+
+                            with OverrideCursor(Qt.WaitCursor):
+
+                                dataImporter = iliimporter.Importer(dataImport=True)
+
+                                dataImporter.tool = self.type_combo_box.currentData()
+                                dataImporter.configuration = configuration
+
+                                dataImporter.stdout.connect(self.print_info)
+                                dataImporter.stderr.connect(self.on_stderr)
+                                dataImporter.process_started.connect(self.on_process_started)
+                                dataImporter.process_finished.connect(self.on_process_finished)
+
+                                self.progress_bar.setValue(25)
+
+                                try:
+                                    if dataImporter.run(edited_command) != iliimporter.Importer.SUCCESS:
+                                        self.enable()
+                                        self.progress_bar.hide()
+                                        return
+                                except JavaNotFoundError as e:
+                                    self.txtStdout.setTextColor(QColor('#000000'))
+                                    self.txtStdout.clear()
+                                    self.txtStdout.setText(e.error_string)
+                                    self.enable()
+                                    self.progress_bar.hide()
+                                    return
+
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
             self.buttonBox.addButton(QDialogButtonBox.Close)
             self.progress_bar.setValue(100)
             self.print_info(self.tr('\nDone!'), '#004905')
-
-            # Cataloges: collect, download and import
-            # Toppings: collect, download and apply
-            '''
-            if 'CONFIGURATION' in self.metaconfig.sections():
-                reference_data_list = self.metaconfig['CONFIGURATION']['qgis.modelbaker.referenceData']
-                self.ilitoppingfilecache = IliToppingFileCache(self.base_configuration, reference_data_list, 'reference_data')
-
-                # we wait for the download or we timeout after 30 seconds and we apply what we have
-                loop = QEventLoop()
-                self.ilitoppingfilecache.download_finished.connect(lambda: loop.quit())
-                timer = QTimer()
-                timer.setSingleShot(True)
-                timer.timeout.connect(lambda: loop.quit())
-                timer.start(30000)
-
-                self.ilitoppingfilecache.refresh()
-                loop.exec()
-
-                if len(self.ilitoppingfilecache.downloaded_files) == len(reference_data_list):
-                    self.print_info(self.tr('All catalogue files successfully downloaded'))
-                else:
-                    missing_file_ids = reference_data_list
-                    for downloaded_file_id in self.ilitoppingfilecache.downloaded_files:
-                        if downloaded_file_id in missing_file_ids:
-                            missing_file_ids.remove(downloaded_file_id)
-                    self.print_info(self.tr('Some catalogue files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
-
-                #now import them
-            '''
 
     def print_info(self, text, text_color='#000000'):
         self.txtStdout.setTextColor(QColor(text_color))
@@ -576,6 +620,27 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if not self.create_constraints:
             configuration.disable_validation = True
 
+        return configuration
+
+    def updated_catalogue_import_configuration(self, file):
+        """
+        Get the configuration that is updated with the user configuration changes on the dialog.
+        :return: Configuration
+        """
+        configuration = ImportDataConfiguration()
+
+        mode = self.type_combo_box.currentData()
+
+        db_id = mode & ~DbIliMode.ili
+        self._lst_panel[db_id].get_fields(configuration)
+
+        configuration.tool = mode
+        configuration.xtffile = file
+        configuration.delete_data = False
+        configuration.base_configuration = self.base_configuration
+        configuration.with_schemaimport = False
+        #if not self.validate_data:
+        #    configuration.disable_validation = True
         return configuration
 
     def save_configuration(self, configuration):

@@ -422,16 +422,13 @@ class IliMetaConfigCache(IliCache):
         passes the local file path or the id (for information) to signals.
         Returns the file path immediately (might not be downloaded yet)
         """
-        print( dataset_id )
         file_dir = os.path.join(self.cache_path, netloc, self.file_directory_name)
-        print(self.cache_path)
-        print(netloc)
-        print( file_dir )
         os.makedirs(file_dir, exist_ok=True)
 
         file_url = urllib.parse.urlunsplit(('https',netloc, file, None, None))
         file_path = os.path.join(self.cache_path, netloc, file)
 
+        print( f"file_dir: {file_dir} file_url:{file_url} file_path:{file_path}")
         logger = logging.getLogger(__name__)
 
         # download file
@@ -439,7 +436,6 @@ class IliMetaConfigCache(IliCache):
                       on_success=lambda: self.file_download_succeeded.emit(netloc, dataset_id, file_path),
                       on_error=lambda error, error_string: self.file_download_failed.emit(netloc, dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
                       )
-        print( file_path )
         return file_path
 
 
