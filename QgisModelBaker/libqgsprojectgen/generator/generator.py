@@ -322,43 +322,65 @@ class Generator(QObject):
                             bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
-    def legend(self, layers, ignore_node_names=None):
+    def node_with_kids(self, layers, layer_structure_node, current_node_name):
+        current_node = None
+        if layer_structure_node and 'child-nodes' in layer_structure_node:
+            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name))
+            for node_name in layer_structure_node['child-nodes'].keys():
+                node = self.node_with_kids(layers, layer_structure_node['child-nodes'][node_name], node_name)
+                current_node.append(node)
+        else:
+            for layer in layers:
+                if layer.alias == current_node_name:
+                    current_node = layer
+                    break
+        if not current_node:
+            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name + ' bad config'))
+        return current_node
+
+    def legend(self, layers, ignore_node_names=None, layertree_structure=None):
         legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
-        tables = LegendGroup(
-            QCoreApplication.translate('LegendGroup', 'tables'))
-        domains = LegendGroup(QCoreApplication.translate(
-            'LegendGroup', 'domains'), False)
 
-        point_layers = []
-        line_layers = []
-        polygon_layers = []
+        if layertree_structure:
+            for node_name in layertree_structure.keys():
+                node = self.node_with_kids(layers, layertree_structure[node_name], node_name)
+                legend.append(node)
+        else:
+            tables = LegendGroup(
+                QCoreApplication.translate('LegendGroup', 'tables'))
+            domains = LegendGroup(QCoreApplication.translate(
+                'LegendGroup', 'domains'), False)
 
-        for layer in layers:
-            if layer.geometry_column:
-                geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
-                if geometry_type == QgsWkbTypes.PointGeometry:
-                    point_layers.append(layer)
-                elif geometry_type == QgsWkbTypes.LineGeometry:
-                    line_layers.append(layer)
-                elif geometry_type == QgsWkbTypes.PolygonGeometry:
-                    polygon_layers.append(layer)
-            else:
-                if layer.is_domain:
-                    domains.append(layer)
+            point_layers = []
+            line_layers = []
+            polygon_layers = []
+
+            for layer in layers:
+                if layer.geometry_column:
+                    geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
+                    if geometry_type == QgsWkbTypes.PointGeometry:
+                        point_layers.append(layer)
+                    elif geometry_type == QgsWkbTypes.LineGeometry:
+                        line_layers.append(layer)
+                    elif geometry_type == QgsWkbTypes.PolygonGeometry:
+                        polygon_layers.append(layer)
                 else:
-                    tables.append(layer)
+                    if layer.is_domain:
+                        domains.append(layer)
+                    else:
+                        tables.append(layer)
 
-        for l in polygon_layers:
-            legend.append(l)
-        for l in line_layers:
-            legend.append(l)
-        for l in point_layers:
-            legend.append(l)
+            for l in polygon_layers:
+                legend.append(l)
+            for l in line_layers:
+                legend.append(l)
+            for l in point_layers:
+                legend.append(l)
 
-        if not tables.is_empty():
-            legend.append(tables)
-        if not domains.is_empty():
-            legend.append(domains)
+            if not tables.is_empty():
+                legend.append(tables)
+            if not domains.is_empty():
+                legend.append(domains)
 
         return legend
 

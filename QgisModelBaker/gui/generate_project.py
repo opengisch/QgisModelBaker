@@ -351,7 +351,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                       configuration.inheritance, configuration.dbschema, mgmt_uri=mgmt_uri)
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
-                self.progress_bar.setValue(50)
+                self.progress_bar.setValue(30)
             except (DBConnectorError, FileNotFoundError):
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
@@ -391,80 +391,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.progress_bar.hide()
                 return
 
-            self.progress_bar.setValue(70)
+            self.progress_bar.setValue(40)
             self.print_info(
                 self.tr('Obtaining relations from the database…'))
             relations, bags_of_enum = generator.relations(available_layers)
-            self.progress_bar.setValue(75)
+            self.progress_bar.setValue(45)
+
             self.print_info(self.tr('Arranging layers into groups…'))
             legend = generator.legend(available_layers)
-            self.progress_bar.setValue(85)
-
-            project = Project()
-            project.layers = available_layers
-            project.relations = relations
-            project.bags_of_enum = bags_of_enum
-            project.legend = legend
-            self.print_info(self.tr('Configuring forms and widgets…'))
-            project.post_generate()
-            self.progress_bar.setValue(90)
-
-            qgis_project = QgsProject.instance()
-
-            self.print_info(self.tr('Generating QGIS project…'))
-            project.create(None, qgis_project)
-
-            # Set the extent of the mapCanvas from the first layer extent found
-            for layer in project.layers:
-                if layer.extent is not None:
-                    self.iface.mapCanvas().setExtent(layer.extent)
-                    self.iface.mapCanvas().refresh()
-                    break
-
-            # Toppings QMLs: collect, download and apply
-            if 'qgis.modelbaker.qml' in self.metaconfig.sections():
-                self.print_info(self.tr('Check out the toppings'))
-                qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-                qml_ToppingFileCache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
-
-                # we wait for the download or we timeout after 30 seconds and we apply what we have
-                loop = QEventLoop()
-                qml_ToppingFileCache.download_finished.connect(lambda: loop.quit())
-                timer = QTimer()
-                timer.setSingleShot(True)
-                timer.timeout.connect(lambda: loop.quit())
-                timer.start(30000)
-
-                qml_ToppingFileCache.refresh()
-                self.print_info(self.tr('Waiting for the miracle...'))
-
-                loop.exec()
-
-                if len(qml_ToppingFileCache.downloaded_files) == len(qml_section.values()):
-                    self.print_info(self.tr('All topping files successfully downloaded'))
-                else:
-                    missing_file_ids = qml_section.values()
-                    for downloaded_file_id in qml_ToppingFileCache.downloaded_files:
-                        if downloaded_file_id in missing_file_ids:
-                            missing_file_ids.remove(downloaded_file_id)
-                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
-
-                for layer in project.layers:
-                    #dave the hack with the " could maybe be improved
-                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
-                    if layer_name.lower() in qml_section:
-                        matches = qml_ToppingFileCache.model.match(qml_ToppingFileCache.model.index(0, 0),
-                                                                   Qt.DisplayRole, qml_section[layer_name.lower()], 1)
-                        if matches:
-                            style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
-                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
-                            layer.layer.loadNamedStyle(style_file_path)
 
             # Toppings legend and layers: collect, download and apply
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.layertree' in configuration_section:
-                    self.print_info(self.tr('Check out the layertree'))
+                    self.print_info(self.tr('Topping contains a layertree structure'))
                     layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(',')
                     layertree_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, layertree_data_list, 'layertree')
 
@@ -501,10 +441,77 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                 try:
                                     layertree_data = yaml.safe_load(stream)
                                     print(layertree_data)
+                                    if 'legend' in layertree_data:
+                                        legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
                                 except yaml.YAMLError as exc:
                                     print(exc)
 
-                    #legend = generator.legend(available_layers)legend = generator.legend(available_layers)
+            self.progress_bar.setValue(55)
+
+            project = Project()
+            project.layers = available_layers
+            project.relations = relations
+            project.bags_of_enum = bags_of_enum
+            project.legend = legend
+
+            self.print_info(self.tr('Configuring forms and widgets…'))
+            project.post_generate()
+            self.progress_bar.setValue(90)
+
+            qgis_project = QgsProject.instance()
+
+            self.print_info(self.tr('Generating QGIS project…'))
+            project.create(None, qgis_project)
+
+            # Set the extent of the mapCanvas from the first layer extent found
+            for layer in project.layers:
+                if layer.extent is not None:
+                    self.iface.mapCanvas().setExtent(layer.extent)
+                    self.iface.mapCanvas().refresh()
+                    break
+
+            self.progress_bar.setValue(60)
+
+            # Toppings QMLs: collect, download and apply
+            if 'qgis.modelbaker.qml' in self.metaconfig.sections():
+                self.print_info(self.tr('Topping contains QML information'))
+                qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
+                qml_ToppingFileCache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
+
+                # we wait for the download or we timeout after 30 seconds and we apply what we have
+                loop = QEventLoop()
+                qml_ToppingFileCache.download_finished.connect(lambda: loop.quit())
+                timer = QTimer()
+                timer.setSingleShot(True)
+                timer.timeout.connect(lambda: loop.quit())
+                timer.start(30000)
+
+                qml_ToppingFileCache.refresh()
+                self.print_info(self.tr('Waiting for the miracle...'))
+
+                loop.exec()
+
+                if len(qml_ToppingFileCache.downloaded_files) == len(qml_section.values()):
+                    self.print_info(self.tr('All topping files successfully downloaded'))
+                else:
+                    missing_file_ids = qml_section.values()
+                    for downloaded_file_id in qml_ToppingFileCache.downloaded_files:
+                        if downloaded_file_id in missing_file_ids:
+                            missing_file_ids.remove(downloaded_file_id)
+                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+
+                for layer in project.layers:
+                    #dave the hack with the " could maybe be improved
+                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
+                    if layer_name.lower() in qml_section:
+                        matches = qml_ToppingFileCache.model.match(qml_ToppingFileCache.model.index(0, 0),
+                                                                   Qt.DisplayRole, qml_section[layer_name.lower()], 1)
+                        if matches:
+                            style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
+                            layer.layer.loadNamedStyle(style_file_path)
+
+            self.progress_bar.setValue(80)
 
             # Cataloges: collect, download and import
             if 'CONFIGURATION' in self.metaconfig.sections():
