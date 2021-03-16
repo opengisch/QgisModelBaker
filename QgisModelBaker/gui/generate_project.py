@@ -23,6 +23,7 @@ import webbrowser
 
 import re
 import configparser
+import yaml
 from psycopg2 import OperationalError
 
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
@@ -420,7 +421,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.iface.mapCanvas().refresh()
                     break
 
-            # Toppings: collect, download and apply
+            # Toppings QMLs: collect, download and apply
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 self.print_info(self.tr('Check out the toppings'))
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
@@ -458,6 +459,52 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                             style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
                             self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
                             layer.layer.loadNamedStyle(style_file_path)
+
+            # Toppings legend and layers: collect, download and apply
+            if 'CONFIGURATION' in self.metaconfig.sections():
+                configuration_section = self.metaconfig['CONFIGURATION']
+                if 'qgis.modelbaker.layertree' in configuration_section:
+                    self.print_info(self.tr('Check out the layertree'))
+                    layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(',')
+                    layertree_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, layertree_data_list, 'layertree')
+
+                    # we wait for the download or we timeout after 30 seconds and we apply what we have
+                    loop = QEventLoop()
+                    layertree_ToppingFileCache.download_finished.connect(lambda: loop.quit())
+                    timer = QTimer()
+                    timer.setSingleShot(True)
+                    timer.timeout.connect(lambda: loop.quit())
+                    timer.start(30000)
+
+                    layertree_ToppingFileCache.refresh()
+                    self.print_info(self.tr('Waiting for the miracle...'))
+
+                    loop.exec()
+
+                    if len(layertree_ToppingFileCache.downloaded_files) == len(layertree_data_list):
+                        self.print_info(self.tr('All layertree files successfully downloaded'))
+                    else:
+                        missing_file_ids = layertree_data_list
+                        for downloaded_file_id in layertree_ToppingFileCache.downloaded_files:
+                            if downloaded_file_id in missing_file_ids:
+                                missing_file_ids.remove(downloaded_file_id)
+                        self.print_info(self.tr('Some layertree files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
+
+                    for layertree_file_id in layertree_data_list:
+                        matches = layertree_ToppingFileCache.model.match(layertree_ToppingFileCache.model.index(0, 0),
+                                                                   Qt.DisplayRole, layertree_file_id, 1)
+                        if matches:
+                            layertree_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            self.print_info(
+                                self.tr('Parse layertree {}..').format(layertree_file_path))
+                            with open(layertree_file_path, 'r') as stream:
+                                try:
+                                    layertree_data = yaml.safe_load(stream)
+                                    print(layertree_data)
+                                except yaml.YAMLError as exc:
+                                    print(exc)
+
+                    #legend = generator.legend(available_layers)legend = generator.legend(available_layers)
 
             # Cataloges: collect, download and import
             if 'CONFIGURATION' in self.metaconfig.sections():
