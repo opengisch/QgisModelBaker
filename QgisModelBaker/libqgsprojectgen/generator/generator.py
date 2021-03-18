@@ -322,12 +322,13 @@ class Generator(QObject):
                             bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
-    def node_with_kids(self, layers, layer_structure_node, current_node_name):
+    def full_node(self, layers, layer_structure_node, current_node_name):
         current_node = None
         if layer_structure_node and 'child-nodes' in layer_structure_node:
-            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name))
+            expanded = False if 'expanded' in layer_structure_node and not layer_structure_node['expanded'] else True
+            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded)
             for node_name in layer_structure_node['child-nodes'].keys():
-                node = self.node_with_kids(layers, layer_structure_node['child-nodes'][node_name], node_name)
+                node = self.full_node(layers, layer_structure_node['child-nodes'][node_name], node_name)
                 current_node.append(node)
         else:
             for layer in layers:
@@ -343,7 +344,7 @@ class Generator(QObject):
 
         if layertree_structure:
             for node_name in layertree_structure.keys():
-                node = self.node_with_kids(layers, layertree_structure[node_name], node_name)
+                node = self.full_node(layers, layertree_structure[node_name], node_name)
                 legend.append(node)
         else:
             tables = LegendGroup(
