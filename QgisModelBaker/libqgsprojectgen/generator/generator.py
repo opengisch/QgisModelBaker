@@ -327,20 +327,21 @@ class Generator(QObject):
         if item:
             current_node_name = next(iter(item))
             item_properties = item[current_node_name]
-            if item_properties:
-                if 'group' in item_properties and item_properties['group']:
+            if item_properties and 'group' in item_properties and item_properties['group']:
                     expanded = False if 'expanded' in item_properties and not item_properties['expanded'] else True
                     current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded)
                     if 'child-nodes' in item_properties:
                         for child_item in item_properties['child-nodes']:
                             node = self.full_node(layers, child_item)
                             current_node.append(node)
-                else:
-                    for layer in layers:
-                        if layer.alias == current_node_name:
-                            current_node = layer
-                            break
+            else:
+                for layer in layers:
+                    if layer.alias == current_node_name:
+                        current_node = layer
+                        break
+
             if not current_node:
+                current_node
                 current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name + ' bad config'))
         return current_node
 
