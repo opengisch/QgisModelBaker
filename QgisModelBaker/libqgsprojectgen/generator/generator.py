@@ -322,29 +322,33 @@ class Generator(QObject):
                             bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
-    def full_node(self, layers, layer_structure_node, current_node_name):
+    def full_node(self, layers, item):
         current_node = None
-        if layer_structure_node and 'child-nodes' in layer_structure_node:
-            expanded = False if 'expanded' in layer_structure_node and not layer_structure_node['expanded'] else True
-            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded)
-            for node_name in layer_structure_node['child-nodes'].keys():
-                node = self.full_node(layers, layer_structure_node['child-nodes'][node_name], node_name)
-                current_node.append(node)
-        else:
-            for layer in layers:
-                if layer.alias == current_node_name:
-                    current_node = layer
-                    break
-        if not current_node:
-            current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name + ' bad config'))
+        if item:
+            current_node_name = next(iter(item))
+            item_properties = item[current_node_name]
+            if item_properties:
+                if 'group' in item_properties and item_properties['group']:
+                    expanded = False if 'expanded' in item_properties and not item_properties['expanded'] else True
+                    current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded)
+                    if 'child-nodes' in item_properties:
+                        for child_item in item_properties['child-nodes']:
+                            node = self.full_node(layers, child_item)
+                            current_node.append(node)
+                else:
+                    for layer in layers:
+                        if layer.alias == current_node_name:
+                            current_node = layer
+                            break
+            if not current_node:
+                current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name + ' bad config'))
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
         legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
-
         if layertree_structure:
-            for node_name in layertree_structure.keys():
-                node = self.full_node(layers, layertree_structure[node_name], node_name)
+            for item in layertree_structure:
+                node = self.full_node(layers, item)
                 legend.append(node)
         else:
             tables = LegendGroup(

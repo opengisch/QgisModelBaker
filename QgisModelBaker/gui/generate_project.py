@@ -440,7 +440,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                             with open(layertree_file_path, 'r') as stream:
                                 try:
                                     layertree_data = yaml.safe_load(stream)
-                                    print(layertree_data)
                                     if 'legend' in layertree_data:
                                         legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
                                 except yaml.YAMLError as exc:
