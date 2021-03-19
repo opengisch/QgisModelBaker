@@ -329,28 +329,26 @@ class Generator(QObject):
             item_properties = item[current_node_name]
             if item_properties and 'group' in item_properties and item_properties['group']:
                     expanded = False if 'expanded' in item_properties and not item_properties['expanded'] else True
-                    current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded)
+                    current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded, static_sorting = True)
                     if 'child-nodes' in item_properties:
                         for child_item in item_properties['child-nodes']:
                             node = self.full_node(layers, child_item)
-                            current_node.append(node)
+                            if node:
+                                current_node.append(node)
             else:
                 for layer in layers:
                     if layer.alias == current_node_name:
                         current_node = layer
                         break
-
-            if not current_node:
-                current_node
-                current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name + ' bad config'))
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
-        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
+        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names, static_sorting=layertree_structure is not None)
         if layertree_structure:
             for item in layertree_structure:
                 node = self.full_node(layers, item)
-                legend.append(node)
+                if node:
+                    legend.append(node)
         else:
             tables = LegendGroup(
                 QCoreApplication.translate('LegendGroup', 'tables'))
