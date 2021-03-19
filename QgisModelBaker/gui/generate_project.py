@@ -398,8 +398,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(45)
 
             self.print_info(self.tr('Arranging layers into groups…'))
-            legend = generator.legend(available_layers)
 
+            custom_layer_order_structure = list()
             # Toppings legend and layers: collect, download and apply
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
@@ -442,8 +442,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                     layertree_data = yaml.safe_load(stream)
                                     if 'legend' in layertree_data:
                                         legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+                                    if 'layer-order' in layertree_data:
+                                        custom_layer_order_structure = layertree_data['layer-order']
                                 except yaml.YAMLError as exc:
                                     print(exc)
+            else:
+                legend = generator.legend(available_layers)
 
             self.progress_bar.setValue(55)
 
@@ -452,6 +456,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.relations = relations
             project.bags_of_enum = bags_of_enum
             project.legend = legend
+            project.custom_layer_order_structure = custom_layer_order_structure
 
             self.print_info(self.tr('Configuring forms and widgets…'))
             project.post_generate()
