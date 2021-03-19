@@ -62,6 +62,8 @@ class LegendGroup(object):
         if not group:
             group = qgis_project.layerTreeRoot()
 
+        existing_layer_names = [found_layer.name() for found_layer in group.findLayers()]
+
         for item in self.items:
             if isinstance(item, LegendGroup):
                 subgroup = group.findGroup(item.name)
@@ -71,8 +73,9 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                index = get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
-                group.insertLayer(index, layer)
+                if layer.name() not in existing_layer_names:
+                    index = get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
+                    group.insertLayer(index, layer)
 
     def is_empty(self):
         return not bool(self.items)
