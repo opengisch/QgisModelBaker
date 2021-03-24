@@ -929,10 +929,35 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
+    def load_crs_from_metaconfig(self, ili2db_metaconfig):
+        srs_auth = self.srs_auth
+        srs_code = self.srs_code
+        if 'defaultSrsAuth' in ili2db_metaconfig:
+            srs_auth = ili2db_metaconfig.get('defaultSrsAuth')
+        if 'defaultSrsCode' in ili2db_metaconfig:
+            srs_code = ili2db_metaconfig.get('defaultSrsCode')
+
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
+        self.update_crs_info()
+        self.crs_changed()
+
     def load_metaconfig(self):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
+
+            if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
+                self.load_crs_from_metaconfig( ili2db_metaconfig )
+
+            if 'models' in ili2db_metaconfig:
+                model_list = self.ili_models_line_edit.text().strip().split(';') + ili2db_metaconfig.get(
+                    'models').strip().split(';')
+                models = ";".join(set(model_list))
+                self.ili_models_line_edit.setText(models)
+
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
             #get toml
             #get prescript
