@@ -122,6 +122,13 @@ class Ili2DbCommandConfiguration(object):
         self.dbinstance = ''
         self.db_odbc_driver = ''
         self.disable_validation = False
+        self.metaconfig = None
+
+    def append_args(self, args, values, consider_metaconfig=False):
+        if consider_metaconfig and self.metaconfig and values:
+            if values[0][2:] in self.metaconfig.keys():
+                return
+        args += values
 
     def to_ili2db_args(self):
 
@@ -132,17 +139,16 @@ class Ili2DbCommandConfiguration(object):
 
         proxy = QgsNetworkAccessManager.instance().fallbackProxy()
         if proxy.type() == QNetworkProxy.HttpProxy:
-            args += ["--proxy", proxy.hostName()]
-            args += ["--proxyPort", str(proxy.port())]
+            self.append_args(args, ["--proxy", proxy.hostName()])
+            self.append_args(args, ["--proxyPort", str(proxy.port())])
 
         if self.ilimodels:
-            args += ['--models', self.ilimodels]
+            self.append_args(args, ['--models', self.ilimodels])
 
         if self.tomlfile:
-            args += ["--iliMetaAttrs", self.tomlfile]
+            self.append_args(args, ["--iliMetaAttrs", self.tomlfile])
 
         return args
-
 
 class ExportConfiguration(Ili2DbCommandConfiguration):
 
@@ -158,32 +164,32 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
         
-        args += extra_args
+        self.append_args(args, extra_args)
 
         if with_action:
-            args += ["--export"]
+            self.append_args(args, ["--export"])
 
         if self.disable_validation:
-            args += ["--disableValidation"]
+            self.append_args(args, ["--disableValidation"])
 
         if self.with_exporttid:
-            args += ["--exportTid"]
+            self.append_args(args, ["--exportTid"])
 
         if self.iliexportmodels:
-            args += ["--exportModels", self.iliexportmodels]
+            self.append_args(args, ["--exportModels", self.iliexportmodels])
 
         if self.db_ili_version == 3:
-            args += ["--export3"]
+            self.append_args(args, ["--export3"])
 
         if self.dataset:
-            args += ["--dataset", self.dataset]
+            self.append_args(args, ["--dataset", self.dataset])
 
         if self.baskets:
-            args += ["--baskets", ';'.join(self.baskets)]
+            self.append_args(args, ["--baskets", ';'.join(self.baskets)])
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
+        self.append_args(args, Ili2DbCommandConfiguration.to_ili2db_args(self))
 
-        args += [self.xtffile]
+        self.append_args(args, [self.xtffile])
 
         return args
 
@@ -210,67 +216,68 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         args = list()
 
         if with_action:
-            args += ["--schemaimport"]
+            self.append_args(args, ["--schemaimport"])
 
-        args += extra_args
+        self.append_args(args, extra_args )
 
-        args += ["--coalesceCatalogueRef"]
-        args += ["--createEnumTabs"]
+        self.append_args(args, ["--coalesceCatalogueRef"], True)
+        self.append_args(args, ["--createEnumTabs"], True)
 
         if self.disable_validation:
-            args += ["--sqlEnableNull"]
+            self.append_args(args, ["--sqlEnableNull"])
 
         else:
-            args += ["--createNumChecks"]
-            args += ["--createUnique"]
-            args += ["--createFk"]
+            self.append_args(args, ["--createNumChecks"])
+            self.append_args(args, ["--createUnique"])
+            self.append_args(args, ["--createFk"])
 
-        args += ["--createFkIdx"]
-        args += ["--coalesceMultiSurface"]
-        args += ["--coalesceMultiLine"]
-        args += ["--coalesceMultiPoint"]
-        args += ["--coalesceArray"]
-        args += ["--beautifyEnumDispName"]
-        args += ["--createGeomIdx"]
-        args += ["--createMetaInfo"]
-        args += ["--expandMultilingual"]
+        self.append_args(args, ["--createFkIdx"], True)
+        self.append_args(args, ["--coalesceMultiSurface"], True)
+        self.append_args(args, ["--coalesceMultiLine"], True)
+        self.append_args(args, ["--coalesceMultiPoint"], True)
+        self.append_args(args, ["--coalesceArray"], True)
+        self.append_args(args, ["--beautifyEnumDispName"], True)
+        self.append_args(args, ["--createGeomIdx"], True)
+        self.append_args(args, ["--createMetaInfo"], True)
+        self.append_args(args, ["--expandMultilingual"], True)
+
         if self.db_ili_version is None or self.db_ili_version > 3:
-            args += ["--createTypeConstraint"]
-            args += ["--createEnumTabsWithId"]
-            args += ["--createTidCol"]
+            self.append_args(args, ["--createTypeConstraint"], True)
+            self.append_args(args, ["--createEnumTabsWithId"], True)
+            self.append_args(args, ["--createTidCol"], True)
 
         if self.create_import_tid:
-            args += ["--importTid"]
+            self.append_args(args, ["--importTid"])
 
         if self.inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
+            self.append_args(args, ["--smart1Inheritance"])
         elif self.inheritance == 'smart2':
-            args += ["--smart2Inheritance"]
+            self.append_args(args, ["--smart2Inheritance"])
         else:
-            args += ["--noSmartMapping"]
+            self.append_args(args, ["--noSmartMapping"])
 
         if self.stroke_arcs:
-            args += ["--strokeArcs"]
+            self.append_args(args, ["--strokeArcs"])
 
         if self.create_basket_col:
-            args += ["--createBasketCol"]
+            self.append_args(args, ["--createBasketCol"])
 
         if self.srs_auth != 'EPSG':
-            args += ["--defaultSrsAuth", self.srs_auth]
+            self.append_args(args, ["--defaultSrsAuth", self.srs_auth])
 
-        args += ["--defaultSrsCode", "{}".format(self.srs_code)]
+        self.append_args(args, ["--defaultSrsCode", "{}".format(self.srs_code)])
 
         if self.pre_script:
-            args += ["--preScript", self.pre_script]
+            self.append_args(args, ["--preScript", self.pre_script])
 
         if self.post_script:
-            args += ["--postScript", self.post_script]
+            self.append_args(args, ["--postScript", self.post_script])
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
+        self.append_args(args, Ili2DbCommandConfiguration.to_ili2db_args(self))
 
         if self.ilifile:
-            args += [self.ilifile]
-        
+            self.append_args(args, [self.ilifile])
+
         return args
 
 
@@ -289,29 +296,29 @@ class ImportDataConfiguration(SchemaImportConfiguration):
         args = list()
 
         if with_action:
-            args += ["--import"]
+            self.append_args(args, ["--import"])
 
         if self.with_schemaimport:
-            args += ["--doSchemaImport"]
+            self.append_args(args, ["--doSchemaImport"])
 
         if self.disable_validation:
-            args += ["--disableValidation"]
+            self.append_args(args, ["--disableValidation"])
 
         if self.delete_data:
-            args += ["--deleteData"]
+            self.append_args(args, ["--deleteData"])
 
         if self.with_importtid:
-            args += ["--importTid"]
+            self.append_args(args, ["--importTid"])
 
         if self.dataset:
-            args += ["--dataset", self.dataset]
+            self.append_args(args, ["--dataset", self.dataset])
 
         if self.baskets:
-            args += ["--baskets", ';'.join(self.baskets)]
+            self.append_args(args, ["--baskets", ';'.join(self.baskets)])
 
-        args += SchemaImportConfiguration.to_ili2db_args(self, extra_args=extra_args, with_action=False)
+        self.append_args(args, SchemaImportConfiguration.to_ili2db_args(self, extra_args=extra_args, with_action=False))
 
-        args += [self.xtffile]
+        self.append_args(args, [self.xtffile])
 
         return args
 
@@ -330,23 +337,23 @@ class UpdateDataConfiguration(Ili2DbCommandConfiguration):
         args = list()
 
         if with_action:
-            args += ["--update"]
+            self.append_args(args, ["--update"])
 
-        args += extra_args
+        self.append_args(args, extra_args)
 
         if self.disable_validation:
-            args += ["--disableValidation"]
+            self.append_args(args, ["--disableValidation"])
 
         if self.with_importtid:
-            args += ["--importTid"]
+            self.append_args(args, ["--importTid"])
 
         if self.with_importbid:
-            args += ["--importBid"]
+            self.append_args(args, ["--importBid"])
 
-        args += ["--dataset", self.dataset]
+        self.append_args(args, ["--dataset", self.dataset])
 
-        args += Ili2DbCommandConfiguration.to_ili2db_args(self)
+        self.append_args(args, Ili2DbCommandConfiguration.to_ili2db_args(self))
 
-        args += [self.xtffile]
+        self.append_args(args, [self.xtffile])
 
         return args
