@@ -916,9 +916,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def on_metaconfig_received(self, path, repository):
         print( f"dave: feedback: download of metaconfig succeeded - maybe make metaconfig field green")
+        self.metaconfig_repo = repository
+        # parse metaconfig
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
-        self.metaconfig_repo = repository
+        self.load_metaconfig()
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
@@ -926,6 +928,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         print( f"dave: feedback: download of metaconfig {dataset_id} failed {error_msg} - maybe make metaconfig field red")
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
+
+    def load_metaconfig(self):
+        # load ili2db parameters to the GUI and into the configuration
+        if 'ch.ehi.ili2db' in self.metaconfig.sections():
+            ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
+            self.ili2db_options.load_metaconfig(ili2db_metaconfig)
+            #get toml
+            #get prescript
+            #get postscript
+
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
