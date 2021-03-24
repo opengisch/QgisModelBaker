@@ -405,7 +405,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.layertree' in configuration_section:
                     self.print_info(self.tr('Topping contains a layertree structure'))
-                    layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(',')
+                    layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
                     layertree_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, layertree_data_list, 'layertree')
 
                     # we wait for the download or we timeout after 30 seconds and we apply what we have
@@ -522,7 +522,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.referenceData' in configuration_section:
                     self.print_info(self.tr('Check out the cats'))
-                    reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(',')
+                    reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(';')
                     catalogue_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, reference_data_list, 'catalogue')
 
                     # we wait for the download or we timeout after 30 seconds and we apply what we have
@@ -947,19 +947,41 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def load_metaconfig(self):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
+            self.print_info(
+                self.tr('Loading the ili2db configurations from the topping metaconfiguration file') )
+
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
             if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
                 self.load_crs_from_metaconfig( ili2db_metaconfig )
+                self.print_info(self.tr('- Loaded CRS'))
 
             if 'models' in ili2db_metaconfig:
                 model_list = self.ili_models_line_edit.text().strip().split(';') + ili2db_metaconfig.get(
                     'models').strip().split(';')
-                models = ";".join(set(model_list))
+                models = ';'.join(set(model_list))
                 self.ili_models_line_edit.setText(models)
+                self.print_info(self.tr('- Loaded Models'))
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
-            #get toml
+            self.print_info(self.tr('- Loaded ili2db options'))
+
+            # get toml (iliMetaAttrs)
+            if 'iliMetaAttrs' in ili2db_metaconfig:
+                ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
+                topping_files_model = self.topping_files_downloader(ili_meta_attrs_list, 'toml')
+                toml_file_path_list = []
+                for toml_file_id in ili_meta_attrs_list:
+                    matches = topping_files_model.match(topping_files_model.index(0, 0),
+                                                                     Qt.DisplayRole, toml_file_id, 1)
+                    if matches:
+                        toml_file_path = matches[0].data(topping_files_model.Roles.LOCALFILEPATH)
+                        self.print_info(
+                            self.tr('- Found toml file {}..').format(toml_file_path))
+                    toml_file_path_list.append(toml_file_path)
+                self.ili2db_options.load_toml_file_path(models, ';'.join(toml_file_path_list))
+                self.print_info(self.tr('- Loaded toml files'))
+                
             #get prescript
             #get postscript
 
@@ -996,3 +1018,31 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(20)
         elif text.strip() == 'Info: create table structure…':
             self.progress_bar.setValue(30)
+
+    def topping_files_downloader(self, id_list, file_type):
+        topping_file_cache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, id_list, file_type)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+        self.print_info(self.tr('Waiting for the miracle...'))
+
+        loop.exec()
+
+        if len(topping_file_cache.downloaded_files) == len(id_list):
+            self.print_info(self.tr('All topping files (type: {}) successfully downloaded').format(file_type))
+        else:
+            missing_file_ids = id_list
+            for downloaded_file_id in toppingfile_downloader.downloaded_files:
+                if downloaded_file_id in missing_file_ids:
+                    missing_file_ids.remove(downloaded_file_id)
+            self.print_info(self.tr('Some topping files (type: {}) where not successfully downloaded: {}').format(
+                file_type, (' '.join(missing_file_ids))))
+
+        return topping_file_cache.model
