@@ -175,6 +175,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.restore_configuration()
 
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
@@ -197,6 +198,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
         self.ilicache = IliCache(self.base_configuration)
+        self.model_delegate = ModelCompleterDelegate()
         self.refresh_ili_models_cache()
         self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
@@ -800,7 +802,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.model_delegate = ModelCompleterDelegate()
         completer.popup().setItemDelegate(self.model_delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
@@ -822,20 +823,22 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
         completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
 
+        #    completer.popup().pressed[QModelIndex].connect(self.on_metaconfig_completer_activated)
+        #    lambda: self.on_metaconfig_completer_activated(self.ili_metaconfig_line_edit.completer().popup().currentIndex()))
+
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.metaconfig_delegate = MetaConfigCompleterDelegate()
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
         #self.multiple_metaconfig_dialog.metaconfig_line_edit.setCompleter(completer)
 
-    def on_metaconfig_completer_activated(self, model_index ):
+    def on_metaconfig_completer_activated(self, model_index):
         repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                     IliMetaConfigItemModel.Roles.ILIREPO)
         path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                               IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
         dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                              Qt.DisplayRole)
+                                                                              IliMetaConfigItemModel.Roles.ID)
         # disable the create button while downloading
         self.create_tool_button.setEnabled(False)
         self.ilimetaconfigcache.download_file(repository, path, dataset_id)
