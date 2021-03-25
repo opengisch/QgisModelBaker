@@ -162,7 +162,6 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             settings.value(self.toml_file_key))
 
     def load_metaconfig(self, metaconfig_ili2db):
-        print( metaconfig_ili2db )
         if 'smart1Inheritance' in metaconfig_ili2db:
             self.smart1_radio_button.setChecked(metaconfig_ili2db.getboolean('smart1Inheritance'))
         if 'smart2Inheritance' in metaconfig_ili2db:

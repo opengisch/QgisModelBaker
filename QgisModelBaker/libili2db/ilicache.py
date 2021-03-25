@@ -443,7 +443,6 @@ class IliMetaConfigCache(IliCache):
         file_url = urllib.parse.urlunsplit(('https',netloc, file, None, None))
         file_path = os.path.join(self.cache_path, netloc, file)
 
-        print( f"file_dir: {file_dir} file_url:{file_url} file_path:{file_path}")
         logger = logging.getLogger(__name__)
 
         # download file
@@ -591,12 +590,9 @@ class IliToppingFileCache(IliMetaConfigCache):
 
     def on_download_status(self, dataset_id, path, success ):
         # here we could add some more logic
-        print(f"downloaded {dataset_id} with {success}")
         self.downloaded_files.append(dataset_id)
 
         if len(self.downloaded_files) == len(self.file_ids):
-            print(f"downloaded FINISHED")
-            time.sleep(1)
             self.download_finished.emit()
 
     def _process_informationfile(self, file, netloc):

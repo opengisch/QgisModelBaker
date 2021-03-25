@@ -425,7 +425,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                     if 'layer-order' in layertree_data:
                                         custom_layer_order_structure = layertree_data['layer-order']
                                 except yaml.YAMLError as exc:
-                                    print(exc)
+                                    self.print_info(
+                                        self.tr('Unable to parse layertree file: {}..').format(exc))
 
             self.progress_bar.setValue(55)
 
@@ -844,7 +845,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache.download_file(repository, path, dataset_id)
 
     def on_metaconfig_received(self, path, repository):
-        print( f"dave: feedback: download of metaconfig succeeded - maybe make metaconfig field green")
+        self.print_info(self.tr('Metaconfig file successfully downloaded.'))
         self.metaconfig_repo = repository
         # parse metaconfig
         self.metaconfig.read_file(open(path))
@@ -853,8 +854,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
-    def on_metaconfig_failed(self, dataset_id, error_msg):
-        print( f"dave: feedback: download of metaconfig {dataset_id} failed {error_msg} - maybe make metaconfig field red")
+    def on_metaconfig_failed(self, netloc, dataset_id, error_msg):
+        self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg))
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
@@ -877,7 +878,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             self.print_info(
-                self.tr('Loading the ili2db configurations from the topping meta configuration...') )
+                self.tr('Loading the ili2db configurations from the topping meta configuration...'))
 
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
