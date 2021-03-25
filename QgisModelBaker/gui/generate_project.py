@@ -948,7 +948,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             self.print_info(
-                self.tr('Loading the ili2db configurations from the topping metaconfiguration file') )
+                self.tr('Loading the ili2db configurations from the topping meta configuration...') )
 
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
@@ -961,30 +961,34 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     'models').strip().split(';')
                 models = ';'.join(set(model_list))
                 self.ili_models_line_edit.setText(models)
-                self.print_info(self.tr('- Loaded Models'))
+                self.print_info(self.tr('- Loaded models'))
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
             self.print_info(self.tr('- Loaded ili2db options'))
 
-            # get toml (iliMetaAttrs)
+            # get iliMetaAttrs (toml)
             if 'iliMetaAttrs' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files...'))
                 ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
-                topping_files_model = self.topping_files_downloader(ili_meta_attrs_list, 'toml')
-                toml_file_path_list = []
-                for toml_file_id in ili_meta_attrs_list:
-                    matches = topping_files_model.match(topping_files_model.index(0, 0),
-                                                                     Qt.DisplayRole, toml_file_id, 1)
-                    if matches:
-                        toml_file_path = matches[0].data(topping_files_model.Roles.LOCALFILEPATH)
-                        self.print_info(
-                            self.tr('- Found toml file {}..').format(toml_file_path))
-                    toml_file_path_list.append(toml_file_path)
-                self.ili2db_options.load_toml_file_path(models, ';'.join(toml_file_path_list))
-                self.print_info(self.tr('- Loaded toml files'))
-                
-            #get prescript
-            #get postscript
+                ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list,'toml')
+                self.ili2db_options.load_toml_file_path(models, ';'.join(ili_meta_attrs_file_path_list))
+                self.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'))
 
+            # get prescript (sql)
+            if 'prescript' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for prescript (sql) files...'))
+                prescript_list = ili2db_metaconfig.get('prescript').split(';')
+                prescript_file_path_list = self.get_topping_file_list(prescript_list, 'sql')
+                self.ili2db_options.load_prescript_file_path(models, ';'.join(prescript_file_path_list))
+                self.print_info(self.tr('- Loaded prescript (sql) files'))
+
+            # get postscript (sql)
+            if 'postscript' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for postscript (sql) files...'))
+                postscript_list = ili2db_metaconfig.get('postscript').split(';')
+                postscript_file_path_list = self.get_topping_file_list(postscript_list,'sql')
+                self.ili2db_options.load_postscript_file_path(models, ';'.join(postscript_file_path_list))
+                self.print_info(self.tr('- Loaded postscript (sql) files'))
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
@@ -1019,7 +1023,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         elif text.strip() == 'Info: create table structure…':
             self.progress_bar.setValue(30)
 
-    def topping_files_downloader(self, id_list, file_type):
+    def get_topping_file_list(self, id_list, file_type):
+        topping_file_model = self.get_topping_file_model(id_list, file_type)
+        file_path_list = []
+        for file_id in id_list:
+            matches = topping_file_model.match(topping_file_model.index(0, 0),
+                                                Qt.DisplayRole, file_id, 1)
+            if matches:
+                file_path = matches[0].data(topping_file_model.Roles.LOCALFILEPATH)
+                self.print_info(
+                    self.tr('- Found file {}..').format(file_path))
+            file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, id_list, file_type):
         topping_file_cache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, id_list, file_type)
 
         # we wait for the download or we timeout after 30 seconds and we apply what we have
@@ -1031,18 +1048,18 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.print_info(self.tr('Waiting for the miracle...'))
+        self.print_info(self.tr('- - Waiting for the miracle...'))
 
         loop.exec()
 
         if len(topping_file_cache.downloaded_files) == len(id_list):
-            self.print_info(self.tr('All topping files (type: {}) successfully downloaded').format(file_type))
+            self.print_info(self.tr('- - All topping files (type: {}) successfully downloaded').format(file_type))
         else:
             missing_file_ids = id_list
             for downloaded_file_id in toppingfile_downloader.downloaded_files:
                 if downloaded_file_id in missing_file_ids:
                     missing_file_ids.remove(downloaded_file_id)
-            self.print_info(self.tr('Some topping files (type: {}) where not successfully downloaded: {}').format(
+            self.print_info(self.tr('- - Some topping files (type: {}) where not successfully downloaded: {}').format(
                 file_type, (' '.join(missing_file_ids))))
 
         return topping_file_cache.model
