@@ -406,32 +406,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if 'qgis.modelbaker.layertree' in configuration_section:
                     self.print_info(self.tr('Topping contains a layertree structure'))
                     layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
-                    layertree_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, layertree_data_list, 'layertree')
-
-                    # we wait for the download or we timeout after 30 seconds and we apply what we have
-                    loop = QEventLoop()
-                    layertree_ToppingFileCache.download_finished.connect(lambda: loop.quit())
-                    timer = QTimer()
-                    timer.setSingleShot(True)
-                    timer.timeout.connect(lambda: loop.quit())
-                    timer.start(30000)
-
-                    layertree_ToppingFileCache.refresh()
-                    self.print_info(self.tr('Waiting for the miracle...'))
-
-                    loop.exec()
-
-                    if len(layertree_ToppingFileCache.downloaded_files) == len(layertree_data_list):
-                        self.print_info(self.tr('All layertree files successfully downloaded'))
-                    else:
-                        missing_file_ids = layertree_data_list
-                        for downloaded_file_id in layertree_ToppingFileCache.downloaded_files:
-                            if downloaded_file_id in missing_file_ids:
-                                missing_file_ids.remove(downloaded_file_id)
-                        self.print_info(self.tr('Some layertree files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
-
+                    layertree_file_model = self.get_topping_file_model(layertree_data_list, 'layertree')
                     for layertree_file_id in layertree_data_list:
-                        matches = layertree_ToppingFileCache.model.match(layertree_ToppingFileCache.model.index(0, 0),
+                        matches = layertree_file_model.match(layertree_file_model.index(0, 0),
                                                                    Qt.DisplayRole, layertree_file_id, 1)
                         if matches:
                             layertree_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
@@ -480,39 +457,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 self.print_info(self.tr('Topping contains QML information'))
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-                qml_ToppingFileCache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, qml_section.values(), 'qml' )
-
-                # we wait for the download or we timeout after 30 seconds and we apply what we have
-                loop = QEventLoop()
-                qml_ToppingFileCache.download_finished.connect(lambda: loop.quit())
-                timer = QTimer()
-                timer.setSingleShot(True)
-                timer.timeout.connect(lambda: loop.quit())
-                timer.start(30000)
-
-                qml_ToppingFileCache.refresh()
-                self.print_info(self.tr('Waiting for the miracle...'))
-
-                loop.exec()
-
-                if len(qml_ToppingFileCache.downloaded_files) == len(qml_section.values()):
-                    self.print_info(self.tr('All topping files successfully downloaded'))
-                else:
-                    missing_file_ids = qml_section.values()
-                    for downloaded_file_id in qml_ToppingFileCache.downloaded_files:
-                        if downloaded_file_id in missing_file_ids:
-                            missing_file_ids.remove(downloaded_file_id)
-                    self.print_info(self.tr('Some topping files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
-
+                qml_file_model = self.get_topping_file_model(qml_section.values(), 'qml')
                 for layer in project.layers:
                     #dave the hack with the " could maybe be improved
                     layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
                     if layer_name.lower() in qml_section:
-                        matches = qml_ToppingFileCache.model.match(qml_ToppingFileCache.model.index(0, 0),
-                                                                   Qt.DisplayRole, qml_section[layer_name.lower()], 1)
+                        matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole, qml_section[layer_name.lower()], 1)
                         if matches:
                             style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
-                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name,style_file_path))
+                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name, style_file_path))
                             layer.layer.loadNamedStyle(style_file_path)
 
             self.progress_bar.setValue(80)
@@ -523,33 +476,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if 'qgis.modelbaker.referenceData' in configuration_section:
                     self.print_info(self.tr('Check out the cats'))
                     reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(';')
-                    catalogue_ToppingFileCache = IliToppingFileCache(self.base_configuration,  self.metaconfig_repo, reference_data_list, 'catalogue')
-
-                    # we wait for the download or we timeout after 30 seconds and we apply what we have
-                    loop = QEventLoop()
-                    catalogue_ToppingFileCache.download_finished.connect(lambda: loop.quit())
-                    timer = QTimer()
-                    timer.setSingleShot(True)
-                    timer.timeout.connect(lambda: loop.quit())
-                    timer.start(30000)
-
-                    catalogue_ToppingFileCache.refresh()
-                    self.print_info(self.tr('Waiting for the miracle...'))
-
-                    loop.exec()
-
-                    if len(catalogue_ToppingFileCache.downloaded_files) == len(reference_data_list):
-                        self.print_info(self.tr('All catalogue files successfully downloaded'))
-                    else:
-                        missing_file_ids = reference_data_list
-                        for downloaded_file_id in catalogue_ToppingFileCache.downloaded_files:
-                            if downloaded_file_id in missing_file_ids:
-                                missing_file_ids.remove(downloaded_file_id)
-                        self.print_info(self.tr('Some catalogue files where not successfully downloaded: {}').format((' '.join(missing_file_ids))))
-
+                    catalogue_file_model = self.get_topping_file_model(reference_data_list, 'catalogue')
                     for cat_file_id in reference_data_list:
-                        matches = catalogue_ToppingFileCache.model.match(catalogue_ToppingFileCache.model.index(0, 0),
-                                                                   Qt.DisplayRole, cat_file_id, 1)
+                        matches = catalogue_file_model.match(catalogue_file_model.index(0, 0),Qt.DisplayRole, cat_file_id, 1)
                         if matches:
                             cat_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
                             self.print_info(
@@ -576,8 +505,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                 dataImporter.stderr.connect(self.on_stderr)
                                 dataImporter.process_started.connect(self.on_process_started)
                                 dataImporter.process_finished.connect(self.on_process_finished)
-
-                                self.progress_bar.setValue(25)
 
                                 try:
                                     if dataImporter.run(edited_command) != iliimporter.Importer.SUCCESS:
@@ -979,7 +906,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.print_info(self.tr('- Seeking for prescript (sql) files...'))
                 prescript_list = ili2db_metaconfig.get('prescript').split(';')
                 prescript_file_path_list = self.get_topping_file_list(prescript_list, 'sql')
-                self.ili2db_options.load_prescript_file_path(models, ';'.join(prescript_file_path_list))
+                self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
                 self.print_info(self.tr('- Loaded prescript (sql) files'))
 
             # get postscript (sql)
@@ -987,7 +914,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.print_info(self.tr('- Seeking for postscript (sql) files...'))
                 postscript_list = ili2db_metaconfig.get('postscript').split(';')
                 postscript_file_path_list = self.get_topping_file_list(postscript_list,'sql')
-                self.ili2db_options.load_postscript_file_path(models, ';'.join(postscript_file_path_list))
+                self.ili2db_options.load_post_script_path(models, ';'.join(postscript_file_path_list))
                 self.print_info(self.tr('- Loaded postscript (sql) files'))
 
     def show_message(self, level, message):
@@ -1032,7 +959,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 file_path = matches[0].data(topping_file_model.Roles.LOCALFILEPATH)
                 self.print_info(
-                    self.tr('- Found file {}..').format(file_path))
+                    self.tr('- - Got file {}..').format(file_path))
             file_path_list.append(file_path)
         return file_path_list
 
