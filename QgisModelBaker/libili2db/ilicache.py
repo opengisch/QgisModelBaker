@@ -385,6 +385,17 @@ class IliMetaConfigCache(IliCache):
                     if model not in self.filter_models or type != 'metaconfig' or tool != 'modelbaker':
                         continue
 
+                    title = list()
+                    for title_element in metaconfig_metadata.findall('ili23:title', self.ns):
+                        for multilingual_m_text_element in title_element.findall('ili23:DatasetIdx16.MultilingualMText', self.ns):
+                            for localised_text_element in multilingual_m_text_element.findall('ili23:LocalisedText', self.ns):
+                                for localised_m_text_element in localised_text_element.findall('ili23:DatasetIdx16.LocalisedMText', self.ns):
+                                    title_information = {
+                                        'language': localised_m_text_element.find('ili23:Language', self.ns).text,
+                                        'text': localised_m_text_element.find('ili23:Text', self.ns).text
+                                    }
+                                    title.append(title_information)
+
                     for files_element in metaconfig_metadata.findall('ili23:files', self.ns):
                         for data_file in files_element.findall('ili23:DatasetIdx16.DataFile', self.ns):
                             for file_element in data_file.findall('ili23:file', self.ns):
@@ -409,6 +420,10 @@ class IliMetaConfigCache(IliCache):
                                     metaconfig['repository'] = netloc
                                     metaconfig['model'] = model
                                     metaconfig['relative_file_path'] = path
+                                    if title:
+                                        metaconfig['title'] = title
+                                    else:
+                                        metaconfig['title'] = None
                                     repo_metaconfigs.append(metaconfig)
 
         self.repositories[netloc] = sorted(
@@ -446,6 +461,8 @@ class IliMetaConfigItemModel(QStandardItemModel):
         MODEL = Qt.UserRole + 3
         RELATIVEFILEPATH = Qt.UserRole + 4
         OWNER = Qt.UserRole + 5
+        TITLE = Qt.UserRole + 6
+        ID = Qt.UserRole + 7
 
         def __int__(self):
             return self.value
@@ -465,13 +482,20 @@ class IliMetaConfigItemModel(QStandardItemModel):
                     continue
 
                 item = QStandardItem()
-                item.setData(metaconfig['id'], int(Qt.DisplayRole))
-                item.setData(metaconfig['id'], int(Qt.EditRole))
+                display_value = metaconfig['id']
+                if metaconfig['title'] and 'text' in metaconfig['title'][0]:
+                    # since there is no multilanguage handling we take the first entry
+                    display_value = metaconfig['title'][0]['text']
+
+                item.setData(display_value, int(Qt.DisplayRole))
+                item.setData(display_value, int(Qt.EditRole))
+                item.setData(metaconfig['id'], int(IliMetaConfigItemModel.Roles.ID))
                 item.setData(metaconfig['repository'], int(IliMetaConfigItemModel.Roles.ILIREPO))
                 item.setData(metaconfig['version'], int(IliMetaConfigItemModel.Roles.VERSION))
                 item.setData(metaconfig['model'], int(IliMetaConfigItemModel.Roles.MODEL))
                 item.setData(metaconfig['relative_file_path'], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
                 item.setData(metaconfig['owner'], int(IliMetaConfigItemModel.Roles.OWNER))
+                item.setData(metaconfig['title'], int(IliMetaConfigItemModel.Roles.TITLE))
 
                 ids.append(metaconfig['id'])
                 self.appendRow(item)
@@ -504,8 +528,14 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         repository = option.index.data(int(IliMetaConfigItemModel.Roles.ILIREPO))
         model = option.index.data(int(IliMetaConfigItemModel.Roles.MODEL))
         owner = option.index.data(int(IliMetaConfigItemModel.Roles.OWNER))
+        title = option.index.data(int(IliMetaConfigItemModel.Roles.TITLE))
+        display_text = text
+        if title and 'text' in title[0]:
+            # since there is no multilanguage handling we take the first entry
+            display_text = title[0]['text']
         self.repository_label.setText('<font color="#666666"><i>{model} at {repository}</i></font>'.format(model=model,repository=repository))
-        self.metaconfig_label.setText('{metaconfig_id} of {owner}'.format(metaconfig_id=text, owner=owner))
+
+        self.metaconfig_label.setText('{display_text} of {owner}'.format(display_text=display_text, owner=owner))
         self.widget.setMinimumSize(rect.size())
 
         model_palette = option.palette
@@ -530,7 +560,7 @@ class IliToppingFileCache(IliMetaConfigCache):
         self.metaconfig_netloc = metaconfig_netloc
         self.file_directory_name = file_directory_name
         self.file_ids = file_ids
-        #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have atimeout in the waiting loop)
+        #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have a timeout in the waiting loop)
         self.downloaded_files = list()
         self.file_download_succeeded.connect(lambda netloc, dataset_id, path: self.on_download_status(dataset_id, path, True))
         self.file_download_failed.connect(lambda netloc, dataset_id, path: self.on_download_status(dataset_id, path, False))

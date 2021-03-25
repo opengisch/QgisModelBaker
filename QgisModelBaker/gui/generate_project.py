@@ -398,6 +398,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(45)
 
             self.print_info(self.tr('Arranging layers into groups…'))
+            legend = generator.legend(available_layers)
 
             custom_layer_order_structure = list()
             # Toppings legend and layers: collect, download and apply
@@ -423,8 +424,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                         custom_layer_order_structure = layertree_data['layer-order']
                                 except yaml.YAMLError as exc:
                                     print(exc)
-            else:
-                legend = generator.legend(available_layers)
 
             self.progress_bar.setValue(55)
 
@@ -983,7 +982,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.print_info(self.tr('- - All topping files (type: {}) successfully downloaded').format(file_type))
         else:
             missing_file_ids = id_list
-            for downloaded_file_id in toppingfile_downloader.downloaded_files:
+            for downloaded_file_id in topping_file_cache.downloaded_files:
                 if downloaded_file_id in missing_file_ids:
                     missing_file_ids.remove(downloaded_file_id)
             self.print_info(self.tr('- - Some topping files (type: {}) where not successfully downloaded: {}').format(

@@ -191,9 +191,11 @@ class Project(QObject):
 
         custom_layer_order = list()
         for custom_layer_name in self.custom_layer_order_structure:
-            custom_layer = qgis_project.mapLayersByName(custom_layer_name)[0]
+            custom_layer = qgis_project.mapLayersByName(custom_layer_name)
             if custom_layer:
-                custom_layer_order.append(custom_layer)
+                custom_layer_order.append(custom_layer[0])
+            else:
+                print( f"cannot find {custom_layer_name}")
         if custom_layer_order:
             root = qgis_project.layerTreeRoot()
             order = root.customLayerOrder() if root.hasCustomLayerOrder() else []
