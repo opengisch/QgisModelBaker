@@ -323,7 +323,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
-            self.txtStdout.clear()
 
             if interlis_mode:
                 importer = iliimporter.Importer()
@@ -440,7 +439,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.print_info(self.tr('Configuring forms and widgets…'))
             project.post_generate()
-            self.progress_bar.setValue(90)
 
             qgis_project = QgsProject.instance()
 
@@ -468,7 +466,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole, qml_section[layer_name.lower()], 1)
                         if matches:
                             style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
-                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.name, style_file_path))
+                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path))
                             layer.layer.loadNamedStyle(style_file_path)
 
             self.progress_bar.setValue(80)
@@ -539,7 +537,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
-        self.txtStdout.setText(command)
+        self.print_info(self.tr('\n--- Process ---'))
+        self.print_info(command)
         self.progress_bar.setValue(10)
         QCoreApplication.processEvents()
 
@@ -857,6 +856,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.load_metaconfig()
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
+        self.print_info(self.tr('Metaconfig file successfully loaded.'))
 
     def on_metaconfig_failed(self, netloc, url, dataset_id, error_msg):
         self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg))
