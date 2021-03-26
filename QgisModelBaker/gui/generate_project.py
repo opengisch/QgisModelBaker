@@ -851,12 +851,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig_repo = repository
         self.metaconfig_url = url
         # parse metaconfig
+
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
         self.load_metaconfig()
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
-        self.print_info(self.tr('Metaconfig file successfully loaded.'))
+        self.print_info(self.tr('Metaconfig successfully loaded.'))
 
     def on_metaconfig_failed(self, netloc, url, dataset_id, error_msg):
         self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg))

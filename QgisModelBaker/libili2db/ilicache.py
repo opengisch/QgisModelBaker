@@ -140,7 +140,7 @@ class IliCache(QObject):
 
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
-            if subsite:
+            if subsite is not None:
                 for location in subsite.findall('ili23:IliSite09.RepositoryLocation_', self.ns):
                     self.download_repository(
                         location.find('ili23:value', self.ns).text)
@@ -163,8 +163,8 @@ class IliCache(QObject):
             for model_metadata in repo.findall('ili23:IliRepository09.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
-                version = model['version'] = model_metadata.find( 'ili23:Version', self.ns)
-                if version:
+                version = model['version'] = model_metadata.find('ili23:Version', self.ns)
+                if version is not None:
                     model['version'] = version.text
                 else:
                     model['version'] = None
@@ -175,8 +175,8 @@ class IliCache(QObject):
             for model_metadata in repo.findall('ili23:IliRepository20.RepositoryIndex.ModelMetadata', self.ns):
                 model = dict()
                 model['name'] = model_metadata.find('ili23:Name', self.ns).text
-                version = model_metadata.find( 'ili23:Version', self.ns)
-                if version:
+                version = model_metadata.find('ili23:Version', self.ns)
+                if version is not None:
                     model['version'] = version.text
                 else:
                     model['version'] = None
@@ -370,7 +370,7 @@ class IliMetaConfigCache(IliCache):
         for repo in root.iter('{http://www.interlis.ch/INTERLIS2.3}DatasetIdx16.DataIndex'):
             for metaconfig_metadata in repo.findall('ili23:DatasetIdx16.DataIndex.DatasetMetadata', self.ns):
                 categories_element = metaconfig_metadata.find('ili23:categories', self.ns)
-                if categories_element:
+                if categories_element is not None:
                     model=''
                     type=''
                     tool=''
@@ -406,13 +406,13 @@ class IliMetaConfigCache(IliCache):
                                     metaconfig['id'] = metaconfig_metadata.find('ili23:id', self.ns).text
 
                                     version = metaconfig_metadata.find('ili23:version', self.ns)
-                                    if version:
+                                    if version is not None:
                                         metaconfig['version'] = version.text
                                     else:
                                         metaconfig['version'] = None
 
                                     owner = metaconfig_metadata.find('ili23:owner', self.ns)
-                                    if owner:
+                                    if owner is not None:
                                         metaconfig['owner'] = owner.text
                                     else:
                                         metaconfig['owner'] = None
@@ -421,7 +421,7 @@ class IliMetaConfigCache(IliCache):
                                     metaconfig['url'] = url
                                     metaconfig['model'] = model
                                     metaconfig['relative_file_path'] = path
-                                    if title:
+                                    if title is not None:
                                         metaconfig['title'] = title
                                     else:
                                         metaconfig['title'] = None
@@ -626,13 +626,13 @@ class IliToppingFileCache(IliMetaConfigCache):
                                     toppingfile['id'] = dataset_id
 
                                     version = topping_metadata.find('ili23:version', self.ns)
-                                    if version:
+                                    if version is not None:
                                         toppingfile['version'] = version.text
                                     else:
                                         toppingfile['version'] = None
 
                                     owner = topping_metadata.find('ili23:owner', self.ns)
-                                    if owner:
+                                    if owner is not None:
                                         toppingfile['owner'] = owner.text
                                     else:
                                         toppingfile['owner'] = None
