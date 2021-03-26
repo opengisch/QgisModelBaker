@@ -178,6 +178,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
+        self.metaconfig_url = self.metaconfig_repo
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
 
@@ -721,7 +722,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.fill_toml_file_info_label()
 
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
-        self.ilimetaconfigcache.file_download_succeeded.connect(lambda netloc, dataset_id, path: self.on_metaconfig_received(path, netloc))
+        self.ilimetaconfigcache.file_download_succeeded.connect(lambda netloc, url, dataset_id, path: self.on_metaconfig_received(path, netloc, url))
         self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
         self.refresh_ili_metaconfig_cache()
 
@@ -836,17 +837,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_metaconfig_completer_activated(self, model_index):
         repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                     IliMetaConfigItemModel.Roles.ILIREPO)
+        url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                    IliMetaConfigItemModel.Roles.URL)
         path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                               IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
         dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                               IliMetaConfigItemModel.Roles.ID)
         # disable the create button while downloading
         self.create_tool_button.setEnabled(False)
-        self.ilimetaconfigcache.download_file(repository, path, dataset_id)
+        self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
 
-    def on_metaconfig_received(self, path, repository):
+    def on_metaconfig_received(self, path, repository, url):
         self.print_info(self.tr('Metaconfig file successfully downloaded.'))
         self.metaconfig_repo = repository
+        self.metaconfig_url = url
         # parse metaconfig
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
@@ -854,7 +858,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
-    def on_metaconfig_failed(self, netloc, dataset_id, error_msg):
+    def on_metaconfig_failed(self, netloc, url, dataset_id, error_msg):
         self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg))
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
@@ -967,7 +971,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         return file_path_list
 
     def get_topping_file_model(self, id_list, file_type):
-        topping_file_cache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, id_list, file_type)
+        topping_file_cache = IliToppingFileCache(self.base_configuration, self.metaconfig_repo, self.metaconfig_url, id_list, file_type)
 
         # we wait for the download or we timeout after 30 seconds and we apply what we have
         loop = QEventLoop()
