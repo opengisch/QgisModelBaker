@@ -530,14 +530,10 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         repository = option.index.data(int(IliMetaConfigItemModel.Roles.ILIREPO))
         model = option.index.data(int(IliMetaConfigItemModel.Roles.MODEL))
         owner = option.index.data(int(IliMetaConfigItemModel.Roles.OWNER))
-        title = option.index.data(int(IliMetaConfigItemModel.Roles.TITLE))
-        display_text = text
-        if title and 'text' in title[0]:
-            # since there is no multilanguage handling we take the first entry
-            display_text = title[0]['text']
-        self.repository_label.setText('<font color="#666666"><i>{model} at {repository}</i></font>'.format(model=model,repository=repository))
+        display_text = option.index.data(int(Qt.DisplayRole))
 
-        self.metaconfig_label.setText('{display_text} of {owner}'.format(display_text=display_text, owner=owner))
+        self.repository_label.setText('<font color="#666666"><i>of {owner} with {model} at {repository}</i></font>'.format(owner=owner, model=model, repository=repository))
+        self.metaconfig_label.setText('{display_text}'.format(display_text=display_text))
         self.widget.setMinimumSize(rect.size())
 
         model_palette = option.palette

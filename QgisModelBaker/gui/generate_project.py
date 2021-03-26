@@ -177,8 +177,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
-        self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
-        self.metaconfig_url = self.metaconfig_repo
+        self.metaconfig_url = self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
 
@@ -815,6 +814,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def complete_metaconfig_completer(self):
         if not self.ili_metaconfig_line_edit.text():
+            self.clean_metaconfig()
             self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
             self.ili_metaconfig_line_edit.completer().complete()
         else:
@@ -824,16 +824,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
         completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
 
-        #    completer.popup().pressed[QModelIndex].connect(self.on_metaconfig_completer_activated)
-        #    lambda: self.on_metaconfig_completer_activated(self.ili_metaconfig_line_edit.completer().popup().currentIndex()))
-
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
-        #self.multiple_metaconfig_dialog.metaconfig_line_edit.setCompleter(completer)
 
     def on_metaconfig_completer_activated(self, model_index):
+        self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {}').format(
+            self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole)))
         repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                     IliMetaConfigItemModel.Roles.ILIREPO)
         url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
@@ -846,17 +844,23 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.create_tool_button.setEnabled(False)
         self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
 
+    def clean_metaconfig(self):
+        self.metaconfig_url = self.metaconfig_repo = self.base_configuration.metaconfig_directories[0]
+        self.metaconfig.clear()
+        self.metaconfig_file_info_label.setText('')
+
     def on_metaconfig_received(self, path, repository, url):
         self.print_info(self.tr('Metaconfig file successfully downloaded.'))
         self.metaconfig_repo = repository
         self.metaconfig_url = url
         # parse metaconfig
-
+        self.metaconfig.clear()
         self.metaconfig.read_file(open(path))
         self.metaconfig.read(path)
         self.load_metaconfig()
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
+        self.fill_toml_file_info_label()
         self.print_info(self.tr('Metaconfig successfully loaded.'))
 
     def on_metaconfig_failed(self, netloc, url, dataset_id, error_msg):
