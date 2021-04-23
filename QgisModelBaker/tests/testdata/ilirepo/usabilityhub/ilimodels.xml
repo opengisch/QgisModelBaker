@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="KOGIS-20200115" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="IliRepository09" VERSION="2009-12-01" URI="mailto:ce@eisenhutinformatik.ch"/>
+      <MODEL NAME="IliRepository20" VERSION="2020-01-15" URI="http://models.interlis.ch/core"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+
+    <IliRepository20.RepositoryIndex BID="ch.interlis.ilimodels.b2">
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="004287">
+        <Name>KbS_LV95_V1_4</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>BAFU/KbS_V1_4.ili</File>
+        <Version>2018-06-13</Version>
+        <publishingDate>2018-07-04</publishingDate>
+        <Tags>114.2,116.1,117.1,118.1,119.1</Tags>
+        <Issuer>https://models.geo.admin.ch/BAFU/</Issuer>
+        <technicalContact>mailto:gis@bafu.admin.ch</technicalContact>
+        <furtherInformation>https://www.bafu.admin.ch/geodatenmodelle</furtherInformation>
+        <md5>133a5f25e7eebdb38351b8e2c7271562</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+    </IliRepository20.RepositoryIndex>
+  </DATASECTION>
+</TRANSFER>

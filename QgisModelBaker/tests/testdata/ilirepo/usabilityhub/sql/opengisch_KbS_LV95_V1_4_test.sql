@@ -1,0 +1,2 @@
+SELECT 'foo' as bar;
+
