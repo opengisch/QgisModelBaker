@@ -447,10 +447,14 @@ class IliMetaConfigCache(IliCache):
         logger = logging.getLogger(__name__)
 
         # download file
-        download_file(file_url, file_path,
-                      on_success=lambda: self.file_download_succeeded.emit(netloc, url, dataset_id, file_path),
-                      on_error=lambda error, error_string: self.file_download_failed.emit(netloc, url, dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
-                      )
+        if urllib.parse.urlparse(file_url).scheme != "":
+            download_file(file_url, file_path,
+                              on_success=lambda: self.file_download_succeeded.emit(netloc, url, dataset_id, file_path),
+                              on_error=lambda error, error_string: self.file_download_failed.emit(netloc, url, dataset_id, self.tr('Could not download file {url} ({message})').format(url=file_url, message=error_string))
+                              )
+        else:
+            #if the url is a absolute filepath instead (used for testing)
+            file_path = os.path.join(url, file)
         return file_path
 
 
@@ -551,7 +555,7 @@ class IliToppingFileCache(IliMetaConfigCache):
     file_ids can contain ilidata: or file: information
     """
 
-    def __init__(self, configuration, metaconfig_netloc=None, metaconfig_url=None, file_ids=None, file_directory_name=None):
+    def __init__(self, configuration, metaconfig_netloc=None, metaconfig_url=None, file_ids=None, file_directory_name='file'):
         IliMetaConfigCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingfilescache')
         self.model = IliToppingFileItemModel()
@@ -568,10 +572,6 @@ class IliToppingFileCache(IliMetaConfigCache):
         if not self.directories is None:
             for directory in self.directories:
                 self.process_model_directory(directory)
-        #used here?
-        if not self.single_ili_file is None:
-            if os.path.exists(self.single_ili_file):
-                self.process_single_ili_file()
 
         #download local files
         repo_files = list()
