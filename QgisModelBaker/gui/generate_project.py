@@ -413,7 +413,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         matches = layertree_file_model.match(layertree_file_model.index(0, 0),
                                                                    Qt.DisplayRole, layertree_file_id, 1)
                         if matches:
-                            layertree_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            layertree_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                             self.print_info(
                                 self.tr('Parse layertree {}..').format(layertree_file_path))
                             with open(layertree_file_path, 'r') as stream:
@@ -464,7 +464,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     if layer_name.lower() in qml_section:
                         matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole, qml_section[layer_name.lower()], 1)
                         if matches:
-                            style_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                             self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path))
                             layer.layer.loadNamedStyle(style_file_path)
 
@@ -480,7 +480,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     for cat_file_id in reference_data_list:
                         matches = catalogue_file_model.match(catalogue_file_model.index(0, 0),Qt.DisplayRole, cat_file_id, 1)
                         if matches:
-                            cat_file_path = matches[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                            cat_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                             self.print_info(
                                 self.tr('Import catalogue {}..').format(cat_file_path))
 
@@ -833,13 +833,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {}').format(
             self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole)))
         repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                    IliMetaConfigItemModel.Roles.ILIREPO)
+                                                                                    int(IliMetaConfigItemModel.Roles.ILIREPO))
         url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                    IliMetaConfigItemModel.Roles.URL)
+                                                                                    int(IliMetaConfigItemModel.Roles.URL))
         path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                              IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+                                                                              int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
         dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                              IliMetaConfigItemModel.Roles.ID)
+                                                                              int(IliMetaConfigItemModel.Roles.ID))
         # disable the create button while downloading
         self.create_tool_button.setEnabled(False)
         self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)

@@ -283,7 +283,7 @@ class IliModelItemModel(QStandardItemModel):
 
             for model in repository:
                 # in case there is more than one version of the model with the same name, it shouldn't load it twice
-                if any(model['name'] in s for s in names):
+                if any(model['name'] == s for s in names):
                     continue
 
                 item = QStandardItem()
@@ -483,7 +483,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
         for repository in repositories.values():
 
             for metaconfig in repository:
-                if any(metaconfig['id'] in s for s in ids):
+                if any(metaconfig['id'] == s for s in ids):
                     continue
 
                 item = QStandardItem()
@@ -491,6 +491,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
                 if metaconfig['title'] and 'text' in metaconfig['title'][0]:
                     # since there is no multilanguage handling we take the first entry
                     display_value = metaconfig['title'][0]['text']
+                print(display_value)
 
                 item.setData(display_value, int(Qt.DisplayRole))
                 item.setData(display_value, int(Qt.EditRole))
@@ -641,7 +642,6 @@ class IliToppingFileCache(IliMetaConfigCache):
         self.repositories[netloc] = sorted(
             repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
 
-        # Dave: check mal aus weshalb jedes mal alle repositories gesetzt werden
         self.model.set_repositories(self.repositories)
 
 
@@ -667,7 +667,7 @@ class IliToppingFileItemModel(QStandardItemModel):
         for repository in repositories.values():
 
             for toppingfile in repository:
-                if any(toppingfile['id'] in s for s in ids):
+                if any(toppingfile['id'] == s for s in ids):
                     continue
                 item = QStandardItem()
                 item.setData(toppingfile['id'], int(Qt.DisplayRole))

@@ -83,8 +83,9 @@ class IliCacheTest(unittest.TestCase):
         ilimetaconfigcache_model = ilimetaconfigcache.model
 
         matches_on_id = ilimetaconfigcache_model.match(ilimetaconfigcache_model.index(0, 0),
-                                                       IliMetaConfigItemModel.Roles.ID,
-                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0', 1)
+                                                       int(IliMetaConfigItemModel.Roles.ID),
+                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0', 1,
+                                                       Qt.MatchExactly)
         self.assertTrue(matches_on_id)
 
         if matches_on_id:
@@ -93,21 +94,22 @@ class IliCacheTest(unittest.TestCase):
             self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)',
                              matches_on_id[0].data(Qt.DisplayRole))
             self.assertEqual('usabilityhub',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.ILIREPO))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO)))
             self.assertEqual('2021-01-06',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.VERSION))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.VERSION)))
             self.assertEqual('KbS_LV95_V1_4',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.MODEL))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.MODEL)))
             self.assertEqual('metaconfig/opengisch_KbS_LV95_V1_4.ini',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)))
             self.assertEqual('mailto:david@opengis.ch',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.OWNER))
-            self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.TITLE))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.OWNER)))
+            self.assertEqual([{'language': 'de', 'text': 'Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)'}],
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE)))
             self.assertEqual('ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.ID))
-            self.assertEqual('url',
-                             matches_on_id[0].data(IliMetaConfigItemModel.Roles.URL))
+                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID)))
+            #only check the ending, since it's a absolute path on different plattforms
+            self.assertTrue(matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)).endswith(
+                'QgisModelBaker/tests/testdata/ilirepo/usabilityhub'))
 
     def test_ilidata_xml_parser_usabilityhub_toppingfiles(self):
         # find qml files according to the ids(s)
@@ -116,7 +118,8 @@ class IliCacheTest(unittest.TestCase):
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
 
         ilitoppingfilecache = IliToppingFileCache(configuration=None, file_ids=qml_file_ids,
-                                                  metaconfig_url=os.path.join(test_path,'testdata/ilirepo/usabilityhub/metaconfig/opengisch_KbS_LV95_V1_4.ini'))
+                                                  metaconfig_url=os.path.join(test_path,
+                                                                              'testdata/ilirepo/usabilityhub/metaconfig/opengisch_KbS_LV95_V1_4.ini'))
 
         ilitoppingfilecache._process_informationfile(
             os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub', 'ilidata.xml'), 'usabilityhub',
@@ -133,7 +136,8 @@ class IliCacheTest(unittest.TestCase):
 
         matches_on_id = ilitoppingfilecache_model.match(ilitoppingfilecache_model.index(0, 0),
                                                         Qt.DisplayRole,
-                                                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001', 1)
+                                                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001', 1,
+                                                        Qt.MatchExactly)
         self.assertTrue(matches_on_id)
 
         if matches_on_id:
@@ -142,13 +146,13 @@ class IliCacheTest(unittest.TestCase):
             self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                              matches_on_id[0].data(Qt.DisplayRole))
             self.assertEqual('usabilityhub',
-                             matches_on_id[0].data(IliToppingFileItemModel.Roles.ILIREPO))
+                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.ILIREPO)))
             self.assertEqual('2021-01-20',
-                             matches_on_id[0].data(IliToppingFileItemModel.Roles.VERSION))
+                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.VERSION)))
             self.assertEqual('qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml',
-                             matches_on_id[0].data(IliToppingFileItemModel.Roles.RELATIVEFILEPATH))
+                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH)))
             #only check the ending, since it's a absolute path on different plattforms
-            self.assertTrue(matches_on_id[0].data(IliToppingFileItemModel.Roles.LOCALFILEPATH).endswith('qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml'))
+            self.assertTrue(matches_on_id[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH)).endswith(
+                'qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml'))
             self.assertEqual('mailto:david@opengis.ch',
-                             matches_on_id[0].data(IliToppingFileItemModel.Roles.OWNER))
-    def
+                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.OWNER)))
