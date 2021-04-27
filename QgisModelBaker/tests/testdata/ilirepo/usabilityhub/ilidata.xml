@@ -56,7 +56,44 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="2fbde6ff-5867-4472-bdca-9da9e9525b20">
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="27414157-9d7c-4fe2-a864-2942fab24f3c">
+        <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Einfaches Styling und Tree und TOML und SH Cat für GPKG (OPENGIS.ch)</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>metaconfig/opengisch_KbS_LV95_V1_4_GPKG.ini</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="a2acb2f5-38bd-4d1a-8af0-c2463dcb5b66">
         <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest</id>
         <version>2021-03-12</version>
         <owner>mailto:david@opengis.ch</owner>
@@ -72,13 +109,13 @@
         </title>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/metaconfig</value>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
-            <value>http://codes.opengis.ch/modelbaker</value>
+          	<value>http://codes.opengis.ch/modelbaker</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -86,14 +123,14 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>metaconfig/opengisch_KbS_LV95_V1_4_localfiletest.ini</path> 
+                <path>metaconfig/opengisch_KbS_LV95_V1_4_localfiletest.ini</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="2fbde6ff-5867-4472-bdca-adada9e9525b">
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="2fbde6ff-5867-4472-bdca-9da9e9525b20">
         <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0-wrong</id>
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
