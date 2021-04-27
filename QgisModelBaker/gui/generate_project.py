@@ -538,7 +538,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def on_process_started(self, command):
         self.print_info(self.tr('\n--- Process ---'))
         self.print_info(command)
-        self.progress_bar.setValue(10)
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
@@ -552,7 +551,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append(message)
-        self.progress_bar.setValue(50)
 
     def db_ili_version(self, configuration):
         """
