@@ -31,7 +31,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects import Project
 from QgisModelBaker.tests.utils import iliimporter_config, testdata_path
 from qgis.testing import unittest, start_app
 from QgisModelBaker.tests.utils import get_pg_connection_string
-from qgis.core import QgsProject, QgsEditFormConfig, QgsRelation
+from qgis.core import QgsProject, QgsEditFormConfig, QgsRelation, Qgis
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
 
@@ -1139,7 +1139,8 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
 
         self.assertEqual(count, 2)
 
@@ -1183,7 +1184,9 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
+
 
         self.assertEqual(count, 2)
 
@@ -1228,7 +1231,8 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
 
         self.assertEqual(count, 2)
 
@@ -1267,7 +1271,8 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"t_id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
@@ -1315,7 +1320,8 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
@@ -1457,7 +1463,8 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(layer.layer.displayExpression(), 'type')
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), '"T_Id"')
+                self.assertEqual(layer.layer.displayExpression(),
+                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
             if layer.name == 'obstacle':
                 count += 1
                 self.assertEqual(layer.layer.displayExpression(), 'type')
