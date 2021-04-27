@@ -491,7 +491,6 @@ class IliMetaConfigItemModel(QStandardItemModel):
                 if metaconfig['title'] and 'text' in metaconfig['title'][0]:
                     # since there is no multilanguage handling we take the first entry
                     display_value = metaconfig['title'][0]['text']
-                print(display_value)
 
                 item.setData(display_value, int(Qt.DisplayRole))
                 item.setData(display_value, int(Qt.EditRole))
