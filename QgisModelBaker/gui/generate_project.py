@@ -24,6 +24,7 @@ import webbrowser
 import re
 import configparser
 import yaml
+import time
 from psycopg2 import OperationalError
 
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
@@ -93,6 +94,10 @@ from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
+#log colors
+COLOR_SUCCESS = '#aa2222'
+COLOR_FAIL = '#004905'
+COLOR_TOPPING = '#842BD7'
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
 
@@ -406,7 +411,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.layertree' in configuration_section:
-                    self.print_info(self.tr('Topping contains a layertree structure'))
+                    self.print_info(self.tr('Topping contains a layertree structure'), COLOR_TOPPING)
                     layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
                     layertree_file_model = self.get_topping_file_model(layertree_data_list, 'layertree')
                     for layertree_file_id in layertree_data_list:
@@ -415,7 +420,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         if matches:
                             layertree_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                             self.print_info(
-                                self.tr('Parse layertree {}..').format(layertree_file_path))
+                                self.tr('Parse layertree {}..').format(layertree_file_path), COLOR_TOPPING)
                             with open(layertree_file_path, 'r') as stream:
                                 try:
                                     layertree_data = yaml.safe_load(stream)
@@ -425,7 +430,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                         custom_layer_order_structure = layertree_data['layer-order']
                                 except yaml.YAMLError as exc:
                                     self.print_info(
-                                        self.tr('Unable to parse layertree file: {}..').format(exc))
+                                        self.tr('Unable to parse layertree file: {}..').format(exc), COLOR_TOPPING)
+                    time.sleep(3) #to remove
 
             self.progress_bar.setValue(55)
 
@@ -455,7 +461,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # Toppings QMLs: collect, download and apply
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
-                self.print_info(self.tr('Topping contains QML information'))
+                self.print_info(self.tr('Topping contains QML information'), COLOR_TOPPING)
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
                 qml_file_model = self.get_topping_file_model(qml_section.values(), 'qml')
                 for layer in project.layers:
@@ -465,8 +471,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole, qml_section[layer_name.lower()], 1)
                         if matches:
                             style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path))
+                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path), COLOR_TOPPING)
                             layer.layer.loadNamedStyle(style_file_path)
+                time.sleep(3)  # to remove
 
             self.progress_bar.setValue(80)
 
@@ -474,7 +481,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.referenceData' in configuration_section:
-                    self.print_info(self.tr('Check out the cats'))
+                    self.print_info(self.tr('Check out the cats'), COLOR_TOPPING)
                     reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(';')
                     catalogue_file_model = self.get_topping_file_model(reference_data_list, 'catalogue')
                     for cat_file_id in reference_data_list:
@@ -542,11 +549,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
-            color = '#004905'
+            color = COLOR_SUCCESS
             message = self.tr(
                 'Interlis model(s) successfully imported into the database!')
         else:
-            color = '#aa2222'
+            color = COLOR_FAIL
             message = self.tr('Finished with errors!')
 
         self.txtStdout.setTextColor(QColor(color))
@@ -828,8 +835,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_metaconfig_line_edit.setCompleter(completer)
 
     def on_metaconfig_completer_activated(self, model_index):
-        self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {}').format(
-            self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole)))
+        self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
+            self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
+            self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                             int(IliMetaConfigItemModel.Roles.ID))))
+        self.metaconfig_file_info_label.setStyleSheet('color: #842BD7')
         repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                     int(IliMetaConfigItemModel.Roles.ILIREPO))
         url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
@@ -848,7 +858,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig_file_info_label.setText('')
 
     def on_metaconfig_received(self, path, repository, url):
-        self.print_info(self.tr('Metaconfig file successfully downloaded.'))
+        self.txtStdout.clear()
+        self.print_info(self.tr('Metaconfig file successfully downloaded: {}').format(path), COLOR_TOPPING)
         self.metaconfig_repo = repository
         self.metaconfig_url = url
         # parse metaconfig
@@ -859,10 +870,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
         self.fill_toml_file_info_label()
-        self.print_info(self.tr('Metaconfig successfully loaded.'))
+        self.print_info(self.tr('Metaconfig successfully loaded.'), COLOR_TOPPING)
 
     def on_metaconfig_failed(self, netloc, url, dataset_id, error_msg):
-        self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg))
+        self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg), COLOR_TOPPING)
         # enable the tool button again
         self.create_tool_button.setEnabled(True)
 
@@ -885,47 +896,47 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             self.print_info(
-                self.tr('Loading the ili2db configurations from the topping meta configuration...'))
+                self.tr('Loading the ili2db configurations from the topping meta configuration...'), COLOR_TOPPING)
 
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
             if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
                 self.load_crs_from_metaconfig( ili2db_metaconfig )
-                self.print_info(self.tr('- Loaded CRS'))
+                self.print_info(self.tr('- Loaded CRS'), COLOR_TOPPING)
 
             if 'models' in ili2db_metaconfig:
                 model_list = self.ili_models_line_edit.text().strip().split(';') + ili2db_metaconfig.get(
                     'models').strip().split(';')
                 models = ';'.join(set(model_list))
                 self.ili_models_line_edit.setText(models)
-                self.print_info(self.tr('- Loaded models'))
+                self.print_info(self.tr('- Loaded models'), COLOR_TOPPING)
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
-            self.print_info(self.tr('- Loaded ili2db options'))
+            self.print_info(self.tr('- Loaded ili2db options'), COLOR_TOPPING)
 
             # get iliMetaAttrs (toml)
             if 'iliMetaAttrs' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files...'))
+                self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files:'), COLOR_TOPPING)
                 ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
                 ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list,'toml')
                 self.ili2db_options.load_toml_file_path(models, ';'.join(ili_meta_attrs_file_path_list))
-                self.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'))
+                self.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'), COLOR_TOPPING)
 
             # get prescript (sql)
             if 'prescript' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for prescript (sql) files...'))
+                self.print_info(self.tr('- Seeking for prescript (sql) files:'), COLOR_TOPPING)
                 prescript_list = ili2db_metaconfig.get('prescript').split(';')
                 prescript_file_path_list = self.get_topping_file_list(prescript_list, 'sql')
                 self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
-                self.print_info(self.tr('- Loaded prescript (sql) files'))
+                self.print_info(self.tr('- Loaded prescript (sql) files'), COLOR_TOPPING)
 
             # get postscript (sql)
             if 'postscript' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for postscript (sql) files...'))
+                self.print_info(self.tr('- Seeking for postscript (sql) files:'), COLOR_TOPPING)
                 postscript_list = ili2db_metaconfig.get('postscript').split(';')
                 postscript_file_path_list = self.get_topping_file_list(postscript_list,'sql')
                 self.ili2db_options.load_post_script_path(models, ';'.join(postscript_file_path_list))
-                self.print_info(self.tr('- Loaded postscript (sql) files'))
+                self.print_info(self.tr('- Loaded postscript (sql) files'), COLOR_TOPPING)
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
@@ -969,7 +980,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 file_path = matches[0].data(topping_file_model.Roles.LOCALFILEPATH)
                 self.print_info(
-                    self.tr('- - Got file {}..').format(file_path))
+                    self.tr('- - Got file {}..').format(file_path), COLOR_TOPPING)
             file_path_list.append(file_path)
         return file_path_list
 
@@ -985,18 +996,18 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.print_info(self.tr('- - Waiting for the miracle...'))
+        self.print_info(self.tr('- - Downloading...'), COLOR_TOPPING)
 
         loop.exec()
 
         if len(topping_file_cache.downloaded_files) == len(id_list):
-            self.print_info(self.tr('- - All topping files (type: {}) successfully downloaded').format(file_type))
+            self.print_info(self.tr('- - All topping files (type: {}) successfully downloaded').format(file_type), COLOR_TOPPING)
         else:
             missing_file_ids = id_list
             for downloaded_file_id in topping_file_cache.downloaded_files:
                 if downloaded_file_id in missing_file_ids:
                     missing_file_ids.remove(downloaded_file_id)
             self.print_info(self.tr('- - Some topping files (type: {}) where not successfully downloaded: {}').format(
-                file_type, (' '.join(missing_file_ids))))
+                file_type, (' '.join(missing_file_ids))), COLOR_TOPPING)
 
         return topping_file_cache.model
