@@ -1,0 +1,51 @@
+legend:
+  - "Belasteter Standort":
+      group: true
+      checked: true
+      expanded: true
+      child-nodes:
+        - "Belasteter_Standort (Geo_Lage_Punkt)":
+            checked: false
+            expanded: false
+            featurecount: true
+        - "Belasteter_Standort (Geo_Lage_Polygon)":
+            checked: true
+            expanded: true
+  - "Informationen":
+      group: true
+      checked: true
+      expanded: true
+      child-nodes:
+        - "EGRID_":
+        - "Deponietyp_":
+        - "ZustaendigkeitKataster":
+            featurecount: true
+        - "Untersuchungsmassnahmen_Definition":
+        - "StatusAltlV_Definition":
+        - "Standorttyp_Definition":
+        - "Deponietyp_Definition":
+        - "Parzellenidentifikation":
+        - "UntersMassn_":
+        - "Text Infos":
+            group: true
+            checked: false
+            expanded: true
+            child-nodes:
+              - "MultilingualMText":
+              - "LocalisedMText":
+              - "MultilingualText":
+              - "LocalisedText":
+        - "Text Infos":
+            group: true
+            checked: true
+            expanded: false
+            child-nodes:
+              - "StatusAltlV":
+              - "Standorttyp":
+              - "UntersMassn":
+              - "Deponietyp":
+              - "LanguageCode_ISO639_1":
+
+layer-order:
+  - "Belasteter_Standort (Geo_Lage_Polygon)"
+  - "Belasteter_Standort (Geo_Lage_Punkt)"

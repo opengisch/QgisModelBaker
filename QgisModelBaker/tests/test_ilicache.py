@@ -64,7 +64,7 @@ class IliCacheTest(unittest.TestCase):
         expected_models = set(['KbS_LV95_V1_4'])
         self.assertEqual(models, expected_models)
 
-    def test_ilidata_xml_parser_usabilityhub_metaconfigfiles(self):
+    def test_ilidata_xml_parser_usability_metaconfigfiles(self):
         # find metaconfig file according to the model(s)
         ilimetaconfigcache = IliMetaConfigCache(configuration=None, models='KbS_LV95_V1_4')
         ilimetaconfigcache._process_informationfile(
@@ -77,7 +77,8 @@ class IliCacheTest(unittest.TestCase):
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_ili2db',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0-wrong',
-                                'ch.sh.ili.config.KbS_LV95_V1_4_config_V1_0'}
+                                'ch.sh.ili.config.KbS_LV95_V1_4_config_V1_0',
+                                'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg'}
         self.assertEqual(metaconfigs, expected_metaconfigs)
 
         ilimetaconfigcache_model = ilimetaconfigcache.model
@@ -111,7 +112,7 @@ class IliCacheTest(unittest.TestCase):
             self.assertTrue(matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)).endswith(
                 'QgisModelBaker/tests/testdata/ilirepo/usabilityhub'))
 
-    def test_ilidata_xml_parser_usabilityhub_toppingfiles(self):
+    def test_ilidata_xml_parser_usability_toppingfiles(self):
         # find qml files according to the ids(s)
         qml_file_ids = ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',

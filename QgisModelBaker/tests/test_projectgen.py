@@ -23,6 +23,9 @@ import datetime
 import shutil
 import tempfile
 import logging
+import configparser
+import yaml
+import pathlib
 from decimal import Decimal
 
 from QgisModelBaker.libili2db import iliimporter
@@ -37,6 +40,7 @@ from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager impo
 
 start_app()
 
+test_path = pathlib.Path(__file__).parent.absolute()
 
 class TestProjectGen(unittest.TestCase):
 
@@ -1899,6 +1903,142 @@ class TestProjectGen(unittest.TestCase):
         # and that's the one with the strength 1 (composition)
         self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
+    def test_kbs_postgis_usability(self):
+        usability_test_path = os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub')
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_4'
+        importer.configuration.dbschema = 'usability_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+
+        metaconfig = self.load_metaconfig(os.path.join(usability_test_path,'metaconfig','opengisch_KbS_LV95_V1_4_test.ini'))
+
+        # ili2db settings
+        self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
+        ili2db_metaconfig = metaconfig['ch.ehi.ili2db']
+        model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
+        importer.configuration.ilimodels = ';'.join(model_list)
+        self.assertEqual(importer.configuration.ilimodels, 'KbS_LV95_V1_4;KbS_Basis_V1_4')
+        prescript_path = ili2db_metaconfig.get('preScript')
+        self.assertEqual(prescript_path, 'file:sql/opengisch_KbS_LV95_V1_4_test.sql')
+        importer.configuration.pre_script = os.path.join(usability_test_path, prescript_path.replace('file:', ''))
+        tomlfile_path = ili2db_metaconfig.get('iliMetaAttrs')
+        self.assertEqual(tomlfile_path, 'file:toml/sh_KbS_LV95_V1_4.toml')
+        importer.configuration.tomlfile = os.path.join(usability_test_path, tomlfile_path.replace('file:', ''))
+        srs_code = ili2db_metaconfig.get('defaultSrsCode')
+        self.assertEqual(srs_code, '3857')
+        importer.configuration.srs_code = srs_code
+        command = importer.command(True)
+        self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
+        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
+        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
+        self.assertTrue('3857' in command)
+
+        #and override defaultSrsCode manually
+        importer.configuration.srs_code = '2056'
+
+        #missing: give the metaconfigurationfile to the command (the configuration)
+
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        # Toppings legend and layers: apply
+        self.assertTrue('CONFIGURATION', metaconfig.sections())
+        configuration_section = metaconfig['CONFIGURATION']
+        self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
+        layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
+        self.assertEqual(layertree_data_list[0], 'file:layertree/opengis_layertree_KbS_LV95_V1_4.yaml')
+        layertreefile_path = os.path.join(usability_test_path, layertree_data_list[0].replace('file:', ''))
+
+        custom_layer_order_structure = list()
+        with open(layertreefile_path, 'r') as yamlfile:
+            layertree_data = yaml.safe_load(yamlfile)
+            self.assertTrue('legend' in layertree_data)
+            legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+            self.assertTrue('layer-order' in layertree_data)
+            custom_layer_order_structure = layertree_data['layer-order']
+
+        self.assertEqual(len(custom_layer_order_structure), 2)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        Project.custom_layer_order_structure = custom_layer_order_structure
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
+        belasteter_standort_group_layer = belasteter_standort_group.findLayers()
+        self.assertEqual(belasteter_standort_group_layer, ['gish','fisch'])
+
+        informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
+        informationen_group_layer = informationen_group.findLayers()
+        self.assertEqual(informationen_group_layer, ['gish','fisch'])
+        informationen_subgroups = informationen_group.findGroups()
+        self.assertEqual(informationen_subgroups, ['gaggi'])
+
+        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
+        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder())
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+                belasteter_standort_punkt_layer = layer
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                fields = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(fields, set(['letzteanpassung',
+                                              'zustaendigkeitkataster',
+                                              'geo_lage_polygon',
+                                              'inbetrieb',
+                                              'ersteintrag',
+                                              'katasternummer',
+                                              'nachsorge',
+                                              'url_kbs_auszug',
+                                              'url_standort',
+                                              'statusaltlv',
+                                              'standorttyp',
+                                              'bemerkung',
+                                              'bemerkung_de',
+                                              'bemerkung_fr',
+                                              'bemerkung_rm',
+                                              'bemerkung_it',
+                                              'bemerkung_en',
+                                              'geo_lage_punkt']))
+
+                # This might need to be adjusted if we get better names
+                self.assertEqual(tabs[1].name(), 'deponietyp_')
+
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                belasteter_standort_polygon_layer = layer
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(available_layers), 16)
+
+        self.assertGreater(
+            len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
+        self.assertGreater(
+            len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
+        self.assertGreater(
+            len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
+        self.assertGreater(
+            len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+
     def test_unit(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
@@ -1930,6 +2070,13 @@ class TestProjectGen(unittest.TestCase):
 
     def tearDown(self):
         QgsProject.instance().removeAllMapLayers()
+
+    def load_metaconfig(self, path):
+        metaconfig = configparser.ConfigParser()
+        metaconfig.clear()
+        metaconfig.read_file(open(path))
+        metaconfig.read(path)
+        return metaconfig
 
     @classmethod
     def tearDownClass(cls):
