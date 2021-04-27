@@ -459,23 +459,28 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             self.progress_bar.setValue(60)
-
             # Toppings QMLs: collect, download and apply
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 self.print_info(self.tr('Topping contains QML information'), COLOR_TOPPING)
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
                 qml_file_model = self.get_topping_file_model(qml_section.values(), 'qml')
                 for layer in project.layers:
-                    #dave the hack with the " could maybe be improved
-                    layer_name = '"'+layer.alias+'"' if ' ' in layer.alias else layer.alias
-                    if layer_name.lower() in qml_section:
-                        matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole, qml_section[layer_name.lower()], 1)
-                        if matches:
-                            style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                            self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path), COLOR_TOPPING)
-                            layer.layer.loadNamedStyle(style_file_path)
-                time.sleep(3)  # to remove
+                    if any(layer.alias.lower() == s for s in qml_section):
+                        layer_qml = layer.alias.lower()
+                    elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                        layer_qml = f'"{layer.alias.lower()}"'
+                    else:
+                        continue
+                    matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                                   qml_section[layer_qml], 1)
+                    if matches:
+                        style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                        self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path),
+                                        COLOR_TOPPING)
+                        layer.layer.loadNamedStyle(style_file_path)
 
+                time.sleep(3)  # to remove
+                
             self.progress_bar.setValue(80)
 
             # Cataloges: collect, download and import
@@ -836,7 +841,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_metaconfig_line_edit.setCompleter(completer)
 
     def on_metaconfig_completer_activated(self, model_index=None):
-        if model_index is None:
+        if model_index is None and self.ili_metaconfig_line_edit.text():
             #when leaving the completer list without making an activation by clicking on a selection, it get's the data by the entered text
             matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
                                                 Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), 1)
@@ -928,7 +933,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files:'), COLOR_TOPPING)
                 ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
                 ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list,'toml')
-                self.ili2db_options.load_toml_file_path(models, ';'.join(ili_meta_attrs_file_path_list))
+                self.ili2db_options.load_toml_file_path(self.ili_models_line_edit.text(), ';'.join(ili_meta_attrs_file_path_list))
                 self.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'), COLOR_TOPPING)
 
             # get prescript (sql)
@@ -944,7 +949,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.print_info(self.tr('- Seeking for postscript (sql) files:'), COLOR_TOPPING)
                 postscript_list = ili2db_metaconfig.get('postscript').split(';')
                 postscript_file_path_list = self.get_topping_file_list(postscript_list,'sql')
-                self.ili2db_options.load_post_script_path(models, ';'.join(postscript_file_path_list))
+                self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
                 self.print_info(self.tr('- Loaded postscript (sql) files'), COLOR_TOPPING)
 
     def show_message(self, level, message):
