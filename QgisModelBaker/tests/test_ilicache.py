@@ -45,7 +45,7 @@ class IliCacheTest(unittest.TestCase):
         ilicache._process_informationfile(os.path.join(test_path, 'testdata', 'ilirepo', '23', 'ilimodels.xml'), 'test_repo', '/testdata/ilirepo/23/ilimodels.xml')
         self.assertIn('test_repo', ilicache.repositories.keys())
         models = set([e['name'] for e in next(elem for elem in ilicache.repositories.values())])
-        expected_models =  set(['IliRepository09', 'IliRepository09', 'IliSite09', 'IlisMeta07', 'AbstractSymbology', 'CoordSys', 'RoadsExdm2ben_10', 'RoadsExdm2ien_10', 'RoadsExgm2ien_10', 'StandardSymbology', 'Time', 'Units', 'AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology', 'Time', 'Units', 'GM03Core', 'GM03Comprehensive', 'CodeISO', 'GM03_2Core', 'GM03_2Comprehensive', 'CodeISO', 'GM03_2_1Core', 'GM03_2_1Comprehensive', 'IlisMeta07', 'Units', 'IlisMeta07', 'IliRepository09', 'StandardSymbology', 'StandardSymbology', 'GM03Core', 'GM03_2Core', 'GM03_2_1Core', 'CoordSys', 'INTERLIS_ext', 'StandardSymbology', 'INTERLIS_ext', 'IliVErrors', 'RoadsExdm2ien_10', 'RoadsExdm2ien', 'CoordSys', 'StandardSymbology', 'Units', 'Time', 'Time', 'Base', 'Base_f', 'SIA405_Base', 'SIA405_Base_f', 'Base_LV95', 'Base_f_MN95', 'SIA405_Base_LV95', 'SIA405_Base_f_MN95', 'Math', 'Text', 'DatasetIdx16', 'AbstractSymbology', 'AbstractSymbology', 'Time', 'IliRepository20'])
+        expected_models = set(['IliRepository09', 'IliRepository09', 'IliSite09', 'IlisMeta07', 'AbstractSymbology', 'CoordSys', 'RoadsExdm2ben_10', 'RoadsExdm2ien_10', 'RoadsExgm2ien_10', 'StandardSymbology', 'Time', 'Units', 'AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology', 'Time', 'Units', 'GM03Core', 'GM03Comprehensive', 'CodeISO', 'GM03_2Core', 'GM03_2Comprehensive', 'CodeISO', 'GM03_2_1Core', 'GM03_2_1Comprehensive', 'IlisMeta07', 'Units', 'IlisMeta07', 'IliRepository09', 'StandardSymbology', 'StandardSymbology', 'GM03Core', 'GM03_2Core', 'GM03_2_1Core', 'CoordSys', 'INTERLIS_ext', 'StandardSymbology', 'INTERLIS_ext', 'IliVErrors', 'RoadsExdm2ien_10', 'RoadsExdm2ien', 'CoordSys', 'StandardSymbology', 'Units', 'Time', 'Time', 'Base', 'Base_f', 'SIA405_Base', 'SIA405_Base_f', 'Base_LV95', 'Base_f_MN95', 'SIA405_Base_LV95', 'SIA405_Base_f_MN95', 'Math', 'Text', 'DatasetIdx16', 'AbstractSymbology', 'AbstractSymbology', 'Time', 'IliRepository20'])
         self.assertEqual(models, expected_models)
 
     def test_ilimodels_xml_parser_24(self):
@@ -53,24 +53,31 @@ class IliCacheTest(unittest.TestCase):
         ilicache._process_informationfile(os.path.join(test_path, 'testdata', 'ilirepo', '24', 'ilimodels.xml'), 'test_repo', '/testdata/ilirepo/24/ilimodels.xml')
         self.assertIn('test_repo', ilicache.repositories.keys())
         models = set([e['name'] for e in next(elem for elem in ilicache.repositories.values())])
-        expected_models =  set(['AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology', 'Time', 'Units'])
+        expected_models = set(['AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology', 'Time', 'Units'])
         self.assertEqual(models, expected_models)
 
-    def test_ilimodels_xml_parser_usabilityhub(self):
+    def test_ilimodels_xml_local_repo_parser_24(self):
+        #collects models of a path - means the ones defined in ilimodels.xml and the ones in the ilifiles (if not already in ilimodels.xml)
         ilicache = IliCache([])
-        ilicache._process_informationfile(os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub', 'ilimodels.xml'), 'usabilityhub', '/testdata/ilirepo/usabilityhub/ilimodels.xml')
-        self.assertIn('usabilityhub', ilicache.repositories.keys())
-        models = set([e['name'] for e in next(elem for elem in ilicache.repositories.values())])
-        expected_models = set(['KbS_LV95_V1_4'])
-        self.assertEqual(models, expected_models)
+        ilicache.process_model_directory(os.path.join(test_path, 'testdata', 'ilirepo', '24'))
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilicache.repositories.keys())
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24', 'additional_local_ili_files'), ilicache.repositories.keys())
+        models = set([model['name'] for model in [e for values in ilicache.repositories.values() for e in values]])
+        expected_models_of_ilimodels_xml = set(
+            ['AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology',
+             'Time', 'Units'])
+        expected_models_of_local_ili_files = set(
+            ['KbS_Basis_V1_4', 'KbS_LV03_V1_4', 'KbS_LV95_V1_4', 'RoadsSimple', 'Abfallsammelstellen_ZEBA_LV03_V1',
+             'Abfallsammelstellen_ZEBA_LV95_V1'])
+        self.assertEqual(models, set.union(expected_models_of_ilimodels_xml,expected_models_of_local_ili_files))
 
-    def test_ilidata_xml_parser_usability_metaconfigfiles(self):
+    def test_ilidata_xml_parser_metaconfigfiles_24(self):
         # find metaconfig file according to the model(s)
         ilimetaconfigcache = IliMetaConfigCache(configuration=None, models='KbS_LV95_V1_4')
         ilimetaconfigcache._process_informationfile(
-            os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub', 'ilidata.xml'), 'usabilityhub',
-            os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub'))
-        self.assertIn('usabilityhub', ilimetaconfigcache.repositories.keys())
+            os.path.join(test_path, 'testdata', 'ilirepo', '24', 'ilidata.xml'), 'test_repo',
+            os.path.join(test_path, 'testdata', 'ilirepo', '24'))
+        self.assertIn('test_repo', ilimetaconfigcache.repositories.keys())
         metaconfigs = set([e['id'] for e in next(elem for elem in ilimetaconfigcache.repositories.values())])
         expected_metaconfigs = {'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0-technical',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
@@ -94,7 +101,7 @@ class IliCacheTest(unittest.TestCase):
                              matches_on_id[0].data(Qt.EditRole))
             self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)',
                              matches_on_id[0].data(Qt.DisplayRole))
-            self.assertEqual('usabilityhub',
+            self.assertEqual('test_repo',
                              matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO)))
             self.assertEqual('2021-01-06',
                              matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.VERSION)))
@@ -110,9 +117,9 @@ class IliCacheTest(unittest.TestCase):
                              matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID)))
             #only check the ending, since it's a absolute path on different plattforms
             self.assertTrue(matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)).endswith(
-                'QgisModelBaker/tests/testdata/ilirepo/usabilityhub'))
+                'QgisModelBaker/tests/testdata/ilirepo/24'))
 
-    def test_ilidata_xml_parser_usability_toppingfiles(self):
+    def test_ilidata_xml_parser_toppingfiles_24(self):
         # find qml files according to the ids(s)
         qml_file_ids = ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
@@ -120,12 +127,12 @@ class IliCacheTest(unittest.TestCase):
 
         ilitoppingfilecache = IliToppingFileCache(configuration=None, file_ids=qml_file_ids,
                                                   metaconfig_url=os.path.join(test_path,
-                                                                              'testdata/ilirepo/usabilityhub/metaconfig/opengisch_KbS_LV95_V1_4.ini'))
+                                                                              'testdata/ilirepo/24/metaconfig/opengisch_KbS_LV95_V1_4.ini'))
 
         ilitoppingfilecache._process_informationfile(
-            os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub', 'ilidata.xml'), 'usabilityhub',
-            os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub'))
-        self.assertIn('usabilityhub', ilitoppingfilecache.repositories.keys())
+            os.path.join(test_path, 'testdata', 'ilirepo', '24', 'ilidata.xml'), 'test_repo',
+            os.path.join(test_path, 'testdata', 'ilirepo', '24'))
+        self.assertIn('test_repo', ilitoppingfilecache.repositories.keys())
         files = set([e['id'] for e in next(elem for elem in ilitoppingfilecache.repositories.values())])
         expected_files = {'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
@@ -146,7 +153,7 @@ class IliCacheTest(unittest.TestCase):
                              matches_on_id[0].data(Qt.EditRole))
             self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                              matches_on_id[0].data(Qt.DisplayRole))
-            self.assertEqual('usabilityhub',
+            self.assertEqual('test_repo',
                              matches_on_id[0].data(int(IliToppingFileItemModel.Roles.ILIREPO)))
             self.assertEqual('2021-01-20',
                              matches_on_id[0].data(int(IliToppingFileItemModel.Roles.VERSION)))
