@@ -82,11 +82,13 @@ class IliCache(QObject):
     def process_model_directory(self, path):
         if path[0] == '%':
             pass
-        elif os.path.isdir(path):
-            # recursive search of ilimodels paths
-            get_all_modeldir_in_path(path, self.process_local_ili_folder)
         else:
+            # download remote and local repositories
             self.download_repository(path)
+
+            if os.path.isdir(path):
+                # additional recursive search of paths containing ili files (without ilimodel.xml)
+                get_all_modeldir_in_path(path, self.process_local_ili_folder)
 
     def process_single_ili_file(self):
         models = self.process_ili_file(self.single_ili_file)
@@ -94,38 +96,55 @@ class IliCache(QObject):
             models, key=lambda m: m['version'], reverse=True)
         self.model.set_repositories(self.repositories)
 
+    def file_url(self, url, file):
+        if os.path.isdir(url):
+            return os.path.join(url, file)
+        else:
+            return urllib.parse.urljoin(url, file)
+
     def download_repository(self, url):
         """
         Downloads the informationfile (default: ilimodels.xml) and ilisite.xml files from the provided url
         and updates the local cache.
         """
-        netloc = urllib.parse.urlsplit(url)[1]
+        netloc = urllib.parse.urlsplit(url)[1] if not os.path.isdir(url) else url
 
         netloc_dir = os.path.join(self.cache_path, netloc)
 
         os.makedirs(netloc_dir, exist_ok=True)
 
-        information_file_url = urllib.parse.urljoin(url, self.information_file)
-        information_file_path = os.path.join(self.cache_path, netloc, self.information_file)
-        ilisite_url = urllib.parse.urljoin(url, 'ilisite.xml')
-        ilisite_path = os.path.join(self.cache_path, netloc, 'ilisite.xml')
-
+        information_file_url = self.file_url(url, self.information_file)
+        ilisite_url = self.file_url(url, 'ilisite.xml')
         logger = logging.getLogger(__name__)
 
-        # download ilimodels.xml
-        download_file(information_file_url, information_file_path,
-                      on_success=lambda: self._process_informationfile(
-                          information_file_path, netloc, url),
-                      on_error=lambda error, error_string: logger.warning(self.tr(
-                          'Could not download {url} ({message})').format(url=information_file_url, message=error_string))
-                      )
+        if os.path.isdir(url):
+            # continue with the local file
+            if os.path.exists(information_file_url):
+                self._process_informationfile(information_file_url, netloc, url)
+            else:
+                logger.warning( self.tr('Could not find local file {}').format( information_file_url ) )
+            if os.path.exists(ilisite_url):
+                self._process_ilisite(ilisite_url)
+            else:
+                logger.warning( self.tr('Could not find local file  {}').format( ilisite_url ) )
+        else:
+            information_file_path = os.path.join(self.cache_path, netloc, self.information_file)
+            ilisite_path = os.path.join(self.cache_path, netloc, 'ilisite.xml')
 
-        # download ilisite.xml
-        download_file(ilisite_url, ilisite_path,
-                      on_success=lambda: self._process_ilisite(ilisite_path),
-                      on_error=lambda error, error_string: logger.warning(self.tr(
-                          'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
-                      )
+            # download ilimodels.xml
+            download_file(information_file_url, information_file_path,
+                          on_success=lambda: self._process_informationfile(
+                              information_file_path, netloc, url),
+                          on_error=lambda error, error_string: logger.warning(self.tr(
+                              'Could not download {url} ({message})').format(url=information_file_url, message=error_string))
+                          )
+
+            # download ilisite.xml
+            download_file(ilisite_url, ilisite_path,
+                          on_success=lambda: self._process_ilisite(ilisite_path),
+                          on_error=lambda error, error_string: logger.warning(self.tr(
+                              'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
+                          )
 
     def _process_ilisite(self, file):
         """
