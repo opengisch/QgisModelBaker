@@ -5,7 +5,7 @@ from qgis.testing import unittest
 from qgis.PyQt.QtCore import Qt
 
 from QgisModelBaker.libili2db.ilicache import IliCache, IliMetaConfigCache, IliMetaConfigItemModel, IliToppingFileCache, IliToppingFileItemModel
-from QgisModelBaker.tests.utils import testdata_path
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, BaseConfiguration
 
 test_path = pathlib.Path(__file__).parent.absolute()
 class IliCacheTest(unittest.TestCase):
@@ -56,8 +56,8 @@ class IliCacheTest(unittest.TestCase):
         expected_models = set(['AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology', 'Time', 'Units'])
         self.assertEqual(models, expected_models)
 
-    def test_ilimodels_xml_local_repo_parser_24(self):
-        #collects models of a path - means the ones defined in ilimodels.xml and the ones in the ilifiles (if not already in ilimodels.xml)
+    def test_ilimodels_xml_parser_24_local_files(self):
+        #collects models of a path - means the ones defined in ilimodels.xml and the ones in the ilifiles (if not already in ilimodels.xml) with direct ilidata.xml scan
         ilicache = IliCache([])
         ilicache.process_model_directory(os.path.join(test_path, 'testdata', 'ilirepo', '24'))
         self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilicache.repositories.keys())
@@ -71,8 +71,26 @@ class IliCacheTest(unittest.TestCase):
              'Abfallsammelstellen_ZEBA_LV95_V1'])
         self.assertEqual(models, set.union(expected_models_of_ilimodels_xml,expected_models_of_local_ili_files))
 
-    def test_ilidata_xml_parser_metaconfigfiles_24(self):
-        # find metaconfig file according to the model(s)
+    def test_ilimodels_xml_parser_24_local_repo_local_files(self):
+        #collects models of a path - means the ones defined in ilimodels.xml and the ones in the ilifiles (if not already in ilimodels.xml) with local repo scan
+        configuration = BaseConfiguration()
+        configuration.custom_model_directories_enabled = True
+        configuration.custom_model_directories = os.path.join(test_path, 'testdata', 'ilirepo', '24')
+        ilicache = IliCache(configuration)
+        ilicache.refresh()
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilicache.repositories.keys())
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24', 'additional_local_ili_files'), ilicache.repositories.keys())
+        models = set([model['name'] for model in [e for values in ilicache.repositories.values() for e in values]])
+        expected_models_of_ilimodels_xml = set(
+            ['AbstractSymbology', 'CoordSys', 'RoadsExdm2ben', 'RoadsExdm2ien', 'RoadsExgm2ien', 'StandardSymbology',
+             'Time', 'Units'])
+        expected_models_of_local_ili_files = set(
+            ['KbS_Basis_V1_4', 'KbS_LV03_V1_4', 'KbS_LV95_V1_4', 'RoadsSimple', 'Abfallsammelstellen_ZEBA_LV03_V1',
+             'Abfallsammelstellen_ZEBA_LV95_V1'])
+        self.assertEqual(models, set.union(expected_models_of_ilimodels_xml,expected_models_of_local_ili_files))
+
+    def test_ilidata_xml_parser_24_metaconfig_kbs(self):
+        # find kbs metaconfig file according to the model(s) with direct ilidata.xml scan
         ilimetaconfigcache = IliMetaConfigCache(configuration=None, models='KbS_LV95_V1_4')
         ilimetaconfigcache._process_informationfile(
             os.path.join(test_path, 'testdata', 'ilirepo', '24', 'ilidata.xml'), 'test_repo',
@@ -97,46 +115,69 @@ class IliCacheTest(unittest.TestCase):
         self.assertTrue(matches_on_id)
 
         if matches_on_id:
-            self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)',
-                             matches_on_id[0].data(Qt.EditRole))
-            self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)',
-                             matches_on_id[0].data(Qt.DisplayRole))
-            self.assertEqual('test_repo',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO)))
-            self.assertEqual('2021-01-06',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.VERSION)))
-            self.assertEqual('KbS_LV95_V1_4',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.MODEL)))
-            self.assertEqual('metaconfig/opengisch_KbS_LV95_V1_4.ini',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)))
-            self.assertEqual('mailto:david@opengis.ch',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.OWNER)))
-            self.assertEqual([{'language': 'de', 'text': 'Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)'}],
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE)))
-            self.assertEqual('ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
-                             matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID)))
-            #only check the ending, since it's a absolute path on different plattforms
-            self.assertTrue(matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)).endswith(
-                'QgisModelBaker/tests/testdata/ilirepo/24'))
+            self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)', matches_on_id[0].data(Qt.EditRole))
+            self.assertEqual('Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)', matches_on_id[0].data(Qt.DisplayRole))
+            self.assertEqual('test_repo', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO)))
+            self.assertEqual('2021-01-06', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.VERSION)))
+            self.assertEqual('KbS_LV95_V1_4', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.MODEL)))
+            self.assertEqual('metaconfig/opengisch_KbS_LV95_V1_4.ini', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)))
+            self.assertEqual('mailto:david@opengis.ch', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.OWNER)))
+            self.assertEqual([{'language': 'de', 'text': 'Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)'}], matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE)))
+            self.assertEqual('ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID)))
+            self.assertEqual(os.path.join(test_path, 'testdata', 'ilirepo', '24'), matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)))
 
-    def test_ilidata_xml_parser_toppingfiles_24(self):
-        # find qml files according to the ids(s)
+    def test_ilidata_xml_parser_24_local_repo_metaconfig(self):
+        # find planerischerGewaesserschutz metaconfig file according to the model(s) with local repo scan
+        configuration = BaseConfiguration()
+        configuration.custom_model_directories_enabled = True
+        configuration.custom_model_directories = os.path.join(test_path, 'testdata', 'ilirepo', '24')
+
+        ilimetaconfigcache = IliMetaConfigCache(configuration, models='PlanerischerGewaesserschutz_V1;LegendeEintrag_PlanGewaesserschutz_V1_1')
+        ilimetaconfigcache.refresh()
+        # local repo repository
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilimetaconfigcache.repositories.keys())
+
+        metaconfigs = set([e['id'] for e in next(elem for elem in ilimetaconfigcache.repositories.values())])
+        expected_metaconfigs = {'ch.opengis.ili.config.PlanerischerGewaesserschutz_config',
+                                'ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile'}
+        self.assertEqual(metaconfigs, expected_metaconfigs)
+
+        ilimetaconfigcache_model = ilimetaconfigcache.model
+
+        matches_on_id = ilimetaconfigcache_model.match(ilimetaconfigcache_model.index(0, 0),
+                                                       int(IliMetaConfigItemModel.Roles.ID),
+                                                       'ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile', 1,
+                                                       Qt.MatchExactly)
+        self.assertTrue(matches_on_id)
+
+        if matches_on_id:
+            self.assertEqual('Mit lokalem Legendenkatalog', matches_on_id[0].data(Qt.EditRole))
+            self.assertEqual('Mit lokalem Legendenkatalog', matches_on_id[0].data(Qt.DisplayRole))
+            self.assertEqual(os.path.join(test_path, 'testdata', 'ilirepo', '24'), matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO)))
+            self.assertEqual('2021-03-12', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.VERSION)))
+            self.assertEqual('LegendeEintrag_PlanGewaesserschutz_V1_1', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.MODEL)))
+            self.assertEqual('metaconfig/opengisch_PlanerischerGewaesserschutz_localfile.ini', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)))
+            self.assertEqual('mailto:david@opengis.ch', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.OWNER)))
+            self.assertEqual([{'language': 'de', 'text': 'Mit lokalem Legendenkatalog'}], matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE)))
+            self.assertEqual('ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile', matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID)))
+            self.assertEqual(os.path.join(test_path, 'testdata', 'ilirepo', '24'), matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL)))
+
+    def test_ilidata_xml_parser_24_toppingfiles(self):
+        # find qml files according to the ids(s) with direct ilidata.xml scan
         qml_file_ids = ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
                     'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
 
-        ilitoppingfilecache = IliToppingFileCache(configuration=None, file_ids=qml_file_ids,
-                                                  metaconfig_url=os.path.join(test_path,
-                                                                              'testdata/ilirepo/24/metaconfig/opengisch_KbS_LV95_V1_4.ini'))
+        ilitoppingfilecache = IliToppingFileCache(configuration=None, file_ids=qml_file_ids)
 
         ilitoppingfilecache._process_informationfile(
             os.path.join(test_path, 'testdata', 'ilirepo', '24', 'ilidata.xml'), 'test_repo',
             os.path.join(test_path, 'testdata', 'ilirepo', '24'))
         self.assertIn('test_repo', ilitoppingfilecache.repositories.keys())
-        files = set([e['id'] for e in next(elem for elem in ilitoppingfilecache.repositories.values())])
-        expected_files = {'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
-                    'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
-                    'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'}
+        files = set([e['relative_file_path'] for e in next(elem for elem in ilitoppingfilecache.repositories.values())])
+        expected_files = {'qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml',
+                    'qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml',
+                    'qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml'}
 
         self.assertEqual(files, expected_files)
 
@@ -147,20 +188,62 @@ class IliCacheTest(unittest.TestCase):
                                                         'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001', 1,
                                                         Qt.MatchExactly)
         self.assertTrue(matches_on_id)
-
         if matches_on_id:
-            self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
-                             matches_on_id[0].data(Qt.EditRole))
-            self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
-                             matches_on_id[0].data(Qt.DisplayRole))
-            self.assertEqual('test_repo',
-                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.ILIREPO)))
-            self.assertEqual('2021-01-20',
-                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.VERSION)))
-            self.assertEqual('qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml',
-                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH)))
-            #only check the ending, since it's a absolute path on different plattforms
-            self.assertTrue(matches_on_id[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH)).endswith(
-                'qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml'))
-            self.assertEqual('mailto:david@opengis.ch',
-                             matches_on_id[0].data(int(IliToppingFileItemModel.Roles.OWNER)))
+            self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',matches_on_id[0].data(Qt.EditRole))
+            self.assertEqual('ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',matches_on_id[0].data(Qt.DisplayRole))
+            self.assertEqual('test_repo',matches_on_id[0].data(int(IliToppingFileItemModel.Roles.ILIREPO)))
+            self.assertEqual('2021-01-20',matches_on_id[0].data(int(IliToppingFileItemModel.Roles.VERSION)))
+            self.assertEqual('qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml', matches_on_id[0].data(int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH)))
+            self.assertEqual(os.path.join(test_path, 'testdata', 'ilirepo', '24', 'qml', 'opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml'), matches_on_id[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH)))
+            self.assertEqual('mailto:david@opengis.ch', matches_on_id[0].data(int(IliToppingFileItemModel.Roles.OWNER)))
+
+    def test_ilidata_xml_parser_24_local_repo_toppingfiles(self):
+        # find qml files according to the ids(s) with local repo scan
+        qml_file_ids = ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
+                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
+                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
+
+
+        configuration = BaseConfiguration()
+        configuration.custom_model_directories_enabled = True
+        configuration.custom_model_directories = os.path.join(test_path, 'testdata', 'ilirepo', '24')
+        ilitoppingfilecache = IliToppingFileCache(configuration, file_ids=qml_file_ids)
+        ilitoppingfilecache.refresh()
+
+        # local repo repository
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilitoppingfilecache.repositories.keys())
+        # local files repository
+        self.assertIn('local_files', ilitoppingfilecache.repositories.keys())
+
+        files = set(
+            [e['relative_file_path'] for e in next(elem for elem in ilitoppingfilecache.repositories.values())])
+        expected_files = {'qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml',
+                          'qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml',
+                          'qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml'}
+        self.assertEqual(files, expected_files)
+
+    def test_ilidata_xml_parser_24_local_repo_local_toppingfiles(self):
+        # find qml files according to the ids(s) and according to local paths with local repo scan
+        qml_file_ids = ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
+                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004',
+                        'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005',
+                        'file:qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml']
+
+        configuration = BaseConfiguration()
+        configuration.custom_model_directories_enabled = True
+        configuration.custom_model_directories = os.path.join(test_path, 'testdata', 'ilirepo', '24')
+        ilitoppingfilecache = IliToppingFileCache(configuration, file_ids=qml_file_ids)
+        ilitoppingfilecache.refresh()
+
+        # local repo repository
+        self.assertIn(os.path.join(test_path, 'testdata', 'ilirepo', '24'), ilitoppingfilecache.repositories.keys())
+        # local files repository
+        self.assertIn('local_files', ilitoppingfilecache.repositories.keys())
+
+        files = set(
+            [e['relative_file_path'] for e in next(elem for elem in ilitoppingfilecache.repositories.values())])
+        expected_files = {'qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml',
+                          'qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml',
+                          'qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml',
+                          'qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml'}
+        self.assertEqual(files, expected_files)

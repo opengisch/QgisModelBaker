@@ -831,7 +831,7 @@
             <LocalisedText>
               <DatasetIdx16.LocalisedMText>
                 <Language>de</Language>
-                <Text>Mit Cat-Model und Legendenkatalog auf usabilityhub</Text>
+                <Text>Mit Cat-Model und Legendenkatalog</Text>
               </DatasetIdx16.LocalisedMText>
             </LocalisedText>
           </DatasetIdx16.MultilingualMText>
@@ -867,7 +867,7 @@
             <LocalisedText>
               <DatasetIdx16.LocalisedMText>
                 <Language>de</Language>
-                <Text>Mit lokalem Legendenkatalog auf usabilityhub</Text>
+                <Text>Mit lokalem Legendenkatalog</Text>
               </DatasetIdx16.LocalisedMText>
             </LocalisedText>
           </DatasetIdx16.MultilingualMText>

@@ -600,7 +600,6 @@ class IliToppingFileCache(IliMetaConfigCache):
 
 
     def refresh(self):
-        print("refresh topping cache")
         if not self.directories is None:
             for directory in self.directories:
                 self.process_model_directory(directory)
@@ -616,7 +615,7 @@ class IliToppingFileCache(IliMetaConfigCache):
             toppingfile['repository'] = netloc
             toppingfile['url'] = None
             toppingfile['relative_file_path'] = file_path_id[5:]
-            toppingfile['local_file_path'] = self.file_path(netloc, url, file_path_id[5:])
+            toppingfile['local_file_path'] = self.file_path(netloc, None, file_path_id[5:])
             repo_files.append(toppingfile)
             print(f"appendd {file_path_id}")
 
