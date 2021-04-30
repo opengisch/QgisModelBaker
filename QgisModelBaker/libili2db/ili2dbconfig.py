@@ -126,11 +126,14 @@ class Ili2DbCommandConfiguration(object):
         self.db_odbc_driver = ''
         self.disable_validation = False
         self.metaconfig = None
+        self.metaconfig_id = None
 
     def append_args(self, args, values, consider_metaconfig=False):
         if consider_metaconfig and self.metaconfig and values:
-            if values[0][2:] in self.metaconfig.keys():
-                return
+            if 'ch.ehi.ili2db' in self.metaconfig.sections():
+                metaconfig_ili2db_params = self.metaconfig['ch.ehi.ili2db']
+                if values[0][2:] in metaconfig_ili2db_params.keys():
+                    return
         args += values
 
     def to_ili2db_args(self):
@@ -221,7 +224,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         if with_action:
             self.append_args(args, ["--schemaimport"])
 
-        self.append_args(args, extra_args )
+        self.append_args(args, extra_args)
 
         self.append_args(args, ["--coalesceCatalogueRef"], True)
         self.append_args(args, ["--createEnumTabs"], True)

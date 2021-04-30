@@ -181,6 +181,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
+        self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
 
@@ -601,6 +602,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
         configuration.db_ili_version = self.db_ili_version(configuration)
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():
@@ -841,10 +844,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 model_index = matches[0]
         if model_index and self.ili_metaconfig_line_edit.completer():
+            self.current_metaconfig_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                 int(IliMetaConfigItemModel.Roles.ID))
             self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
                 self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
-                self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                 int(IliMetaConfigItemModel.Roles.ID))))
+                self.current_metaconfig_id))
             self.metaconfig_file_info_label.setStyleSheet('color: #842BD7')
             repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                         int(IliMetaConfigItemModel.Roles.ILIREPO))
