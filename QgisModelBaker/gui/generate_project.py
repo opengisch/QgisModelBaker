@@ -482,9 +482,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # Cataloges: collect, download and import
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
-                if 'qgis.modelbaker.referenceData' in configuration_section:
+                if 'ch.interlis.referenceData' in configuration_section:
                     self.print_info(self.tr('Check out the cats'), COLOR_TOPPING)
-                    reference_data_list = configuration_section['qgis.modelbaker.referenceData'].split(';')
+                    reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
                     catalogue_file_model = self.get_topping_file_model(reference_data_list)
                     for cat_file_id in reference_data_list:
                         matches = catalogue_file_model.match(catalogue_file_model.index(0, 0),Qt.DisplayRole, cat_file_id, 1)
@@ -844,11 +844,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 model_index = matches[0]
         if model_index and self.ili_metaconfig_line_edit.completer():
-            self.current_metaconfig_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+            metaconfig_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                  int(IliMetaConfigItemModel.Roles.ID))
+            if self.current_metaconfig_id == metaconfig_id:
+                return
+            self.current_metaconfig_id = metaconfig_id
             self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
                 self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
-                self.current_metaconfig_id))
+                metaconfig_id))
             self.metaconfig_file_info_label.setStyleSheet('color: #842BD7')
             repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                         int(IliMetaConfigItemModel.Roles.ILIREPO))
