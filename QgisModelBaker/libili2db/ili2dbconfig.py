@@ -95,10 +95,13 @@ class BaseConfiguration(object):
 
     @property
     def metaconfig_directories(self):
-        # maybe in future there can be custom local directories as well
-        dirs = [
-            'http://usabilityhub.opengis.ch/'
-        ]
+        dirs = list()
+        if self.custom_model_directories_enabled and self.custom_model_directories:
+            dirs = self.custom_model_directories.split(';')
+        else:
+            dirs = [
+                'http://usabilityhub.opengis.ch/'
+            ]
         return dirs
 
 
