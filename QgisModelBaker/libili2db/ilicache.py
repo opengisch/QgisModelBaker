@@ -617,7 +617,6 @@ class IliToppingFileCache(IliMetaConfigCache):
             toppingfile['relative_file_path'] = file_path_id[5:]
             toppingfile['local_file_path'] = self.file_path(netloc, None, file_path_id[5:])
             repo_files.append(toppingfile)
-            print(f"appendd {file_path_id}")
 
         self.repositories[netloc] = repo_files
         self.model.set_repositories(self.repositories)

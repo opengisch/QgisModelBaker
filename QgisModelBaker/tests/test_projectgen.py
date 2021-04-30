@@ -37,6 +37,14 @@ from QgisModelBaker.tests.utils import get_pg_connection_string
 from qgis.core import QgsProject, QgsEditFormConfig, QgsRelation, Qgis
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import GpkgCommandConfigManager
+from QgisModelBaker.libili2db.ilicache import IliCache, IliMetaConfigCache, IliMetaConfigItemModel, IliToppingFileCache, IliToppingFileItemModel
+from qgis.PyQt.QtCore import (
+    QSettings,
+    Qt,
+    QModelIndex,
+    QTimer,
+    QEventLoop
+)
 
 start_app()
 
@@ -1903,17 +1911,33 @@ class TestProjectGen(unittest.TestCase):
         # and that's the one with the strength 1 (composition)
         self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
-    def test_kbs_postgis_usability(self):
-        usability_test_path = os.path.join(test_path, 'testdata', 'ilirepo', 'usabilityhub')
+    def test_kbs_postgis_toppings(self):
+        toppings_test_path = os.path.join(test_path, 'testdata', 'ilirepo', '24')
 
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
-        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration = iliimporter_config(importer.tool, os.path.join(test_path, 'testdata', 'ilirepo', '24'))
         importer.configuration.ilimodels = 'KbS_LV95_V1_4'
-        importer.configuration.dbschema = 'usability_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'toppings_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
 
-        metaconfig = self.load_metaconfig(os.path.join(usability_test_path,'metaconfig','opengisch_KbS_LV95_V1_4_test.ini'))
+        # get the metaconfiguration
+        ilimetaconfigcache = IliMetaConfigCache(importer.configuration.base_configuration, 'KbS_LV95_V1_4')
+        ilimetaconfigcache.refresh()
+        matches_on_id = ilimetaconfigcache.model.match(ilimetaconfigcache.model.index(0, 0),
+                                                       int(IliMetaConfigItemModel.Roles.ID),
+                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
+                                                       1,
+                                                       Qt.MatchExactly)
+        self.assertTrue(matches_on_id)
+
+        repository = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO))
+        url = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL))
+        path = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+        dataset_id = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ID))
+
+        metaconfig_path = ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+        metaconfig = self.load_metaconfig(os.path.join(toppings_test_path,metaconfig_path))
 
         # ili2db settings
         self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
@@ -1921,25 +1945,34 @@ class TestProjectGen(unittest.TestCase):
         model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
         importer.configuration.ilimodels = ';'.join(model_list)
         self.assertEqual(importer.configuration.ilimodels, 'KbS_LV95_V1_4;KbS_Basis_V1_4')
-        prescript_path = ili2db_metaconfig.get('preScript')
-        self.assertEqual(prescript_path, 'file:sql/opengisch_KbS_LV95_V1_4_test.sql')
-        importer.configuration.pre_script = os.path.join(usability_test_path, prescript_path.replace('file:', ''))
-        tomlfile_path = ili2db_metaconfig.get('iliMetaAttrs')
-        self.assertEqual(tomlfile_path, 'file:toml/sh_KbS_LV95_V1_4.toml')
-        importer.configuration.tomlfile = os.path.join(usability_test_path, tomlfile_path.replace('file:', ''))
         srs_code = ili2db_metaconfig.get('defaultSrsCode')
-        self.assertEqual(srs_code, '3857')
         importer.configuration.srs_code = srs_code
+        self.assertEqual(importer.configuration.srs_code, '3857')
         command = importer.command(True)
         self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
-        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
-        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
         self.assertTrue('3857' in command)
+
+        # topping files in ili2db settings
+        ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
+        ili_meta_attrs_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, ili_meta_attrs_list)
+        # absolute path since it's defined as ilidata:...
+        expected_ili_meta_attrs_file_path_list = [os.path.join(toppings_test_path,'toml/sh_KbS_LV95_V1_4.toml')]
+        self.assertEqual(expected_ili_meta_attrs_file_path_list, ili_meta_attrs_file_path_list)
+        importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
+
+        prescript_list = ili2db_metaconfig.get('preScript').split(';')
+        prescript_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, prescript_list)
+        # relative path since it's defined as file:/...
+        expected_prescript_file_path_list = ['../../../tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql']
+        self.assertEqual(expected_prescript_file_path_list, prescript_file_path_list)
+        #to do dave: importer.configuration.pre_script = prescript_file_path_list[0]
+
+        command = importer.command(True)
+        # to do dave: self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
+        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
 
         #and override defaultSrsCode manually
         importer.configuration.srs_code = '2056'
-
-        #missing: give the metaconfigurationfile to the command (the configuration)
 
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1957,11 +1990,14 @@ class TestProjectGen(unittest.TestCase):
         configuration_section = metaconfig['CONFIGURATION']
         self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
         layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
-        self.assertEqual(layertree_data_list[0], 'file:layertree/opengis_layertree_KbS_LV95_V1_4.yaml')
-        layertreefile_path = os.path.join(usability_test_path, layertree_data_list[0].replace('file:', ''))
+        layertree_data_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, layertree_data_list)
+        # relative path since it's defined as file:/...
+        expected_layertree_data_file_path_list = ['testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4.yaml']
+        self.assertEqual(layertree_data_file_path_list, expected_layertree_data_file_path_list)
+        layertree_data_file_path = os.path.join(test_path,layertree_data_file_path_list[0])
 
         custom_layer_order_structure = list()
-        with open(layertreefile_path, 'r') as yamlfile:
+        with open(layertree_data_file_path, 'r') as yamlfile:
             layertree_data = yaml.safe_load(yamlfile)
             self.assertTrue('legend' in layertree_data)
             legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
@@ -1980,19 +2016,53 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
+        # check the legend
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
-        self.assertEqual(belasteter_standort_group_layer, ['gish','fisch'])
+
+        self.assertEqual([layer.name() for layer in belasteter_standort_group_layer], ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort (Geo_Lage_Polygon)'])
 
         informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
-        informationen_group_layer = informationen_group.findLayers()
-        self.assertEqual(informationen_group_layer, ['gish','fisch'])
-        informationen_subgroups = informationen_group.findGroups()
-        self.assertEqual(informationen_subgroups, ['gaggi'])
+        informationen_group_layers = informationen_group.findLayers()
+        self.assertEqual([layer.name() for layer in informationen_group_layers],
+                         ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
+                          'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
+                          'Parzellenidentifikation', 'UntersMassn_', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                          'Deponietyp', 'LanguageCode_ISO639_1', 'MultilingualMText', 'LocalisedMText',
+                          'MultilingualText', 'LocalisedText'])
 
-        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
-        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder())
-        count = 0
+        informationen_subgroups = informationen_group.findGroups()
+        self.assertEqual([group.name() for group in informationen_subgroups], ['Text Infos'])
+
+        #to do dave self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
+        #to do dave self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort (Geo_Lage_Polygon)')
+        #to do dave self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
+
+        self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
+        qml_section = metaconfig['qgis.modelbaker.qml']
+        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001','file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml','ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
+        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
+        for layer in project.layers:
+            if any(layer.alias.lower() == s for s in qml_section):
+                layer_qml = layer.alias.lower()
+            elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                layer_qml = f'"{layer.alias.lower()}"'
+            else:
+                continue
+            matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                           qml_section[layer_qml], 1)
+            if matches:
+                style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                layer.layer.loadNamedStyle(style_file_path)
+
+        layer_names = set([layer.name for layer in available_layers])
+        self.assertEqual(layer_names, {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
+                                       'deponietyp_definition', 'parzellenidentifikation', 'multilingualtext',
+                                       'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
+                                       'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
+                                       'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
+                                       'egrid_', 'deponietyp'})
+
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 belasteter_standort_punkt_layer = layer
@@ -2001,43 +2071,17 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(edit_form_config.layout(),
                                  QgsEditFormConfig.TabLayout)
                 tabs = edit_form_config.tabs()
-                fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['letzteanpassung',
-                                              'zustaendigkeitkataster',
-                                              'geo_lage_polygon',
-                                              'inbetrieb',
-                                              'ersteintrag',
-                                              'katasternummer',
-                                              'nachsorge',
-                                              'url_kbs_auszug',
-                                              'url_standort',
-                                              'statusaltlv',
-                                              'standorttyp',
-                                              'bemerkung',
-                                              'bemerkung_de',
-                                              'bemerkung_fr',
-                                              'bemerkung_rm',
-                                              'bemerkung_it',
-                                              'bemerkung_en',
-                                              'geo_lage_punkt']))
-
-                # This might need to be adjusted if we get better names
-                self.assertEqual(tabs[1].name(), 'deponietyp_')
-
-            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
-                belasteter_standort_polygon_layer = layer
-
-        self.assertEqual(count, 1)
-        self.assertEqual(len(available_layers), 16)
-
-        self.assertGreater(
-            len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
-        self.assertGreater(
-            len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
-        self.assertGreater(
-            len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
-        self.assertGreater(
-            len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+                self.assertEqual(len(tabs),5)
+                self.assertEqual(tabs[0].name(),'Allgemein')
+                field_names = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(field_names, {'fritz'})
+                for field in tabs[0].children():
+                    if field.name() == 'bemerkung_rm':
+                        self.assertEqual(field.alias(), 'Bemerkung Romanisch')
+                    if field.name() == 'bemerkung_it':
+                        self.assertEqual(field.alias(), 'Bemerkung Italienisch')
+            if layer.name == 'Parzellenidentifikation':
+                self.assertEqual(layer.layer.displayExpression(),'nbident | | \' - \' | | "parzellennummer"')
 
     def test_unit(self):
         importer = iliimporter.Importer()
@@ -2077,6 +2121,37 @@ class TestProjectGen(unittest.TestCase):
         metaconfig.read_file(open(path))
         metaconfig.read(path)
         return metaconfig
+
+    # that's the same like in generate_project.py - should this go to utils and be accessed here dave?
+    def get_topping_file_list(self, base_config, id_list):
+        topping_file_model = self.get_topping_file_model(base_config, id_list)
+        file_path_list = []
+
+        for file_id in id_list:
+            matches = topping_file_model.match(topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1)
+            if matches:
+                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, base_config, id_list):
+        topping_file_cache = IliToppingFileCache(base_config, id_list)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+
+        if len(topping_file_cache.downloaded_files) != len(id_list):
+            loop.exec()
+
+        return topping_file_cache.model
+
 
     @classmethod
     def tearDownClass(cls):

@@ -68,7 +68,10 @@ class IliCacheTest(unittest.TestCase):
              'Time', 'Units'])
         expected_models_of_local_ili_files = set(
             ['KbS_Basis_V1_4', 'KbS_LV03_V1_4', 'KbS_LV95_V1_4', 'RoadsSimple', 'Abfallsammelstellen_ZEBA_LV03_V1',
-             'Abfallsammelstellen_ZEBA_LV95_V1'])
+             'Abfallsammelstellen_ZEBA_LV95_V1', 'DictionariesCH_V1', 'GeometryCHLV03_V1', 'S', 'AdministrativeUnitsCH_V1',
+             'CHAdminCodes_V1', 'Localisation_V1', 'LE', 'LocalisationCH_V1', 'Dictionaries_V1', 'CatalogueObjectTrees_V1',
+             'AdministrativeUnits_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'CatalogueObjects_V1'])
+
         self.assertEqual(models, set.union(expected_models_of_ilimodels_xml,expected_models_of_local_ili_files))
 
     def test_ilimodels_xml_parser_24_local_repo_local_files(self):
@@ -86,7 +89,9 @@ class IliCacheTest(unittest.TestCase):
              'Time', 'Units'])
         expected_models_of_local_ili_files = set(
             ['KbS_Basis_V1_4', 'KbS_LV03_V1_4', 'KbS_LV95_V1_4', 'RoadsSimple', 'Abfallsammelstellen_ZEBA_LV03_V1',
-             'Abfallsammelstellen_ZEBA_LV95_V1'])
+             'Abfallsammelstellen_ZEBA_LV95_V1', 'DictionariesCH_V1', 'GeometryCHLV03_V1', 'S', 'AdministrativeUnitsCH_V1',
+             'CHAdminCodes_V1', 'Localisation_V1', 'LE', 'LocalisationCH_V1', 'Dictionaries_V1', 'CatalogueObjectTrees_V1',
+             'AdministrativeUnits_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'CatalogueObjects_V1'])
         self.assertEqual(models, set.union(expected_models_of_ilimodels_xml,expected_models_of_local_ili_files))
 
     def test_ilidata_xml_parser_24_metaconfig_kbs(self):
