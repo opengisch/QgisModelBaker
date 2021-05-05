@@ -614,7 +614,11 @@ class IliToppingFileCache(IliMetaConfigCache):
             toppingfile['repository'] = netloc
             toppingfile['url'] = None
             toppingfile['relative_file_path'] = file_path_id[5:]
-            toppingfile['local_file_path'] = file_path_id[5:] if os.path.isabs(file_path_id[5:]) else os.path.join(self.tool_dir, file_path_id[5:])   # append tool-folder?
+            toppingfile['local_file_path'] = file_path_id[5:] if os.path.isabs(file_path_id[5:]) else os.path.join(self.tool_dir, file_path_id[5:])
+            if os.path.exists(toppingfile['local_file_path']):
+                self.file_download_succeeded.emit(file_path_id, toppingfile['local_file_path'])
+            else:
+                self.file_download_failed.emit(file_path_id, self.tr('Could not find local file  {}').format(file_path_id[5:]))
             repo_files.append(toppingfile)
 
         self.repositories[netloc] = repo_files
