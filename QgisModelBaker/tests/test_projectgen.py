@@ -2096,15 +2096,20 @@ class TestProjectGen(unittest.TestCase):
                 self.assertEqual(len(tabs),5)
                 self.assertEqual(tabs[0].name(),'Allgemein')
                 field_names = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(field_names, {'fritz'})
-                for field in tabs[0].children():
+                self.assertEqual(field_names,
+                                 {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
+                                  'url_standort', 'bemerkung_rm', 'standorttyp', 'bemerkung_en', 'inbetrieb',
+                                  'geo_lage_punkt', 'bemerkung_it', 'url_kbs_auszug', 'bemerkung', 'nachsorge',
+                                  'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'})
+
+                for field in layer.layer.fields():
                     if field.name() == 'bemerkung_rm':
                         self.assertEqual(field.alias(), 'Bemerkung Romanisch')
                     if field.name() == 'bemerkung_it':
                         self.assertEqual(field.alias(), 'Bemerkung Italienisch')
             if layer.name == 'parzellenidentifikation':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),'nbident || \' - \'  || "parzellennummer" ')
+                self.assertEqual(layer.layer.displayExpression(), 'nbident || \' - \'  || "parzellennummer" ')
 
         #check if the layers have been considered
         self.assertEqual(count, 2)
