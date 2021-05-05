@@ -184,6 +184,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
+        completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
+        completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.popup().setItemDelegate(self.metaconfig_delegate)
+        self.ili_metaconfig_line_edit.setCompleter(completer)
 
         self.ili_metaconfig_line_edit.textChanged.emit(
             self.ili_metaconfig_line_edit.text())
@@ -823,12 +829,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
 
     def update_metaconfig_completer(self):
-        completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
-        completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        completer.popup().setItemDelegate(self.metaconfig_delegate)
-        self.ili_metaconfig_line_edit.setCompleter(completer)
+        self.ili_metaconfig_line_edit.completer().setModel(self.ilimetaconfigcache.model)
 
     def on_metaconfig_completer_activated(self, model_index=None):
         if model_index is None and self.ili_metaconfig_line_edit.text():
