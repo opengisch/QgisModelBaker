@@ -481,7 +481,6 @@ class IliMetaConfigCache(IliCache):
             file_path = os.path.join(self.cache_path, netloc, file)
             file_dir = os.path.dirname(file_path)
             os.makedirs(file_dir, exist_ok=True)
-            print(f"lets download {file_url} to {file_path} {dataset_id}")
 
             download_file(file_url, file_path,
                               on_success=lambda: self.file_download_succeeded.emit(dataset_id, file_path),
@@ -626,10 +625,7 @@ class IliToppingFileCache(IliMetaConfigCache):
 
     def download_files(self):
         # go through all files and give feedback to download_status
-        print('download the files')
-        print(self.repositories.values())
         for file in [e for values in self.repositories.values() for e in values]:
-            print(f"download now {file['id']}")
             self.download_file(file['repository'], file['url'], file['relative_file_path'], file['id'])
 
     def on_download_status(self, dataset_id ):

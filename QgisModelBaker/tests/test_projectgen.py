@@ -1912,6 +1912,25 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
     def test_kbs_postgis_toppings(self):
+        '''
+        Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
+
+        [CONFIGURATION]
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4.yaml
+        ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
+
+        [ch.ehi.ili2db]
+        defaultSrsCode=3857
+        models=KbS_Basis_V1_4
+        preScript=file:tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql
+        iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
+
+        [qgis.modelbaker.qml]
+        "Belasteter_Standort (Geo_Lage_Polygon)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
+        "Belasteter_Standort (Geo_Lage_Punkt)"=file:tests/testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml
+        Parzellenidentifikation=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
+        '''
+
         toppings_test_path = os.path.join(test_path, 'testdata', 'ilirepo', '24')
 
         importer = iliimporter.Importer()
@@ -1939,7 +1958,7 @@ class TestProjectGen(unittest.TestCase):
         metaconfig_path = ilimetaconfigcache.download_file(repository, url, path, dataset_id)
         metaconfig = self.load_metaconfig(os.path.join(toppings_test_path,metaconfig_path))
 
-        # ili2db settings
+        # Read ili2db settings
         self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
         ili2db_metaconfig = metaconfig['ch.ehi.ili2db']
         model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
@@ -1952,7 +1971,7 @@ class TestProjectGen(unittest.TestCase):
         self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
         self.assertTrue('3857' in command)
 
-        # topping files in ili2db settings
+        # read and download topping files in ili2db settings (prefixed with ilidata or file - means they are found in ilidata.xml or referenced locally)
         ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
         ili_meta_attrs_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, ili_meta_attrs_list)
         # absolute path since it's defined as ilidata:...
@@ -1962,13 +1981,13 @@ class TestProjectGen(unittest.TestCase):
 
         prescript_list = ili2db_metaconfig.get('preScript').split(';')
         prescript_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, prescript_list)
-        # relative path since it's defined as file:/...
-        expected_prescript_file_path_list = ['../../../tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql']
+        # relative path made absolute to modelbaker since it's defined as file:...
+        expected_prescript_file_path_list = [os.path.join(toppings_test_path, 'sql/opengisch_KbS_LV95_V1_4_test.sql')]
         self.assertEqual(expected_prescript_file_path_list, prescript_file_path_list)
-        #to do dave: importer.configuration.pre_script = prescript_file_path_list[0]
+        importer.configuration.pre_script = prescript_file_path_list[0]
 
         command = importer.command(True)
-        # to do dave: self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
+        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
         self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
 
         #and override defaultSrsCode manually
@@ -1991,10 +2010,10 @@ class TestProjectGen(unittest.TestCase):
         self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
         layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
         layertree_data_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, layertree_data_list)
-        # relative path since it's defined as file:/...
-        expected_layertree_data_file_path_list = ['testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4.yaml']
+        # relative path made absolute to modelbaker since it's defined as file:...
+        expected_layertree_data_file_path_list = [os.path.join(toppings_test_path, 'layertree/opengis_layertree_KbS_LV95_V1_4.yaml')]
         self.assertEqual(layertree_data_file_path_list, expected_layertree_data_file_path_list)
-        layertree_data_file_path = os.path.join(test_path,layertree_data_file_path_list[0])
+        layertree_data_file_path = layertree_data_file_path_list[0]
 
         custom_layer_order_structure = list()
         with open(layertree_data_file_path, 'r') as yamlfile:
@@ -2010,13 +2029,13 @@ class TestProjectGen(unittest.TestCase):
         project.layers = available_layers
         project.relations = relations
         project.legend = legend
-        Project.custom_layer_order_structure = custom_layer_order_structure
+        project.custom_layer_order_structure = custom_layer_order_structure
         project.post_generate()
 
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        # check the legend
+        # check the legend with layers, groups and subgroups
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
 
@@ -2034,10 +2053,12 @@ class TestProjectGen(unittest.TestCase):
         informationen_subgroups = informationen_group.findGroups()
         self.assertEqual([group.name() for group in informationen_subgroups], ['Text Infos'])
 
-        #to do dave self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
-        #to do dave self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort (Geo_Lage_Polygon)')
-        #to do dave self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
+        #check the custom layer order
+        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
+        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort (Geo_Lage_Polygon)')
+        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
 
+        # and read qml part, download files and check the form configurations set by the qml
         self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
         qml_section = metaconfig['qgis.modelbaker.qml']
         self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001','file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml','ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
@@ -2063,6 +2084,7 @@ class TestProjectGen(unittest.TestCase):
                                        'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
                                        'egrid_', 'deponietyp'})
 
+        count = 0
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 belasteter_standort_punkt_layer = layer
@@ -2080,8 +2102,12 @@ class TestProjectGen(unittest.TestCase):
                         self.assertEqual(field.alias(), 'Bemerkung Romanisch')
                     if field.name() == 'bemerkung_it':
                         self.assertEqual(field.alias(), 'Bemerkung Italienisch')
-            if layer.name == 'Parzellenidentifikation':
-                self.assertEqual(layer.layer.displayExpression(),'nbident | | \' - \' | | "parzellennummer"')
+            if layer.name == 'parzellenidentifikation':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(),'nbident || \' - \'  || "parzellennummer" ')
+
+        #check if the layers have been considered
+        self.assertEqual(count, 2)
 
     def test_unit(self):
         importer = iliimporter.Importer()
