@@ -413,24 +413,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if 'qgis.modelbaker.layertree' in configuration_section:
                     self.print_info(self.tr('Topping contains a layertree structure'), COLOR_TOPPING)
                     layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
-                    layertree_file_model = self.get_topping_file_model(layertree_data_list)
-                    for layertree_file_id in layertree_data_list:
-                        matches = layertree_file_model.match(layertree_file_model.index(0, 0),
-                                                                   Qt.DisplayRole, layertree_file_id, 1)
-                        if matches:
-                            layertree_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                            self.print_info(
-                                self.tr('Parse layertree {}..').format(layertree_file_path), COLOR_TOPPING)
-                            with open(layertree_file_path, 'r') as stream:
-                                try:
-                                    layertree_data = yaml.safe_load(stream)
-                                    if 'legend' in layertree_data:
-                                        legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
-                                    if 'layer-order' in layertree_data:
-                                        custom_layer_order_structure = layertree_data['layer-order']
-                                except yaml.YAMLError as exc:
-                                    self.print_info(
-                                        self.tr('Unable to parse layertree file: {}..').format(exc), COLOR_TOPPING)
+                    layertree_data_file_path_list = self.get_topping_file_list( layertree_data_list)
+                    for layertree_file_path in layertree_data_file_path_list:
+                        self.print_info(
+                            self.tr('Parse layertree {}..').format(layertree_file_path), COLOR_TOPPING)
+
+                        with open(layertree_file_path, 'r') as stream:
+                            try:
+                                layertree_data = yaml.safe_load(stream)
+                                if 'legend' in layertree_data:
+                                    legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+                                if 'layer-order' in layertree_data:
+                                    custom_layer_order_structure = layertree_data['layer-order']
+                            except yaml.YAMLError as exc:
+                                self.print_info(
+                                    self.tr('Unable to parse layertree file: {}..').format(exc), COLOR_TOPPING)
 
             self.progress_bar.setValue(55)
 
@@ -485,48 +482,45 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 if 'ch.interlis.referenceData' in configuration_section:
                     self.print_info(self.tr('Check out the cats'), COLOR_TOPPING)
                     reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
-                    catalogue_file_model = self.get_topping_file_model(reference_data_list)
-                    for cat_file_id in reference_data_list:
-                        matches = catalogue_file_model.match(catalogue_file_model.index(0, 0),Qt.DisplayRole, cat_file_id, 1)
-                        if matches:
-                            cat_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                            self.print_info(
-                                self.tr('Import catalogue {}..').format(cat_file_path))
+                    catalogue_file_path_list = self.get_topping_file_list(reference_data_list)
+                    for catalogue_file_path in catalogue_file_path_list:
+                        self.print_info(
+                            self.tr('Import catalogue {}..').format(catalogue_file_path))
 
-                            configuration = self.updated_catalogue_import_configuration(cat_file_path)
+                        configuration = self.updated_catalogue_import_configuration(catalogue_file_path)
 
-                            # create schema with superuser
-                            db_factory = self.db_simple_factory.create_factory(db_id)
-                            res, message = db_factory.pre_generate_project(configuration)
+                        # create schema with superuser
+                        db_factory = self.db_simple_factory.create_factory(db_id)
+                        res, message = db_factory.pre_generate_project(configuration)
 
-                            if not res:
-                                self.txtStdout.setText(message)
-                                return
+                        if not res:
+                            self.txtStdout.setText(message)
+                            return
 
-                            with OverrideCursor(Qt.WaitCursor):
+                        with OverrideCursor(Qt.WaitCursor):
 
-                                dataImporter = iliimporter.Importer(dataImport=True)
+                            dataImporter = iliimporter.Importer(dataImport=True)
 
-                                dataImporter.tool = self.type_combo_box.currentData()
-                                dataImporter.configuration = configuration
+                            dataImporter.tool = self.type_combo_box.currentData()
+                            dataImporter.configuration = configuration
 
-                                dataImporter.stdout.connect(self.print_info)
-                                dataImporter.stderr.connect(self.on_stderr)
-                                dataImporter.process_started.connect(self.on_process_started)
-                                dataImporter.process_finished.connect(self.on_process_finished)
+                            dataImporter.stdout.connect(self.print_info)
+                            dataImporter.stderr.connect(self.on_stderr)
+                            dataImporter.process_started.connect(self.on_process_started)
+                            dataImporter.process_finished.connect(self.on_process_finished)
 
-                                try:
-                                    if dataImporter.run(edited_command) != iliimporter.Importer.SUCCESS:
-                                        self.enable()
-                                        self.progress_bar.hide()
-                                        return
-                                except JavaNotFoundError as e:
-                                    self.txtStdout.setTextColor(QColor('#000000'))
-                                    self.txtStdout.clear()
-                                    self.txtStdout.setText(e.error_string)
+                            try:
+                                if dataImporter.run(edited_command) != iliimporter.Importer.SUCCESS:
                                     self.enable()
                                     self.progress_bar.hide()
                                     return
+                            except JavaNotFoundError as e:
+                                self.txtStdout.setTextColor(QColor('#000000'))
+                                self.txtStdout.clear()
+                                self.txtStdout.setText(e.error_string)
+                                self.enable()
+                                self.progress_bar.hide()
+                                return
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
