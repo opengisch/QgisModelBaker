@@ -97,7 +97,7 @@ DIALOG_UI = get_ui_class('generate_project.ui')
 #log colors
 COLOR_SUCCESS = '#aa2222'
 COLOR_FAIL = '#004905'
-COLOR_TOPPING = '#842BD7'
+COLOR_TOPPING = '#341d5c'
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
 
@@ -847,7 +847,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
                 self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
                 metaconfig_id))
-            self.metaconfig_file_info_label.setStyleSheet('color: #842BD7')
+            self.metaconfig_file_info_label.setStyleSheet('color: #341d5c')
             repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
                                                                                         int(IliMetaConfigItemModel.Roles.ILIREPO))
             url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
