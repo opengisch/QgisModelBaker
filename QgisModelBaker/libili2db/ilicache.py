@@ -587,17 +587,17 @@ class IliToppingFileCache(IliMetaConfigCache):
     file_ids can contain ilidata: or file: information
     """
 
-    def __init__(self, configuration, file_ids=None ):
+    def __init__(self, configuration, file_ids=None, tool_dir=None ):
         IliMetaConfigCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilitoppingfilescache')
         self.model = IliToppingFileItemModel()
         self.file_ids = file_ids
+        self.tool_dir = tool_dir if tool_dir else os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have a timeout in the waiting loop)
         self.downloaded_files = list()
         self.file_download_succeeded.connect(lambda dataset_id, path: self.on_download_status(dataset_id))
         self.file_download_failed.connect(lambda dataset_id, path: self.on_download_status(dataset_id))
         self.model.rowsInserted.connect(lambda: self.on_download_status(None))
-
 
     def refresh(self):
         if not self.directories is None:
@@ -615,7 +615,7 @@ class IliToppingFileCache(IliMetaConfigCache):
             toppingfile['repository'] = netloc
             toppingfile['url'] = None
             toppingfile['relative_file_path'] = file_path_id[5:]
-            toppingfile['local_file_path'] = self.file_path(netloc, None, file_path_id[5:])
+            toppingfile['local_file_path'] = file_path_id[5:] if os.path.isabs(file_path_id[5:]) else os.path.join(self.tool_dir, file_path_id[5:])   # append tool-folder?
             repo_files.append(toppingfile)
 
         self.repositories[netloc] = repo_files
@@ -636,7 +636,6 @@ class IliToppingFileCache(IliMetaConfigCache):
         # here we could add some more logic
         if dataset_id is not None:
             self.downloaded_files.append(dataset_id)
-        print( f'received {dataset_id}')
         if len(self.downloaded_files) == len(self.file_ids) == self.model.rowCount():
             self.download_finished.emit()
 
@@ -681,10 +680,8 @@ class IliToppingFileCache(IliMetaConfigCache):
                                     toppingfile['repository'] = netloc
                                     toppingfile['relative_file_path'] = path # like qml/something.qml
                                     toppingfile['url'] = url # like http://usabilityhub.opengis.ch or /home/dave/mylocalfolder
-                                    toppingfile['local_file_path'] = self.download_file(netloc, url, path,dataset_id)
-                                        #self.file_path(netloc, url, path)
+                                    toppingfile['local_file_path'] = self.download_file(netloc, url, path, dataset_id)
                                     repo_files.append(toppingfile)
-                                    print(f"append {dataset_id}")
 
         self.repositories[netloc] = sorted(
             repo_files, key=lambda m: m['version'] if m['version'] else 0, reverse=True)
