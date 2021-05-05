@@ -105,6 +105,7 @@ class IliCacheTest(unittest.TestCase):
         expected_metaconfigs = {'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0-technical',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest',
+                                'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg_localfiletest',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_ili2db',
                                 'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0-wrong',
                                 'ch.sh.ili.config.KbS_LV95_V1_4_config_V1_0',

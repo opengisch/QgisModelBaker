@@ -65,7 +65,7 @@
             <LocalisedText>
               <DatasetIdx16.LocalisedMText>
                 <Language>de</Language>
-                <Text>Einfaches Styling und Tree und TOML und SH Cat für GPKG (OPENGIS.ch)</Text>
+                <Text>Einfaches GPKG Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
               </DatasetIdx16.LocalisedMText>
             </LocalisedText>
           </DatasetIdx16.MultilingualMText>
@@ -102,7 +102,7 @@
             <LocalisedText>
               <DatasetIdx16.LocalisedMText>
                 <Language>de</Language>
-                <Text>Einfaches Styling und Tree und TOML mit lokalem File (OPENGIS.ch)</Text>
+                <Text>Einfaches Styling (lokal) und Tree (lokal) und TOML (lokal) und SH Cat (OPENGIS.ch)</Text>
               </DatasetIdx16.LocalisedMText>
             </LocalisedText>
           </DatasetIdx16.MultilingualMText>
@@ -124,6 +124,43 @@
             <file>
               <DatasetIdx16.File>
                 <path>metaconfig/opengisch_KbS_LV95_V1_4_localfiletest.ini</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="27414157-9d7c-4fe2-a864-2942fab24f3c">
+        <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg_localfiletest</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Einfaches GPKG Styling und Tree (lokal) und TOML und SH Cat (OPENGIS.ch)</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>metaconfig/opengisch_KbS_LV95_V1_4_GPKG_localfiletest.ini</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -371,6 +408,43 @@
             <file>
               <DatasetIdx16.File>
                 <path>layertree/opengis_layertree_KbS_LV95_V1_4.yaml</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="333a9e68-268e-4ed2-8f8a-eeeeaab43432">
+        <id>ch.opengis.config.KbS_LV95_V1_4_layertree_GPKG</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <shortDescription>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>KbS_LV95_V1_4 Layertree für GPKG OPENGIS.ch</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </shortDescription>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/layertree</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>

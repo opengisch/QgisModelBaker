@@ -1945,7 +1945,7 @@ class TestProjectGen(unittest.TestCase):
         ilimetaconfigcache.refresh()
         matches_on_id = ilimetaconfigcache.model.match(ilimetaconfigcache.model.index(0, 0),
                                                        int(IliMetaConfigItemModel.Roles.ID),
-                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0',
+                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest',
                                                        1,
                                                        Qt.MatchExactly)
         self.assertTrue(matches_on_id)
