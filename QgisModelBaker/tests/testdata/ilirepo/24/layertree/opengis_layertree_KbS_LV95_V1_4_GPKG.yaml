@@ -47,5 +47,5 @@ legend:
               - "LanguageCode_ISO639_1":
 
 layer-order:
-  - "Belasteter_Standort (Geo_Lage_Polygon)"
+  - "Belasteter_Standort"
   - "Belasteter_Standort (Geo_Lage_Punkt)"

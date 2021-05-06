@@ -2087,7 +2087,209 @@ class TestProjectGen(unittest.TestCase):
         count = 0
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
-                belasteter_standort_punkt_layer = layer
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                self.assertEqual(edit_form_config.layout(),
+                                 QgsEditFormConfig.TabLayout)
+                tabs = edit_form_config.tabs()
+                self.assertEqual(len(tabs),5)
+                self.assertEqual(tabs[0].name(),'Allgemein')
+                field_names = set([field.name() for field in tabs[0].children()])
+                self.assertEqual(field_names,
+                                 {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
+                                  'url_standort', 'bemerkung_rm', 'standorttyp', 'bemerkung_en', 'inbetrieb',
+                                  'geo_lage_punkt', 'bemerkung_it', 'url_kbs_auszug', 'bemerkung', 'nachsorge',
+                                  'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'})
+
+                for field in layer.layer.fields():
+                    if field.name() == 'bemerkung_rm':
+                        self.assertEqual(field.alias(), 'Bemerkung Romanisch')
+                    if field.name() == 'bemerkung_it':
+                        self.assertEqual(field.alias(), 'Bemerkung Italienisch')
+            if layer.name == 'parzellenidentifikation':
+                count += 1
+                self.assertEqual(layer.layer.displayExpression(), 'nbident || \' - \'  || "parzellennummer" ')
+
+        #check if the layers have been considered
+        self.assertEqual(count, 2)
+
+    def test_kbs_geopackage_toppings(self):
+        '''
+        Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
+
+        [CONFIGURATION]
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml
+        ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
+
+        [ch.ehi.ili2db]
+        models = KbS_Basis_V1_4
+        iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
+        preScript=file:tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql
+        defaultSrsCode=3857
+
+        [qgis.modelbaker.qml]
+        "Belasteter_Standort"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
+        "Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004
+        Parzellenidentifikation=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
+        '''
+
+        toppings_test_path = os.path.join(test_path, 'testdata', 'ilirepo', '24')
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool, os.path.join(test_path, 'testdata', 'ilirepo', '24'))
+        importer.configuration.ilimodels = 'KbS_LV95_V1_4'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_toppings_kbs_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+
+        # get the metaconfiguration
+        ilimetaconfigcache = IliMetaConfigCache(importer.configuration.base_configuration, 'KbS_LV95_V1_4')
+        ilimetaconfigcache.refresh()
+        matches_on_id = ilimetaconfigcache.model.match(ilimetaconfigcache.model.index(0, 0),
+                                                       int(IliMetaConfigItemModel.Roles.ID),
+                                                       'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg_localfiletest',
+                                                       1,
+                                                       Qt.MatchExactly)
+        self.assertTrue(matches_on_id)
+
+        repository = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO))
+        url = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL))
+        path = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+        dataset_id = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ID))
+
+        metaconfig_path = ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+        metaconfig = self.load_metaconfig(os.path.join(toppings_test_path,metaconfig_path))
+
+        # Read ili2db settings
+        self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
+        ili2db_metaconfig = metaconfig['ch.ehi.ili2db']
+        model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
+        importer.configuration.ilimodels = ';'.join(model_list)
+        self.assertEqual(importer.configuration.ilimodels, 'KbS_LV95_V1_4;KbS_Basis_V1_4')
+        srs_code = ili2db_metaconfig.get('defaultSrsCode')
+        importer.configuration.srs_code = srs_code
+        self.assertEqual(importer.configuration.srs_code, '3857')
+        command = importer.command(True)
+        self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
+        self.assertTrue('3857' in command)
+
+        # read and download topping files in ili2db settings (prefixed with ilidata or file - means they are found in ilidata.xml or referenced locally)
+        ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
+        ili_meta_attrs_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, ili_meta_attrs_list)
+        # absolute path since it's defined as ilidata:...
+        expected_ili_meta_attrs_file_path_list = [os.path.join(toppings_test_path,'toml/sh_KbS_LV95_V1_4.toml')]
+        self.assertEqual(expected_ili_meta_attrs_file_path_list, ili_meta_attrs_file_path_list)
+        importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
+
+        prescript_list = ili2db_metaconfig.get('preScript').split(';')
+        prescript_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, prescript_list)
+        # relative path made absolute to modelbaker since it's defined as file:...
+        expected_prescript_file_path_list = [os.path.join(toppings_test_path, 'sql/opengisch_KbS_LV95_V1_4_test.sql')]
+        self.assertEqual(expected_prescript_file_path_list, prescript_file_path_list)
+        importer.configuration.pre_script = prescript_file_path_list[0]
+
+        command = importer.command(True)
+        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
+        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
+
+        #and override defaultSrsCode manually
+        importer.configuration.srs_code = '2056'
+
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        # Toppings legend and layers: apply
+        self.assertTrue('CONFIGURATION', metaconfig.sections())
+        configuration_section = metaconfig['CONFIGURATION']
+        self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
+        layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
+        layertree_data_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, layertree_data_list)
+        # relative path made absolute to modelbaker since it's defined as file:...
+        expected_layertree_data_file_path_list = [os.path.join(toppings_test_path, 'layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml')]
+        self.assertEqual(layertree_data_file_path_list, expected_layertree_data_file_path_list)
+        layertree_data_file_path = layertree_data_file_path_list[0]
+
+        custom_layer_order_structure = list()
+        with open(layertree_data_file_path, 'r') as yamlfile:
+            layertree_data = yaml.safe_load(yamlfile)
+            self.assertTrue('legend' in layertree_data)
+            legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+            self.assertTrue('layer-order' in layertree_data)
+            custom_layer_order_structure = layertree_data['layer-order']
+
+        self.assertEqual(len(custom_layer_order_structure), 2)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.custom_layer_order_structure = custom_layer_order_structure
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # check the legend with layers, groups and subgroups
+        belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
+        belasteter_standort_group_layer = belasteter_standort_group.findLayers()
+
+        self.assertEqual([layer.name() for layer in belasteter_standort_group_layer], ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort'])
+
+        informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
+        informationen_group_layers = informationen_group.findLayers()
+        self.assertEqual([layer.name() for layer in informationen_group_layers],
+                         ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
+                          'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
+                          'Parzellenidentifikation', 'UntersMassn_', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                          'Deponietyp', 'LanguageCode_ISO639_1', 'MultilingualMText', 'LocalisedMText',
+                          'MultilingualText', 'LocalisedText'])
+
+        informationen_subgroups = informationen_group.findGroups()
+        self.assertEqual([group.name() for group in informationen_subgroups], ['Text Infos'])
+
+        #check the custom layer order
+        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
+        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort')
+        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
+
+        # and read qml part, download files and check the form configurations set by the qml
+        self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
+        qml_section = metaconfig['qgis.modelbaker.qml']
+        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001','file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml','ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
+        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
+        for layer in project.layers:
+            if any(layer.alias.lower() == s for s in qml_section):
+                layer_qml = layer.alias.lower()
+            elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                layer_qml = f'"{layer.alias.lower()}"'
+            else:
+                continue
+            matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                           qml_section[layer_qml], 1)
+            if matches:
+                style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                layer.layer.loadNamedStyle(style_file_path)
+
+        layer_names = set([layer.name for layer in available_layers])
+        self.assertEqual(layer_names, {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
+                                       'deponietyp_definition', 'parzellenidentifikation', 'multilingualtext',
+                                       'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
+                                       'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
+                                       'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
+                                       'egrid_', 'deponietyp', 'belasteter_standort_geo_lage_punkt'})
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort_geo_lage_punkt' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 self.assertEqual(edit_form_config.layout(),
