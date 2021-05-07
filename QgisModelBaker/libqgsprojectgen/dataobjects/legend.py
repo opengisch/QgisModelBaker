@@ -63,7 +63,7 @@ class LegendGroup(object):
         if not group:
             group = qgis_project.layerTreeRoot()
 
-        existing_layer_names = [found_layer.name() for found_layer in qgis_project.layerTreeRoot().findLayers()]
+        existing_layer_source_uris = [found_layer.layer().dataProvider().dataSourceUri() for found_layer in qgis_project.layerTreeRoot().findLayers()]
 
         static_index=0
         for item in self.items:
@@ -75,7 +75,7 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                if layer.name() not in existing_layer_names:
+                if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
                     index = static_index if self.static_sorting else get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
                     group.insertLayer(index, layer)
             static_index += 1
