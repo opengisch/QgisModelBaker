@@ -116,6 +116,7 @@ class Generator(QObject):
 
             alias = record['table_alias'] if 'table_alias' in record else None
             if not alias:
+                short_name = None
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
