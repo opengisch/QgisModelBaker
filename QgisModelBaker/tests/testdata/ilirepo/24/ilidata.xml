@@ -312,6 +312,27 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="eeea4152-6a2c-11eb-84dd-43cf319ea780">
+        <id>ch.opengis.topping.opengisch_KbS_LV95_V1_4_004_GPKG</id>
+        <version>2021-01-20</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/qml</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt_GPKG.qml</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
       <DatasetIdx16.DataIndex.DatasetMetadata TID="1d88c706-225a-498c-9509-297475e5ece9">
         <id>ch.opengis.topping.opengisch_KbS_LV95_V1_4_005</id>
         <version>2021-01-20</version>

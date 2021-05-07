@@ -2289,7 +2289,7 @@ class TestProjectGen(unittest.TestCase):
 
         count = 0
         for layer in available_layers:
-            if layer.name == 'belasteter_standort_geo_lage_punkt' and layer.geometry_column == 'geo_lage_punkt':
+            if layer.name == 'belasteter_standort':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 self.assertEqual(edit_form_config.layout(),
