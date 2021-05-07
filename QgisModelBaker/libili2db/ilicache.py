@@ -24,7 +24,6 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 
 import re
-import time #remove later
 
 from enum import Enum
 from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
@@ -592,7 +591,6 @@ class IliToppingFileCache(IliMetaConfigCache):
         self.model = IliToppingFileItemModel()
         self.file_ids = file_ids
         self.tool_dir = tool_dir if tool_dir else os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        #this could be done maybe nicer dave - it's not reliable with the list, since it might not find qml (but we have a timeout in the waiting loop)
         self.downloaded_files = list()
         self.file_download_succeeded.connect(lambda dataset_id, path: self.on_download_status(dataset_id))
         self.file_download_failed.connect(lambda dataset_id, path: self.on_download_status(dataset_id))
@@ -678,8 +676,10 @@ class IliToppingFileCache(IliMetaConfigCache):
                                         toppingfile['owner'] = None
 
                                     toppingfile['repository'] = netloc
-                                    toppingfile['relative_file_path'] = path # like qml/something.qml
-                                    toppingfile['url'] = url # like http://usabilityhub.opengis.ch or /home/dave/mylocalfolder
+                                    # relative_file_path like qml/something.qml
+                                    toppingfile['relative_file_path'] = path
+                                    # url like http://usabilityhub.opengis.ch or /home/nyuki/folder
+                                    toppingfile['url'] = url
                                     toppingfile['local_file_path'] = self.download_file(netloc, url, path, dataset_id)
                                     repo_files.append(toppingfile)
 
