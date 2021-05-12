@@ -1899,6 +1899,68 @@ class TestProjectGen(unittest.TestCase):
         # and that's the one with the strength 1 (composition)
         self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
 
+    def test_kbs_postgis_multisurface(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.tomlfile = testdata_path('toml/multisurface.toml')
+        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
+                count += 1
+                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Punkt)')
+
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                count += 1
+                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Polygon)')
+
+        self.assertEqual(count, 2)
+
+    def test_kbs_geopackage_multisurface(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.tomlfile = testdata_path('toml/multisurface.toml')
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_kbs_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        available_layers = generator.layers()
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == 'belasteter_standort_geo_lage_punkt' and layer.geometry_column == 'geo_lage_punkt':
+                count += 1
+                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Punkt)')
+
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                count += 1
+                self.assertEqual(layer.alias, 'Belasteter_Standort')
+
+        self.assertEqual(count, 2)
+
     def test_unit(self):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
