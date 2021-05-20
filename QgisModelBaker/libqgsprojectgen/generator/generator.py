@@ -329,17 +329,34 @@ class Generator(QObject):
             current_node_name = next(iter(item))
             item_properties = item[current_node_name]
             if item_properties and 'group' in item_properties and item_properties['group']:
-                    expanded = False if 'expanded' in item_properties and not item_properties['expanded'] else True
-                    current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded, static_sorting = True)
-                    if 'child-nodes' in item_properties:
-                        for child_item in item_properties['child-nodes']:
-                            node = self.full_node(layers, child_item)
-                            if node:
-                                current_node.append(node)
+                current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name),
+                                           static_sorting=True)
+                current_node.expanded = False if 'expanded' in item_properties and not item_properties[
+                    'expanded'] else True
+                current_node.checked = False if 'checked' in item_properties and not item_properties[
+                    'checked'] else True
+                current_node.mutually_exclusive = True if 'mutually-exclusive' in item_properties and item_properties[
+                    'mutually-exclusive'] else False
+                if current_node.mutually_exclusive:
+                    current_node.mutually_exclusive_child = item_properties[
+                        'mutually-exclusive-child'] if 'mutually-exclusive-child' in item_properties else -1
+
+                if 'child-nodes' in item_properties:
+                    for child_item in item_properties['child-nodes']:
+                        node = self.full_node(layers, child_item)
+                        if node:
+                            current_node.append(node)
             else:
                 for layer in layers:
                     if layer.alias == current_node_name:
                         current_node = layer
+                        if item_properties:
+                            current_node.expanded = False if 'expanded' in item_properties and not item_properties[
+                                'expanded'] else True
+                            current_node.checked = False if 'checked' in item_properties and not item_properties[
+                                'checked'] else True
+                            current_node.featurecount = True if 'featurecount' in item_properties and item_properties[
+                                'featurecount'] else False
                         break
         return current_node
 

@@ -66,6 +66,11 @@ class Layer(object):
 
         self.__form = Form()
 
+        #legend settings
+        self.expanded = True
+        self.checked = True
+        self.featurecount = False
+
     def dump(self):
         definition = dict()
         definition['provider'] = self.provider
