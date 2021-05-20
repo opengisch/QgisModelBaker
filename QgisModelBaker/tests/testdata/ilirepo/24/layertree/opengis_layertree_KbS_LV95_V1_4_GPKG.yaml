@@ -35,7 +35,7 @@ legend:
               - "LocalisedMText":
               - "MultilingualText":
               - "LocalisedText":
-        - "Text Infos":
+        - "Other Infos":
             group: true
             checked: true
             expanded: false

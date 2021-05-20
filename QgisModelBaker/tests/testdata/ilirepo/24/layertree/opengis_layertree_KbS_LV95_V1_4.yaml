@@ -3,13 +3,13 @@ legend:
       group: true
       checked: true
       expanded: true
+      mutually-exclusive: true
+      mutually-exclusive-child: 1
       child-nodes:
         - "Belasteter_Standort (Geo_Lage_Punkt)":
-            checked: false
             expanded: false
             featurecount: true
         - "Belasteter_Standort (Geo_Lage_Polygon)":
-            checked: true
             expanded: true
   - "Informationen":
       group: true
@@ -21,6 +21,7 @@ legend:
         - "ZustaendigkeitKataster":
             featurecount: true
         - "Untersuchungsmassnahmen_Definition":
+            featurecount: false
         - "StatusAltlV_Definition":
         - "Standorttyp_Definition":
         - "Deponietyp_Definition":
@@ -35,7 +36,7 @@ legend:
               - "LocalisedMText":
               - "MultilingualText":
               - "LocalisedText":
-        - "Text Infos":
+        - "Other Infos":
             group: true
             checked: true
             expanded: false
