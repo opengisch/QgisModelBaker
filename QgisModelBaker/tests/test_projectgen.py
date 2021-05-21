@@ -2046,36 +2046,46 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual([layer.name() for layer in informationen_group_layers],
                          ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
                           'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
-                          'Parzellenidentifikation', 'UntersMassn_', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                          'Deponietyp', 'LanguageCode_ISO639_1', 'MultilingualMText', 'LocalisedMText',
-                          'MultilingualText', 'LocalisedText'])
-        text_infos_group = qgis_project.informationen_group.findGroup('Text Infos')
+                          'Parzellenidentifikation', 'UntersMassn_', 'MultilingualMText', 'LocalisedMText',
+                          'MultilingualText', 'LocalisedText', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                          'Deponietyp', 'LanguageCode_ISO639_1'])
+        text_infos_group = informationen_group.findGroup('Text Infos')
         self.assertIsNotNone(text_infos_group)
         text_infos_group_layers = text_infos_group.findLayers()
         self.assertEqual([layer.name() for layer in text_infos_group_layers],
                          ['MultilingualMText', 'LocalisedMText', 'MultilingualText', 'LocalisedText'])
-        other_infos_group = qgis_project.informationen_group.findGroup('Other Infos')
+        other_infos_group = informationen_group.findGroup('Other Infos')
         self.assertIsNotNone(other_infos_group)
         other_infos_group_layers = other_infos_group.findLayers()
         self.assertEqual([layer.name() for layer in other_infos_group_layers],
                          ['StatusAltlV', 'Standorttyp', 'UntersMassn', 'Deponietyp', 'LanguageCode_ISO639_1'])
         # check the node properties
-        self.assertTrue(belasteter_standort_group.isMutuallyExclusive())
-        belasteter_standort_punkt_layer = belasteter_standort_group.findLayer('Belasteter_Standort (Geo_Lage_Punkt)')
+        belasteter_standort_punkt_layer = None
+        belasteter_standort_polygon_layer = None
+        for layer in belasteter_standort_group_layer:
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Punkt)':
+                belasteter_standort_punkt_layer = layer
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Polygon)':
+                belasteter_standort_polygon_layer = layer
         self.assertIsNotNone(belasteter_standort_punkt_layer)
-        belasteter_standort_polygon_layer = belasteter_standort_group.findLayer('Belasteter_Standort (Geo_Lage_Polygon)')
         self.assertIsNotNone(belasteter_standort_polygon_layer)
+        self.assertTrue(belasteter_standort_group.isMutuallyExclusive())
         self.assertFalse(belasteter_standort_punkt_layer.isVisible())  # because of the mutually-child
         self.assertTrue(belasteter_standort_polygon_layer.isVisible())  # because of the mutually-child
         self.assertFalse(belasteter_standort_punkt_layer.isExpanded())
         self.assertTrue(belasteter_standort_polygon_layer.isExpanded())
         self.assertTrue(bool(belasteter_standort_punkt_layer.customProperty('showFeatureCount')))
         self.assertFalse(bool(belasteter_standort_polygon_layer.customProperty('showFeatureCount')))
-        egrid_layer = informationen_group.findLayer('EGRID_')
+        egrid_layer = None
+        zustaendigkeitkataster_layer = None
+        for layer in informationen_group_layers:
+            if layer.name() == 'EGRID_':
+                egrid_layer = layer
+            if layer.name() == 'ZustaendigkeitKataster':
+                zustaendigkeitkataster_layer = layer
         self.assertIsNotNone(egrid_layer)
-        self.assertFalse(bool(egrid_layer.customProperty('showFeatureCount')))
-        zustaendigkeitkataster_layer = informationen_group.findLayer('ZustaendigkeitKataster')
         self.assertIsNotNone(zustaendigkeitkataster_layer)
+        self.assertFalse(bool(egrid_layer.customProperty('showFeatureCount')))
         self.assertTrue(bool(zustaendigkeitkataster_layer.customProperty('showFeatureCount')))
         self.assertTrue(text_infos_group.isExpanded())
         self.assertFalse(text_infos_group.isVisible())
@@ -2090,7 +2100,10 @@ class TestProjectGen(unittest.TestCase):
         # and read qml part, download files and check the form configurations set by the qml
         self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
         qml_section = metaconfig['qgis.modelbaker.qml']
-        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001','file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml','ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
+        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
+                                               'file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml',
+                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
+
         qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
         for layer in project.layers:
             if any(layer.alias.lower() == s for s in qml_section):
@@ -2279,25 +2292,29 @@ class TestProjectGen(unittest.TestCase):
         self.assertEqual([layer.name() for layer in informationen_group_layers],
                          ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
                           'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
-                          'Parzellenidentifikation', 'UntersMassn_', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                          'Deponietyp', 'LanguageCode_ISO639_1', 'MultilingualMText', 'LocalisedMText',
-                          'MultilingualText', 'LocalisedText'])
-        text_infos_group = qgis_project.informationen_group.findGroup('Text Infos')
+                          'Parzellenidentifikation', 'UntersMassn_', 'MultilingualMText', 'LocalisedMText',
+                          'MultilingualText', 'LocalisedText', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                          'Deponietyp', 'LanguageCode_ISO639_1'])
+        text_infos_group = informationen_group.findGroup('Text Infos')
         self.assertIsNotNone(text_infos_group)
         text_infos_group_layers = text_infos_group.findLayers()
         self.assertEqual([layer.name() for layer in text_infos_group_layers],
                          ['MultilingualMText', 'LocalisedMText', 'MultilingualText', 'LocalisedText'])
-        other_infos_group = qgis_project.informationen_group.findGroup('Other Infos')
+        other_infos_group = informationen_group.findGroup('Other Infos')
         self.assertIsNotNone(other_infos_group)
         other_infos_group_layers = other_infos_group.findLayers()
         self.assertEqual([layer.name() for layer in other_infos_group_layers],
                          ['StatusAltlV', 'Standorttyp', 'UntersMassn', 'Deponietyp', 'LanguageCode_ISO639_1'])
 
         # check the node properties
-        self.assertTrue(belasteter_standort_group.isMutuallyExclusive())
-        belasteter_standort_punkt_layer = belasteter_standort_group.findLayer('Belasteter_Standort (Geo_Lage_Punkt)')
+        belasteter_standort_punkt_layer = None
+        belasteter_standort_polygon_layer = None
+        for layer in belasteter_standort_group_layer:
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Punkt)':
+                belasteter_standort_punkt_layer = layer
+            if layer.name() == 'Belasteter_Standort':
+                belasteter_standort_polygon_layer = layer
         self.assertIsNotNone(belasteter_standort_punkt_layer)
-        belasteter_standort_polygon_layer = belasteter_standort_group.findLayer('Belasteter_Standort')
         self.assertIsNotNone(belasteter_standort_polygon_layer)
         self.assertFalse(belasteter_standort_punkt_layer.isVisible())  # because of yaml setting
         self.assertTrue(belasteter_standort_polygon_layer.isVisible()) # because of yaml setting
@@ -2305,11 +2322,16 @@ class TestProjectGen(unittest.TestCase):
         self.assertTrue(belasteter_standort_polygon_layer.isExpanded())
         self.assertTrue(bool(belasteter_standort_punkt_layer.customProperty('showFeatureCount')))
         self.assertFalse(bool(belasteter_standort_polygon_layer.customProperty('showFeatureCount')))
-        egrid_layer = informationen_group.findLayer('EGRID_')
+        egrid_layer = None
+        zustaendigkeitkataster_layer = None
+        for layer in informationen_group_layers:
+            if layer.name() == 'EGRID_':
+                egrid_layer = layer
+            if layer.name() == 'ZustaendigkeitKataster':
+                zustaendigkeitkataster_layer = layer
         self.assertIsNotNone(egrid_layer)
-        self.assertFalse(bool(egrid_layer.customProperty('showFeatureCount')))
-        zustaendigkeitkataster_layer = informationen_group.findLayer('ZustaendigkeitKataster')
         self.assertIsNotNone(zustaendigkeitkataster_layer)
+        self.assertFalse(bool(egrid_layer.customProperty('showFeatureCount')))
         self.assertTrue(bool(zustaendigkeitkataster_layer.customProperty('showFeatureCount')))
         self.assertTrue(text_infos_group.isExpanded())
         self.assertFalse(text_infos_group.isVisible())
