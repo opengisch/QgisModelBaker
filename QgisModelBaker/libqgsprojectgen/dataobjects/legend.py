@@ -75,10 +75,10 @@ class LegendGroup(object):
                 subgroup = group.findGroup(item.name)
                 if subgroup is None:
                     subgroup = group.addGroup(item.name)
-                    subgroup.setExpanded(item.expanded)
-                    subgroup.setItemVisibilityChecked(item.checked)
-                    subgroup.setIsMutuallyExclusive(item.mutually_exclusive, item.mutually_exclusive_child)
                 item.create(qgis_project, subgroup)
+                subgroup.setExpanded(item.expanded)
+                subgroup.setItemVisibilityChecked(item.checked)
+                subgroup.setIsMutuallyExclusive(item.mutually_exclusive, item.mutually_exclusive_child)
             else:
                 layer = item.layer
                 if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
