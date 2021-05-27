@@ -89,7 +89,7 @@ class Generator(QObject):
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
         # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
-        table_appearances = {}
+        table_appearance_count = {}
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
