@@ -120,7 +120,7 @@ class Generator(QObject):
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
-                    if table_appearances[record['tablename']] > 1 and 'geometry_column' in record:
+                    if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
                         fields_info = self.get_fields_info(record['tablename'])
                         for field_info in fields_info:
