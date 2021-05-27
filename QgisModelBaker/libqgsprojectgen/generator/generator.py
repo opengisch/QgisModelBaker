@@ -96,7 +96,7 @@ class Generator(QObject):
                     continue
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
-            table_appearances[record['tablename']] = 1 if record['tablename'] not in table_appearances else table_appearances[record['tablename']]+1
+            table_appearance_count[record['tablename']] = table_appearance_count.get(record['tablename'], 0) + 1
 
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
