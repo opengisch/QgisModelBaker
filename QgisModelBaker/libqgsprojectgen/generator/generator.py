@@ -90,6 +90,7 @@ class Generator(QObject):
 
         # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
         table_appearance_count = {}
+        
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
