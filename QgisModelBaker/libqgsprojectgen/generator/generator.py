@@ -88,7 +88,7 @@ class Generator(QObject):
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
-        # When in PostGIS mode, there can be multiple geometries per table - this leads to multiple layers
+        # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
         table_appearances = {}
         for record in tables_info:
             if self.schema:
