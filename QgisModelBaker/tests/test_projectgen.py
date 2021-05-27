@@ -2001,7 +2001,7 @@ class TestProjectGen(unittest.TestCase):
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
 
         available_layers = generator.layers()
-                relations, _ = generator.relations(available_layers)
+        relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
         # Toppings legend and layers: apply
