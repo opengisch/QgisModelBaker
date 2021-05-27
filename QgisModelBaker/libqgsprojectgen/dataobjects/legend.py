@@ -76,7 +76,12 @@ class LegendGroup(object):
             else:
                 layer = item.layer
                 if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
-                    index = static_index if self.static_sorting else get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
+                    if self.static_sorting:
+                        index = static_index
+                    elif layer.isSpatial():
+                        index = get_suggested_index_for_layer(layer, group, self.ignore_node_names)
+                    else:
+                        index = 0
                     group.insertLayer(index, layer)
             static_index += 1
 
