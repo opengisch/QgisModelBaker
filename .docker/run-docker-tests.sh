@@ -34,5 +34,5 @@ echo ""
 
 
 pushd /usr/src
-xvfb-run pytest
+xvfb-run pytest -v
 popd
