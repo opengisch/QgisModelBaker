@@ -62,7 +62,7 @@ class TestGpkgPrimaryKey(unittest.TestCase):
         importer.configuration.srs_code = 2056
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -90,12 +90,12 @@ class TestGpkgPrimaryKey(unittest.TestCase):
         context = QgsExpressionContext(scopes)
 
         obstacle_layer.layer.startEditing()
-        self.assertIsNotNone(obstacle_layer.layer.dataProvider().transaction())
+        assert obstacle_layer.layer.dataProvider().transaction() is not None
 
         feature = QgsVectorLayerUtils.createFeature(obstacle_layer.layer, QgsGeometry(), {}, context)
-        self.assertEqual(feature['T_Id'], 0)
+        assert feature['T_Id'] == 0
         feature = QgsVectorLayerUtils.createFeature(obstacle_layer.layer, QgsGeometry(), {}, context)
-        self.assertEqual(feature['T_Id'], 1)
+        assert feature['T_Id'] == 1
 
     @unittest.skipIf(Qgis.QGIS_VERSION_INT < 30500, "Default value expression only available in QGIS 3.6 (3.5 and later)")
     def test_gpkg_primary_key(self):
@@ -111,7 +111,7 @@ class TestGpkgPrimaryKey(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -139,12 +139,12 @@ class TestGpkgPrimaryKey(unittest.TestCase):
         context = QgsExpressionContext(scopes)
 
         punktobjekt_layer.layer.startEditing()
-        self.assertIsNotNone(punktobjekt_layer.layer.dataProvider().transaction())
+        assert punktobjekt_layer.layer.dataProvider().transaction() is not None
 
         feature = QgsVectorLayerUtils.createFeature(punktobjekt_layer.layer, QgsGeometry(), {}, context)
-        self.assertEqual(len(feature['T_Ili_Tid']), 36)
+        assert len(feature['T_Ili_Tid']) == 36
         feature = QgsVectorLayerUtils.createFeature(punktobjekt_layer.layer, QgsGeometry(), {}, context)
-        self.assertEqual(len(feature['T_Ili_Tid']), 36)
+        assert len(feature['T_Ili_Tid']) == 36
 
     def print_info(self, text):
         logging.info(text)

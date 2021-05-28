@@ -67,7 +67,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -91,11 +91,10 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_punkt_layer = layer
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['letzteanpassung',
+                assert fields == set(['letzteanpassung',
                                               'zustaendigkeitkataster',
                                               'geo_lage_polygon',
                                               'inbetrieb',
@@ -112,21 +111,21 @@ class TestProjectGen(unittest.TestCase):
                                               'standorttyp',
                                               'bemerkung',
                                               'geo_lage_punkt',
-                                              'bemerkung_de']))
+                                              'bemerkung_de'])
 
                 # This might need to be adjusted if we get better names
-                self.assertEqual(tabs[1].name(), 'deponietyp_')
+                assert tabs[1].name() == 'deponietyp_'
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 belasteter_standort_polygon_layer = layer
 
-        self.assertEqual(count, 1)
-        self.assertEqual(len(available_layers), 16)
+        assert count == 1
+        assert len(available_layers) == 16
 
-        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
-        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
-        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
-        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)) > 3
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)) > 3
 
     def test_kbs_postgis(self):
         importer = iliimporter.Importer()
@@ -137,7 +136,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -161,11 +160,10 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_punkt_layer = layer
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['letzteanpassung',
+                assert fields == set(['letzteanpassung',
                                               'zustaendigkeitkataster',
                                               'geo_lage_polygon',
                                               'inbetrieb',
@@ -182,21 +180,21 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_rm',
                                               'bemerkung_it',
                                               'bemerkung_en',
-                                              'geo_lage_punkt']))
+                                              'geo_lage_punkt'])
 
                 # This might need to be adjusted if we get better names
-                self.assertEqual(tabs[1].name(), 'deponietyp_')
+                assert tabs[1].name() == 'deponietyp_'
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 belasteter_standort_polygon_layer = layer
 
-        self.assertEqual(count, 1)
-        self.assertEqual(len(available_layers), 16)
+        assert count == 1
+        assert len(available_layers) == 16
 
-        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)), 2)
-        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)), 3)
-        self.assertGreater(len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)), 2)
-        self.assertGreater(len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)), 3)
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)) > 3
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)) > 3
 
     def test_ili2db3_kbs_geopackage(self):
         importer = iliimporter.Importer()
@@ -210,7 +208,7 @@ class TestProjectGen(unittest.TestCase):
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         importer.configuration.db_ili_version = 3
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -235,11 +233,10 @@ class TestProjectGen(unittest.TestCase):
             if layer.name == 'belasteter_standort':  # Polygon
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['letzteanpassung',
+                assert fields == set(['letzteanpassung',
                                               'zustaendigkeitkataster',
                                               'geo_lage_polygon',
                                               'inbetrieb',
@@ -255,7 +252,7 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_fr',
                                               'standorttyp',
                                               'bemerkung',
-                                              'bemerkung_de']))
+                                              'bemerkung_de'])
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
@@ -264,32 +261,31 @@ class TestProjectGen(unittest.TestCase):
                                      'egrid_',
                                      'deponietyp_',
                                      'untersmassn_']
-                self.assertEqual(set(tab_list), set(expected_tab_list))
+                assert set(tab_list) == set(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:
-                        self.assertEqual(tab.columnCount(), 2)
+                        assert tab.columnCount() == 2
                     else:
-                        self.assertEqual(tab.columnCount(), 1)
+                        assert tab.columnCount() == 1
 
-        self.assertEqual(count, 1)
-        self.assertEqual(set(['statusaltlv',
-                              'multilingualtext',
-                              'untersmassn',
-                              'multilingualmtext',
-                              'languagecode_iso639_1',
-                              'deponietyp',
-                              'zustaendigkeitkataster',
-                              'standorttyp',
-                              'localisedtext',
-                              'localisedmtext',
-                              'belasteter_standort',
-                              'deponietyp_',
-                              'egrid_',
-                              'untersmassn_',
-                              'parzellenidentifikation',
-                              'belasteter_standort_geo_lage_punkt']),
-                         set([layer.name for layer in available_layers]))
+        assert count == 1
+        assert set(['statusaltlv',
+                      'multilingualtext',
+                      'untersmassn',
+                      'multilingualmtext',
+                      'languagecode_iso639_1',
+                      'deponietyp',
+                      'zustaendigkeitkataster',
+                      'standorttyp',
+                      'localisedtext',
+                      'localisedmtext',
+                      'belasteter_standort',
+                      'deponietyp_',
+                      'egrid_',
+                      'untersmassn_',
+                      'parzellenidentifikation',
+                      'belasteter_standort_geo_lage_punkt']) == set([layer.name for layer in available_layers])
 
     def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
@@ -302,7 +298,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -327,11 +323,10 @@ class TestProjectGen(unittest.TestCase):
             if layer.name == 'belasteter_standort':  # Polygon
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
                 fields = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(fields, set(['letzteanpassung',
+                assert fields == set(['letzteanpassung',
                                               'zustaendigkeitkataster',
                                               'geo_lage_polygon',
                                               'inbetrieb',
@@ -347,7 +342,7 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_fr',
                                               'bemerkung_rm',
                                               'bemerkung_it',
-                                              'bemerkung_en']))
+                                              'bemerkung_en'])
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
@@ -356,16 +351,16 @@ class TestProjectGen(unittest.TestCase):
                                      'egrid_',
                                      'deponietyp_',
                                      'untersmassn_']
-                self.assertEqual(set(tab_list), set(expected_tab_list))
+                assert set(tab_list) == set(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:
-                        self.assertEqual(tab.columnCount(), 2)
+                        assert tab.columnCount() == 2
                     else:
-                        self.assertEqual(tab.columnCount(), 1)
+                        assert tab.columnCount() == 1
 
-        self.assertEqual(count, 1)
-        self.assertEqual(set(['statusaltlv',
+        assert count == 1
+        assert set(['statusaltlv',
                               'multilingualtext',
                               'untersmassn',
                               'multilingualmtext',
@@ -380,8 +375,7 @@ class TestProjectGen(unittest.TestCase):
                               'egrid_',
                               'untersmassn_',
                               'parzellenidentifikation',
-                              'belasteter_standort_geo_lage_punkt']),
-                         set([layer.name for layer in available_layers]))
+                              'belasteter_standort_geo_lage_punkt']) == set([layer.name for layer in available_layers])
 
     def test_naturschutz_postgis(self):
         importer = iliimporter.Importer()
@@ -392,7 +386,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -401,9 +395,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 15)
-        self.assertEqual(len(available_layers), 23)
-        self.assertEqual(len(relations), 13)
+        assert len(ignored_layers) == 15
+        assert len(available_layers) == 23
+        assert len(relations) == 13
 
     def test_naturschutz_geopackage(self):
         importer = iliimporter.Importer()
@@ -416,7 +410,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -427,9 +421,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 24)
-        self.assertEqual(len(available_layers), 23)
-        self.assertEqual(len(relations), 13)
+        assert len(ignored_layers) == 24
+        assert len(available_layers) == 23
+        assert len(relations) == 13
 
     def test_naturschutz_mssql(self):
         importer = iliimporter.Importer()
@@ -448,7 +442,7 @@ class TestProjectGen(unittest.TestCase):
                     uid=importer.configuration.dbusr,
                     pwd=importer.configuration.dbpwd)
 
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2mssql, uri, 'smart1', importer.configuration.dbschema)
@@ -457,9 +451,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 19)
-        self.assertEqual(len(available_layers), 23)
-        self.assertEqual(len(relations), 22)
+        assert len(ignored_layers) == 19
+        assert len(available_layers) == 23
+        assert len(relations) == 22
 
     def test_naturschutz_set_ignored_layers_postgis(self):
         importer = iliimporter.Importer()
@@ -470,7 +464,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -480,9 +474,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 17)
-        self.assertEqual(len(available_layers), 21)
-        self.assertEqual(len(relations), 12)
+        assert len(ignored_layers) == 17
+        assert len(available_layers) == 21
+        assert len(relations) == 12
 
     def test_naturschutz_set_ignored_layers_geopackage(self):
         importer = iliimporter.Importer()
@@ -495,7 +489,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -508,9 +502,9 @@ class TestProjectGen(unittest.TestCase):
         legend = generator.legend(available_layers)
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 26)
-        self.assertEqual(len(available_layers), 21)
-        self.assertEqual(len(relations), 12)
+        assert len(ignored_layers) == 26
+        assert len(available_layers) == 21
+        assert len(relations) == 12
 
         project = Project()
         project.layers = available_layers
@@ -522,9 +516,9 @@ class TestProjectGen(unittest.TestCase):
         project.create(None, qgis_project)
 
         layer_names = [l.name().lower() for l in qgis_project.mapLayers().values()]
-        self.assertNotIn('einzelbaum', layer_names)
-        self.assertNotIn('datenbestand', layer_names)
-        self.assertIn('hochstamm_obstgarten', layer_names)
+        assert 'einzelbaum' not in layer_names
+        assert 'datenbestand' not in layer_names
+        assert 'hochstamm_obstgarten' in layer_names
 
     def test_naturschutz_set_ignored_layers_mssql(self):
         importer = iliimporter.Importer()
@@ -543,7 +537,7 @@ class TestProjectGen(unittest.TestCase):
                     uid=importer.configuration.dbusr,
                     pwd=importer.configuration.dbpwd)
 
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2mssql, uri, 'smart1', importer.configuration.dbschema)
@@ -553,9 +547,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 21)
-        self.assertEqual(len(available_layers), 21)
-        self.assertEqual(len(relations), 21)
+        assert len(ignored_layers) == 21
+        assert len(available_layers) == 21
+        assert len(relations) == 21
 
     def test_naturschutz_nometa_postgis(self):
         #model with missing meta attributes for multigeometry - no layers should be ignored
@@ -567,7 +561,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -576,9 +570,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 9)
-        self.assertEqual(len(available_layers), 29)
-        self.assertEqual(len(relations), 23)
+        assert len(ignored_layers) == 9
+        assert len(available_layers) == 29
+        assert len(relations) == 23
 
     def test_naturschutz_nometa_geopackage(self):
         #model with missing meta attributes for multigeometry - no layers should be ignored
@@ -592,7 +586,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -603,9 +597,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        self.assertEqual(len(ignored_layers), 18)
-        self.assertEqual(len(available_layers), 29)
-        self.assertEqual(len(relations), 23)
+        assert len(ignored_layers) == 18
+        assert len(available_layers) == 29
+        assert len(relations) == 23
 
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
@@ -619,7 +613,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -641,17 +635,17 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'avaluo':
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '-100.0')
-                self.assertEqual(config['Max'], '100000.0')
+                assert config['Min'] == '-100.0'
+                assert config['Max'] == '100000.0'
 
                 config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '0.0')
-                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '9.9999999999999906e+013'
+                assert config['Min'] == '0.0'
+                assert int(Decimal(config['Max'])) == 99999999999999  # '9.9999999999999906e+013'
 
                 count += 1
                 break
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_ranges_geopackage(self):
         importer = iliimporter.Importer()
@@ -666,7 +660,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -690,17 +684,17 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'avaluo':
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '-100.0')
-                self.assertEqual(config['Max'], '100000.0')
+                assert config['Min'] == '-100.0'
+                assert config['Max'] == '100000.0'
 
                 config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '0.0')
-                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '9.99999999999999E13'
+                assert config['Min'] == '0.0'
+                assert int(Decimal(config['Max'])) == 99999999999999  # '9.99999999999999E13'
 
                 count += 1
                 break
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
 
     def test_ranges_mssql(self):
@@ -715,7 +709,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -744,17 +738,17 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'avaluo':
                 config = layer.layer.fields().field('area_terreno2').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '-100.0')
-                self.assertEqual(config['Max'], '100000.0')
+                assert config['Min'] == '-100.0'
+                assert config['Max'] == '100000.0'
 
                 config = layer.layer.fields().field('area_terreno3').editorWidgetSetup().config()
-                self.assertEqual(config['Min'], '0.0')
-                self.assertEqual(int(Decimal(config['Max'])), 99999999999999)  # '99999999999999.9'
+                assert config['Min'] == '0.0'
+                assert int(Decimal(config['Max'])) == 99999999999999  # '99999999999999.9'
 
                 count += 1
                 break
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_precision_postgis(self):
         # Schema Import
@@ -770,7 +764,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -792,29 +786,25 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.layer.name().lower() == 'streetnameposition':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.001
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'streetaxis':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
-                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.0
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is False
             if layer.layer.name().lower() == 'roadsign':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() =='0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.1
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'landcover':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
-        self.assertEqual(count, 4)
+                assert layer.extent.toString() == '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.000001 
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
+        assert count == 4
 
     def test_precision_geopackage(self):
         importer = iliimporter.Importer()
@@ -830,7 +820,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -854,29 +844,25 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.layer.name().lower() == 'streetnameposition':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.001
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'streetaxis':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
-                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.0
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is False
             if layer.layer.name().lower() == 'roadsign':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.1
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'landcover':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
-        self.assertEqual(count, 4)
+                assert layer.extent.toString() == '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.000001 
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
+        assert count == 4
 
     def test_precision_mssql(self):
         importer = iliimporter.Importer()
@@ -891,7 +877,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -919,29 +905,25 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.layer.name().lower() == 'streetnameposition':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.001)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.001
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'streetaxis':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.0)
-                self.assertFalse(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.0
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is False
             if layer.layer.name().lower() == 'roadsign':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.1)
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
+                assert layer.extent.toString() == '0.0000000000000000,0.0000000000000000 : 200.0000000000000000,200.0000000000000000'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.1
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
             if layer.layer.name().lower() == 'landcover':
                 count += 1
-                self.assertEqual(layer.extent.toString(),
-                                 '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133')
-                self.assertEqual(layer.layer.geometryOptions().geometryPrecision(), 0.000001 )
-                self.assertTrue(layer.layer.geometryOptions().removeDuplicateNodes())
-        self.assertEqual(count, 4)
+                assert layer.extent.toString() == '0.0000020000000000,0.0000040000000000 : 200.0000080000000082,200.0000060000000133'
+                assert layer.layer.geometryOptions().geometryPrecision() == 0.000001 
+                assert bool(layer.layer.geometryOptions().removeDuplicateNodes()) is True
+        assert count == 4
 
     def test_extent_postgis(self):
         importer = iliimporter.Importer()
@@ -955,7 +937,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -965,9 +947,9 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.extent is not None:
                 count += 1
-                self.assertEqual(layer.extent.toString(2), '165000.00,23000.00 : 1806900.00,1984900.00')
+                assert layer.extent.toString(2) == '165000.00,23000.00 : 1806900.00,1984900.00'
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_extent_geopackage(self):
         importer = iliimporter.Importer()
@@ -982,7 +964,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -999,9 +981,9 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.extent is not None:
                 count += 1
-                self.assertEqual(layer.extent.toString(2), '165000.00,23000.00 : 1806900.00,1984900.00')
+                assert layer.extent.toString(2) == '165000.00,23000.00 : 1806900.00,1984900.00'
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_extent_mssql(self):
         importer = iliimporter.Importer()
@@ -1015,7 +997,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1031,9 +1013,9 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.extent is not None:
                 count += 1
-                self.assertEqual(layer.extent.toString(2), '165000.00,23000.00 : 1806900.00,1984900.00')
+                assert layer.extent.toString(2) == '165000.00,23000.00 : 1806900.00,1984900.00'
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_nmrel_postgis(self):
         importer = iliimporter.Importer()
@@ -1044,7 +1026,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -1068,10 +1050,10 @@ class TestProjectGen(unittest.TestCase):
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 map = edit_form_config.widgetConfig('lambert_from5_fkey')
-                self.assertEqual(map['nm-rel'], 'lambert_to5_fkey')
+                assert map['nm-rel'] == 'lambert_to5_fkey'
                 map = edit_form_config.widgetConfig('axis_geoellipsoidal_axis_fkey')
-                self.assertFalse(map)
-        self.assertEqual(count, 1)
+                assert bool(map) is False
+        assert count == 1
 
     def test_nmrel_geopackage(self):
 
@@ -1086,7 +1068,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1112,10 +1094,10 @@ class TestProjectGen(unittest.TestCase):
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
                 map = edit_form_config.widgetConfig('lambert_from5_geoellipsoidal_T_Id')
-                self.assertEqual(map['nm-rel'], 'lambert_to5_geocartesian2d_T_Id')
+                assert map['nm-rel'] == 'lambert_to5_geocartesian2d_T_Id'
                 map = edit_form_config.widgetConfig('axis_geoellipsoidal_axis_geoellipsoidal_T_Id')
-                self.assertFalse(map)
-        self.assertEqual(count, 1)
+                assert bool(map) is False
+        assert count == 1
 
     def test_meta_attr_postgis(self):
         importer = iliimporter.Importer()
@@ -1126,7 +1108,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -1148,13 +1130,12 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
+                assert layer.layer.displayExpression() == ('"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_meta_attr_geopackage(self):
         importer = iliimporter.Importer()
@@ -1169,7 +1150,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1193,14 +1174,13 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
+                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
 
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_meta_attr_mssql(self):
         importer = iliimporter.Importer()
@@ -1211,7 +1191,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1240,13 +1220,12 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
+                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_meta_attr_toml_postgis(self):
         importer = iliimporter.Importer()
@@ -1258,7 +1237,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -1280,16 +1259,15 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
+                assert layer.layer.displayExpression() == ('"t_ili_tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"t_id"')
             if layer.name == 'obstacle':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
 
-        self.assertEqual(count, 3)
+        assert count == 3
 
     def test_meta_attr_toml_mssql(self):
         importer = iliimporter.Importer()
@@ -1301,7 +1279,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1329,16 +1307,15 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
+                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
             if layer.name == 'obstacle':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
 
-        self.assertEqual(count, 3)
+        assert count == 3
 
     def test_meta_attr_hidden_toml_postgis(self):
         importer = iliimporter.Importer()
@@ -1352,7 +1329,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -1378,11 +1355,11 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        self.assertEqual(len(attribute_names), 18)
-                        self.assertNotIn('tipo', attribute_names)
-                        self.assertNotIn('avaluo', attribute_names)
+                        assert len(attribute_names) == 18
+                        assert 'tipo' not in attribute_names
+                        assert 'avaluo' not in attribute_names
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_meta_attr_hidden_toml_mssql(self):
         importer = iliimporter.Importer()
@@ -1396,7 +1373,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1428,11 +1405,11 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        self.assertEqual(len(attribute_names), 18)
-                        self.assertNotIn('tipo', attribute_names)
-                        self.assertNotIn('avaluo', attribute_names)
+                        assert len(attribute_names) == 18
+                        assert 'tipo' not in attribute_names
+                        assert 'avaluo' not in attribute_names
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_meta_attr_toml_geopackage(self):
         importer = iliimporter.Importer()
@@ -1448,7 +1425,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1472,16 +1449,15 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'typeofroute':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(),
-                                 '"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
+                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
             if layer.name == 'obstacle':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'type')
+                assert layer.layer.displayExpression() == 'type'
 
-        self.assertEqual(count, 3)
+        assert count == 3
 
     def test_meta_attr_order_toml_geopackage(self):
         importer = iliimporter.Importer()
@@ -1497,7 +1473,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1531,9 +1507,9 @@ class TestProjectGen(unittest.TestCase):
                         expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
 
                         for i, val in enumerate(expected_order):
-                            self.assertEqual(val, names[i])
+                            assert val == names[i]
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_meta_attr_order_toml_postgis(self):
         importer = iliimporter.Importer()
@@ -1547,7 +1523,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -1579,9 +1555,9 @@ class TestProjectGen(unittest.TestCase):
                         expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
 
                         for i, val in enumerate(expected_order):
-                            self.assertEqual(val, names[i])
+                            assert val == names[i]
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_meta_attr_order_toml_mssql(self):
         importer = iliimporter.Importer()
@@ -1595,7 +1571,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1633,9 +1609,9 @@ class TestProjectGen(unittest.TestCase):
                         expected_order = ['attr1', 'attr2', 'attr3', 'attr5', 'attr4', 'attr6', 'attr8', 'attr9', 'avaluo', 'tipo', 'fmi', 'numero_predial']
 
                         for i, val in enumerate(expected_order):
-                            self.assertEqual(val, names[i])
+                            assert val == names[i]
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_bagof_cardinalities_postgis(self):
         # Schema Import
@@ -1651,7 +1627,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1687,19 +1663,15 @@ class TestProjectGen(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
-                              expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
         # Test constraints
         for layer in available_layers:
             if layer.name == 'fische':
-                self.assertEqual(
-                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
-                self.assertEqual(
-                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
-                    'array_length("valuerelation_1")>0')
+                assert layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')) == ''
+                assert layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')) == 'array_length("valuerelation_1")>0'
 
     def test_bagof_cardinalities_geopackage(self):
         # Schema Import
@@ -1716,7 +1688,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1754,19 +1726,15 @@ class TestProjectGen(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field],
-                              expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
         # Test constraints
         for layer in available_layers:
             if layer.name == 'fische':
-                self.assertEqual(
-                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')), '')
-                self.assertEqual(
-                    layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')),
-                    'array_length("valuerelation_1")>0')
+                assert layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_0')) == ''
+                assert layer.layer.constraintExpression(layer.layer.fields().indexOf('valuerelation_1')) == 'array_length("valuerelation_1")>0'
 
     def test_relation_strength_postgis(self):
         # Schema Import
@@ -1782,7 +1750,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1802,16 +1770,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
+        assert qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength() == QgsRelation.Association
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
+        assert qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength() == QgsRelation.Composition
 
     def test_relation_strength_geopackage(self):
         # Schema Import
@@ -1828,7 +1796,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1850,16 +1818,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_classa1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_classb1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_classa1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_classb1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_classa1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_classa1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_classa1_T_Id').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength(), QgsRelation.Association)
+        assert qgis_project.relationManager().relation('agg3_agg3_a_classa1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('agg3_agg3_b_classb1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_a_classa1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_b_classb1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg1_a_classa1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg2_a_classa1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc1_a_classa1_T_Id').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc2_a_classa1_T_Id').strength() == QgsRelation.Association
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength(), QgsRelation.Composition)
+        assert qgis_project.relationManager().relation('classb1_comp1_a_classa1_T_Id').strength() == QgsRelation.Composition
 
     def test_relation_strength_mssql(self):
         # Schema Import
@@ -1875,7 +1843,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -1900,16 +1868,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength(), QgsRelation.Association)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength(), QgsRelation.Association)
+        assert qgis_project.relationManager().relation('agg3_agg3_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('agg3_agg3_b_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('assoc3_assoc3_b_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg1_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_agg2_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc1_a_fkey').strength() == QgsRelation.Association
+        assert qgis_project.relationManager().relation('classb1_assoc2_a_fkey').strength() == QgsRelation.Association
         # and that's the one with the strength 1 (composition)
-        self.assertEqual(qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength(), QgsRelation.Composition)
+        assert qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength() == QgsRelation.Composition
 
     def test_kbs_postgis_toppings(self):
         '''
@@ -1948,7 +1916,7 @@ class TestProjectGen(unittest.TestCase):
                                                        'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest',
                                                        1,
                                                        Qt.MatchExactly)
-        self.assertTrue(matches_on_id)
+        assert bool(matches_on_id) is True
 
         repository = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO))
         url = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL))
@@ -1959,43 +1927,43 @@ class TestProjectGen(unittest.TestCase):
         metaconfig = self.load_metaconfig(os.path.join(toppings_test_path,metaconfig_path))
 
         # Read ili2db settings
-        self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
+        assert 'ch.ehi.ili2db' in metaconfig.sections()
         ili2db_metaconfig = metaconfig['ch.ehi.ili2db']
         model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
         importer.configuration.ilimodels = ';'.join(model_list)
-        self.assertEqual(importer.configuration.ilimodels, 'KbS_LV95_V1_4;KbS_Basis_V1_4')
+        assert importer.configuration.ilimodels == 'KbS_LV95_V1_4;KbS_Basis_V1_4'
         srs_code = ili2db_metaconfig.get('defaultSrsCode')
         importer.configuration.srs_code = srs_code
-        self.assertEqual(importer.configuration.srs_code, '3857')
+        assert importer.configuration.srs_code == '3857'
         command = importer.command(True)
-        self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
-        self.assertTrue('3857' in command)
+        assert 'KbS_LV95_V1_4;KbS_Basis_V1_4' in command
+        assert '3857' in command
 
         # read and download topping files in ili2db settings (prefixed with ilidata or file - means they are found in ilidata.xml or referenced locally)
         ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
         ili_meta_attrs_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, ili_meta_attrs_list)
         # absolute path since it's defined as ilidata:...
         expected_ili_meta_attrs_file_path_list = [os.path.join(toppings_test_path,'toml/sh_KbS_LV95_V1_4.toml')]
-        self.assertEqual(expected_ili_meta_attrs_file_path_list, ili_meta_attrs_file_path_list)
+        assert expected_ili_meta_attrs_file_path_list == ili_meta_attrs_file_path_list
         importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
 
         prescript_list = ili2db_metaconfig.get('preScript').split(';')
         prescript_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, prescript_list)
         # relative path made absolute to modelbaker since it's defined as file:...
         expected_prescript_file_path_list = [os.path.join(toppings_test_path, 'sql/opengisch_KbS_LV95_V1_4_test.sql')]
-        self.assertEqual(expected_prescript_file_path_list, prescript_file_path_list)
+        assert expected_prescript_file_path_list == prescript_file_path_list
         importer.configuration.pre_script = prescript_file_path_list[0]
 
         command = importer.command(True)
-        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
-        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
+        assert 'opengisch_KbS_LV95_V1_4_test.sql' in command
+        assert 'sh_KbS_LV95_V1_4.toml' in command
 
         #and override defaultSrsCode manually
         importer.configuration.srs_code = '2056'
 
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -2005,25 +1973,25 @@ class TestProjectGen(unittest.TestCase):
         legend = generator.legend(available_layers)
 
         # Toppings legend and layers: apply
-        self.assertTrue('CONFIGURATION', metaconfig.sections())
+        assert 'CONFIGURATION' in metaconfig.sections()
         configuration_section = metaconfig['CONFIGURATION']
-        self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
+        assert 'qgis.modelbaker.layertree' in configuration_section
         layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
         layertree_data_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, layertree_data_list)
         # relative path made absolute to modelbaker since it's defined as file:...
         expected_layertree_data_file_path_list = [os.path.join(toppings_test_path, 'layertree/opengis_layertree_KbS_LV95_V1_4.yaml')]
-        self.assertEqual(layertree_data_file_path_list, expected_layertree_data_file_path_list)
+        assert layertree_data_file_path_list == expected_layertree_data_file_path_list
         layertree_data_file_path = layertree_data_file_path_list[0]
 
         custom_layer_order_structure = list()
         with open(layertree_data_file_path, 'r') as yamlfile:
             layertree_data = yaml.safe_load(yamlfile)
-            self.assertTrue('legend' in layertree_data)
+            assert 'legend' in layertree_data
             legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
-            self.assertTrue('layer-order' in layertree_data)
+            assert 'layer-order' in layertree_data
             custom_layer_order_structure = layertree_data['layer-order']
 
-        self.assertEqual(len(custom_layer_order_structure), 2)
+        assert len(custom_layer_order_structure) == 2
 
         project = Project()
         project.layers = available_layers
@@ -2039,16 +2007,21 @@ class TestProjectGen(unittest.TestCase):
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
         assert belasteter_standort_group is not None
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
-        self.assertEqual([layer.name() for layer in belasteter_standort_group_layer], ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort (Geo_Lage_Polygon)'])
+        assert [layer.name() for layer in belasteter_standort_group_layer] == ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort (Geo_Lage_Polygon)']
         informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
         assert informationen_group is not None
         informationen_group_layers = informationen_group.findLayers()
-        self.assertEqual([layer.name() for layer in informationen_group_layers],
-                         ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
-                          'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
-                          'Parzellenidentifikation', 'UntersMassn_', 'MultilingualMText', 'LocalisedMText',
-                          'MultilingualText', 'LocalisedText', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                          'Deponietyp', 'LanguageCode_ISO639_1'])
+        assert [layer.name() for layer in informationen_group_layers] == ['EGRID_', 'Deponietyp_',
+                                                                          'ZustaendigkeitKataster',
+                                                                          'Untersuchungsmassnahmen_Definition',
+                                                                          'StatusAltlV_Definition',
+                                                                          'Standorttyp_Definition',
+                                                                          'Deponietyp_Definition',
+                                                                          'Parzellenidentifikation', 'UntersMassn_',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
+                                                                          'MultilingualMText', 'LocalisedMText',
+                                                                          'MultilingualText', 'LocalisedText']
         text_infos_group = informationen_group.findGroup('Text Infos')
         assert text_infos_group is not None
         text_infos_group_layers = text_infos_group.findLayers()
@@ -2094,17 +2067,16 @@ class TestProjectGen(unittest.TestCase):
         assert other_infos_group.isExpanded() is False
 
         #check the custom layer order
-        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
-        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort (Geo_Lage_Polygon)')
-        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
+        assert bool(qgis_project.layerTreeRoot().hasCustomLayerOrder()) is True
+        assert qgis_project.layerTreeRoot().customLayerOrder()[0].name() == 'Belasteter_Standort (Geo_Lage_Polygon)'
+        assert qgis_project.layerTreeRoot().customLayerOrder()[1].name() == 'Belasteter_Standort (Geo_Lage_Punkt)'
 
         # and read qml part, download files and check the form configurations set by the qml
-        self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
-        qml_section = metaconfig['qgis.modelbaker.qml']
-        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
-                                               'file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml',
-                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
-
+        assert 'qgis.modelbaker.qml' in metaconfig.sections()
+        qml_section = dict(metaconfig['qgis.modelbaker.qml'])
+        assert list(qml_section.values()) == ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
+                                              'file:tests/testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml',
+                                              'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
         qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
         for layer in project.layers:
             if any(layer.alias.lower() == s for s in qml_section):
@@ -2120,41 +2092,39 @@ class TestProjectGen(unittest.TestCase):
                 layer.layer.loadNamedStyle(style_file_path)
 
         layer_names = set([layer.name for layer in available_layers])
-        self.assertEqual(layer_names, {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
+        assert layer_names == {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
                                        'deponietyp_definition', 'parzellenidentifikation', 'multilingualtext',
                                        'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
                                        'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
                                        'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
-                                       'egrid_', 'deponietyp'})
+                                       'egrid_', 'deponietyp'}
         
         count = 0
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
-                self.assertEqual(len(tabs),5)
-                self.assertEqual(tabs[0].name(),'Allgemein')
+                assert len(tabs) == 5
+                assert tabs[0].name() == 'Allgemein'
                 field_names = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(field_names,
-                                 {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
-                                  'url_standort', 'bemerkung_rm', 'standorttyp', 'bemerkung_en', 'inbetrieb',
-                                  'geo_lage_punkt', 'bemerkung_it', 'url_kbs_auszug', 'bemerkung', 'nachsorge',
-                                  'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'})
+                assert field_names == {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
+                                       'url_standort', 'bemerkung_rm', 'standorttyp', 'bemerkung_en', 'inbetrieb',
+                                       'geo_lage_punkt', 'bemerkung_it', 'url_kbs_auszug', 'bemerkung', 'nachsorge',
+                                       'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'}
 
                 for field in layer.layer.fields():
                     if field.name() == 'bemerkung_rm':
-                        self.assertEqual(field.alias(), 'Bemerkung Romanisch')
+                        assert field.alias() == 'Bemerkung Romanisch'
                     if field.name() == 'bemerkung_it':
-                        self.assertEqual(field.alias(), 'Bemerkung Italienisch')
+                        assert field.alias() == 'Bemerkung Italienisch'
             if layer.name == 'parzellenidentifikation':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'nbident || \' - \'  || "parzellennummer" ')
+                assert layer.layer.displayExpression() == 'nbident || \' - \'  || "parzellennummer" '
 
         #check if the layers have been considered
-        self.assertEqual(count, 2)
+        assert count == 2
         
     def test_kbs_geopackage_toppings(self):
         '''
@@ -2194,7 +2164,7 @@ class TestProjectGen(unittest.TestCase):
                                                        'ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg_localfiletest',
                                                        1,
                                                        Qt.MatchExactly)
-        self.assertTrue(matches_on_id)
+        assert bool(matches_on_id) is True
 
         repository = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO))
         url = ilimetaconfigcache.model.data(matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL))
@@ -2205,43 +2175,43 @@ class TestProjectGen(unittest.TestCase):
         metaconfig = self.load_metaconfig(os.path.join(toppings_test_path,metaconfig_path))
 
         # Read ili2db settings
-        self.assertTrue('ch.ehi.ili2db' in metaconfig.sections())
+        assert 'ch.ehi.ili2db' in metaconfig.sections()
         ili2db_metaconfig = metaconfig['ch.ehi.ili2db']
         model_list = importer.configuration.ilimodels.strip().split(';') + ili2db_metaconfig.get('models').strip().split(';')
         importer.configuration.ilimodels = ';'.join(model_list)
-        self.assertEqual(importer.configuration.ilimodels, 'KbS_LV95_V1_4;KbS_Basis_V1_4')
+        assert importer.configuration.ilimodels == 'KbS_LV95_V1_4;KbS_Basis_V1_4'
         srs_code = ili2db_metaconfig.get('defaultSrsCode')
         importer.configuration.srs_code = srs_code
-        self.assertEqual(importer.configuration.srs_code, '3857')
+        assert importer.configuration.srs_code == '3857'
         command = importer.command(True)
-        self.assertTrue('KbS_LV95_V1_4;KbS_Basis_V1_4' in command)
-        self.assertTrue('3857' in command)
+        assert 'KbS_LV95_V1_4;KbS_Basis_V1_4' in command
+        assert '3857' in command
 
         # read and download topping files in ili2db settings (prefixed with ilidata or file - means they are found in ilidata.xml or referenced locally)
         ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
         ili_meta_attrs_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, ili_meta_attrs_list)
         # absolute path since it's defined as ilidata:...
         expected_ili_meta_attrs_file_path_list = [os.path.join(toppings_test_path,'toml/sh_KbS_LV95_V1_4.toml')]
-        self.assertEqual(expected_ili_meta_attrs_file_path_list, ili_meta_attrs_file_path_list)
+        assert expected_ili_meta_attrs_file_path_list == ili_meta_attrs_file_path_list
         importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
 
         prescript_list = ili2db_metaconfig.get('preScript').split(';')
         prescript_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, prescript_list)
         # relative path made absolute to modelbaker since it's defined as file:...
         expected_prescript_file_path_list = [os.path.join(toppings_test_path, 'sql/opengisch_KbS_LV95_V1_4_test.sql')]
-        self.assertEqual(expected_prescript_file_path_list, prescript_file_path_list)
+        assert expected_prescript_file_path_list == prescript_file_path_list
         importer.configuration.pre_script = prescript_file_path_list[0]
 
         command = importer.command(True)
-        self.assertTrue('opengisch_KbS_LV95_V1_4_test.sql' in command)
-        self.assertTrue('sh_KbS_LV95_V1_4.toml' in command)
+        assert 'opengisch_KbS_LV95_V1_4_test.sql' in command
+        assert 'sh_KbS_LV95_V1_4.toml' in command
 
         #and override defaultSrsCode manually
         importer.configuration.srs_code = '2056'
 
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
         generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
@@ -2251,25 +2221,25 @@ class TestProjectGen(unittest.TestCase):
         legend = generator.legend(available_layers)
 
         # Toppings legend and layers: apply
-        self.assertTrue('CONFIGURATION', metaconfig.sections())
+        assert 'CONFIGURATION' in metaconfig.sections()
         configuration_section = metaconfig['CONFIGURATION']
-        self.assertTrue('qgis.modelbaker.layertree' in configuration_section)
+        assert 'qgis.modelbaker.layertree' in configuration_section
         layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
         layertree_data_file_path_list = self.get_topping_file_list(importer.configuration.base_configuration, layertree_data_list)
         # relative path made absolute to modelbaker since it's defined as file:...
         expected_layertree_data_file_path_list = [os.path.join(toppings_test_path, 'layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml')]
-        self.assertEqual(layertree_data_file_path_list, expected_layertree_data_file_path_list)
+        assert layertree_data_file_path_list == expected_layertree_data_file_path_list
         layertree_data_file_path = layertree_data_file_path_list[0]
 
         custom_layer_order_structure = list()
         with open(layertree_data_file_path, 'r') as yamlfile:
             layertree_data = yaml.safe_load(yamlfile)
-            self.assertTrue('legend' in layertree_data)
+            assert 'legend' in layertree_data
             legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
-            self.assertTrue('layer-order' in layertree_data)
+            assert 'layer-order' in layertree_data
             custom_layer_order_structure = layertree_data['layer-order']
 
-        self.assertEqual(len(custom_layer_order_structure), 2)
+        assert len(custom_layer_order_structure) == 2
 
         project = Project()
         project.layers = available_layers
@@ -2285,17 +2255,23 @@ class TestProjectGen(unittest.TestCase):
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
         assert belasteter_standort_group is not None
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
-        self.assertEqual([layer.name() for layer in belasteter_standort_group_layer], ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort'])
+        assert [layer.name() for layer in belasteter_standort_group_layer] == ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort']
 
         informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
         assert informationen_group is not None
         informationen_group_layers = informationen_group.findLayers()
-        self.assertEqual([layer.name() for layer in informationen_group_layers],
-                         ['EGRID_', 'Deponietyp_', 'ZustaendigkeitKataster', 'Untersuchungsmassnahmen_Definition',
-                          'StatusAltlV_Definition', 'Standorttyp_Definition', 'Deponietyp_Definition',
-                          'Parzellenidentifikation', 'UntersMassn_', 'MultilingualMText', 'LocalisedMText',
-                          'MultilingualText', 'LocalisedText', 'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                          'Deponietyp', 'LanguageCode_ISO639_1'])
+
+        assert [layer.name() for layer in informationen_group_layers] == ['EGRID_', 'Deponietyp_',
+                                                                          'ZustaendigkeitKataster',
+                                                                          'Untersuchungsmassnahmen_Definition',
+                                                                          'StatusAltlV_Definition',
+                                                                          'Standorttyp_Definition',
+                                                                          'Deponietyp_Definition',
+                                                                          'Parzellenidentifikation', 'UntersMassn_',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
+                                                                          'MultilingualMText', 'LocalisedMText',
+                                                                          'MultilingualText', 'LocalisedText']
         text_infos_group = informationen_group.findGroup('Text Infos')
         assert text_infos_group is not None
         text_infos_group_layers = text_infos_group.findLayers()
@@ -2339,14 +2315,16 @@ class TestProjectGen(unittest.TestCase):
         assert other_infos_group.isExpanded() is False
 
         #check the custom layer order
-        self.assertTrue(qgis_project.layerTreeRoot().hasCustomLayerOrder())
-        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[0].name(), 'Belasteter_Standort')
-        self.assertEqual(qgis_project.layerTreeRoot().customLayerOrder()[1].name(), 'Belasteter_Standort (Geo_Lage_Punkt)')
+        assert bool(qgis_project.layerTreeRoot().hasCustomLayerOrder()) is True
+        assert qgis_project.layerTreeRoot().customLayerOrder()[0].name() == 'Belasteter_Standort'
+        assert qgis_project.layerTreeRoot().customLayerOrder()[1].name() == 'Belasteter_Standort (Geo_Lage_Punkt)'
 
         # and read qml part, download files and check the form configurations set by the qml
-        self.assertTrue('qgis.modelbaker.qml', metaconfig.sections())
-        qml_section = metaconfig['qgis.modelbaker.qml']
-        self.assertTrue(qml_section.values(), ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001','file:qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml','ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005'])
+        assert 'qgis.modelbaker.qml' in metaconfig.sections()
+        qml_section = dict(metaconfig['qgis.modelbaker.qml'])
+        assert list(qml_section.values()) == ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
+                                              'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004_GPKG',
+                                              'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
         qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
         for layer in project.layers:
             if any(layer.alias.lower() == s for s in qml_section):
@@ -2362,41 +2340,39 @@ class TestProjectGen(unittest.TestCase):
                 layer.layer.loadNamedStyle(style_file_path)
 
         layer_names = set([layer.name for layer in available_layers])
-        self.assertEqual(layer_names, {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
+        assert layer_names == {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
                                        'deponietyp_definition', 'parzellenidentifikation', 'multilingualtext',
                                        'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
                                        'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
                                        'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
-                                       'egrid_', 'deponietyp', 'belasteter_standort_geo_lage_punkt'})
+                                       'egrid_', 'deponietyp', 'belasteter_standort_geo_lage_punkt'}
 
         count = 0
         for layer in available_layers:
             if layer.name == 'belasteter_standort':
                 count += 1
                 edit_form_config = layer.layer.editFormConfig()
-                self.assertEqual(edit_form_config.layout(),
-                                 QgsEditFormConfig.TabLayout)
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
                 tabs = edit_form_config.tabs()
-                self.assertEqual(len(tabs),5)
-                self.assertEqual(tabs[0].name(),'Allgemein')
+                assert len(tabs) == 5
+                assert tabs[0].name() == 'Allgemein'
                 field_names = set([field.name() for field in tabs[0].children()])
-                self.assertEqual(field_names,
-                                 {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
+                assert field_names == {'geo_lage_polygon', 'bemerkung_de', 'letzteanpassung', 'zustaendigkeitkataster',
                                   'url_standort', 'bemerkung_rm', 'standorttyp', 'bemerkung_en', 'inbetrieb',
                                   'geo_lage_punkt', 'bemerkung_it', 'url_kbs_auszug', 'bemerkung', 'nachsorge',
-                                  'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'})
+                                  'ersteintrag', 'bemerkung_fr', 'katasternummer', 'statusaltlv'}
 
                 for field in layer.layer.fields():
                     if field.name() == 'bemerkung_rm':
-                        self.assertEqual(field.alias(), 'Bemerkung Romanisch')
+                        assert field.alias() == 'Bemerkung Romanisch'
                     if field.name() == 'bemerkung_it':
-                        self.assertEqual(field.alias(), 'Bemerkung Italienisch')
+                        assert field.alias() == 'Bemerkung Italienisch'
             if layer.name == 'parzellenidentifikation':
                 count += 1
-                self.assertEqual(layer.layer.displayExpression(), 'nbident || \' - \'  || "parzellennummer" ')
+                assert layer.layer.displayExpression() == 'nbident || \' - \'  || "parzellennummer" '
 
         #check if the layers have been considered
-        self.assertEqual(count, 2)
+        assert count == 2
         
     def test_kbs_postgis_multisurface(self):
         importer = iliimporter.Importer()
@@ -2408,7 +2384,7 @@ class TestProjectGen(unittest.TestCase):
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
@@ -2419,13 +2395,13 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
-                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Punkt)')
+                assert layer.alias == 'Belasteter_Standort (Geo_Lage_Punkt)'
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 count += 1
-                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Polygon)')
+                assert layer.alias == 'Belasteter_Standort (Geo_Lage_Polygon)'
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_kbs_geopackage_multisurface(self):
         importer = iliimporter.Importer()
@@ -2439,7 +2415,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart1'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -2452,13 +2428,13 @@ class TestProjectGen(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'belasteter_standort_geo_lage_punkt' and layer.geometry_column == 'geo_lage_punkt':
                 count += 1
-                self.assertEqual(layer.alias, 'Belasteter_Standort (Geo_Lage_Punkt)')
+                assert layer.alias == 'Belasteter_Standort (Geo_Lage_Punkt)'
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 count += 1
-                self.assertEqual(layer.alias, 'Belasteter_Standort')
+                assert layer.alias == 'Belasteter_Standort'
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_unit(self):
         importer = iliimporter.Importer()
@@ -2472,7 +2448,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg, get_pg_connection_string(), 'smart2', importer.configuration.dbschema)
@@ -2481,7 +2457,7 @@ class TestProjectGen(unittest.TestCase):
 
         infra_po = next((layer for layer in available_layers if layer.name == 'erholungsinfrastruktur_punktobjekt'))
         naechste_kontrolle = next((field for field in infra_po.fields if field.name == 'naechste_kontrolle'))
-        self.assertEqual(naechste_kontrolle.alias, 'Naechste_Kontrolle')
+        assert naechste_kontrolle.alias == 'Naechste_Kontrolle'
 
     def print_info(self, text):
         logging.info(text)
