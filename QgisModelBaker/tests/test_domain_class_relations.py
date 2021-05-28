@@ -56,7 +56,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -124,7 +124,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "child_domain_name": None})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_postgis(self):
         # Schema Import
@@ -140,7 +140,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -198,7 +198,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "predio_tipo_la_baunittipo_ilicode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_extended_domain_postgis(self):
         # Schema Import
@@ -211,7 +211,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -242,10 +242,10 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'name': 'childcolor_colortype_fkey',
                                    'child_domain_name': 'Colors.DomChildColorType'})
 
-        self.assertEqual(len(expected_relations), len(relations_dicts))
+        assert len(expected_relations) == len(relations_dicts)
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         legend = generator.legend(available_layers)
 
@@ -262,10 +262,10 @@ class TestDomainClassRelation(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'childcolor':
                 config = layer.layer.fields().field('colortype').editorWidgetSetup().config()
-                self.assertEqual(config['FilterExpression'], '"thisclass" = \'Colors.DomChildColorType\'')
+                assert config['FilterExpression'] == '"thisclass" = \'Colors.DomChildColorType\''
                 count += 1
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_domain_class_relations_geopackage(self):
         # Schema Import
@@ -281,7 +281,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -351,7 +351,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "child_domain_name": None})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_geopackage(self):
         # Schema Import
@@ -368,7 +368,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -428,7 +428,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "predio_tipo_la_baunittipo_iliCode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_extended_domain_geopackage(self):
         # Schema Import
@@ -443,7 +443,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -476,10 +476,10 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'name': 'childcolor_colortype_fkey',
                                    'child_domain_name': 'Colors.DomChildColorType'})
 
-        self.assertEqual(len(expected_relations), len(relations_dicts))
+        assert len(expected_relations) == len(relations_dicts)
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         legend = generator.legend(available_layers)
 
@@ -496,10 +496,10 @@ class TestDomainClassRelation(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'childcolor':
                 config = layer.layer.fields().field('colortype').editorWidgetSetup().config()
-                self.assertEqual(config['FilterExpression'], '"thisclass" = \'Colors.DomChildColorType\'')
+                assert config['FilterExpression'] == '"thisclass" = \'Colors.DomChildColorType\''
                 count += 1
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_domain_class_relations_mssql(self):
         # Schema Import
@@ -514,7 +514,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -586,7 +586,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "child_domain_name": None})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_mssql(self):
         # Schema Import
@@ -602,7 +602,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -667,7 +667,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "predio_tipo_la_baunittipo_iliCode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_extended_domain_mssql(self):
         # Schema Import
@@ -681,7 +681,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}'\
             .format(drv="{ODBC Driver 17 for SQL Server}",
@@ -715,10 +715,10 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'name': 'childcolor_colortype_fkey',
                                    'child_domain_name': 'Colors.DomChildColorType'})
 
-        self.assertEqual(len(expected_relations), len(relations_dicts))
+        assert len(expected_relations) == len(relations_dicts)
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         legend = generator.legend(available_layers)
 
@@ -735,10 +735,10 @@ class TestDomainClassRelation(unittest.TestCase):
         for layer in available_layers:
             if layer.name == 'childcolor':
                 config = layer.layer.fields().field('colortype').editorWidgetSetup().config()
-                self.assertEqual(config['FilterExpression'], '"thisclass" = \'Colors.DomChildColorType\'')
+                assert config['FilterExpression'] == '"thisclass" = \'Colors.DomChildColorType\''
                 count += 1
 
-        self.assertEqual(count, 1)
+        assert count == 1
 
     def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_postgis(self):
         # Schema Import
@@ -754,7 +754,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -824,7 +824,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "sammelstelle_beschriftung_textvali_fkey"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_postgis(self):
         # Schema Import
@@ -841,7 +841,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -908,7 +908,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "sammelstelle_beschriftung_textvali_valignment_ilicode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_geopackage(self):
         # Schema Import
@@ -925,7 +925,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
         
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -997,7 +997,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "sammelstelle_beschriftung_textvali_fkey"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_ZG_Abfallsammelstellen_ZEBA_V1_geopackage(self):
         # Schema Import
@@ -1015,7 +1015,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1084,7 +1084,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    "name": "sammelstelle_beschriftung_textvali_valignment_iliCode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_postgis(self):
         # Schema Import
@@ -1100,7 +1100,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1174,7 +1174,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'typ'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1198,9 +1198,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 9)
+        assert count == 9
 
     def test_ili2db3_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_postgis(self):
         # Schema Import
@@ -1217,7 +1217,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1288,7 +1288,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'typ'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1312,9 +1312,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 9)
+        assert count == 9
 
     def test_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_geopackage(self):
         # Schema Import
@@ -1331,7 +1331,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1407,7 +1407,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'typ'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1431,9 +1431,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 9)
+        assert count == 9
 
     def test_ili2db3_domain_structure_relations_ZG_Naturschutz_und_Erholung_V1_0_geopackage(self):
         # Schema Import
@@ -1451,7 +1451,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1524,7 +1524,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'typ'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1548,9 +1548,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 9)
+        assert count == 9
 
     def test_domain_structure_relations_KbS_LV95_V1_3_postgis(self):
         # Schema Import
@@ -1566,7 +1566,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1604,7 +1604,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'avalue'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1623,9 +1623,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 4)
+        assert count == 4
 
     def test_ili2db3_domain_structure_relations_KbS_LV95_V1_3_postgis(self):
         # Schema Import
@@ -1642,7 +1642,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -1677,7 +1677,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'avalue'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1696,9 +1696,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 4)
+        assert count == 4
 
     def test_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
         # Schema Import
@@ -1715,7 +1715,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1755,7 +1755,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'avalue'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1774,9 +1774,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_ili2db3_domain_structure_relations_KbS_LV95_V1_3_geopackage(self):
         # Schema Import
@@ -1794,7 +1794,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -1831,7 +1831,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'avalue'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
         # Test BAGs OF ENUM
         expected_bags_of_enum = [
@@ -1850,9 +1850,9 @@ class TestDomainClassRelation(unittest.TestCase):
                 domain_table = bag_of_enum_info[2]
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
-                self.assertIn([layer_name, attribute, cardinality, domain_table.name, key_field, value_field], expected_bags_of_enum)
+                assert [layer_name, attribute, cardinality, domain_table.name, key_field, value_field] in expected_bags_of_enum
 
-        self.assertEqual(count, 2)
+        assert count == 2
 
     def test_domain_class_relations_Hazard_Mapping_V1_2_postgis(self):
         # Test and ili file with lots of comments inside.
@@ -1871,7 +1871,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -2142,7 +2142,7 @@ class TestDomainClassRelation(unittest.TestCase):
             "referenced_field": "t_id"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_Hazard_Mapping_V1_2_postgis(self):
         # Test and ili file with lots of comments inside.
@@ -2162,7 +2162,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -2430,7 +2430,7 @@ class TestDomainClassRelation(unittest.TestCase):
             "referenced_field": "ilicode"})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_domain_class_relations_ZG_Naturschutz_und_Erholungsinfrastruktur_V1_postgis(self):
         # Schema Import
@@ -2446,7 +2446,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -2503,7 +2503,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'zustaendigkeit'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def test_ili2db3_domain_class_relations_ZG_Naturschutz_und_Erholungsinfrastruktur_V1_postgis(self):
         # Schema Import
@@ -2520,7 +2520,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -2574,7 +2574,7 @@ class TestDomainClassRelation(unittest.TestCase):
                                    'referencing_field': 'zustaendigkeit'})
 
         for expected_relation in expected_relations:
-            self.assertIn(expected_relation, relations_dicts)
+            assert expected_relation in relations_dicts
 
     def print_info(self, text):
         logging.info(text)

@@ -36,12 +36,12 @@ class TestUpdate(unittest.TestCase):
         importer = self.__get_importer(tool)
         importer.configuration.dbschema = schema
 
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         updater = self.__get_updater(tool, dataset_name)
         updater.configuration.dbschema = schema
 
-        self.assertEqual(updater.run(), iliupdater.Updater.SUCCESS)
+        assert updater.run() == iliupdater.Updater.SUCCESS
 
         config_manager = PgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -62,12 +62,12 @@ class TestUpdate(unittest.TestCase):
         importer = self.__get_importer(tool)
         importer.configuration.dbschema = schema
 
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         updater = self.__get_updater(tool, dataset_name)
         updater.configuration.dbschema = schema
 
-        self.assertEqual(updater.run(), iliupdater.Updater.SUCCESS)
+        assert updater.run() == iliupdater.Updater.SUCCESS
 
         config_manager = MssqlCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -87,11 +87,11 @@ class TestUpdate(unittest.TestCase):
 
         importer = self.__get_importer(tool)
         importer.configuration.dbfile = db_file
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         updater = self.__get_updater(tool, dataset_name)
         updater.configuration.dbfile = db_file
-        self.assertEqual(updater.run(), iliupdater.Updater.SUCCESS)
+        assert updater.run() == iliupdater.Updater.SUCCESS
 
         conn = utils.spatialite_connect(importer.configuration.dbfile)
         cursor = conn.cursor()
@@ -138,9 +138,9 @@ class TestUpdate(unittest.TestCase):
               FROM {}T_ILI2DB_DATASET
             """.format(schema))
         record = next(cursor)
-        self.assertIsNotNone(record)
+        assert record is not None
         t_id_dataset = record[0]
-        self.assertEqual(record[1], dataset_name)
+        assert record[1] == dataset_name
 
         # check --importBID
         expected_basket_name = 'CIAF_LADM.Catastro'
@@ -149,9 +149,9 @@ class TestUpdate(unittest.TestCase):
             FROM {}T_ILI2DB_BASKET WHERE dataset={}""".format(schema, t_id_dataset))
 
         record = next(cursor)
-        self.assertIsNotNone(record)
+        assert record is not None
         t_id_basket = record[0]
-        self.assertEqual(record[1], expected_basket_name)
+        assert record[1] == expected_basket_name
 
         # check --importTID
         expected_t_ili_tid = '1'
@@ -160,8 +160,8 @@ class TestUpdate(unittest.TestCase):
             FROM {}avaluo WHERE T_basket = {}""".format(schema, t_id_basket))
 
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[0], expected_t_ili_tid)
+        assert record is not None
+        assert record[0] == expected_t_ili_tid
 
     def print_info(self, text):
         logging.info(text)

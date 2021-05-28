@@ -56,7 +56,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -69,8 +69,7 @@ class TestImport(unittest.TestCase):
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         config_manager = PgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
@@ -84,9 +83,9 @@ class TestImport(unittest.TestCase):
                 FROM {}.predio
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[1], 'POLYGON((1000257.426 1002020.376,1000437.688 1002196.495,1000275.472 1002428.19,1000072.25 1002291.539,1000158.572 1002164.914,1000159.942 1002163.128,1000257.426 1002020.376))')
-        self.assertEqual(record[2], 3116)
+        assert record is not None
+        assert record[1] == 'POLYGON((1000257.426 1002020.376,1000437.688 1002196.495,1000275.472 1002428.19,1000072.25 1002291.539,1000158.572 1002164.914,1000159.942 1002163.128,1000257.426 1002020.376))'
+        assert record[2] == 3116
         predio_id = record[3]
 
         # Expected persona data
@@ -96,9 +95,9 @@ class TestImport(unittest.TestCase):
                 FROM {}.persona
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[0], '1234354656')
-        self.assertEqual(record[1], 'Pepito Perez')
+        assert record is not None
+        assert record[0] == '1234354656'
+        assert record[1] == 'Pepito Perez'
         persona_id = record[2]
 
         # Expected derecho data
@@ -108,9 +107,9 @@ class TestImport(unittest.TestCase):
                 FROM {}.derecho
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[1], persona_id)  # FK persona
-        self.assertEqual(record[2], predio_id)  # FK predio
+        assert record is not None
+        assert record[1] == persona_id  # FK persona
+        assert record[2] == predio_id  # FK predio
 
     def test_import_geopackage(self):
         # Schema Import
@@ -125,7 +124,7 @@ class TestImport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -138,8 +137,7 @@ class TestImport(unittest.TestCase):
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Check expected data is there in the database schema
         conn = utils.spatialite_connect(importer.configuration.dbfile)
@@ -151,7 +149,7 @@ class TestImport(unittest.TestCase):
         cursor.execute("SELECT tipo, st_srid(geometria), t_id FROM predio")
         for record in cursor:
             count += 1
-            self.assertEqual(record[1], 3116)
+            assert record[1] == 3116
             predio_id = record[2]
 
         # Expected persona data
@@ -159,18 +157,18 @@ class TestImport(unittest.TestCase):
         cursor.execute("select documento_numero, nombre, t_id from persona")
         for record in cursor:
             count += 1
-            self.assertEqual(record[0], '1234354656')
-            self.assertEqual(record[1], 'Pepito Perez')
+            assert record[0] == '1234354656'
+            assert record[1] == 'Pepito Perez'
             persona_id = record[2]
 
         # Expected derecho data
         cursor.execute("select tipo, interesado, unidad from derecho")
         for record in cursor:
             count += 1
-            self.assertEqual(record[1], persona_id)
-            self.assertEqual(record[2], predio_id)
+            assert record[1] == persona_id
+            assert record[2] == predio_id
 
-        self.assertEqual(count, 3)
+        assert count == 3
         cursor.close()
         conn.close()
 
@@ -189,7 +187,7 @@ class TestImport(unittest.TestCase):
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
 
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -202,8 +200,7 @@ class TestImport(unittest.TestCase):
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # TODO Check importer.configuration.uri
         uri = "DSN={dsn};DATABASE={db};UID={uid};PWD={pwd}"\
@@ -222,10 +219,10 @@ class TestImport(unittest.TestCase):
                 FROM {schema}.Predio as p INNER JOIN {schema}.LA_BAUnitTipo as ut on p.tipo=ut.T_Id
             """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[0], 'Unidad_Derecho')
-        self.assertEqual(record[1], 'POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))')
-        self.assertEqual(record[2], 3116)
+        assert record is not None
+        assert record[0] == 'Unidad_Derecho'
+        assert record[1] == 'POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))'
+        assert record[2] == 3116
         predio_id = record[3]
 
         # Expected persona data
@@ -235,9 +232,9 @@ class TestImport(unittest.TestCase):
                 FROM {}.persona
             """.format(importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[0], '1234354656')
-        self.assertEqual(record[1], 'Pepito Perez')
+        assert record is not None
+        assert record[0] == '1234354656'
+        assert record[1] == 'Pepito Perez'
         persona_id = record[2]
 
         # Expected derecho data
@@ -248,10 +245,10 @@ class TestImport(unittest.TestCase):
                 on dt.T_id=d.tipo
             """.format(schema=importer.configuration.dbschema))
         record = next(cursor)
-        self.assertIsNotNone(record)
-        self.assertEqual(record[0], 'Posesion')
-        self.assertEqual(record[1], persona_id)  # FK persona
-        self.assertEqual(record[2], predio_id)  # FK predio
+        assert record is not None
+        assert record[0] == 'Posesion'
+        assert record[1] == persona_id  # FK persona
+        assert record[2] == predio_id  # FK predio
 
     def print_info(self, text):
         logging.info(text)

@@ -43,7 +43,7 @@ class TestCustomDump(unittest.TestCase):
 
         available_layers = generator.layers()
 
-        self.assertEqual(len(available_layers), 15)
+        assert len(available_layers) == 15
 
     def test_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
@@ -58,4 +58,4 @@ class TestCustomDump(unittest.TestCase):
 
         available_layers = generator.layers()
 
-        self.assertEqual(len(available_layers), 15)
+        assert len(available_layers) == 15
