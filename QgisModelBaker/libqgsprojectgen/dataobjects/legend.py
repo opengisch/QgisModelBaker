@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsLayerTreeLayer
 
 from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
@@ -26,10 +26,14 @@ from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
 class LegendGroup(object):
 
-    def __init__(self, name=None, expanded=True, ignore_node_names=None, static_sorting=False):
+    def __init__(self, name=None, ignore_node_names=None, static_sorting=False):
         self.name = name
         self.items = list()
-        self.expanded = expanded
+        self.expanded = True
+        self.checked = True
+        self.mutually_exclusive = False
+        self.mutually_exclusive_child = -1
+
         self.static_sorting = static_sorting
 
         # When adding layers in order, one could want to ignore nodes (e.g.,
@@ -71,8 +75,10 @@ class LegendGroup(object):
                 subgroup = group.findGroup(item.name)
                 if subgroup is None:
                     subgroup = group.addGroup(item.name)
-                    subgroup.setExpanded(item.expanded)
                 item.create(qgis_project, subgroup)
+                subgroup.setExpanded(item.expanded)
+                subgroup.setItemVisibilityChecked(item.checked)
+                subgroup.setIsMutuallyExclusive(item.mutually_exclusive, item.mutually_exclusive_child)
             else:
                 layer = item.layer
                 if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
@@ -81,8 +87,12 @@ class LegendGroup(object):
                     elif layer.isSpatial():
                         index = get_suggested_index_for_layer(layer, group, self.ignore_node_names)
                     else:
-                        index = 0
-                    group.insertLayer(index, layer)
+                        index = 0                    
+                    layernode = QgsLayerTreeLayer(layer)
+                    layernode.setExpanded(item.expanded)
+                    layernode.setItemVisibilityChecked(item.checked)
+                    layernode.setCustomProperty("showFeatureCount", item.featurecount)
+                    group.insertChildNode(index, layernode)
             static_index += 1
 
     def is_empty(self):

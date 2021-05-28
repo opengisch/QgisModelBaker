@@ -2005,11 +2005,11 @@ class TestProjectGen(unittest.TestCase):
 
         # check the legend with layers, groups and subgroups
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
+        assert belasteter_standort_group is not None
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
-
         assert [layer.name() for layer in belasteter_standort_group_layer] == ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort (Geo_Lage_Polygon)']
-
         informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
+        assert informationen_group is not None
         informationen_group_layers = informationen_group.findLayers()
         assert [layer.name() for layer in informationen_group_layers] == ['EGRID_', 'Deponietyp_',
                                                                           'ZustaendigkeitKataster',
@@ -2018,13 +2018,54 @@ class TestProjectGen(unittest.TestCase):
                                                                           'Standorttyp_Definition',
                                                                           'Deponietyp_Definition',
                                                                           'Parzellenidentifikation', 'UntersMassn_',
-                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
                                                                           'MultilingualMText', 'LocalisedMText',
-                                                                          'MultilingualText', 'LocalisedText']
+                                                                          'MultilingualText', 'LocalisedText',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1']
 
-        informationen_subgroups = informationen_group.findGroups()
-        assert [group.name() for group in informationen_subgroups] == ['Text Infos']
+        text_infos_group = informationen_group.findGroup('Text Infos')
+        assert text_infos_group is not None
+        text_infos_group_layers = text_infos_group.findLayers()
+        assert [layer.name() for layer in text_infos_group_layers] == ['MultilingualMText', 'LocalisedMText',
+                                                                       'MultilingualText', 'LocalisedText']
+        other_infos_group = informationen_group.findGroup('Other Infos')
+        self.assertIsNotNone(other_infos_group)
+        other_infos_group_layers = other_infos_group.findLayers()
+        assert [layer.name() for layer in other_infos_group_layers] == ['StatusAltlV', 'Standorttyp',
+                                                                        'UntersMassn', 'Deponietyp',
+                                                                        'LanguageCode_ISO639_1']
+        # check the node properties
+        belasteter_standort_punkt_layer = None
+        belasteter_standort_polygon_layer = None
+        for layer in belasteter_standort_group_layer:
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Punkt)':
+                belasteter_standort_punkt_layer = layer
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Polygon)':
+                belasteter_standort_polygon_layer = layer
+        assert belasteter_standort_punkt_layer is not None
+        assert belasteter_standort_polygon_layer is not None
+        assert belasteter_standort_group.isMutuallyExclusive() is True
+        assert belasteter_standort_punkt_layer.isVisible() is False  # because of the mutually-child
+        assert belasteter_standort_polygon_layer.isVisible() is True  # because of the mutually-child
+        assert belasteter_standort_punkt_layer.isExpanded() is False
+        assert belasteter_standort_polygon_layer.isExpanded() is True
+        assert bool(belasteter_standort_punkt_layer.customProperty('showFeatureCount')) is True
+        assert bool(belasteter_standort_polygon_layer.customProperty('showFeatureCount')) is False
+        egrid_layer = None
+        zustaendigkeitkataster_layer = None
+        for layer in informationen_group_layers:
+            if layer.name() == 'EGRID_':
+                egrid_layer = layer
+            if layer.name() == 'ZustaendigkeitKataster':
+                zustaendigkeitkataster_layer = layer
+        assert egrid_layer is not None
+        assert zustaendigkeitkataster_layer is not None
+        assert bool(egrid_layer.customProperty('showFeatureCount')) is False
+        assert bool(zustaendigkeitkataster_layer.customProperty('showFeatureCount')) is True
+        assert text_infos_group.isExpanded() is True
+        assert text_infos_group.isVisible() is False
+        assert other_infos_group.isVisible() is True
+        assert other_infos_group.isExpanded() is False
 
         #check the custom layer order
         assert bool(qgis_project.layerTreeRoot().hasCustomLayerOrder()) is True
@@ -2213,12 +2254,14 @@ class TestProjectGen(unittest.TestCase):
 
         # check the legend with layers, groups and subgroups
         belasteter_standort_group = qgis_project.layerTreeRoot().findGroup('Belasteter Standort')
+        assert belasteter_standort_group is not None
         belasteter_standort_group_layer = belasteter_standort_group.findLayers()
-
         assert [layer.name() for layer in belasteter_standort_group_layer] == ['Belasteter_Standort (Geo_Lage_Punkt)','Belasteter_Standort']
 
         informationen_group = qgis_project.layerTreeRoot().findGroup('Informationen')
+        assert informationen_group is not None
         informationen_group_layers = informationen_group.findLayers()
+
         assert [layer.name() for layer in informationen_group_layers] == ['EGRID_', 'Deponietyp_',
                                                                           'ZustaendigkeitKataster',
                                                                           'Untersuchungsmassnahmen_Definition',
@@ -2226,13 +2269,52 @@ class TestProjectGen(unittest.TestCase):
                                                                           'Standorttyp_Definition',
                                                                           'Deponietyp_Definition',
                                                                           'Parzellenidentifikation', 'UntersMassn_',
-                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
                                                                           'MultilingualMText', 'LocalisedMText',
-                                                                          'MultilingualText', 'LocalisedText']
+                                                                          'MultilingualText', 'LocalisedText',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1']
 
-        informationen_subgroups = informationen_group.findGroups()
-        assert [group.name() for group in informationen_subgroups] == ['Text Infos']
+        text_infos_group = informationen_group.findGroup('Text Infos')
+        assert text_infos_group is not None
+        text_infos_group_layers = text_infos_group.findLayers()
+        assert [layer.name() for layer in text_infos_group_layers] == ['MultilingualMText', 'LocalisedMText',
+                                                                       'MultilingualText', 'LocalisedText']
+        other_infos_group = informationen_group.findGroup('Other Infos')
+        assert other_infos_group is not None
+        other_infos_group_layers = other_infos_group.findLayers()
+        assert [layer.name() for layer in other_infos_group_layers] == ['StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                        'Deponietyp', 'LanguageCode_ISO639_1']
+        # check the node properties
+        belasteter_standort_punkt_layer = None
+        belasteter_standort_polygon_layer = None
+        for layer in belasteter_standort_group_layer:
+            if layer.name() == 'Belasteter_Standort (Geo_Lage_Punkt)':
+                belasteter_standort_punkt_layer = layer
+            if layer.name() == 'Belasteter_Standort':
+                belasteter_standort_polygon_layer = layer
+        assert belasteter_standort_punkt_layer is not None
+        assert belasteter_standort_polygon_layer is not None
+        assert belasteter_standort_punkt_layer.isVisible() is False  # because of yaml setting
+        assert belasteter_standort_polygon_layer.isVisible() is True # because of yaml setting
+        assert belasteter_standort_punkt_layer.isExpanded() is False
+        assert belasteter_standort_polygon_layer.isExpanded() is True
+        assert bool(belasteter_standort_punkt_layer.customProperty('showFeatureCount')) is True
+        assert bool(belasteter_standort_polygon_layer.customProperty('showFeatureCount')) is False
+        egrid_layer = None
+        zustaendigkeitkataster_layer = None
+        for layer in informationen_group_layers:
+            if layer.name() == 'EGRID_':
+                egrid_layer = layer
+            if layer.name() == 'ZustaendigkeitKataster':
+                zustaendigkeitkataster_layer = layer
+        assert egrid_layer is not None
+        assert zustaendigkeitkataster_layer is not None
+        assert bool(egrid_layer.customProperty('showFeatureCount')) is False
+        assert bool(zustaendigkeitkataster_layer.customProperty('showFeatureCount')) is True
+        assert text_infos_group.isExpanded() is True
+        assert text_infos_group.isVisible() is False
+        assert other_infos_group.isVisible() is True
+        assert other_infos_group.isExpanded() is False
 
         #check the custom layer order
         assert bool(qgis_project.layerTreeRoot().hasCustomLayerOrder()) is True

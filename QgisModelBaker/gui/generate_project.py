@@ -858,7 +858,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                                                                   int(IliMetaConfigItemModel.Roles.ID))
             # disable the create button while downloading
             self.create_tool_button.setEnabled(False)
-            self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+            if path:
+                self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+            else:
+                self.print_info(self.tr('File not specified for metaconfig with id {}').format(dataset_id), COLOR_TOPPING)
 
     def clean_metaconfig(self):
         self.metaconfig.clear()
