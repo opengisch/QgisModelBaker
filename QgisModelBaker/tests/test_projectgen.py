@@ -2018,10 +2018,11 @@ class TestProjectGen(unittest.TestCase):
                                                                           'Standorttyp_Definition',
                                                                           'Deponietyp_Definition',
                                                                           'Parzellenidentifikation', 'UntersMassn_',
-                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
                                                                           'MultilingualMText', 'LocalisedMText',
-                                                                          'MultilingualText', 'LocalisedText']
+                                                                          'MultilingualText', 'LocalisedText',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1']
+
         text_infos_group = informationen_group.findGroup('Text Infos')
         assert text_infos_group is not None
         text_infos_group_layers = text_infos_group.findLayers()
@@ -2268,10 +2269,11 @@ class TestProjectGen(unittest.TestCase):
                                                                           'Standorttyp_Definition',
                                                                           'Deponietyp_Definition',
                                                                           'Parzellenidentifikation', 'UntersMassn_',
-                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
-                                                                          'Deponietyp', 'LanguageCode_ISO639_1',
                                                                           'MultilingualMText', 'LocalisedMText',
-                                                                          'MultilingualText', 'LocalisedText']
+                                                                          'MultilingualText', 'LocalisedText',
+                                                                          'StatusAltlV', 'Standorttyp', 'UntersMassn',
+                                                                          'Deponietyp', 'LanguageCode_ISO639_1']
+
         text_infos_group = informationen_group.findGroup('Text Infos')
         assert text_infos_group is not None
         text_infos_group_layers = text_infos_group.findLayers()
