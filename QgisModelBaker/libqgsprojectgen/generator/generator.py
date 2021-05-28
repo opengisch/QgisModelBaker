@@ -88,15 +88,16 @@ class Generator(QObject):
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
-        # When in PostGIS mode, there can be multiple geometries per table - this leads to multiple layers
-        table_appearances = {}
+        # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
+        table_appearance_count = {}
+        
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
-            table_appearances[record['tablename']] = 1 if record['tablename'] not in table_appearances else table_appearances[record['tablename']]+1
+            table_appearance_count[record['tablename']] = table_appearance_count.get(record['tablename'], 0) + 1
 
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
@@ -120,7 +121,7 @@ class Generator(QObject):
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
-                    if table_appearances[record['tablename']] > 1 and 'geometry_column' in record:
+                    if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
                         fields_info = self.get_fields_info(record['tablename'])
                         for field_info in fields_info:

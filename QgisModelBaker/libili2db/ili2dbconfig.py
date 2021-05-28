@@ -100,7 +100,7 @@ class BaseConfiguration(object):
             dirs = self.custom_model_directories.split(';')
         else:
             dirs = [
-                'http://usabilityhub.opengis.ch/'
+                'https://usabilityhub.opengis.ch/'
             ]
         return dirs
 
