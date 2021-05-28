@@ -1177,7 +1177,7 @@ class TestProjectGen(unittest.TestCase):
                 assert layer.layer.displayExpression() == 'type'
             if layer.name == 'route':
                 count += 1
-                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else 'T_Id"')
+                assert layer.layer.displayExpression() == ('"T_Ili_Tid"' if Qgis.QGIS_VERSION_INT >= 31800 else '"T_Id"')
 
 
         assert count == 2
