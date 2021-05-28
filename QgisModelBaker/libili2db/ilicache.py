@@ -678,7 +678,7 @@ class IliToppingFileCache(IliMetaConfigCache):
                                     toppingfile['repository'] = netloc
                                     # relative_file_path like qml/something.qml
                                     toppingfile['relative_file_path'] = path
-                                    # url like http://usabilityhub.opengis.ch or /home/nyuki/folder
+                                    # url like http://models.opengis.ch or /home/nyuki/folder
                                     toppingfile['url'] = url
                                     toppingfile['local_file_path'] = self.download_file(netloc, url, path, dataset_id)
                                     repo_files.append(toppingfile)
