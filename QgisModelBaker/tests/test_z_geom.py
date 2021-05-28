@@ -42,7 +42,7 @@ class TestGeomZ(unittest.TestCase):
         importer.configuration.srs_code = 2056
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(DbIliMode.ili2pg,
                               get_pg_connection_string(),
@@ -53,7 +53,7 @@ class TestGeomZ(unittest.TestCase):
 
         obstacle_layer = next((layer for layer in available_layers if 'obstacle' in layer.uri))
         obstacle_layer.create()
-        self.assertEqual(obstacle_layer.layer.wkbType(), QgsWkbTypes.PointZ)
+        assert obstacle_layer.layer.wkbType() == QgsWkbTypes.PointZ
 
     def print_info(self, text):
         logging.info(text)

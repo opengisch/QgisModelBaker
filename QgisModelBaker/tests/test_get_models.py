@@ -28,7 +28,7 @@ class TestGetModels(unittest.TestCase):
             if result is not None:
                 model_names = [db_model['modelname'] for db_model in result]
                 
-            self.assertEqual(set(expected_dict[schema_name]), set(model_names))
+            assert set(expected_dict[schema_name]) == set(model_names)
             db_connector.conn.close()
 
     def test_gpkg_get_models(self):
@@ -50,4 +50,4 @@ class TestGetModels(unittest.TestCase):
             else:
                 model_names = {}
                             
-            self.assertEqual(set(expected_dict[gpkg]), set(model_names))
+            assert set(expected_dict[gpkg]) == set(model_names)

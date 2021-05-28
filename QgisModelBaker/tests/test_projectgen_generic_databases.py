@@ -56,7 +56,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host={db_host}'.format(db_host=os.environ['PGHOST']), 'smart1', '')
         except (DBConnectorError, FileNotFoundError):
             # DBConnectorError: FATAL:  database "not_exists_database" does not exist
-            self.assertIsNone(generator)
+            assert generator is None
 
     def test_empty_mssql_db(self):
         generator = None
@@ -74,13 +74,13 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = base_exception.args[0]
             # pyodbc.ProgrammingError + error code 42000:
             # Cannot open database "not_exists_database" requested by the login. The login failed
-            self.assertEqual(int(sqlstate), 42000)
-            self.assertIsNone(generator)
+            assert int(sqlstate) == 42000
+            assert generator is None
 
     def test_postgres_db_without_schema(self):
         generator = Generator(DbIliMode.ili2pg, get_pg_connection_string(), 'smart1')
-        self.assertIsNotNone(generator)
-        self.assertEqual(len(generator.layers()), 0)
+        assert generator is not None
+        assert len(generator.layers()) == 0
 
     def test_mssql_db_without_schema(self):
         configuration = iliimporter_config(DbIliMode.ili2mssql)
@@ -92,8 +92,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                     pwd=configuration.dbpwd)
 
         generator = Generator(DbIliMode.ili2mssql, uri, 'smart1')
-        self.assertIsNotNone(generator)
-        self.assertEqual(len(generator.layers()), 0)
+        assert generator is not None
+        assert len(generator.layers()) == 0
 
     def test_postgres_db_with_empty_schema(self):
         uri = get_pg_connection_string()
@@ -103,7 +103,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
 
         try:
             generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'empty_schema')
-            self.assertEqual(len(generator.layers()), 0)
+            assert len(generator.layers()) == 0
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
 
@@ -127,11 +127,11 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            self.assertEqual(sqlstate, '42S01')
+            assert sqlstate == '42S01'
 
         try:
             generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', 'empty_schema')
-            self.assertEqual(len(generator.layers()), 0)
+            assert len(generator.layers()) == 0
         finally:
             cur.execute("DROP SCHEMA empty_schema")
             cur.commit()
@@ -168,12 +168,12 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema_spatial')
             layers = generator.layers()
 
-            self.assertEqual(len(layers), 2)
+            assert len(layers) == 2
             relations, _ = generator.relations(layers)
-            self.assertEqual(len(relations), 1)
+            assert len(relations) == 1
 
             for layer in layers:
-                self.assertIsNotNone(layer.geometry_column)
+                assert layer.geometry_column is not None
         finally:
             cur.execute("DROP SCHEMA no_interlis_schema_spatial CASCADE;")
             conn.commit()
@@ -200,7 +200,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            self.assertEqual(sqlstate, '42S01')
+            assert sqlstate == '42S01'
 
         try:
             cur.execute("""
@@ -226,12 +226,12 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
             layers = generator.layers()
 
-            self.assertEqual(len(layers), 2)
+            assert len(layers) == 2
             relations, _ = generator.relations(layers)
-            self.assertEqual(len(relations), 1)
+            assert len(relations) == 1
 
             for layer in layers:
-                self.assertIsNotNone(layer.geometry_column)
+                assert layer.geometry_column is not None
             generator._db_connector.conn.close()
         finally:
             cur.execute("""
@@ -271,12 +271,12 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema')
             layers = generator.layers()
 
-            self.assertEqual(len(layers), 2)
+            assert len(layers) == 2
             relations, _ = generator.relations(layers)
-            self.assertEqual(len(relations), 1)
+            assert len(relations) == 1
 
             for layer in layers:
-                self.assertIsNone(layer.geometry_column)
+                assert layer.geometry_column is None
         finally:
             cur.execute("DROP SCHEMA no_interlis_schema CASCADE;")
             conn.commit()
@@ -303,7 +303,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            self.assertEqual(sqlstate, '42S01')
+            assert sqlstate == '42S01'
 
         try:
             cur.execute("""
@@ -327,12 +327,12 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
             layers = generator.layers()
 
-            self.assertEqual(len(layers), 2)
+            assert len(layers) == 2
             relations, _ = generator.relations(layers)
-            self.assertEqual(len(relations), 1)
+            assert len(relations) == 1
 
             for layer in layers:
-                self.assertIsNone(layer.geometry_column)
+                assert layer.geometry_column is None
         finally:
             cur.execute("""
                 drop table {schema_name}.region;
@@ -343,11 +343,11 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
 
     def test_empty_geopackage_db(self):
         generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_empty.gpkg'), 'smart2')
-        self.assertEqual(len(generator.layers()), 0)
+        assert len(generator.layers()) == 0
 
     def test_non_empty_ogr_geopackage_db(self):
         generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_ogr_empty.gpkg'), 'smart2')
-        self.assertEqual(len(generator.layers()), 0)
+        assert len(generator.layers()) == 0
 
     def test_non_empty_geopackage_db(self):
         generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_relations.gpkg'), 'smart2')
@@ -364,11 +364,11 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        self.assertEqual(len(qgis_project.mapLayers()), 2)
-        self.assertEqual(len(qgis_project.relationManager().relations()), 1)
+        assert len(qgis_project.mapLayers()) == 2
+        assert len(qgis_project.relationManager().relations()) == 1
 
         for layer in available_layers:
-            self.assertIsNotNone(layer.geometry_column)
+            assert layer.geometry_column is not None
 
     @classmethod
     def tearDownClass(cls):

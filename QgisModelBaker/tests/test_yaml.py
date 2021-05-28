@@ -36,4 +36,4 @@ class YamlInheritanceTest(unittest.TestCase):
             ]
         }
 
-        self.assertEqual(expected, data['project'])
+        assert expected == data['project']

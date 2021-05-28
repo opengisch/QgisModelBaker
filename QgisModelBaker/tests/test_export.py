@@ -61,7 +61,7 @@ class TestExport(unittest.TestCase):
             # ... and enforce the Exporter to use ili2db version 3.x.x
             exporter.version = 3
             result = exporter.run()
-        self.assertEqual(result, iliexporter.Exporter.SUCCESS)
+        assert result == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -75,7 +75,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -93,7 +93,7 @@ class TestExport(unittest.TestCase):
         importer_e.configuration.inheritance = 'smart2'
         importer_e.stdout.connect(self.print_info)
         importer_e.stderr.connect(self.print_error)
-        self.assertEqual(importer_e.run(), iliimporter.Importer.SUCCESS)
+        assert importer_e.run() == iliimporter.Importer.SUCCESS
 
         exporter_e = iliexporter.Exporter()
         exporter_e.tool = DbIliMode.ili2pg
@@ -105,7 +105,7 @@ class TestExport(unittest.TestCase):
         exporter_e.configuration.xtffile = obtained_xtf_path
         exporter_e.stdout.connect(self.print_info)
         exporter_e.stderr.connect(self.print_error)
-        self.assertEqual(exporter_e.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter_e.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -123,7 +123,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
         
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -137,8 +137,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -159,7 +158,7 @@ class TestExport(unittest.TestCase):
             # ... and enforce the Exporter to use ili2db version 3.x.x
             exporter.version = 3
             result = exporter.run()
-        self.assertEqual(result, iliexporter.Exporter.SUCCESS)
+        assert result == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -176,7 +175,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -189,8 +188,7 @@ class TestExport(unittest.TestCase):
             'xtf/test_ili2db4_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -203,7 +201,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -219,7 +217,7 @@ class TestExport(unittest.TestCase):
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_roads_simple.xtf'), obtained_xtf_path)
 
@@ -234,7 +232,7 @@ class TestExport(unittest.TestCase):
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_roads_simple.xtf'), obtained_xtf_path)
 
@@ -253,7 +251,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -266,8 +264,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -282,7 +279,7 @@ class TestExport(unittest.TestCase):
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_roads_simple.xtf'), obtained_xtf_path)
 
@@ -300,7 +297,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -312,8 +309,7 @@ class TestExport(unittest.TestCase):
             'xtf/test_roads_simple.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -327,7 +323,7 @@ class TestExport(unittest.TestCase):
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_roads_simple.xtf'), obtained_xtf_path)
 
@@ -344,7 +340,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.inheritance = 'smart2'
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -357,8 +353,7 @@ class TestExport(unittest.TestCase):
             'xtf/test_ili2db4_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -371,7 +366,7 @@ class TestExport(unittest.TestCase):
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -389,7 +384,7 @@ class TestExport(unittest.TestCase):
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        self.assertEqual(importer.run(), iliimporter.Importer.SUCCESS)
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
@@ -403,8 +398,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
-        self.assertEqual(dataImporter.run(),
-                         iliimporter.Importer.SUCCESS)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Export
         exporter = iliexporter.Exporter()
@@ -418,7 +412,7 @@ class TestExport(unittest.TestCase):
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         exporter.version = 3
-        self.assertEqual(exporter.run(), iliexporter.Exporter.SUCCESS)
+        assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path(
             'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
 
@@ -439,12 +433,11 @@ class TestExport(unittest.TestCase):
         datasection_children = list(datasection)
         tmp_datasection_children = list(tmp_datasection)
 
-        self.assertEqual(len(datasection_children),
-                         len(tmp_datasection_children))
+        len(datasection_children) == len(tmp_datasection_children)
 
         for topic in datasection_children:
             tmp_topic = tmp_datasection.find(topic.tag)
-            self.assertIsNotNone(tmp_topic)
+            assert tmp_topic is not None
             classes = list(topic)
             for _class in classes:
                 success = False
@@ -460,7 +453,7 @@ class TestExport(unittest.TestCase):
                     if success:
                         break
                 # if same element with same attribute values found, it's true
-                self.assertTrue(success)
+                assert bool(success) is True
 
     @classmethod
     def tearDownClass(cls):
