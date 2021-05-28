@@ -26,10 +26,11 @@ from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
 class LegendGroup(object):
 
-    def __init__(self, name=None, expanded=True, ignore_node_names=None):
+    def __init__(self, name=None, expanded=True, ignore_node_names=None, static_sorting=False):
         self.name = name
         self.items = list()
         self.expanded = expanded
+        self.static_sorting = static_sorting
 
         # When adding layers in order, one could want to ignore nodes (e.g.,
         # groups that should be always on top)
@@ -62,8 +63,9 @@ class LegendGroup(object):
         if not group:
             group = qgis_project.layerTreeRoot()
 
-        existing_layer_names = [found_layer.name() for found_layer in group.findLayers()]
+        existing_layer_source_uris = [found_layer.layer().dataProvider().dataSourceUri() for found_layer in qgis_project.layerTreeRoot().findLayers()]
 
+        static_index=0
         for item in self.items:
             if isinstance(item, LegendGroup):
                 subgroup = group.findGroup(item.name)
@@ -73,9 +75,15 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
             else:
                 layer = item.layer
-                if layer.name() not in existing_layer_names:
-                    index = get_suggested_index_for_layer(layer, group, self.ignore_node_names) if layer.isSpatial() else 0
+                if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
+                    if self.static_sorting:
+                        index = static_index
+                    elif layer.isSpatial():
+                        index = get_suggested_index_for_layer(layer, group, self.ignore_node_names)
+                    else:
+                        index = 0
                     group.insertLayer(index, layer)
+            static_index += 1
 
     def is_empty(self):
         return not bool(self.items)

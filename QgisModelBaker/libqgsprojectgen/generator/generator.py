@@ -88,15 +88,16 @@ class Generator(QObject):
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
 
-        # When in PostGIS mode, there can be multiple geometries per table - this leads to multiple layers
-        table_appearances = {}
+        # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
+        table_appearance_count = {}
+        
         for record in tables_info:
             if self.schema:
                 if record['schemaname'] != self.schema:
                     continue
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
-            table_appearances[record['tablename']] = 1 if record['tablename'] not in table_appearances else table_appearances[record['tablename']]+1
+            table_appearance_count[record['tablename']] = table_appearance_count.get(record['tablename'], 0) + 1
 
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
@@ -120,7 +121,7 @@ class Generator(QObject):
                 if is_domain and is_attribute:
                     short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
                 else:
-                    if table_appearances[record['tablename']] > 1 and 'geometry_column' in record:
+                    if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
                         fields_info = self.get_fields_info(record['tablename'])
                         for field_info in fields_info:
@@ -323,43 +324,69 @@ class Generator(QObject):
                             bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
         return (relations, bags_of_enum)
 
-    def legend(self, layers, ignore_node_names=None):
-        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names)
-        tables = LegendGroup(
-            QCoreApplication.translate('LegendGroup', 'tables'))
-        domains = LegendGroup(QCoreApplication.translate(
-            'LegendGroup', 'domains'), False)
-
-        point_layers = []
-        line_layers = []
-        polygon_layers = []
-
-        for layer in layers:
-            if layer.geometry_column:
-                geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
-                if geometry_type == QgsWkbTypes.PointGeometry:
-                    point_layers.append(layer)
-                elif geometry_type == QgsWkbTypes.LineGeometry:
-                    line_layers.append(layer)
-                elif geometry_type == QgsWkbTypes.PolygonGeometry:
-                    polygon_layers.append(layer)
+    def full_node(self, layers, item):
+        current_node = None
+        if item:
+            current_node_name = next(iter(item))
+            item_properties = item[current_node_name]
+            if item_properties and 'group' in item_properties and item_properties['group']:
+                    expanded = False if 'expanded' in item_properties and not item_properties['expanded'] else True
+                    current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name), expanded=expanded, static_sorting = True)
+                    if 'child-nodes' in item_properties:
+                        for child_item in item_properties['child-nodes']:
+                            node = self.full_node(layers, child_item)
+                            if node:
+                                current_node.append(node)
             else:
-                if layer.is_domain:
-                    domains.append(layer)
+                for layer in layers:
+                    if layer.alias == current_node_name:
+                        current_node = layer
+                        break
+        return current_node
+
+    def legend(self, layers, ignore_node_names=None, layertree_structure=None):
+        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names, static_sorting=layertree_structure is not None)
+        if layertree_structure:
+            for item in layertree_structure:
+                node = self.full_node(layers, item)
+                if node:
+                    legend.append(node)
+        else:
+            tables = LegendGroup(
+                QCoreApplication.translate('LegendGroup', 'tables'))
+            domains = LegendGroup(QCoreApplication.translate(
+                'LegendGroup', 'domains'), False)
+
+            point_layers = []
+            line_layers = []
+            polygon_layers = []
+
+            for layer in layers:
+                if layer.geometry_column:
+                    geometry_type = QgsWkbTypes.geometryType(layer.wkb_type)
+                    if geometry_type == QgsWkbTypes.PointGeometry:
+                        point_layers.append(layer)
+                    elif geometry_type == QgsWkbTypes.LineGeometry:
+                        line_layers.append(layer)
+                    elif geometry_type == QgsWkbTypes.PolygonGeometry:
+                        polygon_layers.append(layer)
                 else:
-                    tables.append(layer)
+                    if layer.is_domain:
+                        domains.append(layer)
+                    else:
+                        tables.append(layer)
 
-        for l in polygon_layers:
-            legend.append(l)
-        for l in line_layers:
-            legend.append(l)
-        for l in point_layers:
-            legend.append(l)
+            for l in polygon_layers:
+                legend.append(l)
+            for l in line_layers:
+                legend.append(l)
+            for l in point_layers:
+                legend.append(l)
 
-        if not tables.is_empty():
-            legend.append(tables)
-        if not domains.is_empty():
-            legend.append(domains)
+            if not tables.is_empty():
+                legend.append(tables)
+            if not domains.is_empty():
+                legend.append(domains)
 
         return legend
 

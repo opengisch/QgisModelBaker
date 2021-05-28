@@ -22,6 +22,9 @@ import os
 import webbrowser
 
 import re
+import configparser
+import yaml
+import time
 from psycopg2 import OperationalError
 
 from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
@@ -29,8 +32,16 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS, displayDbIliMode, DbActionType
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration
+from QgisModelBaker.libili2db.ilicache import (
+    IliCache,
+    ModelCompleterDelegate,
+    IliMetaConfigCache,
+    IliMetaConfigItemModel,
+    MetaConfigCompleterDelegate,
+    IliToppingFileCache,
+    IliToppingFileItemModel
+)
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
@@ -58,8 +69,12 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
     QSettings,
     Qt,
-    QLocale
+    QLocale,
+    QModelIndex,
+    QTimer,
+    QEventLoop
 )
+
 from qgis.core import (
     QgsProject,
     QgsCoordinateReferenceSystem,
@@ -79,6 +94,10 @@ from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 DIALOG_UI = get_ui_class('generate_project.ui')
 
+#log colors
+COLOR_SUCCESS = '#aa2222'
+COLOR_FAIL = '#004905'
+COLOR_TOPPING = '#341d5c'
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
 
@@ -115,7 +134,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.create_button.setText(self.tr('Create'))
         self.create_button.clicked.connect(self.accepted)
-
         self.ili_file_browse_button.clicked.connect(
             make_file_selector(self.ili_file_line_edit, title=self.tr('Open Interlis Model'),
                                file_filter=self.tr('Interlis Model File (*.ili *.ILI)')))
@@ -160,6 +178,25 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
+        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.metaconfig_delegate = MetaConfigCompleterDelegate()
+        self.metaconfig = configparser.ConfigParser()
+        self.current_metaconfig_id = None
+        self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
+        self.ili_metaconfig_line_edit.setEnabled(False)
+        completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
+        completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.popup().setItemDelegate(self.metaconfig_delegate)
+        self.ili_metaconfig_line_edit.setCompleter(completer)
+
+        self.ili_metaconfig_line_edit.textChanged.emit(
+            self.ili_metaconfig_line_edit.text())
+        self.ili_metaconfig_line_edit.textChanged.connect(self.complete_metaconfig_completer)
+        self.ili_metaconfig_line_edit.punched.connect(self.complete_metaconfig_completer)
+        self.ili_metaconfig_line_edit.left.connect(self.on_metaconfig_completer_activated)
+
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
 
@@ -172,7 +209,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
         self.ilicache = IliCache(self.base_configuration)
-        self.refresh_ili_cache()
+        self.model_delegate = ModelCompleterDelegate()
+        self.refresh_ili_models_cache()
         self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
         self.ili_file_line_edit.textChanged.connect(
@@ -295,7 +333,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.disable()
             self.txtStdout.setTextColor(QColor('#000000'))
-            self.txtStdout.clear()
 
             if interlis_mode:
                 importer = iliimporter.Importer()
@@ -326,7 +363,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                       configuration.inheritance, configuration.dbschema, mgmt_uri=mgmt_uri)
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
-                self.progress_bar.setValue(50)
+                self.progress_bar.setValue(30)
             except (DBConnectorError, FileNotFoundError):
                 self.txtStdout.setText(
                     self.tr('There was an error connecting to the database. Check connection parameters.'))
@@ -366,23 +403,49 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.progress_bar.hide()
                 return
 
-            self.progress_bar.setValue(70)
+            self.progress_bar.setValue(40)
             self.print_info(
                 self.tr('Obtaining relations from the database…'))
             relations, bags_of_enum = generator.relations(available_layers)
-            self.progress_bar.setValue(75)
+            self.progress_bar.setValue(45)
+
             self.print_info(self.tr('Arranging layers into groups…'))
             legend = generator.legend(available_layers)
-            self.progress_bar.setValue(85)
+
+            custom_layer_order_structure = list()
+            # Toppings legend and layers: collect, download and apply
+            if 'CONFIGURATION' in self.metaconfig.sections():
+                configuration_section = self.metaconfig['CONFIGURATION']
+                if 'qgis.modelbaker.layertree' in configuration_section:
+                    self.print_info(self.tr('Topping contains a layertree structure'), COLOR_TOPPING)
+                    layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
+                    layertree_data_file_path_list = self.get_topping_file_list( layertree_data_list)
+                    for layertree_file_path in layertree_data_file_path_list:
+                        self.print_info(
+                            self.tr('Parse layertree {}..').format(layertree_file_path), COLOR_TOPPING)
+
+                        with open(layertree_file_path, 'r') as stream:
+                            try:
+                                layertree_data = yaml.safe_load(stream)
+                                if 'legend' in layertree_data:
+                                    legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+                                if 'layer-order' in layertree_data:
+                                    custom_layer_order_structure = layertree_data['layer-order']
+                            except yaml.YAMLError as exc:
+                                self.print_info(
+                                    self.tr('Unable to parse layertree file: {}..').format(exc), COLOR_TOPPING)
+
+            self.progress_bar.setValue(55)
 
             project = Project()
             project.layers = available_layers
             project.relations = relations
             project.bags_of_enum = bags_of_enum
             project.legend = legend
+            project.custom_layer_order_structure = custom_layer_order_structure
+
             self.print_info(self.tr('Configuring forms and widgets…'))
             project.post_generate()
-            self.progress_bar.setValue(90)
 
             qgis_project = QgsProject.instance()
 
@@ -395,6 +458,75 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     self.iface.mapCanvas().setExtent(layer.extent)
                     self.iface.mapCanvas().refresh()
                     break
+
+            self.progress_bar.setValue(60)
+            # Toppings QMLs: collect, download and apply
+            if 'qgis.modelbaker.qml' in self.metaconfig.sections():
+                self.print_info(self.tr('Topping contains QML information'), COLOR_TOPPING)
+                qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
+                qml_file_model = self.get_topping_file_model(qml_section.values())
+                for layer in project.layers:
+                    if any(layer.alias.lower() == s for s in qml_section):
+                        layer_qml = layer.alias.lower()
+                    elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                        layer_qml = f'"{layer.alias.lower()}"'
+                    else:
+                        continue
+                    matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                                   qml_section[layer_qml], 1)
+                    if matches:
+                        style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                        self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path),
+                                        COLOR_TOPPING)
+                        layer.layer.loadNamedStyle(style_file_path)
+
+            self.progress_bar.setValue(80)
+
+            # Cataloges: collect, download and import
+            if 'CONFIGURATION' in self.metaconfig.sections():
+                configuration_section = self.metaconfig['CONFIGURATION']
+                if 'ch.interlis.referenceData' in configuration_section:
+                    self.print_info(self.tr('Check out the cats'), COLOR_TOPPING)
+                    reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
+                    catalogue_file_path_list = self.get_topping_file_list(reference_data_list)
+                    for catalogue_file_path in catalogue_file_path_list:
+                        self.print_info(
+                            self.tr('Import catalogue {}..').format(catalogue_file_path))
+
+                        configuration = self.updated_catalogue_import_configuration(catalogue_file_path)
+
+                        # create schema with superuser
+                        db_factory = self.db_simple_factory.create_factory(db_id)
+                        res, message = db_factory.pre_generate_project(configuration)
+
+                        if not res:
+                            self.txtStdout.setText(message)
+                            return
+
+                        with OverrideCursor(Qt.WaitCursor):
+
+                            dataImporter = iliimporter.Importer(dataImport=True)
+
+                            dataImporter.tool = self.type_combo_box.currentData()
+                            dataImporter.configuration = configuration
+
+                            dataImporter.stdout.connect(self.print_info)
+                            dataImporter.stderr.connect(self.on_stderr)
+                            dataImporter.process_started.connect(self.on_process_started)
+                            dataImporter.process_finished.connect(self.on_process_finished)
+
+                            try:
+                                if dataImporter.run(edited_command) != iliimporter.Importer.SUCCESS:
+                                    self.enable()
+                                    self.progress_bar.hide()
+                                    return
+                            except JavaNotFoundError as e:
+                                self.txtStdout.setTextColor(QColor('#000000'))
+                                self.txtStdout.clear()
+                                self.txtStdout.setText(e.error_string)
+                                self.enable()
+                                self.progress_bar.hide()
+                                return
 
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -413,22 +545,21 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):
-        self.txtStdout.setText(command)
-        self.progress_bar.setValue(10)
+        self.print_info(self.tr('\n--- Process ---'))
+        self.print_info(command)
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
-            color = '#004905'
+            color = COLOR_SUCCESS
             message = self.tr(
                 'Interlis model(s) successfully imported into the database!')
         else:
-            color = '#aa2222'
+            color = COLOR_FAIL
             message = self.tr('Finished with errors!')
 
         self.txtStdout.setTextColor(QColor(color))
         self.txtStdout.append(message)
-        self.progress_bar.setValue(50)
 
     def db_ili_version(self, configuration):
         """
@@ -471,6 +602,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
         configuration.db_ili_version = self.db_ili_version(configuration)
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
 
         configuration.base_configuration = self.base_configuration
         if self.ili_file_line_edit.text().strip():
@@ -482,6 +615,27 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if not self.create_constraints:
             configuration.disable_validation = True
 
+        return configuration
+
+    def updated_catalogue_import_configuration(self, file):
+        """
+        Get the configuration that is updated with the user configuration changes on the dialog.
+        :return: Configuration
+        """
+        configuration = ImportDataConfiguration()
+
+        mode = self.type_combo_box.currentData()
+
+        db_id = mode & ~DbIliMode.ili
+        self._lst_panel[db_id].get_fields(configuration)
+
+        configuration.tool = mode
+        configuration.xtffile = file
+        configuration.delete_data = False
+        configuration.base_configuration = self.base_configuration
+        configuration.with_schemaimport = False
+        #if not self.validate_data:
+        #    configuration.disable_validation = True
         return configuration
 
     def save_configuration(self, configuration):
@@ -564,6 +718,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def on_model_changed(self, text):
         if not text:
+            self.ili_metaconfig_line_edit.setEnabled(False)
             return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
@@ -572,6 +727,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 break
         self.ili2db_options.set_toml_file_key(text)
         self.fill_toml_file_info_label()
+        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
+        self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
+        self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
+        self.refresh_ili_metaconfig_cache()
 
     def link_activated(self, link):
         if link.url() == '#configure':
@@ -616,7 +775,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # Update completer to add models from given ili file
             self.ilicache = IliCache(None, self.ili_file_line_edit.text().strip())
-            self.refresh_ili_cache()
+            self.refresh_ili_models_cache()
             models = self.ilicache.process_ili_file(self.ili_file_line_edit.text().strip())
             try:
                 self.ili_models_line_edit.setText(models[-1]['name'])
@@ -632,10 +791,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # Update completer to add models from given ili file
             self.ilicache = IliCache(self.base_configuration)
-            self.refresh_ili_cache()
+            self.refresh_ili_models_cache()
             self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model from repository]'))
 
-    def refresh_ili_cache(self):
+    def refresh_ili_models_cache(self):
         self.ilicache.new_message.connect(self.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
@@ -651,10 +810,139 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
-        self.delegate = ModelCompleterDelegate()
-        completer.popup().setItemDelegate(self.delegate)
+        completer.popup().setItemDelegate(self.model_delegate)
         self.ili_models_line_edit.setCompleter(completer)
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
+
+    def refresh_ili_metaconfig_cache(self):
+        self.ili_metaconfig_line_edit.setEnabled(True)
+        self.ilimetaconfigcache.new_message.connect(self.show_message)
+        self.ilimetaconfigcache.refresh()
+        self.update_metaconfig_completer()
+
+    def complete_metaconfig_completer(self):
+        if not self.ili_metaconfig_line_edit.text():
+            self.clean_metaconfig()
+            self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_metaconfig_line_edit.completer().complete()
+        else:
+            self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+
+    def update_metaconfig_completer(self):
+        self.ili_metaconfig_line_edit.completer().setModel(self.ilimetaconfigcache.model)
+
+    def on_metaconfig_completer_activated(self, model_index=None):
+        if model_index is None and self.ili_metaconfig_line_edit.text():
+            #when leaving the completer list without making an activation by clicking on a selection, it get's the data by the entered text
+            matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
+                                                Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), 1)
+            if matches:
+                model_index = matches[0]
+        if model_index and self.ili_metaconfig_line_edit.completer():
+            metaconfig_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                 int(IliMetaConfigItemModel.Roles.ID))
+            if self.current_metaconfig_id == metaconfig_id:
+                return
+            self.current_metaconfig_id = metaconfig_id
+            self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
+                self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
+                metaconfig_id))
+            self.metaconfig_file_info_label.setStyleSheet('color: #341d5c')
+            repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                        int(IliMetaConfigItemModel.Roles.ILIREPO))
+            url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                        int(IliMetaConfigItemModel.Roles.URL))
+            path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                  int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+            dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
+                                                                                  int(IliMetaConfigItemModel.Roles.ID))
+            # disable the create button while downloading
+            self.create_tool_button.setEnabled(False)
+            self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+
+    def clean_metaconfig(self):
+        self.metaconfig.clear()
+        self.metaconfig_file_info_label.setText('')
+        self.txtStdout.clear()
+
+    def on_metaconfig_received(self, path):
+        self.txtStdout.clear()
+        self.print_info(self.tr('Metaconfig file successfully downloaded: {}').format(path), COLOR_TOPPING)
+        # parse metaconfig
+        self.metaconfig.clear()
+        with open(path) as metaconfig_file:
+            self.metaconfig.read_file(metaconfig_file)
+            self.load_metaconfig()
+            # enable the tool button again
+            self.create_tool_button.setEnabled(True)
+            self.fill_toml_file_info_label()
+            self.print_info(self.tr('Metaconfig successfully loaded.'), COLOR_TOPPING)
+
+    def on_metaconfig_failed(self, dataset_id, error_msg):
+        self.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg), COLOR_TOPPING)
+        # enable the tool button again
+        self.create_tool_button.setEnabled(True)
+
+    def load_crs_from_metaconfig(self, ili2db_metaconfig):
+        srs_auth = self.srs_auth
+        srs_code = self.srs_code
+        if 'defaultSrsAuth' in ili2db_metaconfig:
+            srs_auth = ili2db_metaconfig.get('defaultSrsAuth')
+        if 'defaultSrsCode' in ili2db_metaconfig:
+            srs_code = ili2db_metaconfig.get('defaultSrsCode')
+
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
+        self.update_crs_info()
+        self.crs_changed()
+
+    def load_metaconfig(self):
+        # load ili2db parameters to the GUI and into the configuration
+        if 'ch.ehi.ili2db' in self.metaconfig.sections():
+            self.print_info(
+                self.tr('Loading the ili2db configurations from the topping meta configuration...'), COLOR_TOPPING)
+
+            ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
+
+            if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
+                self.load_crs_from_metaconfig( ili2db_metaconfig )
+                self.print_info(self.tr('- Loaded CRS'), COLOR_TOPPING)
+
+            if 'models' in ili2db_metaconfig:
+                model_list = self.ili_models_line_edit.text().strip().split(';') + ili2db_metaconfig.get(
+                    'models').strip().split(';')
+                models = ';'.join(set(model_list))
+                self.ili_models_line_edit.setText(models)
+                self.print_info(self.tr('- Loaded models'), COLOR_TOPPING)
+
+            self.ili2db_options.load_metaconfig(ili2db_metaconfig)
+            self.print_info(self.tr('- Loaded ili2db options'), COLOR_TOPPING)
+
+            # get iliMetaAttrs (toml)
+            if 'iliMetaAttrs' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files:'), COLOR_TOPPING)
+                ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
+                ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list)
+                self.ili2db_options.load_toml_file_path(self.ili_models_line_edit.text(), ';'.join(ili_meta_attrs_file_path_list))
+                self.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'), COLOR_TOPPING)
+
+            # get prescript (sql)
+            if 'prescript' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for prescript (sql) files:'), COLOR_TOPPING)
+                prescript_list = ili2db_metaconfig.get('prescript').split(';')
+                prescript_file_path_list = self.get_topping_file_list(prescript_list)
+                self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
+                self.print_info(self.tr('- Loaded prescript (sql) files'), COLOR_TOPPING)
+
+            # get postscript (sql)
+            if 'postscript' in ili2db_metaconfig:
+                self.print_info(self.tr('- Seeking for postscript (sql) files:'), COLOR_TOPPING)
+                postscript_list = ili2db_metaconfig.get('postscript').split(';')
+                postscript_file_path_list = self.get_topping_file_list(postscript_list)
+                self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
+                self.print_info(self.tr('- Loaded postscript (sql) files'), COLOR_TOPPING)
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
@@ -688,3 +976,44 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(20)
         elif text.strip() == 'Info: create table structure…':
             self.progress_bar.setValue(30)
+
+    def get_topping_file_list(self, id_list):
+        topping_file_model = self.get_topping_file_model(id_list)
+        file_path_list = []
+
+        for file_id in id_list:
+            matches = topping_file_model.match(topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1)
+            if matches:
+                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                self.print_info(
+                    self.tr('- - Got file {}..').format(file_path), COLOR_TOPPING)
+                file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, id_list):
+        topping_file_cache = IliToppingFileCache(self.base_configuration, id_list)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+        self.print_info(self.tr('- - Downloading...'), COLOR_TOPPING)
+
+        if len(topping_file_cache.downloaded_files) != len(id_list):
+            loop.exec()
+
+        if len(topping_file_cache.downloaded_files) == len(id_list):
+            self.print_info(self.tr('- - All topping files successfully downloaded'), COLOR_TOPPING)
+        else:
+            missing_file_ids = id_list
+            for downloaded_file_id in topping_file_cache.downloaded_files:
+                if downloaded_file_id in missing_file_ids:
+                    missing_file_ids.remove(downloaded_file_id)
+            self.print_info(self.tr('- - Some topping files where not successfully downloaded: {}').format(' '.join(missing_file_ids)), COLOR_TOPPING)
+
+        return topping_file_cache.model

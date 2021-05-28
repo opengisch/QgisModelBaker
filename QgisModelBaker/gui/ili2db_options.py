@@ -160,3 +160,28 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
         self.toml_file_line_edit.setText(
             settings.value(self.toml_file_key))
+
+    def load_metaconfig(self, metaconfig_ili2db):
+        if 'smart1Inheritance' in metaconfig_ili2db:
+            self.smart1_radio_button.setChecked(metaconfig_ili2db.getboolean('smart1Inheritance'))
+        if 'smart2Inheritance' in metaconfig_ili2db:
+            self.smart2_radio_button.setChecked(metaconfig_ili2db.getboolean('smart2Inheritance'))
+        if 'createBasketCol' in metaconfig_ili2db:
+            self.create_basket_col_checkbox.setChecked(metaconfig_ili2db.getboolean('createBasketCol'))
+        if 'importTid' in metaconfig_ili2db:
+            self.create_import_tid_checkbox.setChecked(metaconfig_ili2db.getboolean('importTid'))
+        if 'strokeArcs' in metaconfig_ili2db:
+            self.stroke_arcs_checkbox.setChecked(metaconfig_ili2db.getboolean('strokeArcs'))
+        self.save_configuration()
+
+    def load_toml_file_path(self, key_postfix, toml_file_path):
+        self.set_toml_file_key(key_postfix)
+        self.toml_file_line_edit.setText(toml_file_path)
+        self.save_configuration()
+
+    def load_post_script_path(self, post_script_path):
+        self.post_script_file_line_edit.setText(post_script_path)
+
+    def load_pre_script_path(self, pre_script_path):
+        self.pre_script_file_line_edit.setText(pre_script_path)
+

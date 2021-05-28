@@ -41,6 +41,7 @@ class Project(QObject):
         self.name = 'Not set'
         self.layers = List[Layer]
         self.legend = LegendGroup()
+        self.custom_layer_order_structure = list()
         self.auto_transaction = auto_transaction
         self.evaluate_default_values = evaluate_default_values
         self.relations = List[Relation]
@@ -187,6 +188,18 @@ class Project(QObject):
 
         if self.legend:
             self.legend.create(qgis_project)
+
+        custom_layer_order = list()
+        for custom_layer_name in self.custom_layer_order_structure:
+            custom_layer = qgis_project.mapLayersByName(custom_layer_name)
+            if custom_layer:
+                custom_layer_order.append(custom_layer[0])
+        if custom_layer_order:
+            root = qgis_project.layerTreeRoot()
+            order = root.customLayerOrder() if root.hasCustomLayerOrder() else []
+            order.extend(custom_layer_order)
+            root.setCustomLayerOrder(custom_layer_order)
+            root.setHasCustomLayerOrder(True)
 
         if path:
             qgis_project.write(path)
