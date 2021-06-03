@@ -464,7 +464,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
                 self.print_info(self.tr('Topping contains QML information'), COLOR_TOPPING)
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
-                qml_file_model = self.get_topping_file_model(qml_section.values())
+                qml_file_model = self.get_topping_file_model(list(qml_section.values()))
                 for layer in project.layers:
                     if any(layer.alias.lower() == s for s in qml_section):
                         layer_qml = layer.alias.lower()
