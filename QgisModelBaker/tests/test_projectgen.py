@@ -2078,7 +2078,7 @@ class TestProjectGen(unittest.TestCase):
         assert list(qml_section.values()) == ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                                               'file:tests/testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml',
                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
-        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
+        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, list(qml_section.values()))
         for layer in project.layers:
             if any(layer.alias.lower() == s for s in qml_section):
                 layer_qml = layer.alias.lower()
@@ -2327,7 +2327,7 @@ class TestProjectGen(unittest.TestCase):
         assert list(qml_section.values()) == ['ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001',
                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004_GPKG',
                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
-        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, qml_section.values())
+        qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, list(qml_section.values()))
         for layer in project.layers:
             if any(layer.alias.lower() == s for s in qml_section):
                 layer_qml = layer.alias.lower()
