@@ -482,18 +482,18 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.progress_bar.setValue(80)
 
-            # Cataloges: collect, download and import
+            # Cataloges and Transferfiles: collect, download and import
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'ch.interlis.referenceData' in configuration_section:
-                    self.print_info(self.tr('Check out the cats'), COLOR_TOPPING)
+                    self.print_info(self.tr('Check out the transfer or catalogue files (reference data)'), COLOR_TOPPING)
                     reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
-                    catalogue_file_path_list = self.get_topping_file_list(reference_data_list)
-                    for catalogue_file_path in catalogue_file_path_list:
+                    referencedata_file_path_list = self.get_topping_file_list(reference_data_list)
+                    for referencedata_file_path in referencedata_file_path_list:
                         self.print_info(
-                            self.tr('Import catalogue {}..').format(catalogue_file_path))
+                            self.tr('Import reference data {}..').format(referencedata_file_path))
 
-                        configuration = self.updated_catalogue_import_configuration(catalogue_file_path)
+                        configuration = self.updated_referencedata_import_configuration(referencedata_file_path)
 
                         # create schema with superuser
                         db_factory = self.db_simple_factory.create_factory(db_id)
@@ -617,7 +617,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         return configuration
 
-    def updated_catalogue_import_configuration(self, file):
+    def updated_referencedata_import_configuration(self, file):
         """
         Get the configuration that is updated with the user configuration changes on the dialog.
         :return: Configuration
