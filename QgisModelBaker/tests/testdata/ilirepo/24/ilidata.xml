@@ -899,7 +899,7 @@
         <owner>mailto:romedi@sh.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/catalogue</value>
+            <value>http://codes.interlis.ch/type/referenceData</value>
           </DatasetIdx16.Code_>
         </categories>
          <files>
@@ -907,7 +907,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>catalogue/KbS_Codetexte_V1_4.xml</path>
+                <path>referencedata/KbS_Codetexte_V1_4.xml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -1000,7 +1000,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>catalogue/opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1.xml</path>
+                <path>referencedata/opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1.xml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
