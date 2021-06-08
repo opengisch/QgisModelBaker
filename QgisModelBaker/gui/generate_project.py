@@ -853,7 +853,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
             else:
                 self.print_info(self.tr('File not specified for metaconfig with id {}').format(dataset_id), COLOR_TOPPING)
+
+            self.set_metaconfig_line_edit_state(True)
         else:
+            self.set_metaconfig_line_edit_state(not self.ili_metaconfig_line_edit.text())
             self.clean_metaconfig()
 
     def clean_metaconfig(self):
@@ -861,6 +864,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText('')
         self.txtStdout.clear()
+
+    def set_metaconfig_line_edit_state(self, valid ):
+        self.ili_metaconfig_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#ffffff' if valid else '#ffd356'))
 
     def on_metaconfig_received(self, path):
         self.txtStdout.clear()
