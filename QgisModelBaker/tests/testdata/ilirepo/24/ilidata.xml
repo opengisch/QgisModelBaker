@@ -14,11 +14,7 @@
         <technicalContact>mailto:david@opengis.ch</technicalContact>
       </DatasetIdx16.DataIndex.Metadata>
 
-
-      <!-- OPENGISCH -->
-
       <!-- metaconfigs -->
-
       <DatasetIdx16.DataIndex.DatasetMetadata TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
         <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0</id>
         <version>2021-01-06</version>
@@ -396,8 +392,7 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-
-      <!-- layertree -->
+      <!-- layertree KbS_LV95_V1_4 -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="333a9e68-268e-4ed2-8f8a-eeeeaab43432">
         <id>ch.opengis.config.KbS_LV95_V1_4_layertree</id>
         <version>2021-01-06</version>
@@ -435,6 +430,7 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
+      <!-- layertree KbS_LV95_V1_4 GPKG -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="333a9e68-268e-4ed2-8f8a-eeeeaab43432">
         <id>ch.opengis.config.KbS_LV95_V1_4_layertree_GPKG</id>
         <version>2021-01-06</version>
@@ -472,7 +468,6 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-
       <!-- meta attr toml -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="912afab9-1b95-4bc8-951f-5eb8bcad8b63">
         <id>ch.opengis.config.KbS_LV95_V1_4_toml</id>
@@ -504,7 +499,6 @@
           </DatasetIdx16.DataFile>
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
-
 
       <!-- sql pre script -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="9ffe29e3-dc76-4511-8d7a-a241ffce7909">
@@ -538,361 +532,7 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-
-
-      <!-- SH -->
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="911d9e68-268e-4ed2-8f8a-eeeeaab455aa">
-        <id>ch.sh.ili.config.KbS_LV95_V1_4_config_V1_0</id>
-        <version>2021-01-06</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <title>
-          <DatasetIdx16.MultilingualMText>
-            <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
-                <Language>de</Language>
-                <Text>Style und Tree des Kanton Schaffhausen (mit Katalog) (sh.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
-            </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
-        </title>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
-          </DatasetIdx16.Code_>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/metaconfig</value>
-          </DatasetIdx16.Code_>
-          <DatasetIdx16.Code_>
-            <value>http://codes.opengis.ch/modelbaker</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>metaconfig/sh_KbS_LV95_V1_4.ini</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="ba7f8553-7eba-4592-aa5f-c3e585aa76fa">
-        <id>ch.sh.ili.configs.layertree.KbS_LV95_V1_4</id>
-        <version>2021-01-06</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <shortDescription>
-          <DatasetIdx16.MultilingualMText>
-            <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
-                <Language>de</Language>
-                <Text>KbS_LV95_V1_4 Layertree für den Kanton Schaffhausen</Text>
-              </DatasetIdx16.LocalisedMText>
-            </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
-        </shortDescription>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
-          </DatasetIdx16.Code_>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/layertree</value>
-          </DatasetIdx16.Code_>
-          <DatasetIdx16.Code_>
-            <value>http://codes.opengis.ch/modelbaker</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>layertree/sh_layertree_KbS_LV95_V1_4.yaml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="510065d5-4593-410d-a950-0925e5007975">
-        <id>ch.sh.topping.altlasten_status_punkt</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_altlasten_status_point.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="ae61318d-d02a-43f2-8748-828f7e708491">
-        <id>ch.sh.topping.altlasten_status_polygon</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_altlasten_status_polygon.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="4c7f56a2-02b8-4ad9-b4b3-e91f330cafd8">
-        <id>ch.sh.topping.untersuchungsmassnahmen_definition</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_untersuchungsmassnahmen_definition.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="46e9389b-5eb5-4813-8559-696748ed7bf8">
-        <id>ch.sh.topping.statusaltlv_definition</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_statusaltlv_definition.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="67c85e84-4a0f-4c71-9357-bf292188fb6c">
-        <id>ch.sh.topping.standorttyp_definition</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_standorttyp_definition.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="dfb8675d-586e-4ba6-b870-ed15d25386e3">
-        <id>ch.sh.topping.deponietyp_definition</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_deponietyp_definition.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="6f069d6a-f738-4809-bb8c-eb957e7d77b0">
-        <id>ch.sh.topping.zustaendigkeitkataster</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_zustaendigkeitkataster.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="24ba082a-c40d-47a1-9b2a-cd81fb060e70">
-        <id>ch.sh.topping.parzellenidentifikation</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_parzellenidentifikation.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="a8bc3c5e-5206-4544-9f1b-a08296660e14">
-        <id>ch.sh.topping.untersmassn_</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_untersmassn_.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="90d3f738-fcf2-4897-9028-8a411c951a9c">
-        <id>ch.sh.topping.egrid_</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_egrid_.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="5af53499-dd46-4eb6-ab01-521bfe90f569">
-        <id>ch.sh.topping.deponietyp_</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_deponietyp_.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="55bb0620-28d0-4aaf-9300-76cf469eb815">
-        <id>ch.sh.topping.multilingualmtext</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_multilingualmtext.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="a9beaf59-ed0d-4566-b0eb-627a48fe7c6e">
-        <id>ch.sh.topping.localisedmtext</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_localisedmtext.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="6c1fa234-4777-4430-b3be-92d499845b01">
-        <id>ch.sh.topping.localisedtext</id>
-        <version>2021-03-01</version>
-        <owner>mailto:romedi@sh.ch</owner>
-        <categories>
-          <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
-          </DatasetIdx16.Code_>
-        </categories>
-        <files>
-          <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
-            <file>
-              <DatasetIdx16.File>
-                <path>qml/sh_localisedtext.qml</path>
-              </DatasetIdx16.File>
-            </file>
-          </DatasetIdx16.DataFile>
-        </files>
-      </DatasetIdx16.DataIndex.DatasetMetadata>
+      <!-- catalogue -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="6c1fa234-4777-4430-b3be-92d499845b01">
         <id>ch.sh.ili.catalogue.KbS_Codetexte_V1_4</id>
         <version>2021-03-01</version>
@@ -913,9 +553,7 @@
           </DatasetIdx16.DataFile>
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
-
-
-
+      
       <!-- PlanerischerGewässerschutz -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a33b2f5-38bd-4d1a-8af0-c2463dcb5111">
         <id>ch.opengis.ili.config.PlanerischerGewaesserschutz_config</id>
@@ -953,6 +591,7 @@
           </DatasetIdx16.DataFile>
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
+
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a211b2f5-38bd-4d1a-8af0-c2463dcb5b23">
         <id>ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile</id>
         <version>2021-03-12</version>
@@ -990,7 +629,7 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-      <!-- Katalog -->
+      <!-- catalogue -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="116623c1-aa64-4a07-931e-fc4f0745f02b">
         <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1</id>
         <version>2021-01-06</version>
