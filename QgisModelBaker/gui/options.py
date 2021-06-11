@@ -136,7 +136,6 @@ class OptionsDialog(QDialog, DIALOG_UI):
 class CompletionLineEdit(QLineEdit):
 
     punched = pyqtSignal()
-    left = pyqtSignal()
 
     def __init__(self, parent=None):
         super(CompletionLineEdit, self).__init__(parent)
@@ -145,10 +144,6 @@ class CompletionLineEdit(QLineEdit):
     def focusInEvent(self, e):
         super(CompletionLineEdit, self).focusInEvent(e)
         self.punched.emit()
-
-    def focusOutEvent(self, e):
-        super(CompletionLineEdit, self).focusOutEvent(e)
-        self.left.emit()
 
     def mouseReleaseEvent(self, e):
         super(CompletionLineEdit, self).mouseReleaseEvent(e)

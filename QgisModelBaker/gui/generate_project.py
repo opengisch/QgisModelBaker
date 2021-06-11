@@ -185,17 +185,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
         completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
-        completer.activated[QModelIndex].connect(self.on_metaconfig_completer_activated)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
 
-        self.ili_metaconfig_line_edit.textChanged.emit(
-            self.ili_metaconfig_line_edit.text())
+        self.ili_metaconfig_line_edit.textChanged.emit(self.ili_metaconfig_line_edit.text())
         self.ili_metaconfig_line_edit.textChanged.connect(self.complete_metaconfig_completer)
         self.ili_metaconfig_line_edit.punched.connect(self.complete_metaconfig_completer)
-        self.ili_metaconfig_line_edit.left.connect(self.on_metaconfig_completer_activated)
+        self.ili_metaconfig_line_edit.textChanged.connect(self.on_metaconfig_completer_activated)
 
         self.ili_models_line_edit.setValidator(nonEmptyValidator)
         self.ili_file_line_edit.setValidator(fileValidator)
@@ -831,31 +829,24 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def update_metaconfig_completer(self):
         self.ili_metaconfig_line_edit.completer().setModel(self.ilimetaconfigcache.model)
 
-    def on_metaconfig_completer_activated(self, model_index=None):
-        if model_index is None and self.ili_metaconfig_line_edit.text():
-            #when leaving the completer list without making an activation by clicking on a selection, it get's the data by the entered text
-            matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
-                                                Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), 1)
-            if matches:
-                model_index = matches[0]
-        if model_index and self.ili_metaconfig_line_edit.completer():
-            metaconfig_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                 int(IliMetaConfigItemModel.Roles.ID))
+    def on_metaconfig_completer_activated(self, text=None):
+        matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
+                                            Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), 1, Qt.MatchExactly)
+        if matches:
+            model_index = matches[0]
+            metaconfig_id = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ID))
+            
             if self.current_metaconfig_id == metaconfig_id:
                 return
             self.current_metaconfig_id = metaconfig_id
             self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
-                self.ili_metaconfig_line_edit.completer().completionModel().data(model_index, Qt.DisplayRole),
+                self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
                 metaconfig_id))
             self.metaconfig_file_info_label.setStyleSheet('color: #341d5c')
-            repository = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                        int(IliMetaConfigItemModel.Roles.ILIREPO))
-            url = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                        int(IliMetaConfigItemModel.Roles.URL))
-            path = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                  int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
-            dataset_id = self.ili_metaconfig_line_edit.completer().completionModel().data(model_index,
-                                                                                  int(IliMetaConfigItemModel.Roles.ID))
+            repository = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ILIREPO))
+            url = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.URL))
+            path = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+            dataset_id = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ID))
             # disable the create button while downloading
             self.create_tool_button.setEnabled(False)
             if path:
@@ -863,10 +854,19 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             else:
                 self.print_info(self.tr('File not specified for metaconfig with id {}').format(dataset_id), COLOR_TOPPING)
 
+            self.set_metaconfig_line_edit_state(True)
+        else:
+            self.set_metaconfig_line_edit_state(not self.ili_metaconfig_line_edit.text())
+            self.clean_metaconfig()
+
     def clean_metaconfig(self):
+        self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText('')
         self.txtStdout.clear()
+
+    def set_metaconfig_line_edit_state(self, valid ):
+        self.ili_metaconfig_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#ffffff' if valid else '#ffd356'))
 
     def on_metaconfig_received(self, path):
         self.txtStdout.clear()
