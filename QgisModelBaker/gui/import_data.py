@@ -465,7 +465,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
             self.ili_models_line_edit.completer().complete()
         else:
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+            match_contains = self.ili_models_line_edit.completer().completionModel().match(self.ili_models_line_edit.completer().completionModel().index(0, 0),
+                                            Qt.DisplayRole, self.ili_models_line_edit.text(), -1, Qt.MatchContains)
+            if len(match_contains) > 1:
+                self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+                self.ili_models_line_edit.completer().complete()
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.ili_models_line_edit)
