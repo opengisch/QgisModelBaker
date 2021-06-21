@@ -474,7 +474,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                                    qml_section[layer_qml], 1)
                     if matches:
                         style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                        self.print_info(self.tr('Applying QML topping on layer {}:{}').format(layer.alias, style_file_path),
+                        self.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
                                         COLOR_TOPPING)
                         layer.layer.loadNamedStyle(style_file_path)
 
