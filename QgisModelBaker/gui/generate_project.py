@@ -431,7 +431,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                     custom_layer_order_structure = layertree_data['layer-order']
                             except yaml.YAMLError as exc:
                                 self.print_info(
-                                    self.tr('Unable to parse layertree structure: {}…').format(exc), COLOR_TOPPING)
+                                    self.tr('Unable to parse layertree structure: {}').format(exc), COLOR_TOPPING)
 
             self.progress_bar.setValue(55)
 
