@@ -989,7 +989,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
                 self.print_info(
-                    self.tr('- - Got file {}…').format(file_path), COLOR_TOPPING)
+                    self.tr('- - Got file {}').format(file_path), COLOR_TOPPING)
                 file_path_list.append(file_path)
         return file_path_list
 
