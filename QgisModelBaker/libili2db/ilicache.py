@@ -364,12 +364,14 @@ class IliMetaConfigCache(IliCache):
 
     file_download_succeeded = pyqtSignal(str, str)
     file_download_failed = pyqtSignal(str, str)
+    model_refreshed = pyqtSignal(int)
 
     def __init__(self, configuration, models=None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser('~/.ilimetaconfigcache')
         self.information_file = 'ilidata.xml'
         self.model = IliMetaConfigItemModel()
+        self.model.modelReset.connect(lambda: self.model_refreshed.emit(self.model.rowCount()))
         if models:
             self.filter_models = models.split(';')
         if self.base_configuration:
@@ -506,6 +508,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
         super().__init__(0, 1, parent)
 
     def set_repositories(self, repositories):
+        self.beginResetModel()
         self.clear()
         row = 0
         ids = list()
@@ -536,6 +539,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
                 ids.append(metaconfig['id'])
                 self.appendRow(item)
                 row += 1
+        self.endResetModel()
 
 
 class MetaConfigCompleterDelegate(QItemDelegate):

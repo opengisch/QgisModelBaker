@@ -181,6 +181,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
+        self.current_models = None
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
@@ -189,7 +190,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
-
         self.ili_metaconfig_line_edit.textChanged.emit(self.ili_metaconfig_line_edit.text())
         self.ili_metaconfig_line_edit.textChanged.connect(self.complete_metaconfig_completer)
         self.ili_metaconfig_line_edit.punched.connect(self.complete_metaconfig_completer)
@@ -716,7 +716,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def on_model_changed(self, text):
         if not text:
-            self.ili_metaconfig_line_edit.setEnabled(False)
+            self.update_metaconfig_completer(0)
             return
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, text):
@@ -728,6 +728,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
         self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
         self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
+        self.ilimetaconfigcache.model_refreshed.connect(self.update_metaconfig_completer)
         self.refresh_ili_metaconfig_cache()
 
     def link_activated(self, link):
@@ -813,10 +814,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.multiple_models_dialog.models_line_edit.setCompleter(completer)
 
     def refresh_ili_metaconfig_cache(self):
-        self.ili_metaconfig_line_edit.setEnabled(True)
         self.ilimetaconfigcache.new_message.connect(self.show_message)
         self.ilimetaconfigcache.refresh()
-        self.update_metaconfig_completer()
 
     def complete_metaconfig_completer(self):
         if not self.ili_metaconfig_line_edit.text():
@@ -826,8 +825,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         else:
             self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
 
-    def update_metaconfig_completer(self):
+    def update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(self.ilimetaconfigcache.model)
+        self.ili_metaconfig_line_edit.setEnabled(bool(rows))
+        if self.ili_models_line_edit.text() != self.current_models:
+            self.ili_metaconfig_line_edit.clear()
 
     def on_metaconfig_completer_activated(self, text=None):
         matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
@@ -916,8 +918,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'models' in ili2db_metaconfig:
                 model_list = self.ili_models_line_edit.text().strip().split(';') + ili2db_metaconfig.get(
                     'models').strip().split(';')
-                models = ';'.join(set(model_list))
-                self.ili_models_line_edit.setText(models)
+                self.current_models = ';'.join(set(model_list))
+                self.ili_models_line_edit.setText(self.current_models)
                 self.print_info(self.tr('- Loaded models'), COLOR_TOPPING)
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
