@@ -192,14 +192,14 @@ class FileValidator(QValidator):
         self.is_executable = is_executable
         self.allow_empty = allow_empty
         self.allow_non_existing = allow_non_existing
-        self.error = None
+        self.error = ''
 
     """
     Validator for file line edits
     """
 
     def validate(self, text, pos):
-        self.error = None
+        self.error = ''
 
         if self.allow_empty and not text.strip():
             return QValidator.Acceptable, text, pos
