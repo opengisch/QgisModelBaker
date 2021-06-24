@@ -101,7 +101,7 @@ COLOR_TOPPING = '#341d5c'
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
 
-    ValidExtensions = ['ili', 'ILI']
+    ValidExtensions = ['ili']
 
     def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self, parent)
@@ -274,9 +274,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         return
 
                 if self.ili_file_line_edit.text().strip() and \
-                        self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
+                    self.ili_file_line_edit.validator().validate(configuration.ilifile, 0)[0] != QValidator.Acceptable:
+
                     self.txtStdout.setText(
-                        self.tr('Please set a valid INTERLIS file before creating the project.'))
+                        self.tr('Please set a valid INTERLIS file before creating the project. {}').format(self.ili_file_line_edit.validator().error))
                     self.ili_file_line_edit.setFocus()
                     return
 

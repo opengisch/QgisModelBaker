@@ -192,12 +192,15 @@ class FileValidator(QValidator):
         self.is_executable = is_executable
         self.allow_empty = allow_empty
         self.allow_non_existing = allow_non_existing
+        self.error = ''
 
     """
     Validator for file line edits
     """
 
     def validate(self, text, pos):
+        self.error = ''
+
         if self.allow_empty and not text.strip():
             return QValidator.Acceptable, text, pos
 
@@ -209,14 +212,18 @@ class FileValidator(QValidator):
         else:
             raise TypeError('pattern must be str or list, not {}'.format(type(self.pattern)))
 
-        if not text \
-                or (not self.allow_non_existing and not os.path.isfile(text)) \
-                or not pattern_matches \
-                or (self.is_executable and not os.access(text, os.X_OK)):
+        if not text:
+            self.error = self.tr('Text field value is empty.')
+        elif not self.allow_non_existing and not os.path.isfile(text):
+            self.error = self.tr('The chosen file does not exist.')
+        elif not pattern_matches:
+            self.error = self.tr('The chosen file has a wrong extension (has to be {}).'.format( self.pattern if type(self.pattern) is str else ','.join(self.pattern)))
+        elif self.is_executable and not os.access(text, os.X_OK):
+            self.error = self.tr('The chosen file is not executable.')
+        if self.error:
             return QValidator.Intermediate, text, pos
         else:
             return QValidator.Acceptable, text, pos
-
 
 class NonEmptyStringValidator(QValidator):
 
