@@ -183,7 +183,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
         self.current_metaconfig_id = None
-        self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from usabILItyhub]'))
+        self.ili_metaconfig_line_edit.setPlaceholderText(self.tr('[Search metaconfig / topping from UsabILIty Hub]'))
         self.ili_metaconfig_line_edit.setEnabled(False)
         completer = QCompleter(self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -415,12 +415,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'qgis.modelbaker.layertree' in configuration_section:
-                    self.print_info(self.tr('Topping contains a layertree structure'), COLOR_TOPPING)
+                    self.print_info(self.tr('Metaconfig contains a layertree structure topping.'), COLOR_TOPPING)
                     layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
                     layertree_data_file_path_list = self.get_topping_file_list( layertree_data_list)
                     for layertree_file_path in layertree_data_file_path_list:
                         self.print_info(
-                            self.tr('Parse layertree {}..').format(layertree_file_path), COLOR_TOPPING)
+                            self.tr('Parse layertree structure {}…').format(layertree_file_path), COLOR_TOPPING)
 
                         with open(layertree_file_path, 'r') as stream:
                             try:
@@ -431,7 +431,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                     custom_layer_order_structure = layertree_data['layer-order']
                             except yaml.YAMLError as exc:
                                 self.print_info(
-                                    self.tr('Unable to parse layertree file: {}..').format(exc), COLOR_TOPPING)
+                                    self.tr('Unable to parse layertree structure: {}').format(exc), COLOR_TOPPING)
 
             self.progress_bar.setValue(55)
 
@@ -442,12 +442,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             project.legend = legend
             project.custom_layer_order_structure = custom_layer_order_structure
 
-            self.print_info(self.tr('Configuring forms and widgets…'))
+            self.print_info(self.tr('Configure forms and widgets…'))
             project.post_generate()
 
             qgis_project = QgsProject.instance()
 
-            self.print_info(self.tr('Generating QGIS project…'))
+            self.print_info(self.tr('Generate QGIS project…'))
             project.create(None, qgis_project)
 
             # Set the extent of the mapCanvas from the first layer extent found
@@ -460,7 +460,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(60)
             # Toppings QMLs: collect, download and apply
             if 'qgis.modelbaker.qml' in self.metaconfig.sections():
-                self.print_info(self.tr('Topping contains QML information'), COLOR_TOPPING)
+                self.print_info(self.tr('Metaconfig contains QML toppings.'), COLOR_TOPPING)
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
                 qml_file_model = self.get_topping_file_model(list(qml_section.values()))
                 for layer in project.layers:
@@ -474,7 +474,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                                    qml_section[layer_qml], 1)
                     if matches:
                         style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                        self.print_info(self.tr('Applying topping on layer {}:{}').format(layer.alias, style_file_path),
+                        self.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
                                         COLOR_TOPPING)
                         layer.layer.loadNamedStyle(style_file_path)
 
@@ -484,12 +484,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if 'CONFIGURATION' in self.metaconfig.sections():
                 configuration_section = self.metaconfig['CONFIGURATION']
                 if 'ch.interlis.referenceData' in configuration_section:
-                    self.print_info(self.tr('Check out the transfer or catalogue files (reference data)'), COLOR_TOPPING)
+                    self.print_info(self.tr('Metaconfig contains transfer or catalogue toppings (reference data).'), COLOR_TOPPING)
                     reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
                     referencedata_file_path_list = self.get_topping_file_list(reference_data_list)
                     for referencedata_file_path in referencedata_file_path_list:
                         self.print_info(
-                            self.tr('Import reference data {}..').format(referencedata_file_path))
+                            self.tr('Import reference data file {}…').format(referencedata_file_path))
 
                         configuration = self.updated_referencedata_import_configuration(referencedata_file_path)
 
@@ -854,7 +854,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if path:
                 self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
             else:
-                self.print_info(self.tr('File not specified for metaconfig with id {}').format(dataset_id), COLOR_TOPPING)
+                self.print_info(self.tr('File not specified for metaconfig with id {}.').format(dataset_id), COLOR_TOPPING)
 
             self.set_metaconfig_line_edit_state(True)
         else:
@@ -907,7 +907,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         # load ili2db parameters to the GUI and into the configuration
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             self.print_info(
-                self.tr('Loading the ili2db configurations from the topping meta configuration...'), COLOR_TOPPING)
+                self.tr('Load the ili2db configurations from the metaconfig…'), COLOR_TOPPING)
 
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
@@ -927,7 +927,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # get iliMetaAttrs (toml)
             if 'iliMetaAttrs' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for iliMetaAttrs (toml) files:'), COLOR_TOPPING)
+                self.print_info(self.tr('- Seek for iliMetaAttrs (toml) files:'), COLOR_TOPPING)
                 ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
                 ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list)
                 self.ili2db_options.load_toml_file_path(self.ili_models_line_edit.text(), ';'.join(ili_meta_attrs_file_path_list))
@@ -935,7 +935,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # get prescript (sql)
             if 'prescript' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for prescript (sql) files:'), COLOR_TOPPING)
+                self.print_info(self.tr('- Seek for prescript (sql) files:'), COLOR_TOPPING)
                 prescript_list = ili2db_metaconfig.get('prescript').split(';')
                 prescript_file_path_list = self.get_topping_file_list(prescript_list)
                 self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
@@ -943,7 +943,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # get postscript (sql)
             if 'postscript' in ili2db_metaconfig:
-                self.print_info(self.tr('- Seeking for postscript (sql) files:'), COLOR_TOPPING)
+                self.print_info(self.tr('- Seek for postscript (sql) files:'), COLOR_TOPPING)
                 postscript_list = ili2db_metaconfig.get('postscript').split(';')
                 postscript_file_path_list = self.get_topping_file_list(postscript_list)
                 self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
@@ -991,7 +991,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
                 self.print_info(
-                    self.tr('- - Got file {}..').format(file_path), COLOR_TOPPING)
+                    self.tr('- - Got file {}').format(file_path), COLOR_TOPPING)
                 file_path_list.append(file_path)
         return file_path_list
 
@@ -1007,7 +1007,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.print_info(self.tr('- - Downloading...'), COLOR_TOPPING)
+        self.print_info(self.tr('- - Downloading…'), COLOR_TOPPING)
 
         if len(topping_file_cache.downloaded_files) != len(id_list):
             loop.exec()
