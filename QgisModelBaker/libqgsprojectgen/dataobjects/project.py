@@ -129,7 +129,7 @@ class Project(QObject):
                     'ShowForm': False,
                     'OrderByValue': True,
                     'ShowOpenFormButton': False,
-                    'AllowNULL': allow_null,
+                    'AllowNULL': True,
                     'FilterExpression': filter_expression,
                     'FilterFields': list()
                 }
