@@ -133,7 +133,7 @@ class Layer(object):
         '''
         has_tabs = False
         for relation in project.relations:
-            if relation.referencing_layer == self:
+            if relation.referenced_layer == self:
                 has_tabs = True
                 break
 
