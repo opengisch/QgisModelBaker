@@ -115,10 +115,6 @@ class Project(QObject):
             assert rel.isValid()
             qgis_relations.append(rel)
 
-            referencing_layer = rel.referencingLayer()
-            referencing_field_constraints = referencing_layer.fieldConstraints(rel.referencingFields()[0])
-            allow_null = not bool(referencing_field_constraints & QgsFieldConstraints.ConstraintNotNull)
-
             # If we have an extended ili2db domain, we need to filter its values
             filter_expression = "\"{}\" = '{}'".format(ENUM_THIS_CLASS_COLUMN,
                                                        relation.child_domain_name) if relation.child_domain_name else ''
@@ -129,7 +125,7 @@ class Project(QObject):
                     'ShowForm': False,
                     'OrderByValue': True,
                     'ShowOpenFormButton': False,
-                    'AllowNULL': allow_null,
+                    'AllowNULL': True,
                     'FilterExpression': filter_expression,
                     'FilterFields': list()
                 }
@@ -141,7 +137,7 @@ class Project(QObject):
                     'OrderByValue': True,
                     'ShowOpenFormButton': False,
                     'AllowAddFeatures': True,
-                    'AllowNULL': allow_null
+                    'AllowNULL': True
                 }
                 )
 
