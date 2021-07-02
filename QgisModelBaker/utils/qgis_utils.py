@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes, QgsMapLayer
+from qgis.core import QgsLayerTreeNode, QgsWkbTypes, QgsMapLayer, QgsLayerTreeLayer
 
 layer_order = ['point',  #QgsWkbTypes.PointGeometry
                'line',  #QgsWkbTypes.LineGeometry
@@ -48,9 +48,10 @@ def get_first_index_for_layer_type(layer_type, group, ignore_node_names=None):
             # We've reached the lowest index in the layer tree before a group
             return current
 
-        layer = tree_node.layer()
-        if get_layer_type(layer) == layer_type:
-            return current
+        if isinstance(tree_node, QgsLayerTreeLayer):
+            layer = tree_node.layer()
+            if get_layer_type(layer) == layer_type:
+                return current
 
     return None
 
