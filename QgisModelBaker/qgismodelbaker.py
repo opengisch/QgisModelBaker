@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from QgisModelBaker.gui.import_wizard import ImportWizard
 import locale
 import os
 import webbrowser
@@ -57,6 +58,7 @@ class QgisModelBakerPlugin(QObject):
         self.__generate_action = None
         self.__export_action = None
         self.__importdata_action = None
+        self.__import_wizard_action = None
         self.__configure_action = None
         self.__help_action = None
         self.__about_action = None
@@ -106,6 +108,8 @@ class QgisModelBakerPlugin(QObject):
             self.tr('Export Interlis Transfer File (.xtf)'), None)
         self.__importdata_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-import-icon.svg')),
             self.tr('Import Interlis Transfer File (.xtf)'), None)
+        self.__import_wizard_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-import.svg')),
+            self.tr('Start import workflow'), None)
         self.__configure_action = QAction(
             self.tr('Settings'), None)
         self.__help_action = QAction( 
@@ -124,6 +128,7 @@ class QgisModelBakerPlugin(QObject):
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__importdata_action.triggered.connect(self.show_importdata_dialog)
         self.__export_action.triggered.connect(self.show_export_dialog)
+        self.__import_wizard_action.triggered.connect(self.show_import_wizard)
         self.__help_action.triggered.connect(self.show_help_documentation)
         self.__about_action.triggered.connect(self.show_about_dialog)
 
@@ -148,6 +153,7 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.toolbar.addAction(self.__import_wizard_action)
         self.register_event_filter()
 
     def unload(self):
@@ -167,6 +173,7 @@ class QgisModelBakerPlugin(QObject):
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
+        del self.__import_wizard_action
         del self.__configure_action
         del self.__help_action
         del self.__about_action
@@ -196,6 +203,11 @@ class QgisModelBakerPlugin(QObject):
             self.export_dlg.show()
             self.export_dlg.finished.connect(self.export_dialog_finished)
             self.__export_action.setChecked(True)
+
+    def show_import_wizard(self):
+        self.import_wizard = ImportWizard()
+        self.import_wizard.setStartId(self.import_wizard.Page_Intro)
+        self.import_wizard.show()
 
     def export_dialog_finished(self):
         self.__export_action.setChecked(False)
