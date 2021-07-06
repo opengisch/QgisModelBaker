@@ -32,11 +32,11 @@ class ImportWizard (QWizard):
     Page_ImportSchemaConfiguration = 4
     Page_ImportDataConfigurtation = 5
 
-    def __init__(self):
+    def __init__(self, base_config, parent=None):
         QWizard.__init__(self)
 
         self.setPage(self.Page_Intro, IntroPage(self))
-        self.setPage(self.Page_ImportSourceSeletion, ImportSourceSeletionPage(self))
+        self.setPage(self.Page_ImportSourceSeletion, ImportSourceSeletionPage(base_config))
         #self.setPage(self.Page_ImportDatabaseSelection, ImportDatabaseSelectionPage())
         #self.setPage(self.Page_ImportSchemaConfiguration, ImportSchemaConfigurationPage())
         #self.setPage(self.Page_ImportDataConfigurtation, ImportDataConfigurtationPage())
