@@ -123,6 +123,12 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>file_browse_button</tabstop>
+  <tabstop>add_button</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>source_list_view</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
