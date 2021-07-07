@@ -18,7 +18,6 @@
  ***************************************************************************/
 """
 
-from enum import Enum
 import os
 import pathlib
 
@@ -37,9 +36,6 @@ from QgisModelBaker.utils.qt_utils import (
 )
 
 from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem,
-    QIcon,
     QColor,
     QDesktopServices,
     QValidator,
@@ -62,43 +58,13 @@ from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_source_selection.ui')
 
-class SourceModel(QStandardItemModel):
-    class Roles(Enum):
-        NAME = Qt.UserRole + 1
-        TYPE = Qt.UserRole + 2
-        PATH = Qt.UserRole + 3
-
-        def __int__(self):
-            return self.value
-
-    def __init__(self, parent=None):
-        super().__init__(0, 1, parent)
-
-    def data(self , index , role):
-        if role == Qt.DisplayRole:
-            if QStandardItemModel.data(self, index, int(SourceModel.Roles.TYPE)) != 'model':
-                return self.tr('{} ({})'.format(QStandardItemModel.data(self, index, int(SourceModel.Roles.NAME)), QStandardItemModel.data(self, index, int(SourceModel.Roles.PATH))))
-        return QStandardItemModel.data(self, index, role)
-
-    def add_source(self, name, type, path):
-        item = QStandardItem()
-        item.setData(name, int(Qt.DisplayRole))
-        item.setData(name, int(SourceModel.Roles.NAME))
-        item.setData(type, int(SourceModel.Roles.TYPE))
-        item.setData(path, int(SourceModel.Roles.PATH))
-        item.setData(QIcon(os.path.join(os.path.dirname(__file__), f'../images/file_types/{type}.png')), Qt.DecorationRole)
-        self.appendRow(item)
-    
-    def remove_sources(self, indices):
-        for index in sorted(indices):
-            self.removeRow(index.row()) 
-
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     ValidExtensions = ['ili', 'xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
     def __init__(self, base_config, parent=None):
         QWizardPage.__init__(self, parent)
+        
         self.setupUi(self)
         self.base_configuration = base_config
 
@@ -118,14 +84,13 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
         self.input_line_edit.punched.connect(self.first_time_punch)
 
-        self.model = SourceModel()
-        self.source_list_view.setModel(self.model)
+        self.source_list_view.setModel(parent.source_model)
         self.add_button.clicked.connect(self.add_row)
         self.remove_button.clicked.connect(self.remove_selected_rows)
 
-        self.remove_button.setEnabled(self.model.rowCount())
-        self.model.rowsInserted.connect( lambda: self.remove_button.setEnabled(self.model.rowCount()))
-        self.model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(self.model.rowCount()))
+        self.remove_button.setEnabled(parent.source_model.rowCount())
+        parent.source_model.rowsInserted.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
+        parent.source_model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
         
         # self.add_button.setEnabled(False)
         # self.restore_configuration()

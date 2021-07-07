@@ -6,15 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
-    <height>500</height>
+    <width>827</width>
+    <height>840</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="2">
+   <item row="0" column="0">
+    <widget class="QLabel" name="description">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Please add all your files and repository models you want to use for your project (you can use drag'n'drop).</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
     <widget class="QFrame" name="the_frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -23,8 +48,12 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="CompletionLineEdit" name="input_line_edit" native="true"/>
+      <item row="0" column="0">
+       <widget class="QLabel" name="input_line_label">
+        <property name="text">
+         <string>Model or Datafile</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -65,12 +94,8 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="input_line_label">
-        <property name="text">
-         <string>Model or Datafile</string>
-        </property>
-       </widget>
+      <item row="0" column="1">
+       <widget class="CompletionLineEdit" name="input_line_edit" native="true"/>
       </item>
       <item row="2" column="0" colspan="3">
        <widget class="QListView" name="source_list_view"/>
@@ -88,28 +113,13 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="description">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
+   <item row="2" column="0">
+    <widget class="QTextBrowser" name="txtStdout">
+     <property name="toolTip">
+      <string/>
      </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Please add all your files and repository models you want to use for your project (you can use drag'n'drop).</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+     <property name="openLinks">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
