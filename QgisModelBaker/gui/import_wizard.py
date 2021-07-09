@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.utils.qt_utils import make_folder_selector
 from enum import Enum
 import os
 import re
@@ -28,6 +29,7 @@ from QgisModelBaker.gui.intro_page import IntroPage
 from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletionPage
 from QgisModelBaker.gui.import_database_selection_page import ImportDatabaseSelectionPage
 from QgisModelBaker.gui.import_schema_configuration_page import ImportSchemaConfigurationPage
+from QgisModelBaker.gui.import_execution_page import ImportExecutionPage
 
 from qgis.PyQt.QtGui import (
     QStandardItemModel,
@@ -42,6 +44,10 @@ from qgis.PyQt.QtCore import (
 )
 
 from QgisModelBaker.libili2db.ilicache import IliCache
+from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration
+
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 # dave put them all to the same place
 IliExtensions = ['ili']
@@ -107,7 +113,6 @@ class ImportModelsModel(SourceModel):
 
         # models from db
         db_modelnames = self.db_modelnames(db_connector)
-        print( f'db_modelnames {db_modelnames}')
 
         # models from the repos
         models_from_repo =[]
@@ -148,24 +153,6 @@ class ImportModelsModel(SourceModel):
         #    models_from_transfer_files.append(ili_file_path)
         # print( f'models_from_transfer_files {models_from_transfer_files}')
 
-        '''
-            try:
-                self.ili_models_line_edit.setText(models[-1]['name'])
-                self.ili_models_line_edit.setPlaceholderText(models[-1]['name'])
-            except IndexError:
-                    self.ili_models_line_edit.setText('')
-                    self.ili_models_line_edit.setPlaceholderText(self.tr('[No models found in ili file]'))
-
-
-        get models from source_model
-        
-        db_models = self.db_models(db_connector)
-        
-        if modelname not in db_models:
-            modelnames.append(modelname) 
-        self.setStringList(modelnames)
-        '''
-
     def db_modelnames(self, db_connector=None):
         modelnames = list()
         if db_connector:
@@ -187,27 +174,21 @@ class ImportModelsModel(SourceModel):
         item.setData(path, int(SourceModel.Roles.PATH))
         self.appendRow(item)
 
-        # problem, maybe later
-        # super().add_source(name, type, path, item
+        # this would lead to problem, maybe later
+        # SourceModel.add_source(name, type, path, item
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def data(self, index, role):
         if role == Qt.CheckStateRole:
-            if self.data(index, int(SourceModel.Roles.NAME)) in self._checked_models:
-                return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
-            else:
-                print(f"{self.data(index, int(SourceModel.Roles.NAME))} is not in checked models1")
+            return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
         else:
             return SourceModel.data(self, index, role)
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
-            if self.data(index, int(SourceModel.Roles.NAME)) in self._checked_models:
-                self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
-            else:
-                print(f"{self.data(index, int(SourceModel.Roles.NAME))} is not in checked models2")
+            self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
 
     def check(self, index):
         if self.data(index, Qt.CheckStateRole) == Qt.Checked:
@@ -215,13 +196,32 @@ class ImportModelsModel(SourceModel):
         else:
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
+    def import_sessions(self):
+        sessions = {}
+        for r in range(0,self.rowCount()):
+            index = self.index(r,0)
+            if index.data(int(Qt.Checked)):
+                type = index.data(int(SourceModel.Roles.TYPE))
+                source = index.data(int(SourceModel.Roles.PATH)) if type != 'model' else 'repository'
+                model = index.data(int(SourceModel.Roles.NAME))
+                
+                models = []
+                if source in sessions:
+                    models = sessions[source]['models']
+                else:
+                    sessions[source]={}
+                models.append(model)
+                sessions[source]['models']=models
+        return sessions
+
 class ImportWizard (QWizard):
 
     Page_Intro_Id = 1
     Page_ImportSourceSeletion_Id = 2
     Page_ImportDatabaseSelection_Id = 3
     Page_ImportSchemaConfiguration_Id = 4
-    Page_ImportDataConfigurtation_Id = 5
+    Page_ImportExecution_Id = 5
+    Page_ImportDataConfigurtation_Id = 6
 
     def __init__(self, base_config, parent=None):
         QWizard.__init__(self)
@@ -229,7 +229,15 @@ class ImportWizard (QWizard):
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"));
         self.setWizardStyle(QWizard.ModernStyle);
 
+        self.current_id = 0
+
+        # config setup
+        self.configuration = ImportDataConfiguration()
+        self.configuration.base_configuration = base_config
+
         # models setup
+        self.db_simple_factory = DbSimpleFactory()
+
         self.source_model = SourceModel()
         self.file_model = QSortFilterProxyModel()
         self.file_model.setSourceModel(self.source_model)
@@ -237,17 +245,48 @@ class ImportWizard (QWizard):
         self.import_models_model = ImportModelsModel()
 
         # pages setup
-        self.setPage(self.Page_Intro_Id, IntroPage(self))
-        self.setPage(self.Page_ImportSourceSeletion_Id, ImportSourceSeletionPage(base_config, self))
-        self.setPage(self.Page_ImportDatabaseSelection_Id, ImportDatabaseSelectionPage(base_config, self))
-        self.setPage(self.Page_ImportSchemaConfiguration_Id, ImportSchemaConfigurationPage(base_config, self))
+        self.intro_page = IntroPage(self)
+        self.source_seletion_page = ImportSourceSeletionPage(self)
+        self.database_seletion_page = ImportDatabaseSelectionPage(self)
+        self.schema_configuration_page = ImportSchemaConfigurationPage(self)
+        self.execution_page = ImportExecutionPage(self)
+        
+        self.setPage(self.Page_Intro_Id, self.intro_page)
+        self.setPage(self.Page_ImportSourceSeletion_Id, self.source_seletion_page)
+        self.setPage(self.Page_ImportDatabaseSelection_Id, self.database_seletion_page)
+        self.setPage(self.Page_ImportSchemaConfiguration_Id, self.schema_configuration_page)
+        self.setPage(self.Page_ImportExecution_Id, self.execution_page)
         #self.setPage(self.Page_ImportDataConfigurtation_Id, ImportDataConfigurtationPage())
 
-        self.currentIdChanged.connect(self.page_changed)
+        self.currentIdChanged.connect(self.id_changed)
     
-    def page_changed(self, id):
-        if id == self.Page_ImportSchemaConfiguration_Id:
+    def id_changed(self, new_id):
+        if self.current_id == self.Page_ImportDatabaseSelection_Id:
+            self.database_seletion_page.save_configuration(self.configuration)
+        if self.current_id == self.Page_ImportSchemaConfiguration_Id:
+            self.schema_configuration_page.save_configuration(self.configuration)
+
+        self.current_id = new_id
+
+        if self.current_id == self.Page_ImportDatabaseSelection_Id:
+            self.database_seletion_page.restore_configuration(self.configuration)
+        if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.refresh_import_models_model()
+            self.schema_configuration_page.restore_configuration(self.configuration)
+        if self.current_id == self.Page_ImportExecution_Id:
+            self.execution_page.run(self.configuration, self.import_models_model.import_sessions())
 
     def refresh_import_models_model(self):
-        self.import_models_model.refresh_model(self.file_model, None) 
+
+        schema = self.configuration.dbschema
+        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(self.configuration)
+        uri_string = config_manager.get_uri(self.configuration.db_use_super_login)
+        db_connector = None
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+        except (DBConnectorError, FileNotFoundError):
+            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+            pass
+
+        self.import_models_model.refresh_model(self.file_model, db_connector) 

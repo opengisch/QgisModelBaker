@@ -62,11 +62,10 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     ValidExtensions = ['ili', 'xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
-    def __init__(self, base_config, parent):
+    def __init__(self, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-        self.base_configuration = base_config
 
         self.setTitle(self.tr("Source Selection"))
 
@@ -77,7 +76,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         # self.input_line_edit.setValidator(fileValidator)
         # self.input_line_edit.textChanged.connect(self.validators.validate_line_edits)
 
-        self.ilicache = IliCache(self.base_configuration)
+        self.ilicache = IliCache(parent.configuration.base_configuration)
         self.model_delegate = ModelCompleterDelegate()
         self.refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(self.tr('[Browse for file or search model from repository]'))

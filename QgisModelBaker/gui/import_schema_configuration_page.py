@@ -53,12 +53,10 @@ PAGE_UI = get_ui_class('import_schema_configuration.ui')
 
 class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, base_config, parent):
+    def __init__(self, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-        self.base_configuration = base_config
-
         self.setTitle(self.tr("Schema import configuration"))
         
         self.model_list_view.setModel(parent.import_models_model)
@@ -73,7 +71,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.crsSelector.crsChanged.connect(self.crs_changed)
 
         '''
-        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.ilimetaconfigcache = IliMetaConfigCache(parent.configuration.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
@@ -98,6 +96,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
     
+    def update_crs_info(self):
+        self.crsSelector.setCrs(self.crs)
+
     def crs_changed(self):
         self.srs_auth = 'EPSG'  # Default
         self.srs_code = 21781  # Default
@@ -117,3 +118,37 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.crs_label.setStyleSheet('color: orange')
                 self.crs_label.setToolTip(
                     self.tr("The srs code ('{}') should be an integer.\nA default EPSG:21781 will be used.".format(srs_code)))
+
+    def restore_configuration(self, configuration):
+        settings = QSettings()
+        srs_auth = settings.value('QgisModelBaker/ili2db/srs_auth', 'EPSG')
+        srs_code = settings.value('QgisModelBaker/ili2db/srs_code', 21781, int)
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
+        self.fill_toml_file_info_label()
+        self.update_crs_info()
+        self.crs_changed()
+
+    def update_configuration(self, configuration):
+        configuration.srs_auth = self.srs_auth
+        configuration.srs_code = self.srs_code
+        configuration.inheritance = self.ili2db_options.inheritance_type()
+        configuration.tomlfile = self.ili2db_options.toml_file()
+        configuration.create_basket_col = self.ili2db_options.create_basket_col()
+        configuration.create_import_tid = self.ili2db_options.create_import_tid()
+        configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
+        configuration.pre_script = self.ili2db_options.pre_script()
+        configuration.post_script = self.ili2db_options.post_script()
+        #configuration.metaconfig = self.metaconfig
+        #configuration.metaconfig_id = self.current_metaconfig_id
+
+        #if not self.create_constraints:
+        #    configuration.disable_validation = True
+
+    def save_configuration(self, configuration):
+        self.update_configuration(configuration)
+        settings = QSettings()
+        settings.setValue('QgisModelBaker/ili2db/srs_auth', self.srs_auth)
+        settings.setValue('QgisModelBaker/ili2db/srs_code', self.srs_code)

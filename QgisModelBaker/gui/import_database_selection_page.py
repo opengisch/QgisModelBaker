@@ -32,7 +32,6 @@ from qgis.PyQt.QtCore import Qt, QSettings
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
@@ -56,11 +55,10 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
     when there are no models - it should warn that the DB does not exist.
     when there are new models to be created, it should warn that the DB already exists.
     '''
-    def __init__(self, base_config, parent):
+    def __init__(self, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-        self.base_configuration = base_config
 
         self.setTitle(self.tr("Database Selection"))
 
@@ -84,13 +82,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.txtStdout.setLayout(QGridLayout())
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
         self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
-
-        self.restore_configuration()
-        self.completeChanged.connect(self.save_configuration)
-        self.completeChanged.connect(self.next_btn)
-
-    def next_btn(self):
-        print("next")
         
     def type_changed(self):
         self.txtStdout.clear()
@@ -118,37 +109,49 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
                 self.progress_bar.hide()
                 return
         '''
+    
+    def db_ili_version(self, configuration):
+        """
+        Returns the ili2db version the database has been created with or None if the database
+        could not be detected as a ili2db database
+        """
+        schema = configuration.dbschema
 
-    def restore_configuration(self):
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
+
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+            #db_connector.new_message.connect(self.show_message)
+            return db_connector.ili_version()
+        except (DBConnectorError, FileNotFoundError):
+            return None
+
+    def restore_configuration(self, configuration):
         settings = QSettings()
 
-        print("restore")
         for db_id in self.db_simple_factory.get_db_list(False):
-            configuration = ImportDataConfiguration()
             db_factory = self.db_simple_factory.create_factory(db_id)
             config_manager = db_factory.get_db_command_config_manager(configuration)
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
         mode = settings.value('QgisModelBaker/importtype')
-        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database 
         mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self.type_changed()
 
-
-    def updated_configuration(self):
-        configuration = ImportDataConfiguration()
-
+    def update_configuration(self, configuration):
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
         configuration.tool = mode
-        return configuration
+        configuration.db_ili_version = self.db_ili_version(configuration)
 
-    def save_configuration(self):
-        configuration = self.updated_configuration()
-
+    def save_configuration(self, configuration):
+        self.update_configuration(configuration)
         settings = QSettings()
         settings.setValue('QgisModelBaker/importtype',
                     self.type_combo_box.currentData().name)
@@ -157,5 +160,3 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         config_manager = db_factory.get_db_command_config_manager(configuration)
         config_manager.save_config_in_qsettings()
 
-
-        print("saved")
