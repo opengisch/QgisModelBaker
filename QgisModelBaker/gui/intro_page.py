@@ -39,4 +39,4 @@ class IntroPage (QWizardPage):
         self.setLayout(layout)
 
     def nextId(self):
-        return self.wizard.Page_ImportSourceSeletion
+        return self.wizard.Page_ImportSourceSeletion_Id

@@ -98,7 +98,6 @@ class ImportModelsModel(SourceModel):
     def __init__(self):
         super().__init__()
         self._checked_models = {}
-        
     
     def refresh_model(self, filtered_source_model, db_connector=None):
 
@@ -218,40 +217,37 @@ class ImportModelsModel(SourceModel):
 
 class ImportWizard (QWizard):
 
-    Page_Intro = 1
-    Page_ImportSourceSeletion = 2
-    Page_ImportDatabaseSelection = 3
-    Page_ImportSchemaConfiguration = 4
-    Page_ImportDataConfigurtation = 5
+    Page_Intro_Id = 1
+    Page_ImportSourceSeletion_Id = 2
+    Page_ImportDatabaseSelection_Id = 3
+    Page_ImportSchemaConfiguration_Id = 4
+    Page_ImportDataConfigurtation_Id = 5
 
     def __init__(self, base_config, parent=None):
         QWizard.__init__(self)
 
+        self.setWindowTitle(self.tr("QGIS Model Baker Wizard"));
+        self.setWizardStyle(QWizard.ModernStyle);
+
+        # models setup
         self.source_model = SourceModel()
         self.file_model = QSortFilterProxyModel()
         self.file_model.setSourceModel(self.source_model)
         self.file_model.setFilterRole(int(SourceModel.Roles.TYPE))
-
-        self.refreshTimer = QTimer()
-        self.refreshTimer.setSingleShot(True)
-        self.refreshTimer.timeout.connect(self.refresh_import_models_model)
-
         self.import_models_model = ImportModelsModel()
-        self.source_model.rowsInserted.connect( lambda: self.request_for_refresh_import_models_model())
-        self.source_model.rowsRemoved.connect( lambda: self.request_for_refresh_import_models_model())
 
-        self.setPage(self.Page_Intro, IntroPage(self))
-        self.setPage(self.Page_ImportSourceSeletion, ImportSourceSeletionPage(base_config, self))
-        self.setPage(self.Page_ImportDatabaseSelection, ImportDatabaseSelectionPage(base_config, self))
-        self.setPage(self.Page_ImportSchemaConfiguration, ImportSchemaConfigurationPage(base_config, self))
-        #self.setPage(self.Page_ImportDataConfigurtation, ImportDataConfigurtationPage())
+        # pages setup
+        self.setPage(self.Page_Intro_Id, IntroPage(self))
+        self.setPage(self.Page_ImportSourceSeletion_Id, ImportSourceSeletionPage(base_config, self))
+        self.setPage(self.Page_ImportDatabaseSelection_Id, ImportDatabaseSelectionPage(base_config, self))
+        self.setPage(self.Page_ImportSchemaConfiguration_Id, ImportSchemaConfigurationPage(base_config, self))
+        #self.setPage(self.Page_ImportDataConfigurtation_Id, ImportDataConfigurtationPage())
 
-        self.setWindowTitle(self.tr("QGIS Model Baker Wizard"));
-        self.setWizardStyle(QWizard.ModernStyle);
-
-    def request_for_refresh_import_models_model(self):
-        # hold refresh back
-        self.refreshTimer.start(500)
+        self.currentIdChanged.connect(self.page_changed)
+    
+    def page_changed(self, id):
+        if id == self.Page_ImportSchemaConfiguration_Id:
+            self.refresh_import_models_model()
 
     def refresh_import_models_model(self):
         self.import_models_model.refresh_model(self.file_model, None) 
