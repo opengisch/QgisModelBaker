@@ -30,6 +30,7 @@ from QgisModelBaker.libili2db.ilicache import (
     IliToppingFileItemModel
 )
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.gui.options import ModelListView
 
 from qgis.PyQt.QtCore import Qt, QSettings
 
@@ -52,15 +53,17 @@ PAGE_UI = get_ui_class('import_schema_configuration.ui')
 
 class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, base_config, parent=None):
+    def __init__(self, base_config, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
         self.base_configuration = base_config
 
         self.setTitle(self.tr("Schema import configuration"))
-
-        parent.refresh_import_models_model()
+        
+        self.model_list_view.setModel(parent.import_models_model)
+        self.model_list_view.clicked.connect(parent.import_models_model.check)
+        self.model_list_view.space_pressed.connect(parent.import_models_model.check)
 
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()

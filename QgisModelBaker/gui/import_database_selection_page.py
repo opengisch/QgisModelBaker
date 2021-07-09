@@ -56,7 +56,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
     when there are no models - it should warn that the DB does not exist.
     when there are new models to be created, it should warn that the DB already exists.
     '''
-    def __init__(self, base_config, parent=None):
+    def __init__(self, base_config, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)

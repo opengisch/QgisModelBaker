@@ -123,7 +123,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="3">
-       <widget class="QListView" name="source_list_view"/>
+       <widget class="ModelListView" name="model_list_view" native="true"/>
       </item>
      </layout>
     </widget>
@@ -149,6 +149,12 @@
   </customwidget>
   <customwidget>
    <class>CompletionLineEdit</class>
+   <extends></extends>
+   <header>QgisModelBaker.gui.options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ModelListView</class>
    <extends></extends>
    <header>QgisModelBaker.gui.options</header>
    <container>1</container>

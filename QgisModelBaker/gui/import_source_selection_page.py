@@ -62,7 +62,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     ValidExtensions = ['ili', 'xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
-    def __init__(self, base_config, parent=None):
+    def __init__(self, base_config, parent):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
