@@ -60,6 +60,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.setTitle(self.tr("Schema import configuration"))
 
+        parent.refresh_import_models_model()
+
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)

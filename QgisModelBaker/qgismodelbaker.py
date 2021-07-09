@@ -133,6 +133,8 @@ class QgisModelBakerPlugin(QObject):
         self.__about_action.triggered.connect(self.show_about_dialog)
 
         self.iface.addPluginToDatabaseMenu(
+            self.tr('Model Baker'), self.__import_wizard_action)
+        self.iface.addPluginToDatabaseMenu(
             self.tr('Model Baker'), self.__generate_action)
         self.iface.addPluginToDatabaseMenu(
             self.tr('Model Baker'), self.__importdata_action)
@@ -150,10 +152,10 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar = self.iface.addToolBar(self.tr('Model Baker'))
         self.toolbar.setObjectName("ModelBakerToolbar")
         self.toolbar.setToolTip(self.tr('Model Baker Toolbar'))
+        self.toolbar.addAction(self.__import_wizard_action)
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
-        self.toolbar.addAction(self.__import_wizard_action)
         self.register_event_filter()
 
     def unload(self):

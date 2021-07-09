@@ -141,5 +141,5 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.input_line_edit.clear()
 
     def remove_selected_rows(self):
-        indices = self.source_list_view.selectionModel().selectedRows()
+        indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)

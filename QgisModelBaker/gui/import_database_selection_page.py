@@ -38,6 +38,7 @@ from qgis.PyQt.QtWidgets import (
     QWizardPage,
     QSizePolicy,
     QGridLayout,
+    QLayout,
     QMessageBox,
     QAction,
     QToolButton
