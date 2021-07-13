@@ -43,6 +43,7 @@ from qgis.core import (
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
 
 #log colors
+COLOR_INFO = '#000000'
 COLOR_SUCCESS = '#aa2222'
 COLOR_FAIL = '#004905'
 COLOR_TOPPING = '#341d5c'

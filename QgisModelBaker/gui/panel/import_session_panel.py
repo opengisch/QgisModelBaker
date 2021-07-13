@@ -88,7 +88,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         So on clicking the button the creation will start with validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.create_constraints = True
+        self.configuration.disable_validations = False
         self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
@@ -101,7 +101,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         So on clicking the button the creation will start without validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.create_constraints = False
+        self.configuration.disable_validations = True
         self.create_tool_button.removeAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(self.set_button_to_create_action)
