@@ -23,7 +23,12 @@ from enum import Enum
 import os
 import re
 
-from qgis.PyQt.QtWidgets import QWizard
+from qgis.PyQt.QtWidgets import (
+    QWizard,
+    QTextBrowser,
+    QSizePolicy,
+    QGridLayout
+)
 
 from QgisModelBaker.gui.intro_page import IntroPage
 from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletionPage
@@ -37,6 +42,10 @@ from qgis.PyQt.QtGui import (
     QIcon
 )
 
+from qgis.gui import (
+    QgsMessageBar
+)
+
 from qgis.PyQt.QtCore import (
     QSortFilterProxyModel,
     QTimer,
@@ -44,7 +53,7 @@ from qgis.PyQt.QtCore import (
 )
 
 from QgisModelBaker.libili2db.ilicache import IliCache
-from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration, SchemaImportConfiguration
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -205,13 +214,14 @@ class ImportModelsModel(SourceModel):
                 source = index.data(int(SourceModel.Roles.PATH)) if type != 'model' else 'repository'
                 model = index.data(int(SourceModel.Roles.NAME))
                 
-                models = []
-                if source in sessions:
-                    models = sessions[source]['models']
-                else:
-                    sessions[source]={}
-                models.append(model)
-                sessions[source]['models']=models
+                if self._checked_models[model] == Qt.Checked:
+                    models = []
+                    if source in sessions:
+                        models = sessions[source]['models']
+                    else:
+                        sessions[source]={}
+                    models.append(model)
+                    sessions[source]['models']=models
         return sessions
 
 class ImportWizard (QWizard):
@@ -232,7 +242,7 @@ class ImportWizard (QWizard):
         self.current_id = 0
 
         # config setup
-        self.configuration = ImportDataConfiguration()
+        self.configuration = SchemaImportConfiguration()
         self.configuration.base_configuration = base_config
 
         # models setup

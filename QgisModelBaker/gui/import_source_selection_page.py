@@ -51,8 +51,14 @@ from qgis.PyQt.QtCore import (
 )
 
 # gui stuff
-from qgis.PyQt.QtWidgets import QWizardPage, QWizard, QLabel, QVBoxLayout
+from qgis.PyQt.QtWidgets import (
+    QWizardPage,
+    QGridLayout
+)
+
 from qgis.PyQt.QtGui import QPixmap
+
+from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from ..utils import get_ui_class
 
@@ -66,8 +72,12 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-
-        self.setTitle(self.tr("Source Selection"))
+        self.setFixedSize(1200,800)
+        self.setTitle(self.tr("Source Selection")) 
+        self.log_panel = LogPanel()
+        layout = self.layout()
+        layout.addWidget(self.log_panel)
+        self.setLayout(layout)
 
         self.file_browse_button.clicked.connect( make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr('Interlis Model File (*.ili);;Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
         
@@ -90,9 +100,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.remove_button.setEnabled(parent.source_model.rowCount())
         parent.source_model.rowsInserted.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
         parent.source_model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
-        
-        # self.add_button.setEnabled(False)
-        # self.restore_configuration()
+
 
     def first_time_punch(self):
         # might could be nices
@@ -102,7 +110,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.input_line_edit.punched.connect(self.complete_models_completer)
 
     def refresh_ili_models_cache(self):
-        # self.ilicache.new_message.connect(self.show_message)
+        self.ilicache.new_message.connect(self.log_panel.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
 

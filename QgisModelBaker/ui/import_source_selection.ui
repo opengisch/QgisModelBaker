@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
-    <height>840</height>
+    <width>1200</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QFrame" name="the_frame">
+    <widget class="QFrame" name="content_frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -111,16 +111,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QTextBrowser" name="txtStdout">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="openLinks">
-      <bool>false</bool>
-     </property>
     </widget>
    </item>
   </layout>

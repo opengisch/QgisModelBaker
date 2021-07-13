@@ -27,6 +27,7 @@ class IntroPage (QWizardPage):
         QWizardPage.__init__(self, parent)
 
         self.wizard = wizard
+        self.setFixedSize(1200,800)
 
         self.setTitle(self.tr("Introduction"))
         self.setPixmap(QWizard.WatermarkPixmap, QPixmap(":/images/QgisModelBaker-import.svg"))

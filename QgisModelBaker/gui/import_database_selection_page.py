@@ -29,6 +29,8 @@ from QgisModelBaker.libili2db.ilicache import (
 
 from qgis.PyQt.QtCore import Qt, QSettings
 
+from QgisModelBaker.gui.panel.log_panel import LogPanel
+
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -59,8 +61,12 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-
+        self.setFixedSize(1200,800)
         self.setTitle(self.tr("Database Selection"))
+        self.log_panel = LogPanel()
+        layout = self.layout()
+        layout.addWidget(self.log_panel)
+        self.setLayout(layout)
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -76,12 +82,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
             self.db_layout.addWidget(item_panel)
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
-
-        self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.txtStdout.setLayout(QGridLayout())
-        self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
-        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
         
     def type_changed(self):
         self.txtStdout.clear()
@@ -123,7 +123,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
-            #db_connector.new_message.connect(self.show_message)
+            db_connector.new_message.connect(self.log_panel.show_message)
             return db_connector.ili_version()
         except (DBConnectorError, FileNotFoundError):
             return None

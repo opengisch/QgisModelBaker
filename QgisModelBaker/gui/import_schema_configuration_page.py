@@ -22,6 +22,8 @@ import os
 import pathlib
 import configparser
 
+from QgisModelBaker.gui.panel.log_panel import LogPanel
+
 from QgisModelBaker.libili2db.ilicache import (
     IliMetaConfigCache,
     IliMetaConfigItemModel,
@@ -57,7 +59,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
+        self.setFixedSize(1200,800)
         self.setTitle(self.tr("Schema import configuration"))
+        self.log_panel = LogPanel()
+        layout = self.layout()
+        layout.addWidget(self.log_panel)
+        self.setLayout(layout)
         
         self.model_list_view.setModel(parent.import_models_model)
         self.model_list_view.clicked.connect(parent.import_models_model.check)
