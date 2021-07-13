@@ -84,7 +84,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
         
     def type_changed(self):
-        self.txtStdout.clear()
 
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
