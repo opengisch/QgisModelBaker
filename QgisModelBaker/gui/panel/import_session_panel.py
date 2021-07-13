@@ -30,6 +30,7 @@ from ...utils import get_ui_class
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libili2db import iliimporter
+from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 
@@ -133,7 +134,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             self.progress_bar.setValue(10)
             self.setDisabled(True)
 
-            importer.stdout.connect(lambda str: self.print_info.emit(str, '#000000'))
+            importer.stdout.connect(lambda str: self.print_info.emit(str, LogPanel.COLOR_INFO))
             importer.stderr.connect(self.on_stderr)
             importer.process_started.connect(self.on_process_started)
             importer.process_finished.connect(self.on_process_finished)
@@ -144,10 +145,10 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
                     self.setDisabled(False)
                     return
             except JavaNotFoundError as e:
-                self.print_info.emit(e.error_string, '#004905')
+                self.print_info.emit(e.error_string, LogPanel.COLOR_FAIL)
                 self.progress_bar.setValue(0)
                 self.setDisabled(False)
                 return
             
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr('Import done!'), '#004905')
+            self.print_info.emit(self.tr('Import done\n!'), LogPanel.COLOR_SUCCESS)

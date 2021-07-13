@@ -102,8 +102,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             self.log_panel.print_info('append session for models {}'.format(', '.join(import_sessions[key]['models'])))
     
         self.session_layout.addSpacerItem(QSpacerItem(0,self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.scroll_area_content.setLayout(self.session_layout) 
-
+        self.scroll_area_content.setLayout(self.session_layout)
 
     def on_process_started(self, command):
         self.log_panel.print_info(command, '#000000')
