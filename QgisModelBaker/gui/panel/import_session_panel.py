@@ -23,7 +23,9 @@ from qgis.PyQt.QtWidgets import (
     QAction,
     QGridLayout
 )
-
+from qgis.PyQt.QtCore import (
+    Qt
+)
 from ...utils import get_ui_class
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -31,9 +33,19 @@ from ...libili2db import iliimporter
 
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 
+from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.utils.qt_utils import OverrideCursor
+
+from qgis.PyQt.QtCore import pyqtSignal
+
 WIDGET_UI = get_ui_class('import_session_panel.ui')
 
 class ImportSessionPanel(QWidget, WIDGET_UI):
+
+    print_info = pyqtSignal(str, str)
+    on_stderr = pyqtSignal(str)
+    on_process_started = pyqtSignal(str)
+    on_process_finished = pyqtSignal(int, int)
 
     def __init__(self, general_configuration, file, models, parent = None):
         QWidget.__init__(self, parent)
@@ -66,6 +78,8 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.configuration.ilimodels = ';'.join(models)
 
         self.info_label.setText( self.tr('Import {}').format(' ,'.join(models)))
+
+        self.db_simple_factory = DbSimpleFactory()
 
     def set_button_to_create(self):
         """
@@ -108,64 +122,32 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             self.run(edited_command)
 
     def run(self, edited_command):
-        '''
+        
         importer = iliimporter.Importer()
         importer.tool = self.configuration.tool
         importer.configuration = self.configuration
-        self.info_label.setText(importer.command(True))
-
-        db_factory = self.db_simple_factory.create_factory(importer.configuration.tool)
-
-        try:
-            # raise warning when the schema or the database file already exists
-            config_manager = db_factory.get_db_command_config_manager(importer.configuration)
-            db_connector = db_factory.get_db_connector(
-                config_manager.get_uri(importer.configuration.db_use_super_login) or config_manager.get_uri(), importer.configuration.dbschema)
-
-            if db_connector.db_or_schema_exists():
-                warning_box = QMessageBox(self)
-                warning_box.setIcon(QMessageBox.Information)
-                warning_title = self.tr("{} already exists").format(
-                    db_factory.get_specific_messages()['db_or_schema']
-                ).capitalize()
-                warning_box.setWindowTitle(warning_title)
-                warning_box.setText(self.tr("{warning_title}:\n{db_or_schema_name}\n\nDo you want to "
-                                            "import into the existing {db_or_schema}?").format(
-                    warning_title=warning_title,
-                    db_or_schema=db_factory.get_specific_messages()['db_or_schema'].capitalize(),
-                    db_or_schema_name=configuration.dbschema or config_manager.get_uri()
-                ))
-                warning_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                warning_box_result = warning_box.exec_()
-                if warning_box_result == QMessageBox.No:
-                    return
-        except (DBConnectorError, FileNotFoundError):
-            # we don't mind when the database file is not yet created
-            pass
-
-        # create schema with superuser
-        res, message = db_factory.pre_generate_project(importer.configuration)
-        if not res:
-            self.txtStdout.setText(message)
-            return
+        
+        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
 
         with OverrideCursor(Qt.WaitCursor):
-            #self.progress_bar.show()
-            #self.progress_bar.setValue(0)
+            self.progress_bar.setValue(10)
+            self.setDisabled(True)
 
-            self.txtStdout.setTextColor(QColor('#000000'))
-
-            importer.stdout.connect(self.print_info)
+            importer.stdout.connect(lambda str: self.print_info.emit(str, '#000000'))
             importer.stderr.connect(self.on_stderr)
             importer.process_started.connect(self.on_process_started)
             importer.process_finished.connect(self.on_process_finished)
+            self.progress_bar.setValue(20)
             try:
                 if importer.run(edited_command) != iliimporter.Importer.SUCCESS:
-                    #self.progress_bar.hide()
+                    self.progress_bar.setValue(0)
+                    self.setDisabled(False)
                     return
             except JavaNotFoundError as e:
-                self.txtStdout.setTextColor(QColor('#000000'))
-                self.txtStdout.setText(e.error_string)
-                #self.progress_bar.hide()
+                self.print_info.emit(e.error_string, '#004905')
+                self.progress_bar.setValue(0)
+                self.setDisabled(False)
                 return
-                '''
+            
+            self.progress_bar.setValue(100)
+            self.print_info.emit(self.tr('Import done!'), '#004905')

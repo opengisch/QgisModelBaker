@@ -22,6 +22,7 @@ import os
 import pathlib
 
 from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
+from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.ilicache import (
     IliCache, 
@@ -35,18 +36,15 @@ from ..libili2db import iliimporter
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
+    QSpacerItem,
     QSizePolicy,
-    QGridLayout,
+    QVBoxLayout,
     QLayout,
     QMessageBox,
     QAction,
     QToolButton
 )
 
-from QgisModelBaker.libili2db.ili2dbutils import color_log_text, JavaNotFoundError
-from QgisModelBaker.utils.qt_utils import (
-    OverrideCursor
-)
 from qgis.PyQt.QtGui import (
     QColor,
     QDesktopServices,
@@ -82,47 +80,42 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         QWizardPage.__init__(self, parent)
         
         self.setupUi(self)
-
+        self.setFixedSize(1200,800)
         self.setTitle(self.tr("Execution"))
+        self.log_panel = LogPanel()
+        layout = self.layout()
+        layout.addWidget(self.log_panel)
+        self.setLayout(layout)
 
         self.db_simple_factory = DbSimpleFactory()
 
-        self.txtStdout = parent.txtStdout
-        self.setFixedSize(1200,800)
 
     def run(self, configuration, import_sessions, edited_command=None):     
-        self.session_layout = QGridLayout()
+        self.session_layout = QVBoxLayout()
         for key in import_sessions:
             import_session = ImportSessionPanel(configuration, key, import_sessions[key]['models'])
+            import_session.print_info.connect(self.log_panel.print_info)
+            import_session.on_stderr.connect(self.log_panel.on_stderr)
+            import_session.on_process_started.connect(self.on_process_started)
+            import_session.on_process_finished.connect(self.on_process_finished)
             self.session_layout.addWidget(import_session)
-            self.scroll_area_content.setLayout(self.session_layout) 
+            self.log_panel.print_info('append session for models {}'.format(', '.join(import_sessions[key]['models'])))
+    
+        self.session_layout.addSpacerItem(QSpacerItem(0,self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.scroll_area_content.setLayout(self.session_layout) 
 
-    def print_info(self, text):
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.append(text)
-        QCoreApplication.processEvents()
-
-    def on_stderr(self, text):
-        color_log_text(text, self.txtStdout)
-        QCoreApplication.processEvents()
-
-    def show_message(self, level, message):
-        if level == Qgis.Warning:
-            self.bar.pushMessage(message, Qgis.Info, 10)
-        elif level == Qgis.Critical:
-            self.bar.pushMessage(message, Qgis.Warning, 10)
 
     def on_process_started(self, command):
-        self.txtStdout.setTextColor(QColor('#000000'))
-        self.txtStdout.setText(command)
+        self.log_panel.print_info(command, '#000000')
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        color = '#004905' if exit_code == 0 else '#aa2222'
-        self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
-        if result == iliimporter.Importer.SUCCESS:
-            self.command += '\nSUCCESS!\n'
+        if exit_code == 0:
+            color = LogPanel.COLOR_SUCCESS
+            message = self.tr(
+                'Interlis model(s) successfully imported into the database!')
         else:
-            self.command += '\nFAIL!\n'
-            self.comand_label.setText(str(self.command ))
+            color = LogPanel.COLOR_FAIL
+            message = self.tr('Finished with errors!')
+
+        self.log_panel.print_info(message, color)
