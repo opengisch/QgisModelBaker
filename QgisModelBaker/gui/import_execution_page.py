@@ -20,6 +20,7 @@
 
 import os
 import pathlib
+import copy
 
 from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -87,22 +88,31 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         layout.addWidget(self.log_panel)
         self.setLayout(layout)
 
-        self.db_simple_factory = DbSimpleFactory()
+        self.sessionwidget_list = []
 
-
-    def run(self, configuration, import_sessions, edited_command=None):     
-        self.session_layout = QVBoxLayout()
+    def run(self, configuration, import_sessions):
         for key in import_sessions:
             import_session = ImportSessionPanel(configuration, key, import_sessions[key]['models'])
             import_session.print_info.connect(self.log_panel.print_info)
             import_session.on_stderr.connect(self.log_panel.on_stderr)
             import_session.on_process_started.connect(self.on_process_started)
             import_session.on_process_finished.connect(self.on_process_finished)
-            self.session_layout.addWidget(import_session)
-            self.log_panel.print_info('append session for models {}'.format(', '.join(import_sessions[key]['models'])))
-    
+            if import_session not in self.sessionwidget_list:
+                self.sessionwidget_list.append(import_session)
+
+        self.session_layout = QVBoxLayout()
+        for sessionwidget in self.sessionwidget_list:
+            self.session_layout.addWidget(sessionwidget)
         self.session_layout.addSpacerItem(QSpacerItem(0,self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.scroll_area_content.setLayout(self.session_layout)
+
+        print( len(self.sessionwidget_list))
+
+        loop = QEventLoop()
+        for sessionwidget in self.sessionwidget_list:
+            if not sessionwidget.run():
+                sessionwidget.on_done_or_skipped.connect(lambda: loop.quit())
+                loop.exec()
 
     def on_process_started(self, command):
         self.log_panel.print_info(command, '#000000')

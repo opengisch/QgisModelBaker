@@ -47,6 +47,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
     on_stderr = pyqtSignal(str)
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
+    on_done_or_skipped = pyqtSignal()
 
     def __init__(self, general_configuration, file, models, parent = None):
         QWidget.__init__(self, parent)
@@ -63,6 +64,9 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
 
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
+
+        self.edit_command_action = QAction(self.tr('Skip'), None)
+        self.edit_command_action.triggered.connect(lambda: self.on_done_or_skipped.emit())
 
         self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.addAction(self.edit_command_action)
@@ -122,7 +126,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             edited_command = edit_command_dialog.command_edit.toPlainText()
             self.run(edited_command)
 
-    def run(self, edited_command):
+    def run(self, edited_command = None):
         
         importer = iliimporter.Importer()
         importer.tool = self.configuration.tool
@@ -143,12 +147,16 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
                 if importer.run(edited_command) != iliimporter.Importer.SUCCESS:
                     self.progress_bar.setValue(0)
                     self.setDisabled(False)
-                    return
+                    return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogPanel.COLOR_FAIL)
                 self.progress_bar.setValue(0)
                 self.setDisabled(False)
-                return
+                return False
             
             self.progress_bar.setValue(100)
             self.print_info.emit(self.tr('Import done\n!'), LogPanel.COLOR_SUCCESS)
+            self.on_done_or_skipped.emit()
+            return True
+        
+            
