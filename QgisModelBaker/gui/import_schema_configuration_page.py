@@ -265,7 +265,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if 'iliMetaAttrs' in ili2db_metaconfig:
                 self.log_panel.print_info(self.tr('- Seek for iliMetaAttrs (toml) files:'), LogPanel.COLOR_TOPPING)
                 ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
-                ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list)
+                ili_meta_attrs_file_path_list = self.import_wizard.get_topping_file_list(ili_meta_attrs_list, self.log_panel)
                 self.ili2db_options.load_toml_file_path(';'.join(self.model_list_view.model().checked_models()), ';'.join(ili_meta_attrs_file_path_list))
                 self.log_panel.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'), LogPanel.COLOR_TOPPING)
 
@@ -273,7 +273,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if 'prescript' in ili2db_metaconfig:
                 self.log_panel.print_info(self.tr('- Seek for prescript (sql) files:'), LogPanel.COLOR_TOPPING)
                 prescript_list = ili2db_metaconfig.get('prescript').split(';')
-                prescript_file_path_list = self.get_topping_file_list(prescript_list)
+                prescript_file_path_list = self.import_wizard.get_topping_file_list(prescript_list, self.log_panel)
                 self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
                 self.log_panel.print_info(self.tr('- Loaded prescript (sql) files'), LogPanel.COLOR_TOPPING)
 
@@ -281,52 +281,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if 'postscript' in ili2db_metaconfig:
                 self.log_panel.print_info(self.tr('- Seek for postscript (sql) files:'), LogPanel.COLOR_TOPPING)
                 postscript_list = ili2db_metaconfig.get('postscript').split(';')
-                postscript_file_path_list = self.get_topping_file_list(postscript_list)
+                postscript_file_path_list = self.import_wizard.get_topping_file_list(postscript_list, self.log_panel)
                 self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
                 self.log_panel.print_info(self.tr('- Loaded postscript (sql) files'), LogPanel.COLOR_TOPPING)
 
-    def get_topping_file_list(self, id_list):
-        topping_file_model = self.get_topping_file_model(id_list)
-        file_path_list = []
-
-        for file_id in id_list:
-            matches = topping_file_model.match(topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1)
-            if matches:
-                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
-                self.log_panel.print_info(
-                    self.tr('- - Got file {}').format(file_path), LogPanel.COLOR_TOPPING)
-                file_path_list.append(file_path)
-        return file_path_list
-
-    def get_topping_file_model(self, id_list):
-        topping_file_cache = IliToppingFileCache(self.import_wizard.configuration.base_configuration, id_list)
-
-        # we wait for the download or we timeout after 30 seconds and we apply what we have
-        loop = QEventLoop()
-        topping_file_cache.download_finished.connect(lambda: loop.quit())
-        timer = QTimer()
-        timer.setSingleShot(True)
-        timer.timeout.connect(lambda: loop.quit())
-        timer.start(30000)
-
-        topping_file_cache.refresh()
-        self.log_panel.print_info(self.tr('- - Downloading…'), LogPanel.COLOR_TOPPING)
-
-        if len(topping_file_cache.downloaded_files) != len(id_list):
-            loop.exec()
-
-        if len(topping_file_cache.downloaded_files) == len(id_list):
-            self.log_panel.print_info(self.tr('- - All topping files successfully downloaded'), LogPanel.COLOR_TOPPING)
-        else:
-            missing_file_ids = id_list
-            for downloaded_file_id in topping_file_cache.downloaded_files:
-                if downloaded_file_id in missing_file_ids:
-                    missing_file_ids.remove(downloaded_file_id)
-            self.log_panel.print_info(self.tr('- - Some topping files where not successfully downloaded: {}').format(' '.join(missing_file_ids)), LogPanel.COLOR_TOPPING)
-
-        return topping_file_cache.model
-
-    def restore_configuration(self, configuration):
+    def restore_configuration(self):
         settings = QSettings()
         srs_auth = settings.value('QgisModelBaker/ili2db/srs_auth', 'EPSG')
         srs_code = settings.value('QgisModelBaker/ili2db/srs_code', 21781, int)

@@ -67,6 +67,10 @@ from qgis.gui import (
     QgsGui
 )
 
+from QgisModelBaker.libili2db.ilicache import (
+    IliToppingFileCache,
+    IliToppingFileItemModel
+)
 from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_project_creation.ui')
@@ -153,14 +157,13 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
 
         custom_layer_order_structure = list()
 
-        '''
         # Toppings legend and layers: collect, download and apply
         if 'CONFIGURATION' in self.configuration.metaconfig.sections():
             configuration_section = self.configuration.metaconfig['CONFIGURATION']
             if 'qgis.modelbaker.layertree' in configuration_section:
                 self.log_panel.print_info(self.tr('Metaconfig contains a layertree structure topping.'), LogPanel.COLOR_TOPPING)
                 layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
-                layertree_data_file_path_list = self.get_topping_file_list( layertree_data_list)
+                layertree_data_file_path_list = self.import_wizard.get_topping_file_list( layertree_data_list, self.log_panel)
                 for layertree_file_path in layertree_data_file_path_list:
                     self.log_panel.print_info(
                         self.tr('Parse layertree structure {}…').format(layertree_file_path), LogPanel.COLOR_TOPPING)
@@ -175,7 +178,6 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                         except yaml.YAMLError as exc:
                             self.log_panel.print_info(
                                 self.tr('Unable to parse layertree structure: {}').format(exc), LogPanel.COLOR_TOPPING)
-        '''
         self.progress_bar.setValue(55)
 
         project = Project()
@@ -201,12 +203,12 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                 break
 
         self.progress_bar.setValue(60)
-        '''
+        
         # Toppings QMLs: collect, download and apply
         if 'qgis.modelbaker.qml' in self.configuration.metaconfig.sections():
             self.log_panel.print_info(self.tr('Metaconfig contains QML toppings.'), LogPanel.COLOR_TOPPING)
             qml_section = dict(self.configuration.metaconfig['qgis.modelbaker.qml'])
-            qml_file_model = self.get_topping_file_model(list(qml_section.values()))
+            qml_file_model = self.import_wizard.get_topping_file_model(list(qml_section.values()), self.log_panel)
             for layer in project.layers:
                 if any(layer.alias.lower() == s for s in qml_section):
                     layer_qml = layer.alias.lower()
@@ -221,6 +223,6 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                     self.log_panel.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
                                     LogPanel.COLOR_TOPPING)
                     layer.layer.loadNamedStyle(style_file_path)
-        '''
+        
         self.progress_bar.setValue(100)
         self.log_panel.print_info(self.tr("It's served!"))

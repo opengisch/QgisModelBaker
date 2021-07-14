@@ -18,7 +18,6 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.gui.import_project_creation import ImportProjectCreationPage
 from QgisModelBaker.utils.qt_utils import make_folder_selector
 from enum import Enum
 import os
@@ -36,6 +35,8 @@ from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletion
 from QgisModelBaker.gui.import_database_selection_page import ImportDatabaseSelectionPage
 from QgisModelBaker.gui.import_schema_configuration_page import ImportSchemaConfigurationPage
 from QgisModelBaker.gui.import_execution_page import ImportExecutionPage
+from QgisModelBaker.gui.import_project_creation import ImportProjectCreationPage
+from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from qgis.PyQt.QtGui import (
     QStandardItemModel,
@@ -50,7 +51,12 @@ from qgis.gui import (
 from qgis.PyQt.QtCore import (
     QSortFilterProxyModel,
     QTimer,
-    Qt
+    Qt,
+    QEventLoop
+)
+
+from QgisModelBaker.libili2db.ilicache import (
+    IliToppingFileCache
 )
 
 from QgisModelBaker.libili2db.ilicache import IliCache
@@ -292,7 +298,7 @@ class ImportWizard (QWizard):
             self.database_seletion_page.restore_configuration(self.configuration)
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.refresh_import_models_model()
-            self.schema_configuration_page.restore_configuration(self.configuration)
+            self.schema_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportExecution_Id:
             self.execution_page.run(self.configuration, self.import_models_model.import_sessions())
         if self.current_id == self.Page_ImportProjectCreation_Id:
@@ -312,3 +318,44 @@ class ImportWizard (QWizard):
             pass
 
         self.import_models_model.refresh_model(self.file_model, db_connector) 
+
+    def get_topping_file_list(self, id_list, log_panel):
+        topping_file_model = self.get_topping_file_model(id_list, log_panel)
+        file_path_list = []
+
+        for file_id in id_list:
+            matches = topping_file_model.match(topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1)
+            if matches:
+                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                log_panel.print_info(
+                    self.tr('- - Got file {}').format(file_path), LogPanel.COLOR_TOPPING)
+                file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, id_list, log_panel):
+        topping_file_cache = IliToppingFileCache(self.configuration.base_configuration, id_list)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+        log_panel.print_info(self.tr('- - Downloading…'), LogPanel.COLOR_TOPPING)
+
+        if len(topping_file_cache.downloaded_files) != len(id_list):
+            loop.exec()
+
+        if len(topping_file_cache.downloaded_files) == len(id_list):
+            log_panel.print_info(self.tr('- - All topping files successfully downloaded'), LogPanel.COLOR_TOPPING)
+        else:
+            missing_file_ids = id_list
+            for downloaded_file_id in topping_file_cache.downloaded_files:
+                if downloaded_file_id in missing_file_ids:
+                    missing_file_ids.remove(downloaded_file_id)
+            log_panel.print_info(self.tr('- - Some topping files where not successfully downloaded: {}').format(' '.join(missing_file_ids)), LogPanel.COLOR_TOPPING)
+
+        return topping_file_cache.model
