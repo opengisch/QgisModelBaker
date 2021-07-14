@@ -49,7 +49,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal()
 
-    def __init__(self, general_configuration, file, models, parent = None):
+    def __init__(self, general_configuration, file, models, dataset, data_import, parent = None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
@@ -76,14 +76,17 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
-        self.configuration.ilifile = ''
-        
-        if file != 'repository':
-            self.configuration.ilifile = file
-
-        self.configuration.ilimodels = ';'.join(models)
-
-        self.info_label.setText( self.tr('Import {}').format(' ,'.join(models)))
+        self.data_import = data_import
+        if not self.data_import:
+            self.configuration.ilifile = ''        
+            if file != 'repository':
+                self.configuration.ilifile = file
+            self.configuration.ilimodels = ';'.join(models)
+            self.info_label.setText( self.tr('Import {}').format(' ,'.join(models)))
+        else:
+            self.configuration.xtffile = ''
+            self.configuration.ilimodels = ';'.join(models)
+            self.info_label.setText( self.tr('Import {} of {}').format(' ,'.join(models), file))
 
         self.db_simple_factory = DbSimpleFactory()
 
@@ -133,7 +136,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
 
     def run(self, edited_command = None):
         
-        importer = iliimporter.Importer()
+        importer = iliimporter.Importer(dataImport=self.data_import)
         importer.tool = self.configuration.tool
         importer.configuration = self.configuration
         

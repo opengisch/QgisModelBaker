@@ -228,11 +228,11 @@ class ImportModelsModel(SourceModel):
     def import_sessions(self):
         sessions = {}
         for r in range(0,self.rowCount()):
-            index = self.index(r,0)
-            if index.data(int(Qt.Checked)):
-                type = index.data(int(SourceModel.Roles.TYPE))
-                source = index.data(int(SourceModel.Roles.PATH)) if type != 'model' else 'repository'
-                model = index.data(int(SourceModel.Roles.NAME))
+            item = self.index(r,0)
+            if item.data(int(Qt.Checked)):
+                type = item.data(int(SourceModel.Roles.TYPE))
+                source = item.data(int(SourceModel.Roles.PATH)) if type != 'model' else 'repository'
+                model = item.data(int(SourceModel.Roles.NAME))
                 
                 if self._checked_models[model] == Qt.Checked:
                     models = []
@@ -246,6 +246,21 @@ class ImportModelsModel(SourceModel):
 
     def checked_models(self):
         return [model for model in self._checked_models.keys() if self._checked_models[model] == Qt.Checked]
+class ImportDataModel(QSortFilterProxyModel):
+
+    def __init__(self):
+        super().__init__()
+        self._checked_models = {}
+    
+    def import_sessions(self):
+        sessions = {}
+        for r in range(0,self.rowCount()):
+            source = self.index(r,0).data(int(SourceModel.Roles.PATH))
+            dataset = self.index(r,1).data(int(SourceModel.Roles.DATASET_NAME))
+            sessions[source]={}
+            sessions[source]['dataset']=dataset
+            print( f"s is {source} and d is {dataset}")
+        return sessions
 
 class ImportWizard (QWizard):
 
@@ -256,6 +271,7 @@ class ImportWizard (QWizard):
     Page_ImportExecution_Id = 5
     Page_ImportProjectCreation_Id = 6
     Page_ImportDataConfiguration_Id = 7
+    Page_ImportDataExecution_Id = 8
 
     def __init__(self, iface, base_config, parent=None):
         QWizard.__init__(self)
@@ -269,6 +285,7 @@ class ImportWizard (QWizard):
         # config setup
         self.configuration = SchemaImportConfiguration()
         self.configuration.base_configuration = base_config
+        self.data_configuration = ImportDataConfiguration()
 
         # models setup
         self.db_simple_factory = DbSimpleFactory()
@@ -279,7 +296,7 @@ class ImportWizard (QWizard):
         self.file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_models_model = ImportModelsModel()
 
-        self.import_data_file_model = QSortFilterProxyModel()
+        self.import_data_file_model = ImportDataModel()
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_data_file_model.setFilterRegExp('|'.join(TransferExtensions))
@@ -292,6 +309,7 @@ class ImportWizard (QWizard):
         self.execution_page = ImportExecutionPage(self)
         self.project_creation_page = ImportProjectCreationPage(self)
         self.data_configuration_page = ImportDataConfigurationPage(self)
+        self.data_execution_page = ImportExecutionPage(self)
         
         self.setPage(self.Page_Intro_Id, self.intro_page)
         self.setPage(self.Page_ImportSourceSeletion_Id, self.source_seletion_page)
@@ -300,6 +318,7 @@ class ImportWizard (QWizard):
         self.setPage(self.Page_ImportExecution_Id, self.execution_page)
         self.setPage(self.Page_ImportProjectCreation_Id, self.project_creation_page)
         self.setPage(self.Page_ImportDataConfiguration_Id, self.data_configuration_page)
+        self.setPage(self.Page_ImportDataExecution_Id, self.data_execution_page)
 
         self.currentIdChanged.connect(self.id_changed)
     
@@ -308,6 +327,8 @@ class ImportWizard (QWizard):
             self.database_seletion_page.save_configuration(self.configuration)
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.schema_configuration_page.save_configuration(self.configuration)
+        if self.current_id == self.Page_ImportDataConfiguration_Id:
+            self.data_configuration_page.update_configuration(self.data_configuration)
 
         self.current_id = new_id
 
@@ -320,9 +341,15 @@ class ImportWizard (QWizard):
             self.execution_page.run(self.configuration, self.import_models_model.import_sessions())
         if self.current_id == self.Page_ImportProjectCreation_Id:
             self.project_creation_page.set_configuration(self.configuration)
+        if self.current_id == self.Page_ImportDataConfiguration_Id:
+            self.data_configuration_page.restore_configuration()
+        if self.current_id == self.Page_ImportDataExecution_Id:
+            self.data_configuration.tool = self.configuration.tool 
+            self.data_configuration.db_ili_version = self.configuration.db_ili_version
+            self.data_configuration_page.update_configuration(self.data_configuration)
+            self.data_execution_page.run(self.data_configuration, self.import_data_file_model.import_sessions(), True)
 
     def refresh_import_models_model(self):
-
         schema = self.configuration.dbschema
         db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(self.configuration)

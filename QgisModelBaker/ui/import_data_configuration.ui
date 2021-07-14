@@ -47,16 +47,50 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QLabel" name="model_label">
-        <property name="text">
-         <string>Models to import</string>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="4" column="0" colspan="2">
+       <widget class="ModelListView" name="model_list_view" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QTableView" name="file_table_view">
+        <property name="sortingEnabled">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="ModelListView" name="model_list_view" native="true"/>
+      <item row="6" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="chk_delete_data">
+          <property name="toolTip">
+           <string>Delete existing data including dependencies like catalogues etc.</string>
+          </property>
+          <property name="text">
+           <string>Delete existing data in affected tables</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>563</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="ili2db_options_button">
+          <property name="text">
+           <string>Advanced Options</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="file_label">
@@ -65,20 +99,23 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="chk_delete_data">
-        <property name="toolTip">
-         <string>Delete existing data including dependencies like catalogues etc.</string>
-        </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="model_label">
         <property name="text">
-         <string>Delete existing data in affected tables</string>
+         <string>Models to import</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QTableView" name="file_table_view">
-        <property name="sortingEnabled">
-         <bool>true</bool>
+      <item row="5" column="0">
+       <widget class="QLabel" name="toml_file_info_label">
+        <property name="maximumSize">
+         <size>
+          <width>580</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

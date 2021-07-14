@@ -90,9 +90,11 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
 
         self.session_widget_list = []
 
-    def run(self, configuration, import_sessions):
+    def run(self, configuration, import_sessions, data_import = False):
         for key in import_sessions:
-            import_session = ImportSessionPanel(copy.deepcopy(configuration), key, import_sessions[key]['models'])
+            models = import_sessions[key]['models'] if 'models' in import_sessions[key] else []
+            dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
+            import_session = ImportSessionPanel(copy.deepcopy(configuration), key, models, dataset, data_import)
             import_session.print_info.connect(self.log_panel.print_info)
             import_session.on_stderr.connect(self.log_panel.on_stderr)
             import_session.on_process_started.connect(self.on_process_started)
