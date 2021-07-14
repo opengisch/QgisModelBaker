@@ -35,7 +35,8 @@ from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletion
 from QgisModelBaker.gui.import_database_selection_page import ImportDatabaseSelectionPage
 from QgisModelBaker.gui.import_schema_configuration_page import ImportSchemaConfigurationPage
 from QgisModelBaker.gui.import_execution_page import ImportExecutionPage
-from QgisModelBaker.gui.import_project_creation import ImportProjectCreationPage
+from QgisModelBaker.gui.import_project_creation_page import ImportProjectCreationPage
+from QgisModelBaker.gui.import_data_configuration_page import ImportDataConfigurationPage
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from qgis.PyQt.QtGui import (
@@ -81,10 +82,18 @@ class SourceModel(QStandardItemModel):
 
     def __init__(self):
         super().__init__()
+        self.setColumnCount(2)
+
+    def flags(self, index):
+        if index.column() > 0:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def data(self, index , role):
-        item = self.item(index.row())
+        item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
+            if index.column() > 0:
+                return item.data(int(SourceModel.Roles.DATASET_NAME))
             if item.data(int(SourceModel.Roles.TYPE)) != 'model':
                 return self.tr('{} ({})').format(item.data(int(SourceModel.Roles.NAME)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
@@ -97,12 +106,17 @@ class SourceModel(QStandardItemModel):
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
-        self.appendRow(item)
+        self.appendRow([item, QStandardItem()])
+    
+    def setData(self, index, data, role):
+        if index.column() > 0:
+            return QStandardItemModel.setData(self, index, data, int(SourceModel.Roles.DATASET_NAME))
+        return QStandardItemModel.setData(self, index, data, role)
 
     def remove_sources(self, indices):
         for index in sorted(indices):
             self.removeRow(index.row()) 
-
+            
 class ImportModelsModel(SourceModel):
 
     blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
@@ -162,11 +176,12 @@ class ImportModelsModel(SourceModel):
         # models from the transfer files
         # dave not yet integrated...
         # models_from_transfer_files=[]
-        # filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
-        # for r in range(0,filtered_source_model.rowCount()):
-        #    index = filtered_source_model.index(r,0)
-        #    ili_file_path = index.data(int(SourceModel.Roles.PATH))
-        #    models_from_transfer_files.append(ili_file_path)
+        filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
+        for r in range(0,filtered_source_model.rowCount()):
+            index = filtered_source_model.index(r,0)
+            xtf_file_path = index.data(int(SourceModel.Roles.PATH))
+            print( xtf_file_path )
+        # models_from_transfer_files.append(ili_file_path)
         # print( f'models_from_transfer_files {models_from_transfer_files}')
 
     def db_modelnames(self, db_connector=None):
@@ -181,7 +196,6 @@ class ImportModelsModel(SourceModel):
         return modelnames
 
     def add_source(self, name, type, path, checked):
-
         item = QStandardItem()
         self._checked_models[name] = checked
         item.setData(name, int(Qt.DisplayRole))
@@ -189,9 +203,6 @@ class ImportModelsModel(SourceModel):
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
         self.appendRow(item)
-
-        # this would lead to problem, maybe later
-        # SourceModel.add_source(name, type, path, item
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -244,7 +255,7 @@ class ImportWizard (QWizard):
     Page_ImportSchemaConfiguration_Id = 4
     Page_ImportExecution_Id = 5
     Page_ImportProjectCreation_Id = 6
-    Page_ImportDataConfigurtation_Id = 7
+    Page_ImportDataConfiguration_Id = 7
 
     def __init__(self, iface, base_config, parent=None):
         QWizard.__init__(self)
@@ -268,6 +279,11 @@ class ImportWizard (QWizard):
         self.file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_models_model = ImportModelsModel()
 
+        self.import_data_file_model = QSortFilterProxyModel()
+        self.import_data_file_model.setSourceModel(self.source_model)
+        self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
+        self.import_data_file_model.setFilterRegExp('|'.join(TransferExtensions))
+
         # pages setup
         self.intro_page = IntroPage(self)
         self.source_seletion_page = ImportSourceSeletionPage(self)
@@ -275,6 +291,7 @@ class ImportWizard (QWizard):
         self.schema_configuration_page = ImportSchemaConfigurationPage(self)
         self.execution_page = ImportExecutionPage(self)
         self.project_creation_page = ImportProjectCreationPage(self)
+        self.data_configuration_page = ImportDataConfigurationPage(self)
         
         self.setPage(self.Page_Intro_Id, self.intro_page)
         self.setPage(self.Page_ImportSourceSeletion_Id, self.source_seletion_page)
@@ -282,7 +299,7 @@ class ImportWizard (QWizard):
         self.setPage(self.Page_ImportSchemaConfiguration_Id, self.schema_configuration_page)
         self.setPage(self.Page_ImportExecution_Id, self.execution_page)
         self.setPage(self.Page_ImportProjectCreation_Id, self.project_creation_page)
-        #self.setPage(self.Page_ImportDataConfigurtation_Id, ImportDataConfigurtationPage())
+        self.setPage(self.Page_ImportDataConfiguration_Id, self.data_configuration_page)
 
         self.currentIdChanged.connect(self.id_changed)
     
