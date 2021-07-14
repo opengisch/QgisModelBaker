@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.gui.import_project_creation import ImportProjectCreationPage
 from QgisModelBaker.utils.qt_utils import make_folder_selector
 from enum import Enum
 import os
@@ -236,9 +237,10 @@ class ImportWizard (QWizard):
     Page_ImportDatabaseSelection_Id = 3
     Page_ImportSchemaConfiguration_Id = 4
     Page_ImportExecution_Id = 5
-    Page_ImportDataConfigurtation_Id = 6
+    Page_ImportProjectCreation_Id = 6
+    Page_ImportDataConfigurtation_Id = 7
 
-    def __init__(self, base_config, parent=None):
+    def __init__(self, iface, base_config, parent=None):
         QWizard.__init__(self)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"));
@@ -246,6 +248,7 @@ class ImportWizard (QWizard):
 
         self.current_id = 0
 
+        self.iface = iface
         # config setup
         self.configuration = SchemaImportConfiguration()
         self.configuration.base_configuration = base_config
@@ -265,12 +268,14 @@ class ImportWizard (QWizard):
         self.database_seletion_page = ImportDatabaseSelectionPage(self)
         self.schema_configuration_page = ImportSchemaConfigurationPage(self)
         self.execution_page = ImportExecutionPage(self)
+        self.project_creation_page = ImportProjectCreationPage(self)
         
         self.setPage(self.Page_Intro_Id, self.intro_page)
         self.setPage(self.Page_ImportSourceSeletion_Id, self.source_seletion_page)
         self.setPage(self.Page_ImportDatabaseSelection_Id, self.database_seletion_page)
         self.setPage(self.Page_ImportSchemaConfiguration_Id, self.schema_configuration_page)
         self.setPage(self.Page_ImportExecution_Id, self.execution_page)
+        self.setPage(self.Page_ImportProjectCreation_Id, self.project_creation_page)
         #self.setPage(self.Page_ImportDataConfigurtation_Id, ImportDataConfigurtationPage())
 
         self.currentIdChanged.connect(self.id_changed)
@@ -290,6 +295,8 @@ class ImportWizard (QWizard):
             self.schema_configuration_page.restore_configuration(self.configuration)
         if self.current_id == self.Page_ImportExecution_Id:
             self.execution_page.run(self.configuration, self.import_models_model.import_sessions())
+        if self.current_id == self.Page_ImportProjectCreation_Id:
+            self.project_creation_page.set_configuration(self.configuration)
 
     def refresh_import_models_model(self):
 
