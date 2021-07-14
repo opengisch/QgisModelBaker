@@ -88,30 +88,28 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         layout.addWidget(self.log_panel)
         self.setLayout(layout)
 
-        self.sessionwidget_list = []
+        self.session_widget_list = []
 
     def run(self, configuration, import_sessions):
         for key in import_sessions:
-            import_session = ImportSessionPanel(configuration, key, import_sessions[key]['models'])
+            import_session = ImportSessionPanel(copy.deepcopy(configuration), key, import_sessions[key]['models'])
             import_session.print_info.connect(self.log_panel.print_info)
             import_session.on_stderr.connect(self.log_panel.on_stderr)
             import_session.on_process_started.connect(self.on_process_started)
             import_session.on_process_finished.connect(self.on_process_finished)
-            if import_session not in self.sessionwidget_list:
-                self.sessionwidget_list.append(import_session)
+            if import_session not in self.session_widget_list:
+                self.session_widget_list.append(import_session)
 
         self.session_layout = QVBoxLayout()
-        for sessionwidget in self.sessionwidget_list:
-            self.session_layout.addWidget(sessionwidget)
+        for session_widget in self.session_widget_list:
+            self.session_layout.addWidget(session_widget)
         self.session_layout.addSpacerItem(QSpacerItem(0,self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.scroll_area_content.setLayout(self.session_layout)
 
-        print( len(self.sessionwidget_list))
-
         loop = QEventLoop()
-        for sessionwidget in self.sessionwidget_list:
-            if not sessionwidget.run():
-                sessionwidget.on_done_or_skipped.connect(lambda: loop.quit())
+        for session_widget in self.session_widget_list:
+            if not session_widget.run():
+                session_widget.on_done_or_skipped.connect(lambda: loop.quit())
                 loop.exec()
 
     def on_process_started(self, command):

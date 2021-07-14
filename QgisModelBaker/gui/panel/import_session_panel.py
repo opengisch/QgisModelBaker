@@ -65,11 +65,12 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.edit_command_action = QAction(self.tr('Skip'), None)
-        self.edit_command_action.triggered.connect(lambda: self.on_done_or_skipped.emit())
+        self.skip_action = QAction(self.tr('Skip'), None)
+        self.skip_action.triggered.connect(self.skip)
 
         self.create_tool_button.addAction(self.set_button_to_create_without_constraints_action)
         self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_text)
         self.create_tool_button.clicked.connect(self.run)
 
@@ -111,6 +112,10 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.create_tool_button.addAction(self.set_button_to_create_action)
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.setText(self.create_without_constraints_text)
+
+    def skip(self):
+        self.setDisabled(False)
+        self.on_done_or_skipped.emit()
 
     def edit_command(self):
         """
@@ -155,7 +160,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
                 return False
             
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr('Import done\n!'), LogPanel.COLOR_SUCCESS)
+            self.print_info.emit(self.tr('Import done!\n'), LogPanel.COLOR_SUCCESS)
             self.on_done_or_skipped.emit()
             return True
         
