@@ -197,7 +197,9 @@ class ImportModelsModel(SourceModel):
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
+            self.beginResetModel()
             self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
+            self.endResetModel()
 
     def check(self, index):
         if self.data(index, Qt.CheckStateRole) == Qt.Checked:
@@ -223,6 +225,9 @@ class ImportModelsModel(SourceModel):
                     models.append(model)
                     sessions[source]['models']=models
         return sessions
+
+    def checked_models(self):
+        return [model for model in self._checked_models.keys() if self._checked_models[model] == Qt.Checked]
 
 class ImportWizard (QWizard):
 

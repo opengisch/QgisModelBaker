@@ -372,10 +372,9 @@ class IliMetaConfigCache(IliCache):
         self.information_file = 'ilidata.xml'
         self.model = IliMetaConfigItemModel()
         self.model.modelReset.connect(lambda: self.model_refreshed.emit(self.model.rowCount()))
-        if models:
-            self.filter_models = models.split(';')
-        if self.base_configuration:
-            self.directories = self.base_configuration.metaconfig_directories
+        
+        self.filter_models = models.split(';') if models else []
+        self.directories = self.base_configuration.metaconfig_directories if self.base_configuration else []
 
     def process_model_directory(self, path):
         # download remote and local repositories

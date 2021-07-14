@@ -34,7 +34,12 @@ from QgisModelBaker.libili2db.ilicache import (
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.options import ModelListView
 
-from qgis.PyQt.QtCore import Qt, QSettings
+from qgis.PyQt.QtCore import (
+    Qt, 
+    QSettings,
+    QTimer,
+    QEventLoop
+)
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
@@ -65,10 +70,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         layout = self.layout()
         layout.addWidget(self.log_panel)
         self.setLayout(layout)
+
+        self.import_wizard = parent
+        self.is_complete = True
         
-        self.model_list_view.setModel(parent.import_models_model)
-        self.model_list_view.clicked.connect(parent.import_models_model.check)
-        self.model_list_view.space_pressed.connect(parent.import_models_model.check)
+        self.model_list_view.setModel(self.import_wizard.import_models_model)
+        self.model_list_view.clicked.connect(self.import_wizard.import_models_model.check)
+        self.model_list_view.space_pressed.connect(self.import_wizard.import_models_model.check)
+        self.model_list_view.model().modelReset.connect(self.update_ilimetaconfigcache)
 
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
@@ -77,8 +86,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.crsSelector.crsChanged.connect(self.crs_changed)
 
-        '''
-        self.ilimetaconfigcache = IliMetaConfigCache(parent.configuration.base_configuration)
+        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.configuration.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
@@ -94,7 +102,20 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ili_metaconfig_line_edit.textChanged.connect(self.complete_metaconfig_completer)
         self.ili_metaconfig_line_edit.punched.connect(self.complete_metaconfig_completer)
         self.ili_metaconfig_line_edit.textChanged.connect(self.on_metaconfig_completer_activated)
-        '''
+
+    def isComplete(self):
+        return self.is_complete
+    
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.completeChanged.emit()
+
+    def update_ilimetaconfigcache(self):
+        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.configuration.base_configuration, ';'.join(self.model_list_view.model().checked_models()))
+        self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
+        self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
+        self.ilimetaconfigcache.model_refreshed.connect(self.update_metaconfig_completer)
+        self.refresh_ili_metaconfig_cache()
 
     def fill_toml_file_info_label(self):
         text = None
@@ -126,6 +147,185 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.crs_label.setToolTip(
                     self.tr("The srs code ('{}') should be an integer.\nA default EPSG:21781 will be used.".format(srs_code)))
 
+    def refresh_ili_metaconfig_cache(self):
+        self.ilimetaconfigcache.new_message.connect(self.log_panel.show_message)
+        self.ilimetaconfigcache.refresh()
+
+    def complete_metaconfig_completer(self):
+        if not self.ili_metaconfig_line_edit.text():
+            self.clean_metaconfig()
+            self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_metaconfig_line_edit.completer().complete()
+        else:
+            if ';' not in self.ili_metaconfig_line_edit.text():
+                match_contains = self.ili_metaconfig_line_edit.completer().completionModel().match(self.ili_metaconfig_line_edit.completer().completionModel().index(0, 0),
+                                                Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), -1, Qt.MatchContains)
+                if len(match_contains) > 1:
+                    self.ili_metaconfig_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+                    self.ili_metaconfig_line_edit.completer().complete()
+
+    def update_metaconfig_completer(self, rows):
+        self.ili_metaconfig_line_edit.completer().setModel(self.ilimetaconfigcache.model)
+        self.ili_metaconfig_line_edit.setEnabled(bool(rows))
+
+    def on_metaconfig_completer_activated(self, text=None):
+        matches = self.ilimetaconfigcache.model.match(self.ilimetaconfigcache.model.index(0, 0),
+                                            Qt.DisplayRole, self.ili_metaconfig_line_edit.text(), 1, Qt.MatchExactly)
+        if matches:
+            model_index = matches[0]
+            metaconfig_id = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ID))
+            
+            if self.current_metaconfig_id == metaconfig_id:
+                return
+            self.current_metaconfig_id = metaconfig_id
+            self.metaconfig_file_info_label.setText(self.tr('Current Metaconfig File: {} ({})').format(
+                self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
+                metaconfig_id))
+            self.metaconfig_file_info_label.setStyleSheet('color: #341d5c')
+            repository = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ILIREPO))
+            url = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.URL))
+            path = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH))
+            dataset_id = self.ilimetaconfigcache.model.data(model_index, int(IliMetaConfigItemModel.Roles.ID))
+            # disable the next buttton
+            self.setComplete(False)
+            if path:
+                self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+            else:
+                self.log_panel.print_info(self.tr('File not specified for metaconfig with id {}.').format(dataset_id), LogPanel.COLOR_TOPPING)
+
+            self.set_metaconfig_line_edit_state(True)
+        else:
+            self.set_metaconfig_line_edit_state(not self.ili_metaconfig_line_edit.text())
+            self.clean_metaconfig()
+
+    def clean_metaconfig(self):
+        self.current_metaconfig_id = None
+        self.metaconfig.clear()
+        self.metaconfig_file_info_label.setText('')
+        self.log_panel.txtStdout.clear()
+
+    def set_metaconfig_line_edit_state(self, valid ):
+        self.ili_metaconfig_line_edit.setStyleSheet('QLineEdit {{ background-color: {} }}'.format('#ffffff' if valid else '#ffd356'))
+
+    def on_metaconfig_received(self, path):
+        self.log_panel.txtStdout.clear()
+        self.log_panel.print_info(self.tr('Metaconfig file successfully downloaded: {}').format(path), LogPanel.COLOR_TOPPING)
+        # parse metaconfig
+        self.metaconfig.clear()
+        with open(path) as metaconfig_file:
+            self.metaconfig.read_file(metaconfig_file)
+            self.load_metaconfig()
+             # enable the next buttton
+            self.setComplete(True)
+            self.fill_toml_file_info_label()
+            self.log_panel.print_info(self.tr('Metaconfig successfully loaded.'), LogPanel.COLOR_TOPPING)
+
+    def on_metaconfig_failed(self, dataset_id, error_msg):
+        self.log_panel.print_info(self.tr('Download of metaconfig file failed: {}.').format(error_msg), LogPanel.COLOR_TOPPING)
+        # enable the next buttton
+        self.setComplete(True)
+
+    def load_crs_from_metaconfig(self, ili2db_metaconfig):
+        srs_auth = self.srs_auth
+        srs_code = self.srs_code
+        if 'defaultSrsAuth' in ili2db_metaconfig:
+            srs_auth = ili2db_metaconfig.get('defaultSrsAuth')
+        if 'defaultSrsCode' in ili2db_metaconfig:
+            srs_code = ili2db_metaconfig.get('defaultSrsCode')
+
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
+        self.update_crs_info()
+        self.crs_changed()
+
+    def load_metaconfig(self):
+        # load ili2db parameters to the GUI and into the configuration
+        if 'ch.ehi.ili2db' in self.metaconfig.sections():
+            self.log_panel.print_info(
+                self.tr('Load the ili2db configurations from the metaconfig…'), LogPanel.COLOR_TOPPING)
+
+            ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
+
+            if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
+                self.load_crs_from_metaconfig( ili2db_metaconfig )
+                self.log_panel.print_info(self.tr('- Loaded CRS'), LogPanel.COLOR_TOPPING)
+
+            if 'models' in ili2db_metaconfig:
+                for model in ili2db_metaconfig.get('models').strip().split(';'):
+                    self.import_wizard.source_model.add_source(model,'model',None)
+                self.import_wizard.refresh_import_models_model()
+                self.log_panel.print_info(self.tr('- Loaded models'), LogPanel.COLOR_TOPPING)
+
+            self.ili2db_options.load_metaconfig(ili2db_metaconfig)
+            self.log_panel.print_info(self.tr('- Loaded ili2db options'), LogPanel.COLOR_TOPPING)
+
+            # get iliMetaAttrs (toml)
+            if 'iliMetaAttrs' in ili2db_metaconfig:
+                self.log_panel.print_info(self.tr('- Seek for iliMetaAttrs (toml) files:'), LogPanel.COLOR_TOPPING)
+                ili_meta_attrs_list = ili2db_metaconfig.get('iliMetaAttrs').split(';')
+                ili_meta_attrs_file_path_list = self.get_topping_file_list(ili_meta_attrs_list)
+                self.ili2db_options.load_toml_file_path(';'.join(self.model_list_view.model().checked_models()), ';'.join(ili_meta_attrs_file_path_list))
+                self.log_panel.print_info(self.tr('- Loaded iliMetaAttrs (toml) files'), LogPanel.COLOR_TOPPING)
+
+            # get prescript (sql)
+            if 'prescript' in ili2db_metaconfig:
+                self.log_panel.print_info(self.tr('- Seek for prescript (sql) files:'), LogPanel.COLOR_TOPPING)
+                prescript_list = ili2db_metaconfig.get('prescript').split(';')
+                prescript_file_path_list = self.get_topping_file_list(prescript_list)
+                self.ili2db_options.load_pre_script_path(';'.join(prescript_file_path_list))
+                self.log_panel.print_info(self.tr('- Loaded prescript (sql) files'), LogPanel.COLOR_TOPPING)
+
+            # get postscript (sql)
+            if 'postscript' in ili2db_metaconfig:
+                self.log_panel.print_info(self.tr('- Seek for postscript (sql) files:'), LogPanel.COLOR_TOPPING)
+                postscript_list = ili2db_metaconfig.get('postscript').split(';')
+                postscript_file_path_list = self.get_topping_file_list(postscript_list)
+                self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
+                self.log_panel.print_info(self.tr('- Loaded postscript (sql) files'), LogPanel.COLOR_TOPPING)
+
+    def get_topping_file_list(self, id_list):
+        topping_file_model = self.get_topping_file_model(id_list)
+        file_path_list = []
+
+        for file_id in id_list:
+            matches = topping_file_model.match(topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1)
+            if matches:
+                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                self.log_panel.print_info(
+                    self.tr('- - Got file {}').format(file_path), LogPanel.COLOR_TOPPING)
+                file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, id_list):
+        topping_file_cache = IliToppingFileCache(self.import_wizard.configuration.base_configuration, id_list)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+        self.log_panel.print_info(self.tr('- - Downloading…'), LogPanel.COLOR_TOPPING)
+
+        if len(topping_file_cache.downloaded_files) != len(id_list):
+            loop.exec()
+
+        if len(topping_file_cache.downloaded_files) == len(id_list):
+            self.log_panel.print_info(self.tr('- - All topping files successfully downloaded'), LogPanel.COLOR_TOPPING)
+        else:
+            missing_file_ids = id_list
+            for downloaded_file_id in topping_file_cache.downloaded_files:
+                if downloaded_file_id in missing_file_ids:
+                    missing_file_ids.remove(downloaded_file_id)
+            self.log_panel.print_info(self.tr('- - Some topping files where not successfully downloaded: {}').format(' '.join(missing_file_ids)), LogPanel.COLOR_TOPPING)
+
+        return topping_file_cache.model
+
     def restore_configuration(self, configuration):
         settings = QSettings()
         srs_auth = settings.value('QgisModelBaker/ili2db/srs_auth', 'EPSG')
@@ -137,6 +337,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.fill_toml_file_info_label()
         self.update_crs_info()
         self.crs_changed()
+        self.update_ilimetaconfigcache()
 
     def update_configuration(self, configuration):
         configuration.srs_auth = self.srs_auth
@@ -148,11 +349,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
-        #configuration.metaconfig = self.metaconfig
-        #configuration.metaconfig_id = self.current_metaconfig_id
-
-        #if not self.create_constraints:
-        #    configuration.disable_validation = True
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
 
     def save_configuration(self, configuration):
         self.update_configuration(configuration)
