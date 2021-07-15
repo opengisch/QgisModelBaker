@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from PyQt5.QtWidgets import QVBoxLayout
 from qgis.PyQt.QtCore import QSettings
 
 from qgis.PyQt.QtWidgets import (
@@ -55,19 +56,18 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
-
         self.db_simple_factory = DbSimpleFactory()
-        # can we remove get_db_list(True) in future?
+
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            # consider here the DbActionType - they won't be the same anymore
+            # the DbActionType should change depending on if there are files to be imported (and with it schema created - or not)
             item_panel = db_factory.get_config_panel(self, DbActionType.GENERATE)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
-        
+
     def type_changed(self):
 
         ili_mode = self.type_combo_box.currentData()
@@ -81,18 +81,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
-
-        '''
-        if not self.has_models:
-            if not generator.db_or_schema_exists():
-                self.txtStdout.setText(
-                    self.tr('Source {} does not exist. Check connection parameters.').format(
-                        db_factory.get_specific_messages()['db_or_schema']
-                    ))
-                self.enable()
-                self.progress_bar.hide()
-                return
-        '''
     
     def db_ili_version(self, configuration):
         """

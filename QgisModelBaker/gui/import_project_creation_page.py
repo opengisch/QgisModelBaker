@@ -55,6 +55,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         self.import_wizard = parent
 
         self.setupUi(self)
+        self.setFinalPage(True)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Generate QGIS Project"))
         self.log_panel = LogPanel()
@@ -198,6 +199,3 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         
         self.progress_bar.setValue(100)
         self.log_panel.print_info(self.tr("It's served!"))
-
-    def nextId(self):
-        return self.import_wizard.next_id()

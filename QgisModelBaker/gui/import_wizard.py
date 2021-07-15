@@ -52,6 +52,7 @@ from QgisModelBaker.gui.import_project_creation_page import ImportProjectCreatio
 from QgisModelBaker.gui.import_data_configuration_page import ImportDataConfigurationPage
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 
 from QgisModelBaker.libili2db.ilicache import (
     IliCache,
@@ -254,9 +255,9 @@ class ImportDataModel(QSortFilterProxyModel):
         super().__init__()
         self._checked_models = {}
     
-    def import_sessions(self):
+    def import_sessions(self, order_list):
         sessions = {}
-        for r in range(0,self.rowCount()):
+        for r in order_list:
             source = self.index(r,0).data(int(SourceModel.Roles.PATH))
             dataset = self.index(r,1).data(int(SourceModel.Roles.DATASET_NAME))
             sessions[source]={}
@@ -365,8 +366,6 @@ class ImportWizard (QWizard):
         if self.Page_ImportDataExecution_Id:
             return self.Page_ImportProjectCreation_Id
 
-        return 0
-
 
     def id_changed(self, new_id):
         self.current_id = new_id
@@ -383,8 +382,8 @@ class ImportWizard (QWizard):
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             self.data_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportDataExecution_Id:
-            self.data_execution_page.run(self.import_data_configuration, self.import_data_file_model.import_sessions(), True)
-
+            self.data_execution_page.run(self.import_data_configuration, self.import_data_file_model.import_sessions(self.data_configuration_page.order_list()), True)
+            
     def refresh_import_models_model(self):
         schema = self.import_schema_configuration.dbschema
         db_factory = self.db_simple_factory.create_factory(self.import_schema_configuration.tool)

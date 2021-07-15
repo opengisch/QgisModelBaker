@@ -61,6 +61,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
 
+    def order_list(self):
+        order_list = []
+        for visual_index in range(0,self.file_table_view.verticalHeader().count()):
+            order_list.append(self.file_table_view.verticalHeader().logicalIndex(visual_index))
+        return order_list
+
     def fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
