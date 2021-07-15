@@ -101,6 +101,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             import_session.on_process_finished.connect(self.on_process_finished)
             if import_session not in self.session_widget_list:
                 self.session_widget_list.append(import_session)
+            print(f'key {key}')
 
         self.session_layout = QVBoxLayout()
         for session_widget in self.session_widget_list:

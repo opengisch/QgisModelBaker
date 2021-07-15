@@ -241,7 +241,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.crs_changed()
 
     def load_metaconfig(self):
-        # load ili2db parameters to the GUI and into the configuration
+        # load ili2db parameters to the GUI
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
             self.log_panel.print_info(
                 self.tr('Load the ili2db configurations from the metaconfig…'), LogPanel.COLOR_TOPPING)
@@ -284,7 +284,23 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 postscript_file_path_list = self.import_wizard.get_topping_file_list(postscript_list, self.log_panel)
                 self.ili2db_options.load_post_script_path(';'.join(postscript_file_path_list))
                 self.log_panel.print_info(self.tr('- Loaded postscript (sql) files'), LogPanel.COLOR_TOPPING)
-
+                
+        # get referenceData file and update the source model
+        if 'CONFIGURATION' in self.metaconfig.sections():
+            configuration_section = self.metaconfig['CONFIGURATION']
+            if 'ch.interlis.referenceData' in configuration_section:
+                self.log_panel.print_info(self.tr('Metaconfig contains transfer or catalogue toppings (reference data).'), LogPanel.COLOR_TOPPING)
+                reference_data_list = configuration_section['ch.interlis.referenceData'].split(';')
+                referencedata_file_path_list = self.import_wizard.get_topping_file_list(reference_data_list, self.log_panel)
+                for referencedata_file_path in referencedata_file_path_list:
+                    if os.path.isfile(referencedata_file_path):
+                        name = pathlib.Path(referencedata_file_path).name
+                        type = pathlib.Path(referencedata_file_path).suffix[1:]
+                        self.log_panel.print_info(self.tr('Append reference data file {}…').format(referencedata_file_path), LogPanel.COLOR_TOPPING)
+                        self.import_wizard.source_model.add_source(name, type, referencedata_file_path)
+                    else:
+                        self.log_panel.print_info(self.tr('Could not append reference data file {}…').format(referencedata_file_path), LogPanel.COLOR_TOPPING)
+                        
     def restore_configuration(self):
         # takes settings from QSettings and provides it to the gui (not the configuration)
         settings = QSettings()
