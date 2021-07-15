@@ -21,6 +21,14 @@
 import os
 import pathlib
 
+from qgis.PyQt.QtCore import (
+    Qt
+)
+
+from qgis.PyQt.QtWidgets import (
+    QCompleter,
+    QWizardPage
+)
 
 from QgisModelBaker.libili2db.ilicache import (
     IliCache, 
@@ -29,34 +37,7 @@ from QgisModelBaker.libili2db.ilicache import (
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
-    Validators,
-    FileValidator,
-    NonEmptyStringValidator,
-    OverrideCursor
 )
-
-from qgis.PyQt.QtGui import (
-    QColor,
-    QDesktopServices,
-    QValidator,
-    QPixmap
-)
-
-from qgis.PyQt.QtWidgets import (
-    QCompleter
-)
-
-from qgis.PyQt.QtCore import (
-    Qt
-)
-
-# gui stuff
-from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QGridLayout
-)
-
-from qgis.PyQt.QtGui import QPixmap
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 

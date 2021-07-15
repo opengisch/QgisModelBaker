@@ -22,37 +22,27 @@ import os
 import pathlib
 import configparser
 
+from qgis.PyQt.QtCore import (
+    Qt, 
+    QSettings
+)
+
+from qgis.PyQt.QtWidgets import (
+    QWizardPage,
+    QCompleter
+)
+
+from qgis.core import QgsCoordinateReferenceSystem
+
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.ilicache import (
     IliMetaConfigCache,
     IliMetaConfigItemModel,
-    MetaConfigCompleterDelegate,
-    IliToppingFileCache,
-    IliToppingFileItemModel
+    MetaConfigCompleterDelegate
 )
+
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.gui.options import ModelListView
-
-from qgis.PyQt.QtCore import (
-    Qt, 
-    QSettings,
-    QTimer,
-    QEventLoop
-)
-
-from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QCompleter,
-    QSizePolicy,
-    QGridLayout,
-    QMessageBox,
-    QAction,
-    QToolButton
-)
-from qgis.PyQt.QtGui import QPixmap
-from qgis.gui import QgsGui, QgsMessageBar
-from qgis.core import QgsCoordinateReferenceSystem
 
 from ..utils import get_ui_class
 

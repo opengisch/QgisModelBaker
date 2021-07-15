@@ -18,59 +18,31 @@
  ***************************************************************************/
 """
 
-import os
-import pathlib
-import copy
 import yaml
+
+from qgis.PyQt.QtCore import (
+    Qt
+)
+
+from qgis.PyQt.QtWidgets import (
+    QWizardPage
+)
+
+from qgis.core import (
+    QgsProject
+)
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from ..libqgsprojectgen.generator.generator import Generator
 from ..libqgsprojectgen.dataobjects import Project
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
-from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QSpacerItem,
-    QSizePolicy,
-    QVBoxLayout,
-    QLayout,
-    QMessageBox,
-    QAction,
-    QToolButton
-)
-
-from qgis.PyQt.QtGui import (
-    QColor,
-    QDesktopServices,
-    QValidator
-)
-from qgis.core import (
-    QgsProject,
-    QgsCoordinateReferenceSystem,
-    Qgis
-)
-
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QSettings,
-    Qt,
-    QLocale,
-    QModelIndex,
-    QTimer,
-    QEventLoop
-)
-from qgis.gui import (
-    QgsMessageBar,
-    QgsGui
-)
-
 from QgisModelBaker.libili2db.ilicache import (
-    IliToppingFileCache,
     IliToppingFileItemModel
 )
+
 from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_project_creation.ui')

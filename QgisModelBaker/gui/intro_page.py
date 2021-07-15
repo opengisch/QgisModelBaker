@@ -18,8 +18,14 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtWidgets import QWizardPage, QWizard, QLabel, QVBoxLayout
-from qgis.PyQt.QtGui import QPixmap
+from qgis.PyQt.QtGui import (
+    QPixmap
+)
+
+from qgis.PyQt.QtWidgets import (
+    QWizardPage, 
+    QWizard
+)
 
 from ..utils import get_ui_class
 

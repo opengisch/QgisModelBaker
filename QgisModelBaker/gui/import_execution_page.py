@@ -18,58 +18,32 @@
  ***************************************************************************/
 """
 
-import os
-import pathlib
 import copy
 
-from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from QgisModelBaker.libili2db.ilicache import (
-    IliCache, 
-    ModelCompleterDelegate
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QEventLoop
 )
-
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..libili2db import iliimporter
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
     QSpacerItem,
     QSizePolicy,
-    QVBoxLayout,
-    QLayout,
-    QMessageBox,
-    QAction,
-    QToolButton
+    QVBoxLayout
 )
 
-from qgis.PyQt.QtGui import (
-    QColor,
-    QDesktopServices,
-    QValidator
-)
-from qgis.core import (
-    QgsProject,
-    QgsCoordinateReferenceSystem,
-    Qgis
-)
-
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QSettings,
-    Qt,
-    QLocale,
-    QModelIndex,
-    QTimer,
-    QEventLoop
-)
 from qgis.gui import (
     QgsMessageBar,
     QgsGui
 )
+
+from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
+from QgisModelBaker.gui.panel.log_panel import LogPanel
+
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ..libili2db import iliimporter
 
 from ..utils import get_ui_class
 

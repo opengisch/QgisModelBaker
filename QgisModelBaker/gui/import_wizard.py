@@ -18,16 +18,29 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils.qt_utils import make_folder_selector
 from enum import Enum
 import os
 import re
 
+from qgis.PyQt.QtCore import (
+    QSortFilterProxyModel,
+    QTimer,
+    Qt,
+    QEventLoop
+)
+
+from qgis.PyQt.QtGui import (
+    QStandardItemModel,
+    QStandardItem,
+    QIcon
+)
+
 from qgis.PyQt.QtWidgets import (
-    QWizard,
-    QTextBrowser,
-    QSizePolicy,
-    QGridLayout
+    QWizard
+)
+
+from qgis.gui import (
+    QgsMessageBar
 )
 
 from QgisModelBaker.gui.intro_page import IntroPage
@@ -39,29 +52,16 @@ from QgisModelBaker.gui.import_project_creation_page import ImportProjectCreatio
 from QgisModelBaker.gui.import_data_configuration_page import ImportDataConfigurationPage
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
-from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem,
-    QIcon
-)
-
-from qgis.gui import (
-    QgsMessageBar
-)
-
-from qgis.PyQt.QtCore import (
-    QSortFilterProxyModel,
-    QTimer,
-    Qt,
-    QEventLoop
-)
 
 from QgisModelBaker.libili2db.ilicache import (
+    IliCache,
     IliToppingFileCache
 )
 
-from QgisModelBaker.libili2db.ilicache import IliCache
-from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration, SchemaImportConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    ImportDataConfiguration,
+    SchemaImportConfiguration
+)
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError

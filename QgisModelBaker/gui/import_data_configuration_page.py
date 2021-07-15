@@ -18,45 +18,16 @@
  ***************************************************************************/
 """
 
-import os
-import pathlib
-import configparser
-
 from PyQt5.uic.uiparser import _parse_alignment
-
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from QgisModelBaker.libili2db.ilicache import (
-    IliMetaConfigCache,
-    IliMetaConfigItemModel,
-    MetaConfigCompleterDelegate,
-    IliToppingFileCache,
-    IliToppingFileItemModel
-)
-from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.gui.options import ModelListView
-
-from qgis.PyQt.QtCore import (
-    Qt, 
-    QSettings,
-    QTimer,
-    QEventLoop
-)
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
-    QCompleter,
-    QSizePolicy,
-    QGridLayout,
-    QMessageBox,
-    QAction,
-    QToolButton,
     QHeaderView
 )
-from qgis.PyQt.QtGui import QPixmap
-from qgis.gui import QgsGui, QgsMessageBar
-from qgis.core import QgsCoordinateReferenceSystem
-from QgisModelBaker.libili2db.ili2dbconfig import ImportDataConfiguration
+
+from QgisModelBaker.gui.panel.log_panel import LogPanel
+
+from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 
 from ..utils import get_ui_class
 

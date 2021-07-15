@@ -18,34 +18,17 @@
  ***************************************************************************/
 """
 
-import os
-import pathlib
-
-
-from QgisModelBaker.libili2db.ilicache import (
-    IliCache, 
-    ModelCompleterDelegate
-)
-
-from qgis.PyQt.QtCore import Qt, QSettings
-
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from qgis.PyQt.QtCore import QSettings
 
 from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QSizePolicy,
-    QGridLayout,
-    QLayout,
-    QMessageBox,
-    QAction,
-    QToolButton
+    QWizardPage
 )
-from qgis.PyQt.QtGui import QPixmap
-from qgis.gui import QgsGui, QgsMessageBar
+
+from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
+from QgisModelBaker.gui.panel.log_panel import LogPanel
+
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from ..utils import get_ui_class
 
@@ -59,6 +42,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
     '''
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
+        
         self.import_wizard = parent
         
         self.setupUi(self)
