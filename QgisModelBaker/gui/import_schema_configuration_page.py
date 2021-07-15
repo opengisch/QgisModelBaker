@@ -335,3 +335,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         settings = QSettings()
         settings.setValue('QgisModelBaker/ili2db/srs_auth', updated_configuration.srs_auth)
         settings.setValue('QgisModelBaker/ili2db/srs_code', updated_configuration.srs_code)
+
+    def nextId(self):
+        return self.import_wizard.next_id()

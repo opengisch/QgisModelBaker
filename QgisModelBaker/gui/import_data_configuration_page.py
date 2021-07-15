@@ -22,6 +22,8 @@ import os
 import pathlib
 import configparser
 
+from PyQt5.uic.uiparser import _parse_alignment
+
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.ilicache import (
@@ -64,7 +66,8 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
-        
+        self.import_wizard = parent
+
         self.setupUi(self)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Data import configuration"))
@@ -113,7 +116,5 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
 
-    def save_configuration(self, updated_configuration):
-        # puts it to QSettings
-        settings = QSettings()
-        # nothing needs to be saved here what means that this function can be removed
+    def nextId(self):
+        return self.import_wizard.next_id()

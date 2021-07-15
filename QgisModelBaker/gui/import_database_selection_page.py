@@ -59,6 +59,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
     '''
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
+        self.import_wizard = parent
         
         self.setupUi(self)
         self.setFixedSize(1200,800)
@@ -160,3 +161,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         db_factory = self.db_simple_factory.create_factory(mode)
         config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
+
+    def nextId(self):
+        return self.import_wizard.next_id()

@@ -80,6 +80,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
         
+        self.import_wizard = parent
         self.setupUi(self)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Execution"))
@@ -129,3 +130,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             message = self.tr('Finished with errors!')
 
         self.log_panel.print_info(message, color)
+
+    def nextId(self):
+        return self.import_wizard.next_id()

@@ -84,7 +84,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setFixedSize(1200,800)
-        self.setTitle(self.tr("Bakedy cakedy"))
+        self.setTitle(self.tr("Generate QGIS Project"))
         self.log_panel = LogPanel()
         layout = self.layout()
         layout.addWidget(self.log_panel)
@@ -158,7 +158,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         custom_layer_order_structure = list()
 
         # Toppings legend and layers: collect, download and apply
-        if 'CONFIGURATION' in self.configuration.metaconfig.sections():
+        if self.configuration.metaconfig and 'CONFIGURATION' in self.configuration.metaconfig.sections():
             configuration_section = self.configuration.metaconfig['CONFIGURATION']
             if 'qgis.modelbaker.layertree' in configuration_section:
                 self.log_panel.print_info(self.tr('Metaconfig contains a layertree structure topping.'), LogPanel.COLOR_TOPPING)
@@ -205,7 +205,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         self.progress_bar.setValue(60)
         
         # Toppings QMLs: collect, download and apply
-        if 'qgis.modelbaker.qml' in self.configuration.metaconfig.sections():
+        if self.configuration.metaconfig and 'qgis.modelbaker.qml' in self.configuration.metaconfig.sections():
             self.log_panel.print_info(self.tr('Metaconfig contains QML toppings.'), LogPanel.COLOR_TOPPING)
             qml_section = dict(self.configuration.metaconfig['qgis.modelbaker.qml'])
             qml_file_model = self.import_wizard.get_topping_file_model(list(qml_section.values()), self.log_panel)
@@ -226,3 +226,6 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         
         self.progress_bar.setValue(100)
         self.log_panel.print_info(self.tr("It's served!"))
+
+    def nextId(self):
+        return self.import_wizard.next_id()
