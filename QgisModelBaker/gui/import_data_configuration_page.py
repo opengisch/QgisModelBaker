@@ -95,11 +95,16 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
     def restore_configuration(self):
+        # takes settings from QSettings and provides it to the gui (not the configuration)
+        # since delete data should be turned off the only left thingy is the toml-file
         self.fill_toml_file_info_label()
         # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
         self.chk_delete_data.setChecked(False)
 
     def update_configuration(self, configuration):
+        # takes settings from the GUI and provides it to the configuration
+        configuration.delete_data = self.chk_delete_data.isChecked()
+        # ili2db_options
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.tomlfile = self.ili2db_options.toml_file()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
@@ -107,4 +112,8 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
-        configuration.delete_data = self.chk_delete_data.isChecked()
+
+    def save_configuration(self, updated_configuration):
+        # puts it to QSettings
+        settings = QSettings()
+        # nothing needs to be saved here what means that this function can be removed

@@ -128,6 +128,8 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
             return None
 
     def restore_configuration(self, configuration):
+        # takes settings from QSettings and provides it to the gui (not the configuration)
+        # it needs the configuration - this is the same for Schema or Data Config
         settings = QSettings()
 
         for db_id in self.db_simple_factory.get_db_list(False):
@@ -144,18 +146,17 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.type_changed()
 
     def update_configuration(self, configuration):
+        # takes settings from the GUI and provides it to the configuration
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
         configuration.tool = mode
         configuration.db_ili_version = self.db_ili_version(configuration)
 
-    def save_configuration(self, configuration):
-        self.update_configuration(configuration)
+    def save_configuration(self, updated_configuration):
+        # puts it to QSettings
         settings = QSettings()
-        settings.setValue('QgisModelBaker/importtype',
-                    self.type_combo_box.currentData().name)
+        settings.setValue('QgisModelBaker/importtype', self.type_combo_box.currentData().name)
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
-

@@ -70,6 +70,8 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
+
+        self.import_wizard = parent
         
         self.setupUi(self)
         self.setFixedSize(1200,800)
@@ -86,20 +88,20 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         # self.input_line_edit.setValidator(fileValidator)
         # self.input_line_edit.textChanged.connect(self.validators.validate_line_edits)
 
-        self.ilicache = IliCache(parent.configuration.base_configuration)
+        self.ilicache = IliCache(self.import_wizard.import_schema_configuration.base_configuration)
         self.model_delegate = ModelCompleterDelegate()
         self.refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(self.tr('[Browse for file or search model from repository]'))
 
         self.input_line_edit.punched.connect(self.first_time_punch)
 
-        self.source_list_view.setModel(parent.source_model)
+        self.source_list_view.setModel(self.import_wizard.source_model)
         self.add_button.clicked.connect(self.add_row)
         self.remove_button.clicked.connect(self.remove_selected_rows)
 
-        self.remove_button.setEnabled(parent.source_model.rowCount())
-        parent.source_model.rowsInserted.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
-        parent.source_model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(parent.source_model.rowCount()))
+        self.remove_button.setEnabled(self.import_wizard.source_model.rowCount())
+        self.import_wizard.source_model.rowsInserted.connect( lambda: self.remove_button.setEnabled(self.import_wizard.source_model.rowCount()))
+        self.import_wizard.source_model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(self.import_wizard.source_model.rowCount()))
 
 
     def first_time_punch(self):

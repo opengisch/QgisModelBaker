@@ -283,9 +283,10 @@ class ImportWizard (QWizard):
 
         self.iface = iface
         # config setup
-        self.configuration = SchemaImportConfiguration()
-        self.configuration.base_configuration = base_config
-        self.data_configuration = ImportDataConfiguration()
+        self.import_schema_configuration = SchemaImportConfiguration()
+        self.import_data_configuration = ImportDataConfiguration()
+        self.import_schema_configuration.base_configuration = base_config
+        self.import_data_configuration.base_configuration = base_config
 
         # models setup
         self.db_simple_factory = DbSimpleFactory()
@@ -324,36 +325,39 @@ class ImportWizard (QWizard):
     
     def id_changed(self, new_id):
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
-            self.database_seletion_page.save_configuration(self.configuration)
+            # update configuration for import data and for import schema and use schema config to save
+            self.database_seletion_page.update_configuration(self.import_schema_configuration)
+            self.database_seletion_page.update_configuration(self.import_data_configuration)
+            self.database_seletion_page.save_configuration(self.import_schema_configuration)
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
-            self.schema_configuration_page.save_configuration(self.configuration)
+            self.schema_configuration_page.update_configuration(self.import_schema_configuration)
+            self.schema_configuration_page.save_configuration(self.import_schema_configuration)
         if self.current_id == self.Page_ImportDataConfiguration_Id:
-            self.data_configuration_page.update_configuration(self.data_configuration)
+            # only update configuration because there is nothing to save
+            self.data_configuration_page.update_configuration(self.import_data_configuration)
 
         self.current_id = new_id
 
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
-            self.database_seletion_page.restore_configuration(self.configuration)
+            # use schema config to restore
+            self.database_seletion_page.restore_configuration(self.import_schema_configuration)
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.refresh_import_models_model()
             self.schema_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportExecution_Id:
-            self.execution_page.run(self.configuration, self.import_models_model.import_sessions())
+            self.execution_page.run(self.import_schema_configuration, self.import_models_model.import_sessions())
         if self.current_id == self.Page_ImportProjectCreation_Id:
-            self.project_creation_page.set_configuration(self.configuration)
+            self.project_creation_page.set_configuration(self.import_schema_configuration)
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             self.data_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportDataExecution_Id:
-            self.data_configuration.tool = self.configuration.tool 
-            self.data_configuration.db_ili_version = self.configuration.db_ili_version
-            self.data_configuration_page.update_configuration(self.data_configuration)
-            self.data_execution_page.run(self.data_configuration, self.import_data_file_model.import_sessions(), True)
+            self.data_execution_page.run(self.import_data_configuration, self.import_data_file_model.import_sessions(), True)
 
     def refresh_import_models_model(self):
-        schema = self.configuration.dbschema
-        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(self.configuration)
-        uri_string = config_manager.get_uri(self.configuration.db_use_super_login)
+        schema = self.import_schema_configuration.dbschema
+        db_factory = self.db_simple_factory.create_factory(self.import_schema_configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(self.import_schema_configuration)
+        uri_string = config_manager.get_uri(self.import_schema_configuration.db_use_super_login)
         db_connector = None
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
@@ -377,7 +381,7 @@ class ImportWizard (QWizard):
         return file_path_list
 
     def get_topping_file_model(self, id_list, log_panel):
-        topping_file_cache = IliToppingFileCache(self.configuration.base_configuration, id_list)
+        topping_file_cache = IliToppingFileCache(self.import_schema_configuration.base_configuration, id_list)
 
         # we wait for the download or we timeout after 30 seconds and we apply what we have
         loop = QEventLoop()

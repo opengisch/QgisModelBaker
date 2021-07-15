@@ -84,7 +84,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             self.configuration.ilimodels = ';'.join(models)
             self.info_label.setText( self.tr('Import {}').format(' ,'.join(models)))
         else:
-            self.configuration.xtffile = ''
+            self.configuration.xtffile = file
             self.configuration.ilimodels = ';'.join(models)
             self.info_label.setText( self.tr('Import {} of {}').format(' ,'.join(models), file))
 
@@ -117,7 +117,8 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.create_tool_button.setText(self.create_without_constraints_text)
 
     def skip(self):
-        self.setDisabled(False)
+        self.setDisabled(True)
+        self.print_info.emit(self.tr('Import skipped!\n'), LogPanel.COLOR_INFO)
         self.on_done_or_skipped.emit()
 
     def edit_command(self):

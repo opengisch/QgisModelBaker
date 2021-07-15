@@ -86,7 +86,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.crsSelector.crsChanged.connect(self.crs_changed)
 
-        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.configuration.base_configuration)
+        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.import_schema_configuration.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
@@ -111,7 +111,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.completeChanged.emit()
 
     def update_ilimetaconfigcache(self):
-        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.configuration.base_configuration, ';'.join(self.model_list_view.model().checked_models()))
+        self.ilimetaconfigcache = IliMetaConfigCache(self.import_wizard.import_schema_configuration.base_configuration, ';'.join(self.model_list_view.model().checked_models()))
         self.ilimetaconfigcache.file_download_succeeded.connect(lambda dataset_id, path: self.on_metaconfig_received(path))
         self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
         self.ilimetaconfigcache.model_refreshed.connect(self.update_metaconfig_completer)
@@ -286,6 +286,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.log_panel.print_info(self.tr('- Loaded postscript (sql) files'), LogPanel.COLOR_TOPPING)
 
     def restore_configuration(self):
+        # takes settings from QSettings and provides it to the gui (not the configuration)
         settings = QSettings()
         srs_auth = settings.value('QgisModelBaker/ili2db/srs_auth', 'EPSG')
         srs_code = settings.value('QgisModelBaker/ili2db/srs_code', 21781, int)
@@ -293,26 +294,28 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if not crs.isValid():
             crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
         self.crs = crs
-        self.fill_toml_file_info_label()
         self.update_crs_info()
         self.crs_changed()
+        self.fill_toml_file_info_label()
         self.update_ilimetaconfigcache()
 
     def update_configuration(self, configuration):
+        # takes settings from the GUI and provides it to the configuration
         configuration.srs_auth = self.srs_auth
         configuration.srs_code = self.srs_code
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
+        # ili2db_options
         configuration.inheritance = self.ili2db_options.inheritance_type()
-        configuration.tomlfile = self.ili2db_options.toml_file()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
-        configuration.metaconfig = self.metaconfig
-        configuration.metaconfig_id = self.current_metaconfig_id
+        configuration.tomlfile = self.ili2db_options.toml_file()
 
-    def save_configuration(self, configuration):
-        self.update_configuration(configuration)
+    def save_configuration(self, updated_configuration):
+        # puts it to QSettings
         settings = QSettings()
-        settings.setValue('QgisModelBaker/ili2db/srs_auth', self.srs_auth)
-        settings.setValue('QgisModelBaker/ili2db/srs_code', self.srs_code)
+        settings.setValue('QgisModelBaker/ili2db/srs_auth', updated_configuration.srs_auth)
+        settings.setValue('QgisModelBaker/ili2db/srs_code', updated_configuration.srs_code)
