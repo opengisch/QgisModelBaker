@@ -43,7 +43,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.import_wizard = parent
         
         self.setupUi(self)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
         self.setTitle(self.tr("Database Selection"))
 
         self.type_combo_box.clear()

@@ -55,7 +55,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.import_wizard = parent
         
         self.setupUi(self)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
         self.setTitle(self.tr("Schema import configuration"))
 
         self.import_wizard = parent

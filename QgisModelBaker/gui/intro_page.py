@@ -39,7 +39,7 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.import_wizard = parent
 
         self.setupUi(self)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
 
         self.setTitle(self.tr("QGIS Model Baker Import / Export"))
         self.setPixmap(QWizard.WatermarkPixmap, QPixmap(":/images/QgisModelBaker-import.svg"))

@@ -56,7 +56,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setFinalPage(True)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
         self.setTitle(self.tr("Generate QGIS Project"))
 
         self.db_simple_factory = DbSimpleFactory()

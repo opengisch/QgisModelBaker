@@ -56,7 +56,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         
         self.import_wizard = parent
         self.setupUi(self)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
         self.setTitle(self.tr("Execution"))
 
         self.session_widget_list = []

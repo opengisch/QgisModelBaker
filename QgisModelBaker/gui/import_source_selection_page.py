@@ -53,7 +53,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.import_wizard = parent
         
         self.setupUi(self)
-        self.setFixedSize(1200,800)
+        self.setFixedSize(800,600)
         self.setTitle(self.tr("Source Selection")) 
 
         self.file_browse_button.clicked.connect( make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr('Interlis Model File (*.ili);;Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
