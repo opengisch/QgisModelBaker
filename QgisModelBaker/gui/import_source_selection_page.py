@@ -67,6 +67,8 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(self.tr('[Browse for file or search model from repository]'))
 
+        # very unhappy about this behavior, but okay for prototype
+        self.first_time_punched = False
         self.input_line_edit.punched.connect(self.first_time_punch)
 
         self.source_list_view.setModel(self.import_wizard.source_model)
@@ -84,6 +86,15 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.input_line_edit.textChanged.emit( self.input_line_edit.text())
         self.input_line_edit.textChanged.connect(self.complete_models_completer)
         self.input_line_edit.punched.connect(self.complete_models_completer)
+        self.first_time_punched = True
+    
+    def disconnect_punch_slots(self):
+        # might could be nices
+        if self.first_time_punched:
+            self.input_line_edit.textChanged.disconnect(self.complete_models_completer)
+            self.input_line_edit.punched.disconnect(self.complete_models_completer)
+            self.input_line_edit.punched.connect(self.first_time_punch)
+            self.first_time_punched = False
 
     def refresh_ili_models_cache(self):
         self.ilicache.new_message.connect(self.import_wizard.log_panel.show_message)
@@ -137,4 +148,5 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.remove_button.setEnabled(self.valid_selection())
 
     def nextId(self):
+        self.disconnect_punch_slots()
         return self.import_wizard.next_id()
