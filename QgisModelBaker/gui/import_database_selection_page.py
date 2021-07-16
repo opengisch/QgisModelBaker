@@ -37,10 +37,6 @@ PAGE_UI = get_ui_class('import_database_selection.ui')
 
 class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
 
-    '''
-    when there are no models - it should warn that the DB does not exist.
-    when there are new models to be created, it should warn that the DB already exists.
-    '''
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
         
@@ -49,10 +45,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Database Selection"))
-        self.log_panel = LogPanel()
-        layout = self.layout()
-        layout.addWidget(self.log_panel)
-        self.setLayout(layout)
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -81,6 +73,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
+        self.import_wizard.log_panel.print_info('changed type to {db_id}')
     
     def db_ili_version(self, configuration):
         """
@@ -95,7 +88,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
-            db_connector.new_message.connect(self.log_panel.show_message)
+            db_connector.new_message.connect(self.import_wizard.log_panel.show_message)
             return db_connector.ili_version()
         except (DBConnectorError, FileNotFoundError):
             return None

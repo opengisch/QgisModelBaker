@@ -36,7 +36,9 @@ from qgis.PyQt.QtGui import (
 )
 
 from qgis.PyQt.QtWidgets import (
-    QWizard
+    QWizard,
+    QDialog,
+    QVBoxLayout
 )
 
 from qgis.gui import (
@@ -276,7 +278,7 @@ class ImportWizard (QWizard):
     Page_ImportDataExecution_Id = 7
     Page_ImportProjectCreation_Id = 8
 
-    def __init__(self, iface, base_config, parent=None):
+    def __init__(self, iface, base_config, parent):
         QWizard.__init__(self)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"));
@@ -285,6 +287,7 @@ class ImportWizard (QWizard):
         self.current_id = 0
 
         self.iface = iface
+        self.log_panel = parent.log_panel
 
         # config setup
         self.db_simple_factory = DbSimpleFactory()
@@ -438,3 +441,22 @@ class ImportWizard (QWizard):
             log_panel.print_info(self.tr('- - Some topping files where not successfully downloaded: {}').format(' '.join(missing_file_ids)), LogPanel.COLOR_TOPPING)
 
         return topping_file_cache.model
+class ImportGandalf (QDialog):
+
+    def __init__(self, iface, base_config, parent=None):
+        QDialog.__init__(self)
+        self.iface = iface
+        self.base_config = base_config
+    
+        self.log_panel = LogPanel()
+        self.import_wizard = ImportWizard(self.iface, self.base_config, self)
+        self.import_wizard.setStartId(self.import_wizard.Page_Intro_Id)
+        self.import_wizard.setWindowFlags(Qt.Widget)
+        self.import_wizard.show()
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.import_wizard)
+        layout.addWidget(self.log_panel)
+        self.setLayout(layout)
+
+

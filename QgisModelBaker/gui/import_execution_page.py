@@ -58,10 +58,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Execution"))
-        self.log_panel = LogPanel()
-        layout = self.layout()
-        layout.addWidget(self.log_panel)
-        self.setLayout(layout)
 
         self.session_widget_list = []
 
@@ -70,8 +66,8 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             models = import_sessions[key]['models'] if 'models' in import_sessions[key] else []
             dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
             import_session = ImportSessionPanel(copy.deepcopy(configuration), key, models, dataset, data_import)
-            import_session.print_info.connect(self.log_panel.print_info)
-            import_session.on_stderr.connect(self.log_panel.on_stderr)
+            import_session.print_info.connect(self.import_wizard.log_panel.print_info)
+            import_session.on_stderr.connect(self.import_wizard.log_panel.on_stderr)
             import_session.on_process_started.connect(self.on_process_started)
             import_session.on_process_finished.connect(self.on_process_finished)
             if import_session not in self.session_widget_list:
@@ -91,7 +87,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 loop.exec()
 
     def on_process_started(self, command):
-        self.log_panel.print_info(command, '#000000')
+        self.import_wizard.log_panel.print_info(command, '#000000')
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
@@ -103,7 +99,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             color = LogPanel.COLOR_FAIL
             message = self.tr('Finished with errors!')
 
-        self.log_panel.print_info(message, color)
+        self.import_wizard.log_panel.print_info(message, color)
 
     def nextId(self):
         return self.import_wizard.next_id()

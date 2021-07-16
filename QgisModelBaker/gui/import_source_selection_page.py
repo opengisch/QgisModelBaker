@@ -39,8 +39,6 @@ from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
 )
 
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
 from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_source_selection.ui')
@@ -57,10 +55,6 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFixedSize(1200,800)
         self.setTitle(self.tr("Source Selection")) 
-        self.log_panel = LogPanel()
-        layout = self.layout()
-        layout.addWidget(self.log_panel)
-        self.setLayout(layout)
 
         self.file_browse_button.clicked.connect( make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr('Interlis Model File (*.ili);;Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
         
@@ -93,7 +87,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.input_line_edit.punched.connect(self.complete_models_completer)
 
     def refresh_ili_models_cache(self):
-        self.ilicache.new_message.connect(self.log_panel.show_message)
+        self.ilicache.new_message.connect(self.import_wizard.log_panel.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
 

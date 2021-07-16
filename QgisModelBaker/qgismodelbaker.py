@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from QgisModelBaker.gui.import_wizard import ImportWizard
+from QgisModelBaker.gui.import_wizard import ImportGandalf
 import locale
 import os
 import webbrowser
@@ -207,8 +207,7 @@ class QgisModelBakerPlugin(QObject):
             self.__export_action.setChecked(True)
 
     def show_import_wizard(self):
-        self.import_wizard = ImportWizard(self.iface, self.ili2db_configuration)
-        self.import_wizard.setStartId(self.import_wizard.Page_Intro_Id)
+        self.import_wizard = ImportGandalf(self.iface, self.ili2db_configuration)
         self.import_wizard.show()
 
     def export_dialog_finished(self):
