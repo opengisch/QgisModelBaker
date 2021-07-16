@@ -37,6 +37,8 @@ from QgisModelBaker.libili2db.ilicache import (
 
 from QgisModelBaker.utils.qt_utils import (
     make_file_selector,
+    QValidator,
+    FileValidator
 )
 
 from ..utils import get_ui_class
@@ -58,10 +60,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
         self.file_browse_button.clicked.connect( make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr('Interlis Model File (*.ili);;Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
         
-        # self.validators = Validators()
-        # fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
-        # self.input_line_edit.setValidator(fileValidator)
-        # self.input_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=False)
 
         self.ilicache = IliCache(self.import_wizard.import_schema_configuration.base_configuration)
         self.model_delegate = ModelCompleterDelegate()
@@ -74,10 +73,10 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.add_button.clicked.connect(self.add_row)
         self.remove_button.clicked.connect(self.remove_selected_rows)
 
-        self.remove_button.setEnabled(self.import_wizard.source_model.rowCount())
-        self.import_wizard.source_model.rowsInserted.connect( lambda: self.remove_button.setEnabled(self.import_wizard.source_model.rowCount()))
-        self.import_wizard.source_model.rowsRemoved.connect( lambda: self.remove_button.setEnabled(self.import_wizard.source_model.rowCount()))
-
+        self.add_button.setEnabled(self.valid_source())
+        self.input_line_edit.textChanged.connect(lambda: self.add_button.setEnabled(self.valid_source()))
+        self.remove_button.setEnabled(self.valid_selection())
+        self.source_list_view.clicked.connect(lambda: self.remove_button.setEnabled(self.valid_selection()))
 
     def first_time_punch(self):
         # might could be nices
@@ -103,6 +102,14 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
                     self.input_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
                     self.input_line_edit.completer().complete()
 
+    def valid_source(self):
+        match_contains = self.input_line_edit.completer().completionModel().match(self.input_line_edit.completer().completionModel().index(0, 0),
+                                                Qt.DisplayRole, self.input_line_edit.text(), -1, Qt.MatchExactly)
+        return len(match_contains) == 1 or self.fileValidator.validate(self.input_line_edit.text(),0)[0] == QValidator.Acceptable
+    
+    def valid_selection(self):
+        return bool(len(self.source_list_view.selectedIndexes()))
+
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.input_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -127,6 +134,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
     def remove_selected_rows(self):
         indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)
+        self.remove_button.setEnabled(self.valid_selection())
 
     def nextId(self):
         return self.import_wizard.next_id()
