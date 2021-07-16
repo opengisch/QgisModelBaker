@@ -26,7 +26,8 @@ from qgis.PyQt.QtCore import (
     QSortFilterProxyModel,
     QTimer,
     Qt,
-    QEventLoop
+    QEventLoop,
+    pyqtSignal
 )
 
 from qgis.PyQt.QtGui import (
@@ -74,6 +75,8 @@ IliExtensions = ['ili']
 TransferExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
 class SourceModel(QStandardItemModel):
+
+    print_info = pyqtSignal([str], [str, str])
     class Roles(Enum):
         NAME = Qt.UserRole + 1
         TYPE = Qt.UserRole + 2
@@ -110,6 +113,8 @@ class SourceModel(QStandardItemModel):
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
         self.appendRow([item, QStandardItem()])
+
+        self.print_info.emit(self.tr("Add source {} ({})").format(name, path if path else 'repository'))
     
     def setData(self, index, data, role):
         if index.column() > 0:
@@ -118,6 +123,8 @@ class SourceModel(QStandardItemModel):
 
     def remove_sources(self, indices):
         for index in sorted(indices):
+            path = index.data(int(SourceModel.Roles.PATH))
+            self.print_info.emit(self.tr("Remove source {} ({})").format(index.data(int(SourceModel.Roles.NAME)), path if path else 'repository'))
             self.removeRow(index.row()) 
             
 class ImportModelsModel(SourceModel):
@@ -147,18 +154,21 @@ class ImportModelsModel(SourceModel):
         # models from db
         db_modelnames = self.db_modelnames(db_connector)
 
+        self.print_info.emit(self.tr("----------"))
+
         # models from the repos
         models_from_repo =[]
         filtered_source_model.setFilterFixedString('model')
+        self.print_info.emit(self.tr("Get models from the repositories:"))
         for r in range(0,filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r,0)
             modelname = filtered_source_model_index.data(int(SourceModel.Roles.NAME))
             if modelname and modelname not in ImportModelsModel.blacklist and modelname not in db_modelnames:
                 self.add_source(modelname, filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(int(SourceModel.Roles.PATH)), previously_checked_models.get(modelname, Qt.Checked))
                 models_from_repo.append(filtered_source_model_index.data(int(SourceModel.Roles.NAME)))
+                self.print_info.emit(self.tr("- Append model {}").format(modelname))
             else:
-                print(f"repo filtered modelname {modelname}")
-        print( f'models_from_repo {models_from_repo}')
+                self.print_info.emit(self.tr("- Dont't append model {} because it's already in the database or blacklisted.").format(modelname))
 
         # models from the files
         models_from_ili_files=[]
@@ -168,17 +178,19 @@ class ImportModelsModel(SourceModel):
             ili_file_path = filtered_source_model_index.data(int(SourceModel.Roles.PATH))
             self.ilicache = IliCache(None, ili_file_path)
             models = self.ilicache.process_ili_file(ili_file_path)
+            self.print_info.emit(self.tr("Get models from the ili file: {}").format(ili_file_path))
             for model in models:
                 if model['name'] and model['name'] not in ImportModelsModel.blacklist and model['name'] not in db_modelnames:
                     self.add_source(model['name'], filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] else Qt.Unchecked))
                     models_from_ili_files.append(model['name'])
+                    self.print_info.emit(self.tr("- Append model {}").format(model['name']))
                 else:
-                    print(f"ilifile filtered modelname {model['name']}")
-        print( f'models_from_ili_files {models_from_ili_files}')
+                    self.print_info.emit(self.tr("- Dont't append model {} because it's already in the database or blacklisted.").format(model['name']))
 
         # models from the transfer files
         # dave not yet integrated...
         # models_from_transfer_files=[]
+        self.print_info.emit(self.tr("Get models from the transfer files is not yet implemented"))
         filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
         for r in range(0,filtered_source_model.rowCount()):
             index = filtered_source_model.index(r,0)
@@ -187,6 +199,7 @@ class ImportModelsModel(SourceModel):
         # models_from_transfer_files.append(ili_file_path)
         # print( f'models_from_transfer_files {models_from_transfer_files}')
 
+        self.print_info.emit(self.tr("----------"))
         return self.rowCount()
 
     def db_modelnames(self, db_connector=None):
@@ -251,7 +264,10 @@ class ImportModelsModel(SourceModel):
 
     def checked_models(self):
         return [model for model in self._checked_models.keys() if self._checked_models[model] == Qt.Checked]
+
 class ImportDataModel(QSortFilterProxyModel):
+
+    print_info = pyqtSignal([str], [str, str])
 
     def __init__(self):
         super().__init__()
@@ -259,12 +275,15 @@ class ImportDataModel(QSortFilterProxyModel):
     
     def import_sessions(self, order_list):
         sessions = {}
+        i = 0
         for r in order_list:
             source = self.index(r,0).data(int(SourceModel.Roles.PATH))
             dataset = self.index(r,1).data(int(SourceModel.Roles.DATASET_NAME))
             sessions[source]={}
             sessions[source]['dataset']=dataset
-            print( f"s is {source} and d is {dataset}")
+            i += 1
+            self.print_info.emit(self.tr("{} Import session for {}").format(i, source))
+            
         return sessions
 
 class ImportWizard (QWizard):
@@ -298,13 +317,16 @@ class ImportWizard (QWizard):
 
         # models setup
         self.source_model = SourceModel()
+        self.source_model.print_info.connect(self.log_panel.print_info)
 
         self.file_model = QSortFilterProxyModel()
         self.file_model.setSourceModel(self.source_model)
         self.file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_models_model = ImportModelsModel()
+        self.import_models_model.print_info.connect(self.log_panel.print_info)
 
         self.import_data_file_model = ImportDataModel()
+        self.import_data_file_model.print_info.connect(self.log_panel.print_info)
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_data_file_model.setFilterRegExp('|'.join(TransferExtensions))
@@ -454,6 +476,7 @@ class ImportGandalf (QDialog):
         self.import_wizard.setWindowFlags(Qt.Widget)
         self.import_wizard.show()
 
+        self.import_wizard.finished.connect(self.done)
         layout = QVBoxLayout()
         layout.addWidget(self.import_wizard)
         layout.addWidget(self.log_panel)
