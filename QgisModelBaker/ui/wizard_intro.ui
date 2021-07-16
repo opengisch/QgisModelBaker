@@ -36,7 +36,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Welcome. What do you want to do?</string>
+      <string>What do you want to do?</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -69,7 +69,7 @@
    <item row="1" column="0">
     <widget class="QCommandLinkButton" name="import_button">
      <property name="text">
-      <string>Generate a database from ILI and/or import data</string>
+      <string>Choose files and models to import / create database</string>
      </property>
     </widget>
    </item>

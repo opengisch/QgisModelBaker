@@ -73,7 +73,6 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
-        self.import_wizard.log_panel.print_info('changed type to {db_id}')
     
     def db_ili_version(self, configuration):
         """

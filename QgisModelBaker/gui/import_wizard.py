@@ -401,13 +401,13 @@ class ImportWizard (QWizard):
             self.refresh_import_models_model()
             self.schema_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportSchemaExecution_Id:
-            self.execution_page.run(self.import_schema_configuration, self.import_models_model.import_sessions())
+            self.execution_page.setup_sessions(self.import_schema_configuration, self.import_models_model.import_sessions())
         if self.current_id == self.Page_ImportProjectCreation_Id:
             self.project_creation_page.set_configuration(self.import_schema_configuration)
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             self.data_configuration_page.restore_configuration()
         if self.current_id == self.Page_ImportDataExecution_Id:
-            self.data_execution_page.run(self.import_data_configuration, self.import_data_file_model.import_sessions(self.data_configuration_page.order_list()), True)
+            self.data_execution_page.setup_sessions(self.import_data_configuration, self.import_data_file_model.import_sessions(self.data_configuration_page.order_list()), True)
             
     def refresh_import_models_model(self):
         schema = self.import_schema_configuration.dbschema
