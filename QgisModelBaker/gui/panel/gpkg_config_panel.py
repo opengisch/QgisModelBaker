@@ -63,7 +63,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
             validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
                                         file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"),
-                                                    extensions=['.' + ext for ext in self.ValidExtensions])
+                                                    extensions=['.' + ext for ext in self.ValidExtensions], dont_confirm_overwrite = (self._db_action_type == DbActionType.IMPORT_DATA) )
         else:
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
