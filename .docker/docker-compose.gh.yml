@@ -11,7 +11,7 @@ services:
       - ALLOW_IP_RANGE="172.0.0.0/8"
 
   mssql:
-    image: microsoft/mssql-server-linux:2017-latest
+    image: mcr.microsoft.com/mssql/server:2019-CU11-ubuntu-20.04
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: <YourStrong!Passw0rd>
