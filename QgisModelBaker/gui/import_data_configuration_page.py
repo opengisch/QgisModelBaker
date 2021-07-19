@@ -33,6 +33,7 @@ from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_data_configuration.ui')
 
+
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
@@ -40,15 +41,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.import_wizard = parent
 
         self.setupUi(self)
-        self.setFixedSize(800,600)
+        self.setFixedSize(800, 600)
         self.setTitle(self.tr("Data import configuration"))
 
         self.import_wizard = parent
         self.is_complete = True
-        
-        self.import_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels([self.tr('Import File'),self.tr('Dataset')])
+
+        self.import_wizard.import_data_file_model.sourceModel(
+        ).setHorizontalHeaderLabels([self.tr('Import File'), self.tr('Dataset')])
         self.file_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.file_table_view.setModel(self.import_wizard.import_data_file_model)
+        self.file_table_view.setModel(
+            self.import_wizard.import_data_file_model)
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
@@ -59,14 +62,16 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def order_list(self):
         order_list = []
-        for visual_index in range(0,self.file_table_view.verticalHeader().count()):
-            order_list.append(self.file_table_view.verticalHeader().logicalIndex(visual_index))
+        for visual_index in range(0, self.file_table_view.verticalHeader().count()):
+            order_list.append(
+                self.file_table_view.verticalHeader().logicalIndex(visual_index))
         return order_list
 
     def fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
-            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
+            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(
+                self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 

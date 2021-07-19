@@ -47,16 +47,17 @@ from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_project_creation.ui')
 
+
 class ImportProjectCreationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
-        
+
         self.import_wizard = parent
 
         self.setupUi(self)
         self.setFinalPage(True)
-        self.setFixedSize(800,600)
+        self.setFixedSize(800, 600)
         self.setTitle(self.tr("Generate QGIS Project"))
 
         self.db_simple_factory = DbSimpleFactory()
@@ -70,16 +71,20 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
     def create_project(self):
         self.progress_bar.setValue(0)
 
-        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
+        db_factory = self.db_simple_factory.create_factory(
+            self.configuration.tool)
 
         try:
-            config_manager = db_factory.get_db_command_config_manager(self.configuration)
+            config_manager = db_factory.get_db_command_config_manager(
+                self.configuration)
             uri = config_manager.get_uri()
-            mgmt_uri = config_manager.get_uri(self.configuration.db_use_super_login)
+            mgmt_uri = config_manager.get_uri(
+                self.configuration.db_use_super_login)
             generator = Generator(self.configuration.tool, uri,
-                                    self.configuration.inheritance, self.configuration.dbschema, mgmt_uri=mgmt_uri)
+                                  self.configuration.inheritance, self.configuration.dbschema, mgmt_uri=mgmt_uri)
             generator.stdout.connect(self.import_wizard.log_panel.print_info)
-            generator.new_message.connect(self.import_wizard.log_panel.show_message)
+            generator.new_message.connect(
+                self.import_wizard.log_panel.show_message)
             self.progress_bar.setValue(30)
         except (DBConnectorError, FileNotFoundError):
             self.import_wizard.log_panel.txtStdout.setText(
@@ -95,7 +100,8 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(0)
             return
 
-        res, message = db_factory.post_generate_project_validations(self.configuration)
+        res, message = db_factory.post_generate_project_validations(
+            self.configuration)
 
         if not res:
             self.import_wizard.log_panel.txtStdout.setText(message)
@@ -109,7 +115,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
 
         if not available_layers:
             text = self.tr('The {} has no layers to load into QGIS.').format(
-                        db_factory.get_specific_messages()['layers_source'])
+                db_factory.get_specific_messages()['layers_source'])
 
             self.import_wizard.log_panel.txtStdout.setText(text)
             self.progress_bar.setValue(0)
@@ -121,7 +127,8 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         relations, bags_of_enum = generator.relations(available_layers)
         self.progress_bar.setValue(45)
 
-        self.import_wizard.log_panel.print_info(self.tr('Arranging layers into groups…'))
+        self.import_wizard.log_panel.print_info(
+            self.tr('Arranging layers into groups…'))
         legend = generator.legend(available_layers)
 
         custom_layer_order_structure = list()
@@ -130,9 +137,12 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         if self.configuration.metaconfig and 'CONFIGURATION' in self.configuration.metaconfig.sections():
             configuration_section = self.configuration.metaconfig['CONFIGURATION']
             if 'qgis.modelbaker.layertree' in configuration_section:
-                self.import_wizard.log_panel.print_info(self.tr('Metaconfig contains a layertree structure topping.'), LogPanel.COLOR_TOPPING)
-                layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(';')
-                layertree_data_file_path_list = self.import_wizard.get_topping_file_list( layertree_data_list, self.import_wizard.log_panel)
+                self.import_wizard.log_panel.print_info(self.tr(
+                    'Metaconfig contains a layertree structure topping.'), LogPanel.COLOR_TOPPING)
+                layertree_data_list = configuration_section['qgis.modelbaker.layertree'].split(
+                    ';')
+                layertree_data_file_path_list = self.import_wizard.get_topping_file_list(
+                    layertree_data_list, self.import_wizard.log_panel)
                 for layertree_file_path in layertree_data_file_path_list:
                     self.import_wizard.log_panel.print_info(
                         self.tr('Parse layertree structure {}…').format(layertree_file_path), LogPanel.COLOR_TOPPING)
@@ -141,7 +151,8 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                         try:
                             layertree_data = yaml.safe_load(stream)
                             if 'legend' in layertree_data:
-                                legend = generator.legend(available_layers, layertree_structure=layertree_data['legend'])
+                                legend = generator.legend(
+                                    available_layers, layertree_structure=layertree_data['legend'])
                             if 'layer-order' in layertree_data:
                                 custom_layer_order_structure = layertree_data['layer-order']
                         except yaml.YAMLError as exc:
@@ -156,12 +167,14 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
 
-        self.import_wizard.log_panel.print_info(self.tr('Configure forms and widgets…'))
+        self.import_wizard.log_panel.print_info(
+            self.tr('Configure forms and widgets…'))
         project.post_generate()
 
         qgis_project = QgsProject.instance()
 
-        self.import_wizard.log_panel.print_info(self.tr('Generate QGIS project…'))
+        self.import_wizard.log_panel.print_info(
+            self.tr('Generate QGIS project…'))
         project.create(None, qgis_project)
 
         # Set the extent of the mapCanvas from the first layer extent found
@@ -172,12 +185,15 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                 break
 
         self.progress_bar.setValue(60)
-        
+
         # Toppings QMLs: collect, download and apply
         if self.configuration.metaconfig and 'qgis.modelbaker.qml' in self.configuration.metaconfig.sections():
-            self.import_wizard.log_panel.print_info(self.tr('Metaconfig contains QML toppings.'), LogPanel.COLOR_TOPPING)
-            qml_section = dict(self.configuration.metaconfig['qgis.modelbaker.qml'])
-            qml_file_model = self.import_wizard.get_topping_file_model(list(qml_section.values()), self.import_wizard.log_panel)
+            self.import_wizard.log_panel.print_info(
+                self.tr('Metaconfig contains QML toppings.'), LogPanel.COLOR_TOPPING)
+            qml_section = dict(
+                self.configuration.metaconfig['qgis.modelbaker.qml'])
+            qml_file_model = self.import_wizard.get_topping_file_model(
+                list(qml_section.values()), self.import_wizard.log_panel)
             for layer in project.layers:
                 if any(layer.alias.lower() == s for s in qml_section):
                     layer_qml = layer.alias.lower()
@@ -186,12 +202,13 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                 else:
                     continue
                 matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
-                                                qml_section[layer_qml], 1)
+                                               qml_section[layer_qml], 1)
                 if matches:
-                    style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                    style_file_path = matches[0].data(
+                        int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                     self.import_wizard.log_panel.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
-                                    LogPanel.COLOR_TOPPING)
+                                                            LogPanel.COLOR_TOPPING)
                     layer.layer.loadNamedStyle(style_file_path)
-        
+
         self.progress_bar.setValue(100)
         self.import_wizard.log_panel.print_info(self.tr("It's served!"))

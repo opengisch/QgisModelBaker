@@ -23,13 +23,14 @@ from qgis.PyQt.QtGui import (
 )
 
 from qgis.PyQt.QtWidgets import (
-    QWizardPage, 
+    QWizardPage,
     QWizard
 )
 
 from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('wizard_intro.ui')
+
 
 class IntroPage (QWizardPage, PAGE_UI):
 
@@ -39,21 +40,22 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.import_wizard = parent
 
         self.setupUi(self)
-        self.setFixedSize(800,600)
+        self.setFixedSize(800, 600)
 
         self.setTitle(self.tr("QGIS Model Baker Import / Export"))
-        self.setPixmap(QWizard.WatermarkPixmap, QPixmap(":/images/QgisModelBaker-import.svg"))
+        self.setPixmap(QWizard.WatermarkPixmap, QPixmap(
+            ":/images/QgisModelBaker-import.svg"))
 
         self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
         self.import_button.clicked.connect(self.on_import)
         self.generate_button.clicked.connect(self.on_generate)
         self.export_button.clicked.connect(self.on_export)
         self.export_button.setDisabled(True)
-    
+
     def on_import(self):
         self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
         self.import_wizard.next()
-    
+
     def on_generate(self):
         self.next_id = self.import_wizard.Page_ImportDatabaseSelection_Id
         self.import_wizard.next()

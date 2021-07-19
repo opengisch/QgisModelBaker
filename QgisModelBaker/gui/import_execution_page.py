@@ -49,30 +49,36 @@ from ..utils import get_ui_class
 
 PAGE_UI = get_ui_class('import_execution.ui')
 
+
 class ImportExecutionPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
-        
+
         self.import_wizard = parent
         self.setupUi(self)
-        self.setFixedSize(800,600)
+        self.setFixedSize(800, 600)
         self.setTitle(self.tr("Execution"))
 
         self.session_widget_list = []
         self.run_command_button.setEnabled(False)
         self.run_command_button.clicked.connect(self.run)
 
-    def setup_sessions(self, configuration, import_sessions, data_import = False):
+    def setup_sessions(self, configuration, import_sessions, data_import=False):
         for key in import_sessions:
             self.import_wizard.log_panel.print_info('{key}3234')
-            models = import_sessions[key]['models'] if 'models' in import_sessions[key] else []
+            models = import_sessions[key]['models'] if 'models' in import_sessions[key] else [
+            ]
             dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
-            import_session = ImportSessionPanel(copy.deepcopy(configuration), key, models, dataset, data_import)
-            import_session.print_info.connect(self.import_wizard.log_panel.print_info)
-            import_session.on_stderr.connect(self.import_wizard.log_panel.on_stderr)
+            import_session = ImportSessionPanel(copy.deepcopy(
+                configuration), key, models, dataset, data_import)
+            import_session.print_info.connect(
+                self.import_wizard.log_panel.print_info)
+            import_session.on_stderr.connect(
+                self.import_wizard.log_panel.on_stderr)
             import_session.on_process_started.connect(self.on_process_started)
-            import_session.on_process_finished.connect(self.on_process_finished)
+            import_session.on_process_finished.connect(
+                self.on_process_finished)
             if import_session not in self.session_widget_list:
                 self.import_wizard.log_panel.print_info('{key}<<<')
                 self.session_widget_list.append(import_session)
@@ -80,7 +86,8 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.session_layout = QVBoxLayout()
         for session_widget in self.session_widget_list:
             self.session_layout.addWidget(session_widget)
-        self.session_layout.addSpacerItem(QSpacerItem(0,self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.session_layout.addSpacerItem(QSpacerItem(
+            0, self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.scroll_area_content.setLayout(self.session_layout)
 
         self.run_command_button.setEnabled(len(self.session_widget_list))
