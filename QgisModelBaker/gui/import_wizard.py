@@ -135,18 +135,6 @@ class SourceModel(QStandardItemModel):
 
 class ImportModelsModel(SourceModel):
 
-    blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
-                 'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
-                 'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
-                 'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
-                 'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
-                 'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
-                 'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
-                 'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
-                 'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
-                 'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
-                 'Time', 'Units']
-
     def __init__(self):
         super().__init__()
         self._checked_models = {}
@@ -170,7 +158,7 @@ class ImportModelsModel(SourceModel):
             filtered_source_model_index = filtered_source_model.index(r, 0)
             modelname = filtered_source_model_index.data(
                 int(SourceModel.Roles.NAME))
-            if modelname and modelname not in ImportModelsModel.blacklist and modelname not in db_modelnames:
+            if modelname and modelname not in db_modelnames:
                 self.add_source(modelname, filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
                     int(SourceModel.Roles.PATH)), previously_checked_models.get(modelname, Qt.Checked))
                 models_from_repo.append(
@@ -179,7 +167,7 @@ class ImportModelsModel(SourceModel):
                     self.tr("- Append model {}").format(modelname))
             else:
                 self.print_info.emit(self.tr(
-                    "- Dont't append model {} because it's already in the database or blacklisted.").format(modelname))
+                    "- Dont't append model {} because it's already in the database.").format(modelname))
 
         # models from the files
         models_from_ili_files = []
@@ -475,7 +463,7 @@ class ImportWizard (QWizard):
 
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             self.data_configuration_page.restore_configuration()
-            
+
         if self.current_id == self.Page_ImportDataExecution_Id:
             self.data_execution_page.setup_sessions(self.import_data_configuration, self.import_data_file_model.import_sessions(
                 self.data_configuration_page.order_list()), True)
