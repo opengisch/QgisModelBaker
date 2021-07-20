@@ -270,9 +270,9 @@ class ImportModelsModel(SourceModel):
             item = self.index(r, 0)
             if item.data(int(Qt.Checked)):
                 type = item.data(int(SourceModel.Roles.TYPE))
-                source = item.data(int(SourceModel.Roles.PATH)
-                                   ) if type != 'model' else 'repository'
                 model = item.data(int(SourceModel.Roles.NAME))
+                source = item.data(int(SourceModel.Roles.PATH)
+                                   ) if type != 'model' else 'repository '+model
 
                 if self._checked_models[model] == Qt.Checked:
                     models = []

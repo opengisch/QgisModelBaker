@@ -62,8 +62,19 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.setTitle(self.tr("Execution"))
 
         self.session_widget_list = []
+        self.session_status = []
         self.run_command_button.setEnabled(False)
         self.run_command_button.clicked.connect(self.run)
+        self.is_complete = False
+        self.pending_sessions = []
+
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.run_command_button.setDisabled(complete)
+        self.completeChanged.emit()
 
     def find_existing_session_widget(self, id):
         for session_widget in self.session_widget_list:
@@ -85,6 +96,8 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             else:
                 import_session = ImportSessionPanel(copy.deepcopy(
                     configuration), key, models, dataset, data_import)
+                import_session.on_done_or_skipped.connect(
+                    self.on_done_or_skipped_received)
                 import_session.print_info.connect(
                     self.import_wizard.log_panel.print_info)
                 import_session.on_stderr.connect(
@@ -96,6 +109,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 new_sessions.append(import_session)
 
         self.session_widget_list = new_sessions
+
         session_layout = QVBoxLayout()
         content = QWidget()
         for session_widget in self.session_widget_list:
@@ -105,7 +119,14 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         content.setLayout(session_layout)
         self.scroll_area.setWidget(content)
 
-        self.run_command_button.setEnabled(len(self.session_widget_list))
+        self.pending_sessions = [
+            session.id for session in self.session_widget_list if not session.is_skipped_or_done]
+        self.setComplete(not self.pending_sessions)
+
+    def on_done_or_skipped_received(self, id):
+        self.pending_sessions.remove(id)
+        if not self.pending_sessions:
+            self.setComplete(True)
 
     def run(self):
         loop = QEventLoop()
@@ -114,7 +135,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             # fall in a loop on fail untill the user skipped it or it has been successful
             if not session_widget.run():
                 loop.exec()
-            session_widget.on_done_or_skipped.disconnect()
 
     def on_process_started(self, command):
         self.import_wizard.log_panel.print_info(command, '#000000')

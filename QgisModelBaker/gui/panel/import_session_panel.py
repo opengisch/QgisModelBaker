@@ -48,7 +48,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
     on_stderr = pyqtSignal(str)
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
-    on_done_or_skipped = pyqtSignal()
+    on_done_or_skipped = pyqtSignal(object)
 
     def __init__(self, general_configuration, file, models, dataset, data_import, parent=None):
         QWidget.__init__(self, parent)
@@ -140,7 +140,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.setDisabled(True)
         self.print_info.emit(self.tr('Import skipped!\n'), LogPanel.COLOR_INFO)
         self.is_skipped_or_done = True
-        self.on_done_or_skipped.emit()
+        self.on_done_or_skipped.emit(self.id)
 
     def edit_command(self):
         """
@@ -191,6 +191,6 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             self.progress_bar.setValue(100)
             self.print_info.emit(self.tr('Import done!\n'),
                                  LogPanel.COLOR_SUCCESS)
-            self.on_done_or_skipped.emit()
+            self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
