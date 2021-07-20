@@ -110,6 +110,11 @@ class SourceModel(QStandardItemModel):
         return item.data(int(role))
 
     def add_source(self, name, type, path):
+        if self.source_in_model(name, type, path):
+            self.print_info.emit(self.tr("Source alread added {} ({})").format(
+                name, path if path else 'repository'))
+            return
+
         item = QStandardItem()
         item.setData(name, int(Qt.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
@@ -119,6 +124,12 @@ class SourceModel(QStandardItemModel):
 
         self.print_info.emit(self.tr("Add source {} ({})").format(
             name, path if path else 'repository'))
+
+    def source_in_model(self, name, type, path):
+        match_existing = self.match(self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly)
+        if match_existing and  type == match_existing[0].data(int(SourceModel.Roles.TYPE)) and path == match_existing[0].data(int(SourceModel.Roles.PATH)):
+            return True
+        return False
 
     def setData(self, index, data, role):
         if index.column() > 0:
@@ -181,7 +192,7 @@ class ImportModelsModel(SourceModel):
             self.print_info.emit(
                 self.tr("Get models from the ili file: {}").format(ili_file_path))
             for model in models:
-                if model['name'] and model['name'] not in ImportModelsModel.blacklist and model['name'] not in db_modelnames:
+                if model['name'] and model['name'] not in db_modelnames:
                     self.add_source(model['name'], filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
                         int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] else Qt.Unchecked))
                     models_from_ili_files.append(model['name'])
