@@ -104,7 +104,7 @@ class SourceModel(QStandardItemModel):
             if index.column() > 0:
                 return item.data(int(SourceModel.Roles.DATASET_NAME))
             if item.data(int(SourceModel.Roles.TYPE)) != 'model':
-                return self.tr('{} ({})').format(item.data(int(SourceModel.Roles.NAME)), item.data(int(SourceModel.Roles.PATH)))
+                return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
             return QIcon(os.path.join(os.path.dirname(__file__), f'../images/file_types/{item.data(int(SourceModel.Roles.TYPE))}.png'))
         return item.data(int(role))
@@ -126,8 +126,9 @@ class SourceModel(QStandardItemModel):
             name, path if path else 'repository'))
 
     def source_in_model(self, name, type, path):
-        match_existing = self.match(self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly)
-        if match_existing and  type == match_existing[0].data(int(SourceModel.Roles.TYPE)) and path == match_existing[0].data(int(SourceModel.Roles.PATH)):
+        match_existing = self.match(self.index(
+            0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly)
+        if match_existing and type == match_existing[0].data(int(SourceModel.Roles.TYPE)) and path == match_existing[0].data(int(SourceModel.Roles.PATH)):
             return True
         return False
 
@@ -169,16 +170,14 @@ class ImportModelsModel(SourceModel):
             filtered_source_model_index = filtered_source_model.index(r, 0)
             modelname = filtered_source_model_index.data(
                 int(SourceModel.Roles.NAME))
-            if modelname and modelname not in db_modelnames:
+            if modelname:
+                enabled = modelname not in db_modelnames
                 self.add_source(modelname, filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
-                    int(SourceModel.Roles.PATH)), previously_checked_models.get(modelname, Qt.Checked))
+                    int(SourceModel.Roles.PATH)), previously_checked_models.get(modelname, Qt.Checked) if enabled else Qt.Unchecked, enabled)
                 models_from_repo.append(
                     filtered_source_model_index.data(int(SourceModel.Roles.NAME)))
                 self.print_info.emit(
-                    self.tr("- Append model {}").format(modelname))
-            else:
-                self.print_info.emit(self.tr(
-                    "- Dont't append model {} because it's already in the database.").format(modelname))
+                    self.tr("- Append model {}{}").format(modelname, " (inactive because it already exists in the database)" if not enabled else ''))
 
         # models from the files
         models_from_ili_files = []
@@ -192,15 +191,13 @@ class ImportModelsModel(SourceModel):
             self.print_info.emit(
                 self.tr("Get models from the ili file: {}").format(ili_file_path))
             for model in models:
-                if model['name'] and model['name'] not in db_modelnames:
+                if model['name']:
+                    enabled = model['name'] not in db_modelnames
                     self.add_source(model['name'], filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
-                        int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] else Qt.Unchecked))
+                        int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] and enabled else Qt.Unchecked), enabled)
                     models_from_ili_files.append(model['name'])
                     self.print_info.emit(
-                        self.tr("- Append model {}").format(model['name']))
-                else:
-                    self.print_info.emit(self.tr(
-                        "- Dont't append model {} because it's already in the database or blacklisted.").format(model['name']))
+                        self.tr("- Append model {} {}").format(model['name'], "(inactive because it already exists in the database)" if not enabled else ''))
 
         # models from the transfer files
         # dave not yet integrated...
@@ -229,23 +226,23 @@ class ImportModelsModel(SourceModel):
                         modelnames.append(modelname.strip())
         return modelnames
 
-    def add_source(self, name, type, path, checked):
+    def add_source(self, name, type, path, checked, enabled):
         item = QStandardItem()
         self._checked_models[name] = checked
+        item.setFlags(Qt.ItemIsSelectable |
+                      Qt.ItemIsEnabled if enabled else Qt.NoItemFlags)
         item.setData(name, int(Qt.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
         self.appendRow(item)
 
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
     def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self.tr("{}{}").format(SourceModel.data(self, index, (Qt.DisplayRole)), "" if index.flags() & Qt.ItemIsEnabled else " (already in the database)")
         if role == Qt.CheckStateRole:
             return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
-        else:
-            return SourceModel.data(self, index, role)
+        return SourceModel.data(self, index, role)
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
@@ -254,11 +251,18 @@ class ImportModelsModel(SourceModel):
                 index, int(SourceModel.Roles.NAME))] = data
             self.endResetModel()
 
+    def flags(self, index):
+        item = self.item(index.row(), index.column())
+        if item:
+            return item.flags()
+        return Qt.NoItemFlags
+
     def check(self, index):
-        if self.data(index, Qt.CheckStateRole) == Qt.Checked:
-            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
-        else:
-            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+        if index.flags() & Qt.ItemIsEnabled:
+            if self.data(index, Qt.CheckStateRole) == Qt.Checked:
+                self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+            else:
+                self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
     def import_sessions(self):
         sessions = {}
@@ -361,7 +365,8 @@ class ImportWizard (QWizard):
 
         # import
         self.source_seletion_page = ImportSourceSeletionPage(self)
-        self.import_database_seletion_page = DatabaseSelectionPage(self, DbActionType.IMPORT_DATA)
+        self.import_database_seletion_page = DatabaseSelectionPage(
+            self, DbActionType.IMPORT_DATA)
         self.schema_configuration_page = ImportSchemaConfigurationPage(self)
         self.execution_page = ImportExecutionPage(self)
         self.data_configuration_page = ImportDataConfigurationPage(self)
@@ -383,12 +388,13 @@ class ImportWizard (QWizard):
         self.setPage(self.Page_ImportProjectCreation_Id,
                      self.project_creation_page)
 
-        # bake project 
-        self.generate_database_seletion_page = DatabaseSelectionPage(self, DbActionType.GENERATE)
+        # bake project
+        self.generate_database_seletion_page = DatabaseSelectionPage(
+            self, DbActionType.GENERATE)
         self.setPage(self.Page_GenerateDatabaseSelection_Id,
                      self.generate_database_seletion_page)
 
-        # export 
+        # export
         # self.export_database_seletion_page = DatabaseSelectionPage(self, DbActionType.EXPORT)
 
         self.currentIdChanged.connect(self.id_changed)
