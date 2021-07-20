@@ -48,7 +48,7 @@ from qgis.gui import (
 
 from QgisModelBaker.gui.intro_page import IntroPage
 from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletionPage
-from QgisModelBaker.gui.import_database_selection_page import ImportDatabaseSelectionPage
+from QgisModelBaker.gui.database_selection_page import DatabaseSelectionPage
 from QgisModelBaker.gui.import_schema_configuration_page import ImportSchemaConfigurationPage
 from QgisModelBaker.gui.import_execution_page import ImportExecutionPage
 from QgisModelBaker.gui.import_project_creation_page import ImportProjectCreationPage
@@ -358,8 +358,10 @@ class ImportWizard (QWizard):
 
         # pages setup
         self.intro_page = IntroPage(self)
+
+        # import
         self.source_seletion_page = ImportSourceSeletionPage(self)
-        self.database_seletion_page = ImportDatabaseSelectionPage(self)
+        self.import_database_seletion_page = DatabaseSelectionPage(self, DbActionType.IMPORT_DATA)
         self.schema_configuration_page = ImportSchemaConfigurationPage(self)
         self.execution_page = ImportExecutionPage(self)
         self.data_configuration_page = ImportDataConfigurationPage(self)
@@ -370,7 +372,7 @@ class ImportWizard (QWizard):
         self.setPage(self.Page_ImportSourceSeletion_Id,
                      self.source_seletion_page)
         self.setPage(self.Page_ImportDatabaseSelection_Id,
-                     self.database_seletion_page)
+                     self.import_database_seletion_page)
         self.setPage(self.Page_ImportSchemaConfiguration_Id,
                      self.schema_configuration_page)
         self.setPage(self.Page_ImportSchemaExecution_Id, self.execution_page)
@@ -380,6 +382,12 @@ class ImportWizard (QWizard):
                      self.data_execution_page)
         self.setPage(self.Page_ImportProjectCreation_Id,
                      self.project_creation_page)
+
+        # export 
+        # self.export_database_seletion_page = DatabaseSelectionPage(self, DbActionType.EXPORT)
+    
+        # bake project 
+        # self.generate_database_seletion_page = DatabaseSelectionPage(self, DbActionType.GENERATE)
 
         self.currentIdChanged.connect(self.id_changed)
 
@@ -392,11 +400,11 @@ class ImportWizard (QWizard):
 
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
             # update configuration for import data and for import schema and use schema config to save
-            self.database_seletion_page.update_configuration(
+            self.import_database_seletion_page.update_configuration(
                 self.import_schema_configuration)
-            self.database_seletion_page.update_configuration(
+            self.import_database_seletion_page.update_configuration(
                 self.import_data_configuration)
-            self.database_seletion_page.save_configuration(
+            self.import_database_seletion_page.save_configuration(
                 self.import_schema_configuration)
             if self.refresh_import_models_model():
                 return self.Page_ImportSchemaConfiguration_Id
@@ -432,7 +440,7 @@ class ImportWizard (QWizard):
         self.current_id = new_id
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
             # use schema config to restore
-            self.database_seletion_page.restore_configuration(
+            self.import_database_seletion_page.restore_configuration(
                 self.import_schema_configuration)
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.refresh_import_models_model()

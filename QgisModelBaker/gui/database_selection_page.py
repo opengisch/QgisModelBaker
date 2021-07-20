@@ -33,12 +33,12 @@ from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from ..utils import get_ui_class
 
-PAGE_UI = get_ui_class('import_database_selection.ui')
+PAGE_UI = get_ui_class('database_selection.ui')
 
 
-class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
+class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent):
+    def __init__(self, parent, db_action_type):
         QWizardPage.__init__(self, parent)
 
         self.import_wizard = parent
@@ -54,9 +54,8 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            # the DbActionType should change depending on if there are files to be imported (and with it schema created - or not)
             item_panel = db_factory.get_config_panel(
-                self, DbActionType.GENERATE)
+                self, db_action_type)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
@@ -119,6 +118,7 @@ class ImportDatabaseSelectionPage(QWizardPage, PAGE_UI):
         # takes settings from the GUI and provides it to the configuration
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
+        configuration.dbschema = configuration.dbschema or configuration.database
         configuration.tool = mode
         configuration.db_ili_version = self.db_ili_version(configuration)
 

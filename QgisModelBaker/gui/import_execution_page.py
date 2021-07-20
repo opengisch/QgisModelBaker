@@ -66,7 +66,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
 
     def setup_sessions(self, configuration, import_sessions, data_import=False):
         for key in import_sessions:
-            self.import_wizard.log_panel.print_info('{key}3234')
             models = import_sessions[key]['models'] if 'models' in import_sessions[key] else [
             ]
             dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
@@ -80,7 +79,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             import_session.on_process_finished.connect(
                 self.on_process_finished)
             if import_session not in self.session_widget_list:
-                self.import_wizard.log_panel.print_info('{key}<<<')
                 self.session_widget_list.append(import_session)
 
         self.session_layout = QVBoxLayout()
