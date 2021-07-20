@@ -29,7 +29,8 @@ from qgis.PyQt.QtWidgets import (
     QWizardPage,
     QSpacerItem,
     QSizePolicy,
-    QVBoxLayout
+    QVBoxLayout,
+    QWidget
 )
 
 from qgis.gui import (
@@ -64,38 +65,56 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.run_command_button.setEnabled(False)
         self.run_command_button.clicked.connect(self.run)
 
+    def find_existing_session_widget(self, id):
+        for session_widget in self.session_widget_list:
+            if id == session_widget.id:
+                return session_widget
+        return None
+
     def setup_sessions(self, configuration, import_sessions, data_import=False):
+        new_sessions = []
+
         for key in import_sessions:
             models = import_sessions[key]['models'] if 'models' in import_sessions[key] else [
             ]
             dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
-            import_session = ImportSessionPanel(copy.deepcopy(
-                configuration), key, models, dataset, data_import)
-            import_session.print_info.connect(
-                self.import_wizard.log_panel.print_info)
-            import_session.on_stderr.connect(
-                self.import_wizard.log_panel.on_stderr)
-            import_session.on_process_started.connect(self.on_process_started)
-            import_session.on_process_finished.connect(
-                self.on_process_finished)
-            if import_session not in self.session_widget_list:
-                self.session_widget_list.append(import_session)
 
-        self.session_layout = QVBoxLayout()
+            existing_widget = self.find_existing_session_widget((key, models))
+            if existing_widget:
+                new_sessions.append(existing_widget)
+            else:
+                import_session = ImportSessionPanel(copy.deepcopy(
+                    configuration), key, models, dataset, data_import)
+                import_session.print_info.connect(
+                    self.import_wizard.log_panel.print_info)
+                import_session.on_stderr.connect(
+                    self.import_wizard.log_panel.on_stderr)
+                import_session.on_process_started.connect(
+                    self.on_process_started)
+                import_session.on_process_finished.connect(
+                    self.on_process_finished)
+                new_sessions.append(import_session)
+
+        self.session_widget_list = new_sessions
+        session_layout = QVBoxLayout()
+        content = QWidget()
         for session_widget in self.session_widget_list:
-            self.session_layout.addWidget(session_widget)
-        self.session_layout.addSpacerItem(QSpacerItem(
-            0, self.scroll_area_content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.scroll_area_content.setLayout(self.session_layout)
+            session_layout.addWidget(session_widget)
+        session_layout.addSpacerItem(QSpacerItem(
+            0, content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
+        content.setLayout(session_layout)
+        self.scroll_area.setWidget(content)
 
         self.run_command_button.setEnabled(len(self.session_widget_list))
 
     def run(self):
         loop = QEventLoop()
         for session_widget in self.session_widget_list:
+            session_widget.on_done_or_skipped.connect(lambda: loop.quit())
+            # fall in a loop on fail untill the user skipped it or it has been successful
             if not session_widget.run():
-                session_widget.on_done_or_skipped.connect(lambda: loop.quit())
                 loop.exec()
+            session_widget.on_done_or_skipped.disconnect()
 
     def on_process_started(self, command):
         self.import_wizard.log_panel.print_info(command, '#000000')
