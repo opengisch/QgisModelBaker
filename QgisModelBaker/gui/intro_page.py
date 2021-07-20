@@ -57,7 +57,7 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.import_wizard.next()
 
     def on_generate(self):
-        self.next_id = self.import_wizard.Page_ImportDatabaseSelection_Id
+        self.next_id = self.import_wizard.Page_GenerateDatabaseSelection_Id
         self.import_wizard.next()
 
     def on_export(self):

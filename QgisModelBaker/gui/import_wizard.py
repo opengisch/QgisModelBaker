@@ -319,6 +319,7 @@ class ImportWizard (QWizard):
     Page_ImportDataConfiguration_Id = 6
     Page_ImportDataExecution_Id = 7
     Page_ImportProjectCreation_Id = 8
+    Page_GenerateDatabaseSelection_Id = 9
 
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self)
@@ -383,11 +384,13 @@ class ImportWizard (QWizard):
         self.setPage(self.Page_ImportProjectCreation_Id,
                      self.project_creation_page)
 
+        # bake project 
+        self.generate_database_seletion_page = DatabaseSelectionPage(self, DbActionType.GENERATE)
+        self.setPage(self.Page_GenerateDatabaseSelection_Id,
+                     self.generate_database_seletion_page)
+
         # export 
         # self.export_database_seletion_page = DatabaseSelectionPage(self, DbActionType.EXPORT)
-    
-        # bake project 
-        # self.generate_database_seletion_page = DatabaseSelectionPage(self, DbActionType.GENERATE)
 
         self.currentIdChanged.connect(self.id_changed)
 
@@ -410,6 +413,16 @@ class ImportWizard (QWizard):
                 return self.Page_ImportSchemaConfiguration_Id
             if self.import_data_file_model.rowCount():
                 return self.Page_ImportDataConfiguration_Id
+            return self.Page_ImportProjectCreation_Id
+
+        if self.current_id == self.current_id == self.Page_GenerateDatabaseSelection_Id:
+            # update configuration for import data and for import schema and use schema config to save
+            self.generate_database_seletion_page.update_configuration(
+                self.import_schema_configuration)
+            self.generate_database_seletion_page.update_configuration(
+                self.import_data_configuration)
+            self.generate_database_seletion_page.save_configuration(
+                self.import_schema_configuration)
             return self.Page_ImportProjectCreation_Id
 
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
@@ -438,21 +451,31 @@ class ImportWizard (QWizard):
 
     def id_changed(self, new_id):
         self.current_id = new_id
+
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
             # use schema config to restore
             self.import_database_seletion_page.restore_configuration(
                 self.import_schema_configuration)
+
+        if self.current_id == self.Page_GenerateDatabaseSelection_Id:
+            self.generate_database_seletion_page.restore_configuration(
+                self.import_schema_configuration)
+
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.refresh_import_models_model()
             self.schema_configuration_page.restore_configuration()
+
         if self.current_id == self.Page_ImportSchemaExecution_Id:
             self.execution_page.setup_sessions(
                 self.import_schema_configuration, self.import_models_model.import_sessions())
+
         if self.current_id == self.Page_ImportProjectCreation_Id:
             self.project_creation_page.set_configuration(
                 self.import_schema_configuration)
+
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             self.data_configuration_page.restore_configuration()
+            
         if self.current_id == self.Page_ImportDataExecution_Id:
             self.data_execution_page.setup_sessions(self.import_data_configuration, self.import_data_file_model.import_sessions(
                 self.data_configuration_page.order_list()), True)
