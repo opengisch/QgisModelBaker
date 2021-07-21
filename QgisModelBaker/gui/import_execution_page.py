@@ -60,12 +60,11 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.data_import = data_import
         self.setupUi(self)
         self.setFixedSize(800, 600)
+        self.setTitle(self.import_wizard.current_page_title())
         if not self.data_import:
-            self.setTitle(self.tr("Schema Import Sessions"))
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the model imports (or skip to continue)."))
         else:
-            self.setTitle(self.tr("Data Import Sessions"))
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the data imports (or skip to continue)."))
 

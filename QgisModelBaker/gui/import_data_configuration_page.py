@@ -42,7 +42,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.tr("Data import configuration"))
+        self.setTitle(self.import_wizard.current_page_title())
 
         self.import_wizard = parent
 

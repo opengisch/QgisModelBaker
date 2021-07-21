@@ -42,7 +42,7 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFixedSize(800, 600)
 
-        self.setTitle(self.tr("QGIS Model Baker Import / Export Wizard"))
+        self.setTitle(self.import_wizard.current_page_title())
 
         self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
         self.import_button.clicked.connect(self.on_import)

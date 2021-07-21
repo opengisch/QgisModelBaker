@@ -47,7 +47,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.tr("Database Configuration"))
+        self.setTitle(self.import_wizard.current_page_title())
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(self.tr(
                 "Select an existing database you want to generate a QGIS project from."))
