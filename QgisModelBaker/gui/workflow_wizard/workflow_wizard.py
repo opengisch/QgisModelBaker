@@ -106,7 +106,7 @@ class SourceModel(QStandardItemModel):
                 return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
             type = 'data'
-            if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['ili', 'xtf', 'xml']:
+            if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['model','ili', 'xtf', 'xml']:
                 type = item.data(int(SourceModel.Roles.TYPE)).lower()
             return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
         return item.data(int(role))

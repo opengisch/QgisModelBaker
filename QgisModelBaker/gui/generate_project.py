@@ -95,8 +95,8 @@ from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 DIALOG_UI = get_ui_class('generate_project.ui')
 
 #log colors
-COLOR_SUCCESS = '#aa2222'
-COLOR_FAIL = '#004905'
+COLOR_SUCCESS = '#004905'
+COLOR_FAIL = '#aa2222'
 COLOR_TOPPING = '#341d5c'
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):
