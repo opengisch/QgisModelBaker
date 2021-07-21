@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Import data</string>
+      <string>Set the order of  the files to import (drag'n'drop) and make the additional settings.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

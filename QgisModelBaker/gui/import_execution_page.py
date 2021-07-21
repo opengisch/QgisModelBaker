@@ -53,13 +53,21 @@ PAGE_UI = get_ui_class('import_execution.ui')
 
 class ImportExecutionPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent):
+    def __init__(self, parent, data_import=False):
         QWizardPage.__init__(self, parent)
 
         self.import_wizard = parent
+        self.data_import = data_import
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.tr("Execution"))
+        if not self.data_import:
+            self.setTitle(self.tr("Schema Import Sessions"))
+            self.description.setText(self.tr(
+                "Run the ili2db sessions to make the model imports (or skip to continue)."))
+        else:
+            self.setTitle(self.tr("Data Import Sessions"))
+            self.description.setText(self.tr(
+                "Run the ili2db sessions to make the data imports (or skip to continue)."))
 
         self.session_widget_list = []
         self.session_status = []
@@ -82,7 +90,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 return session_widget
         return None
 
-    def setup_sessions(self, configuration, import_sessions, data_import=False):
+    def setup_sessions(self, configuration, import_sessions):
         new_sessions = []
 
         for key in import_sessions:
@@ -95,7 +103,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 new_sessions.append(existing_widget)
             else:
                 import_session = ImportSessionPanel(copy.deepcopy(
-                    configuration), key, models, dataset, data_import)
+                    configuration), key, models, dataset, self.data_import)
                 import_session.on_done_or_skipped.connect(
                     self.on_done_or_skipped_received)
                 import_session.print_info.connect(

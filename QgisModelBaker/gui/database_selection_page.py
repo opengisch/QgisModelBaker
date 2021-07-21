@@ -42,10 +42,21 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         QWizardPage.__init__(self, parent)
 
         self.import_wizard = parent
+        self.db_action_type = db_action_type
+        self.is_complete = True
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.tr("Database Selection"))
+        self.setTitle(self.tr("Database Configuration"))
+        if db_action_type == DbActionType.GENERATE:
+            self.description.setText(self.tr(
+                "Select an existing database you want to generate a QGIS project from."))
+        elif db_action_type == DbActionType.EXPORT:
+            self.description.setText(
+                self.tr("Select an existing database you want to export from."))
+        else:
+            self.description.setText(
+                self.tr("Choose the database you want to create or import to."))
 
         self.type_combo_box.clear()
         self._lst_panel = dict()

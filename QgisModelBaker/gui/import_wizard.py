@@ -317,18 +317,19 @@ class ImportWizard (QWizard):
     Page_Intro_Id = 1
     Page_ImportSourceSeletion_Id = 2
     Page_ImportDatabaseSelection_Id = 3
-    Page_ImportSchemaConfiguration_Id = 4
-    Page_ImportSchemaExecution_Id = 5
-    Page_ImportDataConfiguration_Id = 6
-    Page_ImportDataExecution_Id = 7
-    Page_ImportProjectCreation_Id = 8
-    Page_GenerateDatabaseSelection_Id = 9
+    Page_GenerateDatabaseSelection_Id = 4
+    Page_ImportSchemaConfiguration_Id = 5
+    Page_ImportSchemaExecution_Id = 6
+    Page_ImportDataConfiguration_Id = 7
+    Page_ImportDataExecution_Id = 8
+    Page_ImportProjectCreation_Id = 9
 
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
+        self.setOption(QWizard.NoCancelButtonOnLastPage)
 
         self.current_id = 0
 
@@ -370,7 +371,7 @@ class ImportWizard (QWizard):
         self.schema_configuration_page = ImportSchemaConfigurationPage(self)
         self.execution_page = ImportExecutionPage(self)
         self.data_configuration_page = ImportDataConfigurationPage(self)
-        self.data_execution_page = ImportExecutionPage(self)
+        self.data_execution_page = ImportExecutionPage(self, True)
         self.project_creation_page = ImportProjectCreationPage(self)
 
         self.setPage(self.Page_Intro_Id, self.intro_page)
@@ -483,7 +484,7 @@ class ImportWizard (QWizard):
 
         if self.current_id == self.Page_ImportDataExecution_Id:
             self.data_execution_page.setup_sessions(self.import_data_configuration, self.import_data_file_model.import_sessions(
-                self.data_configuration_page.order_list()), True)
+                self.data_configuration_page.order_list()))
 
     def refresh_import_models_model(self):
         schema = self.import_schema_configuration.dbschema

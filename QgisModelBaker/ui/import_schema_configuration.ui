@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Configure your database creation</string>
+      <string>Configure your database creation.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

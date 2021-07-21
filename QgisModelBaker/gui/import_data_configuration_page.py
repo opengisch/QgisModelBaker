@@ -45,7 +45,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.setTitle(self.tr("Data import configuration"))
 
         self.import_wizard = parent
-        self.is_complete = True
 
         self.import_wizard.import_data_file_model.sourceModel(
         ).setHorizontalHeaderLabels([self.tr('Import File'), self.tr('Dataset')])

@@ -42,9 +42,7 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFixedSize(800, 600)
 
-        self.setTitle(self.tr("QGIS Model Baker Import / Export"))
-        self.setPixmap(QWizard.WatermarkPixmap, QPixmap(
-            ":/images/QgisModelBaker-import.svg"))
+        self.setTitle(self.tr("QGIS Model Baker Import / Export Wizard"))
 
         self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
         self.import_button.clicked.connect(self.on_import)

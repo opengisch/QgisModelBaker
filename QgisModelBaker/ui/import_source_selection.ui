@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Please add all your files and repository models you want to use for your project.</string>
+      <string>Please add the files and repository models you want to use.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
