@@ -70,7 +70,6 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
-# dave put them all to the same place
 IliExtensions = ['ili']
 TransferExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf',
                       'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
@@ -196,8 +195,7 @@ class ImportModelsModel(SourceModel):
                         self.print_info.emit(
                             self.tr("- Append (file) model {}{} from {}").format(model['name'], " (inactive because it already exists in the database)" if not enabled else '', ili_file_path))
 
-        # models from the transfer files
-        # models_from_transfer_files=[]
+        # models from the transfer files (not yet implemented)
         filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
             index = filtered_source_model.index(r, 0)
@@ -205,8 +203,6 @@ class ImportModelsModel(SourceModel):
             if not silent:
                 self.print_info.emit(
                     self.tr("Get models from the transfer file ({}) is not yet implemented").format(xtf_file_path))
-        # models_from_transfer_files.append(ili_file_path)
-        # print( f'models_from_transfer_files {models_from_transfer_files}')
 
         return self.rowCount()
 
@@ -387,14 +383,13 @@ class WorkflowWizard (QWizard):
         self.setPage(self.Page_GenerateDatabaseSelection_Id,
                      self.generate_database_seletion_page)
 
-        # export
+        # export not yet implemented
         # self.export_database_seletion_page = DatabaseSelectionPage(self, DbActionType.EXPORT)
 
         self.currentIdChanged.connect(self.id_changed)
 
     def next_id(self):
-        # this is called on the nextId overrides of the pages
-        # so after the next-button is pressed
+        # this is called on the nextId overrides of the pages - so after the next-button is pressed
         # it finalizes the edits on the current page and returns the evaluated id of the next page
         if self.current_id == self.Page_ImportSourceSeletion_Id:
             return self.Page_ImportDatabaseSelection_Id
