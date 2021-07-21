@@ -105,7 +105,10 @@ class SourceModel(QStandardItemModel):
             if item.data(int(SourceModel.Roles.TYPE)) != 'model':
                 return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
-            return QIcon(os.path.join(os.path.dirname(__file__), f'../images/file_types/{item.data(int(SourceModel.Roles.TYPE))}.png'))
+            type = 'data'
+            if item.data(int(SourceModel.Roles.TYPE)).lower() in ['ili','xtf','xml']:
+                type = item.data(int(SourceModel.Roles.TYPE)).lower()
+            return QIcon(os.path.join(os.path.dirname(__file__), f'../images/file_types/{type}.png'))
         return item.data(int(role))
 
     def add_source(self, name, type, path):
