@@ -160,12 +160,9 @@ class ImportModelsModel(SourceModel):
         # models from db
         db_modelnames = self.db_modelnames(db_connector)
 
-        self.print_info.emit(self.tr("----------"))
-
         # models from the repos
         models_from_repo = []
         filtered_source_model.setFilterFixedString('model')
-        self.print_info.emit(self.tr("Get models from the repositories:"))
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
             modelname = filtered_source_model_index.data(
@@ -177,7 +174,7 @@ class ImportModelsModel(SourceModel):
                 models_from_repo.append(
                     filtered_source_model_index.data(int(SourceModel.Roles.NAME)))
                 self.print_info.emit(
-                    self.tr("- Append model {}{}").format(modelname, " (inactive because it already exists in the database)" if not enabled else ''))
+                    self.tr("- Append (repository) model {}{}").format(modelname, " (inactive because it already exists in the database)" if not enabled else ''))
 
         # models from the files
         models_from_ili_files = []
@@ -188,8 +185,6 @@ class ImportModelsModel(SourceModel):
                 int(SourceModel.Roles.PATH))
             self.ilicache = IliCache(None, ili_file_path)
             models = self.ilicache.process_ili_file(ili_file_path)
-            self.print_info.emit(
-                self.tr("Get models from the ili file: {}").format(ili_file_path))
             for model in models:
                 if model['name']:
                     enabled = model['name'] not in db_modelnames
@@ -197,22 +192,20 @@ class ImportModelsModel(SourceModel):
                         int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] and enabled else Qt.Unchecked), enabled)
                     models_from_ili_files.append(model['name'])
                     self.print_info.emit(
-                        self.tr("- Append model {} {}").format(model['name'], "(inactive because it already exists in the database)" if not enabled else ''))
+                        self.tr("- Append (file) model {}{} from {}").format(model['name'], " (inactive because it already exists in the database)" if not enabled else '', ili_file_path))
 
         # models from the transfer files
         # dave not yet integrated...
         # models_from_transfer_files=[]
-        self.print_info.emit(
-            self.tr("Get models from the transfer files is not yet implemented"))
         filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
             index = filtered_source_model.index(r, 0)
             xtf_file_path = index.data(int(SourceModel.Roles.PATH))
-            print(xtf_file_path)
+            self.print_info.emit(
+                self.tr("Get models from the transfer file ({}) is not yet implemented").format(xtf_file_path))
         # models_from_transfer_files.append(ili_file_path)
         # print( f'models_from_transfer_files {models_from_transfer_files}')
 
-        self.print_info.emit(self.tr("----------"))
         return self.rowCount()
 
     def db_modelnames(self, db_connector=None):
@@ -306,9 +299,6 @@ class ImportDataModel(QSortFilterProxyModel):
             sessions[source] = {}
             sessions[source]['dataset'] = dataset
             i += 1
-            self.print_info.emit(
-                self.tr("{} Import session for {}").format(i, source))
-
         return sessions
 
 
@@ -415,6 +405,7 @@ class ImportWizard (QWizard):
                 self.import_data_configuration)
             self.import_database_seletion_page.save_configuration(
                 self.import_schema_configuration)
+            self.log_panel.print_info("now refresh")
             if self.refresh_import_models_model():
                 return self.Page_ImportSchemaConfiguration_Id
             if self.import_data_file_model.rowCount():
@@ -458,6 +449,8 @@ class ImportWizard (QWizard):
     def id_changed(self, new_id):
         self.current_id = new_id
 
+        self.log_panel.print_info(self.tr(f" > ---------- Page {self.current_id} ----------"))
+
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
             # use schema config to restore
             self.import_database_seletion_page.restore_configuration(
@@ -468,6 +461,7 @@ class ImportWizard (QWizard):
                 self.import_schema_configuration)
 
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
+            self.log_panel.print_info("other refresh")
             self.refresh_import_models_model()
             self.schema_configuration_page.restore_configuration()
 
@@ -498,7 +492,7 @@ class ImportWizard (QWizard):
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
         except (DBConnectorError, FileNotFoundError):
-            # when wrong connection parameters entered, there should just be returned an empty model - so let it pass
+            # when wrong connection parameters entered we don't consider the db models and it will tell the user in the next step about it - so let it pass
             pass
 
         return self.import_models_model.refresh_model(self.file_model, db_connector)
