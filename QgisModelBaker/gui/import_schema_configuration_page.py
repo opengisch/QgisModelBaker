@@ -53,20 +53,20 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
-        self.import_wizard = parent
+        self.workflow_wizard = parent
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
         self.is_complete = True
 
-        self.model_list_view.setModel(self.import_wizard.import_models_model)
+        self.model_list_view.setModel(self.workflow_wizard.import_models_model)
         self.model_list_view.clicked.connect(
-            self.import_wizard.import_models_model.check)
+            self.workflow_wizard.import_models_model.check)
         self.model_list_view.space_pressed.connect(
-            self.import_wizard.import_models_model.check)
+            self.workflow_wizard.import_models_model.check)
         self.model_list_view.model().modelReset.connect(self.update_ilimetaconfigcache)
 
         self.crs = QgsCoordinateReferenceSystem()
@@ -77,7 +77,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.crsSelector.crsChanged.connect(self.crs_changed)
 
         self.ilimetaconfigcache = IliMetaConfigCache(
-            self.import_wizard.import_schema_configuration.base_configuration)
+            self.workflow_wizard.import_schema_configuration.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
@@ -109,7 +109,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def update_ilimetaconfigcache(self):
         self.ilimetaconfigcache = IliMetaConfigCache(
-            self.import_wizard.import_schema_configuration.base_configuration, ';'.join(self.model_list_view.model().checked_models()))
+            self.workflow_wizard.import_schema_configuration.base_configuration, ';'.join(self.model_list_view.model().checked_models()))
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self.on_metaconfig_received(path))
         self.ilimetaconfigcache.file_download_failed.connect(
@@ -151,7 +151,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def refresh_ili_metaconfig_cache(self):
         self.ilimetaconfigcache.new_message.connect(
-            self.import_wizard.log_panel.show_message)
+            self.workflow_wizard.log_panel.show_message)
         self.ilimetaconfigcache.refresh()
 
     def complete_metaconfig_completer(self):
@@ -203,7 +203,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.ilimetaconfigcache.download_file(
                     repository, url, path, dataset_id)
             else:
-                self.import_wizard.log_panel.print_info(self.tr(
+                self.workflow_wizard.log_panel.print_info(self.tr(
                     'File not specified for metaconfig with id {}.').format(dataset_id), LogPanel.COLOR_TOPPING)
 
             self.set_metaconfig_line_edit_state(True)
@@ -216,15 +216,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText('')
-        self.import_wizard.log_panel.txtStdout.clear()
+        self.workflow_wizard.log_panel.txtStdout.clear()
 
     def set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
             'QLineEdit {{ background-color: {} }}'.format('#ffffff' if valid else '#ffd356'))
 
     def on_metaconfig_received(self, path):
-        self.import_wizard.log_panel.txtStdout.clear()
-        self.import_wizard.log_panel.print_info(self.tr(
+        self.workflow_wizard.log_panel.txtStdout.clear()
+        self.workflow_wizard.log_panel.print_info(self.tr(
             'Metaconfig file successfully downloaded: {}').format(path), LogPanel.COLOR_TOPPING)
         # parse metaconfig
         self.metaconfig.clear()
@@ -234,11 +234,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             # enable the next buttton
             self.setComplete(True)
             self.fill_toml_file_info_label()
-            self.import_wizard.log_panel.print_info(
+            self.workflow_wizard.log_panel.print_info(
                 self.tr('Metaconfig successfully loaded.'), LogPanel.COLOR_TOPPING)
 
     def on_metaconfig_failed(self, dataset_id, error_msg):
-        self.import_wizard.log_panel.print_info(self.tr(
+        self.workflow_wizard.log_panel.print_info(self.tr(
             'Download of metaconfig file failed: {}.').format(error_msg), LogPanel.COLOR_TOPPING)
         # enable the next buttton
         self.setComplete(True)
@@ -261,86 +261,86 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def load_metaconfig(self):
         # load ili2db parameters to the GUI
         if 'ch.ehi.ili2db' in self.metaconfig.sections():
-            self.import_wizard.log_panel.print_info(
+            self.workflow_wizard.log_panel.print_info(
                 self.tr('Load the ili2db configurations from the metaconfig…'), LogPanel.COLOR_TOPPING)
 
             ili2db_metaconfig = self.metaconfig['ch.ehi.ili2db']
 
             if 'defaultSrsAuth' in ili2db_metaconfig or 'defaultSrsCode' in ili2db_metaconfig:
                 self.load_crs_from_metaconfig(ili2db_metaconfig)
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded CRS'), LogPanel.COLOR_TOPPING)
 
             if 'models' in ili2db_metaconfig:
                 for model in ili2db_metaconfig.get('models').strip().split(';'):
-                    self.import_wizard.source_model.add_source(
+                    self.workflow_wizard.source_model.add_source(
                         model, 'model', None)
-                self.import_wizard.refresh_import_models_model()
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.refresh_import_models_model()
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded models'), LogPanel.COLOR_TOPPING)
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
-            self.import_wizard.log_panel.print_info(
+            self.workflow_wizard.log_panel.print_info(
                 self.tr('- Loaded ili2db options'), LogPanel.COLOR_TOPPING)
 
             # get iliMetaAttrs (toml)
             if 'iliMetaAttrs' in ili2db_metaconfig:
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Seek for iliMetaAttrs (toml) files:'), LogPanel.COLOR_TOPPING)
                 ili_meta_attrs_list = ili2db_metaconfig.get(
                     'iliMetaAttrs').split(';')
-                ili_meta_attrs_file_path_list = self.import_wizard.get_topping_file_list(
-                    ili_meta_attrs_list, self.import_wizard.log_panel)
+                ili_meta_attrs_file_path_list = self.workflow_wizard.get_topping_file_list(
+                    ili_meta_attrs_list, self.workflow_wizard.log_panel)
                 self.ili2db_options.load_toml_file_path(';'.join(self.model_list_view.model(
                 ).checked_models()), ';'.join(ili_meta_attrs_file_path_list))
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded iliMetaAttrs (toml) files'), LogPanel.COLOR_TOPPING)
 
             # get prescript (sql)
             if 'prescript' in ili2db_metaconfig:
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Seek for prescript (sql) files:'), LogPanel.COLOR_TOPPING)
                 prescript_list = ili2db_metaconfig.get('prescript').split(';')
-                prescript_file_path_list = self.import_wizard.get_topping_file_list(
-                    prescript_list, self.import_wizard.log_panel)
+                prescript_file_path_list = self.workflow_wizard.get_topping_file_list(
+                    prescript_list, self.workflow_wizard.log_panel)
                 self.ili2db_options.load_pre_script_path(
                     ';'.join(prescript_file_path_list))
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded prescript (sql) files'), LogPanel.COLOR_TOPPING)
 
             # get postscript (sql)
             if 'postscript' in ili2db_metaconfig:
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Seek for postscript (sql) files:'), LogPanel.COLOR_TOPPING)
                 postscript_list = ili2db_metaconfig.get(
                     'postscript').split(';')
-                postscript_file_path_list = self.import_wizard.get_topping_file_list(
-                    postscript_list, self.import_wizard.log_panel)
+                postscript_file_path_list = self.workflow_wizard.get_topping_file_list(
+                    postscript_list, self.workflow_wizard.log_panel)
                 self.ili2db_options.load_post_script_path(
                     ';'.join(postscript_file_path_list))
-                self.import_wizard.log_panel.print_info(
+                self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded postscript (sql) files'), LogPanel.COLOR_TOPPING)
 
         # get referenceData file and update the source model
         if 'CONFIGURATION' in self.metaconfig.sections():
             configuration_section = self.metaconfig['CONFIGURATION']
             if 'ch.interlis.referenceData' in configuration_section:
-                self.import_wizard.log_panel.print_info(self.tr(
+                self.workflow_wizard.log_panel.print_info(self.tr(
                     'Metaconfig contains transfer or catalogue toppings (reference data).'), LogPanel.COLOR_TOPPING)
                 reference_data_list = configuration_section['ch.interlis.referenceData'].split(
                     ';')
-                referencedata_file_path_list = self.import_wizard.get_topping_file_list(
-                    reference_data_list, self.import_wizard.log_panel)
+                referencedata_file_path_list = self.workflow_wizard.get_topping_file_list(
+                    reference_data_list, self.workflow_wizard.log_panel)
                 for referencedata_file_path in referencedata_file_path_list:
                     if os.path.isfile(referencedata_file_path):
                         name = pathlib.Path(referencedata_file_path).name
                         type = pathlib.Path(referencedata_file_path).suffix[1:]
-                        self.import_wizard.log_panel.print_info(self.tr('Append reference data file {}…').format(
+                        self.workflow_wizard.log_panel.print_info(self.tr('Append reference data file {}…').format(
                             referencedata_file_path), LogPanel.COLOR_TOPPING)
-                        self.import_wizard.source_model.add_source(
+                        self.workflow_wizard.source_model.add_source(
                             name, type, referencedata_file_path)
                     else:
-                        self.import_wizard.log_panel.print_info(self.tr('Could not append reference data file {}…').format(
+                        self.workflow_wizard.log_panel.print_info(self.tr('Could not append reference data file {}…').format(
                             referencedata_file_path), LogPanel.COLOR_TOPPING)
 
     def restore_configuration(self):
@@ -381,4 +381,4 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                           updated_configuration.srs_code)
 
     def nextId(self):
-        return self.import_wizard.next_id()
+        return self.workflow_wizard.next_id()

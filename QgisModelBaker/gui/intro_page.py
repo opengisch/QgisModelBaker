@@ -37,26 +37,26 @@ class IntroPage (QWizardPage, PAGE_UI):
     def __init__(self, parent):
         QWizardPage.__init__(self)
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
 
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
 
-        self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
+        self.next_id = self.workflow_wizard.Page_ImportSourceSeletion_Id
         self.import_button.clicked.connect(self.on_import)
         self.generate_button.clicked.connect(self.on_generate)
         self.export_button.clicked.connect(self.on_export)
         self.export_button.setDisabled(True)
 
     def on_import(self):
-        self.next_id = self.import_wizard.Page_ImportSourceSeletion_Id
-        self.import_wizard.next()
+        self.next_id = self.workflow_wizard.Page_ImportSourceSeletion_Id
+        self.workflow_wizard.next()
 
     def on_generate(self):
-        self.next_id = self.import_wizard.Page_GenerateDatabaseSelection_Id
-        self.import_wizard.next()
+        self.next_id = self.workflow_wizard.Page_GenerateDatabaseSelection_Id
+        self.workflow_wizard.next()
 
     def on_export(self):
         pass

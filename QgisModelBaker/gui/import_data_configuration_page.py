@@ -38,19 +38,19 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
-        self.import_wizard = parent
+        self.workflow_wizard = parent
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
 
-        self.import_wizard.import_data_file_model.sourceModel(
+        self.workflow_wizard.import_data_file_model.sourceModel(
         ).setHorizontalHeaderLabels([self.tr('Import File'), self.tr('Dataset')])
         self.file_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.file_table_view.setModel(
-            self.import_wizard.import_data_file_model)
+            self.workflow_wizard.import_data_file_model)
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
@@ -94,4 +94,4 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         configuration.post_script = self.ili2db_options.post_script()
 
     def nextId(self):
-        return self.import_wizard.next_id()
+        return self.workflow_wizard.next_id()

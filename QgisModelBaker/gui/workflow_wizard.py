@@ -304,7 +304,7 @@ class ImportDataModel(QSortFilterProxyModel):
         return sessions
 
 
-class ImportWizard (QWizard):
+class WorkflowWizard (QWizard):
 
     Page_Intro_Id = 1
     Page_ImportSourceSeletion_Id = 2
@@ -566,7 +566,7 @@ class ImportWizard (QWizard):
         else:
             return self.tr("QGIS Model Baker Import / Export Wizard")
 
-class ImportGandalf (QDialog):
+class WorkflowWizardDialog (QDialog):
 
     def __init__(self, iface, base_config, parent=None):
         QDialog.__init__(self)
@@ -574,13 +574,13 @@ class ImportGandalf (QDialog):
         self.base_config = base_config
 
         self.log_panel = LogPanel()
-        self.import_wizard = ImportWizard(self.iface, self.base_config, self)
-        self.import_wizard.setStartId(self.import_wizard.Page_Intro_Id)
-        self.import_wizard.setWindowFlags(Qt.Widget)
-        self.import_wizard.show()
+        self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
+        self.workflow_wizard.setStartId(self.workflow_wizard.Page_Intro_Id)
+        self.workflow_wizard.setWindowFlags(Qt.Widget)
+        self.workflow_wizard.show()
 
-        self.import_wizard.finished.connect(self.done)
+        self.workflow_wizard.finished.connect(self.done)
         layout = QVBoxLayout()
-        layout.addWidget(self.import_wizard)
+        layout.addWidget(self.workflow_wizard)
         layout.addWidget(self.log_panel)
         self.setLayout(layout)

@@ -54,11 +54,11 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
     def __init__(self, parent):
         QWizardPage.__init__(self, parent)
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
         
         self.file_browse_button.clicked.connect(make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr(
             'Interlis Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
@@ -67,7 +67,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
             pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=False)
 
         self.ilicache = IliCache(
-            self.import_wizard.import_schema_configuration.base_configuration)
+            self.workflow_wizard.import_schema_configuration.base_configuration)
         self.model_delegate = ModelCompleterDelegate()
         self.refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(
@@ -77,7 +77,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.first_time_punched = False
         self.input_line_edit.punched.connect(self.first_time_punch)
 
-        self.source_list_view.setModel(self.import_wizard.source_model)
+        self.source_list_view.setModel(self.workflow_wizard.source_model)
         self.add_button.clicked.connect(self.add_row)
         self.remove_button.clicked.connect(self.remove_selected_rows)
 
@@ -109,7 +109,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     def refresh_ili_models_cache(self):
         self.ilicache.new_message.connect(
-            self.import_wizard.log_panel.show_message)
+            self.workflow_wizard.log_panel.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
 
@@ -162,4 +162,4 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
     def nextId(self):
         self.disconnect_punch_slots()
-        return self.import_wizard.next_id()
+        return self.workflow_wizard.next_id()

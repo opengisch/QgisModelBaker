@@ -56,11 +56,11 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, data_import=False):
         QWizardPage.__init__(self, parent)
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
         self.data_import = data_import
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
         if not self.data_import:
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the model imports (or skip to continue)."))
@@ -106,9 +106,9 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 import_session.on_done_or_skipped.connect(
                     self.on_done_or_skipped_received)
                 import_session.print_info.connect(
-                    self.import_wizard.log_panel.print_info)
+                    self.workflow_wizard.log_panel.print_info)
                 import_session.on_stderr.connect(
-                    self.import_wizard.log_panel.on_stderr)
+                    self.workflow_wizard.log_panel.on_stderr)
                 import_session.on_process_started.connect(
                     self.on_process_started)
                 import_session.on_process_finished.connect(
@@ -144,7 +144,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
                 loop.exec()
 
     def on_process_started(self, command):
-        self.import_wizard.log_panel.print_info(command, '#000000')
+        self.workflow_wizard.log_panel.print_info(command, '#000000')
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
@@ -156,7 +156,7 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             color = LogPanel.COLOR_FAIL
             message = self.tr('Finished with errors!')
 
-        self.import_wizard.log_panel.print_info(message, color)
+        self.workflow_wizard.log_panel.print_info(message, color)
 
     def nextId(self):
-        return self.import_wizard.next_id()
+        return self.workflow_wizard.next_id()

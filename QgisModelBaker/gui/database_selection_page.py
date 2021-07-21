@@ -41,13 +41,13 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, db_action_type):
         QWizardPage.__init__(self, parent)
 
-        self.import_wizard = parent
+        self.workflow_wizard = parent
         self.db_action_type = db_action_type
         self.is_complete = True
 
         self.setupUi(self)
         self.setFixedSize(800, 600)
-        self.setTitle(self.import_wizard.current_page_title())
+        self.setTitle(self.workflow_wizard.current_page_title())
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(self.tr(
                 "Select an existing database you want to generate a QGIS project from."))
@@ -101,7 +101,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
             db_connector.new_message.connect(
-                self.import_wizard.log_panel.show_message)
+                self.workflow_wizard.log_panel.show_message)
             return db_connector.ili_version()
         except (DBConnectorError, FileNotFoundError):
             return None
@@ -145,4 +145,4 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         config_manager.save_config_in_qsettings()
 
     def nextId(self):
-        return self.import_wizard.next_id()
+        return self.workflow_wizard.next_id()
