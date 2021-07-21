@@ -44,20 +44,20 @@ from QgisModelBaker.libili2db.ilicache import (
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 
-from ..utils import get_ui_class
+from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('import_schema_configuration.ui')
+PAGE_UI = get_ui_class('workflow_wizard/import_schema_configuration.ui')
 
 
 class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent):
+    def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
         self.workflow_wizard = parent
 
         self.setupUi(self)
-        self.setFixedSize(800, 600)
-        self.setTitle(self.workflow_wizard.current_page_title())
+        self.setMinimumSize(600, 500)
+        self.setTitle(title)
 
         self.workflow_wizard = parent
         self.is_complete = True

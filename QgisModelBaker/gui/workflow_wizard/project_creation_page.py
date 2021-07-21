@@ -34,31 +34,31 @@ from qgis.core import (
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
-from ..libqgsprojectgen.generator.generator import Generator
-from ..libqgsprojectgen.dataobjects import Project
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ...libqgsprojectgen.generator.generator import Generator
+from ...libqgsprojectgen.dataobjects import Project
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from QgisModelBaker.libili2db.ilicache import (
     IliToppingFileItemModel
 )
 
-from ..utils import get_ui_class
+from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('import_project_creation.ui')
+PAGE_UI = get_ui_class('workflow_wizard/project_creation.ui')
 
 
-class ImportProjectCreationPage(QWizardPage, PAGE_UI):
+class ProjectCreationPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent):
+    def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
 
         self.setupUi(self)
         self.setFinalPage(True)
-        self.setFixedSize(800, 600)
-        self.setTitle(self.workflow_wizard.current_page_title())
+        self.setMinimumSize(600, 500)
+        self.setTitle(title)
         self.setFinalPage(True)
 
         self.db_simple_factory = DbSimpleFactory()
@@ -208,7 +208,7 @@ class ImportProjectCreationPage(QWizardPage, PAGE_UI):
                     style_file_path = matches[0].data(
                         int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
                     self.workflow_wizard.log_panel.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
-                                                            LogPanel.COLOR_TOPPING)
+                                                              LogPanel.COLOR_TOPPING)
                     layer.layer.loadNamedStyle(style_file_path)
 
         self.progress_bar.setValue(100)

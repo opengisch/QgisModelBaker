@@ -28,17 +28,17 @@ from qgis.PyQt.QtWidgets import (
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
-from ..utils import get_ui_class
+from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('database_selection.ui')
+PAGE_UI = get_ui_class('workflow_wizard/database_selection.ui')
 
 
 class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent, db_action_type):
+    def __init__(self, parent, title, db_action_type):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
@@ -46,8 +46,8 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.is_complete = True
 
         self.setupUi(self)
-        self.setFixedSize(800, 600)
-        self.setTitle(self.workflow_wizard.current_page_title())
+        self.setMinimumSize(600, 500)
+        self.setTitle(title)
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(self.tr(
                 "Select an existing database you want to generate a QGIS project from."))

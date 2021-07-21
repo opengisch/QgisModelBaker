@@ -46,13 +46,13 @@ from qgis.gui import (
     QgsMessageBar
 )
 
-from QgisModelBaker.gui.intro_page import IntroPage
-from QgisModelBaker.gui.import_source_selection_page import ImportSourceSeletionPage
-from QgisModelBaker.gui.database_selection_page import DatabaseSelectionPage
-from QgisModelBaker.gui.import_schema_configuration_page import ImportSchemaConfigurationPage
-from QgisModelBaker.gui.import_execution_page import ImportExecutionPage
-from QgisModelBaker.gui.import_project_creation_page import ImportProjectCreationPage
-from QgisModelBaker.gui.import_data_configuration_page import ImportDataConfigurationPage
+from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
+from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import ImportSourceSeletionPage
+from QgisModelBaker.gui.workflow_wizard.database_selection_page import DatabaseSelectionPage
+from QgisModelBaker.gui.workflow_wizard.import_schema_configuration_page import ImportSchemaConfigurationPage
+from QgisModelBaker.gui.workflow_wizard.import_execution_page import ImportExecutionPage
+from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
+from QgisModelBaker.gui.workflow_wizard.import_data_configuration_page import ImportDataConfigurationPage
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
@@ -67,8 +67,8 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     SchemaImportConfiguration
 )
 
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 IliExtensions = ['ili']
 TransferExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf',
@@ -106,9 +106,9 @@ class SourceModel(QStandardItemModel):
                 return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
             type = 'data'
-            if item.data(int(SourceModel.Roles.TYPE)).lower() in ['ili','xtf','xml']:
+            if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['ili', 'xtf', 'xml']:
                 type = item.data(int(SourceModel.Roles.TYPE)).lower()
-            return QIcon(os.path.join(os.path.dirname(__file__), f'../images/file_types/{type}.png'))
+            return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
         return item.data(int(role))
 
     def add_source(self, name, type, path):
@@ -153,7 +153,7 @@ class ImportModelsModel(SourceModel):
         super().__init__()
         self._checked_models = {}
 
-    def refresh_model(self, filtered_source_model, db_connector=None, silent = False):
+    def refresh_model(self, filtered_source_model, db_connector=None, silent=False):
 
         self.clear()
         previously_checked_models = self._checked_models
@@ -313,7 +313,7 @@ class WorkflowWizard (QWizard):
     Page_ImportSchemaExecution_Id = 6
     Page_ImportDataConfiguration_Id = 7
     Page_ImportDataExecution_Id = 8
-    Page_ImportProjectCreation_Id = 9
+    Page_ProjectCreation_Id = 9
 
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self)
@@ -353,17 +353,24 @@ class WorkflowWizard (QWizard):
             '|'.join(TransferExtensions))
 
         # pages setup
-        self.intro_page = IntroPage(self)
+        self.intro_page = IntroPage(
+            self, self.current_page_title(self.Page_Intro_Id))
 
         # import
-        self.source_seletion_page = ImportSourceSeletionPage(self)
+        self.source_seletion_page = ImportSourceSeletionPage(
+            self, self.current_page_title(self.Page_ImportSourceSeletion_Id))
         self.import_database_seletion_page = DatabaseSelectionPage(
-            self, DbActionType.IMPORT_DATA)
-        self.schema_configuration_page = ImportSchemaConfigurationPage(self)
-        self.execution_page = ImportExecutionPage(self)
-        self.data_configuration_page = ImportDataConfigurationPage(self)
-        self.data_execution_page = ImportExecutionPage(self, True)
-        self.project_creation_page = ImportProjectCreationPage(self)
+            self, self.current_page_title(self.Page_ImportDatabaseSelection_Id), DbActionType.IMPORT_DATA)
+        self.schema_configuration_page = ImportSchemaConfigurationPage(
+            self, self.current_page_title(self.Page_ImportSchemaConfiguration_Id))
+        self.execution_page = ImportExecutionPage(
+            self, self.current_page_title(self.Page_ImportSchemaExecution_Id))
+        self.data_configuration_page = ImportDataConfigurationPage(
+            self, self.current_page_title(self.Page_ImportDataConfiguration_Id))
+        self.data_execution_page = ImportExecutionPage(
+            self, self.current_page_title(self.Page_ImportDataExecution_Id), True)
+        self.project_creation_page = ProjectCreationPage(
+            self, self.current_page_title(self.Page_ProjectCreation_Id))
 
         self.setPage(self.Page_Intro_Id, self.intro_page)
         self.setPage(self.Page_ImportSourceSeletion_Id,
@@ -377,17 +384,17 @@ class WorkflowWizard (QWizard):
                      self.data_configuration_page)
         self.setPage(self.Page_ImportDataExecution_Id,
                      self.data_execution_page)
-        self.setPage(self.Page_ImportProjectCreation_Id,
+        self.setPage(self.Page_ProjectCreation_Id,
                      self.project_creation_page)
 
         # bake project
         self.generate_database_seletion_page = DatabaseSelectionPage(
-            self, DbActionType.GENERATE)
+            self, self.current_page_title(self.Page_GenerateDatabaseSelection_Id), DbActionType.GENERATE)
         self.setPage(self.Page_GenerateDatabaseSelection_Id,
                      self.generate_database_seletion_page)
 
         # export not yet implemented
-        # self.export_database_seletion_page = DatabaseSelectionPage(self, DbActionType.EXPORT)
+        # self.export_database_seletion_page = DatabaseSelectionPage(self, self.current_page_title(Page_Intro_Id), DbActionType.EXPORT)
 
         self.currentIdChanged.connect(self.id_changed)
 
@@ -409,7 +416,7 @@ class WorkflowWizard (QWizard):
                 return self.Page_ImportSchemaConfiguration_Id
             if self.import_data_file_model.rowCount():
                 return self.Page_ImportDataConfiguration_Id
-            return self.Page_ImportProjectCreation_Id
+            return self.Page_ProjectCreation_Id
 
         if self.current_id == self.current_id == self.Page_GenerateDatabaseSelection_Id:
             # update configuration for project generation for import schema and use schema config to save
@@ -419,7 +426,7 @@ class WorkflowWizard (QWizard):
                 self.import_data_configuration)
             self.generate_database_seletion_page.save_configuration(
                 self.import_schema_configuration)
-            return self.Page_ImportProjectCreation_Id
+            return self.Page_ProjectCreation_Id
 
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
             self.schema_configuration_page.update_configuration(
@@ -434,7 +441,7 @@ class WorkflowWizard (QWizard):
         if self.current_id == self.Page_ImportSchemaExecution_Id:
             if self.import_data_file_model.rowCount():
                 return self.Page_ImportDataConfiguration_Id
-            return self.Page_ImportProjectCreation_Id
+            return self.Page_ProjectCreation_Id
 
         if self.current_id == self.Page_ImportDataConfiguration_Id:
             # only update configuration because there is nothing to save
@@ -445,12 +452,13 @@ class WorkflowWizard (QWizard):
             return self.Page_ImportDataExecution_Id
 
         if self.Page_ImportDataExecution_Id:
-            return self.Page_ImportProjectCreation_Id
+            return self.Page_ProjectCreation_Id
 
     def id_changed(self, new_id):
         self.current_id = new_id
 
-        self.log_panel.print_info(self.tr(f" > ---------- {self.current_page_title()} :"))
+        self.log_panel.print_info(
+            self.tr(f" > ---------- {self.current_page_title(self.current_id)} :"))
 
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
             # use schema config to restore
@@ -469,7 +477,7 @@ class WorkflowWizard (QWizard):
             self.execution_page.setup_sessions(
                 self.import_schema_configuration, self.import_models_model.import_sessions())
 
-        if self.current_id == self.Page_ImportProjectCreation_Id:
+        if self.current_id == self.Page_ProjectCreation_Id:
             self.project_creation_page.set_configuration(
                 self.import_schema_configuration)
 
@@ -544,25 +552,26 @@ class WorkflowWizard (QWizard):
 
         return topping_file_cache.model
 
-    def current_page_title(self):
-        if self.current_id == self.Page_ImportSourceSeletion_Id:
+    def current_page_title(self, id):
+        if id == self.Page_ImportSourceSeletion_Id:
             return self.tr("Source Selection")
-        elif self.current_id == self.Page_ImportDatabaseSelection_Id:
+        elif id == self.Page_ImportDatabaseSelection_Id:
             return self.tr("Database Configuration")
-        elif self.current_id == self.Page_GenerateDatabaseSelection_Id:
+        elif id == self.Page_GenerateDatabaseSelection_Id:
             return self.tr("Database Configuration")
-        elif self.current_id == self.Page_ImportSchemaConfiguration_Id:
+        elif id == self.Page_ImportSchemaConfiguration_Id:
             return self.tr("Schema Import Configuration")
-        elif self.current_id == self.Page_ImportSchemaExecution_Id:
+        elif id == self.Page_ImportSchemaExecution_Id:
             return self.tr("Schema Import Sessions")
-        elif self.current_id == self.Page_ImportDataConfiguration_Id:
+        elif id == self.Page_ImportDataConfiguration_Id:
             return self.tr("Data import configuration")
-        elif self.current_id == self.Page_ImportDataExecution_Id:
+        elif id == self.Page_ImportDataExecution_Id:
             return self.tr("Data Import Sessions")
-        elif self.current_id == self.Page_ImportProjectCreation_Id:
+        elif id == self.Page_ProjectCreation_Id:
             return self.tr("Generate a QGIS Project")
         else:
-            return self.tr("QGIS Model Baker Import / Export Wizard")
+            return self.tr("Model Baker - Workflow Wizard")
+
 
 class WorkflowWizardDialog (QDialog):
 
@@ -571,8 +580,10 @@ class WorkflowWizardDialog (QDialog):
         self.iface = iface
         self.base_config = base_config
 
+        self.setWindowTitle(self.tr("QGIS Model Baker - Workflow Wizard"))
         self.log_panel = LogPanel()
-        self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
+        self.workflow_wizard = WorkflowWizard(
+            self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(self.workflow_wizard.Page_Intro_Id)
         self.workflow_wizard.setWindowFlags(Qt.Widget)
         self.workflow_wizard.show()

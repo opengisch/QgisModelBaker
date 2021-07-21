@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from QgisModelBaker.gui.workflow_wizard import WorkflowWizardDialog
+from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
 import locale
 import os
 import webbrowser

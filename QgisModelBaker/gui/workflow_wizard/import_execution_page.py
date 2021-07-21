@@ -42,25 +42,25 @@ from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..libili2db import iliimporter
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ...libili2db import iliimporter
 
-from ..utils import get_ui_class
+from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('import_execution.ui')
+PAGE_UI = get_ui_class('workflow_wizard/import_execution.ui')
 
 
 class ImportExecutionPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent, data_import=False):
+    def __init__(self, parent, title, data_import=False):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
         self.data_import = data_import
         self.setupUi(self)
-        self.setFixedSize(800, 600)
-        self.setTitle(self.workflow_wizard.current_page_title())
+        self.setMinimumSize(600, 500)
+        self.setTitle(title)
         if not self.data_import:
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the model imports (or skip to continue)."))

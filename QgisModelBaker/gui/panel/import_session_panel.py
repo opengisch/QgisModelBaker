@@ -39,7 +39,7 @@ from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from qgis.PyQt.QtCore import pyqtSignal
 
-WIDGET_UI = get_ui_class('import_session_panel.ui')
+WIDGET_UI = get_ui_class('workflow_wizard/import_session_panel.ui')
 
 
 class ImportSessionPanel(QWidget, WIDGET_UI):

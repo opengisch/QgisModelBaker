@@ -41,9 +41,9 @@ from QgisModelBaker.utils.qt_utils import (
     FileValidator
 )
 
-from ..utils import get_ui_class
+from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('import_source_selection.ui')
+PAGE_UI = get_ui_class('workflow_wizard/import_source_selection.ui')
 
 
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
@@ -51,15 +51,15 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
     ValidExtensions = ['ili', 'xtf', 'XTF', 'itf', 'ITF',
                        'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
 
-    def __init__(self, parent):
+    def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
 
         self.setupUi(self)
-        self.setFixedSize(800, 600)
-        self.setTitle(self.workflow_wizard.current_page_title())
-        
+        self.setMinimumSize(600, 500)
+        self.setTitle(title)
+
         self.file_browse_button.clicked.connect(make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr(
             'Interlis Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
 

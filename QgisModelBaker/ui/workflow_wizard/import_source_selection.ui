@@ -64,7 +64,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../../../qgis/QGIS/images/themes/default/symbologyAdd.svg</normaloff>../../../../qgis/QGIS/images/themes/default/symbologyAdd.svg</iconset>
+            <normaloff>../../images/symbologyAdd.svg</normaloff>../../images/symbologyAdd.svg</iconset>
           </property>
          </widget>
         </item>
@@ -75,7 +75,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../../../qgis/QGIS/images/themes/default/symbologyRemove.svg</normaloff>../../../../qgis/QGIS/images/themes/default/symbologyRemove.svg</iconset>
+            <normaloff>../../images/symbologyRemove.svg</normaloff>../../images/symbologyRemove.svg</iconset>
           </property>
          </widget>
         </item>
