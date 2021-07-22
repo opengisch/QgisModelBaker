@@ -321,6 +321,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setText(message)
             return
 
+
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.show()
             self.progress_bar.setValue(0)
@@ -329,7 +330,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
 
             if interlis_mode:
-                importer = iliimporter.Importer()
+                importer = iliimporter.Importer( )
                 importer.tool = self.type_combo_box.currentData()
                 importer.configuration = configuration
                 importer.stdout.connect(self.print_info)
