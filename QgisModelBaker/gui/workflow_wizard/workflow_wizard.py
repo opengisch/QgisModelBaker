@@ -97,6 +97,11 @@ class SourceModel(QStandardItemModel):
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Vertical and role == Qt.DisplayRole:
+            return "↑ ↓"
+        return QStandardItemModel.headerData(self, section,orientation,role)
+
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
@@ -105,10 +110,11 @@ class SourceModel(QStandardItemModel):
             if item.data(int(SourceModel.Roles.TYPE)) != 'model':
                 return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
         if role == Qt.DecorationRole:
-            type = 'data'
-            if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['model','ili', 'xtf', 'xml']:
-                type = item.data(int(SourceModel.Roles.TYPE)).lower()
-            return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
+            if index.column() == 0:
+                type = 'data'
+                if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['model','ili', 'xtf', 'xml']:
+                    type = item.data(int(SourceModel.Roles.TYPE)).lower()
+                return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
         return item.data(int(role))
 
     def add_source(self, name, type, path):
