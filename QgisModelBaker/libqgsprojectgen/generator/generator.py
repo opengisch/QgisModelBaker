@@ -129,7 +129,7 @@ class Generator(QObject):
                                 short_name = field_info['fully_qualified_name'].split('.')[-2] + ' (' + \
                                              field_info['fully_qualified_name'].split('.')[
                                                  -1]+')' if 'fully_qualified_name' in field_info else record['tablename']
-                    elif 'ili_name' in record:
+                    elif 'ili_name' in record and record['ili_name']:
                         match = re.search('([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
                             short_name = match.group(1).split('.')[-1]
@@ -139,7 +139,7 @@ class Generator(QObject):
                 alias = short_name
 
             display_expression = ''
-            if 'ili_name' in record:
+            if 'ili_name' in record and record['ili_name']:
                 meta_attrs = self.get_meta_attrs(record['ili_name'])
                 for attr_record in meta_attrs:
                     if attr_record['attr_name'] == 'dispExpression':
@@ -461,3 +461,6 @@ class Generator(QObject):
 
     def get_iliname_dbname_mapping(self):
         return self._db_connector.get_iliname_dbname_mapping()
+
+    def get_basket_handling_info(self):
+        return self._db_connector.get_basket_handling_info()

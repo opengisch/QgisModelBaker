@@ -544,3 +544,14 @@ WHERE TABLE_SCHEMA='{schema}'
             return 3
         else:
             return 4
+
+    def get_basket_handling_info(self):
+        """Entry exists when it's active. Currently we don't use the content of the entry besides that."""
+        if self.schema:
+            cur = self.conn.cursor()
+            cur.execute("""SELECT setting
+                           FROM {schema}.t_ili2db_settings
+                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                        """.format(schema=self.schema))
+            return bool(cur.rowcount)
+        return False

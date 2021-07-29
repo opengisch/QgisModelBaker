@@ -19,7 +19,7 @@
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS, BASKET_TABLES
 
 class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
@@ -185,6 +185,7 @@ class DBConnector(QObject):
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
+        basket_handling_info = self.get_basket_handling_info()
         mapping_ili_elements = []
         static_tables = []
         detected_tables = []
@@ -204,6 +205,10 @@ class DBConnector(QObject):
                     continue
             if 'tablename' in record:
                 if record['tablename'] in IGNORED_TABLES:
+                    static_tables.append(record['tablename'])
+                    continue
+                if not basket_handling_info and record['tablename'] in BASKET_TABLES:
+                    print(f"append table to ignored tables {record['tablename']}")
                     static_tables.append(record['tablename'])
                     continue
 
@@ -237,6 +242,12 @@ class DBConnector(QObject):
         Returns the version of the ili2db application that was used to create the schema
         """
         return None
+
+    def get_basket_handling_info(self):
+        """
+        Returns if there is a basket handling enabled according to the settings table
+        """
+        return False
 
 
 class DBConnectorError(Exception):

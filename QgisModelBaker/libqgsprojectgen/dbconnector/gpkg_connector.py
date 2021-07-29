@@ -479,3 +479,12 @@ class GPKGConnector(DBConnector):
             return 3
         else:
             return 4
+
+    def get_basket_handling_info(self):
+        """Entry exists when it's active. Currently we don't use the content of the entry besides that."""
+        cursor = self.conn.cursor()
+        cursor.execute("""SELECT setting
+                           FROM t_ili2db_settings
+                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                        """)
+        return cursor.fetchone() is not None
