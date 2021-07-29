@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
-from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES, BASKET_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
@@ -81,6 +81,7 @@ class Generator(QObject):
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info_without_ignored_tables()
+        basket_handling_info = self.get_basket_handling_info()
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -200,6 +201,9 @@ class Generator(QObject):
                                     break
 
                 if column_name in IGNORED_FIELDNAMES:
+                    hide_attribute = True
+
+                if not basket_handling_info and column_name in BASKET_FIELDNAMES:
                     hide_attribute = True
 
                 field.hidden = hide_attribute

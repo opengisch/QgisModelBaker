@@ -208,7 +208,6 @@ class DBConnector(QObject):
                     static_tables.append(record['tablename'])
                     continue
                 if not basket_handling_info and record['tablename'] in BASKET_TABLES:
-                    print(f"append table to ignored tables {record['tablename']}")
                     static_tables.append(record['tablename'])
                     continue
 
