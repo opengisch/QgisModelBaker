@@ -91,6 +91,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer_e.configuration.srs_code = 3116
         importer_e.configuration.inheritance = 'smart2'
+        importer_e.configuration.create_basket_col = False
         importer_e.stdout.connect(self.print_info)
         importer_e.stderr.connect(self.print_error)
         assert importer_e.run() == iliimporter.Importer.SUCCESS
@@ -173,6 +174,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -184,6 +186,7 @@ class TestExport(unittest.TestCase):
             dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.create_basket_col = False
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
@@ -248,6 +251,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -259,6 +263,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
         dataImporter.configuration.ilimodels = 'RoadsSimple'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.create_basket_col = False
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_roads_simple.xtf')
         dataImporter.configuration.db_ili_version = 3
@@ -295,6 +300,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -305,6 +311,7 @@ class TestExport(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
         dataImporter.configuration.ilimodels = 'RoadsSimple'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.create_basket_col = False
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_roads_simple.xtf')
         dataImporter.stdout.connect(self.print_info)
@@ -338,6 +345,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -349,6 +357,7 @@ class TestExport(unittest.TestCase):
             dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.create_basket_col = False
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ili2db4_ciaf_ladm.xtf')
         dataImporter.stdout.connect(self.print_info)
@@ -381,6 +390,7 @@ class TestExport(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -393,6 +403,7 @@ class TestExport(unittest.TestCase):
             dataImporter.tool, 'ilimodels/CIAF_LADM')
         dataImporter.configuration.ilimodels = 'CIAF_LADM'
         dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.create_basket_col = False
         dataImporter.configuration.xtffile = testdata_path(
             'xtf/test_ciaf_ladm.xtf')
         dataImporter.configuration.db_ili_version = 3

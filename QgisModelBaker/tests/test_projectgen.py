@@ -28,6 +28,8 @@ import yaml
 import pathlib
 from decimal import Decimal
 
+from yaml.events import DocumentStartEvent
+
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
@@ -111,7 +113,8 @@ class TestProjectGen(unittest.TestCase):
                                               'standorttyp',
                                               'bemerkung',
                                               'geo_lage_punkt',
-                                              'bemerkung_de'])
+                                              'bemerkung_de',
+                                              't_basket'])
 
                 # This might need to be adjusted if we get better names
                 assert tabs[1].name() == 'deponietyp_'
@@ -120,11 +123,11 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_polygon_layer = layer
 
         assert count == 1
-        assert len(available_layers) == 16
+        assert len(available_layers) == 18
 
-        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 3
         assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)) > 3
-        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 3
         assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)) > 3
 
     def test_kbs_postgis(self):
@@ -180,7 +183,8 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_rm',
                                               'bemerkung_it',
                                               'bemerkung_en',
-                                              'geo_lage_punkt'])
+                                              'geo_lage_punkt',
+                                              't_basket'])
 
                 # This might need to be adjusted if we get better names
                 assert tabs[1].name() == 'deponietyp_'
@@ -189,11 +193,11 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_polygon_layer = layer
 
         assert count == 1
-        assert len(available_layers) == 16
+        assert len(available_layers) == 18
 
-        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_polygon_layer.layer)) > 3
         assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_polygon_layer.layer)) > 3
-        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 2
+        assert len(qgis_project.relationManager().referencingRelations(belasteter_standort_punkt_layer.layer)) > 3
         assert len(qgis_project.relationManager().referencedRelations(belasteter_standort_punkt_layer.layer)) > 3
 
     def test_ili2db3_kbs_geopackage(self):
@@ -252,7 +256,8 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_fr',
                                               'standorttyp',
                                               'bemerkung',
-                                              'bemerkung_de'])
+                                              'bemerkung_de',
+                                              'T_basket'])
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
@@ -285,7 +290,9 @@ class TestProjectGen(unittest.TestCase):
                       'egrid_',
                       'untersmassn_',
                       'parzellenidentifikation',
-                      'belasteter_standort_geo_lage_punkt']) == set([layer.name for layer in available_layers])
+                      'belasteter_standort_geo_lage_punkt',
+                      'T_ILI2DB_BASKET',
+                      'T_ILI2DB_DATASET']) == set([layer.name for layer in available_layers])
 
     def test_kbs_geopackage(self):
         importer = iliimporter.Importer()
@@ -342,7 +349,8 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_fr',
                                               'bemerkung_rm',
                                               'bemerkung_it',
-                                              'bemerkung_en'])
+                                              'bemerkung_en',
+                                              'T_basket'])
 
                 tab_list = [tab.name() for tab in tabs]
                 expected_tab_list = ['General',
@@ -375,7 +383,9 @@ class TestProjectGen(unittest.TestCase):
                               'egrid_',
                               'untersmassn_',
                               'parzellenidentifikation',
-                              'belasteter_standort_geo_lage_punkt']) == set([layer.name for layer in available_layers])
+                              'belasteter_standort_geo_lage_punkt',
+                              'T_ILI2DB_BASKET',
+                              'T_ILI2DB_DATASET']) == set([layer.name for layer in available_layers])
 
     def test_naturschutz_postgis(self):
         importer = iliimporter.Importer()
@@ -395,9 +405,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 15
-        assert len(available_layers) == 23
-        assert len(relations) == 13
+        assert len(ignored_layers) == 13
+        assert len(available_layers) == 25
+        assert len(relations) == 29
 
     def test_naturschutz_geopackage(self):
         importer = iliimporter.Importer()
@@ -421,9 +431,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 24
-        assert len(available_layers) == 23
-        assert len(relations) == 13
+        assert len(ignored_layers) == 22
+        assert len(available_layers) == 25
+        assert len(relations) == 29
 
     def test_naturschutz_mssql(self):
         importer = iliimporter.Importer()
@@ -451,9 +461,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 19
-        assert len(available_layers) == 23
-        assert len(relations) == 22
+        assert len(ignored_layers) == 17
+        assert len(available_layers) == 25
+        assert len(relations) == 38
 
     def test_naturschutz_set_ignored_layers_postgis(self):
         importer = iliimporter.Importer()
@@ -474,9 +484,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 17
-        assert len(available_layers) == 21
-        assert len(relations) == 12
+        assert len(ignored_layers) == 15
+        assert len(available_layers) == 23
+        assert len(relations) == 26
 
     def test_naturschutz_set_ignored_layers_geopackage(self):
         importer = iliimporter.Importer()
@@ -502,9 +512,9 @@ class TestProjectGen(unittest.TestCase):
         legend = generator.legend(available_layers)
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 26
-        assert len(available_layers) == 21
-        assert len(relations) == 12
+        assert len(ignored_layers) == 24
+        assert len(available_layers) == 23
+        assert len(relations) == 26
 
         project = Project()
         project.layers = available_layers
@@ -547,9 +557,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 21
-        assert len(available_layers) == 21
-        assert len(relations) == 21
+        assert len(ignored_layers) == 19
+        assert len(available_layers) == 23
+        assert len(relations) == 35
 
     def test_naturschutz_nometa_postgis(self):
         #model with missing meta attributes for multigeometry - no layers should be ignored
@@ -570,9 +580,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 9
-        assert len(available_layers) == 29
-        assert len(relations) == 23
+        assert len(ignored_layers) == 7
+        assert len(available_layers) == 31
+        assert len(relations) == 45
 
     def test_naturschutz_nometa_geopackage(self):
         #model with missing meta attributes for multigeometry - no layers should be ignored
@@ -597,9 +607,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 18
-        assert len(available_layers) == 29
-        assert len(relations) == 23
+        assert len(ignored_layers) == 16
+        assert len(available_layers) == 31
+        assert len(relations) == 45
 
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
@@ -1355,7 +1365,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        assert len(attribute_names) == 18
+                        assert len(attribute_names) == 19
                         assert 'tipo' not in attribute_names
                         assert 'avaluo' not in attribute_names
 
@@ -1405,7 +1415,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == 'General':
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        assert len(attribute_names) == 18
+                        assert len(attribute_names) == 19
                         assert 'tipo' not in attribute_names
                         assert 'avaluo' not in attribute_names
 
@@ -2080,17 +2090,18 @@ class TestProjectGen(unittest.TestCase):
                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
         qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, list(qml_section.values()))
         for layer in project.layers:
-            if any(layer.alias.lower() == s for s in qml_section):
-                layer_qml = layer.alias.lower()
-            elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
-                layer_qml = f'"{layer.alias.lower()}"'
-            else:
-                continue
-            matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
-                                           qml_section[layer_qml], 1)
-            if matches:
-                style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                layer.layer.loadNamedStyle(style_file_path)
+            if layer.alias: 
+                if any(layer.alias.lower() == s for s in qml_section):
+                    layer_qml = layer.alias.lower()
+                elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                    layer_qml = f'"{layer.alias.lower()}"'
+                else:
+                    continue
+                matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                            qml_section[layer_qml], 1)
+                if matches:
+                    style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                    layer.layer.loadNamedStyle(style_file_path)
 
         layer_names = set([layer.name for layer in available_layers])
         assert layer_names == {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
@@ -2098,7 +2109,7 @@ class TestProjectGen(unittest.TestCase):
                                        'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
                                        'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
                                        'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
-                                       'egrid_', 'deponietyp'}
+                                       'egrid_', 'deponietyp', 't_ili2db_basket', 't_ili2db_dataset'}
         
         count = 0
         for layer in available_layers:
@@ -2329,17 +2340,18 @@ class TestProjectGen(unittest.TestCase):
                                               'ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005']
         qml_file_model = self.get_topping_file_model(importer.configuration.base_configuration, list(qml_section.values()))
         for layer in project.layers:
-            if any(layer.alias.lower() == s for s in qml_section):
-                layer_qml = layer.alias.lower()
-            elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
-                layer_qml = f'"{layer.alias.lower()}"'
-            else:
-                continue
-            matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
-                                           qml_section[layer_qml], 1)
-            if matches:
-                style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                layer.layer.loadNamedStyle(style_file_path)
+            if layer.alias: 
+                if any(layer.alias.lower() == s for s in qml_section):
+                    layer_qml = layer.alias.lower()
+                elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                    layer_qml = f'"{layer.alias.lower()}"'
+                else:
+                    continue
+                matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                            qml_section[layer_qml], 1)
+                if matches:
+                    style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                    layer.layer.loadNamedStyle(style_file_path)
 
         layer_names = set([layer.name for layer in available_layers])
         assert layer_names == {'untersuchungsmassnahmen_definition', 'statusaltlv_definition', 'untersmassn',
@@ -2347,7 +2359,7 @@ class TestProjectGen(unittest.TestCase):
                                        'languagecode_iso639_1', 'belasteter_standort', 'zustaendigkeitkataster',
                                        'deponietyp_', 'standorttyp', 'localisedtext', 'multilingualmtext',
                                        'untersmassn_', 'statusaltlv', 'localisedmtext', 'standorttyp_definition',
-                                       'egrid_', 'deponietyp', 'belasteter_standort_geo_lage_punkt'}
+                                       'egrid_', 'deponietyp', 'belasteter_standort_geo_lage_punkt', 'T_ILI2DB_BASKET', 'T_ILI2DB_DATASET'}
 
         count = 0
         for layer in available_layers:
