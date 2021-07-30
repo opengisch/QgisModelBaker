@@ -42,7 +42,10 @@ class PGConnector(DBConnector):
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'ilicode'
         self.tid = 't_id'
+        self.tilitid = 't_ili_tid'
         self.dispName = 'dispname'
+        self.basket_table_name = 't_ili2db_basket'
+        self.dataset_table_name = 't_ili2db_dataset'
 
     def map_data_types(self, data_type):
         if not data_type:

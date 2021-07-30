@@ -33,8 +33,11 @@ class DBConnector(QObject):
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
-        self.tid = ''  # For BAG OF config, specific for each DB
+        self.tid = ''  # For BAG OF config and basket handling, specific for each DB
+        self.tilitid = ''  # For basket handling, specific for each DB
         self.dispName = ''  # For BAG OF config, specific for each DB
+        self.basket_table_name = ''  # For basket handling, specific for each DB
+        self.dataset_table_name = ''  # For basket handling, specific for each DB
 
     def map_data_types(self, data_type):
         '''Map provider date/time types to QGIS date/time types'''

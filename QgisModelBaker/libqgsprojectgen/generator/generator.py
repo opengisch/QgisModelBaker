@@ -145,6 +145,12 @@ class Generator(QObject):
                 for attr_record in meta_attrs:
                     if attr_record['attr_name'] == 'dispExpression':
                         display_expression = attr_record['attr_value']
+            elif record["tablename"] == self._db_connector.basket_table_name:
+                display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || {tilitid} || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
+                    tid=self._db_connector.tid,
+                    tilitid=self._db_connector.tilitid,
+                    dataset_layer_name=self._db_connector.dataset_table_name,
+                )
 
             coord_decimals = record['coord_decimals'] if 'coord_decimals' in record else None
             coordinate_precision = None

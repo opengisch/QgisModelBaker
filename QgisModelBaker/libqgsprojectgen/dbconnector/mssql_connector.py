@@ -43,7 +43,10 @@ class MssqlConnector(DBConnector):
         self._bMetadataTable = self._metadata_exists()
         self.iliCodeName = 'iliCode'
         self.tid = 'T_Id'
+        self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
+        self.basket_table_name = 't_ili2db_basket'
+        self.dataset_table_name = 't_ili2db_dataset'
 
     def map_data_types(self, data_type):
         result = data_type.lower()

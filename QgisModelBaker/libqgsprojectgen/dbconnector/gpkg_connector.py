@@ -48,7 +48,10 @@ class GPKGConnector(DBConnector):
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
         self.tid = 'T_Id'
+        self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
+        self.basket_table_name = 'T_ILI2DB_BASKET'
+        self.dataset_table_name = 'T_ILI2DB_DATASET'
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
