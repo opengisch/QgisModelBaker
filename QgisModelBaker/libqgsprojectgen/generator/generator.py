@@ -115,12 +115,13 @@ class Generator(QObject):
             is_attribute = bool(record['attribute_name']) if 'attribute_name' in record else False
             is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
+            is_basket_table = record['tablename'] == self._db_connector.basket_table_name if 'tablename' in record else False
 
             alias = record['table_alias'] if 'table_alias' in record else None
             if not alias:
                 short_name = None
                 if is_domain and is_attribute:
-                    short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
+                    short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record and record['ili_name'] else ''
                 else:
                     if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
@@ -139,18 +140,20 @@ class Generator(QObject):
                             short_name = match.group(1).split('.')[-2] + ' (' + match.group(1).split('.')[-1]+')'
                 alias = short_name
 
+            model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}" if 'ili_name' in record and record['ili_name'] else ''
+            
             display_expression = ''
-            if 'ili_name' in record and record['ili_name']:
-                meta_attrs = self.get_meta_attrs(record['ili_name'])
-                for attr_record in meta_attrs:
-                    if attr_record['attr_name'] == 'dispExpression':
-                        display_expression = attr_record['attr_value']
-            elif record["tablename"] == self._db_connector.basket_table_name:
+            if is_basket_table:
                 display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || {tilitid} || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
                     tid=self._db_connector.tid,
                     tilitid=self._db_connector.tilitid,
                     dataset_layer_name=self._db_connector.dataset_table_name,
                 )
+            elif 'ili_name' in record and record['ili_name']:
+                meta_attrs = self.get_meta_attrs(record['ili_name'])
+                for attr_record in meta_attrs:
+                    if attr_record['attr_name'] == 'dispExpression':
+                        display_expression = attr_record['attr_value']
 
             coord_decimals = record['coord_decimals'] if 'coord_decimals' in record else None
             coordinate_precision = None
@@ -170,7 +173,9 @@ class Generator(QObject):
                 is_structure,
                 is_nmrel,
                 display_expression,
-                coordinate_precision )
+                coordinate_precision,
+                is_basket_table,
+                model_topic_name )
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])

@@ -51,10 +51,10 @@ IGNORED_TABLES = [
 ]
 
 BASKET_TABLES = [
-    't_ili2db_dataset',
     't_ili2db_basket',
-    'T_ILI2DB_DATASET',
-    'T_ILI2DB_BASKET'
+    'T_ILI2DB_BASKET',
+    't_ili2db_dataset',
+    'T_ILI2DB_DATASET'
 ]
 
 IGNORED_ILI_ELEMENTS = [

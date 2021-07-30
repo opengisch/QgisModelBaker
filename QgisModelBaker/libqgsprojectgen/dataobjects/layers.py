@@ -35,7 +35,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, model_topic_name=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -64,6 +64,9 @@ class Layer(object):
 
         self.coordinate_precision = coordinate_precision
 
+        self.is_basket_table = is_basket_table
+        self.model_topic_name = model_topic_name
+
         self.__form = Form()
 
         #legend settings
@@ -78,8 +81,10 @@ class Layer(object):
         definition['isdomain'] = self.is_domain
         definition['isstructure'] = self.is_structure
         definition['isnmrel'] = self.is_nmrel
+        definition['isbaskettable'] = self.is_basket_table
         definition['displayexpression'] = self.display_expression
         definition['coordinateprecision'] = self.coordinate_precision
+        definition['modeltopicname'] = self.model_topic_name
         definition['form'] = self.__form.dump()
         return definition
 
@@ -89,8 +94,10 @@ class Layer(object):
         self.is_domain = definition['isdomain']
         self.is_structure = definition['isstructure']
         self.is_nmrel = definition['isnmrel']
+        self.is_basket_table = definition['isbaskettable']
         self.display_expression = definition['displayexpression']
         self.coordinate_precision = definition['coordinateprecision']
+        self.model_topic_name = definition['modeltopicname']
         self.__form.load(definition['form'])
 
     def create(self):

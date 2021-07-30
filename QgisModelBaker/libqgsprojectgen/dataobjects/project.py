@@ -108,25 +108,36 @@ class Project(QObject):
 
         qgis_relations = list(
             qgis_project.relationManager().relations().values())
-        dict_domains = {
-            layer.layer.id(): layer.is_domain for layer in self.layers}
+        dict_layers = {
+            layer.layer.id(): layer for layer in self.layers}
         for relation in self.relations:
             rel = relation.create(qgis_project, qgis_relations)
             assert rel.isValid()
             qgis_relations.append(rel)
 
-            # If we have an extended ili2db domain, we need to filter its values
-            filter_expression = "\"{}\" = '{}'".format(ENUM_THIS_CLASS_COLUMN,
-                                                       relation.child_domain_name) if relation.child_domain_name else ''
+            referenced_layer = dict_layers.get(rel.referencedLayerId(), None)
+            referencing_layer = dict_layers.get(rel.referencingLayerId(), None)
 
-            if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
+            if referenced_layer and referenced_layer.is_domain:
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
                     'Relation': rel.id(),
                     'ShowForm': False,
                     'OrderByValue': True,
                     'ShowOpenFormButton': False,
                     'AllowNULL': True,
-                    'FilterExpression': filter_expression,
+                    'FilterExpression': "\"{}\" = '{}'".format(ENUM_THIS_CLASS_COLUMN, relation.child_domain_name) if relation.child_domain_name else '',
+                    'FilterFields': list()
+                }
+                )
+            elif referenced_layer and referenced_layer.is_basket_table:
+                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
+                    'Relation': rel.id(),
+                    'ShowForm': False,
+                    'OrderByValue': True,
+                    'ShowOpenFormButton': False,
+                    'AllowNULL': True,
+                    'AllowAddFeatures': False,
+                    'FilterExpression': "\"topic\" = '{}'".format( referencing_layer.model_topic_name ),
                     'FilterFields': list()
                 }
                 )
