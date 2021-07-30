@@ -116,6 +116,7 @@ class Generator(QObject):
             is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
             is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
             is_basket_table = record['tablename'] == self._db_connector.basket_table_name if 'tablename' in record else False
+            is_dataset_table = record['tablename'] == self._db_connector.dataset_table_name if 'tablename' in record else False
 
             alias = record['table_alias'] if 'table_alias' in record else None
             if not alias:
@@ -175,6 +176,7 @@ class Generator(QObject):
                 display_expression,
                 coordinate_precision,
                 is_basket_table,
+                is_dataset_table,
                 model_topic_name )
 
             # Configure fields for current table
@@ -388,6 +390,8 @@ class Generator(QObject):
                 QCoreApplication.translate('LegendGroup', 'tables'))
             domains = LegendGroup(QCoreApplication.translate(
                 'LegendGroup', 'domains'), False)
+            system = LegendGroup(QCoreApplication.translate(
+                'LegendGroup', 'system'), False)
 
             point_layers = []
             line_layers = []
@@ -405,6 +409,8 @@ class Generator(QObject):
                 else:
                     if layer.is_domain:
                         domains.append(layer)
+                    elif layer.name in [self._db_connector.basket_table_name, self._db_connector.dataset_table_name]:
+                        system.append(layer)
                     else:
                         tables.append(layer)
 
@@ -419,6 +425,8 @@ class Generator(QObject):
                 legend.append(tables)
             if not domains.is_empty():
                 legend.append(domains)
+            if not system.is_empty():
+                legend.append(system)
 
         return legend
 
