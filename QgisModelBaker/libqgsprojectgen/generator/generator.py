@@ -81,7 +81,7 @@ class Generator(QObject):
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info_without_ignored_tables()
-        basket_handling_info = self.get_basket_handling_info()
+        basket_handling = self.get_basket_handling()
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -203,7 +203,7 @@ class Generator(QObject):
                 if column_name in IGNORED_FIELDNAMES:
                     hide_attribute = True
 
-                if not basket_handling_info and column_name in BASKET_FIELDNAMES:
+                if not basket_handling and column_name in BASKET_FIELDNAMES:
                     hide_attribute = True
 
                 field.hidden = hide_attribute
@@ -466,5 +466,5 @@ class Generator(QObject):
     def get_iliname_dbname_mapping(self):
         return self._db_connector.get_iliname_dbname_mapping()
 
-    def get_basket_handling_info(self):
-        return self._db_connector.get_basket_handling_info()
+    def get_basket_handling(self):
+        return self._db_connector.get_basket_handling()

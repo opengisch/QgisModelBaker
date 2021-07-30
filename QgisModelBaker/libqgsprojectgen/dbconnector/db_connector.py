@@ -185,7 +185,7 @@ class DBConnector(QObject):
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
-        basket_handling_info = self.get_basket_handling_info()
+        basket_handling = self.get_basket_handling()
         mapping_ili_elements = []
         static_tables = []
         detected_tables = []
@@ -207,7 +207,7 @@ class DBConnector(QObject):
                 if record['tablename'] in IGNORED_TABLES:
                     static_tables.append(record['tablename'])
                     continue
-                if not basket_handling_info and record['tablename'] in BASKET_TABLES:
+                if not basket_handling and record['tablename'] in BASKET_TABLES:
                     static_tables.append(record['tablename'])
                     continue
 
@@ -242,7 +242,7 @@ class DBConnector(QObject):
         """
         return None
 
-    def get_basket_handling_info(self):
+    def get_basket_handling(self):
         """
         Returns if there is a basket handling enabled according to the settings table
         """
