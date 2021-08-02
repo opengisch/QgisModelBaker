@@ -135,7 +135,7 @@ class TestProjectGen(unittest.TestCase):
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -1889,6 +1889,116 @@ class TestProjectGen(unittest.TestCase):
         # and that's the one with the strength 1 (composition)
         assert qgis_project.relationManager().relation('classb1_comp1_a_fkey').strength() == QgsRelation.Composition
 
+    def test_kbs_postgis_basket_handling(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbschema = 'kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}'.format(
+            datetime.datetime.now())
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), 'smart1', importer.configuration.dbschema)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # check the system group for the basket layers
+        system_group = qgis_project.layerTreeRoot().findGroup('system')
+        assert system_group is not None
+        system_group_layers = system_group.findLayers()
+        assert set([layer.name() for layer in system_group_layers]) == {'t_ili2db_dataset','t_ili2db_basket'}
+        assert [layer.layer().readOnly() for layer in system_group_layers] == [True, True]
+
+        count = 0
+        for layer in available_layers:
+            # check the widget configuration of the t_basket field
+            if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                map = edit_form_config.widgetConfig('t_basket')
+                assert map['Relation'] == 'belasteter_standort_t_basket_fkey'
+                assert map['FilterExpression'] == '"topic" = \'KbS_LV95_V1_3.Belastete_Standorte\''
+
+            # check the display expression of the basket table
+            if layer.name == 't_ili2db_basket':
+                count += 1
+                display_expression = layer.layer.displayExpression()
+                assert display_expression == "coalesce(attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname') || ' (' || t_ili_tid || ') ', coalesce( attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname'), t_ili_tid))"
+
+        #check if the layers have been considered
+        assert count == 2
+
+    def test_kbs_geopackage_basket_handling(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilimodels = 'KbS_LV95_V1_3'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, 'tmp_import_kbs_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
+                datetime.datetime.now()))
+        importer.configuration.inheritance = 'smart1'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, 'smart1')
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # check the system group for the basket layers
+        system_group = qgis_project.layerTreeRoot().findGroup('system')
+        assert system_group is not None
+        system_group_layers = system_group.findLayers()
+        assert set([layer.name() for layer in system_group_layers]) == {'T_ILI2DB_DATASET','T_ILI2DB_BASKET'}
+        assert [layer.layer().readOnly() for layer in system_group_layers] == [True, True]
+
+        count = 0
+        for layer in available_layers:
+            # check the widget configuration of the t_basket field
+            if layer.name == 'belasteter_standort':
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                map = edit_form_config.widgetConfig('T_basket')
+                assert map['Relation'] == 'belasteter_standort_T_basket_T_ILI2DB_BASKET_T_Id'
+                assert map['FilterExpression'] == '"topic" = \'KbS_LV95_V1_3.Belastete_Standorte\''
+
+            # check the display expression of the basket table
+            if layer.name == 'T_ILI2DB_BASKET':
+                count += 1
+                display_expression = layer.layer.displayExpression()
+                assert display_expression == "coalesce(attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname') || ' (' || T_Ili_Tid || ') ', coalesce( attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname'), T_Ili_Tid))"
+
+        #check if the layers have been considered
+        assert count == 2
+
     def test_kbs_postgis_toppings(self):
         '''
         Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
@@ -2394,7 +2504,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilimodels = 'KbS_LV95_V1_3'
         importer.configuration.tomlfile = testdata_path('toml/multisurface.toml')
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
+        importer.configuration.dbschema = 'kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
