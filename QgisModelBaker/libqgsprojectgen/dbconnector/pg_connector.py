@@ -27,6 +27,7 @@ from qgis.core import Qgis
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 PG_SETTINGS_TABLE = 't_ili2db_settings'
+PG_DATASET_TABLE = 't_ili2db_dataset'
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -46,7 +47,7 @@ class PGConnector(DBConnector):
         self.tilitid = 't_ili_tid'
         self.dispName = 'dispname'
         self.basket_table_name = 't_ili2db_basket'
-        self.dataset_table_name = 't_ili2db_dataset'
+        self.dataset_table_name = PG_DATASET_TABLE
 
     def map_data_types(self, data_type):
         if not data_type:
@@ -598,10 +599,21 @@ class PGConnector(DBConnector):
         if self.schema and self._table_exists(PG_SETTINGS_TABLE):
             cur = self.conn.cursor()
             cur.execute("""SELECT setting
-                           FROM {schema}.{settings_table}
+                           FROM {schema}.{table}
                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """.format(schema=self.schema, settings_table=PG_SETTINGS_TABLE))
+                        """.format(schema=self.schema, table=PG_SETTINGS_TABLE))
             content = cur.fetchone()
             if content:
                 return content[0] == 'readWrite'
         return False
+
+    def get_datasets_info(self):
+        if self.schema and self._table_exists(PG_DATASET_TABLE):
+            cur = self.conn.cursor(
+                cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                            SELECT datasetname
+                            FROM {schema}.{table};
+                        """.format(schema=self.schema, table=PG_DATASET_TABLE))
+            return cur
+        return []

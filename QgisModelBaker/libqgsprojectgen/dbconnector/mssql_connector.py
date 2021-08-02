@@ -28,6 +28,7 @@ from .db_connector import (DBConnector, DBConnectorError)
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
 SETTINGS_TABLE = 't_ili2db_settings'
+DATASET_TABLE = 't_ili2db_dataset'
 
 
 class MssqlConnector(DBConnector):
@@ -47,7 +48,7 @@ class MssqlConnector(DBConnector):
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
         self.basket_table_name = 't_ili2db_basket'
-        self.dataset_table_name = 't_ili2db_dataset'
+        self.dataset_table_name = DATASET_TABLE
 
     def map_data_types(self, data_type):
         result = data_type.lower()
@@ -553,10 +554,20 @@ WHERE TABLE_SCHEMA='{schema}'
         if self.schema and self._table_exists(SETTINGS_TABLE):
                 cur = self.conn.cursor()
                 cur.execute("""SELECT setting
-                            FROM {schema}.{settings_table}
+                            FROM {schema}.{table}
                             WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                            """.format(schema=self.schema, settings_table=SETTINGS_TABLE))
+                            """.format(schema=self.schema, table=SETTINGS_TABLE))
                 content = cur.fetchone()
                 if content:
                     return content[0] == 'readWrite'
         return False
+
+    def get_datasets_info(self):
+        if self.schema and self._table_exists(DATASET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""
+                            SELECT datasetname
+                            FROM {schema}.{table};
+                        """.format(schema=self.schema, table=DATASET_TABLE))
+            return cur
+        return []

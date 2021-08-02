@@ -28,6 +28,7 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
+GPKG_DATASET_TABLE = 'T_ILI2DB_DATASET'
 
 
 class GPKGConnector(DBConnector):
@@ -52,7 +53,7 @@ class GPKGConnector(DBConnector):
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
         self.basket_table_name = 'T_ILI2DB_BASKET'
-        self.dataset_table_name = 'T_ILI2DB_DATASET'
+        self.dataset_table_name = GPKG_DATASET_TABLE
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -495,3 +496,13 @@ class GPKGConnector(DBConnector):
             if content: 
                 return content[0] == 'readWrite'
         return False
+    
+    def get_datasets_info(self):
+        if self.schema and self._table_exists(GPKG_DATASET_TABLE):
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                            SELECT datasetname
+                            FROM {};
+                        """.format(GPKG_DATASET_TABLE))
+            return cursor
+        return []
