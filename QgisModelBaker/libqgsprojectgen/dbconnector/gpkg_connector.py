@@ -27,6 +27,7 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
+GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
 
 
 class GPKGConnector(DBConnector):
@@ -484,13 +485,13 @@ class GPKGConnector(DBConnector):
             return 4
 
     def get_basket_handling(self):
-        """Entry exists when it's active. Currently we don't use the content of the entry besides that."""
-        cursor = self.conn.cursor()
-        cursor.execute("""SELECT setting
-                           FROM t_ili2db_settings
-                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """)
-        content = cursor.fetchone()
-        if content: 
-            return content[0] == 'readWrite'
+        if self._table_exists(GPKG_SETTINGS_TABLE):
+            cursor = self.conn.cursor()
+            cursor.execute("""SELECT setting
+                            FROM {}
+                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            """.format(GPKG_SETTINGS_TABLE))
+            content = cursor.fetchone()
+            if content: 
+                return content[0] == 'readWrite'
         return False

@@ -27,6 +27,7 @@ from .db_connector import (DBConnector, DBConnectorError)
 
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
+SETTINGS_TABLE = 't_ili2db_settings'
 
 
 class MssqlConnector(DBConnector):
@@ -549,14 +550,13 @@ WHERE TABLE_SCHEMA='{schema}'
             return 4
 
     def get_basket_handling(self):
-        """Entry exists when it's active. Currently we don't use the content of the entry besides that."""
-        if self.schema:
-            cur = self.conn.cursor()
-            cur.execute("""SELECT setting
-                           FROM {schema}.t_ili2db_settings
-                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """.format(schema=self.schema))
-            content = cur.fetchone()
-            if content:
-                return content[0] == 'readWrite'
+        if self.schema and self._table_exists(SETTINGS_TABLE):
+                cur = self.conn.cursor()
+                cur.execute("""SELECT setting
+                            FROM {schema}.{settings_table}
+                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            """.format(schema=self.schema, settings_table=SETTINGS_TABLE))
+                content = cur.fetchone()
+                if content:
+                    return content[0] == 'readWrite'
         return False
