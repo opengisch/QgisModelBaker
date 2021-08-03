@@ -24,10 +24,13 @@ import configparser
 import pathlib
 import datetime
 
+from PyQt5.QtWidgets import QComboBox
+
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.drop_message import DropMessageDialog
+from QgisModelBaker.gui.panel.dataset_combobox import DatasetCombobox
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
@@ -61,6 +64,8 @@ class QgisModelBakerPlugin(QObject):
         self.__help_action = None
         self.__about_action = None
         self.__separator = None
+        self.__dataset_selector_action = None
+        self.__dataset_selector = None
         basepath = pathlib.Path(__file__).parent.absolute()
         metadata = configparser.ConfigParser()
         metadata.read(os.path.join(basepath, 'metadata.txt'))
@@ -114,7 +119,10 @@ class QgisModelBakerPlugin(QObject):
             self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
-
+        self.__dataset_selector = DatasetCombobox()
+        self.__dataset_selector_action = QAction(
+            self.tr('Dataset Selector'))
+            
         # set these actions checkable to visualize that the dialog is open
         self.__generate_action.setCheckable(True)
         self.__export_action.setCheckable(True)
@@ -148,6 +156,7 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.__dataset_selector_action = self.toolbar.addWidget(self.__dataset_selector)
         self.register_event_filter()
 
     def unload(self):
@@ -164,12 +173,15 @@ class QgisModelBakerPlugin(QObject):
             self.tr('Model Baker'), self.__help_action)
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__about_action)
+        self.toolbar.removeAction(self.__dataset_selector_action)
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
         del self.__configure_action
         del self.__help_action
         del self.__about_action
+        del self.__dataset_selector_action
+        del self.__dataset_selector
 
     def show_generate_dialog(self):
         if self.generate_dlg:
