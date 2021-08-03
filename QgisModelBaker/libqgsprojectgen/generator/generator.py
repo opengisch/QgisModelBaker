@@ -274,13 +274,12 @@ class Generator(QObject):
                     field.default_value_expression = fielddef['default_value_expression']
 
                 if basket_handling and column_name in BASKET_FIELDNAMES:
-                    if self.tool == DbIliMode.ili2pg or self.tool == DbIliMode.ili2mssql:
+                    if self.tool in [DbIliMode.pg, DbIliMode.ili2pg, DbIliMode.mssql, DbIliMode.ili2mssql]:
                         id = slugify(f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}")
                         field.default_value_expression = f"@{id}"
                     elif self.tool == DbIliMode.ili2gpkg:
                         id = slugify(f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}")
                         field.default_value_expression = f"@{id}"
-                    print( self.tool)
 
                 if 'enum_domain' in fielddef and fielddef['enum_domain']:
                     field.enum_domain = fielddef['enum_domain']

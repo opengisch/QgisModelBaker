@@ -91,10 +91,11 @@ class DatasetCombobox(QComboBox):
         self.currentIndexChanged.connect(self.set_basket_tid)
 
     def set_current_layer(self, layer):
+        self.setEnabled(False)
         if not layer or not layer.dataProvider().isValid():
-            self.setEnabled(False)
             return
 
+        self.currentIndexChanged.disconnect(self.set_basket_tid)
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         db_identificator = self.make_db_identificator(source_name, source)
@@ -130,8 +131,16 @@ class DatasetCombobox(QComboBox):
             config_manager = db_factory.get_db_command_config_manager(configuration)
             self.update_datasets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), db_identificator)
 
+        self.set_index(db_topic_identificator)
+        self.currentIndexChanged.connect(self.set_basket_tid)
         self.setEnabled(True)
-        
+
+    def set_index(self, db_topic_identificator):
+        current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(db_topic_identificator)
+        matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(DatasetSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
+        if matches:
+            self.setCurrentIndex(matches[0].row())
+
     def update_datasets(self, db_connector, db_identificator = ''):
         self.source_model.refresh_datasets(db_connector, db_identificator)
 
