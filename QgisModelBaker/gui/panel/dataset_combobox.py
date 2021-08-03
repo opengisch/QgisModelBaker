@@ -37,6 +37,7 @@ from qgis.PyQt.QtGui import (
     QStandardItem
 )
 
+from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.globals import DbIliMode
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
@@ -47,8 +48,11 @@ from QgisModelBaker.utils.qt_utils import OverrideCursor
 class DatasetSourceModel(QStandardItemModel):
     class Roles(Enum):
         DATASETNAME = Qt.UserRole + 1
-        DATASET_TID = Qt.UserRole + 3
-        FILTER = Qt.UserRole + 4
+        MODEL_TOPIC = Qt.UserRole + 2
+        BASKET_TID = Qt.UserRole + 3
+        # The DB_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
+        # This because a dataset is usually valid per topic and db schema
+        DB_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
 
         def __int__(self):
             return self.value
@@ -60,14 +64,16 @@ class DatasetSourceModel(QStandardItemModel):
         self.beginResetModel()
         self.clear()
         item = QStandardItem()
-        datasets_info = db_connector.get_datasets_info()
-        for record in datasets_info:
+        baskets_info = db_connector.get_baskets_info()
+        for record in baskets_info:
             item = QStandardItem()
             item.setData(record['datasetname'], int(Qt.DisplayRole))
             item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-            item.setData(record['t_id'], int(DatasetSourceModel.Roles.DATASET_TID))
-            item.setData(db_identificator, int(DatasetSourceModel.Roles.FILTER))
+            item.setData(record['topic'], int(DatasetSourceModel.Roles.MODEL_TOPIC))
+            item.setData(record['basket_t_id'], int(DatasetSourceModel.Roles.BASKET_TID))
+            item.setData(slugify(f"{db_identificator}_{record['topic']}"), int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
             self.appendRow(item)
+        print(f'my row count is {self.rowCount()}')
         self.endResetModel()
 
 class DatasetCombobox(QComboBox):
@@ -79,10 +85,10 @@ class DatasetCombobox(QComboBox):
         self.source_model = DatasetSourceModel()
         self.filtered_model = QSortFilterProxyModel()
         self.filtered_model.setSourceModel(self.source_model)
-        self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.FILTER))
+        self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
         self.setModel(self.filtered_model)
 
-        self.currentIndexChanged.connect(self.set_dataset_tid)
+        self.currentIndexChanged.connect(self.set_basket_tid)
 
     def set_current_layer(self, layer):
         if not layer or not layer.dataProvider().isValid():
@@ -92,9 +98,11 @@ class DatasetCombobox(QComboBox):
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         db_identificator = self.make_db_identificator(source_name, source)
+        layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
-        self.filtered_model.setFilterFixedString(db_identificator)
+        db_topic_identificator = slugify(f"{db_identificator}_{layer_model_topic_name}")
+        self.filtered_model.setFilterFixedString(db_topic_identificator)
 
         if self.filtered_model.rowCount() == 0:
             # when no datasets are found we check the database again
@@ -134,8 +142,8 @@ class DatasetCombobox(QComboBox):
             return source.uri().split('|')[0].strip()
         return ''
 
-    def set_dataset_tid(self, index ):
-        print(self.currentData)
+    def set_basket_tid(self, index ):
         model_index = self.model().index(index,0)
-        dataset_tid = model_index.data(int(DatasetSourceModel.Roles.DATASET_TID))
-        print(f"the dataset of {dataset_tid}")
+        basket_tid = model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))
+        db_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(),db_topic_identificator,basket_tid)

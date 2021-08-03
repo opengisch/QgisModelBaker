@@ -23,6 +23,7 @@ import sys
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication, QgsRelation
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
@@ -88,7 +89,7 @@ class Generator(QObject):
 
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
-
+        
         # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
         table_appearance_count = {}
         
@@ -271,6 +272,15 @@ class Generator(QObject):
 
                 if 'default_value_expression' in fielddef:
                     field.default_value_expression = fielddef['default_value_expression']
+
+                if basket_handling and column_name in BASKET_FIELDNAMES:
+                    if self.tool == DbIliMode.ili2pg or self.tool == DbIliMode.ili2mssql:
+                        id = slugify(f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}")
+                        field.default_value_expression = f"@{id}"
+                    elif self.tool == DbIliMode.ili2gpkg:
+                        id = slugify(f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}")
+                        field.default_value_expression = f"@{id}"
+                    print( self.tool)
 
                 if 'enum_domain' in fielddef and fielddef['enum_domain']:
                     field.enum_domain = fielddef['enum_domain']
