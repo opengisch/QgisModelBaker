@@ -85,6 +85,8 @@ class DatasetCombobox(QComboBox):
         self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.FILTER))
         self.setModel(self.filtered_model)
 
+        self.currentIndexChanged.connect(self.set_dataset_name)
+
     def set_current_layer(self, layer):
         if not layer or not layer.dataProvider().isValid():
             self.setEnabled(False)
@@ -96,7 +98,7 @@ class DatasetCombobox(QComboBox):
         layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
-        filter_string = f"{db_identificator}_{layer_model_topic_name}"
+        filter_string = "{}_{}".format(db_identificator, layer_model_topic_name)
         self.filtered_model.setFilterFixedString(filter_string)
 
         if self.filtered_model.rowCount() == 0:
@@ -136,3 +138,8 @@ class DatasetCombobox(QComboBox):
         elif source_name == 'ogr':
             return source.uri().split('|')[0].strip()
         return ''
+
+    def set_dataset_name(self, index ):
+        print(self.currentData)
+        model_index = self.model().index(index,0)
+        print(f"{model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))} {model_index.data(int(DatasetSourceModel.Roles.MODEL_TOPIC))} {model_index.data(int(DatasetSourceModel.Roles.DATASETNAME))}")
