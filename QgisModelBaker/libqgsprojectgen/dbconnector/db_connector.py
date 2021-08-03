@@ -278,7 +278,7 @@ class DBConnector(QObject):
                 t_id
                 datasetname
         '''
-        return []
+        return {}
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.

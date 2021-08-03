@@ -627,8 +627,8 @@ class PGConnector(DBConnector):
             cur = self.conn.cursor(
                 cursor_factory=psycopg2.extras.DictCursor)
             cur.execute("""
-                            SELECT datasetname
+                            SELECT t_id, datasetname
                             FROM {schema}.{table};
                         """.format(schema=self.schema, table=PG_DATASET_TABLE))
             return cur
-        return []
+        return {}

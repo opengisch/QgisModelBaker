@@ -516,8 +516,8 @@ class GPKGConnector(DBConnector):
         if self._table_exists(GPKG_DATASET_TABLE):
             cursor = self.conn.cursor()
             cursor.execute("""
-                            SELECT datasetname
+                            SELECT t_id, datasetname
                             FROM {};
                         """.format(GPKG_DATASET_TABLE))
             return cursor
-        return []
+        return {}

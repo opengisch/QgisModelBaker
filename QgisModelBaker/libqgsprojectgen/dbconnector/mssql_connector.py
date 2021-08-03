@@ -578,11 +578,12 @@ WHERE TABLE_SCHEMA='{schema}'
         return result
 
     def get_datasets_info(self):
+        result = {}
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
             cur.execute("""
-                            SELECT datasetname
+                            SELECT t_id, datasetname
                             FROM {schema}.{table};
                         """.format(schema=self.schema, table=DATASET_TABLE))
-            return cur
-        return []
+            result = self._get_dict_result(cur)
+        return result

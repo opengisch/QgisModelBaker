@@ -47,8 +47,7 @@ from QgisModelBaker.utils.qt_utils import OverrideCursor
 class DatasetSourceModel(QStandardItemModel):
     class Roles(Enum):
         DATASETNAME = Qt.UserRole + 1
-        MODEL_TOPIC = Qt.UserRole + 2
-        BASKET_TID = Qt.UserRole + 3
+        DATASET_TID = Qt.UserRole + 3
         FILTER = Qt.UserRole + 4
 
         def __int__(self):
@@ -61,16 +60,14 @@ class DatasetSourceModel(QStandardItemModel):
         self.beginResetModel()
         self.clear()
         item = QStandardItem()
-        baskets_info = db_connector.get_baskets_info()
-        for record in baskets_info:
+        datasets_info = db_connector.get_datasets_info()
+        for record in datasets_info:
             item = QStandardItem()
             item.setData(record['datasetname'], int(Qt.DisplayRole))
             item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-            item.setData(record['topic'], int(DatasetSourceModel.Roles.MODEL_TOPIC))
-            item.setData(record['basket_t_id'], int(DatasetSourceModel.Roles.BASKET_TID))
-            item.setData(f"{db_identificator}_{record['topic']}", int(DatasetSourceModel.Roles.FILTER))
+            item.setData(record['t_id'], int(DatasetSourceModel.Roles.DATASET_TID))
+            item.setData(db_identificator, int(DatasetSourceModel.Roles.FILTER))
             self.appendRow(item)
-        print(f'my row count is {self.rowCount()}')
         self.endResetModel()
 
 class DatasetCombobox(QComboBox):
@@ -85,7 +82,7 @@ class DatasetCombobox(QComboBox):
         self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.FILTER))
         self.setModel(self.filtered_model)
 
-        self.currentIndexChanged.connect(self.set_dataset_name)
+        self.currentIndexChanged.connect(self.set_dataset_tid)
 
     def set_current_layer(self, layer):
         if not layer or not layer.dataProvider().isValid():
@@ -95,11 +92,9 @@ class DatasetCombobox(QComboBox):
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         db_identificator = self.make_db_identificator(source_name, source)
-        layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
-        filter_string = "{}_{}".format(db_identificator, layer_model_topic_name)
-        self.filtered_model.setFilterFixedString(filter_string)
+        self.filtered_model.setFilterFixedString(db_identificator)
 
         if self.filtered_model.rowCount() == 0:
             # when no datasets are found we check the database again
@@ -139,7 +134,8 @@ class DatasetCombobox(QComboBox):
             return source.uri().split('|')[0].strip()
         return ''
 
-    def set_dataset_name(self, index ):
+    def set_dataset_tid(self, index ):
         print(self.currentData)
         model_index = self.model().index(index,0)
-        print(f"{model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))} {model_index.data(int(DatasetSourceModel.Roles.MODEL_TOPIC))} {model_index.data(int(DatasetSourceModel.Roles.DATASETNAME))}")
+        dataset_tid = model_index.data(int(DatasetSourceModel.Roles.DATASET_TID))
+        print(f"the dataset of {dataset_tid}")
