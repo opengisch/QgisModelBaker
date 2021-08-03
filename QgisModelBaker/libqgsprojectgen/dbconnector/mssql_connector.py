@@ -28,8 +28,8 @@ from .db_connector import (DBConnector, DBConnectorError)
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
 SETTINGS_TABLE = 't_ili2db_settings'
+BASKET_TABLE = 't_ili2db_basket'
 DATASET_TABLE = 't_ili2db_dataset'
-
 
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
@@ -47,7 +47,7 @@ class MssqlConnector(DBConnector):
         self.tid = 'T_Id'
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
-        self.basket_table_name = 't_ili2db_basket'
+        self.basket_table_name = BASKET_TABLE
         self.dataset_table_name = DATASET_TABLE
 
     def map_data_types(self, data_type):
@@ -561,6 +561,21 @@ WHERE TABLE_SCHEMA='{schema}'
                 if content:
                     return content[0] == 'readWrite'
         return False
+
+    def get_baskets_info(self):
+        result = {}
+        if self.schema and self._table_exists(BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_tid,
+                            d.datasetname as datasetname from {schema}.{basket_table} b
+                            JOIN {schema}.{dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_table=DATASET_TABLE))
+            result = self._get_dict_result(cur)
+        return result
 
     def get_datasets_info(self):
         if self.schema and self._table_exists(DATASET_TABLE):

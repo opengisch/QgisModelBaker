@@ -29,7 +29,7 @@ GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
 GPKG_DATASET_TABLE = 'T_ILI2DB_DATASET'
-
+GPKG_BASKET_TABLE = 'T_ILI2DB_BASKET'
 
 class GPKGConnector(DBConnector):
 
@@ -52,7 +52,7 @@ class GPKGConnector(DBConnector):
         self.tid = 'T_Id'
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
-        self.basket_table_name = 'T_ILI2DB_BASKET'
+        self.basket_table_name = GPKG_BASKET_TABLE
         self.dataset_table_name = GPKG_DATASET_TABLE
 
     def map_data_types(self, data_type):
@@ -496,9 +496,24 @@ class GPKGConnector(DBConnector):
             if content: 
                 return content[0] == 'readWrite'
         return False
-    
+
+    def get_baskets_info(self):
+        if self._table_exists(GPKG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_tid,
+                            d.datasetname as datasetname from {basket_table} b
+                            JOIN {dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(basket_table=GPKG_BASKET_TABLE, dataset_table=GPKG_DATASET_TABLE))
+            contents = cur.fetchall()
+            return contents
+        return {}
+        
     def get_datasets_info(self):
-        if self.schema and self._table_exists(GPKG_DATASET_TABLE):
+        if self._table_exists(GPKG_DATASET_TABLE):
             cursor = self.conn.cursor()
             cursor.execute("""
                             SELECT datasetname

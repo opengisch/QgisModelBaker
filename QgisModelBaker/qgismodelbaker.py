@@ -119,10 +119,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr('About'), None)
         self.__separator = QAction(None)
         self.__separator.setSeparator(True)
-        self.__dataset_selector = DatasetCombobox()
         self.__dataset_selector_action = QAction(
             self.tr('Dataset Selector'))
-            
+                        
         # set these actions checkable to visualize that the dialog is open
         self.__generate_action.setCheckable(True)
         self.__export_action.setCheckable(True)
@@ -156,7 +155,12 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.__dataset_selector = DatasetCombobox()
         self.__dataset_selector_action = self.toolbar.addWidget(self.__dataset_selector)
+
+        #connect trigger to refresh model of dataset combobox when layer changed
+        self.iface.layerTreeView().currentLayerChanged.connect(self.__dataset_selector.set_current_layer)
+
         self.register_event_filter()
 
     def unload(self):
@@ -174,6 +178,9 @@ class QgisModelBakerPlugin(QObject):
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__about_action)
         self.toolbar.removeAction(self.__dataset_selector_action)
+        
+        self.iface.layerTreeView().currentLayerChanged.disconnect(self.__dataset_selector.set_current_layer)
+
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action

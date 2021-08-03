@@ -28,6 +28,7 @@ PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 PG_SETTINGS_TABLE = 't_ili2db_settings'
 PG_DATASET_TABLE = 't_ili2db_dataset'
+PG_BASKET_TABLE = 't_ili2db_basket'
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -46,7 +47,7 @@ class PGConnector(DBConnector):
         self.tid = 't_id'
         self.tilitid = 't_ili_tid'
         self.dispName = 'dispname'
-        self.basket_table_name = 't_ili2db_basket'
+        self.basket_table_name = PG_BASKET_TABLE
         self.dataset_table_name = PG_DATASET_TABLE
 
     def map_data_types(self, data_type):
@@ -606,6 +607,20 @@ class PGConnector(DBConnector):
             if content:
                 return content[0] == 'readWrite'
         return False
+
+    def get_baskets_info(self):
+        if self.schema and self._table_exists(PG_BASKET_TABLE):
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_tid,
+                            d.datasetname as datasetname from {schema}.{basket_table} b
+                            JOIN {schema}.{dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_table=PG_DATASET_TABLE))
+            return cur
+        return {}
 
     def get_datasets_info(self):
         if self.schema and self._table_exists(PG_DATASET_TABLE):

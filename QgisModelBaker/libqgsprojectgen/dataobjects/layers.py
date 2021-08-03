@@ -28,7 +28,8 @@ from qgis.core import (
     QgsDataSourceUri,
     QgsWkbTypes,
     QgsRectangle,
-    QgsCoordinateReferenceSystem
+    QgsCoordinateReferenceSystem,
+    QgsExpressionContextUtils
 )
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
@@ -126,6 +127,10 @@ class Layer(object):
             if self.coordinate_precision and self.coordinate_precision < 1:
                 self.__layer.geometryOptions().setGeometryPrecision(self.coordinate_precision)
                 self.__layer.geometryOptions().setRemoveDuplicateNodes(True)
+
+            if self.model_topic_name:
+                QgsExpressionContextUtils.setLayerVariable(self.__layer, 'interlis_topic', self.model_topic_name)
+
         for field in self.fields:
             field.create(self)
 
