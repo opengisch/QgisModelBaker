@@ -88,23 +88,24 @@ class DatasetSourceModel(QStandardItemModel):
 class DatasetCombobox(QComboBox):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         self.db_simple_factory = DbSimpleFactory()
-
         self.basket_model = DatasetSourceModel()
         self.filtered_model = QSortFilterProxyModel()
         self.filtered_model.setSourceModel(self.basket_model)
         self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
         self.setModel(self.filtered_model)
-
-        self.currentIndexChanged.connect(self.set_basket_tid)
+        self.setEnabled(False)
 
     def set_current_layer(self, layer):
-        self.setEnabled(False)
+        if self.isEnabled():
+            self.currentIndexChanged.disconnect(self.set_basket_tid)
+            self.setEnabled(False)
+
         if not layer or not layer.dataProvider().isValid():
             return
 
-        self.currentIndexChanged.disconnect(self.set_basket_tid)
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = self.make_schema_identificator(source_name, source)
@@ -141,9 +142,10 @@ class DatasetCombobox(QComboBox):
             config_manager = db_factory.get_db_command_config_manager(configuration)
             self.basket_model.reload_schema_baskets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), schema_identificator)
 
-        self.set_index(schema_topic_identificator)
-        self.currentIndexChanged.connect(self.set_basket_tid)
-        self.setEnabled(True)
+        if self.filtered_model.rowCount():
+            self.currentIndexChanged.connect(self.set_basket_tid)
+            self.set_index(schema_topic_identificator)
+            self.setEnabled(True)
 
     def set_index(self, schema_topic_identificator):
         current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(schema_topic_identificator)
