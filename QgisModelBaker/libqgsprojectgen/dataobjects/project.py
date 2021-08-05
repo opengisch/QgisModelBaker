@@ -137,7 +137,7 @@ class Project(QObject):
                     'ShowOpenFormButton': False,
                     'AllowNULL': True,
                     'AllowAddFeatures': False,
-                    'FilterExpression': "\"topic\" = '{}'".format( referencing_layer.model_topic_name ),
+                    'FilterExpression': "\"topic\" = @interlis_topic",
                     'FilterFields': list()
                 }
                 )
