@@ -195,7 +195,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.configuration.metaconfig['qgis.modelbaker.qml'])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
                 list(qml_section.values()), self.workflow_wizard.log_panel)
-            for layer in project.layers:
+            for layer in project.layers and layer.alias:
                 if any(layer.alias.lower() == s for s in qml_section):
                     layer_qml = layer.alias.lower()
                 elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
