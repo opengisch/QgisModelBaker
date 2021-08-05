@@ -87,6 +87,8 @@ def make_folder_selector(widget, title=QCoreApplication.translate('QgisModelBake
     return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
 def slugify(text: str) -> str:
+    if not text:
+        return text
     slug = unicodedata.normalize('NFKD', text)
     slug = re.sub(r'[^a-zA-Z0-9]+', '_', slug).strip('_')
     slug = re.sub(r'[-]+', '_', slug)

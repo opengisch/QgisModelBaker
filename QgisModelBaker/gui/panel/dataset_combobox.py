@@ -17,64 +17,73 @@
  ***************************************************************************/
 """
 from enum import Enum
-from PyQt5.QtWidgets import QComboBox
+
 from qgis.PyQt.QtWidgets import (
     QWidget,
-    QAction,
-    QGridLayout
+    QComboBox
 )
 from qgis.PyQt.QtCore import (
     Qt,
     QSortFilterProxyModel
+)
+from qgis.PyQt.QtGui import (
+    QStandardItemModel,
+    QStandardItem
 )
 from qgis.core import (
     QgsProject,
     QgsDataSourceUri,
     QgsExpressionContextUtils
 )
-from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem
-)
 
 from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.globals import DbIliMode
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError, DBConnector
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
-from QgisModelBaker.utils.qt_utils import OverrideCursor
-
 class DatasetSourceModel(QStandardItemModel):
     class Roles(Enum):
         DATASETNAME = Qt.UserRole + 1
         MODEL_TOPIC = Qt.UserRole + 2
         BASKET_TID = Qt.UserRole + 3
-        # The DB_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
+        # The SCHEMA_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
         # This because a dataset is usually valid per topic and db schema
-        DB_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
+        SCHEMA_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
 
         def __int__(self):
             return self.value
 
     def __init__(self):
         super().__init__()
+        self.schema_baskets = {}
 
-    def refresh_datasets(self, db_connector, db_identificator):
+    def refresh(self):
         self.beginResetModel()
         self.clear()
-        item = QStandardItem()
-        baskets_info = db_connector.get_baskets_info()
-        for record in baskets_info:
-            item = QStandardItem()
-            item.setData(record['datasetname'], int(Qt.DisplayRole))
-            item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-            item.setData(record['topic'], int(DatasetSourceModel.Roles.MODEL_TOPIC))
-            item.setData(record['basket_t_id'], int(DatasetSourceModel.Roles.BASKET_TID))
-            item.setData(slugify(f"{db_identificator}_{record['topic']}"), int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
-            self.appendRow(item)
-        print(f'my row count is {self.rowCount()}')
+        for schema_identificator in self.schema_baskets.keys():
+            for basket in self.schema_baskets[schema_identificator]:
+                item = QStandardItem()
+                item.setData(basket['datasetname'], int(Qt.DisplayRole))
+                item.setData(basket['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
+                item.setData(basket['topic'], int(DatasetSourceModel.Roles.MODEL_TOPIC))
+                item.setData(basket['basket_t_id'], int(DatasetSourceModel.Roles.BASKET_TID))
+                item.setData(f"{schema_identificator}_{slugify(basket['topic'])}", int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
+                self.appendRow(item)
         self.endResetModel()
+
+    def reload_schema_baskets(self, db_connector, schema_identificator):
+        baskets_info = db_connector.get_baskets_info()
+        baskets = []
+        for record in baskets_info:
+            basket = {}
+            basket['datasetname'] = record['datasetname']
+            basket['topic'] = record['topic']
+            basket['basket_t_id'] = record['basket_t_id']
+            baskets.append(basket)
+        self.schema_baskets[schema_identificator] = baskets
+        self.refresh()
+
+    def schema_baskets_loaded(self, schema_identificator):
+        return schema_identificator in self.schema_baskets
 
 class DatasetCombobox(QComboBox):
     def __init__(self, parent=None):
@@ -82,10 +91,10 @@ class DatasetCombobox(QComboBox):
 
         self.db_simple_factory = DbSimpleFactory()
 
-        self.source_model = DatasetSourceModel()
+        self.basket_model = DatasetSourceModel()
         self.filtered_model = QSortFilterProxyModel()
-        self.filtered_model.setSourceModel(self.source_model)
-        self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
+        self.filtered_model.setSourceModel(self.basket_model)
+        self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
         self.setModel(self.filtered_model)
 
         self.currentIndexChanged.connect(self.set_basket_tid)
@@ -98,14 +107,15 @@ class DatasetCombobox(QComboBox):
         self.currentIndexChanged.disconnect(self.set_basket_tid)
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        db_identificator = self.make_db_identificator(source_name, source)
+        schema_identificator = self.make_schema_identificator(source_name, source)
         layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
-        db_topic_identificator = slugify(f"{db_identificator}_{layer_model_topic_name}")
-        self.filtered_model.setFilterFixedString(db_topic_identificator)
+        schema_topic_identificator = f"{schema_identificator}_{slugify(layer_model_topic_name)}"
+        self.filtered_model.setFilterFixedString(schema_topic_identificator)
 
-        if self.filtered_model.rowCount() == 0:
+        if not self.basket_model.schema_baskets_loaded(schema_identificator):
+            print( 'load ')
             # when no datasets are found we check the database again
             mode = ''
             configuration = Ili2DbCommandConfiguration()
@@ -129,30 +139,27 @@ class DatasetCombobox(QComboBox):
                         
             db_factory = self.db_simple_factory.create_factory( mode ) 
             config_manager = db_factory.get_db_command_config_manager(configuration)
-            self.update_datasets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), db_identificator)
+            self.basket_model.reload_schema_baskets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), schema_identificator)
 
-        self.set_index(db_topic_identificator)
+        self.set_index(schema_topic_identificator)
         self.currentIndexChanged.connect(self.set_basket_tid)
         self.setEnabled(True)
 
-    def set_index(self, db_topic_identificator):
-        current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(db_topic_identificator)
+    def set_index(self, schema_topic_identificator):
+        current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(schema_topic_identificator)
         matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(DatasetSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
         if matches:
             self.setCurrentIndex(matches[0].row())
 
-    def update_datasets(self, db_connector, db_identificator = ''):
-        self.source_model.refresh_datasets(db_connector, db_identificator)
-
-    def make_db_identificator(self, source_name, source):
+    def make_schema_identificator(self, source_name, source):
         if source_name == 'postgres' or source_name == 'mssql':
-            return f'{source.host()}_{source.database()}_{source.schema()}'
+            return slugify(f'{source.host()}_{source.database()}_{source.schema()}')
         elif source_name == 'ogr':
-            return source.uri().split('|')[0].strip()
+            return slugify(source.uri().split('|')[0].strip())
         return ''
 
     def set_basket_tid(self, index ):
         model_index = self.model().index(index,0)
         basket_tid = model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))
-        db_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.DB_TOPIC_IDENTIFICATOR))
-        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(),db_topic_identificator,basket_tid)
+        schema_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(),schema_topic_identificator,basket_tid)

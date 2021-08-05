@@ -569,7 +569,7 @@ WHERE TABLE_SCHEMA='{schema}'
             cur.execute("""SELECT b.t_id as basket_t_id, 
                             b.t_ili_tid as basket_t_ili_tid, 
                             b.topic as topic, 
-                            d.t_id as dataset_tid,
+                            d.t_id as dataset_t_id,
                             d.datasetname as datasetname from {schema}.{basket_table} b
                             JOIN {schema}.{dataset_table} d
                             ON b.dataset = d.t_id

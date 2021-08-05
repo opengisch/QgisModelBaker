@@ -262,7 +262,7 @@ class DBConnector(QObject):
                 basket_t_id
                 basket_t_ili_tid
                 topic
-                dataset_tid
+                dataset_t_id
                 datasetname
         '''
         return {}
