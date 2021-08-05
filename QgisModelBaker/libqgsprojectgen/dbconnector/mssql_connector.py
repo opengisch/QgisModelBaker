@@ -576,14 +576,3 @@ WHERE TABLE_SCHEMA='{schema}'
                         """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_table=DATASET_TABLE))
             result = self._get_dict_result(cur)
         return result
-
-    def get_datasets_info(self):
-        result = {}
-        if self.schema and self._table_exists(DATASET_TABLE):
-            cur = self.conn.cursor()
-            cur.execute("""
-                            SELECT t_id, datasetname
-                            FROM {schema}.{table};
-                        """.format(schema=self.schema, table=DATASET_TABLE))
-            result = self._get_dict_result(cur)
-        return result

@@ -89,7 +89,7 @@ class Generator(QObject):
 
         layer_uri = db_factory.get_layer_uri(self.uri)
         layer_uri.pg_estimated_metadata = self.pg_estimated_metadata
-        
+
         # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
         table_appearance_count = {}
         

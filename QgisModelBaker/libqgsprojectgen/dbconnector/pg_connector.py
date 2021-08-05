@@ -621,14 +621,3 @@ class PGConnector(DBConnector):
                         """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_table=PG_DATASET_TABLE))
             return cur
         return {}
-
-    def get_datasets_info(self):
-        if self.schema and self._table_exists(PG_DATASET_TABLE):
-            cur = self.conn.cursor(
-                cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
-                            SELECT t_id, datasetname
-                            FROM {schema}.{table};
-                        """.format(schema=self.schema, table=PG_DATASET_TABLE))
-            return cur
-        return {}

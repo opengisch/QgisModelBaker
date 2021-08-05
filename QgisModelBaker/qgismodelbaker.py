@@ -24,8 +24,6 @@ import configparser
 import pathlib
 import datetime
 
-from PyQt5.QtWidgets import QComboBox
-
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog

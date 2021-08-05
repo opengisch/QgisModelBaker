@@ -511,13 +511,3 @@ class GPKGConnector(DBConnector):
             contents = cur.fetchall()
             return contents
         return {}
-        
-    def get_datasets_info(self):
-        if self._table_exists(GPKG_DATASET_TABLE):
-            cursor = self.conn.cursor()
-            cursor.execute("""
-                            SELECT t_id, datasetname
-                            FROM {};
-                        """.format(GPKG_DATASET_TABLE))
-            return cursor
-        return {}

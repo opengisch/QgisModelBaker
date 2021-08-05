@@ -100,7 +100,7 @@ class DatasetCombobox(QComboBox):
 
     def set_current_layer(self, layer):
         if self.isEnabled():
-            self.currentIndexChanged.disconnect(self.set_basket_tid)
+            self.currentIndexChanged.disconnect(self.store_basket_tid)
             self.setEnabled(False)
 
         if not layer or not layer.dataProvider().isValid():
@@ -116,8 +116,6 @@ class DatasetCombobox(QComboBox):
         self.filtered_model.setFilterFixedString(schema_topic_identificator)
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            print( 'load ')
-            # when no datasets are found we check the database again
             mode = ''
             configuration = Ili2DbCommandConfiguration()
             if source_name == 'postgres':
@@ -137,13 +135,14 @@ class DatasetCombobox(QComboBox):
                 configuration.dbpwd = source.password()
                 configuration.database = source.database()
                 configuration.dbschema = source.schema()
-                        
-            db_factory = self.db_simple_factory.create_factory( mode ) 
-            config_manager = db_factory.get_db_command_config_manager(configuration)
-            self.basket_model.reload_schema_baskets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), schema_identificator)
+            
+            if mode:   
+                db_factory = self.db_simple_factory.create_factory( mode ) 
+                config_manager = db_factory.get_db_command_config_manager(configuration)
+                self.basket_model.reload_schema_baskets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), schema_identificator)
 
         if self.filtered_model.rowCount():
-            self.currentIndexChanged.connect(self.set_basket_tid)
+            self.currentIndexChanged.connect(self.store_basket_tid)
             self.set_index(schema_topic_identificator)
             self.setEnabled(True)
 
@@ -160,7 +159,7 @@ class DatasetCombobox(QComboBox):
             return slugify(source.uri().split('|')[0].strip())
         return ''
 
-    def set_basket_tid(self, index ):
+    def store_basket_tid(self, index ):
         model_index = self.model().index(index,0)
         basket_tid = model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))
         schema_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))

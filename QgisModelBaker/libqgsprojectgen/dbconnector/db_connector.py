@@ -267,19 +267,6 @@ class DBConnector(QObject):
         '''
         return {}
 
-    def get_datasets_info(self):
-        '''
-        Info about datasets found in the dataset table.
-
-        Return:
-            Iterable allowing to access rows, each row should allow to access
-            specific columns by name (e.g., a list of dicts {column_name:value})
-            Expected columns are:
-                t_id
-                datasetname
-        '''
-        return {}
-
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.
 
