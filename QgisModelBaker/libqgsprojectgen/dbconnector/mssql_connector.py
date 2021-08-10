@@ -570,3 +570,31 @@ WHERE TABLE_SCHEMA='{schema}'
                         """.format(schema=self.schema, dataset_table=DATASET_TABLE))
             result = self._get_dict_result(cur)
         return result
+    
+    def create_dataset(self, datasetname):
+        if self.schema and self._table_exists(DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    INSERT INTO {schema}.{dataset_table} VALUES (NEXT VALUE FOR {schema}.{sequence}, '{datasetname}')
+                """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=DATASET_TABLE, datasetname = datasetname ))
+                self.conn.commit()
+            except pyodbc.errors.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not create dataset.")
+        return True, self.tr("Successfully created dataset.")
+
+    def rename_dataset(self, tid, datasetname):
+        if self.schema and self._table_exists(DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
+                """.format(schema=self.schema, dataset_table=DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                self.conn.commit()
+            except pyodbc.errors.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not create dataset.")
+        return True, self.tr("Successfully created dataset.")

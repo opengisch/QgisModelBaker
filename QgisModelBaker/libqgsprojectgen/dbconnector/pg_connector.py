@@ -615,3 +615,31 @@ class PGConnector(DBConnector):
                         """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE))
             return cur
         return {}
+
+    def create_dataset(self, datasetname):
+        if self.schema and self._table_exists(PG_DATASET_TABLE):
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            try: 
+                cur.execute("""
+                    INSERT INTO {schema}.{dataset_table} VALUES (nextval('{schema}.{sequence}'), '{datasetname}')
+                """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=PG_DATASET_TABLE, datasetname = datasetname ))
+                self.conn.commit()
+            except psycopg2.errors.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not create dataset.")
+        return True, self.tr("Successfully created dataset.")
+
+    def rename_dataset(self, tid, datasetname):
+        if self.schema and self._table_exists(PG_DATASET_TABLE):
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            try:
+                cur.execute("""
+                    UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
+                """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                self.conn.commit()
+            except psycopg2.errors.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not rename dataset.")
+        return True, self.tr("Successfully renamed dataset.")

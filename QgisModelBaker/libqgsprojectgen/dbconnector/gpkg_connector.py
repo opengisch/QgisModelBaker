@@ -505,3 +505,33 @@ class GPKGConnector(DBConnector):
             contents = cur.fetchall()
             return contents
         return {}
+        
+    def create_dataset(self, datasetname):
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    INSERT INTO {dataset_table} (datasetName) VALUES ('{datasetname}')
+                """.format(dataset_table=GPKG_DATASET_TABLE, datasetname = datasetname ))
+                self.conn.commit()
+            except sqlite3.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not create dataset.")
+        return True, self.tr("Successfully created dataset.")
+
+    def rename_dataset(self, tid, datasetname):
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    UPDATE {dataset_table} SET datasetName = '{datasetname}' WHERE {tid_name} = {tid}
+                """.format(dataset_table=GPKG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                self.conn.commit()
+            except sqlite3.UniqueViolation as e:
+                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except:
+                return False, self.tr("Could not rename dataset.")
+        return True, self.tr("Successfully renamed dataset.")
+
+        return False
