@@ -1931,7 +1931,7 @@ class TestProjectGen(unittest.TestCase):
                 edit_form_config = layer.layer.editFormConfig()
                 map = edit_form_config.widgetConfig('t_basket')
                 assert map['Relation'] == 'belasteter_standort_t_basket_fkey'
-                assert map['FilterExpression'] == '"topic" = @interlis_topic"'
+                assert map['FilterExpression'] == '"topic" = @interlis_topic'
 
             # check the display expression of the basket table
             if layer.name == 't_ili2db_basket':
@@ -1988,7 +1988,7 @@ class TestProjectGen(unittest.TestCase):
                 edit_form_config = layer.layer.editFormConfig()
                 map = edit_form_config.widgetConfig('T_basket')
                 assert map['Relation'] == 'belasteter_standort_T_basket_T_ILI2DB_BASKET_T_Id'
-                assert map['FilterExpression'] == '"topic" = @interlis_topic"'
+                assert map['FilterExpression'] == '"topic" = @interlis_topic'
 
             # check the display expression of the basket table
             if layer.name == 'T_ILI2DB_BASKET':
