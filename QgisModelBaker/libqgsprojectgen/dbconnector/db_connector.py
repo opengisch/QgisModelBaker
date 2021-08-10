@@ -251,6 +251,11 @@ class DBConnector(QObject):
         """
         return False
 
+    def get_datasets_info(self):
+        """
+        Returns the datasets
+        """
+        return {}
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.

@@ -25,31 +25,52 @@ from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
 from qgis.PyQt.QtWidgets import (
     QDialog,
-    QDialogButtonBox,
-    QCompleter,
-    QSizePolicy,
-    QGridLayout,
-    QAction,
-    QToolButton
+    QHeaderView,
+    QTableView,
+    QSizePolicy
 )
 from qgis.PyQt.QtCore import (
-    QCoreApplication,
     QSettings,
-    Qt,
-    QLocale
+    QTimer,
+    Qt
 )
 from ..utils import get_ui_class
-from ..libili2db import (
-    iliimporter,
-    ili2dbconfig
-)
 
-from qgis.gui import (
-    QgsMessageBar,
-    QgsGui
+from qgis.PyQt.QtGui import (
+    QStandardItemModel,
+    QStandardItem
 )
 
 DIALOG_UI = get_ui_class('dataset_manager.ui')
+
+class DatasetSourceModel(QStandardItemModel):
+    class Roles(Enum):
+        TID = Qt.UserRole + 1
+        DATASETNAME = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def reload_datasets(self, db_connector):
+        datasets_info = db_connector.get_datasets_info()
+
+        print( datasets_info)
+        self.beginResetModel()
+        self.clear()
+        for record in datasets_info:
+            item = QStandardItem()
+            print(record)
+            item.setData(record['datasetname'], int(Qt.DisplayRole))
+            item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
+            item.setData(record['t_id'], int(DatasetSourceModel.Roles.TID))
+            self.appendRow(item)
+        self.endResetModel()
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
 
@@ -74,7 +95,29 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
+        self.dataset_model = DatasetSourceModel()
+        self.dataset_model.setHorizontalHeaderLabels([self.tr('Name'),'213'])
+        self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.dataset_tableview.setModel(self.dataset_model)
+
         self.restore_configuration()
+
+        #refresh the models on changing values but avoid massive db connects by timer
+        self.refreshTimer = QTimer()
+        self.refreshTimer.setSingleShot(True)
+        self.refreshTimer.timeout.connect(self.refresh_datasets)
+
+        for key, value in self._lst_panel.items():
+            value.notify_fields_modified.connect(self.request_for_refresh_datasets)
+
+        self.reload_datasets(self.updated_configuration())
+
+    def request_for_refresh_datasets(self):
+        # hold refresh back
+        self.refreshTimer.start(500)
+
+    def refresh_datasets(self):
+        self.reload_datasets(self.updated_configuration())
         
     def type_changed(self):
         ili_mode = self.type_combo_box.currentData()
@@ -88,6 +131,25 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
+        self.reload_datasets(self.updated_configuration())
+
+    def reload_datasets(self, configuration):
+        schema = configuration.dbschema
+
+        db_factory = self.db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
+
+        db_connector = None
+
+        try:
+            db_connector = db_factory.get_db_connector(uri_string, schema)
+            if db_connector.get_basket_handling:
+                return self.dataset_model.reload_datasets(db_connector)
+            else:
+                return self.dataset_model.clear()
+        except (DBConnectorError, FileNotFoundError):
+            return None
 
 
     def accepted(self):

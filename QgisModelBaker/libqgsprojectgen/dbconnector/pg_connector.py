@@ -27,6 +27,7 @@ from qgis.core import Qgis
 PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 PG_SETTINGS_TABLE = 't_ili2db_settings'
+PG_DATASET_TABLE = 't_ili2db_dataset'
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -605,3 +606,12 @@ class PGConnector(DBConnector):
             if content:
                 return content[0] == 'readWrite'
         return False
+    
+    def get_datasets_info(self):
+        if self.schema and self._table_exists(PG_DATASET_TABLE):
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""SELECT *
+                           FROM {schema}.{dataset_table}
+                        """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE))
+            return cur
+        return {}

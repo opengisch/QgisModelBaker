@@ -28,7 +28,7 @@ from .db_connector import (DBConnector, DBConnectorError)
 METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
 SETTINGS_TABLE = 't_ili2db_settings'
-
+DATASET_TABLE = 't_ili2db_dataset'
 
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
@@ -560,3 +560,13 @@ WHERE TABLE_SCHEMA='{schema}'
                 if content:
                     return content[0] == 'readWrite'
         return False
+    
+    def get_datasets_info(self):
+        result = {}
+        if self.schema and self._table_exists(DATASET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT *
+                           FROM {schema}.{dataset_table}
+                        """.format(schema=self.schema, dataset_table=DATASET_TABLE))
+            result = self._get_dict_result(cur)
+        return result

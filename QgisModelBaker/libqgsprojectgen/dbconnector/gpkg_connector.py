@@ -28,7 +28,7 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
-
+GPKG_DATASET_TABLE = 'T_ILI2DB_DATASET'
 
 class GPKGConnector(DBConnector):
 
@@ -495,3 +495,13 @@ class GPKGConnector(DBConnector):
             if content: 
                 return content[0] == 'readWrite'
         return False
+    
+    def get_datasets_info(self):        
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT *
+                           FROM {dataset_table}
+                        """.format(dataset_table=GPKG_DATASET_TABLE))
+            contents = cur.fetchall()
+            return contents
+        return {}
