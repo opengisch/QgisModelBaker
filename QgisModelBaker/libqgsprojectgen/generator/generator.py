@@ -136,7 +136,7 @@ class Generator(QObject):
                                 else:
                                     short_name = record['tablename']
                     elif 'ili_name' in record and record['ili_name']:
-                        match = re.search('([^\(]*).*', record['ili_name'])
+                        match = re.search(r'([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
                             short_name = match.group(1).split('.')[-1]
                         else:
