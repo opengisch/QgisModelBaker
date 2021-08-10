@@ -110,13 +110,12 @@ class Generator(QObject):
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            is_domain = record['kind_settings'] == 'ENUM' or record[
-                'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
-            is_attribute = bool(record['attribute_name']) if 'attribute_name' in record else False
-            is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
-            is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
-            is_basket_table = record['tablename'] == self._db_connector.basket_table_name if 'tablename' in record else False
-            is_dataset_table = record['tablename'] == self._db_connector.dataset_table_name if 'tablename' in record else False
+            is_domain = record.get('kind_settings') == 'ENUM' or record.get('kind_settings') == 'CATALOGUE'
+            is_attribute = bool(record.get('attribute_name'))
+            is_structure = record.get('kind_settings') == 'STRUCTURE'
+            is_nmrel = record.get('kind_settings') == 'ASSOCIATION'
+            is_basket_table = record.get('tablename') == self._db_connector.basket_table_name
+            is_dataset_table = record.get('tablename') == self._db_connector.dataset_table_name
 
             alias = record['table_alias'] if 'table_alias' in record else None
             if not alias:
