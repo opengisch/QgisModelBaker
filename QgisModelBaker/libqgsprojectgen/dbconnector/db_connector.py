@@ -257,6 +257,30 @@ class DBConnector(QObject):
         """
         return {}
 
+    def create_dataset(self, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def rename_dataset(self, tid, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def get_topic_info(self):
+        """
+        Returns all the topics found in the table t_ili2db_classname
+        """
+        return {}
+    
+    def create_basket(self, dataset_tid, topic):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.
 

@@ -30,7 +30,7 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QHeaderView,
     QTableView,
-    QSizePolicy
+    QMessageBox
 )
 from qgis.PyQt.QtCore import (
     QSettings,
@@ -115,8 +115,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.add_button.clicked.connect(self.add_dataset)
         self.edit_button.clicked.connect(self.edit_dataset)
-        self.dataset_tableview.selectionModel().selectionChanged.connect(
-            lambda: self.edit_button.setEnabled(self.valid_selection()))
+        self.create_baskets_button.clicked.connect(self.create_baskets)
+        self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self.enable_dataset_handling(True))
 
     def valid_selection(self):
         return bool(len(self.dataset_tableview.selectedIndexes()))
@@ -125,6 +125,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setEnabled(enable)
         self.add_button.setEnabled(enable)
         self.edit_button.setEnabled(self.valid_selection())
+        self.create_baskets_button.setEnabled(self.valid_selection())
 
     def type_changed(self):
         ili_mode = self.type_combo_box.currentData()
@@ -167,9 +168,27 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         if self.valid_selection():
             db_connector = self.get_db_connector(self.updated_configuration())
             if db_connector and db_connector.get_basket_handling:
-                edit_dataset_dialog = EditDatasetDialog(self, db_connector, ( self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.DATASETNAME))))
+                dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.DATASETNAME)))
+                edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset )
                 edit_dataset_dialog.exec_()
             self.reload_datasets(self.updated_configuration())
+
+    def create_baskets(self):
+        if self.valid_selection():
+            db_connector = self.get_db_connector(self.updated_configuration())
+            if db_connector and db_connector.get_basket_handling:
+                feedbacks = []
+                for record in db_connector.get_topic_info():
+                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.TID))
+                    status, message = db_connector.create_basket( dataset_tid, '.'.join([record['model'], record['topic']]))
+                    feedbacks.append((status, message))
+    
+                warning_box = QMessageBox(self)
+                warning_box.setIcon(QMessageBox.Information if len([feedback for feedback in feedbacks if feedback[0]]) else QMessageBox.Warning)
+                warning_title = self.tr("Created baskets")
+                warning_box.setWindowTitle(warning_title)
+                warning_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
+                warning_box.exec_()
 
     def db_ili_version(self, configuration):
         """

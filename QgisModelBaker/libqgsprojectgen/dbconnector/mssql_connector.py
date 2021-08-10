@@ -29,6 +29,7 @@ METADATA_TABLE = 't_ili2db_table_prop'
 METAATTRS_TABLE = 't_ili2db_meta_attrs'
 SETTINGS_TABLE = 't_ili2db_settings'
 DATASET_TABLE = 't_ili2db_dataset'
+BASKET_TABLE = 't_ili2db_basket'
 
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
@@ -579,12 +580,11 @@ WHERE TABLE_SCHEMA='{schema}'
                     INSERT INTO {schema}.{dataset_table} VALUES (NEXT VALUE FOR {schema}.{sequence}, '{datasetname}')
                 """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=DATASET_TABLE, datasetname = datasetname ))
                 self.conn.commit()
+                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except pyodbc.errors.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-            except:
-                return False, self.tr("Could not create dataset.")
-        return True, self.tr("Successfully created dataset.")
-
+        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
+        
     def rename_dataset(self, tid, datasetname):
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
@@ -593,8 +593,40 @@ WHERE TABLE_SCHEMA='{schema}'
                     UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
                 """.format(schema=self.schema, dataset_table=DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
                 self.conn.commit()
+                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except pyodbc.errors.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
+        
+    def get_topic_info(self):
+        result = {}
+        if self.schema and self._table_exists("t_ili2db_classname"):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT DISTINCT PARSENAME(iliname,'.',1) as model, 
+                    PARSENAME(iliname,'.',2) as topic 
+                    FROM {schema}.t_ili2db_classname
+                """.format(schema=self.schema))
+            result = self._get_dict_result(cur)
+        return result
+
+    def create_basket(self, dataset_tid, topic):
+        if self.schema and self._table_exists(BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT * FROM {schema}.{basket_table} 
+                    WHERE dataset = {dataset_tid} and topic = '{topic}'
+                """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+            if bool(cur.fetchone()[0]):
+                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
+            try: 
+                cur.execute("""
+                    INSERT INTO {schema}.{basket_table} ({tid_name}, dataset, topic, {tilitid_name}, attachmentkey )
+                    VALUES (NEXT VALUE FOR {schema}.{sequence}, {dataset_tid}, '{topic}', NEWID(), 'Qgis Model Baker')
+                """.format(schema=self.schema, sequence='t_ili2db_seq', tid_name = self.tid, tilitid_name = self.tilitid, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                self.conn.commit()
+                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
             except:
-                return False, self.tr("Could not create dataset.")
-        return True, self.tr("Successfully created dataset.")
+                pass
+        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
+        

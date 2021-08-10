@@ -20,6 +20,7 @@ import os
 import errno
 import re
 import sqlite3
+import uuid
 import qgis.utils
 from qgis.core import Qgis
 from .db_connector import DBConnector, DBConnectorError
@@ -29,6 +30,7 @@ GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
 GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
 GPKG_DATASET_TABLE = 'T_ILI2DB_DATASET'
+GPKG_BASKET_TABLE = 'T_ILI2DB_BASKET'
 
 class GPKGConnector(DBConnector):
 
@@ -514,11 +516,10 @@ class GPKGConnector(DBConnector):
                     INSERT INTO {dataset_table} (datasetName) VALUES ('{datasetname}')
                 """.format(dataset_table=GPKG_DATASET_TABLE, datasetname = datasetname ))
                 self.conn.commit()
+                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except sqlite3.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-            except:
-                return False, self.tr("Could not create dataset.")
-        return True, self.tr("Successfully created dataset.")
+        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
 
     def rename_dataset(self, tid, datasetname):
         if self._table_exists(GPKG_DATASET_TABLE):
@@ -528,10 +529,45 @@ class GPKGConnector(DBConnector):
                     UPDATE {dataset_table} SET datasetName = '{datasetname}' WHERE {tid_name} = {tid}
                 """.format(dataset_table=GPKG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
                 self.conn.commit()
+                return True, self.tr("Successfully renamed dataset \"{}\".").format(datasetname)
             except sqlite3.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-            except:
-                return False, self.tr("Could not rename dataset.")
-        return True, self.tr("Successfully renamed dataset.")
+        return False, self.tr("Could not rename dataset \"{}\".").format(datasetname)
+        
 
-        return False
+    def get_topic_info(self):
+        if  self._table_exists("T_ILI2DB_CLASSNAME"):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT DISTINCT substr(IliName, 0, instr(IliName, '.')) as model,
+                    substr(substr(IliName, instr(IliName, '.')+1),0, instr(substr(IliName, instr(IliName, '.')+1),'.')) as topic
+                    FROM T_ILI2DB_CLASSNAME
+                """)
+            contents = cur.fetchall()
+            return contents
+        return {}
+
+    def create_basket(self, dataset_tid, topic):
+        if self._table_exists(GPKG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT * FROM {basket_table} 
+                    WHERE dataset = {dataset_tid} and topic = '{topic}'
+                """.format(basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+            if cur.fetchone():
+                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
+            
+            print("""
+                INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
+                VALUES ({dataset_tid}, '{topic}', {uuid}, 'Qgis Model Baker')
+            """.format(tilitid_name = self.tilitid, basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic, uuid=uuid.uuid4() ))
+            try: 
+                cur.execute("""
+                    INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
+                    VALUES ({dataset_tid}, '{topic}', '{uuid}', 'Qgis Model Baker')
+                """.format(tilitid_name = self.tilitid, basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic, uuid=uuid.uuid4() ))
+                self.conn.commit()
+                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
+            except:
+                pass
+        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)

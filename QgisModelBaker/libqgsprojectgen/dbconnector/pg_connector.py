@@ -28,6 +28,7 @@ PG_METADATA_TABLE = 't_ili2db_table_prop'
 PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
 PG_SETTINGS_TABLE = 't_ili2db_settings'
 PG_DATASET_TABLE = 't_ili2db_dataset'
+PG_BASKET_TABLE = 't_ili2db_basket'
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -624,11 +625,10 @@ class PGConnector(DBConnector):
                     INSERT INTO {schema}.{dataset_table} VALUES (nextval('{schema}.{sequence}'), '{datasetname}')
                 """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=PG_DATASET_TABLE, datasetname = datasetname ))
                 self.conn.commit()
+                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except psycopg2.errors.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-            except:
-                return False, self.tr("Could not create dataset.")
-        return True, self.tr("Successfully created dataset.")
+        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)        
 
     def rename_dataset(self, tid, datasetname):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
@@ -638,8 +638,39 @@ class PGConnector(DBConnector):
                     UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
                 """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
                 self.conn.commit()
+                return True, self.tr("Successfully renamed dataset \"{}\".").format(datasetname)
             except psycopg2.errors.UniqueViolation as e:
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+        return False, self.tr("Could not rename dataset \"{}\".").format(datasetname)
+
+    def get_topic_info(self):
+        if self.schema and self._table_exists("t_ili2db_classname"):
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute("""
+                    SELECT DISTINCT split_part(iliname,'.',1) as model, 
+                    split_part(iliname,'.',2) as topic 
+                    FROM {schema}.t_ili2db_classname
+                """.format(schema=self.schema))
+            return cur
+        return {}
+
+    def create_basket(self, dataset_tid, topic):
+        if self.schema and self._table_exists(PG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT * FROM {schema}.{basket_table} 
+                    WHERE dataset = {dataset_tid} and topic = '{topic}'
+                """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+            if bool(cur.fetchone()[0]):
+                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
+            try: 
+                cur.execute("""
+                    INSERT INTO {schema}.{basket_table} ({tid_name}, dataset, topic, {tilitid_name}, attachmentkey )
+                    VALUES (nextval('{schema}.{sequence}'), {dataset_tid}, '{topic}', uuid_generate_v4(), 'Qgis Model Baker')
+                """.format(schema=self.schema, sequence='t_ili2db_seq', tid_name = self.tid, tilitid_name = self.tilitid, basket_table=PG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                self.conn.commit()
+                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
             except:
-                return False, self.tr("Could not rename dataset.")
-        return True, self.tr("Successfully renamed dataset.")
+                pass
+        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
+        
