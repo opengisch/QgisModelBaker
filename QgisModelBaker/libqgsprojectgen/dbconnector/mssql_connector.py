@@ -581,7 +581,7 @@ WHERE TABLE_SCHEMA='{schema}'
         result = {}
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""SELECT *
+            cur.execute("""SELECT t_id, datasetname
                            FROM {schema}.{dataset_table}
                         """.format(schema=self.schema, dataset_table=DATASET_TABLE))
             result = self._get_dict_result(cur)
@@ -618,8 +618,8 @@ WHERE TABLE_SCHEMA='{schema}'
         if self.schema and self._table_exists("t_ili2db_classname"):
             cur = self.conn.cursor()
             cur.execute("""
-                    SELECT DISTINCT PARSENAME(iliname,'.',1) as model, 
-                    PARSENAME(iliname,'.',2) as topic 
+                    SELECT DISTINCT PARSENAME(iliname,1) as model, 
+                    PARSENAME(iliname,2) as topic 
                     FROM {schema}.t_ili2db_classname
                 """.format(schema=self.schema))
             result = self._get_dict_result(cur)

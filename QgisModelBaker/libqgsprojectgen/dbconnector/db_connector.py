@@ -274,7 +274,7 @@ class DBConnector(QObject):
             specific columns by name (e.g., a list of dicts {column_name:value})
             Expected columns are:
                 t_id
-                datsetname
+                datasetname
         """
         return {}
 
@@ -293,6 +293,12 @@ class DBConnector(QObject):
     def get_topics_info(self):
         """
         Returns all the topics found in the table t_ili2db_classname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                model
+                topic
         """
         return {}
     

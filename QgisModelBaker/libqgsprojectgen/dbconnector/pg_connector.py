@@ -619,16 +619,16 @@ class PGConnector(DBConnector):
                             JOIN {schema}.{dataset_table} d
                             ON b.dataset = d.t_id
                         """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_table=PG_DATASET_TABLE))
-            return cur
+            return cur.fetchall()
         return {}
 
     def get_datasets_info(self):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""SELECT *
+            cur.execute("""SELECT t_id, datasetname
                            FROM {schema}.{dataset_table}
                         """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE))
-            return cur
+            return cur.fetchall()
         return {}
 
     def create_dataset(self, datasetname):
@@ -665,7 +665,7 @@ class PGConnector(DBConnector):
                     split_part(iliname,'.',2) as topic 
                     FROM {schema}.t_ili2db_classname
                 """.format(schema=self.schema))
-            return cur
+            return cur.fetchall()
         return {}
 
     def create_basket(self, dataset_tid, topic):

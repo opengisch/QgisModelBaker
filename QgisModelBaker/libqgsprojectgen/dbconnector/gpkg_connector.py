@@ -516,7 +516,7 @@ class GPKGConnector(DBConnector):
     def get_datasets_info(self):        
         if self._table_exists(GPKG_DATASET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""SELECT *
+            cur.execute("""SELECT t_id, datasetname
                            FROM {dataset_table}
                         """.format(dataset_table=GPKG_DATASET_TABLE))
             contents = cur.fetchall()

@@ -1,0 +1,29 @@
+INTERLIS 2.3;
+
+MODEL OeVBasketTest (en) 
+AT "https://signedav.github.io/usabilitydave/models"
+VERSION "2020-06-22" =
+  
+  TOPIC OeVLinien = 
+
+    BASKET OID AS INTERLIS.UUIDOID;
+
+    CLASS SingleLinie  = 
+      Bezeichnung : MANDATORY TEXT*99; 
+      Code : MANDATORY TEXT*15; 
+    END SingleLinie; 
+
+  END OeVLinien;
+
+  TOPIC Infrastruktur = 
+
+    BASKET OID AS INTERLIS.UUIDOID;
+
+    CLASS Haltestelle  = 
+      Name : MANDATORY TEXT*99; 
+      Code : MANDATORY TEXT*15; 
+    END Haltestelle; 
+
+  END Infrastruktur;
+
+END OeVBasketTest.
