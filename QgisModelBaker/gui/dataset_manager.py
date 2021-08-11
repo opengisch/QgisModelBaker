@@ -96,8 +96,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
 
         self.dataset_model = DatasetSourceModel()
-        self.dataset_model.setHorizontalHeaderLabels([self.tr('Name'),'213'])
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.dataset_tableview.horizontalHeader().hide()
+        self.dataset_tableview.verticalHeader().hide()
         self.dataset_tableview.setSelectionMode(QTableView.SingleSelection)
         self.dataset_tableview.setModel(self.dataset_model)
 
