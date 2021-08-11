@@ -561,7 +561,22 @@ WHERE TABLE_SCHEMA='{schema}'
                 if content:
                     return content[0] == 'readWrite'
         return False
-    
+
+    def get_baskets_info(self):
+        result = {}
+        if self.schema and self._table_exists(BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_t_id,
+                            d.datasetname as datasetname from {schema}.{basket_table} b
+                            JOIN {schema}.{dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_table=DATASET_TABLE))
+            result = self._get_dict_result(cur)
+        return result
+
     def get_datasets_info(self):
         result = {}
         if self.schema and self._table_exists(DATASET_TABLE):

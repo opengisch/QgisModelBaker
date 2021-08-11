@@ -251,9 +251,30 @@ class DBConnector(QObject):
         """
         return False
 
+    def get_baskets_info(self):
+        """
+        Info about baskets found in the basket table and the related datasetname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                basket_t_id
+                basket_t_ili_tid
+                topic
+                dataset_t_id
+                datasetname
+        """
+        return {}
+
     def get_datasets_info(self):
         """
-        Returns the datasets
+        Info about datasets found in the dataset table
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                t_id
+                datsetname
         """
         return {}
 

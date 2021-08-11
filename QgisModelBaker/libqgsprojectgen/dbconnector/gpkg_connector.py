@@ -498,6 +498,21 @@ class GPKGConnector(DBConnector):
                 return content[0] == 'readWrite'
         return False
     
+    def get_baskets_info(self):
+        if self._table_exists(GPKG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_t_id,
+                            d.datasetname as datasetname from {basket_table} b
+                            JOIN {dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(basket_table=GPKG_BASKET_TABLE, dataset_table=GPKG_DATASET_TABLE))
+            contents = cur.fetchall()
+            return contents
+        return {}
+        
     def get_datasets_info(self):        
         if self._table_exists(GPKG_DATASET_TABLE):
             cur = self.conn.cursor()
