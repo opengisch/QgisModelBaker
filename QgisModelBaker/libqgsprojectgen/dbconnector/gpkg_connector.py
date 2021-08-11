@@ -517,8 +517,9 @@ class GPKGConnector(DBConnector):
                 """.format(dataset_table=GPKG_DATASET_TABLE, datasetname = datasetname ))
                 self.conn.commit()
                 return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
-            except sqlite3.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not create dataset \"{}\": {}").format(datasetname, error_message)
         return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
 
     def rename_dataset(self, tid, datasetname):
@@ -529,10 +530,11 @@ class GPKGConnector(DBConnector):
                     UPDATE {dataset_table} SET datasetName = '{datasetname}' WHERE {tid_name} = {tid}
                 """.format(dataset_table=GPKG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
                 self.conn.commit()
-                return True, self.tr("Successfully renamed dataset \"{}\".").format(datasetname)
-            except sqlite3.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-        return False, self.tr("Could not rename dataset \"{}\".").format(datasetname)
+                return True, self.tr("Successfully renamed dataset to \"{}\".").format(datasetname)
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not rename dataset to \"{}\": {}").format(datasetname, error_message)
+        return False, self.tr("Could not rename dataset to \"{}\".").format(datasetname)
         
 
     def get_topic_info(self):
@@ -556,11 +558,6 @@ class GPKGConnector(DBConnector):
                 """.format(basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
             if cur.fetchone():
                 return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
-            
-            print("""
-                INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
-                VALUES ({dataset_tid}, '{topic}', {uuid}, 'Qgis Model Baker')
-            """.format(tilitid_name = self.tilitid, basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic, uuid=uuid.uuid4() ))
             try: 
                 cur.execute("""
                     INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
@@ -568,6 +565,7 @@ class GPKGConnector(DBConnector):
                 """.format(tilitid_name = self.tilitid, basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic, uuid=uuid.uuid4() ))
                 self.conn.commit()
                 return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
-            except:
-                pass
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
         return False, self.tr("Could not create basket for topic \"{}\".").format(topic)

@@ -617,7 +617,7 @@ WHERE TABLE_SCHEMA='{schema}'
                     SELECT * FROM {schema}.{basket_table} 
                     WHERE dataset = {dataset_tid} and topic = '{topic}'
                 """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
-            if bool(cur.fetchone()[0]):
+            if cur.fetchone():
                 return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
             try: 
                 cur.execute("""
@@ -626,7 +626,8 @@ WHERE TABLE_SCHEMA='{schema}'
                 """.format(schema=self.schema, sequence='t_ili2db_seq', tid_name = self.tid, tilitid_name = self.tilitid, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
                 self.conn.commit()
                 return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
-            except:
-                pass
+            except pyodbc.errors.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
         return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
         
