@@ -290,7 +290,7 @@ class DBConnector(QObject):
         """
         return False, None
 
-    def get_topic_info(self):
+    def get_topics_info(self):
         """
         Returns all the topics found in the table t_ili2db_classname
         """

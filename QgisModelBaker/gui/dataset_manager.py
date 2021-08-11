@@ -179,7 +179,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             db_connector = self.get_db_connector(self.updated_configuration())
             if db_connector and db_connector.get_basket_handling:
                 feedbacks = []
-                for record in db_connector.get_topic_info():
+                for record in db_connector.get_topics_info():
                     dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.TID))
                     status, message = db_connector.create_basket( dataset_tid, '.'.join([record['model'], record['topic']]))
                     feedbacks.append((status, message))
@@ -206,8 +206,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
         config_manager = db_factory.get_db_command_config_manager(configuration)
         uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        db_connector = None
 
         try:
             return db_factory.get_db_connector(uri_string, schema)

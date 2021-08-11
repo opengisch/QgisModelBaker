@@ -657,7 +657,7 @@ class PGConnector(DBConnector):
                 return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
         return False, self.tr("Could not rename dataset \"{}\".").format(datasetname)
 
-    def get_topic_info(self):
+    def get_topics_info(self):
         if self.schema and self._table_exists("t_ili2db_classname"):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute("""

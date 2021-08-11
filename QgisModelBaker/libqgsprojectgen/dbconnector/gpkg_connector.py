@@ -512,7 +512,7 @@ class GPKGConnector(DBConnector):
             contents = cur.fetchall()
             return contents
         return {}
-        
+
     def get_datasets_info(self):        
         if self._table_exists(GPKG_DATASET_TABLE):
             cur = self.conn.cursor()
@@ -552,7 +552,7 @@ class GPKGConnector(DBConnector):
         return False, self.tr("Could not rename dataset to \"{}\".").format(datasetname)
         
 
-    def get_topic_info(self):
+    def get_topics_info(self):
         if  self._table_exists("T_ILI2DB_CLASSNAME"):
             cur = self.conn.cursor()
             cur.execute("""
