@@ -16,16 +16,16 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_factory import DbFactory
-from ..dbconnector.mssql_connector import MssqlConnector
-from .mssql_command_config_manager import MssqlCommandConfigManager
-from .mssql_layer_uri import MssqlLayerUri
 from QgisModelBaker.gui.panel.mssql_config_panel import MssqlConfigPanel
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 
+from ..dbconnector.mssql_connector import MssqlConnector
+from .db_factory import DbFactory
+from .mssql_command_config_manager import MssqlCommandConfigManager
+from .mssql_layer_uri import MssqlLayerUri
+
 
 class MssqlFactory(DbFactory):
-
     def get_db_connector(self, uri, schema):
         return MssqlConnector(uri, schema)
 
@@ -39,29 +39,31 @@ class MssqlFactory(DbFactory):
         return MssqlLayerUri(uri)
 
     def pre_generate_project(self, configuration):
-        return True, ''
+        return True, ""
 
     def post_generate_project_validations(self, configuration):
-        return True, ''
+        return True, ""
 
     def get_tool_version(self, db_ili_version):
         """Returns ili2gpkg version, regarding to the given version of the used database
         :return: str ili2gpkg version.
         """
         if db_ili_version == 3:
-            return '3.12.2'
+            return "3.12.2"
         else:
-            return '4.5.0'
+            return "4.5.0"
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2gpkg.
 
         :return str A download url.
         """
-        return 'https://downloads.interlis.ch/ili2mssql/ili2mssql-{version}.zip'.format(version=self.get_tool_version(db_ili_version))
+        return "https://downloads.interlis.ch/ili2mssql/ili2mssql-{version}.zip".format(
+            version=self.get_tool_version(db_ili_version)
+        )
 
     def customize_widget_editor(self, field: Field, data_type: str):
-        if 'bit' in data_type:
-            field.widget = 'CheckBox'
-            field.widget_config['CheckedState'] = '1'
-            field.widget_config['UncheckedState'] = '0'
+        if "bit" in data_type:
+            field.widget = "CheckBox"
+            field.widget_config["CheckedState"] = "1"
+            field.widget_config["UncheckedState"] = "0"

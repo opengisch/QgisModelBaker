@@ -17,6 +17,3 @@
  *                                                                         *
  ***************************************************************************/
 """
-
-import os
-from QgisModelBaker.qgismodelbaker import QgisModelBakerPlugin

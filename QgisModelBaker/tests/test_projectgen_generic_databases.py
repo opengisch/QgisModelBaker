@@ -19,28 +19,29 @@
 """
 
 import os
-import datetime
 import shutil
 import tempfile
+
 import psycopg2
 import psycopg2.extras
 import pyodbc
+from qgis.core import QgsProject
+from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.dataobjects import Project
-from QgisModelBaker.tests.utils import testdata_path
-from QgisModelBaker.tests.utils import get_pg_connection_string
-from qgis.testing import unittest, start_app
-from qgis.core import QgsProject, QgsEditFormConfig
+from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
-from QgisModelBaker.tests.utils import iliimporter_config
+from QgisModelBaker.tests.utils import (
+    get_pg_connection_string,
+    iliimporter_config,
+    testdata_path,
+)
 
 start_app()
 
 
 class TestProjectGenGenericDatabases(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -53,7 +54,14 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def test_empty_postgres_db(self):
         generator = None
         try:
-            generator = Generator(DbIliMode.ili2pg, 'dbname=not_exists_database user=docker password=docker host={db_host}'.format(db_host=os.environ['PGHOST']), 'smart1', '')
+            generator = Generator(
+                DbIliMode.ili2pg,
+                "dbname=not_exists_database user=docker password=docker host={db_host}".format(
+                    db_host=os.environ["PGHOST"]
+                ),
+                "smart1",
+                "",
+            )
         except (DBConnectorError, FileNotFoundError):
             # DBConnectorError: FATAL:  database "not_exists_database" does not exist
             assert generator is None
@@ -62,13 +70,16 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         generator = None
         configuration = iliimporter_config(DbIliMode.ili2mssql)
         try:
-            uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
-                .format(drv="{ODBC Driver 17 for SQL Server}",
-                        server=configuration.dbhost,
-                        db='not_exists_database',
-                        uid=configuration.dbusr,
-                        pwd=configuration.dbpwd)
-            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', '')
+            uri = (
+                "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+                    drv="{ODBC Driver 17 for SQL Server}",
+                    server=configuration.dbhost,
+                    db="not_exists_database",
+                    uid=configuration.dbusr,
+                    pwd=configuration.dbpwd,
+                )
+            )
+            generator = Generator(DbIliMode.ili2mssql, uri, "smart1", "")
         except DBConnectorError as e:
             base_exception = e.base_exception
             sqlstate = base_exception.args[0]
@@ -78,20 +89,21 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             assert generator is None
 
     def test_postgres_db_without_schema(self):
-        generator = Generator(DbIliMode.ili2pg, get_pg_connection_string(), 'smart1')
+        generator = Generator(DbIliMode.ili2pg, get_pg_connection_string(), "smart1")
         assert generator is not None
         assert len(generator.layers()) == 0
 
     def test_mssql_db_without_schema(self):
         configuration = iliimporter_config(DbIliMode.ili2mssql)
-        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
-            .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=configuration.dbhost,
-                    db=configuration.database,
-                    uid=configuration.dbusr,
-                    pwd=configuration.dbpwd)
+        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+            drv="{ODBC Driver 17 for SQL Server}",
+            server=configuration.dbhost,
+            db=configuration.database,
+            uid=configuration.dbusr,
+            pwd=configuration.dbpwd,
+        )
 
-        generator = Generator(DbIliMode.ili2mssql, uri, 'smart1')
+        generator = Generator(DbIliMode.ili2mssql, uri, "smart1")
         assert generator is not None
         assert len(generator.layers()) == 0
 
@@ -102,7 +114,7 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         cur.execute("CREATE SCHEMA IF NOT EXISTS empty_schema;")
 
         try:
-            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'empty_schema')
+            generator = Generator(DbIliMode.ili2pg, uri, "smart1", "empty_schema")
             assert len(generator.layers()) == 0
         finally:
             cur.execute("DROP SCHEMA empty_schema CASCADE;")
@@ -110,12 +122,13 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
     def test_mssql_db_with_empty_schema(self):
         configuration = iliimporter_config(DbIliMode.ili2mssql)
 
-        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
-            .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=configuration.dbhost,
-                    db=configuration.database,
-                    uid=configuration.dbusr,
-                    pwd=configuration.dbpwd)
+        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+            drv="{ODBC Driver 17 for SQL Server}",
+            server=configuration.dbhost,
+            db=configuration.database,
+            uid=configuration.dbusr,
+            pwd=configuration.dbpwd,
+        )
 
         conn = pyodbc.connect(uri)
         cur = conn.cursor()
@@ -127,10 +140,10 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            assert sqlstate == '42S01'
+            assert sqlstate == "42S01"
 
         try:
-            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', 'empty_schema')
+            generator = Generator(DbIliMode.ili2mssql, uri, "smart1", "empty_schema")
             assert len(generator.layers()) == 0
         finally:
             cur.execute("DROP SCHEMA empty_schema")
@@ -143,7 +156,8 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
 
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema_spatial;")
         try:
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE no_interlis_schema_spatial.point (
                     id serial NOT NULL,
                     name text,
@@ -157,15 +171,20 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                     id_point integer,
                     CONSTRAINT region_id_pkey PRIMARY KEY (id)
                 );
-            """)
-            cur.execute("""
+            """
+            )
+            cur.execute(
+                """
                 ALTER TABLE no_interlis_schema_spatial.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
                 REFERENCES no_interlis_schema_spatial.point (id) MATCH FULL
                 ON DELETE SET NULL ON UPDATE CASCADE;
-            """)
+            """
+            )
             conn.commit()
 
-            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema_spatial')
+            generator = Generator(
+                DbIliMode.ili2pg, uri, "smart1", "no_interlis_schema_spatial"
+            )
             layers = generator.layers()
 
             assert len(layers) == 2
@@ -183,12 +202,13 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
         schema_name = "no_interlis_schema_spatial"
 
         configuration = iliimporter_config(DbIliMode.ili2mssql)
-        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
-            .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=configuration.dbhost,
-                    db=configuration.database,
-                    uid=configuration.dbusr,
-                    pwd=configuration.dbpwd)
+        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+            drv="{ODBC Driver 17 for SQL Server}",
+            server=configuration.dbhost,
+            db=configuration.database,
+            uid=configuration.dbusr,
+            pwd=configuration.dbpwd,
+        )
 
         conn = pyodbc.connect(uri)
         cur = conn.cursor()
@@ -200,10 +220,11 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            assert sqlstate == '42S01'
+            assert sqlstate == "42S01"
 
         try:
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE {schema_name}.point (
                     id INT PRIMARY KEY,
                     name text,
@@ -216,14 +237,21 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                     geometry GEOMETRY NOT NULL,
                     id_point integer
                 );
-            """.format(schema_name=schema_name))
-            cur.execute("""
+            """.format(
+                    schema_name=schema_name
+                )
+            )
+            cur.execute(
+                """
                 ALTER TABLE {schema_name}.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
                 REFERENCES {schema_name}.point;
-            """.format(schema_name=schema_name))
+            """.format(
+                    schema_name=schema_name
+                )
+            )
             conn.commit()
 
-            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
+            generator = Generator(DbIliMode.ili2mssql, uri, "smart1", schema_name)
             layers = generator.layers()
 
             assert len(layers) == 2
@@ -234,21 +262,28 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                 assert layer.geometry_column is not None
             generator._db_connector.conn.close()
         finally:
-            cur.execute("""
+            cur.execute(
+                """
             drop table {schema_name}.region;
                 drop table {schema_name}.point;
-                drop schema {schema_name};""".format(schema_name=schema_name))
+                drop schema {schema_name};""".format(
+                    schema_name=schema_name
+                )
+            )
             conn.commit()
             cur.close()
 
-    def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
+    def test_postgis_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(
+        self,
+    ):
         uri = get_pg_connection_string()
         conn = psycopg2.connect(uri)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         cur.execute("CREATE SCHEMA IF NOT EXISTS no_interlis_schema;")
         try:
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE no_interlis_schema.point (
                     id serial NOT NULL,
                     name text,
@@ -260,15 +295,18 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                     id_point integer,
                     CONSTRAINT region_id_pkey PRIMARY KEY (id)
                 );
-            """)
-            cur.execute("""
+            """
+            )
+            cur.execute(
+                """
                 ALTER TABLE no_interlis_schema.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
                 REFERENCES no_interlis_schema.point (id) MATCH FULL
                 ON DELETE SET NULL ON UPDATE CASCADE;
-            """)
+            """
+            )
             conn.commit()
 
-            generator = Generator(DbIliMode.ili2pg, uri, 'smart1', 'no_interlis_schema')
+            generator = Generator(DbIliMode.ili2pg, uri, "smart1", "no_interlis_schema")
             layers = generator.layers()
 
             assert len(layers) == 2
@@ -282,16 +320,19 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             conn.commit()
             cur.close()
 
-    def test_mssql_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(self):
+    def test_mssql_db_with_non_empty_and_no_interlis_schema_with_non_spatial_tables(
+        self,
+    ):
         schema_name = "no_interlis_schema"
 
         configuration = iliimporter_config(DbIliMode.ili2mssql)
-        uri = 'DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}' \
-            .format(drv="{ODBC Driver 17 for SQL Server}",
-                    server=configuration.dbhost,
-                    db=configuration.database,
-                    uid=configuration.dbusr,
-                    pwd=configuration.dbpwd)
+        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+            drv="{ODBC Driver 17 for SQL Server}",
+            server=configuration.dbhost,
+            db=configuration.database,
+            uid=configuration.dbusr,
+            pwd=configuration.dbpwd,
+        )
 
         conn = pyodbc.connect(uri)
         cur = conn.cursor()
@@ -303,10 +344,11 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             sqlstate = e.args[0]
             # pyodbc.ProgrammingError + error code 42S01:
             # schema exist
-            assert sqlstate == '42S01'
+            assert sqlstate == "42S01"
 
         try:
-            cur.execute("""
+            cur.execute(
+                """
                     CREATE TABLE {schema_name}.point (
                         id INT PRIMARY KEY,
                         name text
@@ -317,14 +359,21 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
                         name text,
                         id_point integer
                     );
-                """.format(schema_name=schema_name))
-            cur.execute("""
+                """.format(
+                    schema_name=schema_name
+                )
+            )
+            cur.execute(
+                """
                     ALTER TABLE {schema_name}.region ADD CONSTRAINT region_point_id_point_fk FOREIGN KEY (id_point)
                     REFERENCES {schema_name}.point;
-                """.format(schema_name=schema_name))
+                """.format(
+                    schema_name=schema_name
+                )
+            )
             conn.commit()
 
-            generator = Generator(DbIliMode.ili2mssql, uri, 'smart1', schema_name)
+            generator = Generator(DbIliMode.ili2mssql, uri, "smart1", schema_name)
             layers = generator.layers()
 
             assert len(layers) == 2
@@ -334,23 +383,37 @@ class TestProjectGenGenericDatabases(unittest.TestCase):
             for layer in layers:
                 assert layer.geometry_column is None
         finally:
-            cur.execute("""
+            cur.execute(
+                """
                 drop table {schema_name}.region;
                     drop table {schema_name}.point;
-                    drop schema {schema_name};""".format(schema_name=schema_name))
+                    drop schema {schema_name};""".format(
+                    schema_name=schema_name
+                )
+            )
             conn.commit()
             cur.close()
 
     def test_empty_geopackage_db(self):
-        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_empty.gpkg'), 'smart2')
+        generator = Generator(
+            DbIliMode.ili2gpkg, testdata_path("geopackage/test_empty.gpkg"), "smart2"
+        )
         assert len(generator.layers()) == 0
 
     def test_non_empty_ogr_geopackage_db(self):
-        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_ogr_empty.gpkg'), 'smart2')
+        generator = Generator(
+            DbIliMode.ili2gpkg,
+            testdata_path("geopackage/test_ogr_empty.gpkg"),
+            "smart2",
+        )
         assert len(generator.layers()) == 0
 
     def test_non_empty_geopackage_db(self):
-        generator = Generator(DbIliMode.ili2gpkg, testdata_path('geopackage/test_relations.gpkg'), 'smart2')
+        generator = Generator(
+            DbIliMode.ili2gpkg,
+            testdata_path("geopackage/test_relations.gpkg"),
+            "smart2",
+        )
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)

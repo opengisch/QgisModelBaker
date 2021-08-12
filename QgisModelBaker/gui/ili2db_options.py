@@ -17,39 +17,26 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import (
-    QSettings,
-    Qt
-)
+from qgis.gui import QgsGui, QgsMessageBar
+from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtGui import QValidator
-from qgis.PyQt.QtWidgets import (
-    QDialog,
-    QSizePolicy
-)
-from qgis.gui import (
-    QgsGui,
-    QgsMessageBar
-)
+from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 
 from QgisModelBaker.utils import get_ui_class
-from QgisModelBaker.utils.qt_utils import (
-    make_file_selector,
-    Validators,
-    FileValidator
-)
+from QgisModelBaker.utils.qt_utils import FileValidator, Validators, make_file_selector
 
-DIALOG_UI = get_ui_class('ili2db_options.ui')
+DIALOG_UI = get_ui_class("ili2db_options.ui")
 
 
 class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
-    ValidExtensions = ['toml', 'TOML']
-    SQLValidExtensions = ['sql', 'SQL']
+    ValidExtensions = ["toml", "TOML"]
+    SQLValidExtensions = ["sql", "SQL"]
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.toml_file_key = None
 
         self.buttonBox.accepted.disconnect()
@@ -57,42 +44,83 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.buttonBox.rejected.disconnect()
         self.buttonBox.rejected.connect(self.rejected)
         self.toml_file_browse_button.clicked.connect(
-            make_file_selector(self.toml_file_line_edit, title=self.tr('Open Extra Model Information File (*.toml)'),
-                               file_filter=self.tr('Extra Model Info File (*.toml *.TOML)')))
+            make_file_selector(
+                self.toml_file_line_edit,
+                title=self.tr("Open Extra Model Information File (*.toml)"),
+                file_filter=self.tr("Extra Model Info File (*.toml *.TOML)"),
+            )
+        )
         self.pre_script_file_browse_button.clicked.connect(
-            make_file_selector(self.pre_script_file_line_edit, title=self.tr('SQL script to run before (*.sql)'),
-                               file_filter=self.tr('SQL script to run before (*.sql *.SQL)')))
+            make_file_selector(
+                self.pre_script_file_line_edit,
+                title=self.tr("SQL script to run before (*.sql)"),
+                file_filter=self.tr("SQL script to run before (*.sql *.SQL)"),
+            )
+        )
         self.post_script_file_browse_button.clicked.connect(
-            make_file_selector(self.post_script_file_line_edit, title=self.tr('SQL script to run after (*.sql)'),
-                               file_filter=self.tr('SQL script to run after (*.sql *.SQL)')))
+            make_file_selector(
+                self.post_script_file_line_edit,
+                title=self.tr("SQL script to run after (*.sql)"),
+                file_filter=self.tr("SQL script to run after (*.sql *.SQL)"),
+            )
+        )
 
         self.validators = Validators()
-        self.file_validator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=True)
+        self.file_validator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
+        )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(pattern=['*.' + ext for ext in self.SQLValidExtensions], allow_empty=True)
+        self.sql_file_validator = FileValidator(
+            pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
+        )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
         self.post_script_file_line_edit.setValidator(self.sql_file_validator)
 
         self.restore_configuration()
 
-        self.toml_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.toml_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
         self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
-        self.pre_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.pre_script_file_line_edit.textChanged.emit(self.pre_script_file_line_edit.text())
-        self.post_script_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.post_script_file_line_edit.textChanged.emit(self.post_script_file_line_edit.text())
+        self.pre_script_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.pre_script_file_line_edit.textChanged.emit(
+            self.pre_script_file_line_edit.text()
+        )
+        self.post_script_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.post_script_file_line_edit.textChanged.emit(
+            self.post_script_file_line_edit.text()
+        )
 
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
 
     def accepted(self):
-        """ Save settings before accepting the dialog """
-        for line_edit in [self.pre_script_file_line_edit, self.post_script_file_line_edit, self.toml_file_line_edit]:
-            if line_edit.validator().validate(line_edit.text().strip(), 0)[0] != QValidator.Acceptable:
-                self.bar.pushWarning(self.tr("Warning"), self.tr("Please fix the '{}' value before saving the options.").format(
-                    line_edit.objectName().split("_file_line_edit")[0].replace("_", " ")))
+        """Save settings before accepting the dialog"""
+        for line_edit in [
+            self.pre_script_file_line_edit,
+            self.post_script_file_line_edit,
+            self.toml_file_line_edit,
+        ]:
+            if (
+                line_edit.validator().validate(line_edit.text().strip(), 0)[0]
+                != QValidator.Acceptable
+            ):
+                self.bar.pushWarning(
+                    self.tr("Warning"),
+                    self.tr(
+                        "Please fix the '{}' value before saving the options."
+                    ).format(
+                        line_edit.objectName()
+                        .split("_file_line_edit")[0]
+                        .replace("_", " ")
+                    ),
+                )
                 return
 
         self.save_configuration()
@@ -110,13 +138,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def inheritance_type(self):
         if self.smart1_radio_button.isChecked():
-            return 'smart1'
+            return "smart1"
         else:
-            return 'smart2'
+            return "smart2"
 
     def set_toml_file_key(self, key_postfix):
         if key_postfix:
-            self.toml_file_key = 'QgisModelBaker/ili2db/tomlfile/' + key_postfix
+            self.toml_file_key = "QgisModelBaker/ili2db/tomlfile/" + key_postfix
         else:
             self.toml_file_key = None
         self.restore_configuration()
@@ -135,43 +163,59 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self):
         settings = QSettings()
+        settings.setValue("QgisModelBaker/ili2db/inheritance", self.inheritance_type())
+        settings.setValue(self.toml_file_key, self.toml_file())
         settings.setValue(
-            'QgisModelBaker/ili2db/inheritance', self.inheritance_type())
+            "QgisModelBaker/ili2db/create_basket_col", self.create_basket_col()
+        )
         settings.setValue(
-            self.toml_file_key, self.toml_file())
-        settings.setValue('QgisModelBaker/ili2db/create_basket_col', self.create_basket_col())
-        settings.setValue('QgisModelBaker/ili2db/create_import_tid', self.create_import_tid())
-        settings.setValue('QgisModelBaker/ili2db/stroke_arcs', self.stroke_arcs())
+            "QgisModelBaker/ili2db/create_import_tid", self.create_import_tid()
+        )
+        settings.setValue("QgisModelBaker/ili2db/stroke_arcs", self.stroke_arcs())
 
     def restore_configuration(self):
         settings = QSettings()
-        inheritance = settings.value(
-            'QgisModelBaker/ili2db/inheritance', 'smart2')
-        if inheritance == 'smart1':
+        inheritance = settings.value("QgisModelBaker/ili2db/inheritance", "smart2")
+        if inheritance == "smart1":
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-        create_basket_col = settings.value('QgisModelBaker/ili2db/create_basket_col', defaultValue=False, type=bool)
-        create_import_tid = settings.value('QgisModelBaker/ili2db/create_import_tid', defaultValue=True, type=bool)
-        stroke_arcs = settings.value('QgisModelBaker/ili2db/stroke_arcs', defaultValue=True, type=bool)
+        create_basket_col = settings.value(
+            "QgisModelBaker/ili2db/create_basket_col", defaultValue=False, type=bool
+        )
+        create_import_tid = settings.value(
+            "QgisModelBaker/ili2db/create_import_tid", defaultValue=True, type=bool
+        )
+        stroke_arcs = settings.value(
+            "QgisModelBaker/ili2db/stroke_arcs", defaultValue=True, type=bool
+        )
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
-        self.toml_file_line_edit.setText(
-            settings.value(self.toml_file_key))
+        self.toml_file_line_edit.setText(settings.value(self.toml_file_key))
 
     def load_metaconfig(self, metaconfig_ili2db):
-        if 'smart1Inheritance' in metaconfig_ili2db:
-            self.smart1_radio_button.setChecked(metaconfig_ili2db.getboolean('smart1Inheritance'))
-        if 'smart2Inheritance' in metaconfig_ili2db:
-            self.smart2_radio_button.setChecked(metaconfig_ili2db.getboolean('smart2Inheritance'))
-        if 'createBasketCol' in metaconfig_ili2db:
-            self.create_basket_col_checkbox.setChecked(metaconfig_ili2db.getboolean('createBasketCol'))
-        if 'importTid' in metaconfig_ili2db:
-            self.create_import_tid_checkbox.setChecked(metaconfig_ili2db.getboolean('importTid'))
-        if 'strokeArcs' in metaconfig_ili2db:
-            self.stroke_arcs_checkbox.setChecked(metaconfig_ili2db.getboolean('strokeArcs'))
+        if "smart1Inheritance" in metaconfig_ili2db:
+            self.smart1_radio_button.setChecked(
+                metaconfig_ili2db.getboolean("smart1Inheritance")
+            )
+        if "smart2Inheritance" in metaconfig_ili2db:
+            self.smart2_radio_button.setChecked(
+                metaconfig_ili2db.getboolean("smart2Inheritance")
+            )
+        if "createBasketCol" in metaconfig_ili2db:
+            self.create_basket_col_checkbox.setChecked(
+                metaconfig_ili2db.getboolean("createBasketCol")
+            )
+        if "importTid" in metaconfig_ili2db:
+            self.create_import_tid_checkbox.setChecked(
+                metaconfig_ili2db.getboolean("importTid")
+            )
+        if "strokeArcs" in metaconfig_ili2db:
+            self.stroke_arcs_checkbox.setChecked(
+                metaconfig_ili2db.getboolean("strokeArcs")
+            )
         self.save_configuration()
 
     def load_toml_file_path(self, key_postfix, toml_file_path):
@@ -184,4 +228,3 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def load_pre_script_path(self, pre_script_path):
         self.pre_script_file_line_edit.setText(pre_script_path)
-

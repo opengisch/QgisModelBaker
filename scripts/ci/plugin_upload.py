@@ -5,23 +5,24 @@
         git sha              : $TemplateVCSFormat
 """
 from __future__ import print_function
-from future import standard_library
 
-import sys
 import getpass
-import xmlrpc.client
-import json
 import http.client
+import json
 import os
+import sys
+import xmlrpc.client
 from optparse import OptionParser
+
+from future import standard_library
 
 standard_library.install_aliases()
 
 # Configuration
-PROTOCOL = 'https'
-SERVER = 'plugins.qgis.org'
-PORT = '443'
-ENDPOINT = '/plugins/RPC2/'
+PROTOCOL = "https"
+SERVER = "plugins.qgis.org"
+PORT = "443"
+ENDPOINT = "/plugins/RPC2/"
 VERBOSE = False
 
 
@@ -38,14 +39,16 @@ def main(parameters, arguments):
         password=parameters.password,
         server=parameters.server,
         port=parameters.port,
-        endpoint=ENDPOINT)
+        endpoint=ENDPOINT,
+    )
 
     server = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
 
     try:
-        with open(filename, 'rb') as handle:
+        with open(filename, "rb") as handle:
             plugin_id, version_id = server.plugin.upload(
-                xmlrpc.client.Binary(handle.read()))
+                xmlrpc.client.Binary(handle.read())
+            )
         print("Plugin ID: %s" % plugin_id)
         print("Version ID: %s" % version_id)
     except xmlrpc.client.ProtocolError as err:
@@ -59,32 +62,34 @@ def main(parameters, arguments):
         print("Fault code: %d" % err.faultCode)
         print("Fault string: %s" % err.faultString)
 
-    conn = http.client.HTTPSConnection('api.github.com')
+    conn = http.client.HTTPSConnection("api.github.com")
     headers = {
-        'User-Agent': 'Deploy-Script',
-        'Authorization': 'token {}'.format(os.environ['OAUTH_TOKEN'])
+        "User-Agent": "Deploy-Script",
+        "Authorization": "token {}".format(os.environ["OAUTH_TOKEN"]),
     }
 
-    raw_data = {
-        "tag_name": parameters.release
-    }
+    raw_data = {"tag_name": parameters.release}
     if parameters.changelog:
-        with open(parameters.changelog, 'r') as cl:
-            raw_data['body'] = cl.read()
+        with open(parameters.changelog, "r") as cl:
+            raw_data["body"] = cl.read()
     data = json.dumps(raw_data)
-    conn.request('POST', '/repos/{repo_slug}/releases'.format(
-        repo_slug=os.environ['TRAVIS_REPO_SLUG']), body=data, headers=headers)
+    conn.request(
+        "POST",
+        "/repos/{repo_slug}/releases".format(repo_slug=os.environ["TRAVIS_REPO_SLUG"]),
+        body=data,
+        headers=headers,
+    )
     response = conn.getresponse()
     release = json.loads(response.read().decode())
     print(release)
 
-    conn = http.client.HTTPSConnection('uploads.github.com')
-    headers['Content-Type'] = 'application/zip'
-    url = '{}?name={}'.format(release['upload_url'][:-13], filename)
-    print('Upload to {}'.format(url))
+    conn = http.client.HTTPSConnection("uploads.github.com")
+    headers["Content-Type"] = "application/zip"
+    url = "{}?name={}".format(release["upload_url"][:-13], filename)
+    print("Upload to {}".format(url))
 
-    with open(filename, 'rb') as f:
-        conn.request('POST', url, f, headers)
+    with open(filename, "rb") as f:
+        conn.request("POST", url, f, headers)
 
     print(conn.getresponse().read())
 
@@ -98,34 +103,55 @@ def hide_password(url, start=6):
     :param start: Position of start of password.
     :type start: int
     """
-    start_position = url.find(':', start) + 1
-    end_position = url.find('@')
+    start_position = url.find(":", start) + 1
+    end_position = url.find("@")
     return "%s%s%s" % (
         url[:start_position],
-        '*' * (end_position - start_position),
-        url[end_position:])
+        "*" * (end_position - start_position),
+        url[end_position:],
+    )
 
 
 if __name__ == "__main__":
     parser = OptionParser(usage="%prog [options] plugin.zip")
     parser.add_option(
-        "-w", "--password", dest="password",
-        help="Password for plugin site", metavar="******")
+        "-w",
+        "--password",
+        dest="password",
+        help="Password for plugin site",
+        metavar="******",
+    )
     parser.add_option(
-        "-u", "--username", dest="username",
-        help="Username of plugin site", metavar="user")
+        "-u",
+        "--username",
+        dest="username",
+        help="Username of plugin site",
+        metavar="user",
+    )
     parser.add_option(
-        "-p", "--port", dest="port",
-        help="Server port to connect to", metavar="80")
+        "-p", "--port", dest="port", help="Server port to connect to", metavar="80"
+    )
     parser.add_option(
-        "-s", "--server", dest="server",
-        help="Specify server name", metavar="plugins.qgis.org")
+        "-s",
+        "--server",
+        dest="server",
+        help="Specify server name",
+        metavar="plugins.qgis.org",
+    )
     parser.add_option(
-        "-r", "--release", dest="release",
-        help="Specify the release name", metavar="v1.0.0")
+        "-r",
+        "--release",
+        dest="release",
+        help="Specify the release name",
+        metavar="v1.0.0",
+    )
     parser.add_option(
-        "-c", "--changelog", dest="changelog",
-        help="Specify the changelog file", metavar="/tmp/changelog")
+        "-c",
+        "--changelog",
+        dest="changelog",
+        help="Specify the changelog file",
+        metavar="/tmp/changelog",
+    )
     options, args = parser.parse_args()
     if len(args) != 1:
         print("Please specify zip file.\n")
@@ -138,7 +164,7 @@ if __name__ == "__main__":
     if not options.username:
         # interactive mode
         username = getpass.getuser()
-        print("Please enter user name [%s] :" % username, end=' ')
+        print("Please enter user name [%s] :" % username, end=" ")
         # this may not be present in the QGIS python, so since this module is not used for the plugin
         # import dynamically so as to not break the plugin in QGIS
         from builtins import input

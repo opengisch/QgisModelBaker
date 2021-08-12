@@ -16,9 +16,11 @@
  *                                                                         *
  ***************************************************************************/
 """
-import pyodbc, re
+import re
 
-regex_list = ['sql.*server', 'mssql', 'FreeTDS']
+import pyodbc
+
+regex_list = ["sql.*server", "mssql", "FreeTDS"]
 
 
 def get_odbc_drivers():

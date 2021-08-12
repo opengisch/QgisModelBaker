@@ -17,19 +17,17 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.gui import QgsGui
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
+
 from QgisModelBaker.utils import get_ui_class
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem, QDialogButtonBox
-from qgis.gui import QgsGui
-
-DIALOG_UI = get_ui_class('edit_command.ui')
+DIALOG_UI = get_ui_class("edit_command.ui")
 
 
 class EditCommandDialog(QDialog, DIALOG_UI):
-
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr('Run'))
+        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr("Run"))

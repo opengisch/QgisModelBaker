@@ -34,7 +34,7 @@ pushd ${TEMPDIR}/${PLUGIN_NAME}
 zip -r ${DIR}/${PLUGIN_NAME}-${RELEASE_VERSION}.zip ${PLUGIN_NAME}
 popd
 
-echo "## Changes in version $RELEASE_VERSION" > /tmp/changelog 
+echo "## Changes in version $RELEASE_VERSION" > /tmp/changelog
 git log HEAD^...$(git describe --abbrev=0 --tags HEAD^) --pretty=format:"### %s%n%n%b" >> /tmp/changelog
 
 ./scripts/ci/plugin_upload.py -u "${OSGEO_USERNAME}" -w "${OSGEO_PASSWORD}" -r "${TRAVIS_TAG}" $PLUGIN_NAME-$RELEASE_VERSION.zip -c /tmp/changelog

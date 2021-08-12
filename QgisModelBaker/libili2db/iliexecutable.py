@@ -19,11 +19,16 @@
 import functools
 import locale
 import re
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 from abc import abstractmethod
 
+from qgis.PyQt.QtCore import QEventLoop, QObject, QProcess, pyqtSignal
+
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.libili2db.ili2dbutils import get_java_path, get_ili2db_bin, JavaNotFoundError
+from QgisModelBaker.libili2db.ili2dbutils import (
+    JavaNotFoundError,
+    get_ili2db_bin,
+    get_java_path,
+)
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.utils.qt_utils import AbstractQObjectMeta
 
@@ -56,14 +61,13 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         # This might be unset
         # (https://stackoverflow.com/questions/1629699/locale-getlocale-problems-on-osx)
         if not self.encoding:
-            self.encoding = 'UTF8'
+            self.encoding = "UTF8"
 
     @abstractmethod
     def _create_config(self) -> Ili2DbCommandConfiguration:
         """Creates the configuration that will be used by *run* method.
 
         :return: ili2db configuration"""
-        pass
 
     def _get_ili2db_version(self):
         return self.configuration.db_ili_version
@@ -84,7 +88,9 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         return config_manager.get_ili2db_args(hide_password)
 
     def _ili2db_jar_arg(self):
-        ili2db_bin = get_ili2db_bin(self.tool, self._get_ili2db_version(), self.stdout, self.stderr)
+        ili2db_bin = get_ili2db_bin(
+            self.tool, self._get_ili2db_version(), self.stdout, self.stderr
+        )
         if not ili2db_bin:
             return self.ILI2DB_NOT_FOUND
         return ["-jar", ili2db_bin]
@@ -92,46 +98,52 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
     def _escaped_arg(self, argument):
         if '"' in argument:
             argument = argument.replace('"', '"""')
-        if ' ' in argument:
+        if " " in argument:
             argument = '"' + argument + '"'
         return argument
 
     def command(self, hide_password):
         ili2db_jar_arg = self._ili2db_jar_arg()
         args = self._args(hide_password)
-        java_path = self._escaped_arg(get_java_path(self.configuration.base_configuration))
+        java_path = self._escaped_arg(
+            get_java_path(self.configuration.base_configuration)
+        )
         command_args = ili2db_jar_arg + args
 
         valid_args = []
         for command_arg in command_args:
             valid_args.append(self._escaped_arg(command_arg))
 
-        command = java_path + ' ' + ' '.join(valid_args)
+        command = java_path + " " + " ".join(valid_args)
 
         return command
 
     def command_with_password(self, edited_command):
-        if '--dbpwd ******' in edited_command:
+        if "--dbpwd ******" in edited_command:
             args = self._args(False)
-            i = args.index('--dbpwd')
-            edited_command = edited_command.replace('--dbpwd ******', '--dbpwd '+args[i+1])
+            i = args.index("--dbpwd")
+            edited_command = edited_command.replace(
+                "--dbpwd ******", "--dbpwd " + args[i + 1]
+            )
         return edited_command
 
     def command_without_password(self, edited_command=None):
         if not edited_command:
             return self.command(True)
-        regex = re.compile('--dbpwd [^ ]*')
+        regex = re.compile("--dbpwd [^ ]*")
         match = regex.match(edited_command)
         if match:
-            edited_command = edited_command.replace(match.group(1), '--dbpwd ******')
+            edited_command = edited_command.replace(match.group(1), "--dbpwd ******")
         return edited_command
 
     def run(self, edited_command=None):
         proc = QProcess()
         proc.readyReadStandardError.connect(
-            functools.partial(self.stderr_ready, proc=proc))
+            functools.partial(self.stderr_ready, proc=proc)
+        )
         proc.readyReadStandardOutput.connect(
-            functools.partial(self.stdout_ready, proc=proc))
+            functools.partial(self.stdout_ready, proc=proc)
+        )
 
         if not edited_command:
             ili2db_jar_arg = self._ili2db_jar_arg()

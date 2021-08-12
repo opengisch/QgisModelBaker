@@ -19,39 +19,42 @@
 
 import logging
 
+from qgis.core import QgsWkbTypes
+from qgis.testing import start_app, unittest
+
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import iliimporter_config, testdata_path, get_pg_connection_string
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
-from qgis.testing import unittest, start_app
-from qgis.core import QgsWkbTypes
+from QgisModelBaker.tests.utils import get_pg_connection_string, iliimporter_config
 
 start_app()
 
 
 class TestGeomZ(unittest.TestCase):
-
     def test_domain_class_relations_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
-        importer.configuration = iliimporter_config(
-            importer.tool, 'ilimodels')
-        importer.configuration.ilimodels = 'ExceptionalLoadsRoute_LV95_V1'
-        importer.configuration.dbschema = 'exceptional_loads_route'
+        importer.configuration = iliimporter_config(importer.tool, "ilimodels")
+        importer.configuration.ilimodels = "ExceptionalLoadsRoute_LV95_V1"
+        importer.configuration.dbschema = "exceptional_loads_route"
         importer.configuration.srs_code = 2056
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
 
-        generator = Generator(DbIliMode.ili2pg,
-                              get_pg_connection_string(),
-                              importer.configuration.inheritance,
-                              importer.configuration.dbschema)
+        generator = Generator(
+            DbIliMode.ili2pg,
+            get_pg_connection_string(),
+            importer.configuration.inheritance,
+            importer.configuration.dbschema,
+        )
 
         available_layers = generator.layers()
 
-        obstacle_layer = next((layer for layer in available_layers if 'obstacle' in layer.uri))
+        obstacle_layer = next(
+            (layer for layer in available_layers if "obstacle" in layer.uri)
+        )
         obstacle_layer.create()
         assert obstacle_layer.layer.wkbType() == QgsWkbTypes.PointZ
 

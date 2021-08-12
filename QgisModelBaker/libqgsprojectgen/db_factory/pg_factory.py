@@ -16,18 +16,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_factory import DbFactory
-from ..dbconnector.pg_connector import PGConnector
-from .pg_layer_uri import PgLayerUri
-from QgisModelBaker.gui.panel.pg_config_panel import PgConfigPanel
-from .pg_command_config_manager import PgCommandConfigManager
 from qgis.PyQt.QtCore import QCoreApplication
+
+from QgisModelBaker.gui.panel.pg_config_panel import PgConfigPanel
+
 from ..dbconnector.db_connector import DBConnectorError
+from ..dbconnector.pg_connector import PGConnector
+from .db_factory import DbFactory
+from .pg_command_config_manager import PgCommandConfigManager
+from .pg_layer_uri import PgLayerUri
 
 
 class PgFactory(DbFactory):
-    """Creates an entire set of objects so that QgisModelBaker supports Postgres/Postgis database.
-    """
+    """Creates an entire set of objects so that QgisModelBaker supports Postgres/Postgis database."""
+
     def get_db_connector(self, uri, schema):
         return PGConnector(uri, schema)
 
@@ -42,13 +44,13 @@ class PgFactory(DbFactory):
 
     def pre_generate_project(self, configuration):
         result = not configuration.db_use_super_login
-        message = ''
+        message = ""
 
         if configuration.db_use_super_login:
             try:
                 config_manager = self.get_db_command_config_manager(configuration)
                 uri = config_manager.get_uri(True)
-                
+
                 _db_connector = self.get_db_connector(uri, configuration.dbschema)
 
                 result = schema_exist = _db_connector.db_or_schema_exists()
@@ -58,13 +60,16 @@ class PgFactory(DbFactory):
                     result = True
 
             except (DBConnectorError, FileNotFoundError) as e:
-                message = QCoreApplication.translate("PgFactory", "There was an error generating schema with superuser. Check superuser login parameters from settings > General.\n\nReason:\n\n{}").format(str(e))
+                message = QCoreApplication.translate(
+                    "PgFactory",
+                    "There was an error generating schema with superuser. Check superuser login parameters from settings > General.\n\nReason:\n\n{}",
+                ).format(str(e))
 
         return result, message
 
     def post_generate_project_validations(self, configuration):
         result = False
-        message = ''
+        message = ""
 
         config_manager = self.get_db_command_config_manager(configuration)
         uri = config_manager.get_uri(configuration.db_use_super_login)
@@ -72,7 +77,10 @@ class PgFactory(DbFactory):
         connector = self.get_db_connector(uri, configuration.dbschema)
 
         if not connector._postgis_exists():
-            message = QCoreApplication.translate("PgFactory", "The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.")
+            message = QCoreApplication.translate(
+                "PgFactory",
+                "The current database does not have PostGIS installed! Please install it by running `CREATE EXTENSION postgis;` on the database before proceeding.",
+            )
         else:
             result = True
 
@@ -84,13 +92,15 @@ class PgFactory(DbFactory):
         :return: str ili2pg version.
         """
         if db_ili_version == 3:
-            return '3.11.2'
+            return "3.11.2"
         else:
-            return '4.5.0'
+            return "4.5.0"
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2pg.
 
         :return str A download url.
         """
-        return 'https://downloads.interlis.ch/ili2pg/ili2pg-{version}.zip'.format(version=self.get_tool_version(db_ili_version))
+        return "https://downloads.interlis.ch/ili2pg/ili2pg-{version}.zip".format(
+            version=self.get_tool_version(db_ili_version)
+        )

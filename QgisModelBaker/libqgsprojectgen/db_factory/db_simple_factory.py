@@ -16,30 +16,33 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_factory import DbFactory
 from QgisModelBaker.libili2db.globals import DbIliMode
+
+from .db_factory import DbFactory
 
 available_database_factories = dict()
 try:
     from .pg_factory import PgFactory
+
     available_database_factories.update({DbIliMode.pg: PgFactory})
 except ModuleNotFoundError:
     pass
 try:
     from .gpkg_factory import GpkgFactory
+
     available_database_factories.update({DbIliMode.gpkg: GpkgFactory})
 except ModuleNotFoundError:
     pass
 try:
     from .mssql_factory import MssqlFactory
+
     available_database_factories.update({DbIliMode.mssql: MssqlFactory})
 except ModuleNotFoundError:
     pass
 
 
 class DbSimpleFactory:
-    """Provides a single point (simple factory) to create a database factory (:class:`DbFactory`).
-    """
+    """Provides a single point (simple factory) to create a database factory (:class:`DbFactory`)."""
 
     def create_factory(self, ili_mode: DbIliMode) -> DbFactory:
         """Creates an instance of :class:`DbFactory` based on ili_mode parameter.
@@ -55,7 +58,9 @@ class DbSimpleFactory:
         result = None
 
         if DbIliMode(index) in available_database_factories:
-            result = available_database_factories[DbIliMode(index)]() # instantiate factory
+            result = available_database_factories[
+                DbIliMode(index)
+            ]()  # instantiate factory
 
         return result
 

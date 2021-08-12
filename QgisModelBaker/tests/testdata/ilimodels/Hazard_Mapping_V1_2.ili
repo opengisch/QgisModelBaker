@@ -440,7 +440,7 @@ MODEL Hazard_Mapping_LV95_V1_2  (en)
                  "l_permanent_landslide".
                - For the 'additional' processes "r_ice_fall",
                  "sinkhole_or_subsidence", "ss_sinkhole", "ss_subsidence" or
-                 "a_gliding_snow", the attribute "return_period_in_years" 
+                 "a_gliding_snow", the attribute "return_period_in_years"
                  does not need to be specified.
                  (This option can be used for "sinkhole_or_subsidence",
                  "ss_sinkhole" or "ss_subsidence" in those cases, where the

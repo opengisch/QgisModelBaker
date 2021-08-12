@@ -211,4 +211,3 @@ REFSYSTEM MODEL CoordSys (en) AT "http://www.interlis.ch/models"
   END CoordsysTopic;
 
 END CoordSys.
-

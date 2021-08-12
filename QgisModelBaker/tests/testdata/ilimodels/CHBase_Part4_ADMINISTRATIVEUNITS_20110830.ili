@@ -3,7 +3,7 @@
    ======
    BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
    FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
-   
+
    PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
    PUBLISHED: 2011-08-30
    ########################################################################
@@ -69,7 +69,7 @@ MODEL AdministrativeUnits_V1 (en)
 
     ASSOCIATION UnionMembers =
       Union -<> AdministrativeUnion;
-      Member -- AdministrativeElement; 
+      Member -- AdministrativeElement;
     END UnionMembers;
 
   END AdministrativeUnits;
@@ -89,7 +89,7 @@ MODEL AdministrativeUnits_V1 (en)
     STRUCTURE CountryName EXTENDS Entry =
       Code: MANDATORY CountryCode_ISO3166_1;
     END CountryName;
-      
+
     CLASS CountryNamesTranslation EXTENDS Dictionary  =
       Entries(EXTENDED): LIST OF CountryName;
     UNIQUE Entries->Code;

@@ -3,7 +3,7 @@
    ======
    BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
    FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
-   
+
    PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
    PUBLISHED: 2011-08-30
    ########################################################################
@@ -34,7 +34,7 @@ MODEL CatalogueObjects_V1 (en)
     STRUCTURE CatalogueReference (ABSTRACT) =
       Reference: REFERENCE TO (EXTERNAL) Item;
     END CatalogueReference;
- 
+
     STRUCTURE MandatoryCatalogueReference (ABSTRACT) =
       Reference: MANDATORY REFERENCE TO (EXTERNAL) Item;
     END MandatoryCatalogueReference;
@@ -54,7 +54,7 @@ MODEL CatalogueObjectTrees_V1 (en)
 
   TOPIC Catalogues (ABSTRACT) EXTENDS CatalogueObjects_V1.Catalogues =
 
-    CLASS Item (ABSTRACT,EXTENDED) = 
+    CLASS Item (ABSTRACT,EXTENDED) =
       IsSuperItem: MANDATORY BOOLEAN;
       IsUseable: MANDATORY BOOLEAN;
     MANDATORY CONSTRAINT
@@ -73,7 +73,7 @@ MODEL CatalogueObjectTrees_V1 (en)
     MANDATORY CONSTRAINT
       Reference->IsUseable;
     END CatalogueReference;
- 
+
     STRUCTURE MandatoryCatalogueReference (ABSTRACT,EXTENDED) =
       Reference(EXTENDED): MANDATORY REFERENCE TO (EXTERNAL) Item;
     MANDATORY CONSTRAINT

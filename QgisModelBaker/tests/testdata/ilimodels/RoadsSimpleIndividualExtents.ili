@@ -67,8 +67,8 @@ MODEL RoadsSimple (en) AT "http://www.interlis.ch/models"
 
     CLASS RoadSign =
       Type: MANDATORY (
-        prohibition, 
-        indication, 
+        prohibition,
+        indication,
         danger,
         velocity);
       Position: MANDATORY Point2D_RoadSign;
@@ -77,4 +77,3 @@ MODEL RoadsSimple (en) AT "http://www.interlis.ch/models"
   END Roads; !! of TOPIC
 
 END RoadsSimple. !! of MODEL
-

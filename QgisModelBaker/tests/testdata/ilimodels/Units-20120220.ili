@@ -94,4 +94,3 @@ CONTRACTED TYPE MODEL Units (en) AT "http://www.interlis.ch/models"
     SwissFrancs [CHF] EXTENDS INTERLIS.MONEY;
 
 END Units.
-

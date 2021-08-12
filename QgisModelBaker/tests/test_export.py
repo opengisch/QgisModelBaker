@@ -17,27 +17,28 @@
  ***************************************************************************/
 """
 
-import os
 import datetime
+import logging
+import os
 import shutil
 import tempfile
 import xml.etree.ElementTree as ET
-import logging
 
-from QgisModelBaker.libili2db import (iliexporter,
-                                        iliimporter)
+from qgis.testing import start_app, unittest
+
+from QgisModelBaker.libili2db import iliexporter, iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import (iliimporter_config,
-                                          iliexporter_config,
-                                          ilidataimporter_config,
-                                          testdata_path)
-from qgis.testing import unittest, start_app
+from QgisModelBaker.tests.utils import (
+    ilidataimporter_config,
+    iliexporter_config,
+    iliimporter_config,
+    testdata_path,
+)
 
 start_app()
 
 
 class TestExport(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -47,9 +48,10 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = "CIAF_LADM"
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
+            self.basetestpath, "tmp_test_ciaf_ladm_gpkg.xtf"
+        )
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
@@ -62,35 +64,42 @@ class TestExport(unittest.TestCase):
             exporter.version = 3
             result = exporter.run()
         assert result == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_ciaf_ladm.xtf"), obtained_xtf_path)
 
     def test_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
-        exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_ili2db4_export.gpkg')
-        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;another;ISO19107_V1_MAGNABOG'
+        exporter.configuration = iliexporter_config(
+            exporter.tool, None, "geopackage/test_ili2db4_export.gpkg"
+        )
+        exporter.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;another;ISO19107_V1_MAGNABOG"
+        )
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_gpkg.xtf')
+            self.basetestpath, "tmp_test_ciaf_ladm_gpkg.xtf"
+        )
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(
+            testdata_path("xtf/test_ili2db4_ciaf_ladm.xtf"), obtained_xtf_path
+        )
 
     def _test_export_postgis_empty_schema(self):
         # This test passes without --createBasketCol option in schemaimport
         # First we need a dbfile with empty tables
         importer_e = iliimporter.Importer()
         importer_e.tool = DbIliMode.ili2pg
-        importer_e.configuration = iliimporter_config(importer_e.tool,
-                                                      'ilimodels/CIAF_LADM')
-        importer_e.configuration.ilimodels = 'CIAF_LADM'
-        importer_e.configuration.dbschema = 'ciaf_ladm_e_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer_e.configuration = iliimporter_config(
+            importer_e.tool, "ilimodels/CIAF_LADM"
+        )
+        importer_e.configuration.ilimodels = "CIAF_LADM"
+        importer_e.configuration.dbschema = "ciaf_ladm_e_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer_e.configuration.srs_code = 3116
-        importer_e.configuration.inheritance = 'smart2'
+        importer_e.configuration.inheritance = "smart2"
         importer_e.stdout.connect(self.print_info)
         importer_e.stderr.connect(self.print_error)
         assert importer_e.run() == iliimporter.Importer.SUCCESS
@@ -98,42 +107,46 @@ class TestExport(unittest.TestCase):
         exporter_e = iliexporter.Exporter()
         exporter_e.tool = DbIliMode.ili2pg
         exporter_e.configuration = iliexporter_config(exporter_e.tool)
-        exporter_e.configuration.ilimodels = 'CIAF_LADM'
+        exporter_e.configuration.ilimodels = "CIAF_LADM"
         exporter_e.configuration.dbschema = importer_e.configuration.dbschema
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_empty.xtf')
+            self.basetestpath, "tmp_test_ciaf_ladm_empty.xtf"
+        )
         exporter_e.configuration.xtffile = obtained_xtf_path
         exporter_e.stdout.connect(self.print_info)
         exporter_e.stderr.connect(self.print_error)
         assert exporter_e.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_empty_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(
+            testdata_path("xtf/test_empty_ciaf_ladm.xtf"), obtained_xtf_path
+        )
 
     def test_ili2db3_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
-        importer.configuration = iliimporter_config(importer.tool,
-                                                    'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration = iliimporter_config(
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = "CIAF_LADM"
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
-        
+
         # Import data
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = "CIAF_LADM"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
@@ -143,10 +156,9 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2pg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = "CIAF_LADM"
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_ciaf_ladm_pg.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
@@ -159,20 +171,23 @@ class TestExport(unittest.TestCase):
             exporter.version = 3
             result = exporter.run()
         assert result == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_ciaf_ladm.xtf"), obtained_xtf_path)
 
     def test_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
-        importer.configuration = iliimporter_config(importer.tool,
-                                                    'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration = iliimporter_config(
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -181,11 +196,15 @@ class TestExport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ili2db4_ciaf_ladm.xtf')
+            "xtf/test_ili2db4_ciaf_ladm.xtf"
+        )
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -194,60 +213,66 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2pg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+        exporter.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_ciaf_ladm_pg.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(
+            testdata_path("xtf/test_ili2db4_ciaf_ladm.xtf"), obtained_xtf_path
+        )
 
     def test_ili2db3_simple_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
-        exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_simple_export.gpkg')
-        exporter.configuration.ilimodels = 'RoadsSimple'
+        exporter.configuration = iliexporter_config(
+            exporter.tool, None, "geopackage/test_simple_export.gpkg"
+        )
+        exporter.configuration.ilimodels = "RoadsSimple"
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_roads_simple_gpkg.xtf')
+            self.basetestpath, "tmp_test_roads_simple_gpkg.xtf"
+        )
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_roads_simple.xtf"), obtained_xtf_path)
 
     def test_simple_export_geopackage(self):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2gpkg
-        exporter.configuration = iliexporter_config(exporter.tool, None, 'geopackage/test_ili2db4_simple_export.gpkg')
-        exporter.configuration.ilimodels = 'RoadsSimple'
+        exporter.configuration = iliexporter_config(
+            exporter.tool, None, "geopackage/test_ili2db4_simple_export.gpkg"
+        )
+        exporter.configuration.ilimodels = "RoadsSimple"
         obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_roads_simple_gpkg.xtf')
+            self.basetestpath, "tmp_test_roads_simple_gpkg.xtf"
+        )
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_roads_simple.xtf"), obtained_xtf_path)
 
     def test_ili2db3_simple_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
-        importer.configuration.ilifile = testdata_path(
-            'ilimodels/RoadsSimple.ili')
-        importer.configuration.ilimodels = 'RoadsSimple'
-        importer.configuration.dbschema = 'roads_simple_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration.ilifile = testdata_path("ilimodels/RoadsSimple.ili")
+        importer.configuration.ilimodels = "RoadsSimple"
+        importer.configuration.dbschema = "roads_simple_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -257,10 +282,9 @@ class TestExport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
-        dataImporter.configuration.ilimodels = 'RoadsSimple'
+        dataImporter.configuration.ilimodels = "RoadsSimple"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_roads_simple.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_roads_simple.xtf")
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
@@ -270,31 +294,29 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2pg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'RoadsSimple'
+        exporter.configuration.ilimodels = "RoadsSimple"
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_roads_simple.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_roads_simple.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.configuration.db_ili_version = 3
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_roads_simple.xtf"), obtained_xtf_path)
 
     def test_ili2db3_simple_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
-        importer.configuration.ilifile = testdata_path(
-            'ilimodels/RoadsSimple.ili')
-        importer.configuration.ilimodels = 'RoadsSimple'
-        importer.configuration.dbschema = 'roads_simple_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration.ilifile = testdata_path("ilimodels/RoadsSimple.ili")
+        importer.configuration.ilimodels = "RoadsSimple"
+        importer.configuration.dbschema = "roads_simple_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -303,10 +325,9 @@ class TestExport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
-        dataImporter.configuration.ilimodels = 'RoadsSimple'
+        dataImporter.configuration.ilimodels = "RoadsSimple"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_roads_simple.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_roads_simple.xtf")
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -315,29 +336,31 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2pg
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'RoadsSimple'
+        exporter.configuration.ilimodels = "RoadsSimple"
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_roads_simple.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_roads_simple.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         # don't make a fallback
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_roads_simple.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_roads_simple.xtf"), obtained_xtf_path)
 
     def test_export_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql
-        importer.configuration = iliimporter_config(importer.tool,
-                                                    'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration = iliimporter_config(
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -346,11 +369,15 @@ class TestExport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2mssql
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ili2db4_ciaf_ladm.xtf')
+            "xtf/test_ili2db4_ciaf_ladm.xtf"
+        )
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -359,28 +386,32 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2mssql
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG'
+        exporter.configuration.ilimodels = (
+            "Catastro_COL_ES_V2_1_6;CIAF_LADM;ISO19107_V1_MAGNABOG"
+        )
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_ciaf_ladm_pg.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ili2db4_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(
+            testdata_path("xtf/test_ili2db4_ciaf_ladm.xtf"), obtained_xtf_path
+        )
 
     def test_ili2db3_export_mssql(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql
-        importer.configuration = iliimporter_config(importer.tool,
-                                                    'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration = iliimporter_config(
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = "CIAF_LADM"
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -390,11 +421,11 @@ class TestExport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2mssql
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = "CIAF_LADM"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
         dataImporter.configuration.db_ili_version = 3
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
@@ -404,17 +435,15 @@ class TestExport(unittest.TestCase):
         exporter = iliexporter.Exporter()
         exporter.tool = DbIliMode.ili2mssql
         exporter.configuration = iliexporter_config(exporter.tool)
-        exporter.configuration.ilimodels = 'CIAF_LADM'
+        exporter.configuration.ilimodels = "CIAF_LADM"
         exporter.configuration.dbschema = importer.configuration.dbschema
-        obtained_xtf_path = os.path.join(
-            self.basetestpath, 'tmp_test_ciaf_ladm_pg.xtf')
+        obtained_xtf_path = os.path.join(self.basetestpath, "tmp_test_ciaf_ladm_pg.xtf")
         exporter.configuration.xtffile = obtained_xtf_path
         exporter.stdout.connect(self.print_info)
         exporter.stderr.connect(self.print_error)
         exporter.version = 3
         assert exporter.run() == iliexporter.Exporter.SUCCESS
-        self.compare_xtfs(testdata_path(
-            'xtf/test_ciaf_ladm.xtf'), obtained_xtf_path)
+        self.compare_xtfs(testdata_path("xtf/test_ciaf_ladm.xtf"), obtained_xtf_path)
 
     def print_info(self, text):
         logging.info(text)
@@ -423,12 +452,15 @@ class TestExport(unittest.TestCase):
         logging.error(text)
 
     def compare_xtfs(self, expected, obtained):
-        nsxtf = '{http://www.interlis.ch/INTERLIS2.3}'
-        ignored_child_elements = [nsxtf + 'Comienzo_Vida_Util_Version', nsxtf + 'Geometry']
+        nsxtf = "{http://www.interlis.ch/INTERLIS2.3}"
+        ignored_child_elements = [
+            nsxtf + "Comienzo_Vida_Util_Version",
+            nsxtf + "Geometry",
+        ]
         transfer_root = ET.parse(expected).getroot()
-        datasection = transfer_root.find(nsxtf + 'DATASECTION')
+        datasection = transfer_root.find(nsxtf + "DATASECTION")
         tmp_transfer_root = ET.parse(obtained).getroot()
-        tmp_datasection = tmp_transfer_root.find(nsxtf + 'DATASECTION')
+        tmp_datasection = tmp_transfer_root.find(nsxtf + "DATASECTION")
 
         datasection_children = list(datasection)
         tmp_datasection_children = list(tmp_datasection)
@@ -444,7 +476,10 @@ class TestExport(unittest.TestCase):
                 for _tmp_class in tmp_topic.findall(_class.tag):
                     for child in _class:
                         tmp_child = _tmp_class.find(child.tag)
-                        if child.text == tmp_child.text or child.tag in ignored_child_elements:
+                        if (
+                            child.text == tmp_child.text
+                            or child.tag in ignored_child_elements
+                        ):
                             success = True
                         else:
                             success = False

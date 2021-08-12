@@ -17,13 +17,15 @@
  *                                                                         *
  ***************************************************************************/
 """
-from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, ImportDataConfiguration, \
-    Ili2DbCommandConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+    ImportDataConfiguration,
+    SchemaImportConfiguration,
+)
 from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
 class Importer(IliExecutable):
-
     def __init__(self, dataImport=False, parent=None):
         self.__data_import = dataImport
         super(Importer, self).__init__(parent)

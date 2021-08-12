@@ -193,7 +193,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>metaconfig/opengisch_KbS_LV95_V1_4-wrong.ini</path> 
+                <path>metaconfig/opengisch_KbS_LV95_V1_4-wrong.ini</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -553,7 +553,7 @@
           </DatasetIdx16.DataFile>
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
-      
+
       <!-- PlanerischerGewässerschutz -->
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a33b2f5-38bd-4d1a-8af0-c2463dcb5111">
         <id>ch.opengis.ili.config.PlanerischerGewaesserschutz_config</id>

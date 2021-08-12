@@ -8,13 +8,20 @@ import os
 import platform
 import sys
 
-from pyparsing import ParseException, ParseResults, stringStart, stringEnd
-from pyparsing import ZeroOrMore, Group, Forward, QuotedString
+from pyparsing import Forward, Group
 from pyparsing import Literal as L  # noqa
+from pyparsing import (
+    ParseException,
+    ParseResults,
+    QuotedString,
+    ZeroOrMore,
+    stringEnd,
+    stringStart,
+)
 
 from ._compat import string_types
 from ._typing import MYPY_CHECK_RUNNING
-from .specifiers import Specifier, InvalidSpecifier
+from .specifiers import InvalidSpecifier, Specifier
 
 if MYPY_CHECK_RUNNING:  # pragma: no cover
     from typing import Any, Callable, Dict, List, Optional, Tuple, Union

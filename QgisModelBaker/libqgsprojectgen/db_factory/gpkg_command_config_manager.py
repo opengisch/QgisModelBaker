@@ -16,8 +16,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_command_config_manager import DbCommandConfigManager
 from qgis.PyQt.QtCore import QSettings
+
+from .db_command_config_manager import DbCommandConfigManager
 
 
 class GpkgCommandConfigManager(DbCommandConfigManager):
@@ -28,7 +29,8 @@ class GpkgCommandConfigManager(DbCommandConfigManager):
 
     :ivar configuration object that will be managed
     """
-    _settings_base_path = 'QgisModelBaker/ili2gpkg/'
+
+    _settings_base_path = "QgisModelBaker/ili2gpkg/"
 
     def __init__(self, configuration):
         DbCommandConfigManager.__init__(self, configuration)
@@ -41,8 +43,10 @@ class GpkgCommandConfigManager(DbCommandConfigManager):
 
     def save_config_in_qsettings(self):
         settings = QSettings()
-        settings.setValue(self._settings_base_path + 'dbfile', self.configuration.dbfile)
+        settings.setValue(
+            self._settings_base_path + "dbfile", self.configuration.dbfile
+        )
 
     def load_config_from_qsettings(self):
         settings = QSettings()
-        self.configuration.dbfile = settings.value(self._settings_base_path + 'dbfile')
+        self.configuration.dbfile = settings.value(self._settings_base_path + "dbfile")

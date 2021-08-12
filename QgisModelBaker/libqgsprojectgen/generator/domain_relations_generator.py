@@ -21,6 +21,7 @@ import re
 
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 
+
 class DomainRelationGenerator:
     """Used for ili2db version 3 relation creation"""
 
@@ -34,7 +35,7 @@ class DomainRelationGenerator:
         if self.debug:
             print("domains:", domains)
         if not domains:
-            return ([], {}) # relations, bags_of_enum
+            return ([], {})  # relations, bags_of_enum
 
         layer_map = dict()
         for layer in layers:
@@ -42,11 +43,10 @@ class DomainRelationGenerator:
                 layer_map[layer.name] = list()
             layer_map[layer.name].append(layer)
 
-        domainili_domaindb_mapping = self._get_iliname_dbname_mapping(
-            domains)
+        domainili_domaindb_mapping = self._get_iliname_dbname_mapping(domains)
         domains_ili_pg = dict()
         for record in domainili_domaindb_mapping:
-            domains_ili_pg[record['iliname']] = record['sqlname']
+            domains_ili_pg[record["iliname"]] = record["sqlname"]
         if self.debug:
             print("domains_ili_pg:", domains_ili_pg)
 
@@ -55,7 +55,7 @@ class DomainRelationGenerator:
         models_info = dict()
         extended_classes = dict()
         for record in model_records:
-            models[record['modelname'].split("{")[0]] = record['content']
+            models[record["modelname"].split("{")[0]] = record["content"]
 
         bags_of_enum_info = dict()
         for k, v in models.items():
@@ -73,25 +73,28 @@ class DomainRelationGenerator:
         # because parent classes might have domain attrs that will be
         # transfered to children
         class_records = self._get_classili_classdb_mapping(
-            models_info, extended_classes)
+            models_info, extended_classes
+        )
         classes_ili_pg = dict()
         for record in class_records:
-            classes_ili_pg[record['iliname']] = record['sqlname']
+            classes_ili_pg[record["iliname"]] = record["sqlname"]
         if self.debug:
             print("classes_ili_pg:", classes_ili_pg)
 
         # Now deal with extended classes
         models_info_with_ext = {}
         for iliclass in models_info:
-            models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes,
-                                                                    self.inheritance)
+            models_info_with_ext[iliclass] = self.get_ext_dom_attrs(
+                iliclass, models_info, extended_classes, self.inheritance
+            )
         for iliclass in extended_classes:
             if iliclass not in models_info_with_ext:
                 # Take into account classes which only inherit attrs with domains, but don't have their own nor EXTEND attrs
                 # Only relevant for smart2Inheritance, since for
                 # smart1Inheritance this will return an empty dict {}
-                models_info_with_ext[iliclass] = self.get_ext_dom_attrs(iliclass, models_info, extended_classes,
-                                                                        self.inheritance)
+                models_info_with_ext[iliclass] = self.get_ext_dom_attrs(
+                    iliclass, models_info, extended_classes, self.inheritance
+                )
 
         # Map attr ili name and owner (pg class name) with its correspondent
         # attr pg name
@@ -102,12 +105,14 @@ class DomainRelationGenerator:
         attr_records = self._get_attrili_attrdb_mapping(all_attrs)
         attrs_ili_pg_owner = dict()
         for record in attr_records:
-            if record['owner'] in attrs_ili_pg_owner:
-                attrs_ili_pg_owner[record['owner']].update(
-                    {record['iliname']: record['sqlname']})
+            if record["owner"] in attrs_ili_pg_owner:
+                attrs_ili_pg_owner[record["owner"]].update(
+                    {record["iliname"]: record["sqlname"]}
+                )
             else:
-                attrs_ili_pg_owner[record['owner']] = {
-                    record['iliname']: record['sqlname']}
+                attrs_ili_pg_owner[record["owner"]] = {
+                    record["iliname"]: record["sqlname"]
+                }
         if self.debug:
             print("attrs_ili_pg_owner:", attrs_ili_pg_owner)
 
@@ -116,26 +121,42 @@ class DomainRelationGenerator:
         attrs_ili = [k for v in attrs_ili_pg_owner.values() for k in v]
         for iliclass, dict_attr_domain in models_info_with_ext.items():
             for iliattr, ilidomain in dict_attr_domain.items():
-                if iliclass in classes_ili_pg and ilidomain in domains_ili_pg and iliattr in attrs_ili:
-                    if classes_ili_pg[iliclass] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
-                            classes_ili_pg[iliclass] in attrs_ili_pg_owner:
+                if (
+                    iliclass in classes_ili_pg
+                    and ilidomain in domains_ili_pg
+                    and iliattr in attrs_ili
+                ):
+                    if (
+                        classes_ili_pg[iliclass] in layer_map.keys()
+                        and domains_ili_pg[ilidomain] in layer_map.keys()
+                        and classes_ili_pg[iliclass] in attrs_ili_pg_owner
+                    ):
                         if iliattr in attrs_ili_pg_owner[classes_ili_pg[iliclass]]:
-                            for referencing_layer in layer_map[classes_ili_pg[iliclass]]:
-                                for referenced_layer in layer_map[domains_ili_pg[ilidomain]]:
+                            for referencing_layer in layer_map[
+                                classes_ili_pg[iliclass]
+                            ]:
+                                for referenced_layer in layer_map[
+                                    domains_ili_pg[ilidomain]
+                                ]:
                                     # Might be that due to ORM mapping, a class is not
                                     # in mapped_layers
                                     relation = Relation()
                                     relation.referencing_layer = referencing_layer
                                     relation.referenced_layer = referenced_layer
                                     relation.referencing_field = attrs_ili_pg_owner[
-                                        classes_ili_pg[iliclass]][iliattr]
-                                    relation.referenced_field = self._db_connector.iliCodeName
-                                    relation.name = "{}_{}_{}_{}".format(classes_ili_pg[iliclass],
-                                                                         attrs_ili_pg_owner[
-                                                                             classes_ili_pg[iliclass]][iliattr],
-                                                                         domains_ili_pg[
-                                                                             ilidomain],
-                                                                         self._db_connector.iliCodeName)
+                                        classes_ili_pg[iliclass]
+                                    ][iliattr]
+                                    relation.referenced_field = (
+                                        self._db_connector.iliCodeName
+                                    )
+                                    relation.name = "{}_{}_{}_{}".format(
+                                        classes_ili_pg[iliclass],
+                                        attrs_ili_pg_owner[classes_ili_pg[iliclass]][
+                                            iliattr
+                                        ],
+                                        domains_ili_pg[ilidomain],
+                                        self._db_connector.iliCodeName,
+                                    )
 
                                     if self.debug:
                                         print("Relation:", relation.name)
@@ -164,18 +185,17 @@ class DomainRelationGenerator:
         attr_records = self._get_attrili_attrdb_mapping(all_attrs)
         iliattr_dbattr_mapping = dict()
         for record in attr_records:
-            iliattr_dbattr_mapping[record['iliname']] = record['sqlname']
+            iliattr_dbattr_mapping[record["iliname"]] = record["sqlname"]
 
         # Get structures_ili_pg
         structures = [layer.name for layer in layers if layer.is_structure]
         if self.debug:
             print("Structures:", structures)
 
-        structureili_structuredb_mapping = self._get_iliname_dbname_mapping(
-            structures)
+        structureili_structuredb_mapping = self._get_iliname_dbname_mapping(structures)
         structures_ili_pg = dict()
         for record in structureili_structuredb_mapping:
-            structures_ili_pg[record['iliname']] = record['sqlname']
+            structures_ili_pg[record["iliname"]] = record["sqlname"]
         if self.debug:
             print("structures_ili_pg:", structures_ili_pg)
 
@@ -187,13 +207,15 @@ class DomainRelationGenerator:
                     owners.append(structures_ili_pg[cardinality_structure[1]])
 
         if self.debug:
-            print("OWNERS:",owners)
-        structure_domain_attr_ili_sql = self._get_attrili_attrdb_mapping_by_owner(owners)
+            print("OWNERS:", owners)
+        structure_domain_attr_ili_sql = self._get_attrili_attrdb_mapping_by_owner(
+            owners
+        )
         structure_domain_attr = dict()
         for record in structure_domain_attr_ili_sql:
-            structure_domain_attr[record['owner']] = [
-                record['iliname'],
-                record['sqlname']
+            structure_domain_attr[record["owner"]] = [
+                record["iliname"],
+                record["sqlname"],
             ]
 
         # Get the domain (extracted by the parser) corresponding to the structure
@@ -202,82 +224,144 @@ class DomainRelationGenerator:
             if class_name in classes_ili_pg:
                 for attribute, cardinality_structure in bag_of_enum_info.items():
                     cardinality, structure = cardinality_structure
-                    if attribute in iliattr_dbattr_mapping and structure in models_info_with_ext:
+                    if (
+                        attribute in iliattr_dbattr_mapping
+                        and structure in models_info_with_ext
+                    ):
                         if structure in structures_ili_pg:
-                            structure_attribute = structure_domain_attr[structures_ili_pg[structure]][0] # iliname
+                            structure_attribute = structure_domain_attr[
+                                structures_ili_pg[structure]
+                            ][
+                                0
+                            ]  # iliname
                             if structure_attribute in models_info_with_ext[structure]:
-                                ilidomain = models_info_with_ext[structure][structure_attribute] # ilidomain
-                                if structure in classes_ili_pg and ilidomain in domains_ili_pg and structure_attribute in attrs_ili:
-                                    if classes_ili_pg[structure] in layer_map.keys() and domains_ili_pg[ilidomain] in layer_map.keys() and \
-                                        classes_ili_pg[class_name] in layer_map.keys() and classes_ili_pg[structure] in attrs_ili_pg_owner:
+                                ilidomain = models_info_with_ext[structure][
+                                    structure_attribute
+                                ]  # ilidomain
+                                if (
+                                    structure in classes_ili_pg
+                                    and ilidomain in domains_ili_pg
+                                    and structure_attribute in attrs_ili
+                                ):
+                                    if (
+                                        classes_ili_pg[structure] in layer_map.keys()
+                                        and domains_ili_pg[ilidomain]
+                                        in layer_map.keys()
+                                        and classes_ili_pg[class_name]
+                                        in layer_map.keys()
+                                        and classes_ili_pg[structure]
+                                        in attrs_ili_pg_owner
+                                    ):
 
-                                        for layer in layer_map[classes_ili_pg[class_name]]:
+                                        for layer in layer_map[
+                                            classes_ili_pg[class_name]
+                                        ]:
 
                                             meta_attrs = self._get_meta_attrs(attribute)
                                             for attr_record in meta_attrs:
-                                                if attr_record['attr_name'] == 'ili2db.mapping' and attr_record['attr_value'] == 'ARRAY':
+                                                if (
+                                                    attr_record["attr_name"]
+                                                    == "ili2db.mapping"
+                                                    and attr_record["attr_value"]
+                                                    == "ARRAY"
+                                                ):
 
-                                                    layer_unique_name = "{}_{}".format(classes_ili_pg[class_name], layer.geometry_column)
-                                                    if layer_unique_name in bags_of_enum:
-                                                        bags_of_enum[layer_unique_name][iliattr_dbattr_mapping[attribute]] = [
+                                                    layer_unique_name = "{}_{}".format(
+                                                        classes_ili_pg[class_name],
+                                                        layer.geometry_column,
+                                                    )
+                                                    if (
+                                                        layer_unique_name
+                                                        in bags_of_enum
+                                                    ):
+                                                        bags_of_enum[layer_unique_name][
+                                                            iliattr_dbattr_mapping[
+                                                                attribute
+                                                            ]
+                                                        ] = [
                                                             layer,
                                                             cardinality,
                                                             # Domains shouldn't be repeated in layers list, so get the first and only element
-                                                            layer_map[domains_ili_pg[ilidomain]][0],
+                                                            layer_map[
+                                                                domains_ili_pg[
+                                                                    ilidomain
+                                                                ]
+                                                            ][0],
                                                             self._db_connector.iliCodeName,
-                                                            self._db_connector.dispName
+                                                            self._db_connector.dispName,
                                                         ]
                                                     else:
-                                                        bags_of_enum[layer_unique_name] = {
-                                                            iliattr_dbattr_mapping[attribute]:
-                                                                [
-                                                                    layer,
-                                                                    cardinality,
-                                                                    layer_map[domains_ili_pg[ilidomain]][0],
-                                                                    self._db_connector.iliCodeName,
-                                                                    self._db_connector.dispName
-                                                                ]
+                                                        bags_of_enum[
+                                                            layer_unique_name
+                                                        ] = {
+                                                            iliattr_dbattr_mapping[
+                                                                attribute
+                                                            ]: [
+                                                                layer,
+                                                                cardinality,
+                                                                layer_map[
+                                                                    domains_ili_pg[
+                                                                        ilidomain
+                                                                    ]
+                                                                ][0],
+                                                                self._db_connector.iliCodeName,
+                                                                self._db_connector.dispName,
+                                                            ]
                                                         }
                                                     if self.debug:
-                                                        print("BAG OF ENUM!!!", layer_unique_name, iliattr_dbattr_mapping[attribute], cardinality, domains_ili_pg[ilidomain])
+                                                        print(
+                                                            "BAG OF ENUM!!!",
+                                                            layer_unique_name,
+                                                            iliattr_dbattr_mapping[
+                                                                attribute
+                                                            ],
+                                                            cardinality,
+                                                            domains_ili_pg[ilidomain],
+                                                        )
 
-                                                    break # Don't search for other meta-attrs for this attribute
+                                                    break  # Don't search for other meta-attrs for this attribute
 
         return (relations, bags_of_enum)
 
     def parse_model(self, model_content, domains):
-        re_comment = re.compile(r'\s*/\*')  # /* comment
-        re_end_comment = re.compile(r'\s*\*/')  # comment */
-        re_oneline_comment = re.compile(r'\s*/\*.*\*/')  # /* comment */
-        re_inline_comment = re.compile(r'^\s*!!(?!@)')  # !! comment
+        re_comment = re.compile(r"\s*/\*")  # /* comment
+        re_end_comment = re.compile(r"\s*\*/")  # comment */
+        re_oneline_comment = re.compile(r"\s*/\*.*\*/")  # /* comment */
+        re_inline_comment = re.compile(r"^\s*!!(?!@)")  # !! comment
 
         # MODEL Catastro_COL_ES_V_2_0_20170331 (es)
-        re_model = re.compile(r'\s*MODEL\s*([\w\d_-]+).*')
+        re_model = re.compile(r"\s*MODEL\s*([\w\d_-]+).*")
         # TOPIC Catastro_Registro [=]
-        re_topic = re.compile(r'\s*TOPIC\s*([\w\d_-]+).*')
-        re_structure = re.compile(r'\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*')  # STRUCTURE StructureName =
+        re_topic = re.compile(r"\s*TOPIC\s*([\w\d_-]+).*")
+        re_structure = re.compile(
+            r"\s*STRUCTURE\s*([\w\d_-]+)\s*\=.*"
+        )  # STRUCTURE StructureName =
         re_class = re.compile(
-            r'\s*CLASS\s*([\w\d_-]+)\s*[\(ABSTRACT\)]*\s*[EXTENDS]*\s*([\w\d_-]*).*')  # CLASS ClassName (ABSTRACT) [EXTENDS] [BaseClassName] [=]
+            r"\s*CLASS\s*([\w\d_-]+)\s*[\(ABSTRACT\)]*\s*[EXTENDS]*\s*([\w\d_-]*).*"
+        )  # CLASS ClassName (ABSTRACT) [EXTENDS] [BaseClassName] [=]
         re_class_extends = re.compile(
-            r'\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*')  # EXTENDS BaseClassName =
-        re_inline_enum_start = re.compile(
-            r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*')
-        re_inline_enum_end = re.compile(r'\s*\);.*')
+            r"\s*EXTENDS\s*([\w\d_\-\.]+)\s*\=.*"
+        )  # EXTENDS BaseClassName =
+        re_inline_enum_start = re.compile(r"\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*")
+        re_inline_enum_end = re.compile(r"\s*\);.*")
         re_inline_enum_oneline = re.compile(
-            r'\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*')
+            r"\s*([\w\d_-]+)\s*:\s*[MANDATORY]*\s*\(.*\);.*"
+        )
         # Typ: BAG {1..*} OF EI_Punkt_Typ;
-        re_bag_of = re.compile(r'\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\.\w\d_-]+);.*')
+        re_bag_of = re.compile(
+            r"\s*([\w\d_-]+)\s*:\s*BAG\s*\{(.*)\}\s*OF\s*([\.\w\d_-]+);.*"
+        )
         re_end_structure = None  # END StructureName;
         re_end_class = None  # END ClassName;
         re_end_topic = None  # END TopicName;
         re_end_model = None  # END ModelName;
 
         currently_inside_comment = False
-        current_model = ''
-        current_structure = ''
-        current_structure_out = ''
-        current_topic = ''
-        current_class = ''
+        current_model = ""
+        current_structure = ""
+        current_structure_out = ""
+        current_topic = ""
+        current_class = ""
         within_inline_enum = False
         attributes = dict()
         models_info = dict()
@@ -302,17 +386,18 @@ class DomainRelationGenerator:
                 if result:
                     currently_inside_comment = False
 
-                continue # Whether comment ends or not, we are done in this line
+                continue  # Whether comment ends or not, we are done in this line
 
             if re_inline_comment.search(line):
-                continue # Inline comment at the start of the line
+                continue  # Inline comment at the start of the line
 
             if not current_model:
                 result = re_model.search(line)
                 if result:
                     current_model = result.group(1)
                     re_end_model = re.compile(
-                        r'.*END\s*{}\..*'.format(current_model))  # END TopicName;
+                        r".*END\s*{}\..*".format(current_model)
+                    )  # END TopicName;
                     if self.debug:
                         print("\nMODEL encontrado", current_model)
 
@@ -325,31 +410,43 @@ class DomainRelationGenerator:
                         if self.debug:
                             print("TOPIC encontrada", current_topic)
                         re_end_topic = re.compile(
-                            r'\s*END\s*{};.*'.format(current_topic))  # END TopicName;
+                            r"\s*END\s*{};.*".format(current_topic)
+                        )  # END TopicName;
 
                         if self.debug:
-                            print("Call to extract_local_names_from_domains: {} | {} | {}".format(
-                                domains,
-                                current_model,
-                                current_topic
-                            ))
+                            print(
+                                "Call to extract_local_names_from_domains: {} | {} | {}".format(
+                                    domains, current_model, current_topic
+                                )
+                            )
                         local_names = self.extract_local_names_from_domains(
-                            domains, current_model, current_topic)
-                        domains_with_local = [name for name_list in local_names.values() for name in
-                                              name_list] + domains
+                            domains, current_model, current_topic
+                        )
+                        domains_with_local = [
+                            name
+                            for name_list in local_names.values()
+                            for name in name_list
+                        ] + domains
                         if self.debug:
                             print("domains_with_local:", domains_with_local)
                         continue
 
-                    else: # Look for structure-domain relations out of topics
+                    else:  # Look for structure-domain relations out of topics
 
                         if not domains_with_local:
                             local_names = self.extract_local_names_from_domains(
-                                domains, current_model)
-                            domains_with_local = [name for name_list in local_names.values() for name in
-                                                  name_list] + domains
+                                domains, current_model
+                            )
+                            domains_with_local = [
+                                name
+                                for name_list in local_names.values()
+                                for name in name_list
+                            ] + domains
                             if self.debug:
-                                print("domains_with_local_out_of_topic:", domains_with_local)
+                                print(
+                                    "domains_with_local_out_of_topic:",
+                                    domains_with_local,
+                                )
 
                         if not current_structure_out:
                             result = re_structure.search(line)
@@ -361,9 +458,16 @@ class DomainRelationGenerator:
 
                                 # Check if definition is in one line and handle it
                                 re_structure_one_line = re.compile(
-                                    r'\s*STRUCTURE\s*{structure}\s*\=(.*)\s*END\s*{structure};.*'.format(structure=current_structure_out))
+                                    r"\s*STRUCTURE\s*{structure}\s*\=(.*)\s*END\s*{structure};.*".format(
+                                        structure=current_structure_out
+                                    )
+                                )
                                 if self.debug:
-                                    print("STRUCTURE OUT FOUND {}, testing one_line_regexp: {}".format(current_structure_out, re_structure_one_line))
+                                    print(
+                                        "STRUCTURE OUT FOUND {}, testing one_line_regexp: {}".format(
+                                            current_structure_out, re_structure_one_line
+                                        )
+                                    )
 
                                 result = re_structure_one_line.search(line)
                                 if result:
@@ -371,49 +475,78 @@ class DomainRelationGenerator:
                                         print("STRUCTURE OUT IN ONE LINE")
 
                                     structure_defs = result.group(1)
-                                    for structure_def in structure_defs.strip().split(";"):
+                                    for structure_def in structure_defs.strip().split(
+                                        ";"
+                                    ):
                                         pair = structure_def.split(":")
                                         if len(pair) > 1:
                                             structure_attr = pair[0].strip()
-                                            structure_attr_full_name = "{}.{}.{}".format(
-                                                                        current_model,
-                                                                        current_structure_out,
-                                                                        structure_attr)  # Fully qualified name
-                                            structure_domain = pair[1].strip().split(" ")[-1] # Filters out "MANDATORY"
+                                            structure_attr_full_name = (
+                                                "{}.{}.{}".format(
+                                                    current_model,
+                                                    current_structure_out,
+                                                    structure_attr,
+                                                )
+                                            )  # Fully qualified name
+                                            structure_domain = (
+                                                pair[1].strip().split(" ")[-1]
+                                            )  # Filters out "MANDATORY"
 
-                                            if structure_domain not in domains:  # Match was vs. local name, find its corresponding qualified name
+                                            if (
+                                                structure_domain not in domains
+                                            ):  # Match was vs. local name, find its corresponding qualified name
                                                 for k, v in local_names.items():
                                                     if structure_domain in v:
                                                         structure_domain = k
                                                         break
 
                                             if structure_domain in domains_with_local:
-                                                attributes[structure_attr_full_name] = structure_domain
+                                                attributes[
+                                                    structure_attr_full_name
+                                                ] = structure_domain
 
                                     if attributes:
                                         models_info.update(
-                                            {'{}.{}'.format(current_model, current_structure_out): attributes})
+                                            {
+                                                "{}.{}".format(
+                                                    current_model, current_structure_out
+                                                ): attributes
+                                            }
+                                        )
 
-                                    current_structure_out = ''
+                                    current_structure_out = ""
                                     continue
 
-
                                 re_end_structure = re.compile(
-                                    r'\s*END\s*{};.*'.format(current_structure))  # END StructureName;
+                                    r"\s*END\s*{};.*".format(current_structure)
+                                )  # END StructureName;
                                 continue
 
-                        else: # There is a current_structure_out
-                            attribute = {res.group(1): d for d in domains_with_local for res in
-                                         [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+                        else:  # There is a current_structure_out
+                            attribute = {
+                                res.group(1): d
+                                for d in domains_with_local
+                                for res in [
+                                    re.search(
+                                        r"\s*([\w\d_-]+).*:.*\s{};.*".format(d), line
+                                    )
+                                ]
+                                if res
+                            }
 
                             if attribute:
                                 if self.debug:
                                     print("MATCH (STRUCTURE):", attribute)
-                                old_key = list(attribute.keys())[0]  # Not qualified name
-                                new_key = "{}.{}.{}".format(current_model, current_structure_out,
-                                                               old_key)  # Fully qualified name
+                                old_key = list(attribute.keys())[
+                                    0
+                                ]  # Not qualified name
+                                new_key = "{}.{}.{}".format(
+                                    current_model, current_structure_out, old_key
+                                )  # Fully qualified name
                                 attr_value = list(attribute.values())[0]
-                                if attr_value not in domains:  # Match was vs. local name, find its corresponding qualified name
+                                if (
+                                    attr_value not in domains
+                                ):  # Match was vs. local name, find its corresponding qualified name
                                     for k, v in local_names.items():
                                         if attr_value in v:
                                             attribute[old_key] = k
@@ -426,12 +559,19 @@ class DomainRelationGenerator:
                             if result:
                                 if attributes:
                                     models_info.update(
-                                        {'{}.{}'.format(current_model, current_structure_out): attributes})
+                                        {
+                                            "{}.{}".format(
+                                                current_model, current_structure_out
+                                            ): attributes
+                                        }
+                                    )
                                 if self.debug:
-                                    print("END Structure encontrada", current_structure_out)
-                                current_structure_out = ''
+                                    print(
+                                        "END Structure encontrada",
+                                        current_structure_out,
+                                    )
+                                current_structure_out = ""
                                 continue
-
 
                 else:  # There is a current_topic
 
@@ -445,9 +585,16 @@ class DomainRelationGenerator:
 
                             # Check if definition is in one line and handle it
                             re_structure_one_line = re.compile(
-                                r'\s*STRUCTURE\s*{structure}\s*\=(.*)\s*END\s*{structure};.*'.format(structure=current_structure))
+                                r"\s*STRUCTURE\s*{structure}\s*\=(.*)\s*END\s*{structure};.*".format(
+                                    structure=current_structure
+                                )
+                            )
                             if self.debug:
-                                print("STRUCTURE FOUND {}, testing one_line_regexp: {}".format(current_structure, re_structure_one_line))
+                                print(
+                                    "STRUCTURE FOUND {}, testing one_line_regexp: {}".format(
+                                        current_structure, re_structure_one_line
+                                    )
+                                )
 
                             result = re_structure_one_line.search(line)
                             if result:
@@ -460,44 +607,67 @@ class DomainRelationGenerator:
                                     if len(pair) > 1:
                                         structure_attr = pair[0].strip()
                                         structure_attr_full_name = "{}.{}.{}.{}".format(
-                                                                    current_model,
-                                                                    current_topic,
-                                                                    current_structure,
-                                                                    structure_attr)  # Fully qualified name
-                                        structure_domain = pair[1].strip().split(" ")[-1] # Filters out "MANDATORY"
+                                            current_model,
+                                            current_topic,
+                                            current_structure,
+                                            structure_attr,
+                                        )  # Fully qualified name
+                                        structure_domain = (
+                                            pair[1].strip().split(" ")[-1]
+                                        )  # Filters out "MANDATORY"
 
-                                        if structure_domain not in domains:  # Match was vs. local name, find its corresponding qualified name
+                                        if (
+                                            structure_domain not in domains
+                                        ):  # Match was vs. local name, find its corresponding qualified name
                                             for k, v in local_names.items():
                                                 if structure_domain in v:
                                                     structure_domain = k
                                                     break
 
                                         if structure_domain in domains_with_local:
-                                            attributes[structure_attr_full_name] = structure_domain
+                                            attributes[
+                                                structure_attr_full_name
+                                            ] = structure_domain
 
                                 if attributes:
                                     models_info.update(
-                                        {'{}.{}.{}'.format(current_model, current_topic, current_structure): attributes})
+                                        {
+                                            "{}.{}.{}".format(
+                                                current_model,
+                                                current_topic,
+                                                current_structure,
+                                            ): attributes
+                                        }
+                                    )
 
-                                current_structure = ''
+                                current_structure = ""
                                 continue
 
-
                             re_end_structure = re.compile(
-                                r'\s*END\s*{};.*'.format(current_structure))  # END StructureName;
+                                r"\s*END\s*{};.*".format(current_structure)
+                            )  # END StructureName;
                             continue
                     else:
-                        attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+                        attribute = {
+                            res.group(1): d
+                            for d in domains_with_local
+                            for res in [
+                                re.search(r"\s*([\w\d_-]+).*:.*\s{};.*".format(d), line)
+                            ]
+                            if res
+                        }
 
                         if attribute:
                             if self.debug:
                                 print("MATCH (STRUCTURE):", attribute)
                             old_key = list(attribute.keys())[0]  # Not qualified name
-                            new_key = "{}.{}.{}.{}".format(current_model, current_topic, current_structure,
-                                                           old_key)  # Fully qualified name
+                            new_key = "{}.{}.{}.{}".format(
+                                current_model, current_topic, current_structure, old_key
+                            )  # Fully qualified name
                             attr_value = list(attribute.values())[0]
-                            if attr_value not in domains:  # Match was vs. local name, find its corresponding qualified name
+                            if (
+                                attr_value not in domains
+                            ):  # Match was vs. local name, find its corresponding qualified name
                                 for k, v in local_names.items():
                                     if attr_value in v:
                                         attribute[old_key] = k
@@ -510,10 +680,17 @@ class DomainRelationGenerator:
                         if result:
                             if attributes:
                                 models_info.update(
-                                    {'{}.{}.{}'.format(current_model, current_topic, current_structure): attributes})
+                                    {
+                                        "{}.{}.{}".format(
+                                            current_model,
+                                            current_topic,
+                                            current_structure,
+                                        ): attributes
+                                    }
+                                )
                             if self.debug:
                                 print("END Structure encontrada", current_structure)
-                            current_structure = ''
+                            current_structure = ""
                             continue
 
                     if not current_class:  # Go for classes
@@ -524,18 +701,32 @@ class DomainRelationGenerator:
                                 print("Class encontrada", current_class)
                             attributes = dict()
                             re_end_class = re.compile(
-                                r'\s*END\s*{};.*'.format(current_class))  # END ClassName;
+                                r"\s*END\s*{};.*".format(current_class)
+                            )  # END ClassName;
                             bClassJustFound = True
 
                             # Possible EXTENDS
                             if len(result.groups()) > 1 and result.group(2):
-                                extended_classes["{}.{}.{}".format(current_model, current_topic,
-                                                                   current_class)] = self.make_full_qualified(
-                                    result.group(2), 'class', current_model, current_topic)
+                                extended_classes[
+                                    "{}.{}.{}".format(
+                                        current_model, current_topic, current_class
+                                    )
+                                ] = self.make_full_qualified(
+                                    result.group(2),
+                                    "class",
+                                    current_model,
+                                    current_topic,
+                                )
                                 if self.debug:
-                                    print("EXTENDS->",
-                                          self.make_full_qualified(result.group(2), 'class', current_model,
-                                                                   current_topic))
+                                    print(
+                                        "EXTENDS->",
+                                        self.make_full_qualified(
+                                            result.group(2),
+                                            "class",
+                                            current_model,
+                                            current_topic,
+                                        ),
+                                    )
 
                             continue
                     else:  # There is a current_class, go for attributes
@@ -543,43 +734,78 @@ class DomainRelationGenerator:
                             bClassJustFound = False
                             result = re_class_extends.search(line)
                             if result:
-                                extended_classes["{}.{}.{}".format(current_model, current_topic,
-                                                                   current_class)] = self.make_full_qualified(
-                                    result.group(1), 'class', current_model, current_topic)
+                                extended_classes[
+                                    "{}.{}.{}".format(
+                                        current_model, current_topic, current_class
+                                    )
+                                ] = self.make_full_qualified(
+                                    result.group(1),
+                                    "class",
+                                    current_model,
+                                    current_topic,
+                                )
                                 if self.debug:
-                                    print("EXTENDS->",
-                                          self.make_full_qualified(result.group(1), 'class', current_model,
-                                                                   current_topic))
+                                    print(
+                                        "EXTENDS->",
+                                        self.make_full_qualified(
+                                            result.group(1),
+                                            "class",
+                                            current_model,
+                                            current_topic,
+                                        ),
+                                    )
                                 continue
 
                         # Look for BAG {} OF ENUM lines
                         result = re_bag_of.search(line)
                         if result:
-                            attr_name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                            attr_name = "{}.{}.{}.{}".format(
+                                current_model,
+                                current_topic,
+                                current_class,
+                                result.group(1),
+                            )
                             structure_name = result.group(3)
-                            if not '.' in structure_name:
-                                structure_name = '{}.{}.{}'.format(current_model, current_topic, structure_name)
+                            if not "." in structure_name:
+                                structure_name = "{}.{}.{}".format(
+                                    current_model, current_topic, structure_name
+                                )
 
-                            class_name = '{}.{}.{}'.format(current_model, current_topic, current_class)
+                            class_name = "{}.{}.{}".format(
+                                current_model, current_topic, current_class
+                            )
                             if not class_name in bags_of_enum:
-                                bags_of_enum[class_name] = {attr_name: [result.group(2), structure_name]}
+                                bags_of_enum[class_name] = {
+                                    attr_name: [result.group(2), structure_name]
+                                }
                             else:
-                                bags_of_enum[class_name][attr_name] = [result.group(2), structure_name]
+                                bags_of_enum[class_name][attr_name] = [
+                                    result.group(2),
+                                    structure_name,
+                                ]
                             continue
 
                         # Go for attributes
-                        attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search(r'\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
+                        attribute = {
+                            res.group(1): d
+                            for d in domains_with_local
+                            for res in [
+                                re.search(r"\s*([\w\d_-]+).*:.*\s{};.*".format(d), line)
+                            ]
+                            if res
+                        }
 
                         if attribute:
                             if self.debug:
                                 print("MATCH:", attribute)
-                            old_key = list(attribute.keys())[
-                                0]  # Not qualified name
-                            new_key = "{}.{}.{}.{}".format(current_model, current_topic, current_class,
-                                                           old_key)  # Fully qualified name
+                            old_key = list(attribute.keys())[0]  # Not qualified name
+                            new_key = "{}.{}.{}.{}".format(
+                                current_model, current_topic, current_class, old_key
+                            )  # Fully qualified name
                             attr_value = list(attribute.values())[0]
-                            if attr_value not in domains:  # Match was vs. local name, find its corresponding qualified name
+                            if (
+                                attr_value not in domains
+                            ):  # Match was vs. local name, find its corresponding qualified name
                                 for k, v in local_names.items():
                                     if attr_value in v:
                                         attribute[old_key] = k
@@ -599,8 +825,16 @@ class DomainRelationGenerator:
                         if result:
                             # result.group(1) is the attribute name
                             if self.debug:
-                                print("INLINE ENUM:", "{}.{}".format(current_class, result.group(1)))
-                            name = '{}.{}.{}.{}'.format(current_model, current_topic, current_class, result.group(1))
+                                print(
+                                    "INLINE ENUM:",
+                                    "{}.{}".format(current_class, result.group(1)),
+                                )
+                            name = "{}.{}.{}.{}".format(
+                                current_model,
+                                current_topic,
+                                current_class,
+                                result.group(1),
+                            )
                             # Attribute and domain name match for inline ENUMs
                             attributes[name] = name
 
@@ -615,25 +849,32 @@ class DomainRelationGenerator:
                         if result:
                             if attributes:
                                 models_info.update(
-                                    {'{}.{}.{}'.format(current_model, current_topic, current_class): attributes})
+                                    {
+                                        "{}.{}.{}".format(
+                                            current_model, current_topic, current_class
+                                        ): attributes
+                                    }
+                                )
                             if self.debug:
                                 print("END Class encontrada", current_class)
-                            current_class = ''
+                            current_class = ""
                             continue
 
                     result = re_end_topic.search(line)
                     if result:
-                        current_topic = ''
+                        current_topic = ""
 
                 result = re_end_model.search(line)
                 if result:
                     if self.debug:
                         print("END model encontrado", current_model, "\n")
-                    current_model = ''
+                    current_model = ""
 
         return [models_info, extended_classes, bags_of_enum]
 
-    def extract_local_names_from_domains(self, domains, current_model, current_topic=''):
+    def extract_local_names_from_domains(
+        self, domains, current_model, current_topic=""
+    ):
         """
         ili files may contain fully qualified domains assigned to attributes, but if
         domains are local (domain or topic-wise), domains might be assigned only
@@ -647,43 +888,54 @@ class DomainRelationGenerator:
         local_names = dict()
         for domain in domains:
             local_names_list = list()
-            if domain.startswith('{}.'.format(current_model)) or \
-               domain.startswith('{}.{}.'.format(current_model, current_topic)) or \
-               domain.startswith('INTERLIS'):
+            if (
+                domain.startswith("{}.".format(current_model))
+                or domain.startswith("{}.{}.".format(current_model, current_topic))
+                or domain.startswith("INTERLIS")
+            ):
                 array = domain.split(".")
                 if len(array) > 0:
                     local_names_list.append(array[-1])
                 if len(array) > 1:
-                    local_names_list.append(
-                        '{}.{}'.format(array[-2], array[-1]))
+                    local_names_list.append("{}.{}".format(array[-2], array[-1]))
                 if local_names_list:
                     local_names[domain] = local_names_list
         return local_names
 
-    def make_full_qualified(self, name, level, current_model, current_topic, current_class=None):
+    def make_full_qualified(
+        self, name, level, current_model, current_topic, current_class=None
+    ):
         parents = [current_model, current_topic, current_class]
         len_parents = len(parents)
         name_parts = name.split(".")
         # 3 levels (even 2, but not handling that case yet)
-        if level == 'class':
-            name_parts = parents[0:len_parents - len(name_parts)] + name_parts
+        if level == "class":
+            name_parts = parents[0 : len_parents - len(name_parts)] + name_parts
 
         return ".".join(name_parts)
 
     def get_ext_dom_attrs(self, iliclass, models_info, extended_classes, inheritance):
-        if inheritance == 'smart1':
+        if inheritance == "smart1":
             # Use smart 2 first to get domain attributes from parents (we
             # really need them) and only then use smart 1
             tmp_models_info = models_info
             if iliclass in tmp_models_info:
-                tmp_models_info[iliclass].update(self.get_ext_dom_attrs_smart2(
-                    iliclass, models_info, extended_classes))
+                tmp_models_info[iliclass].update(
+                    self.get_ext_dom_attrs_smart2(
+                        iliclass, models_info, extended_classes
+                    )
+                )
             else:
                 tmp_models_info[iliclass] = self.get_ext_dom_attrs_smart2(
-                    iliclass, models_info, extended_classes)
-            return self.get_ext_dom_attrs_smart1(iliclass, tmp_models_info, extended_classes)
-        elif inheritance == 'smart2':
-            return self.get_ext_dom_attrs_smart2(iliclass, models_info, extended_classes)
+                    iliclass, models_info, extended_classes
+                )
+            return self.get_ext_dom_attrs_smart1(
+                iliclass, tmp_models_info, extended_classes
+            )
+        elif inheritance == "smart2":
+            return self.get_ext_dom_attrs_smart2(
+                iliclass, models_info, extended_classes
+            )
         else:  # No smart inheritance?
             return {}
 
@@ -694,10 +946,16 @@ class DomainRelationGenerator:
         """
         children_domain_attrS = dict()
         if iliclass in extended_classes.values():  # Does current class have children?
-            for child, parent in extended_classes.items():  # Top-bottom, we might find several children
+            for (
+                child,
+                parent,
+            ) in extended_classes.items():  # Top-bottom, we might find several children
                 if parent == iliclass:
                     children_domain_attrS.update(
-                        self.get_ext_dom_attrs_smart1(child, models_info, extended_classes))  # Recursion
+                        self.get_ext_dom_attrs_smart1(
+                            child, models_info, extended_classes
+                        )
+                    )  # Recursion
                     # In the last line, if two children share an atributte that
                     # is not in parent, the latest class visited will overwrite
                     # previously visited classes
@@ -718,8 +976,9 @@ class DomainRelationGenerator:
         plus all inherited attr:domain pairs
         """
         if iliclass in extended_classes:  # Does current class have parents?
-            parents_domain_attrS = self.get_ext_dom_attrs_smart2(extended_classes[iliclass], models_info,
-                                                                 extended_classes)  # Recursion
+            parents_domain_attrS = self.get_ext_dom_attrs_smart2(
+                extended_classes[iliclass], models_info, extended_classes
+            )  # Recursion
         else:
             return models_info[iliclass] if iliclass in models_info else {}
         all_attrs = models_info[iliclass] if iliclass in models_info else {}
@@ -736,8 +995,7 @@ class DomainRelationGenerator:
                 all_attrs[parents_domain_attr] = domain
             else:  # Extended, use parent's attribute name with child domain name
                 if unqualified_attrs[parents_unqualified_attr] in all_attrs:
-                    tmpDomain = all_attrs[
-                        unqualified_attrs[parents_unqualified_attr]]
+                    tmpDomain = all_attrs[unqualified_attrs[parents_unqualified_attr]]
                     del all_attrs[unqualified_attrs[parents_unqualified_attr]]
                     all_attrs[parents_domain_attr] = tmpDomain
 
@@ -753,7 +1011,9 @@ class DomainRelationGenerator:
         return self._db_connector.get_meta_attrs(ilielement)
 
     def _get_classili_classdb_mapping(self, models_info, extended_classes):
-        return self._db_connector.get_classili_classdb_mapping(models_info, extended_classes)
+        return self._db_connector.get_classili_classdb_mapping(
+            models_info, extended_classes
+        )
 
     def _get_attrili_attrdb_mapping(self, models_info_with_ext):
         return self._db_connector.get_attrili_attrdb_mapping(models_info_with_ext)
