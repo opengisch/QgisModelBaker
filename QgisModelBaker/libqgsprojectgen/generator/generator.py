@@ -121,16 +121,19 @@ class Generator(QObject):
             if not alias:
                 short_name = None
                 if is_domain and is_attribute:
-                    short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record and record['ili_name'] else ''
+                    short_name = ''
+                    if 'ili_name' in record and record['ili_name']:
+                        short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1]
                 else:
                     if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
                         fields_info = self.get_fields_info(record['tablename'])
                         for field_info in fields_info:
                             if field_info['column_name'] == record['geometry_column']:
-                                short_name = field_info['fully_qualified_name'].split('.')[-2] + ' (' + \
-                                             field_info['fully_qualified_name'].split('.')[
-                                                 -1]+')' if 'fully_qualified_name' in field_info else record['tablename']
+                                if 'fully_qualified_name' in field_info and field_info['fully_qualified_name']:
+                                    short_name =  field_info['fully_qualified_name'].split('.')[-2] + ' (' + field_info['fully_qualified_name'].split('.')[-1]+')'
+                                else:
+                                    short_name = record['tablename']
                     elif 'ili_name' in record and record['ili_name']:
                         match = re.search('([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
@@ -140,7 +143,9 @@ class Generator(QObject):
                             short_name = match.group(1).split('.')[-2] + ' (' + match.group(1).split('.')[-1]+')'
                 alias = short_name
 
-            model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}" if 'ili_name' in record and record['ili_name'] else ''
+            model_topic_name = ""
+            if 'ili_name' in record and record['ili_name']:
+                model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
             
             display_expression = ''
             if is_basket_table:
