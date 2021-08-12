@@ -19,7 +19,7 @@
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS, BASKET_TABLES
 
 class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
@@ -33,8 +33,11 @@ class DBConnector(QObject):
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
-        self.tid = ''  # For BAG OF config, specific for each DB
+        self.tid = ''  # For BAG OF config and basket handling, specific for each DB
+        self.tilitid = ''  # For basket handling, specific for each DB
         self.dispName = ''  # For BAG OF config, specific for each DB
+        self.basket_table_name = ''  # For basket handling, specific for each DB
+        self.dataset_table_name = ''  # For basket handling, specific for each DB
 
     def map_data_types(self, data_type):
         '''Map provider date/time types to QGIS date/time types'''
@@ -185,6 +188,7 @@ class DBConnector(QObject):
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
+        basket_handling = self.get_basket_handling()
         mapping_ili_elements = []
         static_tables = []
         detected_tables = []
@@ -204,6 +208,9 @@ class DBConnector(QObject):
                     continue
             if 'tablename' in record:
                 if record['tablename'] in IGNORED_TABLES:
+                    static_tables.append(record['tablename'])
+                    continue
+                if not basket_handling and record['tablename'] in BASKET_TABLES:
                     static_tables.append(record['tablename'])
                     continue
 
@@ -237,6 +244,12 @@ class DBConnector(QObject):
         Returns the version of the ili2db application that was used to create the schema
         """
         return None
+
+    def get_basket_handling(self):
+        """
+        Returns if there is a basket handling enabled according to the settings table
+        """
+        return False
 
 
 class DBConnectorError(Exception):

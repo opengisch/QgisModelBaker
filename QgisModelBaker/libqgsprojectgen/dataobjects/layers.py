@@ -35,7 +35,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -64,6 +64,10 @@ class Layer(object):
 
         self.coordinate_precision = coordinate_precision
 
+        self.is_basket_table = is_basket_table
+        self.is_dataset_table = is_dataset_table
+        self.model_topic_name = model_topic_name
+
         self.__form = Form()
 
         #legend settings
@@ -78,8 +82,11 @@ class Layer(object):
         definition['isdomain'] = self.is_domain
         definition['isstructure'] = self.is_structure
         definition['isnmrel'] = self.is_nmrel
+        definition['isbaskettable'] = self.is_basket_table
+        definition['isdatasettable'] = self.is_dataset_table
         definition['displayexpression'] = self.display_expression
         definition['coordinateprecision'] = self.coordinate_precision
+        definition['modeltopicname'] = self.model_topic_name
         definition['form'] = self.__form.dump()
         return definition
 
@@ -89,8 +96,11 @@ class Layer(object):
         self.is_domain = definition['isdomain']
         self.is_structure = definition['isstructure']
         self.is_nmrel = definition['isnmrel']
+        self.is_basket_table = definition['isbaskettable']
+        self.is_dataset_table = definition['isdatasettable']
         self.display_expression = definition['displayexpression']
         self.coordinate_precision = definition['coordinateprecision']
+        self.model_topic_name = definition['modeltopicname']
         self.__form.load(definition['form'])
 
     def create(self):
@@ -109,7 +119,7 @@ class Layer(object):
                 if not crs.isValid():
                     crs = QgsCoordinateReferenceSystem(self.srid)  # Fallback
                 self.__layer.setCrs(crs)
-            if self.is_domain:
+            if self.is_domain or self.is_basket_table or self.is_dataset_table:
                 self.__layer.setReadOnly()
             if self.display_expression:
                 self.__layer.setDisplayExpression(self.display_expression)

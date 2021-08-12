@@ -30,7 +30,7 @@ from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from ..dbconnector import pg_connector, gpkg_connector
 from .domain_relations_generator import DomainRelationGenerator
-from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES, BASKET_FIELDNAMES
 from ..db_factory.db_simple_factory import DbSimpleFactory
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
@@ -81,6 +81,7 @@ class Generator(QObject):
 
     def layers(self, filter_layer_list=[]):
         tables_info = self.get_tables_info_without_ignored_tables()
+        basket_handling = self.get_basket_handling()
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -109,27 +110,31 @@ class Generator(QObject):
             if filter_layer_list and record['tablename'] not in filter_layer_list:
                 continue
 
-            is_domain = record['kind_settings'] == 'ENUM' or record[
-                'kind_settings'] == 'CATALOGUE' if 'kind_settings' in record else False
-            is_attribute = bool(record['attribute_name']) if 'attribute_name' in record else False
-            is_structure = record['kind_settings'] == 'STRUCTURE' if 'kind_settings' in record else False
-            is_nmrel = record['kind_settings'] == 'ASSOCIATION' if 'kind_settings' in record else False
+            is_domain = record.get('kind_settings') == 'ENUM' or record.get('kind_settings') == 'CATALOGUE'
+            is_attribute = bool(record.get('attribute_name'))
+            is_structure = record.get('kind_settings') == 'STRUCTURE'
+            is_nmrel = record.get('kind_settings') == 'ASSOCIATION'
+            is_basket_table = record.get('tablename') == self._db_connector.basket_table_name
+            is_dataset_table = record.get('tablename') == self._db_connector.dataset_table_name
 
             alias = record['table_alias'] if 'table_alias' in record else None
             if not alias:
                 short_name = None
                 if is_domain and is_attribute:
-                    short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1] if 'ili_name' in record else ''
+                    short_name = ''
+                    if 'ili_name' in record and record['ili_name']:
+                        short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1]
                 else:
                     if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
                         # multiple layers for this table - append geometry column to name
                         fields_info = self.get_fields_info(record['tablename'])
                         for field_info in fields_info:
                             if field_info['column_name'] == record['geometry_column']:
-                                short_name = field_info['fully_qualified_name'].split('.')[-2] + ' (' + \
-                                             field_info['fully_qualified_name'].split('.')[
-                                                 -1]+')' if 'fully_qualified_name' in field_info else record['tablename']
-                    elif 'ili_name' in record:
+                                if 'fully_qualified_name' in field_info and field_info['fully_qualified_name']:
+                                    short_name =  field_info['fully_qualified_name'].split('.')[-2] + ' (' + field_info['fully_qualified_name'].split('.')[-1]+')'
+                                else:
+                                    short_name = record['tablename']
+                    elif 'ili_name' in record and record['ili_name']:
                         match = re.search('([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
                             short_name = match.group(1).split('.')[-1]
@@ -138,8 +143,18 @@ class Generator(QObject):
                             short_name = match.group(1).split('.')[-2] + ' (' + match.group(1).split('.')[-1]+')'
                 alias = short_name
 
+            model_topic_name = ""
+            if 'ili_name' in record and record['ili_name']:
+                model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
+            
             display_expression = ''
-            if 'ili_name' in record:
+            if is_basket_table:
+                display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || {tilitid} || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
+                    tid=self._db_connector.tid,
+                    tilitid=self._db_connector.tilitid,
+                    dataset_layer_name=self._db_connector.dataset_table_name,
+                )
+            elif 'ili_name' in record and record['ili_name']:
                 meta_attrs = self.get_meta_attrs(record['ili_name'])
                 for attr_record in meta_attrs:
                     if attr_record['attr_name'] == 'dispExpression':
@@ -163,7 +178,10 @@ class Generator(QObject):
                 is_structure,
                 is_nmrel,
                 display_expression,
-                coordinate_precision )
+                coordinate_precision,
+                is_basket_table,
+                is_dataset_table,
+                model_topic_name )
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
@@ -200,6 +218,9 @@ class Generator(QObject):
                                     break
 
                 if column_name in IGNORED_FIELDNAMES:
+                    hide_attribute = True
+
+                if not basket_handling and column_name in BASKET_FIELDNAMES:
                     hide_attribute = True
 
                 field.hidden = hide_attribute
@@ -373,6 +394,8 @@ class Generator(QObject):
                 QCoreApplication.translate('LegendGroup', 'tables'))
             domains = LegendGroup(QCoreApplication.translate(
                 'LegendGroup', 'domains'), False)
+            system = LegendGroup(QCoreApplication.translate(
+                'LegendGroup', 'system'), False)
 
             point_layers = []
             line_layers = []
@@ -390,6 +413,8 @@ class Generator(QObject):
                 else:
                     if layer.is_domain:
                         domains.append(layer)
+                    elif layer.name in [self._db_connector.basket_table_name, self._db_connector.dataset_table_name]:
+                        system.append(layer)
                     else:
                         tables.append(layer)
 
@@ -404,6 +429,8 @@ class Generator(QObject):
                 legend.append(tables)
             if not domains.is_empty():
                 legend.append(domains)
+            if not system.is_empty():
+                legend.append(system)
 
         return legend
 
@@ -461,3 +488,6 @@ class Generator(QObject):
 
     def get_iliname_dbname_mapping(self):
         return self._db_connector.get_iliname_dbname_mapping()
+
+    def get_basket_handling(self):
+        return self._db_connector.get_basket_handling()

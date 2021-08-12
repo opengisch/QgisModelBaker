@@ -137,6 +137,7 @@ class TestDomainClassRelation(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -209,6 +210,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbschema = 'colors_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -365,6 +367,7 @@ class TestDomainClassRelation(unittest.TestCase):
                 datetime.datetime.now()))
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.configuration.db_ili_version = 3
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -441,6 +444,7 @@ class TestDomainClassRelation(unittest.TestCase):
             self.basetestpath, 'tmp_colors_gpkg_{:%Y%m%d%H%M%S%f}.gpkg'.format(
                 datetime.datetime.now()))
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -512,6 +516,7 @@ class TestDomainClassRelation(unittest.TestCase):
             datetime.datetime.now())
         importer.configuration.srs_code = 3116
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -679,6 +684,7 @@ class TestDomainClassRelation(unittest.TestCase):
         importer.configuration.dbschema = 'colors_{:%Y%m%d%H%M%S%f}'.format(
             datetime.datetime.now())
         importer.configuration.inheritance = 'smart2'
+        importer.configuration.create_basket_col = False
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS

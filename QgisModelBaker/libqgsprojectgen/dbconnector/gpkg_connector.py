@@ -27,6 +27,7 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
+GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
 
 
 class GPKGConnector(DBConnector):
@@ -48,7 +49,10 @@ class GPKGConnector(DBConnector):
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
         self.tid = 'T_Id'
+        self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
+        self.basket_table_name = 'T_ILI2DB_BASKET'
+        self.dataset_table_name = 'T_ILI2DB_DATASET'
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -479,3 +483,15 @@ class GPKGConnector(DBConnector):
             return 3
         else:
             return 4
+
+    def get_basket_handling(self):
+        if self._table_exists(GPKG_SETTINGS_TABLE):
+            cursor = self.conn.cursor()
+            cursor.execute("""SELECT setting
+                            FROM {}
+                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            """.format(GPKG_SETTINGS_TABLE))
+            content = cursor.fetchone()
+            if content: 
+                return content[0] == 'readWrite'
+        return False
