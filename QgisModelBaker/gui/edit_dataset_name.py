@@ -39,10 +39,10 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
 
         self.tid, self.datasetname= dataset
         self.db_connector = db_connector
-        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr('Create Dataset') if not self.datasetname else self.tr('Rename Dataset'))
-        self.dataset_line_edit.setText(self.datasetname)
 
-        self.button_box.accepted.connect(self.accepted)
+        self.dataset_line_edit.setText(self.datasetname)
+        self.ok_button.setText(self.tr("Create Dataset") if not self.datasetname else self.tr("Rename Dataset"))
+        self.ok_button.clicked.connect(self.accepted)
 
     def accepted(self):
         new_dataset_name = self.dataset_line_edit.text()
@@ -54,6 +54,7 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(message)
             warning_box.exec_()
+        self.close()
 
     def database_command(self, new_dataset_name):
         if self.tid:
