@@ -21,7 +21,7 @@ from qgis.PyQt.QtCore import pyqtSignal
 from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
 
-from ...utils import get_ui_class
+from ...utils.ui import get_ui_class
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = get_ui_class("pg_settings_panel.ui")

@@ -57,7 +57,7 @@ from QgisModelBaker.utils.qt_utils import (
 from ..libili2db import ili2dbconfig, iliexporter
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..utils import get_ui_class
+from ..utils.ui import get_ui_class
 
 DIALOG_UI = get_ui_class("export.ui")
 

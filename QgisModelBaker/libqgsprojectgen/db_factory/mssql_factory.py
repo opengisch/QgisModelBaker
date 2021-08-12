@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 from QgisModelBaker.gui.panel.mssql_config_panel import MssqlConfigPanel
-from QgisModelBaker.libqgsprojectgen.dataobjects import Field
+from QgisModelBaker.libqgsprojectgen.dataobjects.fields import Field
 
 from ..dbconnector.mssql_connector import MssqlConnector
 from .db_factory import DbFactory

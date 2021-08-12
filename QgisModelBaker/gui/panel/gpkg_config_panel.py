@@ -27,7 +27,7 @@ from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
 )
 
-from ...utils import get_ui_class
+from ...utils.ui import get_ui_class
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = get_ui_class("gpkg_settings_panel.ui")

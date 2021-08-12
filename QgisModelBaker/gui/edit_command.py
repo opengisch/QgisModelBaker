@@ -20,7 +20,7 @@
 from qgis.gui import QgsGui
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
-from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils.ui import get_ui_class
 
 DIALOG_UI = get_ui_class("edit_command.ui")
 

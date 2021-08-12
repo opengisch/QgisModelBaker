@@ -77,11 +77,11 @@ from QgisModelBaker.utils.qt_utils import (
 
 from ..libili2db import iliimporter
 from ..libili2db.globals import DbIliMode
-from ..libqgsprojectgen.dataobjects import Project
+from ..libqgsprojectgen.dataobjects.project import Project
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ..libqgsprojectgen.generator.generator import Generator
-from ..utils import get_ui_class
+from ..utils.ui import get_ui_class
 
 DIALOG_UI = get_ui_class("generate_project.ui")
 

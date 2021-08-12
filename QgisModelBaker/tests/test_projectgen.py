@@ -40,7 +40,7 @@ from QgisModelBaker.libili2db.ilicache import (
     IliToppingFileCache,
     IliToppingFileItemModel,
 )
-from QgisModelBaker.libqgsprojectgen.dataobjects import Project
+from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import (
     GpkgCommandConfigManager,
 )
