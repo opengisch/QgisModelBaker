@@ -606,8 +606,9 @@ WHERE TABLE_SCHEMA='{schema}'
             cur = self.conn.cursor()
             try:
                 cur.execute("""
-                    UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
-                """.format(schema=self.schema, dataset_table=DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                    UPDATE {schema}.{dataset_table} SET datasetname = %(datasetname)s WHERE {tid_name} = {tid}
+                    """.format(schema=self.schema, dataset_table=DATASET_TABLE, tid_name=self.tid, tid=tid),
+                    { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except pyodbc.errors.UniqueViolation as e:

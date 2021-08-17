@@ -92,6 +92,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 self, DbActionType.EXPORT)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
+        self.ili_mode = self.type_combo_box.currentData()
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
@@ -132,8 +133,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.create_baskets_button.setEnabled(self._valid_selection())
 
     def _type_changed(self):
-        ili_mode = self.type_combo_box.currentData()
-        db_id = ili_mode & ~DbIliMode.ili
+        self.ili_mode = self.type_combo_box.currentData()
+        db_id = self.ili_mode & ~DbIliMode.ili
 
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
@@ -232,7 +233,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _updated_configuration(self):
         configuration = Ili2DbCommandConfiguration()
 
-        mode = self.type_combo_box.currentData()
+        mode = self.ili_mode
         self._lst_panel[mode].get_fields(configuration)
 
         configuration.tool = mode
