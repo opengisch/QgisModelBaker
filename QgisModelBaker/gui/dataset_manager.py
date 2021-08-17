@@ -25,6 +25,7 @@ from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
+from qgis.core import QgsProject
 
 from qgis.PyQt.QtWidgets import (
     QDialog,
@@ -74,9 +75,12 @@ class DatasetSourceModel(QStandardItemModel):
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
 
-    def __init__(self, parent=None):
+    def __init__(self, iface, parent=None):
 
         QDialog.__init__(self, parent)
+        self.iface = iface
+        self._close_editing()
+
         self.setupUi(self)
         self.buttonBox.accepted.connect(self._accepted)
         self.buttonBox.rejected.connect(self._rejected)
@@ -92,7 +96,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 self, DbActionType.EXPORT)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
-        self.ili_mode = self.type_combo_box.currentData()
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
@@ -120,6 +123,21 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.create_baskets_button.clicked.connect(self._create_baskets)
         self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self._enable_dataset_handling(True))
 
+    def _close_editing(self):
+        editable_layers = []
+        for layer in QgsProject.instance().mapLayers().values():
+            self.iface.vectorLayerTools().stopEditing(layer)
+            if layer.isEditable():
+                editable_layers.append(layer)
+        if editable_layers:    
+            warning_box = QMessageBox(self)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_title = self.tr("Layers still editable")
+            warning_box.setWindowTitle(warning_title)
+            warning_box.setText(self.tr("You have still layers in editable mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}").format('\n - '.join([layer.name() for layer in editable_layers])))
+            warning_box.exec_()
+
+
     def _valid_selection(self):
         """
         Returns if at least one dataset is selected
@@ -133,8 +151,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.create_baskets_button.setEnabled(self._valid_selection())
 
     def _type_changed(self):
-        self.ili_mode = self.type_combo_box.currentData()
-        db_id = self.ili_mode & ~DbIliMode.ili
+        ili_mode = self.type_combo_box.currentData()
+        db_id = ili_mode & ~DbIliMode.ili
 
         self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
 
@@ -233,7 +251,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _updated_configuration(self):
         configuration = Ili2DbCommandConfiguration()
 
-        mode = self.ili_mode
+        mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
 
         configuration.tool = mode

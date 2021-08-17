@@ -233,7 +233,7 @@ class QgisModelBakerPlugin(QObject):
         if self.datasetmanager_dlg:
             self.datasetmanager_dlg.reject()
         else:
-            self.datasetmanager_dlg = DatasetManagerDialog(self.iface.mainWindow())
+            self.datasetmanager_dlg = DatasetManagerDialog(self.iface, self.iface.mainWindow())
             self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(self.datasetmanager_dlg.windowFlags() | Qt.Tool)
             self.datasetmanager_dlg.show()
