@@ -635,9 +635,11 @@ class PGConnector(DBConnector):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             try: 
-                cur.execute("""
-                    INSERT INTO {schema}.{dataset_table} VALUES (nextval('{schema}.{sequence}'), '{datasetname}')
-                """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=PG_DATASET_TABLE, datasetname = datasetname ))
+                cur.execute(
+                    """
+                    INSERT INTO {schema}.{dataset_table} VALUES (nextval('{schema}.{sequence}'), %(datasetname)s)
+                    """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=PG_DATASET_TABLE)
+                    , { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except psycopg2.errors.UniqueViolation as e:
@@ -649,8 +651,9 @@ class PGConnector(DBConnector):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             try:
                 cur.execute("""
-                    UPDATE {schema}.{dataset_table} SET datasetname = '{datasetname}' WHERE {tid_name} = {tid}
-                """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                    UPDATE {schema}.{dataset_table} SET datasetname = %(datasetname)s WHERE {tid_name} = {tid}
+                    """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE, tid_name=self.tid, tid=tid),
+                    { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully renamed dataset \"{}\".").format(datasetname)
             except psycopg2.errors.UniqueViolation as e:

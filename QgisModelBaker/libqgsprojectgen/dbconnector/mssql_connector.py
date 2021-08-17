@@ -592,8 +592,9 @@ WHERE TABLE_SCHEMA='{schema}'
             cur = self.conn.cursor()
             try:
                 cur.execute("""
-                    INSERT INTO {schema}.{dataset_table} VALUES (NEXT VALUE FOR {schema}.{sequence}, '{datasetname}')
-                """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=DATASET_TABLE, datasetname = datasetname ))
+                    INSERT INTO {schema}.{dataset_table} VALUES (NEXT VALUE FOR {schema}.{sequence}, %(datasetname)s)
+                    """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=DATASET_TABLE ),
+                    { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except pyodbc.errors.UniqueViolation as e:

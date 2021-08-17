@@ -528,8 +528,9 @@ class GPKGConnector(DBConnector):
             cur = self.conn.cursor()
             try:
                 cur.execute("""
-                    INSERT INTO {dataset_table} (datasetName) VALUES ('{datasetname}')
-                """.format(dataset_table=GPKG_DATASET_TABLE, datasetname = datasetname ))
+                    INSERT INTO {dataset_table} (datasetName) VALUES (:datasetname)
+                    """.format(dataset_table=GPKG_DATASET_TABLE ),
+                    { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
             except sqlite3.Error as e:
@@ -542,8 +543,9 @@ class GPKGConnector(DBConnector):
             cur = self.conn.cursor()
             try:
                 cur.execute("""
-                    UPDATE {dataset_table} SET datasetName = '{datasetname}' WHERE {tid_name} = {tid}
-                """.format(dataset_table=GPKG_DATASET_TABLE, datasetname=datasetname, tid_name=self.tid, tid=tid))
+                    UPDATE {dataset_table} SET datasetName = :datasetname WHERE {tid_name} = {tid}
+                    """.format(dataset_table=GPKG_DATASET_TABLE, tid_name=self.tid, tid=tid),
+                    { 'datasetname': datasetname })
                 self.conn.commit()
                 return True, self.tr("Successfully renamed dataset to \"{}\".").format(datasetname)
             except sqlite3.Error as e:
