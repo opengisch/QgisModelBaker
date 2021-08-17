@@ -120,7 +120,10 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self.enable_dataset_handling(True))
 
     def valid_selection(self):
-        return bool(len(self.dataset_tableview.selectedIndexes()))
+    """
+    Returns if at least one dataset is selected
+    """
+        return bool(self.dataset_tableview.selectedIndexes())
 
     def enable_dataset_handling(self, enable):
         self.dataset_tableview.setEnabled(enable)
