@@ -93,6 +93,13 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>pg_host_line_edit</tabstop>
+  <tabstop>pg_port_line_edit</tabstop>
+  <tabstop>pg_database_line_edit</tabstop>
+  <tabstop>pg_schema_line_edit</tabstop>
+  <tabstop>pg_use_super_login</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
