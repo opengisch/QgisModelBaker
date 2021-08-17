@@ -60,7 +60,7 @@ class DatasetSourceModel(QStandardItemModel):
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def _reload_datasets(self, db_connector):
+    def reload_datasets(self, db_connector):
         datasets_info = db_connector.get_datasets_info()
         self.beginResetModel()
         self.clear()
@@ -78,8 +78,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.buttonBox.accepted.connect(self.accepted)
-        self.buttonBox.rejected.connect(self.rejected)
+        self.buttonBox.accepted.connect(self._accepted)
+        self.buttonBox.rejected.connect(self._rejected)
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -93,7 +93,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
-        self.type_combo_box.currentIndexChanged.connect(self.type_changed)
+        self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
         self.dataset_model = DatasetSourceModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -102,36 +102,36 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setSelectionMode(QTableView.SingleSelection)
         self.dataset_tableview.setModel(self.dataset_model)
 
-        self.restore_configuration()
+        self._restore_configuration()
 
         #refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
         self.refreshTimer.setSingleShot(True)
-        self.refreshTimer.timeout.connect(self.refresh_datasets)
+        self.refreshTimer.timeout.connect(lambda: self._refresh_datasets(self._updated_configuration()))
 
         for key, value in self._lst_panel.items():
-            value.notify_fields_modified.connect(self.request_for_refresh_datasets)
+            value.notify_fields_modified.connect(self._request_for_refresh_datasets)
 
-        self.reload_datasets(self.updated_configuration())
+        self._refresh_datasets(self._updated_configuration())
 
-        self.add_button.clicked.connect(self.add_dataset)
-        self.edit_button.clicked.connect(self.edit_dataset)
-        self.create_baskets_button.clicked.connect(self.create_baskets)
-        self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self.enable_dataset_handling(True))
+        self.add_button.clicked.connect(self._add_dataset)
+        self.edit_button.clicked.connect(self._edit_dataset)
+        self.create_baskets_button.clicked.connect(self._create_baskets)
+        self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self._enable_dataset_handling(True))
 
-    def valid_selection(self):
-    """
-    Returns if at least one dataset is selected
-    """
+    def _valid_selection(self):
+        """
+        Returns if at least one dataset is selected
+        """
         return bool(self.dataset_tableview.selectedIndexes())
 
-    def enable_dataset_handling(self, enable):
+    def _enable_dataset_handling(self, enable):
         self.dataset_tableview.setEnabled(enable)
         self.add_button.setEnabled(enable)
-        self.edit_button.setEnabled(self.valid_selection())
-        self.create_baskets_button.setEnabled(self.valid_selection())
+        self.edit_button.setEnabled(self._valid_selection())
+        self.create_baskets_button.setEnabled(self._valid_selection())
 
-    def type_changed(self):
+    def _type_changed(self):
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
 
@@ -143,47 +143,40 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
-        self.reload_datasets(self.updated_configuration())
+        self._refresh_datasets(self._updated_configuration())
 
-    def request_for_refresh_datasets(self):
+    def _request_for_refresh_datasets(self):
         # hold refresh back
         self.refreshTimer.start(500)
-
-    """
-    Refreshes the list of datasets.
-    Do not call this directly, use the request_for_refresh_datasets() method instead.
-    """
-    def _refresh_datasets(self):
-        self.reload_datasets(self.updated_configuration())
         
-    def reload_datasets(self, configuration):
-        db_connector = self.get_db_connector(configuration)
+    def _refresh_datasets(self, configuration):
+        db_connector = self._get_db_connector(configuration)
         if db_connector and db_connector.get_basket_handling:
-            self.enable_dataset_handling(True)
+            self._enable_dataset_handling(True)
             return self.dataset_model.reload_datasets(db_connector)
         else:
-            self.enable_dataset_handling(False)
+            self._enable_dataset_handling(False)
             return self.dataset_model.clear()
 
-    def add_dataset(self):
-        db_connector = self.get_db_connector(self.updated_configuration())
+    def _add_dataset(self):
+        db_connector = self._get_db_connector(self._updated_configuration())
         if db_connector and db_connector.get_basket_handling:
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
             edit_dataset_dialog.exec_()
-        self.reload_datasets(self.updated_configuration())
+        self._refresh_datasets(self._updated_configuration())
 
-    def edit_dataset(self):
-        if self.valid_selection():
-            db_connector = self.get_db_connector(self.updated_configuration())
+    def _edit_dataset(self):
+        if self._valid_selection():
+            db_connector = self._get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
                 dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetSourceModel.Roles.DATASETNAME)))
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset )
                 edit_dataset_dialog.exec_()
-            self.reload_datasets(self.updated_configuration())
+            self._refresh_datasets(self._updated_configuration())
 
-    def create_baskets(self):
-        if self.valid_selection():
-            db_connector = self.get_db_connector(self.updated_configuration())
+    def _create_baskets(self):
+        if self._valid_selection():
+            db_connector = self._get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
                 feedbacks = []
                 for record in db_connector.get_topics_info():
@@ -191,23 +184,23 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     status, message = db_connector.create_basket( dataset_tid, '.'.join([record['model'], record['topic']]))
                     feedbacks.append((status, message))
     
-                warning_box = QMessageBox(self)
-                warning_box.setIcon(QMessageBox.Information if len([feedback for feedback in feedbacks if feedback[0]]) else QMessageBox.Warning)
-                warning_title = self.tr("Created baskets")
-                warning_box.setWindowTitle(warning_title)
-                warning_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
-                warning_box.exec_()
+                info_box = QMessageBox(self)
+                info_box.setIcon(QMessageBox.Information if len([feedback for feedback in feedbacks if feedback[0]]) else QMessageBox.Warning)
+                info_title = self.tr("Created baskets")
+                info_box.setWindowTitle(info_title)
+                info_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
+                info_box.exec_()
 
-    def db_ili_version(self, configuration):
+    def _db_ili_version(self, configuration):
         """
         Returns the ili2db version the database has been created with or None if the database
         could not be detected as a ili2db database
         """ 
-        db_connector = self.get_db_connector(configuration)
+        db_connector = self._get_db_connector(configuration)
         if db_connector:
             return db_connector.ili_version()
 
-    def get_db_connector(self, configuration):
+    def _get_db_connector(self, configuration):
         schema = configuration.dbschema
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
@@ -219,7 +212,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         except (DBConnectorError, FileNotFoundError):
             return None
 
-    def restore_configuration(self):
+    def _restore_configuration(self):
         settings = QSettings()
 
         for db_id in self.db_simple_factory.get_db_list(False):
@@ -234,20 +227,20 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
-        self.type_changed()
+        self._type_changed()
 
-    def updated_configuration(self):
+    def _updated_configuration(self):
         configuration = Ili2DbCommandConfiguration()
 
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
 
         configuration.tool = mode
-        configuration.db_ili_version = self.db_ili_version(configuration)
+        configuration.db_ili_version = self._db_ili_version(configuration)
         configuration.dbschema = configuration.dbschema or configuration.database
         return configuration
 
-    def save_configuration(self, configuration):
+    def _save_configuration(self, configuration):
         settings = QSettings()
         settings.setValue('QgisModelBaker/importtype',
                           self.type_combo_box.currentData().name)
@@ -256,10 +249,10 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         config_manager = db_factory.get_db_command_config_manager(configuration)
         config_manager.save_config_in_qsettings()
 
-    def accepted(self):
-        self.save_configuration(self.updated_configuration())
+    def _accepted(self):
+        self._save_configuration(self._updated_configuration())
         self.close()
 
-    def rejected(self):
-        self.restore_configuration()
+    def _rejected(self):
+        self._restore_configuration()
         self.close()
