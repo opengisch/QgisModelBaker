@@ -142,6 +142,9 @@
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="create_baskets_button">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a &lt;span style=&quot; font-weight:600;&quot;&gt;basket&lt;/span&gt; per &lt;span style=&quot; font-weight:600;&quot;&gt;topic&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;dataset &lt;/span&gt;in the &lt;span style=&quot; font-style:italic;&quot;&gt;t_ili2db_basket&lt;/span&gt; table.&lt;/p&gt;&lt;p&gt;While a dataset is just an entry in the &lt;span style=&quot; font-style:italic;&quot;&gt;t_ili2db_dataset&lt;/span&gt; table, there must be baskets for each entry that can be selected. Usually there exists only one basket topic and per dataset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Create baskets for selected dataset</string>
            </property>
