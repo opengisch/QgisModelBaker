@@ -60,7 +60,7 @@ class DatasetSourceModel(QStandardItemModel):
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def reload_datasets(self, db_connector):
+    def _reload_datasets(self, db_connector):
         datasets_info = db_connector.get_datasets_info()
         self.beginResetModel()
         self.clear()
