@@ -149,7 +149,11 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         # hold refresh back
         self.refreshTimer.start(500)
 
-    def refresh_datasets(self):
+    """
+    Refreshes the list of datasets.
+    Do not call this directly, use the request_for_refresh_datasets() method instead.
+    """
+    def _refresh_datasets(self):
         self.reload_datasets(self.updated_configuration())
         
     def reload_datasets(self, configuration):
