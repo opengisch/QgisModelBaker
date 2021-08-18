@@ -20,6 +20,7 @@ import os
 import errno
 import re
 import sqlite3
+import uuid
 import qgis.utils
 from qgis.core import Qgis
 from .db_connector import DBConnector, DBConnectorError
@@ -27,7 +28,9 @@ from ..generator.config import GPKG_FILTER_TABLES_MATCHING_PREFIX_SUFFIX
 
 GPKG_METADATA_TABLE = 'T_ILI2DB_TABLE_PROP'
 GPKG_METAATTRS_TABLE = 'T_ILI2DB_META_ATTRS'
-
+GPKG_SETTINGS_TABLE = 'T_ILI2DB_SETTINGS'
+GPKG_DATASET_TABLE = 'T_ILI2DB_DATASET'
+GPKG_BASKET_TABLE = 'T_ILI2DB_BASKET'
 
 class GPKGConnector(DBConnector):
 
@@ -48,7 +51,10 @@ class GPKGConnector(DBConnector):
         self._tables_info = self._get_tables_info()
         self.iliCodeName = 'iliCode'
         self.tid = 'T_Id'
+        self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
+        self.basket_table_name = 'T_ILI2DB_BASKET'
+        self.dataset_table_name = 'T_ILI2DB_DATASET'
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -479,3 +485,104 @@ class GPKGConnector(DBConnector):
             return 3
         else:
             return 4
+
+    def get_basket_handling(self):
+        if self._table_exists(GPKG_SETTINGS_TABLE):
+            cursor = self.conn.cursor()
+            cursor.execute("""SELECT setting
+                            FROM {}
+                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            """.format(GPKG_SETTINGS_TABLE))
+            content = cursor.fetchone()
+            if content: 
+                return content[0] == 'readWrite'
+        return False
+    
+    def get_baskets_info(self):
+        if self._table_exists(GPKG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT b.t_id as basket_t_id, 
+                            b.t_ili_tid as basket_t_ili_tid, 
+                            b.topic as topic, 
+                            d.t_id as dataset_t_id,
+                            d.datasetname as datasetname from {basket_table} b
+                            JOIN {dataset_table} d
+                            ON b.dataset = d.t_id
+                        """.format(basket_table=GPKG_BASKET_TABLE, dataset_table=GPKG_DATASET_TABLE))
+            contents = cur.fetchall()
+            return contents
+        return {}
+
+    def get_datasets_info(self):        
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""SELECT t_id, datasetname
+                           FROM {dataset_table}
+                        """.format(dataset_table=GPKG_DATASET_TABLE))
+            contents = cur.fetchall()
+            return contents
+        return {}
+        
+    def create_dataset(self, datasetname):
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    INSERT INTO {dataset_table} (datasetName) VALUES (:datasetname)
+                    """.format(dataset_table=GPKG_DATASET_TABLE ),
+                    { 'datasetname': datasetname })
+                self.conn.commit()
+                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not create dataset \"{}\": {}").format(datasetname, error_message)
+        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
+
+    def rename_dataset(self, tid, datasetname):
+        if self._table_exists(GPKG_DATASET_TABLE):
+            cur = self.conn.cursor()
+            try:
+                cur.execute("""
+                    UPDATE {dataset_table} SET datasetName = :datasetname WHERE {tid_name} = {tid}
+                    """.format(dataset_table=GPKG_DATASET_TABLE, tid_name=self.tid, tid=tid),
+                    { 'datasetname': datasetname })
+                self.conn.commit()
+                return True, self.tr("Successfully renamed dataset to \"{}\".").format(datasetname)
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not rename dataset to \"{}\": {}").format(datasetname, error_message)
+        return False, self.tr("Could not rename dataset to \"{}\".").format(datasetname)
+        
+
+    def get_topics_info(self):
+        if  self._table_exists("T_ILI2DB_CLASSNAME"):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT DISTINCT substr(IliName, 0, instr(IliName, '.')) as model,
+                    substr(substr(IliName, instr(IliName, '.')+1),0, instr(substr(IliName, instr(IliName, '.')+1),'.')) as topic
+                    FROM T_ILI2DB_CLASSNAME
+                """)
+            contents = cur.fetchall()
+            return contents
+        return {}
+
+    def create_basket(self, dataset_tid, topic):
+        if self._table_exists(GPKG_BASKET_TABLE):
+            cur = self.conn.cursor()
+            cur.execute("""
+                    SELECT * FROM {basket_table} 
+                    WHERE dataset = {dataset_tid} and topic = '{topic}'
+                """.format(basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+            if cur.fetchone():
+                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
+            try: 
+                cur.execute("""
+                    INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
+                    VALUES ({dataset_tid}, '{topic}', '{uuid}', 'Qgis Model Baker')
+                """.format(tilitid_name = self.tilitid, basket_table=GPKG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic, uuid=uuid.uuid4() ))
+                self.conn.commit()
+                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
+            except sqlite3.Error as e:
+                error_message = ' '.join(e.args)
+                return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
+        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)

@@ -28,6 +28,7 @@ import datetime
 from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.export import ExportDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
+from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.drop_message import DropMessageDialog
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
@@ -56,11 +57,13 @@ class QgisModelBakerPlugin(QObject):
         self.export_dlg = None
         self.importdata_dlg = None
         self.workflow_wizard_dlg = None
+        self.datasetmanager_dlg = None
 
         self.__generate_action = None
         self.__export_action = None
         self.__importdata_action = None
         self.__workflow_wizard_action = None
+        self.__datasetmanager_action = None
         self.__configure_action = None
         self.__help_action = None
         self.__about_action = None
@@ -104,12 +107,14 @@ class QgisModelBakerPlugin(QObject):
         if 'projectgenerator' in available_plugins:
             pyplugin_installer.instance().uninstallPlugin('projectgenerator', quiet=True)
 
-        self.__generate_action = QAction(QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-icon.svg')),
-                                         self.tr('Generate'), None)
-        self.__export_action = QAction(QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-export-icon.svg')),
-                                       self.tr('Export Interlis Transfer File (.xtf)'), None)
-        self.__importdata_action = QAction(QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-import-icon.svg')),
-                                           self.tr('Import Interlis Transfer File (.xtf)'), None)
+        self.__generate_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-icon.svg')),
+            self.tr('Generate'), None)
+        self.__export_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-export-icon.svg')),
+            self.tr('Export Interlis Transfer File (.xtf)'), None)
+        self.__importdata_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-xtf-import-icon.svg')),
+            self.tr('Import Interlis Transfer File (.xtf)'), None)
+        self.__datasetmanager_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-datasetmanager-icon.svg')),
+            self.tr('Dataset Manager'), None)
         self.__workflow_wizard_action = QAction(QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-wizard.svg')),
                                               self.tr('Start import workflow'), None)
         self.__configure_action = QAction(
@@ -125,10 +130,12 @@ class QgisModelBakerPlugin(QObject):
         self.__generate_action.setCheckable(True)
         self.__export_action.setCheckable(True)
         self.__importdata_action.setCheckable(True)
+        self.__datasetmanager_action.setCheckable(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__importdata_action.triggered.connect(self.show_importdata_dialog)
+        self.__datasetmanager_action.triggered.connect(self.show_datasetmanager_dialog)
         self.__export_action.triggered.connect(self.show_export_dialog)
         self.__workflow_wizard_action.triggered.connect(self.show_workflow_wizard_dialog)
         self.__help_action.triggered.connect(self.show_help_documentation)
@@ -142,6 +149,8 @@ class QgisModelBakerPlugin(QObject):
             self.tr('Model Baker'), self.__importdata_action)
         self.iface.addPluginToDatabaseMenu(
             self.tr('Model Baker'), self.__export_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr('Model Baker'), self.__datasetmanager_action)
         self.iface.addPluginToDatabaseMenu(
             self.tr('Model Baker'), self.__configure_action)
         self.iface.addPluginToDatabaseMenu(
@@ -158,6 +167,7 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
+        self.toolbar.addAction(self.__datasetmanager_action)
         self.register_event_filter()
 
     def unload(self):
@@ -169,6 +179,8 @@ class QgisModelBakerPlugin(QObject):
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__export_action)
         self.iface.removePluginDatabaseMenu(
+            self.tr('Model Baker'), self.__datasetmanager_action)
+        self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__configure_action)
         self.iface.removePluginDatabaseMenu(
             self.tr('Model Baker'), self.__help_action)
@@ -178,6 +190,7 @@ class QgisModelBakerPlugin(QObject):
         del self.__export_action
         del self.__importdata_action
         del self.__workflow_wizard_action
+        del self.__datasetmanager_action
         del self.__configure_action
         del self.__help_action
         del self.__about_action
@@ -252,6 +265,21 @@ class QgisModelBakerPlugin(QObject):
     def importdata_dialog_finished(self):
         self.__importdata_action.setChecked(False)
         self.importdata_dlg = None
+    
+    def show_datasetmanager_dialog(self):
+        if self.datasetmanager_dlg:
+            self.datasetmanager_dlg.reject()
+        else:
+            self.datasetmanager_dlg = DatasetManagerDialog(self.iface, self.iface.mainWindow())
+            self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setWindowFlags(self.datasetmanager_dlg.windowFlags() | Qt.Tool)
+            self.datasetmanager_dlg.show()
+            self.datasetmanager_dlg.finished.connect(self.datasetmanager_dialog_finished)
+            self.__datasetmanager_action.setChecked(True)
+
+    def datasetmanager_dialog_finished(self):
+        self.__datasetmanager_action.setChecked(False)
+        self.datasetmanager_dlg = None
 
     def show_options_dialog(self):
         dlg = OptionsDialog(self.ili2db_configuration)

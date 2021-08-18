@@ -151,7 +151,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
-        create_basket_col = settings.value('QgisModelBaker/ili2db/create_basket_col', defaultValue=False, type=bool)
+        create_basket_col = settings.value('QgisModelBaker/ili2db/create_basket_col', defaultValue=True, type=bool)
         create_import_tid = settings.value('QgisModelBaker/ili2db/create_import_tid', defaultValue=True, type=bool)
         stroke_arcs = settings.value('QgisModelBaker/ili2db/stroke_arcs', defaultValue=True, type=bool)
 

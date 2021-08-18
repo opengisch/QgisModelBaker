@@ -19,7 +19,7 @@
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS
+from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS, BASKET_TABLES
 
 class DBConnector(QObject):
     '''SuperClass for all DB connectors.'''
@@ -33,8 +33,11 @@ class DBConnector(QObject):
         self.QGIS_TIME_TYPE = 'time'
         self.QGIS_DATE_TIME_TYPE = 'datetime'
         self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
-        self.tid = ''  # For BAG OF config, specific for each DB
+        self.tid = ''  # For BAG OF config and basket handling, specific for each DB
+        self.tilitid = ''  # For basket handling, specific for each DB
         self.dispName = ''  # For BAG OF config, specific for each DB
+        self.basket_table_name = ''  # For basket handling, specific for each DB
+        self.dataset_table_name = ''  # For basket handling, specific for each DB
 
     def map_data_types(self, data_type):
         '''Map provider date/time types to QGIS date/time types'''
@@ -185,6 +188,7 @@ class DBConnector(QObject):
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
+        basket_handling = self.get_basket_handling()
         mapping_ili_elements = []
         static_tables = []
         detected_tables = []
@@ -204,6 +208,9 @@ class DBConnector(QObject):
                     continue
             if 'tablename' in record:
                 if record['tablename'] in IGNORED_TABLES:
+                    static_tables.append(record['tablename'])
+                    continue
+                if not basket_handling and record['tablename'] in BASKET_TABLES:
                     static_tables.append(record['tablename'])
                     continue
 
@@ -238,6 +245,68 @@ class DBConnector(QObject):
         """
         return None
 
+    def get_basket_handling(self):
+        """
+        Returns if there is a basket handling enabled according to the settings table
+        """
+        return False
+
+    def get_baskets_info(self):
+        """
+        Info about baskets found in the basket table and the related datasetname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                basket_t_id
+                basket_t_ili_tid
+                topic
+                dataset_t_id
+                datasetname
+        """
+        return {}
+
+    def get_datasets_info(self):
+        """
+        Info about datasets found in the dataset table
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                t_id
+                datasetname
+        """
+        return {}
+
+    def create_dataset(self, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def rename_dataset(self, tid, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def get_topics_info(self):
+        """
+        Returns all the topics found in the table t_ili2db_classname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                model
+                topic
+        """
+        return {}
+    
+    def create_basket(self, dataset_tid, topic):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.

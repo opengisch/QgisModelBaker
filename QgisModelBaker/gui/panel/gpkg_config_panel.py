@@ -52,19 +52,18 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.gpkgSaveFileValidator = FileValidator(
             pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
-        self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions],
-                                                   allow_non_existing=(self._db_action_type == DbActionType.IMPORT_DATA))
+        self.gpkgOpenFileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions])
         self.gpkg_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits)
 
         self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def _show_panel(self):
-        if self.interlis_mode:
+        if self.interlis_mode or self._db_action_type == DbActionType.IMPORT_DATA:
             validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),
                                         file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"),
-                                                    extensions=['.' + ext for ext in self.ValidExtensions])
+                                                    extensions=['.' + ext for ext in self.ValidExtensions], dont_confirm_overwrite = True )
         else:
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(self.gpkg_file_line_edit, title=self.tr("Open GeoPackage database file"),

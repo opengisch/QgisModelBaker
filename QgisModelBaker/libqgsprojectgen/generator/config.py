@@ -1,12 +1,15 @@
 IGNORED_FIELDNAMES = [
     't_id',
     't_seq',
-    't_basket',
     't_ili_tid',
     'T_Id',
-    'T_basket',
     'T_Seq',
     'T_Ili_Tid'
+]
+
+BASKET_FIELDNAMES = [
+    't_basket',
+    'T_basket'
 ]
 
 READONLY_FIELDNAMES = [

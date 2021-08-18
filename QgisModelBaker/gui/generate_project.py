@@ -436,7 +436,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.progress_bar.setValue(55)
 
-            project = Project()
+            # on geopackages we don't use the transaction mode on default, since this leaded to troubles
+            auto_transaction = not bool(configuration.tool & DbIliMode.gpkg)
+            project = Project(auto_transaction)
             project.layers = available_layers
             project.relations = relations
             project.bags_of_enum = bags_of_enum
@@ -465,19 +467,20 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 qml_section = dict(self.metaconfig['qgis.modelbaker.qml'])
                 qml_file_model = self.get_topping_file_model(list(qml_section.values()))
                 for layer in project.layers:
-                    if any(layer.alias.lower() == s for s in qml_section):
-                        layer_qml = layer.alias.lower()
-                    elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
-                        layer_qml = f'"{layer.alias.lower()}"'
-                    else:
-                        continue
-                    matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
-                                                   qml_section[layer_qml], 1)
-                    if matches:
-                        style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
-                        self.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
-                                        COLOR_TOPPING)
-                        layer.layer.loadNamedStyle(style_file_path)
+                    if layer.alias:
+                        if any(layer.alias.lower() == s for s in qml_section):
+                            layer_qml = layer.alias.lower()
+                        elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                            layer_qml = f'"{layer.alias.lower()}"'
+                        else:
+                            continue
+                        matches = qml_file_model.match(qml_file_model.index(0, 0), Qt.DisplayRole,
+                                                    qml_section[layer_qml], 1)
+                        if matches:
+                            style_file_path = matches[0].data(int(IliToppingFileItemModel.Roles.LOCALFILEPATH))
+                            self.print_info(self.tr('Apply QML topping on layer {}:{}…').format(layer.alias, style_file_path),
+                                            COLOR_TOPPING)
+                            layer.layer.loadNamedStyle(style_file_path)
 
             self.progress_bar.setValue(80)
 

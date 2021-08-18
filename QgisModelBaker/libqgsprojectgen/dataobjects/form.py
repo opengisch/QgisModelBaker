@@ -47,7 +47,7 @@ class Form(object):
             if relation.referenced_layer == layer:
                 # get other relations, that have the same referencing_layer and set the first as nm-rel
                 for other_relation in project.relations:
-                    if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer and relation.referencing_layer.is_nmrel:
+                    if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer and relation.referencing_layer.is_nmrel and not other_relation.referenced_layer.is_basket_table:
                         edit_form_config.setWidgetConfig(relation.id, {'nm-rel': other_relation.id})
                         break
         return edit_form_config
