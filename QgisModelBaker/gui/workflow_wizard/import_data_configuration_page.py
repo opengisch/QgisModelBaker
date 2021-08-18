@@ -17,7 +17,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import Enum
 
 from PyQt5.uic.uiparser import _parse_alignment
 
@@ -33,16 +32,11 @@ from qgis.PyQt.QtWidgets import (
 
 from qgis.PyQt.QtCore import (
     Qt,
-    QVariant,
-    QAbstractTableModel
+    QVariant
 )
 
-from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem
-)
-
-
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
@@ -50,36 +44,13 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class('workflow_wizard/import_data_configuration.ui')
-
-class DatasetSourceModel(QStandardItemModel):
-    class Roles(Enum):
-        TID = Qt.UserRole + 1
-        DATASETNAME = Qt.UserRole + 2
-
-        def __int__(self):
-            return self.value
-
-    def __init__(self):
-        super().__init__()
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
-    def reload_datasets(self, db_connector):
-        datasets_info = db_connector.get_datasets_info()
-        self.beginResetModel()
-        self.clear()
-        for record in datasets_info:
-            item = QStandardItem()
-            item.setData(record['datasetname'], int(Qt.DisplayRole))
-            item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-            item.setData(record['t_id'], int(DatasetSourceModel.Roles.TID))
-            self.appendRow(item)
-        self.endResetModel()
 class Delegate(QItemDelegate):
-    def __init__(self, owner, choices):
-        super().__init__(owner)
-        self.items = choices
+    def __init__(self, parent, db_connector):
+        super().__init__(parent)
+        self.refresh_datasets(db_connector)
+    def refresh_datasets(self, db_connector):
+        datasets_info = db_connector.get_datasets_info()
+        self.items = [record['datasetname'] for record in datasets_info]
     def createEditor(self, parent, option, index):
         self.editor = QComboBox(parent)
         self.editor.addItems(self.items)
@@ -101,24 +72,6 @@ class Delegate(QItemDelegate):
         model.setData(index, Qt.DisplayRole, QVariant(value))
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
-class Model(QAbstractTableModel):
-    def __init__(self, table):
-        super().__init__()
-        self.table = table
-    def rowCount(self, parent):
-        return len(self.table)
-    def columnCount(self, parent):
-        return len(self.table[0])
-    def flags(self, index):
-        return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
-    def data(self, index, role):
-        if role == Qt.DisplayRole:
-            return self.table[index.row()][index.column()]
-    def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            self.table[index.row()][index.column()] = value
-        return True
-
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def __init__(self, parent, title):
@@ -139,26 +92,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
-        
-        # hide dataset column because not yet implemented
-        # self.file_table_view.setColumnHidden(1,True)
-
-        choices = ['apple', 'orange', 'banana']
-        table = []
-        table.append(['A', choices[0]])
-        table.append(['B', choices[0]])
-        table.append(['C', choices[0]])
-        table.append(['D', choices[0]])
-        # create table view:
-        self.model = Model(table)
-        self.file_table_view.setModel( self.model)
-        
-        self.file_table_view.setItemDelegateForColumn(1, Delegate(self,choices))
-        # make combo boxes editable with a single-click:
-        for row in range( len(table) ):
-            self.file_table_view.openPersistentEditor(self.model.index(row, 1))
-
-
+            
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
@@ -185,6 +119,14 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
         self.chk_delete_data.setChecked(False)
 
+        # fill up the dataset combobox
+        self.file_table_view.setItemDelegateForColumn(1, Delegate(self, self._get_db_connector(self.workflow_wizard.import_data_configuration)))
+        # is this needed?
+        for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
+            index = self.workflow_wizard.import_data_file_model.index(row, 1)
+            if index:
+                self.file_table_view.openPersistentEditor(index)
+
     def update_configuration(self, configuration):
         # takes settings from the GUI and provides it to the configuration
         configuration.delete_data = self.chk_delete_data.isChecked()
@@ -199,3 +141,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def nextId(self):
         return self.workflow_wizard.next_id()
+
+    def _get_db_connector(self, configuration):
+        # migth be moved to db_utils...
+        db_simple_factory = DbSimpleFactory()
+        schema = configuration.dbschema
+
+        db_factory = db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
+
+        try:
+            return db_factory.get_db_connector(uri_string, schema)
+        except (DBConnectorError, FileNotFoundError):
+            return None
