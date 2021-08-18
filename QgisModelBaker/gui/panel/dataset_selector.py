@@ -39,7 +39,7 @@ from qgis.core import (
 from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.db_utils import get_schema_identificator, get_configuration
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-class DatasetSourceModel(QStandardItemModel):
+class BasketSourceModel(QStandardItemModel):
     class Roles(Enum):
         DATASETNAME = Qt.UserRole + 1
         MODEL_TOPIC = Qt.UserRole + 2
@@ -62,10 +62,10 @@ class DatasetSourceModel(QStandardItemModel):
             for basket in self.schema_baskets[schema_identificator]:
                 item = QStandardItem()
                 item.setData(basket['datasetname'], int(Qt.DisplayRole))
-                item.setData(basket['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-                item.setData(basket['topic'], int(DatasetSourceModel.Roles.MODEL_TOPIC))
-                item.setData(basket['basket_t_id'], int(DatasetSourceModel.Roles.BASKET_TID))
-                item.setData(f"{schema_identificator}_{slugify(basket['topic'])}", int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
+                item.setData(basket['datasetname'], int(BasketSourceModel.Roles.DATASETNAME))
+                item.setData(basket['topic'], int(BasketSourceModel.Roles.MODEL_TOPIC))
+                item.setData(basket['basket_t_id'], int(BasketSourceModel.Roles.BASKET_TID))
+                item.setData(f"{schema_identificator}_{slugify(basket['topic'])}", int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
                 self.appendRow(item)
         self.endResetModel()
 
@@ -88,16 +88,16 @@ class DatasetSourceModel(QStandardItemModel):
     def schema_baskets_loaded(self, schema_identificator):
         return schema_identificator in self.schema_baskets
 
-class DatasetCombobox(QComboBox):
+class DatasetSelector(QComboBox):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         self.db_simple_factory = DbSimpleFactory()
-        self.basket_model = DatasetSourceModel()
+        self.basket_model = BasketSourceModel()
         self.filtered_model = QSortFilterProxyModel()
         self.filtered_model.setSourceModel(self.basket_model)
-        self.filtered_model.setFilterRole(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
+        self.filtered_model.setFilterRole(int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
         self.setModel(self.filtered_model)
         self.setEnabled(False)
 
@@ -136,12 +136,12 @@ class DatasetCombobox(QComboBox):
 
     def _set_index(self, schema_topic_identificator):
         current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(schema_topic_identificator)
-        matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(DatasetSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
+        matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(BasketSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
         if matches:
             self.setCurrentIndex(matches[0].row())
 
     def _store_basket_tid(self, index ):
         model_index = self.model().index(index,0)
-        basket_tid = model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))
-        schema_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
+        basket_tid = model_index.data(int(BasketSourceModel.Roles.BASKET_TID))
+        schema_topic_identificator = model_index.data(int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
         QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(),schema_topic_identificator,basket_tid)

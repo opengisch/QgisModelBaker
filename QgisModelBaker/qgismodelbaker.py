@@ -29,7 +29,7 @@ from QgisModelBaker.gui.export import ExportDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.drop_message import DropMessageDialog
-from QgisModelBaker.gui.panel.dataset_combobox import DatasetCombobox
+from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 
@@ -162,7 +162,7 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__generate_action)
         self.toolbar.addAction(self.__importdata_action)
         self.toolbar.addAction(self.__export_action)
-        self.__dataset_selector = DatasetCombobox()
+        self.__dataset_selector = DatasetSelector()
         self.__dataset_selector_action = self.toolbar.addWidget(self.__dataset_selector)
         #connect trigger to refresh model of dataset combobox when layer changed
         self.iface.layerTreeView().currentLayerChanged.connect(self.__dataset_selector.set_current_layer)
