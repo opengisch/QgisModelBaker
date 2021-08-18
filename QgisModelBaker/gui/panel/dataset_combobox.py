@@ -37,8 +37,7 @@ from qgis.core import (
 )
 
 from QgisModelBaker.utils.qt_utils import slugify
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.utils.db_utils import get_schema_identificator, get_configuration
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 class DatasetSourceModel(QStandardItemModel):
     class Roles(Enum):
@@ -112,7 +111,7 @@ class DatasetCombobox(QComboBox):
 
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = self._make_schema_identificator(source_name, source)
+        schema_identificator = get_schema_identificator(source_name, source)
         layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
@@ -120,25 +119,7 @@ class DatasetCombobox(QComboBox):
         self.filtered_model.setFilterFixedString(schema_topic_identificator)
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            mode = ''
-            configuration = Ili2DbCommandConfiguration()
-            if source_name == 'postgres':
-                mode = DbIliMode.pg
-                configuration.dbhost = source.host()
-                configuration.dbusr = source.username()
-                configuration.dbpwd = source.password()
-                configuration.database = source.database()
-                configuration.dbschema = source.schema()
-            elif source_name == 'ogr':
-                mode = DbIliMode.gpkg
-                configuration.dbfile = source.uri().split('|')[0].strip()
-            elif source_name == 'mssql':
-                mode = DbIliMode.mssql
-                configuration.dbhost = source.host()
-                configuration.dbusr = source.username()
-                configuration.dbpwd = source.password()
-                configuration.database = source.database()
-                configuration.dbschema = source.schema()
+            mode, configuration = get_configuration(source_name, source)
             
             if mode:   
                 db_factory = self.db_simple_factory.create_factory( mode ) 
@@ -158,13 +139,6 @@ class DatasetCombobox(QComboBox):
         matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(DatasetSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
         if matches:
             self.setCurrentIndex(matches[0].row())
-
-    def _make_schema_identificator(self, source_name, source):
-        if source_name == 'postgres' or source_name == 'mssql':
-            return slugify(f'{source.host()}_{source.database()}_{source.schema()}')
-        elif source_name == 'ogr':
-            return slugify(source.uri().split('|')[0].strip())
-        return ''
 
     def _store_basket_tid(self, index ):
         model_index = self.model().index(index,0)
