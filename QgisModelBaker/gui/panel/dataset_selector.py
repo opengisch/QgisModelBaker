@@ -81,9 +81,8 @@ class BasketSourceModel(QStandardItemModel):
         self.schema_baskets[schema_identificator] = baskets
         self.refresh()
     
-    def clear_model(self):
+    def clear_schema_baskets(self):
         self.schema_baskets = {}
-        self.refresh()
 
     def schema_baskets_loaded(self, schema_identificator):
         return schema_identificator in self.schema_baskets
@@ -131,8 +130,10 @@ class DatasetSelector(QComboBox):
             self._set_index(schema_topic_identificator)
             self.setEnabled(True)
     
-    def clear_model(self):
-        self.basket_model.clear_model()
+    def reset_model(self, current_layer):
+        self.basket_model.clear_schema_baskets()
+        if current_layer:
+            self.set_current_layer(current_layer)
 
     def _set_index(self, schema_topic_identificator):
         current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(schema_topic_identificator)

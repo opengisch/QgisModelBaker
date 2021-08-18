@@ -258,7 +258,7 @@ class QgisModelBakerPlugin(QObject):
             self.__datasetmanager_action.setChecked(True)
 
     def datasetmanager_dialog_finished(self):
-        self.__dataset_selector.clear_model()
+        self.__dataset_selector.reset_model(self.iface.layerTreeView().currentLayer())
         self.__datasetmanager_action.setChecked(False)
         self.datasetmanager_dlg = None
 
