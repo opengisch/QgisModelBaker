@@ -17,13 +17,31 @@
  *                                                                         *
  ***************************************************************************/
 """
+from enum import Enum
 
 from PyQt5.uic.uiparser import _parse_alignment
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
-    QHeaderView
+    QHeaderView,
+    QItemDelegate,
+    QComboBox,
+    QStyle,
+    QStyleOptionComboBox,
+    QApplication
 )
+
+from qgis.PyQt.QtCore import (
+    Qt,
+    QVariant,
+    QAbstractTableModel
+)
+
+from qgis.PyQt.QtGui import (
+    QStandardItemModel,
+    QStandardItem
+)
+
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
@@ -33,6 +51,73 @@ from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class('workflow_wizard/import_data_configuration.ui')
 
+class DatasetSourceModel(QStandardItemModel):
+    class Roles(Enum):
+        TID = Qt.UserRole + 1
+        DATASETNAME = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def reload_datasets(self, db_connector):
+        datasets_info = db_connector.get_datasets_info()
+        self.beginResetModel()
+        self.clear()
+        for record in datasets_info:
+            item = QStandardItem()
+            item.setData(record['datasetname'], int(Qt.DisplayRole))
+            item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
+            item.setData(record['t_id'], int(DatasetSourceModel.Roles.TID))
+            self.appendRow(item)
+        self.endResetModel()
+class Delegate(QItemDelegate):
+    def __init__(self, owner, choices):
+        super().__init__(owner)
+        self.items = choices
+    def createEditor(self, parent, option, index):
+        self.editor = QComboBox(parent)
+        self.editor.addItems(self.items)
+        return self.editor
+    def paint(self, painter, option, index):
+        value = index.data(Qt.DisplayRole)
+        style = QApplication.style()
+        opt = QStyleOptionComboBox()
+        opt.text = str(value)
+        opt.rect = option.rect
+        style.drawComplexControl(QStyle.CC_ComboBox, opt, painter)
+        QItemDelegate.paint(self, painter, option, index)
+    def setEditorData(self, editor, index):
+        value = index.data(Qt.DisplayRole)
+        num = self.items.index(value)
+        editor.setCurrentIndex(num)
+    def setModelData(self, editor, model, index):
+        value = editor.currentText()
+        model.setData(index, Qt.DisplayRole, QVariant(value))
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+class Model(QAbstractTableModel):
+    def __init__(self, table):
+        super().__init__()
+        self.table = table
+    def rowCount(self, parent):
+        return len(self.table)
+    def columnCount(self, parent):
+        return len(self.table[0])
+    def flags(self, index):
+        return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self.table[index.row()][index.column()]
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            self.table[index.row()][index.column()] = value
+        return True
 
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
@@ -54,8 +139,25 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
+        
         # hide dataset column because not yet implemented
-        self.file_table_view.setColumnHidden(1,True)
+        # self.file_table_view.setColumnHidden(1,True)
+
+        choices = ['apple', 'orange', 'banana']
+        table = []
+        table.append(['A', choices[0]])
+        table.append(['B', choices[0]])
+        table.append(['C', choices[0]])
+        table.append(['D', choices[0]])
+        # create table view:
+        self.model = Model(table)
+        self.file_table_view.setModel( self.model)
+        
+        self.file_table_view.setItemDelegateForColumn(1, Delegate(self,choices))
+        # make combo boxes editable with a single-click:
+        for row in range( len(table) ):
+            self.file_table_view.openPersistentEditor(self.model.index(row, 1))
+
 
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
