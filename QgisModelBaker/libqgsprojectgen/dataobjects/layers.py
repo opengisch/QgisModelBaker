@@ -218,15 +218,21 @@ class Layer(object):
         Returns True if the layer is a pure link table in a n:m relation.
         With "pure" it is meant the layer has no more fields than foreign keys and its id.
         '''
+
+        # Check if table is a link table
+        if self.is_nmrel is False:
+            return False
+
         remaining_fields = set()
         for field in self.fields:
             remaining_fields.add(field.name)
 
+        # Remove all fields that are referencing fields
         for relation in project.relations:
             if relation.referencing_layer != self:
                 continue
-
             remaining_fields.remove(relation.referencing_field)
 
+        # Only Id field left?
         return len(remaining_fields) <= 1
 
