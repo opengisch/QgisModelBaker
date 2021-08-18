@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
 from .form import (
     Form,
     FormTab,
@@ -24,6 +25,7 @@ from .form import (
     FormFieldWidget
 )
 from qgis.core import (
+    Qgis,
     QgsVectorLayer,
     QgsDataSourceUri,
     QgsWkbTypes,
@@ -161,12 +163,36 @@ class Layer(object):
 
             self.__form.add_element(tab)
 
+            relations_to_add = set()
             for relation in project.relations:
                 if relation.referenced_layer == self:
+
+                    # 1:m relation will be added only if does not point to a pure link table
+                    if relation.referencing_layer.isPureLinkTable(project) is False:
+                        relations_to_add.add((relation, None))
+
+                    for nmRelation in project.relations:
+                        if nmRelation == relation:
+                            continue
+
+                        if nmRelation.referencing_layer == relation.referencing_layer:
+                            relations_to_add.add((relation, nmRelation))
+
+            for relation, nmRelation in relations_to_add:
+                if nmRelation and Qgis.QGIS_VERSION_INT < 31600:
+                    logger = logging.getLogger(__name__)
+                    logger.warning('QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(nmRelation.name))
+                    continue
+
+                if nmRelation:
+                    tab = FormTab(nmRelation.referenced_layer.name)
+                else:
                     tab = FormTab(relation.referencing_layer.name)
-                    widget = FormRelationWidget(relation)
-                    tab.addChild(widget)
-                    self.__form.add_element(tab)
+
+                widget = FormRelationWidget(relation, nmRelation)
+                tab.addChild(widget)
+                self.__form.add_element(tab)
+
         else:
             for field in self.fields:
                 if not field.hidden:
@@ -186,3 +212,21 @@ class Layer(object):
             return self.__layer.id()
         else:
             return None
+
+    def isPureLinkTable(self, project):
+        '''
+        Returns True if the layer is a pure link table in a n:m relation.
+        With "pure" it is meant the layer has no more fields than foreign keys and its id.
+        '''
+        remaining_fields = set()
+        for field in self.fields:
+            remaining_fields.add(field.name)
+
+        for relation in project.relations:
+            if relation.referencing_layer != self:
+                continue
+
+            remaining_fields.remove(relation.referencing_field)
+
+        return len(remaining_fields) <= 1
+
