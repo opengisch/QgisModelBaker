@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- File OeVBasketTest_MoreDataNoBIDs.xml 2020-06-22 -->
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <HEADERSECTION VERSION="2.3" SENDER="https://signedav.github.io/usabilitydave/models">
+        <MODELS>
+            <MODEL NAME="OeVBasketTest" URI="https://signedav.github.io/usabilitydave/models" VERSION="2020-06-22"/>
+        </MODELS>
+    </HEADERSECTION>
+
+    <DATASECTION>
+        <OeVBasketTest.OeVLinien BID="545b82e4-359e-479d-be2a-f42fa8d85c41">
+            <OeVBasketTest.OeVLinien.SingleLinie TID="636383e1-462f-42a4-89fb-96521284cf04"><Bezeichnung>Bus Winterthur Töss</Bezeichnung><Code>134</Code></OeVBasketTest.OeVLinien.SingleLinie>
+            <OeVBasketTest.OeVLinien.SingleLinie TID="2da9e0d2-dab0-422b-9faa-dcb789daf521"><Bezeichnung>Bus Winterthur Seen</Bezeichnung><Code>135</Code></OeVBasketTest.OeVLinien.SingleLinie>
+        </OeVBasketTest.OeVLinien>
+        <OeVBasketTest.Infrastruktur BID="189dacce-10f9-4afd-8e22-3d96d513a877">
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="9b3141c6-9edf-471c-a0ea-82ec9157811e"><Name>Winterthur</Name><Code>22</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="59ba6620-6cbc-452f-91c2-ea2574b47330"><Name>Oberwinterthur</Name><Code>23</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="b152211a-31bc-4078-888b-8bc660da2bc5"><Name>Neuhegi</Name><Code>24</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="c74478bf-6db8-46f7-85a5-31b2fd848645"><Name>Whatever</Name><Code>25</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+        </OeVBasketTest.Infrastruktur>
+    </DATASECTION>
+</TRANSFER>
