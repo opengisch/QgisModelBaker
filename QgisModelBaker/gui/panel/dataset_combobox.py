@@ -81,6 +81,10 @@ class DatasetSourceModel(QStandardItemModel):
             baskets.append(basket)
         self.schema_baskets[schema_identificator] = baskets
         self.refresh()
+    
+    def clear_model(self):
+        self.schema_baskets = {}
+        self.refresh()
 
     def schema_baskets_loaded(self, schema_identificator):
         return schema_identificator in self.schema_baskets
@@ -100,7 +104,7 @@ class DatasetCombobox(QComboBox):
 
     def set_current_layer(self, layer):
         if self.isEnabled():
-            self.currentIndexChanged.disconnect(self.store_basket_tid)
+            self.currentIndexChanged.disconnect(self._store_basket_tid)
             self.setEnabled(False)
 
         if not layer or not layer.dataProvider().isValid():
@@ -108,7 +112,7 @@ class DatasetCombobox(QComboBox):
 
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = self.make_schema_identificator(source_name, source)
+        schema_identificator = self._make_schema_identificator(source_name, source)
         layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable('interlis_topic')
 
         # set the filter of the model according the current uri_identificator
@@ -142,24 +146,27 @@ class DatasetCombobox(QComboBox):
                 self.basket_model.reload_schema_baskets(db_factory.get_db_connector( config_manager.get_uri(), configuration.dbschema), schema_identificator)
 
         if self.filtered_model.rowCount():
-            self.currentIndexChanged.connect(self.store_basket_tid)
-            self.set_index(schema_topic_identificator)
+            self.currentIndexChanged.connect(self._store_basket_tid)
+            self._set_index(schema_topic_identificator)
             self.setEnabled(True)
+    
+    def clear_model(self):
+        self.basket_model.clear_model()
 
-    def set_index(self, schema_topic_identificator):
+    def _set_index(self, schema_topic_identificator):
         current_basket_tid = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(schema_topic_identificator)
         matches = self.filtered_model.match(self.filtered_model.index(0, 0), int(DatasetSourceModel.Roles.BASKET_TID), current_basket_tid, 1, Qt.MatchExactly)
         if matches:
             self.setCurrentIndex(matches[0].row())
 
-    def make_schema_identificator(self, source_name, source):
+    def _make_schema_identificator(self, source_name, source):
         if source_name == 'postgres' or source_name == 'mssql':
             return slugify(f'{source.host()}_{source.database()}_{source.schema()}')
         elif source_name == 'ogr':
             return slugify(source.uri().split('|')[0].strip())
         return ''
 
-    def store_basket_tid(self, index ):
+    def _store_basket_tid(self, index ):
         model_index = self.model().index(index,0)
         basket_tid = model_index.data(int(DatasetSourceModel.Roles.BASKET_TID))
         schema_topic_identificator = model_index.data(int(DatasetSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR))
