@@ -46,7 +46,7 @@ from qgis.PyQt.QtGui import (
 
 DIALOG_UI = get_ui_class('dataset_manager.ui')
 
-class BasketSourceModel(QStandardItemModel):
+class DatasetModel(QStandardItemModel):
     class Roles(Enum):
         TID = Qt.UserRole + 1
         DATASETNAME = Qt.UserRole + 2
@@ -67,8 +67,8 @@ class BasketSourceModel(QStandardItemModel):
         for record in datasets_info:
             item = QStandardItem()
             item.setData(record['datasetname'], int(Qt.DisplayRole))
-            item.setData(record['datasetname'], int(BasketSourceModel.Roles.DATASETNAME))
-            item.setData(record['t_id'], int(BasketSourceModel.Roles.TID))
+            item.setData(record['datasetname'], int(DatasetModel.Roles.DATASETNAME))
+            item.setData(record['t_id'], int(DatasetModel.Roles.TID))
             self.appendRow(item)
         self.endResetModel()
 
@@ -98,7 +98,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
-        self.dataset_model = BasketSourceModel()
+        self.dataset_model = DatasetModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.dataset_tableview.horizontalHeader().hide()
         self.dataset_tableview.verticalHeader().hide()
@@ -187,7 +187,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         if self._valid_selection():
             db_connector = self._get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
-                dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(BasketSourceModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(BasketSourceModel.Roles.DATASETNAME)))
+                dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.DATASETNAME)))
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset )
                 edit_dataset_dialog.exec_()
             self._refresh_datasets(self._updated_configuration())
@@ -198,7 +198,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             if db_connector and db_connector.get_basket_handling:
                 feedbacks = []
                 for record in db_connector.get_topics_info():
-                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(int(BasketSourceModel.Roles.TID))
+                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.TID))
                     status, message = db_connector.create_basket( dataset_tid, '.'.join([record['model'], record['topic']]))
                     feedbacks.append((status, message))
     
