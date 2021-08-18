@@ -436,7 +436,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             self.progress_bar.setValue(55)
 
-            project = Project()
+            # on geopackages we don't use the transaction mode on default, since this leaded to troubles
+            auto_transaction = not bool(configuration.tool & DbIliMode.gpkg)
+            project = Project(auto_transaction)
             project.layers = available_layers
             project.relations = relations
             project.bags_of_enum = bags_of_enum

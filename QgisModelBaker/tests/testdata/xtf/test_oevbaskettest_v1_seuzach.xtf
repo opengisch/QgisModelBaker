@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- File OeVBasketTest_MoreDataNoBIDs.xml 2020-06-22 -->
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <HEADERSECTION VERSION="2.3" SENDER="https://signedav.github.io/usabilitydave/models">
+        <MODELS>
+            <MODEL NAME="OeVBasketTest" URI="https://signedav.github.io/usabilitydave/models" VERSION="2020-06-22"/>
+        </MODELS>
+    </HEADERSECTION>
+
+    <DATASECTION>
+        <OeVBasketTest.OeVLinien BID="45a2aa34-03b8-4a95-b1fd-19ecf897f8ca">
+            <OeVBasketTest.OeVLinien.SingleLinie TID="24e4bbd1-d1b7-4cce-869c-314356a5c52a"><Bezeichnung>Postauto Seuzach Neftenbach</Bezeichnung><Code>134</Code></OeVBasketTest.OeVLinien.SingleLinie>
+            <OeVBasketTest.OeVLinien.SingleLinie TID="bc2e526d-a9bf-41e8-ae87-9776036722ec"><Bezeichnung>Postauto Seuzach Rickenbach</Bezeichnung><Code>135</Code></OeVBasketTest.OeVLinien.SingleLinie>
+            <OeVBasketTest.OeVLinien.SingleLinie TID="be5f7c03-4db1-4814-8f54-548de0e67d42"><Bezeichnung>Seuzach - Töss - Oberseuzach</Bezeichnung><Code>1</Code></OeVBasketTest.OeVLinien.SingleLinie>
+            <OeVBasketTest.OeVLinien.SingleLinie TID="c8498a47-2294-42d8-b3a9-47a752e32ae6"><Bezeichnung>Seuzach - Veltheim - Whatever</Bezeichnung><Code>2</Code></OeVBasketTest.OeVLinien.SingleLinie>
+        </OeVBasketTest.OeVLinien>
+        <OeVBasketTest.Infrastruktur BID="e5a1288c-c09a-487c-ba24-a71a36717076">
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="a219d6cd-95a2-4a8c-8c99-c390fd18c4c0"><Name>Seuzach</Name><Code>11</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="e7939061-d8ef-4ee5-905d-d667765ba5f2"><Name>Rickenbach</Name><Code>12</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="04a36f85-6b08-434c-ace3-9e1ef67ed0ca"><Name>Oberseuzach</Name><Code>13</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+            <OeVBasketTest.Infrastruktur.Haltestelle TID="2ae2f5a9-2e60-4253-b1bf-07fd8723457a"><Name>Whatever</Name><Code>14</Code></OeVBasketTest.Infrastruktur.Haltestelle>
+        </OeVBasketTest.Infrastruktur>
+    </DATASECTION>
+</TRANSFER>

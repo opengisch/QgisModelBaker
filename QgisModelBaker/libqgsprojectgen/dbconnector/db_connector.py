@@ -251,6 +251,62 @@ class DBConnector(QObject):
         """
         return False
 
+    def get_baskets_info(self):
+        """
+        Info about baskets found in the basket table and the related datasetname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                basket_t_id
+                basket_t_ili_tid
+                topic
+                dataset_t_id
+                datasetname
+        """
+        return {}
+
+    def get_datasets_info(self):
+        """
+        Info about datasets found in the dataset table
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                t_id
+                datasetname
+        """
+        return {}
+
+    def create_dataset(self, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def rename_dataset(self, tid, datasetname):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
+
+    def get_topics_info(self):
+        """
+        Returns all the topics found in the table t_ili2db_classname
+        Return:
+            Iterable allowing to access rows, each row should allow to access
+            specific columns by name (e.g., a list of dicts {column_name:value})
+            Expected columns are:
+                model
+                topic
+        """
+        return {}
+    
+    def create_basket(self, dataset_tid, topic):
+        """
+        Returns the state and the errormessage
+        """
+        return False, None
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.
