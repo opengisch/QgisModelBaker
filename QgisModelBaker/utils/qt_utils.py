@@ -52,8 +52,8 @@ def make_file_selector(widget, title=QCoreApplication.translate('QgisModelBaker'
     return partial(selectFileName, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent)
 
 
-def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension, extensions):
-    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter)
+def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension, extensions, dont_confirm_overwrite):
+    filename, matched_filter = QFileDialog.getSaveFileName(parent, title, line_edit_widget.text(), file_filter,  options=QFileDialog.DontConfirmOverwrite if dont_confirm_overwrite else QFileDialog.Options())
     extension_valid = False
 
     if not extensions:
@@ -70,9 +70,9 @@ def selectFileNameToSave(line_edit_widget, title, file_filter, parent, extension
 
 def make_save_file_selector(widget, title=QCoreApplication.translate('QgisModelBaker', 'Open File'),
                             file_filter=QCoreApplication.translate('QgisModelBaker', 'Any file(*)'), parent=None,
-                            extension='', extensions=None):
+                            extension='', extensions=None, dont_confirm_overwrite=False):
     return partial(selectFileNameToSave, line_edit_widget=widget, title=title, file_filter=file_filter, parent=parent,
-                   extension=extension, extensions=extensions)
+                   extension=extension, extensions=extensions, dont_confirm_overwrite=dont_confirm_overwrite)
 
 
 def selectFolder(line_edit_widget, title, parent):
