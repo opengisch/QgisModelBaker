@@ -171,25 +171,25 @@ class Layer(object):
                     if relation.referencing_layer.isPureLinkTable(project) is False:
                         relations_to_add.add((relation, None))
 
-                    for nmRelation in project.relations:
-                        if nmRelation == relation:
+                    for nm_relation in project.relations:
+                        if nm_relation == relation:
                             continue
 
-                        if nmRelation.referencing_layer == relation.referencing_layer:
-                            relations_to_add.add((relation, nmRelation))
+                        if nm_relation.referencing_layer == relation.referencing_layer:
+                            relations_to_add.add((relation, nm_relation))
 
-            for relation, nmRelation in relations_to_add:
-                if nmRelation and Qgis.QGIS_VERSION_INT < 31600:
+            for relation, nm_relation in relations_to_add:
+                if nm_relation and Qgis.QGIS_VERSION_INT < 31600:
                     logger = logging.getLogger(__name__)
-                    logger.warning('QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(nmRelation.name))
+                    logger.warning('QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(nm_relation.name))
                     continue
 
-                if nmRelation:
-                    tab = FormTab(nmRelation.referenced_layer.name)
+                if nm_relation:
+                    tab = FormTab(nm_relation.referenced_layer.name)
                 else:
                     tab = FormTab(relation.referencing_layer.name)
 
-                widget = FormRelationWidget(relation, nmRelation)
+                widget = FormRelationWidget(relation, nm_relation)
                 tab.addChild(widget)
                 self.__form.add_element(tab)
 
@@ -220,7 +220,7 @@ class Layer(object):
         '''
 
         # Check if table is a link table
-        if self.is_nmrel is False:
+        if not self.is_nmrel:
             return False
 
         remaining_fields = set()
@@ -231,8 +231,11 @@ class Layer(object):
         for relation in project.relations:
             if relation.referencing_layer != self:
                 continue
-            remaining_fields.remove(relation.referencing_field)
+            remaining_fields.discard(relation.referencing_field)
 
-        # Only Id field left?
-        return len(remaining_fields) <= 1
+        # Remove Id fields
+        remaining_fields.discard('t_id')
+        remaining_fields.discard('t_ili_tid')
+
+        return len(remaining_fields) == 0
 
