@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.gui.workflow_wizard.import_data_configuration_page import DEFAULT_DATASETNAME
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QAction,
@@ -56,6 +57,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
 
         self.file = file
         self.models = models
+        self.dataset = dataset
 
         # set up the gui
         self.create_text = self.tr('Run')
@@ -99,6 +101,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
             self.configuration.ilimodels = ';'.join(self.models)
             self.info_label.setText(self.tr('Import {} of {}').format(
                 ', '.join(self.models), self.file))
+            self.configuration.dataset = self.dataset
 
         self.db_simple_factory = DbSimpleFactory()
 
@@ -164,9 +167,6 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         importer.tool = self.configuration.tool
         importer.configuration = self.configuration
 
-        db_factory = self.db_simple_factory.create_factory(
-            self.configuration.tool)
-
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.setValue(10)
             self.setDisabled(True)
@@ -188,9 +188,49 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
                 self.setDisabled(False)
                 return False
 
+            self.progress_bar.setValue(90)
+            if not self.data_import and self.configuration.create_basket_col:
+                self._create_default_dataset()
             self.progress_bar.setValue(100)
             self.print_info.emit(self.tr('Import done!\n'),
                                  LogPanel.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
+
+    def _create_default_dataset(self):
+        self.print_info.emit(self.tr('Create the default dataset {}').format(DEFAULT_DATASETNAME), LogPanel.COLOR_INFO)
+        db_connector = self._get_db_connector(self.configuration)
+
+        default_dataset_tid = None
+        default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == DEFAULT_DATASETNAME]
+        if default_datasets_info_tids:
+            default_dataset_tid = default_datasets_info_tids[0]
+        else:
+            status, message = db_connector.create_dataset(DEFAULT_DATASETNAME)
+            self.print_info.emit(message, LogPanel.COLOR_INFO) 
+            if status:
+                default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == DEFAULT_DATASETNAME]
+                if default_datasets_info_tids:
+                    default_dataset_tid = default_datasets_info_tids[0]
+        
+        if default_dataset_tid is not None:
+            for topic_record in db_connector.get_topics_info():
+                status, message = db_connector.create_basket( default_dataset_tid, '.'.join([topic_record['model'], topic_record['topic']]))
+                self.print_info.emit(self.tr('- {}').format(message), LogPanel.COLOR_INFO)                    
+        else:
+            self.print_info.emit(self.tr('No default dataset created ({}) - do it manually in the dataset manager.').format(message), LogPanel.COLOR_FAIL)
+
+    def _get_db_connector(self, configuration):
+        # migth be moved to db_utils...
+        db_simple_factory = DbSimpleFactory()
+        schema = configuration.dbschema
+
+        db_factory = db_simple_factory.create_factory(configuration.tool)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        uri_string = config_manager.get_uri(configuration.db_use_super_login)
+
+        try:
+            return db_factory.get_db_connector(uri_string, schema)
+        except (DBConnectorError, FileNotFoundError):
+            return None

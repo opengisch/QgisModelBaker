@@ -18,16 +18,32 @@
  ***************************************************************************/
 """
 
+from enum import Enum
+import os
+from PyQt5.QtCore import pyqtSignal
+
+from PyQt5.QtWidgets import QGridLayout, QToolButton
 from PyQt5.uic.uiparser import _parse_alignment
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
     QHeaderView,
-    QItemDelegate,
+    QStyledItemDelegate,
     QComboBox,
+    QAction,
+    QWidget,
+    QHBoxLayout,
     QStyle,
     QStyleOptionComboBox,
-    QApplication
+    QApplication,
+    QLayout,
+    QFrame
+)
+
+from qgis.PyQt.QtGui import (
+    QIcon,
+    QStandardItemModel,
+    QStandardItem
 )
 
 from qgis.PyQt.QtCore import (
@@ -44,7 +60,85 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class('workflow_wizard/import_data_configuration.ui')
-class Delegate(QItemDelegate):
+
+DEFAULT_DATASETNAME = "defaultdataset"
+class SourceModel(QStandardItemModel):
+
+    print_info = pyqtSignal([str], [str, str])
+    class Roles(Enum):
+        NAME = Qt.UserRole + 1
+        TYPE = Qt.UserRole + 2
+        PATH = Qt.UserRole + 3
+        DATASET_NAME = Qt.UserRole + 5
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+        self.setColumnCount(2)
+
+    def flags(self, index):
+        if index.column() > 0:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Vertical and role == Qt.DisplayRole:
+            return "↑ ↓"
+        return QStandardItemModel.headerData(self, section,orientation,role)
+
+    def data(self, index, role):
+        item = self.item(index.row(), index.column())
+        if role == Qt.DisplayRole:
+            if index.column() > 0:
+                return item.data(int(SourceModel.Roles.DATASET_NAME))
+            if item.data(int(SourceModel.Roles.TYPE)) != 'model':
+                return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
+        if role == Qt.DecorationRole:
+            if index.column() == 0:
+                type = 'data'
+                if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['model','ili', 'xtf', 'xml']:
+                    type = item.data(int(SourceModel.Roles.TYPE)).lower()
+                return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
+        return item.data(int(role))
+
+    def add_source(self, name, type, path):
+        if self.source_in_model(name, type, path):
+            self.print_info.emit(self.tr("Source alread added {} ({})").format(
+                name, path if path else 'repository'))
+            return
+
+        item = QStandardItem()
+        item.setData(name, int(Qt.DisplayRole))
+        item.setData(name, int(SourceModel.Roles.NAME))
+        item.setData(type, int(SourceModel.Roles.TYPE))
+        item.setData(path, int(SourceModel.Roles.PATH))
+        self.appendRow([item, QStandardItem()])
+
+        self.print_info.emit(self.tr("Add source {} ({})").format(
+            name, path if path else 'repository'))
+
+    def source_in_model(self, name, type, path):
+        match_existing = self.match(self.index(
+            0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly)
+        if match_existing and type == match_existing[0].data(int(SourceModel.Roles.TYPE)) and path == match_existing[0].data(int(SourceModel.Roles.PATH)):
+            return True
+        return False
+
+    def setData(self, index, data, role):
+        if index.column() > 0:
+            return QStandardItemModel.setData(self, index, data, int(SourceModel.Roles.DATASET_NAME))
+        return QStandardItemModel.setData(self, index, data, role)
+
+    def remove_sources(self, indices):
+        for index in sorted(indices):
+            path = index.data(int(SourceModel.Roles.PATH))
+            self.print_info.emit(self.tr("Remove source {} ({})").format(
+                index.data(int(SourceModel.Roles.NAME)), path if path else 'repository'))
+            self.removeRow(index.row())
+
+class DatasetComboDelegate(QStyledItemDelegate):
     def __init__(self, parent, db_connector):
         super().__init__(parent)
         self.refresh_datasets(db_connector)
@@ -55,25 +149,17 @@ class Delegate(QItemDelegate):
         self.editor = QComboBox(parent)
         self.editor.addItems(self.items)
         return self.editor
-    def paint(self, painter, option, index):
-        value = index.data(Qt.DisplayRole)
-        style = QApplication.style()
-        opt = QStyleOptionComboBox()
-        opt.text = str(value)
-        opt.rect = option.rect
-        style.drawComplexControl(QStyle.CC_ComboBox, opt, painter)
-        QItemDelegate.paint(self, painter, option, index)
     def setEditorData(self, editor, index):
-        value = index.data(Qt.DisplayRole)
-        num = self.items.index(value)
-        editor.setCurrentIndex(num)
+        value = index.data(int(SourceModel.Roles.DATASET_NAME))
+        if value:
+            num = self.items.index(value)
+            editor.setCurrentIndex(num)
     def setModelData(self, editor, model, index):
         value = editor.currentText()
-        model.setData(index, Qt.DisplayRole, QVariant(value))
+        model.setData(index, value, int(SourceModel.Roles.DATASET_NAME))
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
-
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
         self.workflow_wizard = parent
@@ -119,13 +205,19 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
         self.chk_delete_data.setChecked(False)
 
-        # fill up the dataset combobox
-        self.file_table_view.setItemDelegateForColumn(1, Delegate(self, self._get_db_connector(self.workflow_wizard.import_data_configuration)))
-        # is this needed?
-        for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
-            index = self.workflow_wizard.import_data_file_model.index(row, 1)
-            if index:
-                self.file_table_view.openPersistentEditor(index)
+        # setup dataset handling
+        db_connector = self._get_db_connector(self.workflow_wizard.import_data_configuration)
+        if db_connector.get_basket_handling():
+            # fill up the dataset combobox
+            self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, db_connector))
+            # set defaults
+            for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
+                index = self.workflow_wizard.import_data_file_model.index(row, 1)
+                value = index.data(int(SourceModel.Roles.DATASET_NAME))
+                if not value:
+                    self.workflow_wizard.import_data_file_model.setData(index, DEFAULT_DATASETNAME, int(SourceModel.Roles.DATASET_NAME))
+        else:
+            self.file_table_view.setColumnHidden(1, True)
 
     def update_configuration(self, configuration):
         # takes settings from the GUI and provides it to the configuration
