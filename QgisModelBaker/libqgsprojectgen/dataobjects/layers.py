@@ -37,7 +37,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None, tid='', tilitid=''):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -76,6 +76,10 @@ class Layer(object):
         self.expanded = True
         self.checked = True
         self.featurecount = False
+
+        # ili column names
+        self.tid = tid
+        self.tilitid = tilitid
 
     def dump(self):
         definition = dict()
@@ -168,7 +172,8 @@ class Layer(object):
                 if relation.referenced_layer == self:
 
                     # 1:m relation will be added only if does not point to a pure link table
-                    if relation.referencing_layer.isPureLinkTable(project) is False:
+                    if (not relation.referencing_layer.isPureLinkTable(project) 
+                       or Qgis.QGIS_VERSION_INT < 31600):
                         relations_to_add.add((relation, None))
 
                     for nm_relation in project.relations:
@@ -234,8 +239,8 @@ class Layer(object):
             remaining_fields.discard(relation.referencing_field)
 
         # Remove Id fields
-        remaining_fields.discard('t_id')
-        remaining_fields.discard('t_ili_tid')
+        remaining_fields.discard(self.tid)
+        remaining_fields.discard(self.tilitid)
 
         return len(remaining_fields) == 0
 
