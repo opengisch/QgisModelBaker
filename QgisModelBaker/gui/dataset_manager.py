@@ -204,7 +204,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     feedbacks.append((status, message))
     
                 info_box = QMessageBox(self)
-                info_box.setIcon(QMessageBox.Information if len([feedback for feedback in feedbacks if feedback[0]]) else QMessageBox.Warning)
+                info_box.setIcon(QMessageBox.Warning if len([feedback for feedback in feedbacks if not feedback[0]]) else QMessageBox.Information)
                 info_title = self.tr("Created baskets")
                 info_box.setWindowTitle(info_title)
                 info_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
