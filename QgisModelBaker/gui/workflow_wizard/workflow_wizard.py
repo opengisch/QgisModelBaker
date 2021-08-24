@@ -64,7 +64,7 @@ from QgisModelBaker.libili2db.ilicache import (
 )
 
 from QgisModelBaker.libili2db.ili2dbconfig import (
-    ImportDataConfiguration,
+    UpdateDataConfiguration,
     SchemaImportConfiguration
 )
 
@@ -257,7 +257,7 @@ class WorkflowWizard (QWizard):
         # config setup
         self.db_simple_factory = DbSimpleFactory()
         self.import_schema_configuration = SchemaImportConfiguration()
-        self.import_data_configuration = ImportDataConfiguration()
+        self.import_data_configuration = UpdateDataConfiguration()
         self.import_schema_configuration.base_configuration = base_config
         self.import_data_configuration.base_configuration = base_config
 
@@ -371,11 +371,6 @@ class WorkflowWizard (QWizard):
             return self.Page_ProjectCreation_Id
 
         if self.current_id == self.Page_ImportDataConfiguration_Id:
-            # only update configuration because there is nothing to save
-            self.data_configuration_page.update_configuration(
-                self.import_data_configuration)
-            self.schema_configuration_page.save_configuration(
-                self.import_data_configuration)
             return self.Page_ImportDataExecution_Id
 
         if self.Page_ImportDataExecution_Id:
@@ -409,7 +404,7 @@ class WorkflowWizard (QWizard):
                 self.import_schema_configuration)
 
         if self.current_id == self.Page_ImportDataConfiguration_Id:
-            self.data_configuration_page.restore_configuration()
+            self.data_configuration_page.setup_dialog()
 
         if self.current_id == self.Page_ImportDataExecution_Id:
             self.data_execution_page.setup_sessions(self.import_data_configuration, self.import_data_file_model.import_sessions(

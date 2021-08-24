@@ -198,38 +198,25 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
-    def restore_configuration(self):
-        # takes settings from QSettings and provides it to the gui (not the configuration)
-        # since delete data should be turned off the only left thingy is the toml-file
-        self.fill_toml_file_info_label()
-        # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
-        self.chk_delete_data.setChecked(False)
-
+    def setup_dialog(self):
         # setup dataset handling
         db_connector = self._get_db_connector(self.workflow_wizard.import_data_configuration)
         if db_connector.get_basket_handling():
-            # fill up the dataset combobox
-            self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, db_connector))
             # set defaults
             for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)
                 value = index.data(int(SourceModel.Roles.DATASET_NAME))
                 if not value:
-                    self.workflow_wizard.import_data_file_model.setData(index, DEFAULT_DATASETNAME, int(SourceModel.Roles.DATASET_NAME))
+                    self.workflow_wizard.import_data_file_model.setData(index, DEFAULT_DATASETNAME, int(SourceModel.Roles.DATASET_NAME))        
+                self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, db_connector))
         else:
             self.file_table_view.setColumnHidden(1, True)
 
-    def update_configuration(self, configuration):
-        # takes settings from the GUI and provides it to the configuration
-        configuration.delete_data = self.chk_delete_data.isChecked()
-        # ili2db_options
-        configuration.inheritance = self.ili2db_options.inheritance_type()
-        configuration.tomlfile = self.ili2db_options.toml_file()
-        configuration.create_basket_col = self.ili2db_options.create_basket_col()
-        configuration.create_import_tid = self.ili2db_options.create_import_tid()
-        configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
-        configuration.pre_script = self.ili2db_options.pre_script()
-        configuration.post_script = self.ili2db_options.post_script()
+        # since it's not yet integrated but I keep it to remember
+        self.model_label.setHidden(True)
+        self.model_list_view.setHidden(True)
+        self.ili2db_options_button.setHidden(True)
+        self.chk_delete_data.setHidden(True)
 
     def nextId(self):
         return self.workflow_wizard.next_id()
