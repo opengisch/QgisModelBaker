@@ -75,7 +75,7 @@ class DatasetSourceModel(QStandardItemModel):
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
 
-    def __init__(self, iface, parent=None):
+    def __init__(self, iface, parent=None, wizard_embedded = False):
 
         QDialog.__init__(self, parent)
         self.iface = iface
@@ -98,6 +98,10 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             self.db_layout.addWidget(item_panel)
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
+
+        if wizard_embedded:
+            # when opened by the wizard it uses the current db connection settings and should not be changable
+            self.db_frame.setHidden(True)
 
         self.dataset_model = DatasetSourceModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)

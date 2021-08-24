@@ -54,7 +54,7 @@ from qgis.PyQt.QtCore import (
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.gui.panel.log_panel import LogPanel
-
+from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 
 from ...utils import get_ui_class
@@ -151,9 +151,8 @@ class DatasetComboDelegate(QStyledItemDelegate):
         return self.editor
     def setEditorData(self, editor, index):
         value = index.data(int(SourceModel.Roles.DATASET_NAME))
-        if value:
-            num = self.items.index(value)
-            editor.setCurrentIndex(num)
+        num = self.items.index(value) if value in self.items else 0
+        editor.setCurrentIndex(num)
     def setModelData(self, editor, model, index):
         value = editor.currentText()
         model.setData(index, value, int(SourceModel.Roles.DATASET_NAME))
@@ -179,9 +178,15 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
             
-        self.ili2db_options = Ili2dbOptionsDialog()
-        self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
-        self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
+        # self.ili2db_options = Ili2dbOptionsDialog()
+        # self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
+        # self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
+
+        self.db_connector = None
+
+        self.datasetmanager_dlg = None
+        self.datasetmanager_button.setCheckable(True)
+        self.datasetmanager_button.clicked.connect(self._show_datasetmanager_dialog)
 
     def order_list(self):
         order_list = []
@@ -190,25 +195,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 self.file_table_view.verticalHeader().logicalIndex(visual_index))
         return order_list
 
-    def fill_toml_file_info_label(self):
-        text = None
-        if self.ili2db_options.toml_file():
-            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(
-                self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
-        self.toml_file_info_label.setText(text)
-        self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
-
     def setup_dialog(self):
         # setup dataset handling
-        db_connector = self._get_db_connector(self.workflow_wizard.import_data_configuration)
-        if db_connector.get_basket_handling():
+        self.db_connector = self._get_db_connector(self.workflow_wizard.import_data_configuration)
+        if self.db_connector.get_basket_handling():
             # set defaults
             for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)
                 value = index.data(int(SourceModel.Roles.DATASET_NAME))
                 if not value:
-                    self.workflow_wizard.import_data_file_model.setData(index, DEFAULT_DATASETNAME, int(SourceModel.Roles.DATASET_NAME))        
-                self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, db_connector))
+                    self.workflow_wizard.import_data_file_model.setData(index, DEFAULT_DATASETNAME, int(SourceModel.Roles.DATASET_NAME))
+                self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, self.db_connector))
         else:
             self.file_table_view.setColumnHidden(1, True)
 
@@ -234,3 +231,19 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             return db_factory.get_db_connector(uri_string, schema)
         except (DBConnectorError, FileNotFoundError):
             return None
+
+    def _show_datasetmanager_dialog(self):
+        if self.datasetmanager_dlg:
+            self.datasetmanager_dlg.reject()
+        else:
+            self.datasetmanager_dlg = DatasetManagerDialog(self.workflow_wizard.iface, self, True)
+            self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setWindowFlags(self.datasetmanager_dlg.windowFlags() | Qt.Tool)
+            self.datasetmanager_dlg.show()
+            self.datasetmanager_dlg.finished.connect(self.datasetmanager_dialog_finished)
+            self.datasetmanager_button.setChecked(True)
+    
+    def datasetmanager_dialog_finished(self):
+        self.datasetmanager_button.setChecked(False)
+        self.datasetmanager_dlg = None
+        self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, self.db_connector))

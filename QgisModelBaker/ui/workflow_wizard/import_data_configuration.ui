@@ -48,9 +48,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="4" column="0" colspan="2">
-       <widget class="ModelListView" name="model_list_view" native="true"/>
-      </item>
       <item row="1" column="0">
        <widget class="QTableView" name="file_table_view">
         <property name="sortingEnabled">
@@ -58,7 +55,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="1">
          <widget class="QCheckBox" name="chk_delete_data">
@@ -92,10 +89,55 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="file_label">
+      <item row="4" column="0" colspan="2">
+       <widget class="ModelListView" name="model_list_view" native="true"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="datasetmanager_button">
+           <property name="text">
+            <string>Dataset Manager</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../../images/QgisModelBaker-datasetmanager-icon.svg</normaloff>../../images/QgisModelBaker-datasetmanager-icon.svg</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="toml_file_info_label">
+        <property name="maximumSize">
+         <size>
+          <width>580</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Files to import</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -106,16 +148,10 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="toml_file_info_label">
-        <property name="maximumSize">
-         <size>
-          <width>580</width>
-          <height>16777215</height>
-         </size>
-        </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="file_label">
         <property name="text">
-         <string/>
+         <string>Files to import</string>
         </property>
        </widget>
       </item>
