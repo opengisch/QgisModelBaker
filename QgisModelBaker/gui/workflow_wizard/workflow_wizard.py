@@ -43,6 +43,7 @@ from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
 
 from QgisModelBaker.libili2db.ili2dbconfig import (
     UpdateDataConfiguration,
+    ImportDataConfiguration,
     SchemaImportConfiguration,
     ExportConfiguration,
 )
@@ -99,10 +100,12 @@ class WorkflowWizard(QWizard):
 
         # configuration objects are keeped on top level to be able to access them from individual pages
         self.import_schema_configuration = SchemaImportConfiguration()
-        self.import_data_configuration = UpdateDataConfiguration()
+        self.import_data_configuration = ImportDataConfiguration()
+        self.update_data_configuration = UpdateDataConfiguration()
         self.export_data_configuration = ExportConfiguration()
         self.import_schema_configuration.base_configuration = base_config
         self.import_data_configuration.base_configuration = base_config
+        self.update_data_configuration.base_configuration = base_config
         self.export_data_configuration.base_configuration = base_config
 
         # data models are keeped on top level because sometimes they need to be accessed to evaluate the wizard workflow
@@ -209,21 +212,7 @@ class WorkflowWizard(QWizard):
             return self.Page_ImportDatabaseSelection_Id
 
         if self.current_id == self.Page_ImportDatabaseSelection_Id:
-            # update configuration for import data
-            # and for import schema and export data (to have the same db settings for all of them)
-            # and use schema config to save
-            self.import_database_seletion_page.update_configuration(
-                self.import_schema_configuration
-            )
-            self.import_database_seletion_page.update_configuration(
-                self.import_data_configuration
-            )
-            self.import_database_seletion_page.update_configuration(
-                self.export_data_configuration
-            )
-            self.import_database_seletion_page.save_configuration(
-                self.import_schema_configuration
-            )
+            self._update_configurations(self.import_database_seletion_page)
             if self.refresh_import_models(True):
                 # when there are models to import, we go to the configuration page for schema import
                 return self.Page_ImportSchemaConfiguration_Id
@@ -233,39 +222,11 @@ class WorkflowWizard(QWizard):
             return self.Page_ProjectCreation_Id
 
         if self.current_id == self.Page_GenerateDatabaseSelection_Id:
-            # update configuration for import data
-            # and for import schema and export data (to have the same db settings for all of them)
-            # and use schema config to save
-            self.generate_database_seletion_page.update_configuration(
-                self.import_schema_configuration
-            )
-            self.generate_database_seletion_page.update_configuration(
-                self.import_data_configuration
-            )
-            self.generate_database_seletion_page.update_configuration(
-                self.export_data_configuration
-            )
-            self.generate_database_seletion_page.save_configuration(
-                self.import_schema_configuration
-            )
+            self._update_configurations(self.generate_database_seletion_page)
             return self.Page_ProjectCreation_Id
 
         if self.current_id == self.Page_ExportDatabaseSelection_Id:
-            # update configuration for export data
-            # and for import schema and import data (to have the same db settings for all of them)
-            # and use schema config to save
-            self.export_database_seletion_page.update_configuration(
-                self.import_schema_configuration
-            )
-            self.export_database_seletion_page.update_configuration(
-                self.import_data_configuration
-            )
-            self.export_database_seletion_page.update_configuration(
-                self.export_data_configuration
-            )
-            self.export_database_seletion_page.save_configuration(
-                self.import_schema_configuration
-            )
+            self._update_configurations(self.export_database_seletion_page)
             return self.Page_ExportDataConfiguration_Id
 
         if self.current_id == self.Page_ImportSchemaConfiguration_Id:
@@ -339,11 +300,12 @@ class WorkflowWizard(QWizard):
             )
 
         if self.current_id == self.Page_ImportDataConfiguration_Id:
-            self.data_configuration_page.setup_dialog()
+            self.data_configuration_page.setup_dialog(self._basket_handling())
 
         if self.current_id == self.Page_ImportDataExecution_Id:
+            configuration = self.import_data_configuration if not self._basket_handling() else self.update_data_configuration
             self.import_data_execution_page.setup_sessions(
-                self.import_data_configuration,
+                configuration,
                 self.import_data_file_model.import_sessions(
                     self.data_configuration_page.order_list()
                 ),
@@ -351,6 +313,8 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == self.Page_ExportDataConfiguration_Id:
             self.refresh_export_models()
+            self.export_data_configuration_page.setup_dialog(self._basket_handling())
+
 
         if self.current_id == self.Page_ExportDataExecution_Id:
             sessions = {}
@@ -364,6 +328,25 @@ class WorkflowWizard(QWizard):
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )
+
+    def _update_configurations(self, page ):
+        # update all configurations to have the same db settings for all of them
+        page.update_configuration(
+            self.import_schema_configuration
+        )
+        page.update_configuration(
+            self.import_data_configuration
+        )
+        page.update_configuration(
+            self.update_data_configuration
+        )
+        page.update_configuration(
+            self.export_data_configuration
+        )
+        # and use schema config to save
+        page.save_configuration(
+            self.import_schema_configuration
+        )
 
     def _current_page_title(self, id):
         if id == self.Page_ImportSourceSeletion_Id:
@@ -389,19 +372,25 @@ class WorkflowWizard(QWizard):
         else:
             return self.tr("Model Baker - Workflow Wizard")
 
+    def _basket_handling(self):
+        db_connector = self.get_db_connector(
+            self.import_data_configuration
+        )
+        return db_connector.get_basket_handling()
+
     def refresh_export_models(self):
-        db_connector = self._get_db_connector(self.export_data_configuration)
+        db_connector = self.get_db_connector(self.export_data_configuration)
         self.export_models_model.refresh_model(db_connector)
         self.export_datasets_model.refresh_model(db_connector)
         return
 
     def refresh_import_models(self, silent=False):
-        db_connector = self._get_db_connector(self.import_schema_configuration)
+        db_connector = self.get_db_connector(self.import_schema_configuration)
         return self.import_models_model.refresh_model(
             self.source_model, db_connector, silent
         )
 
-    def _get_db_connector(self, configuration):
+    def get_db_connector(self, configuration):
         # migth be moved to db_utils...
         db_simple_factory = DbSimpleFactory()
         schema = configuration.dbschema

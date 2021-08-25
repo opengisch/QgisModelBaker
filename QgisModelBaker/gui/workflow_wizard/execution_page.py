@@ -96,7 +96,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 return session_widget
         return None
 
-    def setup_sessions(self, configuration, import_sessions):
+    def setup_sessions(self, configuration, import_sessions):        
         new_sessions = []
 
         for key in import_sessions:

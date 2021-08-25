@@ -112,12 +112,17 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
 
         self.export_dataset_combo.setModel(self.workflow_wizard.export_datasets_model)
-        self.export_dataset_combo.setCurrentText(
-            self.workflow_wizard.export_datasets_model.selected_dataset()
-        )
         self.export_dataset_combo.currentIndexChanged.connect(
             self.workflow_wizard.export_datasets_model.select
         )
+
+    def setup_dialog(self, basket_handling):
+        if basket_handling:
+            self.export_dataset_combo.setCurrentText(
+                self.workflow_wizard.export_datasets_model.selected_dataset()
+            )
+        else:
+            self.export_dataset_combo.setHidden(True)
 
     def _set_current_export_target(self, text):
         self.workflow_wizard.current_export_target = text

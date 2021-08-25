@@ -63,8 +63,9 @@ class DatasetComboDelegate(QStyledItemDelegate):
         self.refresh_datasets(db_connector)
 
     def refresh_datasets(self, db_connector):
-        datasets_info = db_connector.get_datasets_info()
-        self.items = [record["datasetname"] for record in datasets_info]
+        if db_connector:
+            datasets_info = db_connector.get_datasets_info()
+            self.items = [record["datasetname"] for record in datasets_info]
 
     def createEditor(self, parent, option, index):
         self.editor = QComboBox(parent)
@@ -124,12 +125,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
         return order_list
 
-    def setup_dialog(self):
-        # setup dataset handling
-        self.db_connector = self._get_db_connector(
-            self.workflow_wizard.import_data_configuration
-        )
-        if self.db_connector.get_basket_handling():
+    def setup_dialog(self, basket_handling):
+        if basket_handling:
+            self.db_connector = self.workflow_wizard.get_db_connector(self.workflow_wizard.import_data_configuration)
             # set defaults
             for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)
@@ -140,11 +138,13 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                         wizard_tools.DEFAULT_DATASETNAME,
                         int(wizard_tools.SourceModel.Roles.DATASET_NAME),
                     )
+
                 self.file_table_view.setItemDelegateForColumn(
                     1, DatasetComboDelegate(self, self.db_connector)
                 )
         else:
             self.file_table_view.setColumnHidden(1, True)
+            self.datasetmanager_button.setHidden(True)
 
         # since it's not yet integrated but I keep it to remember
         self.model_label.setHidden(True)
@@ -154,20 +154,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def nextId(self):
         return self.workflow_wizard.next_id()
-
-    def _get_db_connector(self, configuration):
-        # migth be moved to db_utils...
-        db_simple_factory = DbSimpleFactory()
-        schema = configuration.dbschema
-
-        db_factory = db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            return db_factory.get_db_connector(uri_string, schema)
-        except (DBConnectorError, FileNotFoundError):
-            return None
 
     def _show_datasetmanager_dialog(self):
         if self.datasetmanager_dlg:

@@ -464,7 +464,7 @@ class ExportModelsModel(QStringListModel):
 class ExportDatasetsModel(QStringListModel):
     def __init__(self):
         super().__init__()
-        self._selected_dataset = None
+        self._selected_dataset = ''
 
     def refresh_model(self, db_connector=None):
         datasetnames = []

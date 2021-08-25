@@ -20,14 +20,8 @@
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 
-from qgis.PyQt.QtWidgets import (
-    QWidget,
-    QAction,
-    QGridLayout
-)
-from qgis.PyQt.QtCore import (
-    Qt
-)
+from qgis.PyQt.QtWidgets import QWidget, QAction, QGridLayout
+from qgis.PyQt.QtCore import Qt
 from ...utils import get_ui_class
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -42,7 +36,7 @@ from QgisModelBaker.libili2db.globals import DbActionType
 
 from qgis.PyQt.QtCore import pyqtSignal
 
-WIDGET_UI = get_ui_class('workflow_wizard/session_panel.ui')
+WIDGET_UI = get_ui_class("workflow_wizard/session_panel.ui")
 
 
 class SessionPanel(QWidget, WIDGET_UI):
@@ -53,7 +47,9 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object)
 
-    def __init__(self, general_configuration, file, models, dataset, db_action_type, parent=None):
+    def __init__(
+        self, general_configuration, file, models, dataset, db_action_type, parent=None
+    ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
@@ -62,27 +58,27 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.dataset = dataset
 
         # set up the gui
-        self.create_text = self.tr('Run')
+        self.create_text = self.tr("Run")
         self.set_button_to_create_action = QAction(self.create_text, None)
-        self.set_button_to_create_action.triggered.connect(
-            self.set_button_to_create)
+        self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
 
-        self.create_without_constraints_text = self.tr(
-            'Run without constraints')
+        self.create_without_constraints_text = self.tr("Run without constraints")
         self.set_button_to_create_without_constraints_action = QAction(
-            self.create_without_constraints_text, None)
+            self.create_without_constraints_text, None
+        )
         self.set_button_to_create_without_constraints_action.triggered.connect(
-            self.set_button_to_create_without_constraints)
+            self.set_button_to_create_without_constraints
+        )
 
-        self.edit_command_action = QAction(
-            self.tr('Edit ili2db command'), None)
+        self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.skip_action = QAction(self.tr('Skip'), None)
+        self.skip_action = QAction(self.tr("Skip"), None)
         self.skip_action.triggered.connect(self.skip)
 
         self.create_tool_button.addAction(
-            self.set_button_to_create_without_constraints_action)
+            self.set_button_to_create_without_constraints_action
+        )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_text)
@@ -92,23 +88,26 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.configuration = general_configuration
         self.db_action_type = db_action_type
         if self.db_action_type == DbActionType.GENERATE:
-            self.configuration.ilifile = ''
-            if self.file != 'repository':
+            self.configuration.ilifile = ""
+            if self.file != "repository":
                 self.configuration.ilifile = self.file
-            self.configuration.ilimodels = ';'.join(self.models)
-            self.info_label.setText(
-                self.tr('Import {}').format(', '.join(self.models)))
+            self.configuration.ilimodels = ";".join(self.models)
+            self.info_label.setText(self.tr("Import {}").format(", ".join(self.models)))
         elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.configuration.xtffile = self.file
-            self.configuration.ilimodels = ';'.join(self.models)
-            self.info_label.setText(self.tr('Import {} of {}').format(
-                ', '.join(self.models), self.file))
+            self.configuration.ilimodels = ";".join(self.models)
+            self.info_label.setText(
+                self.tr("Import {} of {}").format(", ".join(self.models), self.file)
+            )
             self.configuration.dataset = self.dataset
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
-            self.configuration.ilimodels = ';'.join(self.models)
-            self.info_label.setText(self.tr('Export {} of {} into {}').format(
-                ', '.join(self.models), self.dataset, self.file))
+            self.configuration.ilimodels = ";".join(self.models)
+            self.info_label.setText(
+                self.tr("Export {} of {} into {}").format(
+                    ", ".join(self.models), self.dataset, self.file
+                )
+            )
             self.configuration.dataset = self.dataset
 
         self.db_simple_factory = DbSimpleFactory()
@@ -129,7 +128,8 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(
-            self.set_button_to_create_without_constraints_action)
+            self.set_button_to_create_without_constraints_action
+        )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.setText(self.create_text)
 
@@ -141,7 +141,8 @@ class SessionPanel(QWidget, WIDGET_UI):
         """
         self.configuration.disable_validations = True
         self.create_tool_button.removeAction(
-            self.set_button_to_create_without_constraints_action)
+            self.set_button_to_create_without_constraints_action
+        )
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(self.set_button_to_create_action)
         self.create_tool_button.addAction(self.edit_command_action)
@@ -149,7 +150,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def skip(self):
         self.setDisabled(True)
-        self.print_info.emit(self.tr('Import skipped!\n'), LogPanel.COLOR_INFO)
+        self.print_info.emit(self.tr("Import skipped!\n"), LogPanel.COLOR_INFO)
         self.is_skipped_or_done = True
         self.on_done_or_skipped.emit(self.id)
 
@@ -189,7 +190,8 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.setDisabled(True)
 
             porter.stdout.connect(
-                lambda str: self.print_info.emit(str, LogPanel.COLOR_INFO))
+                lambda str: self.print_info.emit(str, LogPanel.COLOR_INFO)
+            )
             porter.stderr.connect(self.on_stderr)
             porter.process_started.connect(self.on_process_started)
             porter.process_finished.connect(self.on_process_finished)
@@ -206,37 +208,64 @@ class SessionPanel(QWidget, WIDGET_UI):
                 return False
 
             self.progress_bar.setValue(90)
-            if self.db_action_type == DbActionType.GENERATE and self.configuration.create_basket_col:
+            if (
+                self.db_action_type == DbActionType.GENERATE
+                and self.configuration.create_basket_col
+            ):
                 self._create_default_dataset()
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr('Import done!\n'),
-                                 LogPanel.COLOR_SUCCESS)
+            self.print_info.emit(self.tr("Import done!\n"), LogPanel.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
 
     def _create_default_dataset(self):
-        self.print_info.emit(self.tr('Create the default dataset {}').format(wizard_tools.DEFAULT_DATASETNAME), LogPanel.COLOR_INFO)
+        self.print_info.emit(
+            self.tr("Create the default dataset {}").format(
+                wizard_tools.DEFAULT_DATASETNAME
+            ),
+            LogPanel.COLOR_INFO,
+        )
         db_connector = self._get_db_connector(self.configuration)
 
         default_dataset_tid = None
-        default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == wizard_tools.DEFAULT_DATASETNAME]
+        default_datasets_info_tids = [
+            datasets_info["t_id"]
+            for datasets_info in db_connector.get_datasets_info()
+            if datasets_info["datasetname"] == wizard_tools.DEFAULT_DATASETNAME
+        ]
         if default_datasets_info_tids:
             default_dataset_tid = default_datasets_info_tids[0]
         else:
-            status, message = db_connector.create_dataset(wizard_tools.DEFAULT_DATASETNAME)
-            self.print_info.emit(message, LogPanel.COLOR_INFO) 
+            status, message = db_connector.create_dataset(
+                wizard_tools.DEFAULT_DATASETNAME
+            )
+            self.print_info.emit(message, LogPanel.COLOR_INFO)
             if status:
-                default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == wizard_tools.DEFAULT_DATASETNAME]
+                default_datasets_info_tids = [
+                    datasets_info["t_id"]
+                    for datasets_info in db_connector.get_datasets_info()
+                    if datasets_info["datasetname"] == wizard_tools.DEFAULT_DATASETNAME
+                ]
                 if default_datasets_info_tids:
                     default_dataset_tid = default_datasets_info_tids[0]
-        
+
         if default_dataset_tid is not None:
             for topic_record in db_connector.get_topics_info():
-                status, message = db_connector.create_basket( default_dataset_tid, '.'.join([topic_record['model'], topic_record['topic']]))
-                self.print_info.emit(self.tr('- {}').format(message), LogPanel.COLOR_INFO)                    
+                status, message = db_connector.create_basket(
+                    default_dataset_tid,
+                    ".".join([topic_record["model"], topic_record["topic"]]),
+                )
+                self.print_info.emit(
+                    self.tr("- {}").format(message), LogPanel.COLOR_INFO
+                )
         else:
-            self.print_info.emit(self.tr('No default dataset created ({}) - do it manually in the dataset manager.').format(message), LogPanel.COLOR_FAIL)
+            self.print_info.emit(
+                self.tr(
+                    "No default dataset created ({}) - do it manually in the dataset manager."
+                ).format(message),
+                LogPanel.COLOR_FAIL,
+            )
 
     def _get_db_connector(self, configuration):
         # migth be moved to db_utils...
