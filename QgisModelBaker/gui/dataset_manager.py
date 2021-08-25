@@ -61,16 +61,17 @@ class DatasetSourceModel(QStandardItemModel):
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def reload_datasets(self, db_connector):
-        datasets_info = db_connector.get_datasets_info()
+    def refresh_model(self, db_connector = None):
         self.beginResetModel()
         self.clear()
-        for record in datasets_info:
-            item = QStandardItem()
-            item.setData(record['datasetname'], int(Qt.DisplayRole))
-            item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
-            item.setData(record['t_id'], int(DatasetSourceModel.Roles.TID))
-            self.appendRow(item)
+        if db_connector:
+            datasets_info = db_connector.get_datasets_info()
+            for record in datasets_info:
+                item = QStandardItem()
+                item.setData(record['datasetname'], int(Qt.DisplayRole))
+                item.setData(record['datasetname'], int(DatasetSourceModel.Roles.DATASETNAME))
+                item.setData(record['t_id'], int(DatasetSourceModel.Roles.TID))
+                self.appendRow(item)
         self.endResetModel()
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
@@ -176,7 +177,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         db_connector = self._get_db_connector(configuration)
         if db_connector and db_connector.get_basket_handling:
             self._enable_dataset_handling(True)
-            return self.dataset_model.reload_datasets(db_connector)
+            return self.dataset_model.refresh_model(db_connector)
         else:
             self._enable_dataset_handling(False)
             return self.dataset_model.clear()
