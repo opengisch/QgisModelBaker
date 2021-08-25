@@ -22,18 +22,9 @@ from enum import Enum
 import re
 import os
 
-from qgis.PyQt.QtCore import (
-    QSortFilterProxyModel,
-    Qt,
-    pyqtSignal,
-    QStringListModel
-)
+from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt, pyqtSignal, QStringListModel
 
-from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem,
-    QIcon
-)
+from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem, QIcon
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
@@ -43,15 +34,29 @@ from QgisModelBaker.libili2db.ilicache import (
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
-IliExtensions = ['ili']
-TransferExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf',
-                      'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
+IliExtensions = ["ili"]
+TransferExtensions = [
+    "xtf",
+    "XTF",
+    "itf",
+    "ITF",
+    "pdf",
+    "PDF",
+    "xml",
+    "XML",
+    "xls",
+    "XLS",
+    "xlsx",
+    "XLSX",
+]
 
 DEFAULT_DATASETNAME = "Baseset"
+
 
 class SourceModel(QStandardItemModel):
 
     print_info = pyqtSignal([str], [str, str])
+
     class Roles(Enum):
         NAME = Qt.UserRole + 1
         TYPE = Qt.UserRole + 2
@@ -73,27 +78,39 @@ class SourceModel(QStandardItemModel):
     def headerData(self, section, orientation, role):
         if orientation == Qt.Vertical and role == Qt.DisplayRole:
             return "↑ ↓"
-        return QStandardItemModel.headerData(self, section,orientation,role)
+        return QStandardItemModel.headerData(self, section, orientation, role)
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
             if index.column() > 0:
                 return item.data(int(SourceModel.Roles.DATASET_NAME))
-            if item.data(int(SourceModel.Roles.TYPE)) != 'model':
-                return self.tr('{} ({})').format(item.data(int(Qt.DisplayRole)), item.data(int(SourceModel.Roles.PATH)))
+            if item.data(int(SourceModel.Roles.TYPE)) != "model":
+                return self.tr("{} ({})").format(
+                    item.data(int(Qt.DisplayRole)),
+                    item.data(int(SourceModel.Roles.PATH)),
+                )
         if role == Qt.DecorationRole:
             if index.column() == 0:
-                type = 'data'
-                if item.data(int(SourceModel.Roles.TYPE)) and item.data(int(SourceModel.Roles.TYPE)).lower() in ['model','ili', 'xtf', 'xml']:
+                type = "data"
+                if item.data(int(SourceModel.Roles.TYPE)) and item.data(
+                    int(SourceModel.Roles.TYPE)
+                ).lower() in ["model", "ili", "xtf", "xml"]:
                     type = item.data(int(SourceModel.Roles.TYPE)).lower()
-                return QIcon(os.path.join(os.path.dirname(__file__), f'../../images/file_types/{type}.png'))
+                return QIcon(
+                    os.path.join(
+                        os.path.dirname(__file__), f"../../images/file_types/{type}.png"
+                    )
+                )
         return item.data(int(role))
 
     def add_source(self, name, type, path):
         if self.source_in_model(name, type, path):
-            self.print_info.emit(self.tr("Source alread added {} ({})").format(
-                name, path if path else 'repository'))
+            self.print_info.emit(
+                self.tr("Source alread added {} ({})").format(
+                    name, path if path else "repository"
+                )
+            )
             return
 
         item = QStandardItem()
@@ -103,31 +120,42 @@ class SourceModel(QStandardItemModel):
         item.setData(path, int(SourceModel.Roles.PATH))
         self.appendRow([item, QStandardItem()])
 
-        self.print_info.emit(self.tr("Add source {} ({})").format(
-            name, path if path else 'repository'))
+        self.print_info.emit(
+            self.tr("Add source {} ({})").format(name, path if path else "repository")
+        )
 
     def source_in_model(self, name, type, path):
-        match_existing = self.match(self.index(
-            0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly)
-        if match_existing and type == match_existing[0].data(int(SourceModel.Roles.TYPE)) and path == match_existing[0].data(int(SourceModel.Roles.PATH)):
+        match_existing = self.match(
+            self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly
+        )
+        if (
+            match_existing
+            and type == match_existing[0].data(int(SourceModel.Roles.TYPE))
+            and path == match_existing[0].data(int(SourceModel.Roles.PATH))
+        ):
             return True
         return False
 
     def setData(self, index, data, role):
         if index.column() > 0:
-            return QStandardItemModel.setData(self, index, data, int(SourceModel.Roles.DATASET_NAME))
+            return QStandardItemModel.setData(
+                self, index, data, int(SourceModel.Roles.DATASET_NAME)
+            )
         return QStandardItemModel.setData(self, index, data, role)
 
     def remove_sources(self, indices):
         for index in sorted(indices):
             path = index.data(int(SourceModel.Roles.PATH))
-            self.print_info.emit(self.tr("Remove source {} ({})").format(
-                index.data(int(SourceModel.Roles.NAME)), path if path else 'repository'))
+            self.print_info.emit(
+                self.tr("Remove source {} ({})").format(
+                    index.data(int(SourceModel.Roles.NAME)),
+                    path if path else "repository",
+                )
+            )
             self.removeRow(index.row())
 
 
 class ImportModelsModel(SourceModel):
-
     def __init__(self):
         super().__init__()
         self._checked_models = {}
@@ -147,48 +175,82 @@ class ImportModelsModel(SourceModel):
 
         # models from the repos
         models_from_repo = []
-        filtered_source_model.setFilterFixedString('model')
+        filtered_source_model.setFilterFixedString("model")
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
-            modelname = filtered_source_model_index.data(
-                int(SourceModel.Roles.NAME))
+            modelname = filtered_source_model_index.data(int(SourceModel.Roles.NAME))
             if modelname:
                 enabled = modelname not in db_modelnames
-                self.add_source(modelname, filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
-                    int(SourceModel.Roles.PATH)), previously_checked_models.get(modelname, Qt.Checked) if enabled else Qt.Unchecked, enabled)
+                self.add_source(
+                    modelname,
+                    filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
+                    filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                    previously_checked_models.get(modelname, Qt.Checked)
+                    if enabled
+                    else Qt.Unchecked,
+                    enabled,
+                )
                 models_from_repo.append(
-                    filtered_source_model_index.data(int(SourceModel.Roles.NAME)))
+                    filtered_source_model_index.data(int(SourceModel.Roles.NAME))
+                )
                 if not silent:
                     self.print_info.emit(
-                        self.tr("- Append (repository) model {}{}").format(modelname, " (inactive because it already exists in the database)" if not enabled else ''))
+                        self.tr("- Append (repository) model {}{}").format(
+                            modelname,
+                            " (inactive because it already exists in the database)"
+                            if not enabled
+                            else "",
+                        )
+                    )
 
         # models from the files
         models_from_ili_files = []
-        filtered_source_model.setFilterFixedString('ili')
+        filtered_source_model.setFilterFixedString("ili")
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
             ili_file_path = filtered_source_model_index.data(
-                int(SourceModel.Roles.PATH))
+                int(SourceModel.Roles.PATH)
+            )
             self.ilicache = IliCache(None, ili_file_path)
             models = self.ilicache.process_ili_file(ili_file_path)
             for model in models:
-                if model['name']:
-                    enabled = model['name'] not in db_modelnames
-                    self.add_source(model['name'], filtered_source_model_index.data(int(SourceModel.Roles.TYPE)), filtered_source_model_index.data(
-                        int(SourceModel.Roles.PATH)), previously_checked_models.get(model['name'], Qt.Checked if model is models[-1] and enabled else Qt.Unchecked), enabled)
-                    models_from_ili_files.append(model['name'])
+                if model["name"]:
+                    enabled = model["name"] not in db_modelnames
+                    self.add_source(
+                        model["name"],
+                        filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
+                        filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        previously_checked_models.get(
+                            model["name"],
+                            Qt.Checked
+                            if model is models[-1] and enabled
+                            else Qt.Unchecked,
+                        ),
+                        enabled,
+                    )
+                    models_from_ili_files.append(model["name"])
                     if not silent:
                         self.print_info.emit(
-                            self.tr("- Append (file) model {}{} from {}").format(model['name'], " (inactive because it already exists in the database)" if not enabled else '', ili_file_path))
+                            self.tr("- Append (file) model {}{} from {}").format(
+                                model["name"],
+                                " (inactive because it already exists in the database)"
+                                if not enabled
+                                else "",
+                                ili_file_path,
+                            )
+                        )
 
         # models from the transfer files (not yet implemented)
-        filtered_source_model.setFilterRegExp('|'.join(TransferExtensions))
+        filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
             index = filtered_source_model.index(r, 0)
             xtf_file_path = index.data(int(SourceModel.Roles.PATH))
             if not silent:
                 self.print_info.emit(
-                    self.tr("Get models from the transfer file ({}) is not yet implemented").format(xtf_file_path))
+                    self.tr(
+                        "Get models from the transfer file ({}) is not yet implemented"
+                    ).format(xtf_file_path)
+                )
 
         return self.rowCount()
 
@@ -198,16 +260,17 @@ class ImportModelsModel(SourceModel):
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 for db_model in db_models:
-                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
-                    for modelname in regex.split(db_model['modelname']):
+                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+                    for modelname in regex.split(db_model["modelname"]):
                         modelnames.append(modelname.strip())
         return modelnames
 
     def add_source(self, name, type, path, checked, enabled):
         item = QStandardItem()
         self._checked_models[name] = checked
-        item.setFlags(Qt.ItemIsSelectable |
-                      Qt.ItemIsEnabled if enabled else Qt.NoItemFlags)
+        item.setFlags(
+            Qt.ItemIsSelectable | Qt.ItemIsEnabled if enabled else Qt.NoItemFlags
+        )
         item.setData(name, int(Qt.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
@@ -216,7 +279,12 @@ class ImportModelsModel(SourceModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self.tr("{}{}").format(SourceModel.data(self, index, (Qt.DisplayRole)), "" if index.flags() & Qt.ItemIsEnabled else " (already in the database)")
+            return self.tr("{}{}").format(
+                SourceModel.data(self, index, (Qt.DisplayRole)),
+                ""
+                if index.flags() & Qt.ItemIsEnabled
+                else " (already in the database)",
+            )
         if role == Qt.CheckStateRole:
             return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
         return SourceModel.data(self, index, role)
@@ -224,8 +292,7 @@ class ImportModelsModel(SourceModel):
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
-            self._checked_models[self.data(
-                index, int(SourceModel.Roles.NAME))] = data
+            self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
             self.endResetModel()
 
     def flags(self, index):
@@ -248,21 +315,29 @@ class ImportModelsModel(SourceModel):
             if item.data(int(Qt.Checked)):
                 type = item.data(int(SourceModel.Roles.TYPE))
                 model = item.data(int(SourceModel.Roles.NAME))
-                source = item.data(int(SourceModel.Roles.PATH)
-                                   ) if type != 'model' else 'repository '+model
+                source = (
+                    item.data(int(SourceModel.Roles.PATH))
+                    if type != "model"
+                    else "repository " + model
+                )
 
                 if self._checked_models[model] == Qt.Checked:
                     models = []
                     if source in sessions:
-                        models = sessions[source]['models']
+                        models = sessions[source]["models"]
                     else:
                         sessions[source] = {}
                     models.append(model)
-                    sessions[source]['models'] = models
+                    sessions[source]["models"] = models
         return sessions
 
     def checked_models(self):
-        return [model for model in self._checked_models.keys() if self._checked_models[model] == Qt.Checked]
+        return [
+            model
+            for model in self._checked_models.keys()
+            if self._checked_models[model] == Qt.Checked
+        ]
+
 
 class ImportDataModel(QSortFilterProxyModel):
 
@@ -276,26 +351,63 @@ class ImportDataModel(QSortFilterProxyModel):
         i = 0
         for r in order_list:
             source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            dataset = self.index(r, 1).data(
-                int(SourceModel.Roles.DATASET_NAME))
+            dataset = self.index(r, 1).data(int(SourceModel.Roles.DATASET_NAME))
             sessions[source] = {}
-            sessions[source]['dataset'] = dataset
+            sessions[source]["dataset"] = dataset
             i += 1
         return sessions
 
+
 class ExportModelsModel(QStringListModel):
 
-    blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
-                    'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
-                    'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
-                    'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
-                    'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
-                    'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
-                    'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
-                    'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
-                    'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
-                    'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
-                    'Time', 'Units']
+    blacklist = [
+        "CHBaseEx_MapCatalogue_V1",
+        "CHBaseEx_WaterNet_V1",
+        "CHBaseEx_Sewage_V1",
+        "CHAdminCodes_V1",
+        "AdministrativeUnits_V1",
+        "AdministrativeUnitsCH_V1",
+        "WithOneState_V1",
+        "WithLatestModification_V1",
+        "WithModificationObjects_V1",
+        "GraphicCHLV03_V1",
+        "GraphicCHLV95_V1",
+        "NonVector_Base_V2",
+        "NonVector_Base_V3",
+        "NonVector_Base_LV03_V3_1",
+        "NonVector_Base_LV95_V3_1",
+        "GeometryCHLV03_V1",
+        "GeometryCHLV95_V1",
+        "InternationalCodes_V1",
+        "Localisation_V1",
+        "LocalisationCH_V1",
+        "Dictionaries_V1",
+        "DictionariesCH_V1",
+        "CatalogueObjects_V1",
+        "CatalogueObjectTrees_V1",
+        "AbstractSymbology",
+        "CodeISO",
+        "CoordSys",
+        "GM03_2_1Comprehensive",
+        "GM03_2_1Core",
+        "GM03_2Comprehensive",
+        "GM03_2Core",
+        "GM03Comprehensive",
+        "GM03Core",
+        "IliRepository09",
+        "IliSite09",
+        "IlisMeta07",
+        "IliVErrors",
+        "INTERLIS_ext",
+        "RoadsExdm2ben",
+        "RoadsExdm2ben_10",
+        "RoadsExgm2ien",
+        "RoadsExgm2ien_10",
+        "StandardSymbology",
+        "StandardSymbology",
+        "Time",
+        "Units",
+    ]
 
     def __init__(self):
         super().__init__()
@@ -303,13 +415,13 @@ class ExportModelsModel(QStringListModel):
 
     def refresh_model(self, db_connector=None):
         modelnames = []
-        
+
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 for db_model in db_models:
-                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
-                    for modelname in regex.split(db_model['modelname']):
+                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+                    for modelname in regex.split(db_model["modelname"]):
                         if modelname and modelname not in ExportModelsModel.blacklist:
                             modelnames.append(modelname.strip())
 
@@ -336,13 +448,18 @@ class ExportModelsModel(QStringListModel):
             self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
         else:
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
-    
+
     def check_all(self):
         for name in self.stringList():
             self._checked_models[name] = Qt.Checked
 
     def checked_models(self):
-        return [modelname for modelname in self.stringList() if self._checked_models[modelname] == Qt.Checked]
+        return [
+            modelname
+            for modelname in self.stringList()
+            if self._checked_models[modelname] == Qt.Checked
+        ]
+
 
 class ExportDatasetsModel(QStringListModel):
     def __init__(self):
@@ -351,11 +468,11 @@ class ExportDatasetsModel(QStringListModel):
 
     def refresh_model(self, db_connector=None):
         datasetnames = []
-        
+
         if db_connector and db_connector.db_or_schema_exists():
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
-                datasetnames.append(record['datasetname'])
+                datasetnames.append(record["datasetname"])
         self.setStringList(datasetnames)
         if datasetnames:
             self._selected_dataset = datasetnames[0]
@@ -365,7 +482,7 @@ class ExportDatasetsModel(QStringListModel):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def select(self, row):
-        self._selected_dataset = self.data(self.index(row,0), Qt.DisplayRole)
-    
+        self._selected_dataset = self.data(self.index(row, 0), Qt.DisplayRole)
+
     def selected_dataset(self):
         return self._selected_dataset

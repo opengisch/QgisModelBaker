@@ -20,23 +20,17 @@
 
 import copy
 
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QEventLoop
-)
+from qgis.PyQt.QtCore import QCoreApplication, QEventLoop
 
 from qgis.PyQt.QtWidgets import (
     QWizardPage,
     QSpacerItem,
     QSizePolicy,
     QVBoxLayout,
-    QWidget
+    QWidget,
 )
 
-from qgis.gui import (
-    QgsMessageBar,
-    QgsGui
-)
+from qgis.gui import QgsMessageBar, QgsGui
 
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -48,11 +42,10 @@ from ...libili2db import iliimporter
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/execution.ui')
+PAGE_UI = get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):
-
     def __init__(self, parent, title, db_action_type):
         QWizardPage.__init__(self, parent)
 
@@ -64,15 +57,24 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
 
         if self.db_action_type == DbActionType.GENERATE:
-            self.description.setText(self.tr(
-                "Run the ili2db sessions to make the model imports (or skip to continue)."))
+            self.description.setText(
+                self.tr(
+                    "Run the ili2db sessions to make the model imports (or skip to continue)."
+                )
+            )
         elif self.db_action_type == DbActionType.IMPORT_DATA:
-            self.description.setText(self.tr(
-                "Run the ili2db sessions to make the data imports (or skip to continue)."))
+            self.description.setText(
+                self.tr(
+                    "Run the ili2db sessions to make the data imports (or skip to continue)."
+                )
+            )
         elif self.db_action_type == DbActionType.EXPORT:
-            self.description.setText(self.tr(
-                "Run the ili2db session to make the data export (or skip to continue)."))
-    
+            self.description.setText(
+                self.tr(
+                    "Run the ili2db session to make the data export (or skip to continue)."
+                )
+            )
+
         self.session_widget_list = []
         self.session_status = []
         self.run_command_button.setEnabled(False)
@@ -98,26 +100,39 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         new_sessions = []
 
         for key in import_sessions:
-            models = import_sessions[key]['models'] if 'models' in import_sessions[key] else [
-            ]
-            dataset = import_sessions[key]['dataset'] if 'dataset' in import_sessions[key] else None
+            models = (
+                import_sessions[key]["models"]
+                if "models" in import_sessions[key]
+                else []
+            )
+            dataset = (
+                import_sessions[key]["dataset"]
+                if "dataset" in import_sessions[key]
+                else None
+            )
 
             existing_widget = self.find_existing_session_widget((key, models))
             if existing_widget:
                 new_sessions.append(existing_widget)
             else:
-                import_session = SessionPanel(copy.deepcopy(
-                    configuration), key, models, dataset, self.db_action_type)
+                import_session = SessionPanel(
+                    copy.deepcopy(configuration),
+                    key,
+                    models,
+                    dataset,
+                    self.db_action_type,
+                )
                 import_session.on_done_or_skipped.connect(
-                    self.on_done_or_skipped_received)
+                    self.on_done_or_skipped_received
+                )
                 import_session.print_info.connect(
-                    self.workflow_wizard.log_panel.print_info)
+                    self.workflow_wizard.log_panel.print_info
+                )
                 import_session.on_stderr.connect(
-                    self.workflow_wizard.log_panel.on_stderr)
-                import_session.on_process_started.connect(
-                    self.on_process_started)
-                import_session.on_process_finished.connect(
-                    self.on_process_finished)
+                    self.workflow_wizard.log_panel.on_stderr
+                )
+                import_session.on_process_started.connect(self.on_process_started)
+                import_session.on_process_finished.connect(self.on_process_finished)
                 new_sessions.append(import_session)
 
         self.session_widget_list = new_sessions
@@ -126,13 +141,17 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         content = QWidget()
         for session_widget in self.session_widget_list:
             session_layout.addWidget(session_widget)
-        session_layout.addSpacerItem(QSpacerItem(
-            0, content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum))
+        session_layout.addSpacerItem(
+            QSpacerItem(0, content.height(), QSizePolicy.Expanding, QSizePolicy.Minimum)
+        )
         content.setLayout(session_layout)
         self.scroll_area.setWidget(content)
 
         self.pending_sessions = [
-            session.id for session in self.session_widget_list if not session.is_skipped_or_done]
+            session.id
+            for session in self.session_widget_list
+            if not session.is_skipped_or_done
+        ]
         self.setComplete(not self.pending_sessions)
 
     def on_done_or_skipped_received(self, id):
@@ -149,17 +168,18 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 loop.exec()
 
     def on_process_started(self, command):
-        self.workflow_wizard.log_panel.print_info(command, '#000000')
+        self.workflow_wizard.log_panel.print_info(command, "#000000")
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
             color = LogPanel.COLOR_SUCCESS
             message = self.tr(
-                'Interlis model(s) successfully imported into the database!')
+                "Interlis model(s) successfully imported into the database!"
+            )
         else:
             color = LogPanel.COLOR_FAIL
-            message = self.tr('Finished with errors!')
+            message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
 

@@ -18,22 +18,16 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtGui import (
-    QPixmap
-)
+from qgis.PyQt.QtGui import QPixmap
 
-from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QWizard
-)
+from qgis.PyQt.QtWidgets import QWizardPage, QWizard
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/intro.ui')
+PAGE_UI = get_ui_class("workflow_wizard/intro.ui")
 
 
-class IntroPage (QWizardPage, PAGE_UI):
-
+class IntroPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 

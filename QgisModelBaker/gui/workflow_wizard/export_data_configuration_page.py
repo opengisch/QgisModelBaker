@@ -38,26 +38,18 @@ from qgis.PyQt.QtWidgets import (
     QStyleOptionComboBox,
     QApplication,
     QLayout,
-    QFrame
+    QFrame,
 )
 
-from qgis.PyQt.QtGui import (
-    QIcon,
-    QStandardItemModel,
-    QStandardItem
-    
-)
+from qgis.PyQt.QtGui import QIcon, QStandardItemModel, QStandardItem
 
-from qgis.PyQt.QtCore import (
-    Qt,
-    QVariant
-)
+from qgis.PyQt.QtCore import Qt, QVariant
 
 from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
     Validators,
     FileValidator,
-    OverrideCursor
+    OverrideCursor,
 )
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 
@@ -69,7 +61,8 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/export_data_configuration.ui')
+PAGE_UI = get_ui_class("workflow_wizard/export_data_configuration.ui")
+
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     ValidExtensions = wizard_tools.TransferExtensions
@@ -85,33 +78,48 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.xtf_file_browse_button.clicked.connect(
-            make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
-                                    file_filter=self.tr('XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)'),
-                                    extension='.xtf',
-                                    extensions=['.' + ext for ext in self.ValidExtensions]))
+            make_save_file_selector(
+                self.xtf_file_line_edit,
+                title=self.tr("Save in XTF Transfer File"),
+                file_filter=self.tr(
+                    "XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
+                ),
+                extension=".xtf",
+                extensions=["." + ext for ext in self.ValidExtensions],
+            )
+        )
 
         self.validators = Validators()
 
-        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
+        fileValidator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_non_existing=True,
+        )
 
         self.xtf_file_line_edit.setValidator(fileValidator)
-        self.xtf_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
-        self.xtf_file_line_edit.textChanged.emit(
-            self.xtf_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
         self.export_models_checkbox.setChecked(False)
         self.export_models_checkbox.stateChanged.connect(self._select_all_models)
         self.export_models_view.setModel(self.workflow_wizard.export_models_model)
-        self.export_models_view.clicked.connect(self.workflow_wizard.export_models_model.check)
-        self.export_models_view.space_pressed.connect(self.workflow_wizard.export_models_model.check)
+        self.export_models_view.clicked.connect(
+            self.workflow_wizard.export_models_model.check
+        )
+        self.export_models_view.space_pressed.connect(
+            self.workflow_wizard.export_models_model.check
+        )
 
         self.export_dataset_combo.setModel(self.workflow_wizard.export_datasets_model)
-        self.export_dataset_combo.setCurrentText(self.workflow_wizard.export_datasets_model.selected_dataset())
-        self.export_dataset_combo.currentIndexChanged.connect(self.workflow_wizard.export_datasets_model.select)
+        self.export_dataset_combo.setCurrentText(
+            self.workflow_wizard.export_datasets_model.selected_dataset()
+        )
+        self.export_dataset_combo.currentIndexChanged.connect(
+            self.workflow_wizard.export_datasets_model.select
+        )
 
-    def _set_current_export_target(self, text ):
+    def _set_current_export_target(self, text):
         self.workflow_wizard.current_export_target = text
 
     def _select_all_models(self, state):

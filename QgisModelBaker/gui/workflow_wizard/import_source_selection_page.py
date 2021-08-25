@@ -21,30 +21,18 @@
 import os
 import pathlib
 
-from qgis.PyQt.QtCore import (
-    Qt
-)
+from qgis.PyQt.QtCore import Qt
 
-from qgis.PyQt.QtWidgets import (
-    QCompleter,
-    QWizardPage
-)
+from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
-from QgisModelBaker.libili2db.ilicache import (
-    IliCache,
-    ModelCompleterDelegate
-)
+from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 
-from QgisModelBaker.utils.qt_utils import (
-    make_file_selector,
-    QValidator,
-    FileValidator
-)
+from QgisModelBaker.utils.qt_utils import make_file_selector, QValidator, FileValidator
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/import_source_selection.ui')
+PAGE_UI = get_ui_class("workflow_wizard/import_source_selection.ui")
 
 
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
@@ -60,18 +48,28 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.setMinimumSize(600, 500)
         self.setTitle(title)
 
-        self.file_browse_button.clicked.connect(make_file_selector(self.input_line_edit, title=self.tr('Open Interlis Model, Transfer or Catalogue File'), file_filter=self.tr(
-            'Interlis Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
+        self.file_browse_button.clicked.connect(
+            make_file_selector(
+                self.input_line_edit,
+                title=self.tr("Open Interlis Model, Transfer or Catalogue File"),
+                file_filter=self.tr(
+                    "Interlis Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)"
+                ),
+            )
+        )
 
         self.fileValidator = FileValidator(
-            pattern=['*.' + ext for ext in self.ValidExtensions], allow_empty=False)
+            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
+        )
 
         self.ilicache = IliCache(
-            self.workflow_wizard.import_schema_configuration.base_configuration)
+            self.workflow_wizard.import_schema_configuration.base_configuration
+        )
         self.model_delegate = ModelCompleterDelegate()
         self.refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(
-            self.tr('[Browse for file or search model from repository]'))
+            self.tr("[Browse for file or search model from repository]")
+        )
 
         # very unhappy about this behavior, but okay for prototype
         self.first_time_punched = False
@@ -83,33 +81,31 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
         self.add_button.setEnabled(self.valid_source())
         self.input_line_edit.textChanged.connect(
-            lambda: self.add_button.setEnabled(self.valid_source()))
+            lambda: self.add_button.setEnabled(self.valid_source())
+        )
         self.remove_button.setEnabled(self.valid_selection())
         self.source_list_view.clicked.connect(
-            lambda: self.remove_button.setEnabled(self.valid_selection()))
+            lambda: self.remove_button.setEnabled(self.valid_selection())
+        )
 
     def first_time_punch(self):
         # might could be nices
         self.input_line_edit.punched.disconnect(self.first_time_punch)
         self.input_line_edit.textChanged.emit(self.input_line_edit.text())
-        self.input_line_edit.textChanged.connect(
-            self.complete_models_completer)
+        self.input_line_edit.textChanged.connect(self.complete_models_completer)
         self.input_line_edit.punched.connect(self.complete_models_completer)
         self.first_time_punched = True
 
     def disconnect_punch_slots(self):
         # might could be nices
         if self.first_time_punched:
-            self.input_line_edit.textChanged.disconnect(
-                self.complete_models_completer)
-            self.input_line_edit.punched.disconnect(
-                self.complete_models_completer)
+            self.input_line_edit.textChanged.disconnect(self.complete_models_completer)
+            self.input_line_edit.punched.disconnect(self.complete_models_completer)
             self.input_line_edit.punched.connect(self.first_time_punch)
             self.first_time_punched = False
 
     def refresh_ili_models_cache(self):
-        self.ilicache.new_message.connect(
-            self.workflow_wizard.log_panel.show_message)
+        self.ilicache.new_message.connect(self.workflow_wizard.log_panel.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
 
@@ -117,19 +113,44 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         if self.input_line_edit.hasFocus():
             if not self.input_line_edit.text():
                 self.input_line_edit.completer().setCompletionMode(
-                    QCompleter.UnfilteredPopupCompletion)
+                    QCompleter.UnfilteredPopupCompletion
+                )
                 self.input_line_edit.completer().complete()
             else:
-                match_contains = self.input_line_edit.completer().completionModel().match(self.input_line_edit.completer().completionModel().index(0, 0),
-                                                                                          Qt.DisplayRole, self.input_line_edit.text(), -1, Qt.MatchContains)
+                match_contains = (
+                    self.input_line_edit.completer()
+                    .completionModel()
+                    .match(
+                        self.input_line_edit.completer().completionModel().index(0, 0),
+                        Qt.DisplayRole,
+                        self.input_line_edit.text(),
+                        -1,
+                        Qt.MatchContains,
+                    )
+                )
                 if len(match_contains) > 1:
-                    self.input_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+                    self.input_line_edit.completer().setCompletionMode(
+                        QCompleter.PopupCompletion
+                    )
                     self.input_line_edit.completer().complete()
 
     def valid_source(self):
-        match_contains = self.input_line_edit.completer().completionModel().match(self.input_line_edit.completer().completionModel().index(0, 0),
-                                                                                  Qt.DisplayRole, self.input_line_edit.text(), -1, Qt.MatchExactly)
-        return len(match_contains) == 1 or self.fileValidator.validate(self.input_line_edit.text(), 0)[0] == QValidator.Acceptable
+        match_contains = (
+            self.input_line_edit.completer()
+            .completionModel()
+            .match(
+                self.input_line_edit.completer().completionModel().index(0, 0),
+                Qt.DisplayRole,
+                self.input_line_edit.text(),
+                -1,
+                Qt.MatchExactly,
+            )
+        )
+        return (
+            len(match_contains) == 1
+            or self.fileValidator.validate(self.input_line_edit.text(), 0)[0]
+            == QValidator.Acceptable
+        )
 
     def valid_selection(self):
         return bool(len(self.source_list_view.selectedIndexes()))
@@ -149,7 +170,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
             path = source
         else:
             name = source
-            type = 'model'
+            type = "model"
             path = None
         self.source_list_view.model().add_source(name, type, path)
         self.input_line_edit.clearFocus()

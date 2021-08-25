@@ -37,19 +37,12 @@ from qgis.PyQt.QtWidgets import (
     QStyleOptionComboBox,
     QApplication,
     QLayout,
-    QFrame
+    QFrame,
 )
 
-from qgis.PyQt.QtGui import (
-    QIcon,
-    QStandardItemModel,
-    QStandardItem
-)
+from qgis.PyQt.QtGui import QIcon, QStandardItemModel, QStandardItem
 
-from qgis.PyQt.QtCore import (
-    Qt,
-    QVariant
-)
+from qgis.PyQt.QtCore import Qt, QVariant
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -61,27 +54,36 @@ import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/import_data_configuration.ui')
+PAGE_UI = get_ui_class("workflow_wizard/import_data_configuration.ui")
+
+
 class DatasetComboDelegate(QStyledItemDelegate):
     def __init__(self, parent, db_connector):
         super().__init__(parent)
         self.refresh_datasets(db_connector)
+
     def refresh_datasets(self, db_connector):
         datasets_info = db_connector.get_datasets_info()
-        self.items = [record['datasetname'] for record in datasets_info]
+        self.items = [record["datasetname"] for record in datasets_info]
+
     def createEditor(self, parent, option, index):
         self.editor = QComboBox(parent)
         self.editor.addItems(self.items)
         return self.editor
+
     def setEditorData(self, editor, index):
         value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
         num = self.items.index(value) if value in self.items else 0
         editor.setCurrentIndex(num)
+
     def setModelData(self, editor, model, index):
         value = editor.currentText()
         model.setData(index, value, int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
+
+
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
@@ -93,15 +95,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard = parent
 
-        self.workflow_wizard.import_data_file_model.sourceModel(
-        ).setHorizontalHeaderLabels([self.tr('Import File'), self.tr('Dataset')])
-        self.file_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.file_table_view.setModel(
-            self.workflow_wizard.import_data_file_model)
+        self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
+            [self.tr("Import File"), self.tr("Dataset")]
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
+        self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
-            
+
         # self.ili2db_options = Ili2dbOptionsDialog()
         # self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         # self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
@@ -116,20 +120,29 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         order_list = []
         for visual_index in range(0, self.file_table_view.verticalHeader().count()):
             order_list.append(
-                self.file_table_view.verticalHeader().logicalIndex(visual_index))
+                self.file_table_view.verticalHeader().logicalIndex(visual_index)
+            )
         return order_list
 
     def setup_dialog(self):
         # setup dataset handling
-        self.db_connector = self._get_db_connector(self.workflow_wizard.import_data_configuration)
+        self.db_connector = self._get_db_connector(
+            self.workflow_wizard.import_data_configuration
+        )
         if self.db_connector.get_basket_handling():
             # set defaults
-            for row in range( self.workflow_wizard.import_data_file_model.rowCount() ):
+            for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)
                 value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
                 if not value:
-                    self.workflow_wizard.import_data_file_model.setData(index, wizard_tools.DEFAULT_DATASETNAME, int(wizard_tools.SourceModel.Roles.DATASET_NAME))
-                self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, self.db_connector))
+                    self.workflow_wizard.import_data_file_model.setData(
+                        index,
+                        wizard_tools.DEFAULT_DATASETNAME,
+                        int(wizard_tools.SourceModel.Roles.DATASET_NAME),
+                    )
+                self.file_table_view.setItemDelegateForColumn(
+                    1, DatasetComboDelegate(self, self.db_connector)
+                )
         else:
             self.file_table_view.setColumnHidden(1, True)
 
@@ -160,14 +173,22 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         if self.datasetmanager_dlg:
             self.datasetmanager_dlg.reject()
         else:
-            self.datasetmanager_dlg = DatasetManagerDialog(self.workflow_wizard.iface, self, True)
+            self.datasetmanager_dlg = DatasetManagerDialog(
+                self.workflow_wizard.iface, self, True
+            )
             self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.datasetmanager_dlg.setWindowFlags(self.datasetmanager_dlg.windowFlags() | Qt.Tool)
+            self.datasetmanager_dlg.setWindowFlags(
+                self.datasetmanager_dlg.windowFlags() | Qt.Tool
+            )
             self.datasetmanager_dlg.show()
-            self.datasetmanager_dlg.finished.connect(self.datasetmanager_dialog_finished)
+            self.datasetmanager_dlg.finished.connect(
+                self.datasetmanager_dialog_finished
+            )
             self.datasetmanager_button.setChecked(True)
-    
+
     def datasetmanager_dialog_finished(self):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
-        self.file_table_view.setItemDelegateForColumn(1, DatasetComboDelegate(self, self.db_connector))
+        self.file_table_view.setItemDelegateForColumn(
+            1, DatasetComboDelegate(self, self.db_connector)
+        )

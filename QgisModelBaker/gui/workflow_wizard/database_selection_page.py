@@ -21,9 +21,7 @@
 from PyQt5.QtWidgets import QVBoxLayout
 from qgis.PyQt.QtCore import QSettings
 
-from qgis.PyQt.QtWidgets import (
-    QWizardPage
-)
+from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -33,11 +31,10 @@ from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/database_selection.ui')
+PAGE_UI = get_ui_class("workflow_wizard/database_selection.ui")
 
 
 class DatabaseSelectionPage(QWizardPage, PAGE_UI):
-
     def __init__(self, parent, title, db_action_type):
         QWizardPage.__init__(self, parent)
 
@@ -49,14 +46,19 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.setMinimumSize(600, 500)
         self.setTitle(title)
         if db_action_type == DbActionType.GENERATE:
-            self.description.setText(self.tr(
-                "Select an existing database you want to generate a QGIS project from."))
+            self.description.setText(
+                self.tr(
+                    "Select an existing database you want to generate a QGIS project from."
+                )
+            )
         elif db_action_type == DbActionType.EXPORT:
             self.description.setText(
-                self.tr("Select an existing database you want to export from."))
+                self.tr("Select an existing database you want to export from.")
+            )
         else:
             self.description.setText(
-                self.tr("Choose the database you want to create or import to."))
+                self.tr("Choose the database you want to create or import to.")
+            )
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -65,8 +67,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(
-                self, db_action_type)
+            item_panel = db_factory.get_config_panel(self, db_action_type)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
@@ -94,14 +95,14 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         schema = configuration.dbschema
 
         db_factory = self.db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(
-            configuration)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
         uri_string = config_manager.get_uri(configuration.db_use_super_login)
 
         try:
             db_connector = db_factory.get_db_connector(uri_string, schema)
             db_connector.new_message.connect(
-                self.workflow_wizard.log_panel.show_message)
+                self.workflow_wizard.log_panel.show_message
+            )
             return db_connector.ili_version()
         except (DBConnectorError, FileNotFoundError):
             return None
@@ -113,12 +114,11 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(
-                configuration)
+            config_manager = db_factory.get_db_command_config_manager(configuration)
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
-        mode = settings.value('QgisModelBaker/importtype')
+        mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
 
@@ -136,12 +136,12 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
     def save_configuration(self, updated_configuration):
         # puts it to QSettings
         settings = QSettings()
-        settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData().name)
+        settings.setValue(
+            "QgisModelBaker/importtype", self.type_combo_box.currentData().name
+        )
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
-        config_manager = db_factory.get_db_command_config_manager(
-            updated_configuration)
+        config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
 
     def nextId(self):
