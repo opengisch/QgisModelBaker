@@ -311,7 +311,8 @@ class ExportDatasetsModel(QStringListModel):
             for record in datasets_info:
                 datasetnames.append(record['datasetname'])
         self.setStringList(datasetnames)
-        self._selected_dataset = datasetnames[0]
+        if datasetnames:
+            self._selected_dataset = datasetnames[0]
         return self.rowCount()
 
     def flags(self, index):

@@ -61,7 +61,7 @@ from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class('workflow_wizard/import_data_configuration.ui')
 
-DEFAULT_DATASETNAME = "defaultdataset"
+DEFAULT_DATASETNAME = "Baseset"
 class SourceModel(QStandardItemModel):
 
     print_info = pyqtSignal([str], [str, str])
