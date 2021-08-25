@@ -275,7 +275,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 for model in ili2db_metaconfig.get('models').strip().split(';'):
                     self.workflow_wizard.source_model.add_source(
                         model, 'model', None)
-                self.workflow_wizard.refresh_import_models_model()
+                self.workflow_wizard.refresh_import_models()
                 self.workflow_wizard.log_panel.print_info(
                     self.tr('- Loaded models'), LogPanel.COLOR_TOPPING)
 

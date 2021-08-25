@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InterlisImport</class>
+ <widget class="QDialog" name="InterlisImport">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Select Files</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QLabel" name="description">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Select the file you want to export to and the models and datasets from the database</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="xtf_file_browse_button">
+        <property name="toolTip">
+         <string>Browse XTF files</string>
+        </property>
+        <property name="text">
+         <string>…</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="export_datasets_label">
+        <property name="text">
+         <string>Datasets</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="export_models_label">
+        <property name="text">
+         <string>Models</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="export_models_checkbox">
+        <property name="text">
+         <string>Export all models</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="xtf_file_label">
+        <property name="text">
+         <string>XTF File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="ModelListView" name="export_models_view" native="true"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="xtf_file_line_edit"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="export_dataset_combo"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ModelListView</class>
+   <extends></extends>
+   <header>QgisModelBaker.gui.options</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

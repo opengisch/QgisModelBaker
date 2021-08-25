@@ -59,7 +59,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.setFinalPage(True)
         self.setMinimumSize(600, 500)
         self.setTitle(title)
-        self.setFinalPage(True)
 
         self.db_simple_factory = DbSimpleFactory()
         self.configuration = None

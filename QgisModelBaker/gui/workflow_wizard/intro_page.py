@@ -48,7 +48,6 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.import_button.clicked.connect(self.on_import)
         self.generate_button.clicked.connect(self.on_generate)
         self.export_button.clicked.connect(self.on_export)
-        self.export_button.setDisabled(True)
 
     def on_import(self):
         self.next_id = self.workflow_wizard.Page_ImportSourceSeletion_Id
@@ -59,7 +58,8 @@ class IntroPage (QWizardPage, PAGE_UI):
         self.workflow_wizard.next()
 
     def on_export(self):
-        pass
+        self.next_id = self.workflow_wizard.Page_ExportDatabaseSelection_Id
+        self.workflow_wizard.next()
 
     def nextId(self):
         return self.next_id

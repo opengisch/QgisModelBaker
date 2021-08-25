@@ -38,7 +38,7 @@ from qgis.gui import (
     QgsGui
 )
 
-from QgisModelBaker.gui.panel.import_session_panel import ImportSessionPanel
+from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
@@ -48,26 +48,31 @@ from ...libili2db import iliimporter
 
 from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class('workflow_wizard/import_execution.ui')
+PAGE_UI = get_ui_class('workflow_wizard/execution.ui')
 
 
-class ImportExecutionPage(QWizardPage, PAGE_UI):
+class ExecutionPage(QWizardPage, PAGE_UI):
 
-    def __init__(self, parent, title, data_import=False):
+    def __init__(self, parent, title, db_action_type):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
-        self.data_import = data_import
+        self.db_action_type = db_action_type
+
         self.setupUi(self)
         self.setMinimumSize(600, 500)
         self.setTitle(title)
-        if not self.data_import:
+
+        if self.db_action_type == DbActionType.GENERATE:
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the model imports (or skip to continue)."))
-        else:
+        elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.description.setText(self.tr(
                 "Run the ili2db sessions to make the data imports (or skip to continue)."))
-
+        elif self.db_action_type == DbActionType.EXPORT:
+            self.description.setText(self.tr(
+                "Run the ili2db session to make the data export (or skip to continue)."))
+    
         self.session_widget_list = []
         self.session_status = []
         self.run_command_button.setEnabled(False)
@@ -101,8 +106,8 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
             if existing_widget:
                 new_sessions.append(existing_widget)
             else:
-                import_session = ImportSessionPanel(copy.deepcopy(
-                    configuration), key, models, dataset, self.data_import)
+                import_session = SessionPanel(copy.deepcopy(
+                    configuration), key, models, dataset, self.db_action_type)
                 import_session.on_done_or_skipped.connect(
                     self.on_done_or_skipped_received)
                 import_session.print_info.connect(
@@ -159,4 +164,6 @@ class ImportExecutionPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.log_panel.print_info(message, color)
 
     def nextId(self):
+        if self.db_action_type == DbActionType.EXPORT:
+            return -1
         return self.workflow_wizard.next_id()

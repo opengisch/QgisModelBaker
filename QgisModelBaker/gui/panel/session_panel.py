@@ -30,20 +30,21 @@ from qgis.PyQt.QtCore import (
 from ...utils import get_ui_class
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ...libili2db import iliimporter
+from ...libili2db import iliimporter, iliexporter, iliexecutable
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import OverrideCursor
+from QgisModelBaker.libili2db.globals import DbActionType
 
 from qgis.PyQt.QtCore import pyqtSignal
 
-WIDGET_UI = get_ui_class('workflow_wizard/import_session_panel.ui')
+WIDGET_UI = get_ui_class('workflow_wizard/session_panel.ui')
 
 
-class ImportSessionPanel(QWidget, WIDGET_UI):
+class SessionPanel(QWidget, WIDGET_UI):
 
     print_info = pyqtSignal(str, str)
     on_stderr = pyqtSignal(str)
@@ -51,7 +52,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object)
 
-    def __init__(self, general_configuration, file, models, dataset, data_import, parent=None):
+    def __init__(self, general_configuration, file, models, dataset, db_action_type, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
@@ -88,19 +89,25 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
-        self.data_import = data_import
-        if not self.data_import:
+        self.db_action_type = db_action_type
+        if self.db_action_type == DbActionType.GENERATE:
             self.configuration.ilifile = ''
             if self.file != 'repository':
                 self.configuration.ilifile = self.file
             self.configuration.ilimodels = ';'.join(self.models)
             self.info_label.setText(
                 self.tr('Import {}').format(', '.join(self.models)))
-        else:
+        elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ';'.join(self.models)
             self.info_label.setText(self.tr('Import {} of {}').format(
                 ', '.join(self.models), self.file))
+            self.configuration.dataset = self.dataset
+        elif self.db_action_type == DbActionType.EXPORT:
+            self.configuration.xtffile = self.file
+            self.configuration.ilimodels = ';'.join(self.models)
+            self.info_label.setText(self.tr('Export {} of {} into {}').format(
+                ', '.join(self.models), self.dataset, self.file))
             self.configuration.dataset = self.dataset
 
         self.db_simple_factory = DbSimpleFactory()
@@ -145,14 +152,25 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         self.is_skipped_or_done = True
         self.on_done_or_skipped.emit(self.id)
 
+    def _get_porter(self):
+        porter = None
+        if self.db_action_type == DbActionType.EXPORT:
+            porter = iliexporter.Exporter()
+        elif self.db_action_type == DbActionType.IMPORT_DATA:
+            porter = iliimporter.Importer(dataImport=True)
+        else:
+            porter = iliimporter.Importer()
+        if porter:
+            porter.tool = self.configuration.tool
+            porter.configuration = self.configuration
+        return porter
+
     def edit_command(self):
         """
         A dialog opens giving the user the possibility to edit the ili2db command used for the creation
         """
-        importer = iliimporter.Importer()
-        importer.tool = self.configuration.tool
-        importer.configuration = self.configuration
-        command = importer.command(True)
+        porter = self._get_porter()
+        command = porter.command(True)
         edit_command_dialog = EditCommandDialog(self)
         edit_command_dialog.command_edit.setPlainText(command)
         if edit_command_dialog.exec_():
@@ -163,22 +181,20 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
         if self.is_skipped_or_done:
             return True
 
-        importer = iliimporter.Importer(dataImport=self.data_import)
-        importer.tool = self.configuration.tool
-        importer.configuration = self.configuration
+        porter = self._get_porter()
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.setValue(10)
             self.setDisabled(True)
 
-            importer.stdout.connect(
+            porter.stdout.connect(
                 lambda str: self.print_info.emit(str, LogPanel.COLOR_INFO))
-            importer.stderr.connect(self.on_stderr)
-            importer.process_started.connect(self.on_process_started)
-            importer.process_finished.connect(self.on_process_finished)
+            porter.stderr.connect(self.on_stderr)
+            porter.process_started.connect(self.on_process_started)
+            porter.process_finished.connect(self.on_process_finished)
             self.progress_bar.setValue(20)
             try:
-                if importer.run(edited_command) != iliimporter.Importer.SUCCESS:
+                if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
                     self.setDisabled(False)
                     return False
@@ -189,7 +205,7 @@ class ImportSessionPanel(QWidget, WIDGET_UI):
                 return False
 
             self.progress_bar.setValue(90)
-            if not self.data_import and self.configuration.create_basket_col:
+            if self.db_action_type == DbActionType.GENERATE and self.configuration.create_basket_col:
                 self._create_default_dataset()
             self.progress_bar.setValue(100)
             self.print_info.emit(self.tr('Import done!\n'),
