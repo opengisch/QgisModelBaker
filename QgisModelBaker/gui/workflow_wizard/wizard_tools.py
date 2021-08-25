@@ -19,6 +19,7 @@
 """
 
 from enum import Enum
+import xml.etree.ElementTree as ET
 import re
 import os
 
@@ -174,7 +175,6 @@ class ImportModelsModel(SourceModel):
         db_modelnames = self.db_modelnames(db_connector)
 
         # models from the repos
-        models_from_repo = []
         filtered_source_model.setFilterFixedString("model")
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
@@ -190,9 +190,6 @@ class ImportModelsModel(SourceModel):
                     else Qt.Unchecked,
                     enabled,
                 )
-                models_from_repo.append(
-                    filtered_source_model_index.data(int(SourceModel.Roles.NAME))
-                )
                 if not silent:
                     self.print_info.emit(
                         self.tr("- Append (repository) model {}{}").format(
@@ -204,7 +201,6 @@ class ImportModelsModel(SourceModel):
                     )
 
         # models from the files
-        models_from_ili_files = []
         filtered_source_model.setFilterFixedString("ili")
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
@@ -228,7 +224,6 @@ class ImportModelsModel(SourceModel):
                         ),
                         enabled,
                     )
-                    models_from_ili_files.append(model["name"])
                     if not silent:
                         self.print_info.emit(
                             self.tr("- Append (file) model {}{} from {}").format(
@@ -240,19 +235,53 @@ class ImportModelsModel(SourceModel):
                             )
                         )
 
-        # models from the transfer files (not yet implemented)
+        # models from the transfer files
         filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
-            index = filtered_source_model.index(r, 0)
-            xtf_file_path = index.data(int(SourceModel.Roles.PATH))
-            if not silent:
-                self.print_info.emit(
-                    self.tr(
-                        "Get models from the transfer file ({}) is not yet implemented"
-                    ).format(xtf_file_path)
-                )
+            filtered_source_model_index = filtered_source_model.index(r, 0)
+            xtf_file_path = filtered_source_model_index.data(int(SourceModel.Roles.PATH))
+            models = self._transfer_file_models(xtf_file_path)
+            for model in models:
+                if model["name"]:
+                    enabled = model["name"] not in db_modelnames
+                    self.add_source(
+                        model["name"],
+                        filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
+                        filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        previously_checked_models.get(
+                            model["name"],
+                            Qt.Checked
+                            if model is models[-1] and enabled
+                            else Qt.Unchecked,
+                        ),
+                        enabled,
+                    )
+                    if not silent:
+                        self.print_info.emit(
+                            self.tr("- Append (xtf file) model {}{} from {}").format(
+                                model["name"],
+                                " (inactive because it already exists in the database)"
+                                if not enabled
+                                else "",
+                                xtf_file_path,
+                            )
+                        )
 
         return self.rowCount()
+
+    def _transfer_file_models(self, xtf_file_path):
+        models = []
+        try:
+            root = ET.parse(xtf_file_path).getroot()
+            for model_element in root.iter('{http://www.interlis.ch/INTERLIS2.3}MODEL'):
+                model = {}
+                model['name']= model_element.get('NAME')
+                models.append(model)
+        except ET.ParseError as e:
+            self.print_info.emit(
+                self.tr('Could not parse transferfile file `{file}` ({exception})'.format(
+                file=xtf_file_path, exception=str(e))))
+        return models
 
     def db_modelnames(self, db_connector=None):
         modelnames = list()
