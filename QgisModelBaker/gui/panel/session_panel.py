@@ -18,7 +18,8 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.gui.workflow_wizard.import_data_configuration_page import DEFAULT_DATASETNAME
+import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QAction,
@@ -215,18 +216,18 @@ class SessionPanel(QWidget, WIDGET_UI):
             return True
 
     def _create_default_dataset(self):
-        self.print_info.emit(self.tr('Create the default dataset {}').format(DEFAULT_DATASETNAME), LogPanel.COLOR_INFO)
+        self.print_info.emit(self.tr('Create the default dataset {}').format(wizard_tools.DEFAULT_DATASETNAME), LogPanel.COLOR_INFO)
         db_connector = self._get_db_connector(self.configuration)
 
         default_dataset_tid = None
-        default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == DEFAULT_DATASETNAME]
+        default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == wizard_tools.DEFAULT_DATASETNAME]
         if default_datasets_info_tids:
             default_dataset_tid = default_datasets_info_tids[0]
         else:
-            status, message = db_connector.create_dataset(DEFAULT_DATASETNAME)
+            status, message = db_connector.create_dataset(wizard_tools.DEFAULT_DATASETNAME)
             self.print_info.emit(message, LogPanel.COLOR_INFO) 
             if status:
-                default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == DEFAULT_DATASETNAME]
+                default_datasets_info_tids = [datasets_info['t_id'] for datasets_info in db_connector.get_datasets_info() if datasets_info['datasetname'] == wizard_tools.DEFAULT_DATASETNAME]
                 if default_datasets_info_tids:
                     default_dataset_tid = default_datasets_info_tids[0]
         

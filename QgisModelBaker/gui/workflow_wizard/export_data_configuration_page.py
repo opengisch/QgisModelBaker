@@ -59,6 +59,7 @@ from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     OverrideCursor
 )
+import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
@@ -71,7 +72,7 @@ from ...utils import get_ui_class
 PAGE_UI = get_ui_class('workflow_wizard/export_data_configuration.ui')
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
-    ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'gml', 'GML', 'xml', 'XML']
+    ValidExtensions = wizard_tools.TransferExtensions
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)

@@ -41,6 +41,7 @@ from QgisModelBaker.utils.qt_utils import (
     FileValidator
 )
 
+import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class('workflow_wizard/import_source_selection.ui')
@@ -48,8 +49,7 @@ PAGE_UI = get_ui_class('workflow_wizard/import_source_selection.ui')
 
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
 
-    ValidExtensions = ['ili', 'xtf', 'XTF', 'itf', 'ITF',
-                       'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
+    ValidExtensions = wizard_tools.IliExtensions + wizard_tools.TransferExtensions
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
