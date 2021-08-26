@@ -321,10 +321,10 @@ class WorkflowWizard(QWizard):
             sessions[self.current_export_target] = {}
             sessions[self.current_export_target][
                 "models"
-            ] = self.export_models_model.checked_models()
+            ] = self.export_models_model.checked_entries()
             sessions[self.current_export_target][
-                "dataset"
-            ] = self.export_datasets_model.selected_dataset()
+                "datasets"
+            ] = self.export_datasets_model.checked_entries()
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )

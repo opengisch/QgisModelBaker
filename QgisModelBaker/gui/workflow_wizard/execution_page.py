@@ -105,9 +105,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 if "models" in import_sessions[key]
                 else []
             )
-            dataset = (
-                import_sessions[key]["dataset"]
-                if "dataset" in import_sessions[key]
+            datasets = (
+                import_sessions[key]["datasets"]
+                if "datasets" in import_sessions[key]
                 else None
             )
 
@@ -119,7 +119,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     copy.deepcopy(configuration),
                     key,
                     models,
-                    dataset,
+                    datasets,
                     self.db_action_type,
                 )
                 import_session.on_done_or_skipped.connect(
@@ -174,12 +174,21 @@ class ExecutionPage(QWizardPage, PAGE_UI):
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
             color = LogPanel.COLOR_SUCCESS
-            message = self.tr(
-                "Interlis model(s) successfully imported into the database!"
-            )
-        else:
-            color = LogPanel.COLOR_FAIL
-            message = self.tr("Finished with errors!")
+            if self.db_action_type == DbActionType.GENERATE:
+                message = self.tr(
+                        "Interlis model(s) successfully imported into the database!"
+                    )
+            elif self.db_action_type == DbActionType.IMPORT_DATA:
+                message = self.tr(
+                        "Transfer data successfully imported into the database!"
+                    )
+            elif self.db_action_type == DbActionType.EXPORT:
+                message = self.tr(
+                        "Data successfully exported into transfer file!"
+                    )
+            else:
+                color = LogPanel.COLOR_FAIL
+                message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
 

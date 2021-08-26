@@ -111,18 +111,21 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.export_models_model.check
         )
 
-        self.export_dataset_combo.setModel(self.workflow_wizard.export_datasets_model)
-        self.export_dataset_combo.currentIndexChanged.connect(
-            self.workflow_wizard.export_datasets_model.select
+        self.export_datasets_checkbox.setChecked(False)
+        self.export_datasets_checkbox.stateChanged.connect(self._select_all_datasets)
+        self.export_datasets_view.setModel(self.workflow_wizard.export_datasets_model)
+        self.export_datasets_view.clicked.connect(
+            self.workflow_wizard.export_datasets_model.check
+        )
+        self.export_models_view.space_pressed.connect(
+            self.workflow_wizard.export_datasets_model.check
         )
 
     def setup_dialog(self, basket_handling):
-        if basket_handling:
-            self.export_dataset_combo.setCurrentText(
-                self.workflow_wizard.export_datasets_model.selected_dataset()
-            )
-        else:
-            self.export_dataset_combo.setHidden(True)
+        self.export_datasets_checkbox.setChecked(basket_handling)
+        self.export_datasets_label.setHidden(not basket_handling)
+        self.export_datasets_checkbox.setHidden(not basket_handling)
+        self.export_datasets_view.setHidden(not basket_handling)
 
     def _set_current_export_target(self, text):
         self.workflow_wizard.current_export_target = text
@@ -130,6 +133,10 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _select_all_models(self, state):
         self.workflow_wizard.export_models_model.check_all()
         self.export_models_view.setDisabled(bool(state))
+
+    def _select_all_datasets(self, state):
+        self.workflow_wizard.export_datasets_model.check_all()
+        self.export_datasets_view.setDisabled(bool(state))
 
     def nextId(self):
         return self.workflow_wizard.next_id()

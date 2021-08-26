@@ -382,12 +382,48 @@ class ImportDataModel(QSortFilterProxyModel):
             source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
             dataset = self.index(r, 1).data(int(SourceModel.Roles.DATASET_NAME))
             sessions[source] = {}
-            sessions[source]["dataset"] = dataset
+            sessions[source]["datasets"] = [dataset]
             i += 1
         return sessions
 
+class CheckEntriesModel(QStringListModel):
 
-class ExportModelsModel(QStringListModel):
+    def __init__(self):
+        super().__init__()
+        self._checked_entries = None
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def data(self, index, role):
+        if role == Qt.CheckStateRole:
+            return self._checked_entries[self.data(index, Qt.DisplayRole)]
+        else:
+            return QStringListModel.data(self, index, role)
+
+    def setData(self, index, role, data):
+        if role == Qt.CheckStateRole:
+            self._checked_entries[self.data(index, Qt.DisplayRole)] = data
+        else:
+            QStringListModel.setData(self, index, role, data)
+
+    def check(self, index):
+        if self.data(index, Qt.CheckStateRole) == Qt.Checked:
+            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        else:
+            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+
+    def check_all(self):
+        for name in self.stringList():
+            self._checked_entries[name] = Qt.Checked
+
+    def checked_entries(self):
+        return [
+            name
+            for name in self.stringList()
+            if self._checked_entries[name] == Qt.Checked
+        ]
+class ExportModelsModel(CheckEntriesModel):
 
     blacklist = [
         "CHBaseEx_MapCatalogue_V1",
@@ -440,7 +476,6 @@ class ExportModelsModel(QStringListModel):
 
     def __init__(self):
         super().__init__()
-        self._checked_models = None
 
     def refresh_model(self, db_connector=None):
         modelnames = []
@@ -456,40 +491,29 @@ class ExportModelsModel(QStringListModel):
 
         self.setStringList(modelnames)
 
-        self._checked_models = {modelname: Qt.Checked for modelname in modelnames}
+        self._checked_entries = {modelname: Qt.Checked for modelname in modelnames}
 
         return self.rowCount()
 
-    def data(self, index, role):
-        if role == Qt.CheckStateRole:
-            return self._checked_models[self.data(index, Qt.DisplayRole)]
-        else:
-            return QStringListModel.data(self, index, role)
+class ExportDatasetsModel(CheckEntriesModel):
 
-    def setData(self, index, role, data):
-        if role == Qt.CheckStateRole:
-            self._checked_models[self.data(index, Qt.DisplayRole)] = data
-        else:
-            QStringListModel.setData(self, index, role, data)
+    def __init__(self):
+        super().__init__()
 
-    def check(self, index):
-        if self.data(index, Qt.CheckStateRole) == Qt.Checked:
-            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
-        else:
-            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+    def refresh_model(self, db_connector=None):
+        datasetnames = []
 
-    def check_all(self):
-        for name in self.stringList():
-            self._checked_models[name] = Qt.Checked
+        if db_connector and db_connector.db_or_schema_exists():
+            datasets_info = db_connector.get_datasets_info()
+            for record in datasets_info:
+                datasetnames.append(record["datasetname"])
+        self.setStringList(datasetnames)
+        
+        self._checked_entries = {datasetname: Qt.Checked for datasetname in datasetnames}
 
-    def checked_models(self):
-        return [
-            modelname
-            for modelname in self.stringList()
-            if self._checked_models[modelname] == Qt.Checked
-        ]
+        return self.rowCount()
 
-
+"""
 class ExportDatasetsModel(QStringListModel):
     def __init__(self):
         super().__init__()
@@ -515,3 +539,4 @@ class ExportDatasetsModel(QStringListModel):
 
     def selected_dataset(self):
         return self._selected_dataset
+"""

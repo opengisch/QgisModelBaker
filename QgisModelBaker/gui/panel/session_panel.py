@@ -48,14 +48,14 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_done_or_skipped = pyqtSignal(object)
 
     def __init__(
-        self, general_configuration, file, models, dataset, db_action_type, parent=None
+        self, general_configuration, file, models, datasets, db_action_type, parent=None
     ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
         self.file = file
         self.models = models
-        self.dataset = dataset
+        self.datasets = datasets
 
         # set up the gui
         self.create_text = self.tr("Run")
@@ -99,16 +99,16 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.info_label.setText(
                 self.tr("Import {} of {}").format(", ".join(self.models), self.file)
             )
-            self.configuration.dataset = self.dataset
+            self.configuration.dataset = self.datasets[0] if self.datasets else None
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
             self.info_label.setText(
                 self.tr("Export {} of {} into {}").format(
-                    ", ".join(self.models), self.dataset, self.file
+                    ", ".join(self.models), ", ".join(self.datasets), self.file
                 )
             )
-            self.configuration.dataset = self.dataset
+            self.configuration.dataset = ";".join(self.datasets)
 
         self.db_simple_factory = DbSimpleFactory()
 
@@ -214,7 +214,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             ):
                 self._create_default_dataset()
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr("Import done!\n"), LogPanel.COLOR_SUCCESS)
+            self.print_info.emit(self.tr("Done!\n"), LogPanel.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
