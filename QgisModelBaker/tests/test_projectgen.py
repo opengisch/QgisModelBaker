@@ -116,8 +116,14 @@ class TestProjectGen(unittest.TestCase):
                                               'bemerkung_de',
                                               't_basket'])
 
-                # This might need to be adjusted if we get better names
-                assert tabs[1].name() == 'deponietyp_'
+                tab_list = [tab.name() for tab in tabs]
+                expected_tab_list = ['General',
+                                     'parzellenidentifikation',
+                                     'egrid_',
+                                     'deponietyp',
+                                     'untersmassn']
+                assert set(tab_list) == set(expected_tab_list)
+                assert len(tab_list) == len(expected_tab_list)
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 belasteter_standort_polygon_layer = layer
@@ -186,8 +192,14 @@ class TestProjectGen(unittest.TestCase):
                                               'geo_lage_punkt',
                                               't_basket'])
 
-                # This might need to be adjusted if we get better names
-                assert tabs[1].name() == 'deponietyp_'
+                tab_list = [tab.name() for tab in tabs]
+                expected_tab_list = ['General',
+                                     'parzellenidentifikation',
+                                     'egrid_',
+                                     'deponietyp',
+                                     'untersmassn']
+                assert set(tab_list) == set(expected_tab_list)
+                assert len(tab_list) == len(expected_tab_list)
 
             if layer.name == 'belasteter_standort' and layer.geometry_column == 'geo_lage_polygon':
                 belasteter_standort_polygon_layer = layer
@@ -264,9 +276,10 @@ class TestProjectGen(unittest.TestCase):
                                      'parzellenidentifikation',
                                      'belasteter_standort_geo_lage_punkt',
                                      'egrid_',
-                                     'deponietyp_',
-                                     'untersmassn_']
+                                     'deponietyp',
+                                     'untersmassn']
                 assert set(tab_list) == set(expected_tab_list)
+                assert len(tab_list) == len(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:
@@ -357,9 +370,10 @@ class TestProjectGen(unittest.TestCase):
                                      'parzellenidentifikation',
                                      'belasteter_standort_geo_lage_punkt',
                                      'egrid_',
-                                     'deponietyp_',
-                                     'untersmassn_']
+                                     'deponietyp',
+                                     'untersmassn']
                 assert set(tab_list) == set(expected_tab_list)
+                assert len(tab_list) == len(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:

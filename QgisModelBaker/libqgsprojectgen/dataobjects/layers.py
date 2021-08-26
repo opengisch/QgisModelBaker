@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 import logging
+from QgisModelBaker.libqgsprojectgen.generator.config import IGNORED_FIELDNAMES
 from .form import (
     Form,
     FormTab,
@@ -37,7 +38,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 class Layer(object):
 
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None, tid='', tilitid=''):
+    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None):
         self.provider = provider
         self.uri = uri
         self.name = name
@@ -76,10 +77,6 @@ class Layer(object):
         self.expanded = True
         self.checked = True
         self.featurecount = False
-
-        # ili column names
-        self.tid = tid
-        self.tilitid = tilitid
 
     def dump(self):
         definition = dict()
@@ -167,21 +164,32 @@ class Layer(object):
 
             self.__form.add_element(tab)
 
-            relations_to_add = set()
+            relations_to_add = []
             for relation in project.relations:
                 if relation.referenced_layer == self:
 
                     # 1:m relation will be added only if does not point to a pure link table
-                    if (not relation.referencing_layer.isPureLinkTable(project) 
+                    if (not (relation.referencing_layer.isPureLinkTable(project)
+                             or relation.referencing_layer.is_basket_table)
                        or Qgis.QGIS_VERSION_INT < 31600):
-                        relations_to_add.add((relation, None))
+                        relations_to_add.append((relation, None))
 
                     for nm_relation in project.relations:
                         if nm_relation == relation:
                             continue
 
+                        if nm_relation.referenced_layer == self:
+                            continue
+
+                        # relations to the same table with different geometries should not be added
+                        if nm_relation.referenced_layer.srid == self.srid:
+                            continue
+
+                        if nm_relation.referenced_layer.is_basket_table:
+                            continue
+
                         if nm_relation.referencing_layer == relation.referencing_layer:
-                            relations_to_add.add((relation, nm_relation))
+                            relations_to_add.append((relation, nm_relation))
 
             for relation, nm_relation in relations_to_add:
                 if nm_relation and Qgis.QGIS_VERSION_INT < 31600:
@@ -224,23 +232,16 @@ class Layer(object):
         With "pure" it is meant the layer has no more fields than foreign keys and its id.
         '''
 
-        # Check if table is a link table
-        if not self.is_nmrel:
-            return False
-
         remaining_fields = set()
         for field in self.fields:
-            remaining_fields.add(field.name)
+            if field.name not in IGNORED_FIELDNAMES:
+                remaining_fields.add(field.name)
 
         # Remove all fields that are referencing fields
         for relation in project.relations:
             if relation.referencing_layer != self:
                 continue
             remaining_fields.discard(relation.referencing_field)
-
-        # Remove Id fields
-        remaining_fields.discard(self.tid)
-        remaining_fields.discard(self.tilitid)
 
         return len(remaining_fields) == 0
 

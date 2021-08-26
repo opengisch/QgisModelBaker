@@ -181,9 +181,7 @@ class Generator(QObject):
                 coordinate_precision,
                 is_basket_table,
                 is_dataset_table,
-                model_topic_name,
-                self._db_connector.tid,
-                self._db_connector.tilitid )
+                model_topic_name )
 
             # Configure fields for current table
             fields_info = self.get_fields_info(record['tablename'])
