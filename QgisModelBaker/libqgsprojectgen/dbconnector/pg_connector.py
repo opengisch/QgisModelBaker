@@ -47,8 +47,8 @@ class PGConnector(DBConnector):
         self.tid = 't_id'
         self.tilitid = 't_ili_tid'
         self.dispName = 'dispname'
-        self.basket_table_name = 't_ili2db_basket'
-        self.dataset_table_name = 't_ili2db_dataset'
+        self.basket_table_name = PG_BASKET_TABLE
+        self.dataset_table_name = PG_DATASET_TABLE
 
     def map_data_types(self, data_type):
         if not data_type:
@@ -600,9 +600,9 @@ class PGConnector(DBConnector):
         if self.schema and self._table_exists(PG_SETTINGS_TABLE):
             cur = self.conn.cursor()
             cur.execute("""SELECT setting
-                           FROM {schema}.{settings_table}
+                           FROM {schema}.{table}
                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """.format(schema=self.schema, settings_table=PG_SETTINGS_TABLE))
+                        """.format(schema=self.schema, table=PG_SETTINGS_TABLE))
             content = cur.fetchone()
             if content:
                 return content[0] == 'readWrite'
@@ -691,4 +691,4 @@ class PGConnector(DBConnector):
                 error_message = ' '.join(e.args)
                 return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
         return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
-        
+

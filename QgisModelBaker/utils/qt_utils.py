@@ -21,6 +21,8 @@
 import os.path
 import functools
 from abc import ABCMeta
+import re
+import unicodedata
 
 from qgis.PyQt.QtWidgets import (
     QFileDialog,
@@ -84,6 +86,14 @@ def selectFolder(line_edit_widget, title, parent):
 def make_folder_selector(widget, title=QCoreApplication.translate('QgisModelBaker', 'Open Folder'), parent=None):
     return partial(selectFolder, line_edit_widget=widget, title=title, parent=parent)
 
+def slugify(text: str) -> str:
+    if not text:
+        return text
+    slug = unicodedata.normalize('NFKD', text)
+    slug = re.sub(r'[^a-zA-Z0-9]+', '_', slug).strip('_')
+    slug = re.sub(r'[-]+', '_', slug)
+    slug = slug.lower()
+    return slug
 class NetworkError(RuntimeError):
 
     def __init__(self, error_code, msg):
