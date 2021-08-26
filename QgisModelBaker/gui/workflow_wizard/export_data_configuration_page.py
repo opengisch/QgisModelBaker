@@ -41,7 +41,7 @@ from qgis.PyQt.QtWidgets import (
     QFrame,
 )
 
-from qgis.PyQt.QtGui import QIcon, QStandardItemModel, QStandardItem
+from qgis.PyQt.QtGui import QIcon, QStandardItemModel, QStandardItem, QValidator
 
 from qgis.PyQt.QtCore import Qt, QVariant
 
@@ -76,6 +76,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
 
         self.workflow_wizard = parent
+        self.is_complete = False
 
         self.xtf_file_browse_button.clicked.connect(
             make_save_file_selector(
@@ -121,6 +122,14 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.export_datasets_model.check
         )
 
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        if self.is_complete != complete:
+            self.is_complete = complete 
+            self.completeChanged.emit()
+
     def setup_dialog(self, basket_handling):
         self.export_datasets_checkbox.setChecked(basket_handling)
         self.export_datasets_label.setHidden(not basket_handling)
@@ -128,6 +137,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.export_datasets_view.setHidden(not basket_handling)
 
     def _set_current_export_target(self, text):
+        self.setComplete(self.xtf_file_line_edit.validator().validate(text, 0)[0] == QValidator.Acceptable)
         self.workflow_wizard.current_export_target = text
 
     def _select_all_models(self, state):

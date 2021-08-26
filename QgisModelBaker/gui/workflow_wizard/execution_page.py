@@ -173,6 +173,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
 
     def on_process_finished(self, exit_code, result):
         if exit_code == 0:
+            message = "Finished with success."
             color = LogPanel.COLOR_SUCCESS
             if self.db_action_type == DbActionType.GENERATE:
                 message = self.tr(
@@ -186,9 +187,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 message = self.tr(
                         "Data successfully exported into transfer file!"
                     )
-            else:
-                color = LogPanel.COLOR_FAIL
-                message = self.tr("Finished with errors!")
+        else:
+            color = LogPanel.COLOR_FAIL
+            message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
 

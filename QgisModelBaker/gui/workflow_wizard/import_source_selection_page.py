@@ -153,7 +153,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         )
 
     def valid_selection(self):
-        return bool(len(self.source_list_view.selectedIndexes()))
+        return bool(self.source_list_view.selectedIndexes())
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.model, self.input_line_edit)

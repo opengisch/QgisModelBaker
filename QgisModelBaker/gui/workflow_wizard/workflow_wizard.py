@@ -236,7 +236,7 @@ class WorkflowWizard(QWizard):
             self.schema_configuration_page.save_configuration(
                 self.import_schema_configuration
             )
-            if len(self.import_models_model.checked_models()):
+            if bool(self.import_models_model.checked_models()):
                 return self.Page_ImportSchemaExecution_Id
             if self.import_data_file_model.rowCount():
                 return self.Page_ImportDataConfiguration_Id

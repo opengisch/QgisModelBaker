@@ -116,7 +116,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     @property
     def id(self):
-        return (self.file, self.models)
+        return (self.file, self.models, self.datasets)
 
     def set_button_to_create(self):
         """
