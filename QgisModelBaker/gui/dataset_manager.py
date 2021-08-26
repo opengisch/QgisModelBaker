@@ -261,7 +261,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         configuration.tool = mode
         configuration.db_ili_version = self._db_ili_version(configuration)
-        configuration.dbschema = configuration.dbschema or configuration.database
         return configuration
 
     def _save_configuration(self, configuration):

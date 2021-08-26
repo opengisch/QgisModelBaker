@@ -129,7 +129,6 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         # takes settings from the GUI and provides it to the configuration
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
-        configuration.dbschema = configuration.dbschema or configuration.database
         configuration.tool = mode
         configuration.db_ili_version = self.db_ili_version(configuration)
 
