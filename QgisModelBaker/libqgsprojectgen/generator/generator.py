@@ -23,6 +23,7 @@ import sys
 from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication, QgsRelation
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 
+from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.dataobjects import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
@@ -135,7 +136,7 @@ class Generator(QObject):
                                 else:
                                     short_name = record['tablename']
                     elif 'ili_name' in record and record['ili_name']:
-                        match = re.search('([^\(]*).*', record['ili_name'])
+                        match = re.search(r'([^\(]*).*', record['ili_name'])
                         if match.group(0) == match.group(1):
                             short_name = match.group(1).split('.')[-1]
                         else:
@@ -271,6 +272,14 @@ class Generator(QObject):
 
                 if 'default_value_expression' in fielddef:
                     field.default_value_expression = fielddef['default_value_expression']
+
+                if basket_handling and column_name in BASKET_FIELDNAMES:
+                    if self.tool in [DbIliMode.pg, DbIliMode.ili2pg, DbIliMode.mssql, DbIliMode.ili2mssql]:
+                        schema_topic_identificator = slugify(f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}")
+                        field.default_value_expression = f"@{schema_topic_identificator}"
+                    elif self.tool == DbIliMode.ili2gpkg:
+                        schema_topic_identificator = slugify(f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}")
+                        field.default_value_expression = f"@{schema_topic_identificator}"
 
                 if 'enum_domain' in fielddef and fielddef['enum_domain']:
                     field.enum_domain = fielddef['enum_domain']

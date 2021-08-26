@@ -53,8 +53,8 @@ class GPKGConnector(DBConnector):
         self.tid = 'T_Id'
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
-        self.basket_table_name = 'T_ILI2DB_BASKET'
-        self.dataset_table_name = 'T_ILI2DB_DATASET'
+        self.basket_table_name = GPKG_BASKET_TABLE
+        self.dataset_table_name = GPKG_DATASET_TABLE
 
     def map_data_types(self, data_type):
         '''GPKG date/time types correspond to QGIS date/time types'''
@@ -497,7 +497,7 @@ class GPKGConnector(DBConnector):
             if content: 
                 return content[0] == 'readWrite'
         return False
-    
+
     def get_baskets_info(self):
         if self._table_exists(GPKG_BASKET_TABLE):
             cur = self.conn.cursor()

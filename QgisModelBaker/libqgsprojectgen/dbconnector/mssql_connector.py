@@ -47,8 +47,8 @@ class MssqlConnector(DBConnector):
         self.tid = 'T_Id'
         self.tilitid = 'T_Ili_Tid'
         self.dispName = 'dispName'
-        self.basket_table_name = 't_ili2db_basket'
-        self.dataset_table_name = 't_ili2db_dataset'
+        self.basket_table_name = BASKET_TABLE
+        self.dataset_table_name = DATASET_TABLE
 
     def map_data_types(self, data_type):
         result = data_type.lower()
@@ -554,9 +554,9 @@ WHERE TABLE_SCHEMA='{schema}'
         if self.schema and self._table_exists(SETTINGS_TABLE):
                 cur = self.conn.cursor()
                 cur.execute("""SELECT setting
-                            FROM {schema}.{settings_table}
+                            FROM {schema}.{table}
                             WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                            """.format(schema=self.schema, settings_table=SETTINGS_TABLE))
+                            """.format(schema=self.schema, table=SETTINGS_TABLE))
                 content = cur.fetchone()
                 if content:
                     return content[0] == 'readWrite'
@@ -647,4 +647,4 @@ WHERE TABLE_SCHEMA='{schema}'
                 error_message = ' '.join(e.args)
                 return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
         return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
-        
+
