@@ -55,6 +55,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
 
+        # in this context we use GENERATE for the schema import and IMPORT_DATA for the data import
         if self.db_action_type == DbActionType.GENERATE:
             self.description.setText(
                 self.tr(

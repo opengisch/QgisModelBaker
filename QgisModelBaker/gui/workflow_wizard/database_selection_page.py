@@ -40,11 +40,11 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard = parent
         self.db_action_type = db_action_type
-        self.is_complete = True
 
         self.setupUi(self)
         self.setTitle(title)
 
+        # in this context we use GENERATE for the project generation and the IMPORT_DATA for the schema import (and the data import)
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(
                 self.tr(
