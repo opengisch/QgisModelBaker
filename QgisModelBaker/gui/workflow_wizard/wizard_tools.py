@@ -203,7 +203,7 @@ class ImportModelsModel(SourceModel):
                     modelname,
                     filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                     filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
-                    previously_checked_models.get(modelname, Qt.Checked)
+                    previously_checked_models.get((modelname,filtered_source_model_index.data(int(SourceModel.Roles.PATH))), Qt.Checked)
                     if enabled
                     else Qt.Unchecked,
                     enabled,
@@ -235,7 +235,7 @@ class ImportModelsModel(SourceModel):
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
                         previously_checked_models.get(
-                            model["name"],
+                            (model["name"],filtered_source_model_index.data(int(SourceModel.Roles.PATH))),
                             Qt.Checked
                             if model is models[-1] and enabled
                             else Qt.Unchecked,
@@ -267,9 +267,9 @@ class ImportModelsModel(SourceModel):
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
                         previously_checked_models.get(
-                            model["name"],
+                            (model["name"],filtered_source_model_index.data(int(SourceModel.Roles.PATH))),
                             Qt.Checked
-                            if model is models[-1] and enabled
+                            if enabled
                             else Qt.Unchecked,
                         ),
                         enabled,
@@ -314,7 +314,7 @@ class ImportModelsModel(SourceModel):
 
     def add_source(self, name, type, path, checked, enabled):
         item = QStandardItem()
-        self._checked_models[name] = checked
+        self._checked_models[(name,path)] = checked
         item.setFlags(
             Qt.ItemIsSelectable | Qt.ItemIsEnabled if enabled else Qt.NoItemFlags
         )
@@ -333,13 +333,13 @@ class ImportModelsModel(SourceModel):
                 else " (already in the database)",
             )
         if role == Qt.CheckStateRole:
-            return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
+            return self._checked_models[(self.data(index, int(SourceModel.Roles.NAME)),self.data(index, int(SourceModel.Roles.PATH)))]
         return SourceModel.data(self, index, role)
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
-            self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
+            self._checked_models[(self.data(index, int(SourceModel.Roles.NAME)),self.data(index, int(SourceModel.Roles.PATH)))] = data
             self.endResetModel()
 
     def flags(self, index):
@@ -368,7 +368,7 @@ class ImportModelsModel(SourceModel):
                     else "repository " + model
                 )
 
-                if self._checked_models[model] == Qt.Checked:
+                if self._checked_models[(model,item.data(int(SourceModel.Roles.PATH)))] == Qt.Checked:
                     models = []
                     if source in sessions:
                         models = sessions[source]["models"]
@@ -379,10 +379,11 @@ class ImportModelsModel(SourceModel):
         return sessions
 
     def checked_models(self):
+        # return a list of the model names
         return [
-            model
-            for model in self._checked_models.keys()
-            if self._checked_models[model] == Qt.Checked
+            key[0]
+            for key in self._checked_models.keys()
+            if self._checked_models[key] == Qt.Checked
         ]
 
 
