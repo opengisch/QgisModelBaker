@@ -105,8 +105,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             return
 
         self.workflow_wizard.log_panel.print_info(
-            self.tr("\nObtaining available layers from the database…")
-        )
+            f'\n{self.tr("Obtaining available layers from the database…")}')
 
         available_layers = generator.layers()
 

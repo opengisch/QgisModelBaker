@@ -100,9 +100,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
-        if wizard_embedded:
-            # when opened by the wizard it uses the current db connection settings and should not be changable
-            self.db_frame.setHidden(True)
+        # when opened by the wizard it uses the current db connection settings and should not be changable
+        self.db_frame.setHidden(wizard_embedded)
 
         self.dataset_model = DatasetModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)

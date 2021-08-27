@@ -107,10 +107,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
 
-        # self.ili2db_options = Ili2dbOptionsDialog()
-        # self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
-        # self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
-
         self.db_connector = None
 
         self.datasetmanager_dlg = None

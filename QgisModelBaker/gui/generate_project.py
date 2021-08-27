@@ -326,7 +326,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(0)
 
             self.disable()
-            self.txtStdout.setTextColor(QColor('#000000'))
+            self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
 
             if interlis_mode:
                 importer = iliimporter.Importer()
@@ -342,7 +342,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         self.progress_bar.hide()
                         return
                 except JavaNotFoundError as e:
-                    self.txtStdout.setTextColor(QColor('#000000'))
+                    self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
                     self.txtStdout.clear()
                     self.txtStdout.setText(e.error_string)
                     self.enable()
@@ -384,7 +384,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 return
 
             self.print_info(
-                self.tr('\nObtaining available layers from the database…'))
+                f'\n{self.tr("Obtaining available layers from the database…")}')
 
             available_layers = generator.layers()
 
@@ -517,7 +517,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                                     self.progress_bar.hide()
                                     return
                             except JavaNotFoundError as e:
-                                self.txtStdout.setTextColor(QColor('#000000'))
+                                self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
                                 self.txtStdout.clear()
                                 self.txtStdout.setText(e.error_string)
                                 self.enable()
@@ -530,7 +530,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(100)
             self.print_info(self.tr('\nDone!'), '#004905')
 
-    def print_info(self, text, text_color='#000000'):
+    def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()

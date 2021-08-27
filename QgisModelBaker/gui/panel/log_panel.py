@@ -39,6 +39,7 @@ from qgis.gui import (
 from qgis.core import (
     Qgis
 )
+from QgisModelBaker.utils.ui import LogColor
 
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
 
@@ -58,7 +59,7 @@ class LogPanel(QWidget):
         layout.addWidget(self.txtStdout)
         self.setLayout(layout)
 
-    def print_info(self, text, text_color='#000000'):
+    def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
 
