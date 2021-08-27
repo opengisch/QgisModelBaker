@@ -26,7 +26,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import SchemaImportConfiguration, Imp
 from QgisModelBaker.utils import get_ui_class
 from QgisModelBaker.utils import qt_utils
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
-from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView
+from qgis.PyQt.QtWidgets import QDialog, QLineEdit, QListView, QCheckBox
 from qgis.PyQt.QtCore import QLocale, QSettings, pyqtSignal, pyqtSlot, Qt, QModelIndex
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
@@ -148,8 +148,18 @@ class CompletionLineEdit(QLineEdit):
     def mouseReleaseEvent(self, e):
         super(CompletionLineEdit, self).mouseReleaseEvent(e)
         self.punched.emit()
+class SemiTristateCheckbox(QCheckBox):
+    """
+    Checkbox that does never get the Qt.PartialCheckState on clicked (by user) but can get the Qt.PartialCheckState by direct setCheckState() (by program)
+    """
+    def __init__(self, parent=None):
+        super(SemiTristateCheckbox,self).__init__(parent)
 
-
+    def nextCheckState(self) -> None:
+        if self.checkState() == Qt.Checked:
+            self.setCheckState(Qt.Unchecked)
+        else:
+            self.setCheckState(Qt.Checked)
 class ModelListView(QListView):
 
     space_pressed = pyqtSignal(QModelIndex)

@@ -436,10 +436,15 @@ class CheckEntriesModel(QStringListModel):
             self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
         else:
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
+        self._emit_data_changed()
 
-    def check_all(self):
+    def check_all(self,state):
         for name in self.stringList():
-            self._checked_entries[name] = Qt.Checked
+            self._checked_entries[name] = state
+        self._emit_data_changed()
+
+    def _emit_data_changed(self):
+        self.dataChanged.emit(self.index(0,0),self.index(self.rowCount(),0))
 
     def checked_entries(self):
         return [

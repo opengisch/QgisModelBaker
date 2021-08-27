@@ -23,7 +23,7 @@ import os
 import re
 from PyQt5.QtCore import pyqtSignal
 
-from PyQt5.QtWidgets import QGridLayout, QToolButton
+from PyQt5.QtWidgets import QCheckBox, QGridLayout, QToolButton
 from PyQt5.uic.uiparser import _parse_alignment
 
 from qgis.PyQt.QtWidgets import (
@@ -62,8 +62,6 @@ from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class("workflow_wizard/export_data_configuration.ui")
-
-
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     ValidExtensions = wizard_tools.TransferExtensions
 
@@ -102,8 +100,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
-        self.export_models_checkbox.setChecked(False)
+        self.export_models_checkbox.setCheckState(Qt.Checked)
         self.export_models_checkbox.stateChanged.connect(self._select_all_models)
+        self.workflow_wizard.export_models_model.dataChanged.connect(lambda: self._set_models_checkbox())
         self.export_models_view.setModel(self.workflow_wizard.export_models_model)
         self.export_models_view.clicked.connect(
             self.workflow_wizard.export_models_model.check
@@ -112,13 +111,14 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.export_models_model.check
         )
 
-        self.export_datasets_checkbox.setChecked(False)
+        self.export_datasets_checkbox.setCheckState(Qt.Checked)
         self.export_datasets_checkbox.stateChanged.connect(self._select_all_datasets)
+        self.workflow_wizard.export_datasets_model.dataChanged.connect(lambda: self._set_datasets_checkbox())
         self.export_datasets_view.setModel(self.workflow_wizard.export_datasets_model)
         self.export_datasets_view.clicked.connect(
             self.workflow_wizard.export_datasets_model.check
         )
-        self.export_models_view.space_pressed.connect(
+        self.export_datasets_view.space_pressed.connect(
             self.workflow_wizard.export_datasets_model.check
         )
 
@@ -131,7 +131,6 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.completeChanged.emit()
 
     def setup_dialog(self, basket_handling):
-        self.export_datasets_checkbox.setChecked(basket_handling)
         self.export_datasets_label.setHidden(not basket_handling)
         self.export_datasets_checkbox.setHidden(not basket_handling)
         self.export_datasets_view.setHidden(not basket_handling)
@@ -141,12 +140,26 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.current_export_target = text
 
     def _select_all_models(self, state):
-        self.workflow_wizard.export_models_model.check_all()
-        self.export_models_view.setDisabled(bool(state))
+        if state != Qt.PartiallyChecked:
+            self.workflow_wizard.export_models_model.check_all(state)
+
+    def _set_models_checkbox(self):
+        self.export_models_checkbox.setCheckState(self._evaluated_check_state(self.workflow_wizard.export_models_model))
 
     def _select_all_datasets(self, state):
-        self.workflow_wizard.export_datasets_model.check_all()
-        self.export_datasets_view.setDisabled(bool(state))
+        if state != Qt.PartiallyChecked:
+            self.workflow_wizard.export_datasets_model.check_all(state)
+
+    def _set_datasets_checkbox(self):
+        self.export_datasets_checkbox.setCheckState(self._evaluated_check_state(self.workflow_wizard.export_datasets_model))
+
+    def _evaluated_check_state(self, model):
+        nbr_of_checked = len( model.checked_entries() )
+        if nbr_of_checked:
+            if nbr_of_checked == model.rowCount():
+                return Qt.Checked
+            return Qt.PartiallyChecked
+        return Qt.Unchecked
 
     def nextId(self):
         return self.workflow_wizard.next_id()
