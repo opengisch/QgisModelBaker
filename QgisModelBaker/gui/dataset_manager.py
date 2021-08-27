@@ -21,10 +21,11 @@ from enum import Enum
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
+
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsMapLayer
 
 from qgis.PyQt.QtWidgets import (
     QDialog,
@@ -130,9 +131,10 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _close_editing(self):
         editable_layers = []
         for layer in QgsProject.instance().mapLayers().values():
-            self.iface.vectorLayerTools().stopEditing(layer)
-            if layer.isEditable():
-                editable_layers.append(layer)
+            if layer.type() == QgsMapLayer.VectorLayer:
+                self.iface.vectorLayerTools().stopEditing(layer)
+                if layer.isEditable():
+                    editable_layers.append(layer)
         if editable_layers:    
             warning_box = QMessageBox(self)
             warning_box.setIcon(QMessageBox.Warning)
