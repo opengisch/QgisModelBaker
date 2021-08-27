@@ -151,7 +151,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def skip(self):
         self.setDisabled(True)
-        self.print_info.emit(self.tr("Import skipped!\n"), LogColor.COLOR_INFO)
+        self.print_info.emit(f'{self.tr("Import skipped!")}\n', LogColor.COLOR_INFO)
         self.is_skipped_or_done = True
         self.on_done_or_skipped.emit(self.id)
 
@@ -215,7 +215,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             ):
                 self._create_default_dataset()
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr("Done!\n"), LogColor.COLOR_SUCCESS)
+            self.print_info.emit(f'{self.tr("Done!")}\n', LogColor.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
