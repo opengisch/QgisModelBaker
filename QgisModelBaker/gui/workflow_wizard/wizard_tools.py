@@ -53,7 +53,19 @@ TransferExtensions = [
 
 DEFAULT_DATASETNAME = "Baseset"
 
-
+class PageIds():
+    Intro = 1
+    ImportSourceSeletion = 2
+    ImportDatabaseSelection = 3
+    GenerateDatabaseSelection = 4
+    ImportSchemaConfiguration = 5
+    ImportSchemaExecution = 6
+    ImportDataConfiguration = 7
+    ImportDataExecution = 8
+    ExportDatabaseSelection = 9
+    ExportDataConfiguration = 10
+    ExportDataExecution = 11
+    ProjectCreation = 12
 class SourceModel(QStandardItemModel):
     """
     Model providing the data sources (files or repository items like models) and meta information like path or the chosen dataset
