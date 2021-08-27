@@ -35,6 +35,7 @@ from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import
 from qgis import utils
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+import QgisModelBaker.utils.db_utils as db_utils
 
 start_app()
 
@@ -75,7 +76,7 @@ class TestDatasetHandling(unittest.TestCase):
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Expected datasets and baskets
-        db_connector = self.get_db_connector(importer.configuration)
+        db_connector = db_utils.get_db_connector(importer.configuration)
 
         # Basket handling is active 
         assert db_connector.get_basket_handling()
@@ -138,7 +139,7 @@ class TestDatasetHandling(unittest.TestCase):
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Expected datasets and baskets
-        db_connector = self.get_db_connector(importer.configuration)
+        db_connector = db_utils.get_db_connector(importer.configuration)
 
         # Basket handling is active 
         assert db_connector.get_basket_handling()
@@ -203,7 +204,7 @@ class TestDatasetHandling(unittest.TestCase):
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # Expected datasets and baskets
-        db_connector = self.get_db_connector(importer.configuration)
+        db_connector = db_utils.get_db_connector(importer.configuration)
 
         # Basket handling is active 
         assert db_connector.get_basket_handling()
@@ -265,19 +266,6 @@ class TestDatasetHandling(unittest.TestCase):
         assert len(db_connector.get_datasets_info()) == 3
         assert len(db_connector.get_baskets_info()) == 6
         assert set([record['datasetname'] for record in db_connector.get_datasets_info()]) == {'Winti','Seuzach', 'Glarus West'}
-
-    def get_db_connector(self, configuration):
-        schema = configuration.dbschema
-
-        db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            return db_factory.get_db_connector(uri_string, schema)
-        except (DBConnectorError, FileNotFoundError):
-            return None
 
     def print_info(self, text):
         logging.info(text)

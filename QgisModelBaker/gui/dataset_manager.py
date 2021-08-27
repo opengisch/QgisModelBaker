@@ -19,7 +19,7 @@
 from enum import Enum
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+import QgisModelBaker.utils.db_utils as db_utils
 
 
 from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
@@ -175,7 +175,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.refreshTimer.start(500)
         
     def _refresh_datasets(self, configuration):
-        db_connector = self._get_db_connector(configuration)
+        db_connector = db_utils.get_db_connector(configuration)
         if db_connector and db_connector.get_basket_handling:
             self._enable_dataset_handling(True)
             return self.dataset_model.refresh_model(db_connector)
@@ -184,7 +184,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             return self.dataset_model.clear()
 
     def _add_dataset(self):
-        db_connector = self._get_db_connector(self._updated_configuration())
+        db_connector = db_utils.get_db_connector(self._updated_configuration())
         if db_connector and db_connector.get_basket_handling:
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
             edit_dataset_dialog.exec_()
@@ -192,7 +192,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
     def _edit_dataset(self):
         if self._valid_selection():
-            db_connector = self._get_db_connector(self._updated_configuration())
+            db_connector = db_utils.get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
                 dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.DATASETNAME)))
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset )
@@ -201,7 +201,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
     def _create_baskets(self):
         if self._valid_selection():
-            db_connector = self._get_db_connector(self._updated_configuration())
+            db_connector = db_utils.get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
                 feedbacks = []
                 for record in db_connector.get_topics_info():
@@ -221,21 +221,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         Returns the ili2db version the database has been created with or None if the database
         could not be detected as a ili2db database
         """ 
-        db_connector = self._get_db_connector(configuration)
+        db_connector = db_utils.get_db_connector(configuration)
         if db_connector:
             return db_connector.ili_version()
-
-    def _get_db_connector(self, configuration):
-        schema = configuration.dbschema
-
-        db_factory = self.db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            return db_factory.get_db_connector(uri_string, schema)
-        except (DBConnectorError, FileNotFoundError):
-            return None
 
     def _restore_configuration(self):
         settings = QSettings()

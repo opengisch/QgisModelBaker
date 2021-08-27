@@ -19,6 +19,7 @@
 """
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.db_utils as db_utils
 
 from qgis.PyQt.QtWidgets import QWidget, QAction, QGridLayout
 from qgis.PyQt.QtCore import Qt
@@ -226,7 +227,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             ),
             LogColor.COLOR_INFO,
         )
-        db_connector = self._get_db_connector(self.configuration)
+        db_connector = db_utils.get_db_connector(self.configuration)
 
         default_dataset_tid = None
         default_datasets_info_tids = [
@@ -266,17 +267,3 @@ class SessionPanel(QWidget, WIDGET_UI):
                 ).format(message),
                 LogColor.COLOR_FAIL,
             )
-
-    def _get_db_connector(self, configuration):
-        # migth be moved to db_utils...
-        db_simple_factory = DbSimpleFactory()
-        schema = configuration.dbschema
-
-        db_factory = db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            return db_factory.get_db_connector(uri_string, schema)
-        except (DBConnectorError, FileNotFoundError):
-            return None

@@ -51,6 +51,7 @@ from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.db_utils as db_utils
 
 from ...utils import get_ui_class
 
@@ -127,7 +128,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def setup_dialog(self, basket_handling):
         if basket_handling:
-            self.db_connector = self.workflow_wizard.get_db_connector(self.workflow_wizard.import_data_configuration)
+            self.db_connector = db_utils.get_db_connector(self.workflow_wizard.import_data_configuration)
             # set defaults
             for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)

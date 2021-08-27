@@ -20,6 +20,8 @@
 from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.globals import DbIliMode
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 def get_schema_identificator(layer_source_name, layer_source):
     if layer_source_name == 'postgres' or layer_source_name == 'mssql':
@@ -49,3 +51,16 @@ def get_configuration(layer_source_name, layer_source):
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
     return mode, configuration
+
+def get_db_connector(configuration):
+    db_simple_factory = DbSimpleFactory()
+    schema = configuration.dbschema
+
+    db_factory = db_simple_factory.create_factory(configuration.tool)
+    config_manager = db_factory.get_db_command_config_manager(configuration)
+    uri_string = config_manager.get_uri(configuration.db_use_super_login)
+
+    try:
+        return db_factory.get_db_connector(uri_string, schema)
+    except (DBConnectorError, FileNotFoundError):
+        return None

@@ -51,6 +51,8 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
+import QgisModelBaker.utils.db_utils as db_utils
+
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
     ImportSourceSeletionPage,
@@ -374,36 +376,22 @@ class WorkflowWizard(QWizard):
             return self.tr("Model Baker - Workflow Wizard")
 
     def _basket_handling(self):
-        db_connector = self.get_db_connector(
+        db_connector = db_utils.get_db_connector(
             self.import_data_configuration
         )
         return db_connector.get_basket_handling()
 
     def refresh_export_models(self):
-        db_connector = self.get_db_connector(self.export_data_configuration)
+        db_connector = db_utils.get_db_connector(self.export_data_configuration)
         self.export_models_model.refresh_model(db_connector)
         self.export_datasets_model.refresh_model(db_connector)
         return
 
     def refresh_import_models(self, silent=False):
-        db_connector = self.get_db_connector(self.import_schema_configuration)
+        db_connector = db_utils.get_db_connector(self.import_schema_configuration)
         return self.import_models_model.refresh_model(
             self.source_model, db_connector, silent
         )
-
-    def get_db_connector(self, configuration):
-        # migth be moved to db_utils...
-        db_simple_factory = DbSimpleFactory()
-        schema = configuration.dbschema
-
-        db_factory = db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            return db_factory.get_db_connector(uri_string, schema)
-        except (DBConnectorError, FileNotFoundError):
-            return None
 
     def get_topping_file_list(self, id_list, log_panel):
         topping_file_model = self.get_topping_file_model(id_list, log_panel)
