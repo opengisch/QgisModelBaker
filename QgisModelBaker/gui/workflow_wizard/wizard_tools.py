@@ -55,6 +55,9 @@ DEFAULT_DATASETNAME = "Baseset"
 
 
 class SourceModel(QStandardItemModel):
+    """
+    Model providing the data sources (files or repository items like models) and meta information like path or the chosen dataset
+    """
 
     print_info = pyqtSignal([str], [str, str])
 
@@ -106,7 +109,7 @@ class SourceModel(QStandardItemModel):
         return item.data(int(role))
 
     def add_source(self, name, type, path):
-        if self.source_in_model(name, type, path):
+        if self._source_in_model(name, type, path):
             self.print_info.emit(
                 self.tr("Source alread added {} ({})").format(
                     name, path if path else "repository"
@@ -124,18 +127,6 @@ class SourceModel(QStandardItemModel):
         self.print_info.emit(
             self.tr("Add source {} ({})").format(name, path if path else "repository")
         )
-
-    def source_in_model(self, name, type, path):
-        match_existing = self.match(
-            self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly
-        )
-        if (
-            match_existing
-            and type == match_existing[0].data(int(SourceModel.Roles.TYPE))
-            and path == match_existing[0].data(int(SourceModel.Roles.PATH))
-        ):
-            return True
-        return False
 
     def setData(self, index, data, role):
         if index.column() > 0:
@@ -155,8 +146,23 @@ class SourceModel(QStandardItemModel):
             )
             self.removeRow(index.row())
 
+    def _source_in_model(self, name, type, path):
+        match_existing = self.match(
+            self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly
+        )
+        if (
+            match_existing
+            and type == match_existing[0].data(int(SourceModel.Roles.TYPE))
+            and path == match_existing[0].data(int(SourceModel.Roles.PATH))
+        ):
+            return True
+        return False
 
 class ImportModelsModel(SourceModel):
+    """
+    Model providing all the models to import from the repositories, ili-files and xtf-files and considering models already existing in the database
+    Inherits SourceModel to use functions and signals like print_info etc.
+    """
     def __init__(self):
         super().__init__()
         self._checked_models = {}
@@ -172,7 +178,7 @@ class ImportModelsModel(SourceModel):
         self._checked_models = {}
 
         # models from db
-        db_modelnames = self.db_modelnames(db_connector)
+        db_modelnames = self._db_modelnames(db_connector)
 
         # models from the repos
         filtered_source_model.setFilterFixedString("model")
@@ -283,7 +289,7 @@ class ImportModelsModel(SourceModel):
                 file=xtf_file_path, exception=str(e))))
         return models
 
-    def db_modelnames(self, db_connector=None):
+    def _db_modelnames(self, db_connector=None):
         modelnames = list()
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
@@ -369,13 +375,16 @@ class ImportModelsModel(SourceModel):
 
 
 class ImportDataModel(QSortFilterProxyModel):
+    """
+    Model providing the import data files given by a filtered SourceModel and the import_session function to return a sorted list of execution session information
+    """
 
     print_info = pyqtSignal([str], [str, str])
 
     def __init__(self):
         super().__init__()
 
-    def import_sessions(self, order_list):
+    def import_sessions(self, order_list) -> dict():
         sessions = {}
         i = 0
         for r in order_list:
@@ -387,6 +396,9 @@ class ImportDataModel(QSortFilterProxyModel):
         return sessions
 
 class CheckEntriesModel(QStringListModel):
+    """
+    A checkable string list model
+    """
 
     def __init__(self):
         super().__init__()
@@ -424,6 +436,9 @@ class CheckEntriesModel(QStringListModel):
             if self._checked_entries[name] == Qt.Checked
         ]
 class ExportModelsModel(CheckEntriesModel):
+    """
+    Model providing all the models from the database (except the blacklisted ones) and it's checked state
+    """
 
     blacklist = [
         "CHBaseEx_MapCatalogue_V1",
@@ -496,7 +511,9 @@ class ExportModelsModel(CheckEntriesModel):
         return self.rowCount()
 
 class ExportDatasetsModel(CheckEntriesModel):
-
+    """
+    Model providing all the datasets from the database and it's checked state
+    """
     def __init__(self):
         super().__init__()
 
@@ -512,31 +529,3 @@ class ExportDatasetsModel(CheckEntriesModel):
         self._checked_entries = {datasetname: Qt.Checked for datasetname in datasetnames}
 
         return self.rowCount()
-
-"""
-class ExportDatasetsModel(QStringListModel):
-    def __init__(self):
-        super().__init__()
-        self._selected_dataset = ''
-
-    def refresh_model(self, db_connector=None):
-        datasetnames = []
-
-        if db_connector and db_connector.db_or_schema_exists():
-            datasets_info = db_connector.get_datasets_info()
-            for record in datasets_info:
-                datasetnames.append(record["datasetname"])
-        self.setStringList(datasetnames)
-        if datasetnames:
-            self._selected_dataset = datasetnames[0]
-        return self.rowCount()
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
-    def select(self, row):
-        self._selected_dataset = self.data(self.index(row, 0), Qt.DisplayRole)
-
-    def selected_dataset(self):
-        return self._selected_dataset
-"""
