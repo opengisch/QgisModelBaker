@@ -65,50 +65,54 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
         self.model_delegate = ModelCompleterDelegate()
-        self.refresh_ili_models_cache()
+        self._refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(
             self.tr("[Browse for file or search model from repository]")
         )
 
         # very unhappy about this behavior, but okay for prototype
         self.first_time_punched = False
-        self.input_line_edit.punched.connect(self.first_time_punch)
+        self.input_line_edit.punched.connect(self._first_time_punch)
 
         self.source_list_view.setModel(self.workflow_wizard.source_model)
-        self.add_button.clicked.connect(self.add_row)
-        self.remove_button.clicked.connect(self.remove_selected_rows)
+        self.add_button.clicked.connect(self._add_row)
+        self.remove_button.clicked.connect(self._remove_selected_rows)
 
-        self.add_button.setEnabled(self.valid_source())
+        self.add_button.setEnabled(self._valid_source())
         self.input_line_edit.textChanged.connect(
-            lambda: self.add_button.setEnabled(self.valid_source())
+            lambda: self.add_button.setEnabled(self._valid_source())
         )
-        self.remove_button.setEnabled(self.valid_selection())
+        self.remove_button.setEnabled(self._valid_selection())
         self.source_list_view.clicked.connect(
-            lambda: self.remove_button.setEnabled(self.valid_selection())
+            lambda: self.remove_button.setEnabled(self._valid_selection())
         )
 
-    def first_time_punch(self):
-        # might could be nices
-        self.input_line_edit.punched.disconnect(self.first_time_punch)
+    def nextId(self):
+        self._disconnect_punch_slots()
+        return self.workflow_wizard.next_id()
+
+    def _first_time_punch(self):
+        # might be nicer
+        self.input_line_edit.punched.disconnect(self._first_time_punch)
         self.input_line_edit.textChanged.emit(self.input_line_edit.text())
-        self.input_line_edit.textChanged.connect(self.complete_models_completer)
-        self.input_line_edit.punched.connect(self.complete_models_completer)
+        self.input_line_edit.textChanged.connect(self._complete_models_completer)
+        self.input_line_edit.punched.connect(self._complete_models_completer)
         self.first_time_punched = True
 
-    def disconnect_punch_slots(self):
-        # might could be nices
+    def _disconnect_punch_slots(self):
+        # might be nicer
         if self.first_time_punched:
-            self.input_line_edit.textChanged.disconnect(self.complete_models_completer)
-            self.input_line_edit.punched.disconnect(self.complete_models_completer)
-            self.input_line_edit.punched.connect(self.first_time_punch)
+            self.input_line_edit.textChanged.disconnect(self._complete_models_completer)
+            self.input_line_edit.punched.disconnect(self._complete_models_completer)
+            self.input_line_edit.punched.connect(self._first_time_punch)
             self.first_time_punched = False
 
-    def refresh_ili_models_cache(self):
+    def _refresh_ili_models_cache(self):
         self.ilicache.new_message.connect(self.workflow_wizard.log_panel.show_message)
         self.ilicache.refresh()
         self.update_models_completer()
 
-    def complete_models_completer(self):
+    def _complete_models_completer(self):
         if self.input_line_edit.hasFocus():
             if not self.input_line_edit.text():
                 self.input_line_edit.completer().setCompletionMode(
@@ -133,7 +137,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
                     )
                     self.input_line_edit.completer().complete()
 
-    def valid_source(self):
+    def _valid_source(self):
         match_contains = (
             self.input_line_edit.completer()
             .completionModel()
@@ -151,7 +155,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
             == QValidator.Acceptable
         )
 
-    def valid_selection(self):
+    def _valid_selection(self):
         return bool(self.source_list_view.selectedIndexes())
 
     def update_models_completer(self):
@@ -161,7 +165,7 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
 
-    def add_row(self):
+    def _add_row(self):
         source = self.input_line_edit.text()
         if os.path.isfile(source):
             name = pathlib.Path(source).name
@@ -175,11 +179,8 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.input_line_edit.clearFocus()
         self.input_line_edit.clear()
 
-    def remove_selected_rows(self):
+    def _remove_selected_rows(self):
         indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)
-        self.remove_button.setEnabled(self.valid_selection())
+        self.remove_button.setEnabled(self._valid_selection())
 
-    def nextId(self):
-        self.disconnect_punch_slots()
-        return self.workflow_wizard.next_id()

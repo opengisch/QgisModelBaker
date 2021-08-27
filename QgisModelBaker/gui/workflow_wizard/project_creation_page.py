@@ -53,12 +53,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.db_simple_factory = DbSimpleFactory()
         self.configuration = None
 
-        self.create_project_button.clicked.connect(self.create_project)
+        self.create_project_button.clicked.connect(self._create_project)
 
     def set_configuration(self, configuration):
         self.configuration = configuration
 
-    def create_project(self):
+    def _create_project(self):
         self.progress_bar.setValue(0)
 
         db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
@@ -218,30 +218,31 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             qml_file_model = self.workflow_wizard.get_topping_file_model(
                 list(qml_section.values()), self.workflow_wizard.log_panel
             )
-            for layer in project.layers and layer.alias:
-                if any(layer.alias.lower() == s for s in qml_section):
-                    layer_qml = layer.alias.lower()
-                elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
-                    layer_qml = f'"{layer.alias.lower()}"'
-                else:
-                    continue
-                matches = qml_file_model.match(
-                    qml_file_model.index(0, 0),
-                    Qt.DisplayRole,
-                    qml_section[layer_qml],
-                    1,
-                )
-                if matches:
-                    style_file_path = matches[0].data(
-                        int(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+            for layer in project.layers:
+                if layer.alias:
+                    if any(layer.alias.lower() == s for s in qml_section):
+                        layer_qml = layer.alias.lower()
+                    elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                        layer_qml = f'"{layer.alias.lower()}"'
+                    else:
+                        continue
+                    matches = qml_file_model.match(
+                        qml_file_model.index(0, 0),
+                        Qt.DisplayRole,
+                        qml_section[layer_qml],
+                        1,
                     )
-                    self.workflow_wizard.log_panel.print_info(
-                        self.tr("Apply QML topping on layer {}:{}…").format(
-                            layer.alias, style_file_path
-                        ),
-                        LogColor.COLOR_TOPPING,
-                    )
-                    layer.layer.loadNamedStyle(style_file_path)
+                    if matches:
+                        style_file_path = matches[0].data(
+                            int(IliToppingFileItemModel.Roles.LOCALFILEPATH)
+                        )
+                        self.workflow_wizard.log_panel.print_info(
+                            self.tr("Apply QML topping on layer {}:{}…").format(
+                                layer.alias, style_file_path
+                            ),
+                            LogColor.COLOR_TOPPING,
+                        )
+                        layer.layer.loadNamedStyle(style_file_path)
 
         self.progress_bar.setValue(100)
         self.workflow_wizard.log_panel.print_info(self.tr("It's served!"))

@@ -68,9 +68,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
-        self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
+        self.ili2db_options.finished.connect(self._fill_toml_file_info_label)
 
-        self.crsSelector.crsChanged.connect(self.crs_changed)
+        self.crsSelector.crsChanged.connect(self._crs_changed)
 
         self.ilimetaconfigcache = IliMetaConfigCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
@@ -94,13 +94,13 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.ili_metaconfig_line_edit.text()
         )
         self.ili_metaconfig_line_edit.textChanged.connect(
-            self.complete_metaconfig_completer
+            self._complete_metaconfig_completer
         )
         self.ili_metaconfig_line_edit.punched.connect(
-            self.complete_metaconfig_completer
+            self._complete_metaconfig_completer
         )
         self.ili_metaconfig_line_edit.textChanged.connect(
-            self.on_metaconfig_completer_activated
+            self._on_metaconfig_completer_activated
         )
 
     def isComplete(self):
@@ -110,6 +110,48 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.is_complete = complete
         self.completeChanged.emit()
 
+    def nextId(self):
+        return self.workflow_wizard.next_id()
+
+    def restore_configuration(self):
+        # takes settings from QSettings and provides it to the gui (not the configuration)
+        settings = QSettings()
+        srs_auth = settings.value("QgisModelBaker/ili2db/srs_auth", "EPSG")
+        srs_code = settings.value("QgisModelBaker/ili2db/srs_code", 21781, int)
+        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
+        if not crs.isValid():
+            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
+        self.crs = crs
+        self._update_crs_info()
+        self._crs_changed()
+        self._fill_toml_file_info_label()
+        self._update_models_dependent_info()
+
+    def update_configuration(self, configuration):
+        # takes settings from the GUI and provides it to the configuration
+        configuration.srs_auth = self.srs_auth
+        configuration.srs_code = self.srs_code
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
+        # ili2db_options
+        configuration.inheritance = self.ili2db_options.inheritance_type()
+        configuration.create_basket_col = self.ili2db_options.create_basket_col()
+        configuration.create_import_tid = self.ili2db_options.create_import_tid()
+        configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
+        configuration.pre_script = self.ili2db_options.pre_script()
+        configuration.post_script = self.ili2db_options.post_script()
+        configuration.tomlfile = self.ili2db_options.toml_file()
+
+    def save_configuration(self, updated_configuration):
+        # puts it to QSettings
+        settings = QSettings()
+        settings.setValue(
+            "QgisModelBaker/ili2db/srs_auth", updated_configuration.srs_auth
+        )
+        settings.setValue(
+            "QgisModelBaker/ili2db/srs_code", updated_configuration.srs_code
+        )
+    
     def _update_models_dependent_info(self):
         """
         Checks all checked models for CRS_PATTERNS (takes first match)
@@ -119,9 +161,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, model_list_string):
                 self.crs = QgsCoordinateReferenceSystem.fromEpsgId(int(crs))
-                self.update_crs_info()
+                self._update_crs_info()
                 break
-        self._update_ilimetaconfigcache
+        self._update_ilimetaconfigcache()
 
     def _update_ilimetaconfigcache(self):
         self.ilimetaconfigcache = IliMetaConfigCache(
@@ -129,15 +171,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             ";".join(self.model_list_view.model().checked_models()),
         )
         self.ilimetaconfigcache.file_download_succeeded.connect(
-            lambda dataset_id, path: self.on_metaconfig_received(path)
+            lambda dataset_id, path: self._on_metaconfig_received(path)
         )
-        self.ilimetaconfigcache.file_download_failed.connect(self.on_metaconfig_failed)
+        self.ilimetaconfigcache.file_download_failed.connect(self._on_metaconfig_failed)
         self.ilimetaconfigcache.model_refreshed.connect(
-            self.update_metaconfig_completer
+            self._update_metaconfig_completer
         )
-        self.refresh_ili_metaconfig_cache()
+        self._refresh_ili_metaconfig_cache()
 
-    def fill_toml_file_info_label(self):
+    def _fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
             text = self.tr("Extra Model Information File: {}").format(
@@ -153,10 +195,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
-    def update_crs_info(self):
+    def _update_crs_info(self):
         self.crsSelector.setCrs(self.crs)
 
-    def crs_changed(self):
+    def _crs_changed(self):
         self.srs_auth = "EPSG"  # Default
         self.srs_code = 21781  # Default
         srs_auth, srs_code = self.crsSelector.crs().authid().split(":")
@@ -184,15 +226,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     )
                 )
 
-    def refresh_ili_metaconfig_cache(self):
+    def _refresh_ili_metaconfig_cache(self):
         self.ilimetaconfigcache.new_message.connect(
             self.workflow_wizard.log_panel.show_message
         )
         self.ilimetaconfigcache.refresh()
 
-    def complete_metaconfig_completer(self):
+    def _complete_metaconfig_completer(self):
         if not self.ili_metaconfig_line_edit.text():
-            self.clean_metaconfig()
+            self._clean_metaconfig()
             self.ili_metaconfig_line_edit.completer().setCompletionMode(
                 QCompleter.UnfilteredPopupCompletion
             )
@@ -218,13 +260,13 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     )
                     self.ili_metaconfig_line_edit.completer().complete()
 
-    def update_metaconfig_completer(self, rows):
+    def _update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(
             self.ilimetaconfigcache.model
         )
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
 
-    def on_metaconfig_completer_activated(self, text=None):
+    def _on_metaconfig_completer_activated(self, text=None):
         matches = self.ilimetaconfigcache.model.match(
             self.ilimetaconfigcache.model.index(0, 0),
             Qt.DisplayRole,
@@ -272,27 +314,27 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     LogColor.COLOR_TOPPING,
                 )
 
-            self.set_metaconfig_line_edit_state(True)
+            self._set_metaconfig_line_edit_state(True)
         else:
-            self.set_metaconfig_line_edit_state(
+            self._set_metaconfig_line_edit_state(
                 not self.ili_metaconfig_line_edit.text()
             )
-            self.clean_metaconfig()
+            self._clean_metaconfig()
 
-    def clean_metaconfig(self):
+    def _clean_metaconfig(self):
         self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText("")
         self.workflow_wizard.log_panel.txtStdout.clear()
 
-    def set_metaconfig_line_edit_state(self, valid):
+    def _set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
             "QLineEdit {{ background-color: {} }}".format(
                 "#ffffff" if valid else "#ffd356"
             )
         )
 
-    def on_metaconfig_received(self, path):
+    def _on_metaconfig_received(self, path):
         self.workflow_wizard.log_panel.txtStdout.clear()
         self.workflow_wizard.log_panel.print_info(
             self.tr("Metaconfig file successfully downloaded: {}").format(path),
@@ -302,15 +344,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.metaconfig.clear()
         with open(path) as metaconfig_file:
             self.metaconfig.read_file(metaconfig_file)
-            self.load_metaconfig()
+            self._load_metaconfig()
             # enable the next buttton
-            self.setComplete(True)
-            self.fill_toml_file_info_label()
+            self._fill_toml_file_info_label()
             self.workflow_wizard.log_panel.print_info(
                 self.tr("Metaconfig successfully loaded."), LogColor.COLOR_TOPPING
             )
+            self.setComplete(True)
 
-    def on_metaconfig_failed(self, dataset_id, error_msg):
+    def _on_metaconfig_failed(self, dataset_id, error_msg):
         self.workflow_wizard.log_panel.print_info(
             self.tr("Download of metaconfig file failed: {}.").format(error_msg),
             LogColor.COLOR_TOPPING,
@@ -318,7 +360,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         # enable the next buttton
         self.setComplete(True)
 
-    def load_crs_from_metaconfig(self, ili2db_metaconfig):
+    def _load_crs_from_metaconfig(self, ili2db_metaconfig):
         srs_auth = self.srs_auth
         srs_code = self.srs_code
         if "defaultSrsAuth" in ili2db_metaconfig:
@@ -330,10 +372,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if not crs.isValid():
             crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
         self.crs = crs
-        self.update_crs_info()
-        self.crs_changed()
+        self._update_crs_info()
+        self._crs_changed()
 
-    def load_metaconfig(self):
+    def _load_metaconfig(self):
         # load ili2db parameters to the GUI
         if "ch.ehi.ili2db" in self.metaconfig.sections():
             self.workflow_wizard.log_panel.print_info(
@@ -347,7 +389,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 "defaultSrsAuth" in ili2db_metaconfig
                 or "defaultSrsCode" in ili2db_metaconfig
             ):
-                self.load_crs_from_metaconfig(ili2db_metaconfig)
+                self._load_crs_from_metaconfig(ili2db_metaconfig)
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded CRS"), LogColor.COLOR_TOPPING
                 )
@@ -457,45 +499,3 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             ),
                             LogColor.COLOR_TOPPING,
                         )
-
-    def restore_configuration(self):
-        # takes settings from QSettings and provides it to the gui (not the configuration)
-        settings = QSettings()
-        srs_auth = settings.value("QgisModelBaker/ili2db/srs_auth", "EPSG")
-        srs_code = settings.value("QgisModelBaker/ili2db/srs_code", 21781, int)
-        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
-        if not crs.isValid():
-            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
-        self.crs = crs
-        self.update_crs_info()
-        self.crs_changed()
-        self.fill_toml_file_info_label()
-        self._update_models_dependent_info()
-
-    def update_configuration(self, configuration):
-        # takes settings from the GUI and provides it to the configuration
-        configuration.srs_auth = self.srs_auth
-        configuration.srs_code = self.srs_code
-        configuration.metaconfig = self.metaconfig
-        configuration.metaconfig_id = self.current_metaconfig_id
-        # ili2db_options
-        configuration.inheritance = self.ili2db_options.inheritance_type()
-        configuration.create_basket_col = self.ili2db_options.create_basket_col()
-        configuration.create_import_tid = self.ili2db_options.create_import_tid()
-        configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
-        configuration.pre_script = self.ili2db_options.pre_script()
-        configuration.post_script = self.ili2db_options.post_script()
-        configuration.tomlfile = self.ili2db_options.toml_file()
-
-    def save_configuration(self, updated_configuration):
-        # puts it to QSettings
-        settings = QSettings()
-        settings.setValue(
-            "QgisModelBaker/ili2db/srs_auth", updated_configuration.srs_auth
-        )
-        settings.setValue(
-            "QgisModelBaker/ili2db/srs_code", updated_configuration.srs_code
-        )
-
-    def nextId(self):
-        return self.workflow_wizard.next_id()

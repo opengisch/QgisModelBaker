@@ -64,3 +64,12 @@ def get_db_connector(configuration):
         return db_factory.get_db_connector(uri_string, schema)
     except (DBConnectorError, FileNotFoundError):
         return None
+
+def db_ili_version(configuration):
+    """
+    Returns the ili2db version the database has been created with or None if the database
+    could not be detected as a ili2db database
+    """ 
+    db_connector = get_db_connector(configuration)
+    if db_connector:
+        return db_connector.ili_version()

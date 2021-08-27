@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.utils import db_utils
 from PyQt5.QtWidgets import QVBoxLayout
 from qgis.PyQt.QtCore import QSettings
 
@@ -71,9 +72,9 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
-        self.type_combo_box.currentIndexChanged.connect(self.type_changed)
+        self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
-    def type_changed(self):
+    def _type_changed(self):
 
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
@@ -86,26 +87,6 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             value.setVisible(is_current_panel_selected)
             if is_current_panel_selected:
                 value._show_panel()
-
-    def db_ili_version(self, configuration):
-        """
-        Returns the ili2db version the database has been created with or None if the database
-        could not be detected as a ili2db database
-        """
-        schema = configuration.dbschema
-
-        db_factory = self.db_simple_factory.create_factory(configuration.tool)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
-        uri_string = config_manager.get_uri(configuration.db_use_super_login)
-
-        try:
-            db_connector = db_factory.get_db_connector(uri_string, schema)
-            db_connector.new_message.connect(
-                self.workflow_wizard.log_panel.show_message
-            )
-            return db_connector.ili_version()
-        except (DBConnectorError, FileNotFoundError):
-            return None
 
     def restore_configuration(self, configuration):
         # takes settings from QSettings and provides it to the gui (not the configuration)
@@ -123,14 +104,14 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
-        self.type_changed()
+        self._type_changed()
 
     def update_configuration(self, configuration):
         # takes settings from the GUI and provides it to the configuration
         mode = self.type_combo_box.currentData()
         self._lst_panel[mode].get_fields(configuration)
         configuration.tool = mode
-        configuration.db_ili_version = self.db_ili_version(configuration)
+        configuration.db_ili_version = db_utils.db_ili_version(configuration)
 
     def save_configuration(self, updated_configuration):
         # puts it to QSettings

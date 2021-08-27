@@ -129,6 +129,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.is_complete = complete 
             self.completeChanged.emit()
 
+    def nextId(self):
+        return self.workflow_wizard.next_id()
+
     def setup_dialog(self, basket_handling):
         self.export_datasets_label.setHidden(not basket_handling)
         self.export_datasets_checkbox.setHidden(not basket_handling)
@@ -159,6 +162,3 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
                 return Qt.Checked
             return Qt.PartiallyChecked
         return Qt.Unchecked
-
-    def nextId(self):
-        return self.workflow_wizard.next_id()

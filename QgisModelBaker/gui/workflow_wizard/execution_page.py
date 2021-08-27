@@ -82,6 +82,19 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.is_complete = False
         self.pending_sessions = []
 
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.run_command_button.setDisabled(complete)
+        self.completeChanged.emit()
+
+    def nextId(self):
+        if self.db_action_type == DbActionType.EXPORT:
+            return -1
+        return self.workflow_wizard.next_id()
+        
     def setup_sessions(self, configuration, import_sessions):        
         new_sessions = []
 
@@ -185,15 +198,3 @@ class ExecutionPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard.log_panel.print_info(message, color)
 
-    def isComplete(self):
-        return self.is_complete
-
-    def setComplete(self, complete):
-        self.is_complete = complete
-        self.run_command_button.setDisabled(complete)
-        self.completeChanged.emit()
-
-    def nextId(self):
-        if self.db_action_type == DbActionType.EXPORT:
-            return -1
-        return self.workflow_wizard.next_id()

@@ -113,6 +113,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_button.setCheckable(True)
         self.datasetmanager_button.clicked.connect(self._show_datasetmanager_dialog)
 
+    def nextId(self):
+        return self.workflow_wizard.next_id()
+
     def order_list(self):
         order_list = []
         for visual_index in range(0, self.file_table_view.verticalHeader().count()):
@@ -148,9 +151,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.ili2db_options_button.setHidden(True)
         self.chk_delete_data.setHidden(True)
 
-    def nextId(self):
-        return self.workflow_wizard.next_id()
-
     def _show_datasetmanager_dialog(self):
         if self.datasetmanager_dlg:
             self.datasetmanager_dlg.reject()
@@ -164,11 +164,11 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
             self.datasetmanager_dlg.show()
             self.datasetmanager_dlg.finished.connect(
-                self.datasetmanager_dialog_finished
+                self._datasetmanager_dialog_finished
             )
             self.datasetmanager_button.setChecked(True)
 
-    def datasetmanager_dialog_finished(self):
+    def _datasetmanager_dialog_finished(self):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
         self.file_table_view.setItemDelegateForColumn(

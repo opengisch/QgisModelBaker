@@ -215,15 +215,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 info_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
                 info_box.exec_()
 
-    def _db_ili_version(self, configuration):
-        """
-        Returns the ili2db version the database has been created with or None if the database
-        could not be detected as a ili2db database
-        """ 
-        db_connector = db_utils.get_db_connector(configuration)
-        if db_connector:
-            return db_connector.ili_version()
-
     def _restore_configuration(self):
         settings = QSettings()
 
@@ -248,7 +239,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self._lst_panel[mode].get_fields(configuration)
 
         configuration.tool = mode
-        configuration.db_ili_version = self._db_ili_version(configuration)
+        configuration.db_ili_version = db_utils.db_ili_version(configuration)
         return configuration
 
     def _save_configuration(self, configuration):
