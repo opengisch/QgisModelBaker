@@ -21,6 +21,7 @@
 import os
 import pathlib
 import configparser
+import re
 
 from qgis.PyQt.QtCore import Qt, QSettings
 
@@ -37,6 +38,7 @@ from QgisModelBaker.libili2db.ilicache import (
 )
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS
 
 from ...utils.ui import get_ui_class, LogColor
 
@@ -61,7 +63,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.model_list_view.space_pressed.connect(
             self.workflow_wizard.import_models_model.check
         )
-        self.model_list_view.model().modelReset.connect(self.update_ilimetaconfigcache)
+        self.model_list_view.model().modelReset.connect(self._update_models_dependent_info)
 
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
@@ -108,7 +110,20 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.is_complete = complete
         self.completeChanged.emit()
 
-    def update_ilimetaconfigcache(self):
+    def _update_models_dependent_info(self):
+        """
+        Checks all checked models for CRS_PATTERNS (takes first match)
+        Calls update of ilimetaconfig cache
+        """
+        model_list_string = ", ".join(self.model_list_view.model().checked_models())
+        for pattern, crs in CRS_PATTERNS.items():
+            if re.search(pattern, model_list_string):
+                self.crs = QgsCoordinateReferenceSystem.fromEpsgId(int(crs))
+                self.update_crs_info()
+                break
+        self._update_ilimetaconfigcache
+
+    def _update_ilimetaconfigcache(self):
         self.ilimetaconfigcache = IliMetaConfigCache(
             self.workflow_wizard.import_schema_configuration.base_configuration,
             ";".join(self.model_list_view.model().checked_models()),
@@ -455,7 +470,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.update_crs_info()
         self.crs_changed()
         self.fill_toml_file_info_label()
-        self.update_ilimetaconfigcache()
+        self._update_models_dependent_info()
 
     def update_configuration(self, configuration):
         # takes settings from the GUI and provides it to the configuration
