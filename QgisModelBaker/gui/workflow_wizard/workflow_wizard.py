@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import (
     QEventLoop,
 )
 
-from qgis.PyQt.QtWidgets import QWizard, QDialog, QVBoxLayout
+from qgis.PyQt.QtWidgets import QWizard, QDialog, QVBoxLayout, QSplitter
 
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
     SourceModel,
@@ -448,10 +448,14 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.Widget)
+        self.workflow_wizard.setFixedHeight(600)
+        self.workflow_wizard.setMinimumWidth(800)
         self.workflow_wizard.show()
 
         self.workflow_wizard.finished.connect(self.done)
         layout = QVBoxLayout()
-        layout.addWidget(self.workflow_wizard)
-        layout.addWidget(self.log_panel)
+        splitter = QSplitter(Qt.Vertical)
+        splitter.addWidget(self.workflow_wizard)
+        splitter.addWidget(self.log_panel)
+        layout.addWidget(splitter)
         self.setLayout(layout)

@@ -53,7 +53,6 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.db_action_type = db_action_type
 
         self.setupUi(self)
-        self.setMinimumSize(600, 500)
         self.setTitle(title)
 
         if self.db_action_type == DbActionType.GENERATE:

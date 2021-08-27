@@ -43,8 +43,8 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.is_complete = True
 
         self.setupUi(self)
-        self.setMinimumSize(600, 500)
         self.setTitle(title)
+
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(
                 self.tr(

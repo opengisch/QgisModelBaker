@@ -70,7 +70,6 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.setupUi(self)
-        self.setMinimumSize(600, 500)
         self.setTitle(title)
 
         self.workflow_wizard = parent
