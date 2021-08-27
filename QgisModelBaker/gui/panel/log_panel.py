@@ -44,11 +44,6 @@ from QgisModelBaker.libili2db.ili2dbutils import color_log_text
 
 class LogPanel(QWidget):
 
-    COLOR_INFO = '#000000'
-    COLOR_SUCCESS = '#004905'
-    COLOR_FAIL = '#aa2222'
-    COLOR_TOPPING = '#341d5c'
-
     def __init__(self, parent = None):
         QWidget.__init__(self, parent)
 

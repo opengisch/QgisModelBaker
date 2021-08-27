@@ -22,7 +22,7 @@ import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 
 from qgis.PyQt.QtWidgets import QWidget, QAction, QGridLayout
 from qgis.PyQt.QtCore import Qt
-from ...utils import get_ui_class
+from ...utils.ui import get_ui_class, LogColor
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libili2db import iliimporter, iliexporter, iliexecutable
@@ -150,7 +150,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def skip(self):
         self.setDisabled(True)
-        self.print_info.emit(self.tr("Import skipped!\n"), LogPanel.COLOR_INFO)
+        self.print_info.emit(self.tr("Import skipped!\n"), LogColor.COLOR_INFO)
         self.is_skipped_or_done = True
         self.on_done_or_skipped.emit(self.id)
 
@@ -190,7 +190,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.setDisabled(True)
 
             porter.stdout.connect(
-                lambda str: self.print_info.emit(str, LogPanel.COLOR_INFO)
+                lambda str: self.print_info.emit(str, LogColor.COLOR_INFO)
             )
             porter.stderr.connect(self.on_stderr)
             porter.process_started.connect(self.on_process_started)
@@ -202,7 +202,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                     self.setDisabled(False)
                     return False
             except JavaNotFoundError as e:
-                self.print_info.emit(e.error_string, LogPanel.COLOR_FAIL)
+                self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
                 self.progress_bar.setValue(0)
                 self.setDisabled(False)
                 return False
@@ -214,7 +214,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             ):
                 self._create_default_dataset()
             self.progress_bar.setValue(100)
-            self.print_info.emit(self.tr("Done!\n"), LogPanel.COLOR_SUCCESS)
+            self.print_info.emit(self.tr("Done!\n"), LogColor.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)
             self.is_skipped_or_done = True
             return True
@@ -224,7 +224,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.tr("Create the default dataset {}").format(
                 wizard_tools.DEFAULT_DATASETNAME
             ),
-            LogPanel.COLOR_INFO,
+            LogColor.COLOR_INFO,
         )
         db_connector = self._get_db_connector(self.configuration)
 
@@ -240,7 +240,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             status, message = db_connector.create_dataset(
                 wizard_tools.DEFAULT_DATASETNAME
             )
-            self.print_info.emit(message, LogPanel.COLOR_INFO)
+            self.print_info.emit(message, LogColor.COLOR_INFO)
             if status:
                 default_datasets_info_tids = [
                     datasets_info["t_id"]
@@ -257,14 +257,14 @@ class SessionPanel(QWidget, WIDGET_UI):
                     ".".join([topic_record["model"], topic_record["topic"]]),
                 )
                 self.print_info.emit(
-                    self.tr("- {}").format(message), LogPanel.COLOR_INFO
+                    self.tr("- {}").format(message), LogColor.COLOR_INFO
                 )
         else:
             self.print_info.emit(
                 self.tr(
                     "No default dataset created ({}) - do it manually in the dataset manager."
                 ).format(message),
-                LogPanel.COLOR_FAIL,
+                LogColor.COLOR_FAIL,
             )
 
     def _get_db_connector(self, configuration):

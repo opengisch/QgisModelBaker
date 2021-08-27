@@ -35,7 +35,7 @@ from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 from QgisModelBaker.libili2db.ilicache import IliToppingFileItemModel
 
-from ...utils import get_ui_class
+from ...utils.ui import get_ui_class, LogColor
 
 PAGE_UI = get_ui_class("workflow_wizard/project_creation.ui")
 
@@ -143,7 +143,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             if "qgis.modelbaker.layertree" in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("Metaconfig contains a layertree structure topping."),
-                    LogPanel.COLOR_TOPPING,
+                    LogColor.COLOR_TOPPING,
                 )
                 layertree_data_list = configuration_section[
                     "qgis.modelbaker.layertree"
@@ -158,7 +158,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         self.tr("Parse layertree structure {}…").format(
                             layertree_file_path
                         ),
-                        LogPanel.COLOR_TOPPING,
+                        LogColor.COLOR_TOPPING,
                     )
 
                     with open(layertree_file_path, "r") as stream:
@@ -178,7 +178,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                                 self.tr(
                                     "Unable to parse layertree structure: {}"
                                 ).format(exc),
-                                LogPanel.COLOR_TOPPING,
+                                LogColor.COLOR_TOPPING,
                             )
         self.progress_bar.setValue(55)
 
@@ -214,7 +214,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             and "qgis.modelbaker.qml" in self.configuration.metaconfig.sections()
         ):
             self.workflow_wizard.log_panel.print_info(
-                self.tr("Metaconfig contains QML toppings."), LogPanel.COLOR_TOPPING
+                self.tr("Metaconfig contains QML toppings."), LogColor.COLOR_TOPPING
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
@@ -241,7 +241,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         self.tr("Apply QML topping on layer {}:{}…").format(
                             layer.alias, style_file_path
                         ),
-                        LogPanel.COLOR_TOPPING,
+                        LogColor.COLOR_TOPPING,
                     )
                     layer.layer.loadNamedStyle(style_file_path)
 

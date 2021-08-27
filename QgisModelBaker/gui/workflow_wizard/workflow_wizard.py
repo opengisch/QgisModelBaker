@@ -70,6 +70,7 @@ from QgisModelBaker.gui.workflow_wizard.export_data_configuration_page import (
     ExportDataConfigurationPage,
 )
 
+from ...utils.ui import LogColor
 
 class WorkflowWizard(QWizard):
 
@@ -415,7 +416,7 @@ class WorkflowWizard(QWizard):
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
                 log_panel.print_info(
-                    self.tr("- - Got file {}").format(file_path), LogPanel.COLOR_TOPPING
+                    self.tr("- - Got file {}").format(file_path), LogColor.COLOR_TOPPING
                 )
                 file_path_list.append(file_path)
         return file_path_list
@@ -434,7 +435,7 @@ class WorkflowWizard(QWizard):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        log_panel.print_info(self.tr("- - Downloading…"), LogPanel.COLOR_TOPPING)
+        log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
 
         if len(topping_file_cache.downloaded_files) != len(id_list):
             loop.exec()
@@ -442,7 +443,7 @@ class WorkflowWizard(QWizard):
         if len(topping_file_cache.downloaded_files) == len(id_list):
             log_panel.print_info(
                 self.tr("- - All topping files successfully downloaded"),
-                LogPanel.COLOR_TOPPING,
+                LogColor.COLOR_TOPPING,
             )
         else:
             missing_file_ids = id_list
@@ -453,7 +454,7 @@ class WorkflowWizard(QWizard):
                 self.tr(
                     "- - Some topping files where not successfully downloaded: {}"
                 ).format(" ".join(missing_file_ids)),
-                LogPanel.COLOR_TOPPING,
+                LogColor.COLOR_TOPPING,
             )
 
         return topping_file_cache.model

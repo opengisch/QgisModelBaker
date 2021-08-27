@@ -69,7 +69,7 @@
    <item row="1" column="0">
     <widget class="QCommandLinkButton" name="import_button">
      <property name="text">
-      <string>Choose files and models to import data or generate a new database</string>
+      <string>Choose data files and models to import or generate a new database</string>
      </property>
     </widget>
    </item>

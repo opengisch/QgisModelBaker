@@ -91,6 +91,7 @@ class DatasetSelector(QComboBox):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.setToolTip(self.tr("Dataset used as default value in form"))
 
         self.db_simple_factory = DbSimpleFactory()
         self.basket_model = BasketSourceModel()

@@ -119,7 +119,7 @@ class QgisModelBakerPlugin(QObject):
         self.__datasetmanager_action = QAction( QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-datasetmanager-icon.svg')),
             self.tr('Dataset Manager'), None)
         self.__workflow_wizard_action = QAction(QIcon(os.path.join(os.path.dirname(__file__), 'images/QgisModelBaker-wizard.svg')),
-                                              self.tr('Start import workflow'), None)
+                                              self.tr('Import/Export Wizard'), None)
         self.__configure_action = QAction(
             self.tr('Settings'), None)
         self.__help_action = QAction(

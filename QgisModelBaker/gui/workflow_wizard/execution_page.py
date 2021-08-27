@@ -40,7 +40,7 @@ from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libili2db import iliimporter
 
-from ...utils import get_ui_class
+from ...utils.ui import get_ui_class, LogColor
 
 PAGE_UI = get_ui_class("workflow_wizard/execution.ui")
 
@@ -78,23 +78,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.session_widget_list = []
         self.session_status = []
         self.run_command_button.setEnabled(False)
-        self.run_command_button.clicked.connect(self.run)
+        self.run_command_button.clicked.connect(self._run)
         self.is_complete = False
         self.pending_sessions = []
-
-    def isComplete(self):
-        return self.is_complete
-
-    def setComplete(self, complete):
-        self.is_complete = complete
-        self.run_command_button.setDisabled(complete)
-        self.completeChanged.emit()
-
-    def find_existing_session_widget(self, id):
-        for session_widget in self.session_widget_list:
-            if id == session_widget.id:
-                return session_widget
-        return None
 
     def setup_sessions(self, configuration, import_sessions):        
         new_sessions = []
@@ -111,7 +97,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 else None
             )
 
-            existing_widget = self.find_existing_session_widget((key, models))
+            existing_widget = self._find_existing_session_widget((key, models, datasets))
             if existing_widget:
                 new_sessions.append(existing_widget)
             else:
@@ -123,7 +109,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     self.db_action_type,
                 )
                 import_session.on_done_or_skipped.connect(
-                    self.on_done_or_skipped_received
+                    self._on_done_or_skipped_received
                 )
                 import_session.print_info.connect(
                     self.workflow_wizard.log_panel.print_info
@@ -131,8 +117,8 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 import_session.on_stderr.connect(
                     self.workflow_wizard.log_panel.on_stderr
                 )
-                import_session.on_process_started.connect(self.on_process_started)
-                import_session.on_process_finished.connect(self.on_process_finished)
+                import_session.on_process_started.connect(self._on_process_started)
+                import_session.on_process_finished.connect(self._on_process_finished)
                 new_sessions.append(import_session)
 
         self.session_widget_list = new_sessions
@@ -154,12 +140,18 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         ]
         self.setComplete(not self.pending_sessions)
 
-    def on_done_or_skipped_received(self, id):
+    def _find_existing_session_widget(self, id):
+        for session_widget in self.session_widget_list:
+            if id == session_widget.id:
+                return session_widget
+        return None
+
+    def _on_done_or_skipped_received(self, id):
         self.pending_sessions.remove(id)
         if not self.pending_sessions:
             self.setComplete(True)
 
-    def run(self):
+    def _run(self):
         loop = QEventLoop()
         for session_widget in self.session_widget_list:
             session_widget.on_done_or_skipped.connect(lambda: loop.quit())
@@ -167,14 +159,14 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             if not session_widget.run():
                 loop.exec()
 
-    def on_process_started(self, command):
+    def _on_process_started(self, command):
         self.workflow_wizard.log_panel.print_info(command, "#000000")
         QCoreApplication.processEvents()
 
-    def on_process_finished(self, exit_code, result):
+    def _on_process_finished(self, exit_code, result):
         if exit_code == 0:
             message = "Finished with success."
-            color = LogPanel.COLOR_SUCCESS
+            color = LogColor.COLOR_SUCCESS
             if self.db_action_type == DbActionType.GENERATE:
                 message = self.tr(
                         "Interlis model(s) successfully imported into the database!"
@@ -188,10 +180,18 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                         "Data successfully exported into transfer file!"
                     )
         else:
-            color = LogPanel.COLOR_FAIL
+            color = LogColor.COLOR_FAIL
             message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
+
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.run_command_button.setDisabled(complete)
+        self.completeChanged.emit()
 
     def nextId(self):
         if self.db_action_type == DbActionType.EXPORT:
