@@ -23,33 +23,40 @@ import importlib
 import sys
 
 import yaml
-
 from libqgsprojectgen.dataobjects.project import Project
-from qgis.core import QgsProject, QgsApplication
+from qgis.core import QgsApplication, QgsProject
 
 
 def main(argv):
     parser = argparse.ArgumentParser(
-        'Generate QGIS projects or QGIS dataobjects yaml templates.')
-    parser.add_argument("--generator", type=str,
-                        help='The generator to use. (Example: postgres)')
+        "Generate QGIS projects or QGIS dataobjects yaml templates."
+    )
     parser.add_argument(
-        "--uri", type=str, help='Database uri, used as db entry point. (Example: service=pg_qgep)')
+        "--generator", type=str, help="The generator to use. (Example: postgres)"
+    )
     parser.add_argument(
-        "out", type=str, help='Path to the generated dataobjects. (Example: /home/qgis/my_project)')
+        "--uri",
+        type=str,
+        help="Database uri, used as db entry point. (Example: service=pg_qgep)",
+    )
+    parser.add_argument(
+        "out",
+        type=str,
+        help="Path to the generated dataobjects. (Example: /home/qgis/my_project)",
+    )
 
     args = parser.parse_args()
 
     # Initialize qgis libraries
-    app = QgsApplication([], True)
+    QgsApplication([], True)
     QgsApplication.initQgis()
 
     def debug_log_message(message, tag, level):
-        print('{}({}): {}'.format(tag, level, message))
+        print("{}({}): {}".format(tag, level, message))
 
     QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
 
-    generator_module = importlib.import_module('generator.' + args.generator)
+    generator_module = importlib.import_module("generator." + args.generator)
 
     generator = generator_module.Generator(args.uri)
 
@@ -63,12 +70,13 @@ def main(argv):
     qgis_project = QgsProject.instance()
     project.create(args.out, qgis_project)
 
-    yamlfile = args.out + '.yaml'
-    with open(yamlfile, 'w') as f:
+    yamlfile = args.out + ".yaml"
+    with open(yamlfile, "w") as f:
         f.write(yaml.dump(project.dump(), default_flow_style=False))
-        print('Project template written to {}'.format(yamlfile))
+        print("Project template written to {}".format(yamlfile))
 
     QgsApplication.exitQgis()
+
 
 if __name__ == "__main__":
     # execute only if run as a script

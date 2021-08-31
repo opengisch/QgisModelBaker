@@ -17,14 +17,16 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsWkbTypes, QgsMapLayer
+from qgis.core import QgsLayerTreeNode, QgsMapLayer, QgsWkbTypes
 
-layer_order = ['point',  #QgsWkbTypes.PointGeometry
-               'line',  #QgsWkbTypes.LineGeometry
-               'polygon',  #QgsWkbTypes.PolygonGeometry
-               'raster',  # QgsMapLayer.RasterLayer
-               'table',  # QgsWkbTypes.NullGeometry
-               'unknown']  # Anything else like geometry collections or plugin layers
+layer_order = [
+    "point",  # QgsWkbTypes.PointGeometry
+    "line",  # QgsWkbTypes.LineGeometry
+    "polygon",  # QgsWkbTypes.PolygonGeometry
+    "raster",  # QgsMapLayer.RasterLayer
+    "table",  # QgsWkbTypes.NullGeometry
+    "unknown",
+]  # Anything else like geometry collections or plugin layers
 
 
 def get_first_index_for_layer_type(layer_type, group, ignore_node_names=None):
@@ -36,15 +38,21 @@ def get_first_index_for_layer_type(layer_type, group, ignore_node_names=None):
         ignore_node_names = []
 
     tree_nodes = group.children()
-    
+
     for current, tree_node in enumerate(tree_nodes):
         if tree_node.name() in ignore_node_names:
             # Some groups (e.g., validation errors) might be useful on a
             # specific position (e.g., at the top), so, skip it to get indices
             continue
-        if tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type != 'unknown':
+        if (
+            tree_node.nodeType() == QgsLayerTreeNode.NodeGroup
+            and layer_type != "unknown"
+        ):
             return None
-        elif tree_node.nodeType() == QgsLayerTreeNode.NodeGroup and layer_type == 'unknown':
+        elif (
+            tree_node.nodeType() == QgsLayerTreeNode.NodeGroup
+            and layer_type == "unknown"
+        ):
             # We've reached the lowest index in the layer tree before a group
             return current
 
@@ -67,7 +75,9 @@ def get_suggested_index_for_layer(layer, group, ignore_node_names=None):
     """
     indices = []
     index = None
-    for layer_type in layer_order[layer_order.index(get_layer_type(layer)):]:  # Slice from current until last
+    for layer_type in layer_order[
+        layer_order.index(get_layer_type(layer)) :
+    ]:  # Slice from current until last
         index = get_first_index_for_layer_type(layer_type, group, ignore_node_names)
         if index is not None:
             indices.append(index)
@@ -79,6 +89,7 @@ def get_suggested_index_for_layer(layer, group, ignore_node_names=None):
     else:
         return index
 
+
 def get_layer_type(layer):
     """
     To deal with all layer types, map their types to known values
@@ -86,12 +97,12 @@ def get_layer_type(layer):
     if layer.type() == QgsMapLayer.VectorLayer:
         if layer.isSpatial():
             if layer.geometryType() == QgsWkbTypes.UnknownGeometry:
-                return 'unknown'
+                return "unknown"
             else:
                 return layer_order[layer.geometryType()]  # Point, Line or Polygon
         else:
-            return 'table'
+            return "table"
     elif layer.type() == QgsMapLayer.RasterLayer:
-        return 'raster'
+        return "raster"
     else:
-        return 'unknown'
+        return "unknown"

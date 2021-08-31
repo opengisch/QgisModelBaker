@@ -18,15 +18,15 @@
 """
 from qgis.PyQt.QtCore import pyqtSignal
 
-from .db_config_panel import DbConfigPanel
-from ...utils import get_ui_class
-from QgisModelBaker.utils.qt_utils import (
-    Validators,
-    NonEmptyStringValidator)
-from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
+from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
 
-WIDGET_UI = get_ui_class('mssql_settings_panel.ui')
+from ...utils import ui
+from .db_config_panel import DbConfigPanel
+
+WIDGET_UI = ui.get_ui_class("mssql_settings_panel.ui")
+
 
 class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
 
@@ -48,14 +48,18 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_user_line_edit.setValidator(nonEmptyValidator)
 
         self.mssql_host_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
+            self.validators.validate_line_edits
+        )
         self.mssql_host_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
         self.mssql_database_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
+            self.validators.validate_line_edits
+        )
         self.mssql_database_line_edit.textChanged.emit(
-            self.mssql_database_line_edit.text())
+            self.mssql_database_line_edit.text()
+        )
         self.mssql_user_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
+            self.validators.validate_line_edits
+        )
         self.mssql_user_line_edit.textChanged.emit(self.mssql_user_line_edit.text())
 
         self.mssql_host_line_edit.textChanged.connect(self.notify_fields_modified)
@@ -69,14 +73,17 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
     def _show_panel(self):
         if self.interlis_mode:
             self.mssql_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]"))
+                self.tr("[Leave empty to create a default schema]")
+            )
         else:
             if self._db_action_type == DbActionType.IMPORT_DATA:
                 self.mssql_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to import data into a default schema]"))
+                    self.tr("[Leave empty to import data into a default schema]")
+                )
             else:
                 self.mssql_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to load all schemas in the database]"))
+                    self.tr("[Leave empty to load all schemas in the database]")
+                )
 
     def get_fields(self, configuration):
         configuration.dbhost = self.mssql_host_line_edit.text().strip()
@@ -103,7 +110,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def is_valid(self):
         result = False
-        message = ''
+        message = ""
         if not self.mssql_host_line_edit.text().strip():
             message = self.tr("Please set a host before creating the project.")
             self.mssql_host_line_edit.setFocus()

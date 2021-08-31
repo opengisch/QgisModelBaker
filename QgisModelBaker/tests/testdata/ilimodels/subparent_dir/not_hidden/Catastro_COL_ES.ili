@@ -79,12 +79,12 @@ VERSION "2017-07-12 V2.1.6"  =
        */
       C,
       /** El c�digo ha sido anotado o inscrito en el sistema de registro de instrumentos p�blicos, en este estado el ciudadano podr� solicitar el Certificado Predial Registral, que contiene la informaci�n jur�dica del Registro de Instrumentos P�blicos y la informaci�n f�sica y econ�mica del Sistema �nico de Informaci�n Catastral Multiprop�sito esta informaci�n goza con pleno m�rito probatorio, cuya expedici�n est� a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedici�n.
-       * 
+       *
        * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por v�a de actuaci�n privada o p�blica y para todas las transacciones inmobiliarias, y permite prescindir de la transcripci�n de linderos en todos los documentos p�blicos que contengan actos jur�dicos.
        */
       R,
       /** El c�digo ha sido anotado o inscrito en el sistema de registro de instrumentos p�blicos, en este estado el ciudadano podr� solicitar el Certificado Predial Registral, que contiene la informaci�n jur�dica del Registro de Instrumentos P�blicos y la informaci�n f�sica y econ�mica del Sistema �nico de Informaci�n Catastral Multiprop�sito esta informaci�n goza con pleno m�rito probatorio, cuya expedici�n est� a cargo de la Superintendencia de Notariado y Registro y cuya vigencia se limita a su fecha y hora de expedici�n.
-       * 
+       *
        * El NUPRE del certificado Predial Registral es obligatorio para las actuaciones o modificaciones que se realicen sobre el predio por v�a de actuaci�n privada o p�blica y para todas las transacciones inmobiliarias, y permite prescindir de la transcripci�n de linderos en todos los documentos p�blicos que contengan actos jur�dicos.
        */
       E

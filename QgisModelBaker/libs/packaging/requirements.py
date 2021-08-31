@@ -3,12 +3,21 @@
 # for complete details.
 from __future__ import absolute_import, division, print_function
 
-import string
 import re
+import string
 
-from pyparsing import stringStart, stringEnd, originalTextFor, ParseException
-from pyparsing import ZeroOrMore, Word, Optional, Regex, Combine
+from pyparsing import Combine
 from pyparsing import Literal as L  # noqa
+from pyparsing import (
+    Optional,
+    ParseException,
+    Regex,
+    Word,
+    ZeroOrMore,
+    originalTextFor,
+    stringEnd,
+    stringStart,
+)
 from six.moves.urllib import parse as urlparse
 
 from ._typing import MYPY_CHECK_RUNNING

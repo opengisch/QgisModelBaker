@@ -18,22 +18,20 @@
  ***************************************************************************/
 """
 import re
-import sys
 
-from qgis.core import QgsProviderRegistry, QgsWkbTypes, QgsApplication, QgsRelation
-from qgis.PyQt.QtCore import QCoreApplication, QLocale
+from qgis.core import QgsApplication, QgsRelation, QgsWkbTypes
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, QObject, pyqtSignal
 
-from QgisModelBaker.utils.qt_utils import slugify
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dataobjects import Field
-from QgisModelBaker.libqgsprojectgen.dataobjects import LegendGroup
+from QgisModelBaker.libqgsprojectgen.dataobjects.fields import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
+from QgisModelBaker.libqgsprojectgen.dataobjects.legend import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
-from ..dbconnector import pg_connector, gpkg_connector
-from .domain_relations_generator import DomainRelationGenerator
-from .config import IGNORED_FIELDNAMES, READONLY_FIELDNAMES, BASKET_FIELDNAMES
+from QgisModelBaker.utils.qt_utils import slugify
+
 from ..db_factory.db_simple_factory import DbSimpleFactory
-from qgis.PyQt.QtCore import QObject, pyqtSignal
+from .config import BASKET_FIELDNAMES, IGNORED_FIELDNAMES, READONLY_FIELDNAMES
+from .domain_relations_generator import DomainRelationGenerator
 
 
 class Generator(QObject):
@@ -42,7 +40,16 @@ class Generator(QObject):
     stdout = pyqtSignal(str)
     new_message = pyqtSignal(int, str)
 
-    def __init__(self, tool, uri, inheritance, schema=None, pg_estimated_metadata=False, parent=None, mgmt_uri=None):
+    def __init__(
+        self,
+        tool,
+        uri,
+        inheritance,
+        schema=None,
+        pg_estimated_metadata=False,
+        parent=None,
+        mgmt_uri=None,
+    ):
         """
         Creates a new Generator objects.
         :param uri: The uri that should be used in the resulting project. If authcfg is used, make sure the mgmt_uri is set as well.
@@ -62,7 +69,9 @@ class Generator(QObject):
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
 
-        self._additional_ignored_layers = []  # List of layers to ignore set by 3rd parties
+        self._additional_ignored_layers = (
+            []
+        )  # List of layers to ignore set by 3rd parties
 
         self.collected_print_messages = []
 
@@ -75,7 +84,7 @@ class Generator(QObject):
         self.collected_print_messages.clear()
 
     def append_print_message(self, level, text):
-        message = {'level': level, 'text': text}
+        message = {"level": level, "text": text}
 
         if message not in self.collected_print_messages:
             self.collected_print_messages.append(message)
@@ -92,88 +101,123 @@ class Generator(QObject):
 
         # When a table has multiple geometry columns, it will be loaded multiple times (supported e.g. by PostGIS).
         table_appearance_count = {}
-        
+
         for record in tables_info:
             if self.schema:
-                if record['schemaname'] != self.schema:
+                if record["schemaname"] != self.schema:
                     continue
-            if filter_layer_list and record['tablename'] not in filter_layer_list:
+            if filter_layer_list and record["tablename"] not in filter_layer_list:
                 continue
-            table_appearance_count[record['tablename']] = table_appearance_count.get(record['tablename'], 0) + 1
+            table_appearance_count[record["tablename"]] = (
+                table_appearance_count.get(record["tablename"], 0) + 1
+            )
 
         for record in tables_info:
             # When in PostGIS mode, leaving schema blank should load tables from
             # all schemas, except the ignored ones
             if self.schema:
-                if record['schemaname'] != self.schema:
+                if record["schemaname"] != self.schema:
                     continue
 
-            if filter_layer_list and record['tablename'] not in filter_layer_list:
+            if filter_layer_list and record["tablename"] not in filter_layer_list:
                 continue
 
-            is_domain = record.get('kind_settings') == 'ENUM' or record.get('kind_settings') == 'CATALOGUE'
-            is_attribute = bool(record.get('attribute_name'))
-            is_structure = record.get('kind_settings') == 'STRUCTURE'
-            is_nmrel = record.get('kind_settings') == 'ASSOCIATION'
-            is_basket_table = record.get('tablename') == self._db_connector.basket_table_name
-            is_dataset_table = record.get('tablename') == self._db_connector.dataset_table_name
+            is_domain = (
+                record.get("kind_settings") == "ENUM"
+                or record.get("kind_settings") == "CATALOGUE"
+            )
+            is_attribute = bool(record.get("attribute_name"))
+            is_structure = record.get("kind_settings") == "STRUCTURE"
+            is_nmrel = record.get("kind_settings") == "ASSOCIATION"
+            is_basket_table = (
+                record.get("tablename") == self._db_connector.basket_table_name
+            )
+            is_dataset_table = (
+                record.get("tablename") == self._db_connector.dataset_table_name
+            )
 
-            alias = record['table_alias'] if 'table_alias' in record else None
+            alias = record["table_alias"] if "table_alias" in record else None
             if not alias:
                 short_name = None
                 if is_domain and is_attribute:
-                    short_name = ''
-                    if 'ili_name' in record and record['ili_name']:
-                        short_name = record['ili_name'].split('.')[-2] + '_' + record['ili_name'].split('.')[-1]
+                    short_name = ""
+                    if "ili_name" in record and record["ili_name"]:
+                        short_name = (
+                            record["ili_name"].split(".")[-2]
+                            + "_"
+                            + record["ili_name"].split(".")[-1]
+                        )
                 else:
-                    if table_appearance_count[record['tablename']] > 1 and 'geometry_column' in record:
+                    if (
+                        table_appearance_count[record["tablename"]] > 1
+                        and "geometry_column" in record
+                    ):
                         # multiple layers for this table - append geometry column to name
-                        fields_info = self.get_fields_info(record['tablename'])
+                        fields_info = self.get_fields_info(record["tablename"])
                         for field_info in fields_info:
-                            if field_info['column_name'] == record['geometry_column']:
-                                if 'fully_qualified_name' in field_info and field_info['fully_qualified_name']:
-                                    short_name =  field_info['fully_qualified_name'].split('.')[-2] + ' (' + field_info['fully_qualified_name'].split('.')[-1]+')'
+                            if field_info["column_name"] == record["geometry_column"]:
+                                if (
+                                    "fully_qualified_name" in field_info
+                                    and field_info["fully_qualified_name"]
+                                ):
+                                    short_name = (
+                                        field_info["fully_qualified_name"].split(".")[
+                                            -2
+                                        ]
+                                        + " ("
+                                        + field_info["fully_qualified_name"].split(".")[
+                                            -1
+                                        ]
+                                        + ")"
+                                    )
                                 else:
-                                    short_name = record['tablename']
-                    elif 'ili_name' in record and record['ili_name']:
-                        match = re.search(r'([^\(]*).*', record['ili_name'])
+                                    short_name = record["tablename"]
+                    elif "ili_name" in record and record["ili_name"]:
+                        match = re.search(r"([^\(]*).*", record["ili_name"])
                         if match.group(0) == match.group(1):
-                            short_name = match.group(1).split('.')[-1]
+                            short_name = match.group(1).split(".")[-1]
                         else:
-                            #additional brackets in the the name - extended layer in geopackage
-                            short_name = match.group(1).split('.')[-2] + ' (' + match.group(1).split('.')[-1]+')'
+                            # additional brackets in the the name - extended layer in geopackage
+                            short_name = (
+                                match.group(1).split(".")[-2]
+                                + " ("
+                                + match.group(1).split(".")[-1]
+                                + ")"
+                            )
                 alias = short_name
 
             model_topic_name = ""
-            if 'ili_name' in record and record['ili_name']:
+            if "ili_name" in record and record["ili_name"]:
                 model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
-            
-            display_expression = ''
+
+            display_expression = ""
             if is_basket_table:
                 display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || {tilitid} || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
                     tid=self._db_connector.tid,
                     tilitid=self._db_connector.tilitid,
                     dataset_layer_name=self._db_connector.dataset_table_name,
                 )
-            elif 'ili_name' in record and record['ili_name']:
-                meta_attrs = self.get_meta_attrs(record['ili_name'])
+            elif "ili_name" in record and record["ili_name"]:
+                meta_attrs = self.get_meta_attrs(record["ili_name"])
                 for attr_record in meta_attrs:
-                    if attr_record['attr_name'] == 'dispExpression':
-                        display_expression = attr_record['attr_value']
+                    if attr_record["attr_name"] == "dispExpression":
+                        display_expression = attr_record["attr_value"]
 
-            coord_decimals = record['coord_decimals'] if 'coord_decimals' in record else None
+            coord_decimals = (
+                record["coord_decimals"] if "coord_decimals" in record else None
+            )
             coordinate_precision = None
             if coord_decimals:
                 coordinate_precision = 1 / (10 ** coord_decimals)
 
-            layer = Layer(layer_uri.provider,
+            layer = Layer(
+                layer_uri.provider,
                 layer_uri.get_data_source_uri(record),
-                record['tablename'],
-                record['srid'],
-                record['extent'] if 'extent' in record else None,
-                record['geometry_column'],
-                QgsWkbTypes.parseType(
-                  record['type']) or QgsWkbTypes.Unknown,
+                record["tablename"],
+                record["srid"],
+                record["extent"] if "extent" in record else None,
+                record["geometry_column"],
+                QgsWkbTypes.parseType(record["type"]) or QgsWkbTypes.Unknown,
                 alias,
                 is_domain,
                 is_structure,
@@ -182,22 +226,31 @@ class Generator(QObject):
                 coordinate_precision,
                 is_basket_table,
                 is_dataset_table,
-                model_topic_name )
+                model_topic_name,
+            )
 
             # Configure fields for current table
-            fields_info = self.get_fields_info(record['tablename'])
-            min_max_info = self.get_min_max_info(record['tablename'])
-            value_map_info = self.get_value_map_info(record['tablename'])
-            re_iliname = re.compile(r'.*\.(.*)$')
+            fields_info = self.get_fields_info(record["tablename"])
+            min_max_info = self.get_min_max_info(record["tablename"])
+            value_map_info = self.get_value_map_info(record["tablename"])
+            re_iliname = re.compile(r".*\.(.*)$")
 
             for fielddef in fields_info:
-                column_name = fielddef['column_name']
-                fully_qualified_name = fielddef['fully_qualified_name'] if 'fully_qualified_name' in fielddef else None
-                m = re_iliname.match(fully_qualified_name) if fully_qualified_name else None
+                column_name = fielddef["column_name"]
+                fully_qualified_name = (
+                    fielddef["fully_qualified_name"]
+                    if "fully_qualified_name" in fielddef
+                    else None
+                )
+                m = (
+                    re_iliname.match(fully_qualified_name)
+                    if fully_qualified_name
+                    else None
+                )
 
                 alias = None
-                if 'column_alias' in fielddef:
-                    alias = fielddef['column_alias']
+                if "column_alias" in fielddef:
+                    alias = fielddef["column_alias"]
                 if m and not alias:
                     alias = m.group(1)
 
@@ -207,14 +260,14 @@ class Generator(QObject):
                 # Should we hide the field?
                 hide_attribute = False
 
-                if 'fully_qualified_name' in fielddef:
-                    fully_qualified_name = fielddef['fully_qualified_name']
+                if "fully_qualified_name" in fielddef:
+                    fully_qualified_name = fielddef["fully_qualified_name"]
                     if fully_qualified_name:
                         meta_attrs_column = self.get_meta_attrs(fully_qualified_name)
 
                         for attr_record in meta_attrs_column:
-                            if attr_record['attr_name'] == 'hidden':
-                                if attr_record['attr_value'] == 'True':
+                            if attr_record["attr_name"] == "hidden":
+                                if attr_record["attr_value"] == "True":
                                     hide_attribute = True
                                     break
 
@@ -230,59 +283,81 @@ class Generator(QObject):
                     field.read_only = True
 
                 if column_name in min_max_info:
-                    field.widget = 'Range'
-                    field.widget_config['Min'] = min_max_info[column_name][0]
-                    field.widget_config['Max'] = min_max_info[column_name][1]
-                    if 'numeric_scale' in fielddef:
-                        field.widget_config['Step'] = pow(10, -1 * fielddef['numeric_scale'])
+                    field.widget = "Range"
+                    field.widget_config["Min"] = min_max_info[column_name][0]
+                    field.widget_config["Max"] = min_max_info[column_name][1]
+                    if "numeric_scale" in fielddef:
+                        field.widget_config["Step"] = pow(
+                            10, -1 * fielddef["numeric_scale"]
+                        )
                     # field.widget_config['Suffix'] = fielddef['unit'] if 'unit' in fielddef else ''
-                    if 'unit' in fielddef and fielddef['unit'] is not None:
-                        field.alias = '{alias} [{unit}]'.format(
-                            alias=alias or column_name, unit=fielddef['unit'])
+                    if "unit" in fielddef and fielddef["unit"] is not None:
+                        field.alias = "{alias} [{unit}]".format(
+                            alias=alias or column_name, unit=fielddef["unit"]
+                        )
 
                 if column_name in value_map_info:
-                    field.widget = 'ValueMap'
-                    field.widget_config['map'] = [{val: val} for val in value_map_info[column_name]]
+                    field.widget = "ValueMap"
+                    field.widget_config["map"] = [
+                        {val: val} for val in value_map_info[column_name]
+                    ]
 
-                if 'texttype' in fielddef and fielddef['texttype'] == 'MTEXT':
-                    field.widget = 'TextEdit'
-                    field.widget_config['IsMultiline'] = True
+                if "texttype" in fielddef and fielddef["texttype"] == "MTEXT":
+                    field.widget = "TextEdit"
+                    field.widget_config["IsMultiline"] = True
 
-                data_type = self._db_connector.map_data_types(
-                    fielddef['data_type'])
-                if 'time' in data_type or 'date' in data_type:
-                    field.widget = 'DateTime'
-                    field.widget_config['calendar_popup'] = True
+                data_type = self._db_connector.map_data_types(fielddef["data_type"])
+                if "time" in data_type or "date" in data_type:
+                    field.widget = "DateTime"
+                    field.widget_config["calendar_popup"] = True
 
-                    dateFormat = QLocale(QgsApplication.instance(
-                    ).locale()).dateFormat(QLocale.ShortFormat)
-                    timeFormat = QLocale(QgsApplication.instance(
-                    ).locale()).timeFormat(QLocale.ShortFormat)
-                    dateTimeFormat = QLocale(QgsApplication.instance(
-                    ).locale()).dateTimeFormat(QLocale.ShortFormat)
+                    dateFormat = QLocale(QgsApplication.instance().locale()).dateFormat(
+                        QLocale.ShortFormat
+                    )
+                    timeFormat = QLocale(QgsApplication.instance().locale()).timeFormat(
+                        QLocale.ShortFormat
+                    )
+                    dateTimeFormat = QLocale(
+                        QgsApplication.instance().locale()
+                    ).dateTimeFormat(QLocale.ShortFormat)
 
                     if data_type == self._db_connector.QGIS_TIME_TYPE:
-                        field.widget_config['display_format'] = timeFormat
+                        field.widget_config["display_format"] = timeFormat
                     elif data_type == self._db_connector.QGIS_DATE_TIME_TYPE:
-                        field.widget_config['display_format'] = dateTimeFormat
+                        field.widget_config["display_format"] = dateTimeFormat
                     elif data_type == self._db_connector.QGIS_DATE_TYPE:
-                        field.widget_config['display_format'] = dateFormat
+                        field.widget_config["display_format"] = dateFormat
 
                 db_factory.customize_widget_editor(field, data_type)
 
-                if 'default_value_expression' in fielddef:
-                    field.default_value_expression = fielddef['default_value_expression']
+                if "default_value_expression" in fielddef:
+                    field.default_value_expression = fielddef[
+                        "default_value_expression"
+                    ]
 
                 if basket_handling and column_name in BASKET_FIELDNAMES:
-                    if self.tool in [DbIliMode.pg, DbIliMode.ili2pg, DbIliMode.mssql, DbIliMode.ili2mssql]:
-                        schema_topic_identificator = slugify(f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}")
-                        field.default_value_expression = f"@{schema_topic_identificator}"
+                    if self.tool in [
+                        DbIliMode.pg,
+                        DbIliMode.ili2pg,
+                        DbIliMode.mssql,
+                        DbIliMode.ili2mssql,
+                    ]:
+                        schema_topic_identificator = slugify(
+                            f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}"
+                        )
+                        field.default_value_expression = (
+                            f"@{schema_topic_identificator}"
+                        )
                     elif self.tool == DbIliMode.ili2gpkg:
-                        schema_topic_identificator = slugify(f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}")
-                        field.default_value_expression = f"@{schema_topic_identificator}"
+                        schema_topic_identificator = slugify(
+                            f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}"
+                        )
+                        field.default_value_expression = (
+                            f"@{schema_topic_identificator}"
+                        )
 
-                if 'enum_domain' in fielddef and fielddef['enum_domain']:
-                    field.enum_domain = fielddef['enum_domain']
+                if "enum_domain" in fielddef and fielddef["enum_domain"]:
+                    field.enum_domain = fielddef["enum_domain"]
 
                 layer.fields.append(field)
 
@@ -301,28 +376,45 @@ class Generator(QObject):
             layer_map[layer.name].append(layer)
         relations = list()
 
-        classname_info = [record['iliname'] for record in self.get_iliname_dbname_mapping()]
+        classname_info = [
+            record["iliname"] for record in self.get_iliname_dbname_mapping()
+        ]
 
         for record in relations_info:
-            if record['referencing_table'] in layer_map.keys() and record['referenced_table'] in layer_map.keys():
-                for referencing_layer in layer_map[record['referencing_table']]:
-                    for referenced_layer in layer_map[record['referenced_table']]:
+            if (
+                record["referencing_table"] in layer_map.keys()
+                and record["referenced_table"] in layer_map.keys()
+            ):
+                for referencing_layer in layer_map[record["referencing_table"]]:
+                    for referenced_layer in layer_map[record["referenced_table"]]:
                         relation = Relation()
                         relation.referencing_layer = referencing_layer
                         relation.referenced_layer = referenced_layer
-                        relation.referencing_field = record['referencing_column']
-                        relation.referenced_field = record['referenced_column']
-                        relation.name = record['constraint_name']
-                        relation.strength = QgsRelation.Composition if 'strength' in record and record['strength'] == 'COMPOSITE' else QgsRelation.Association
+                        relation.referencing_field = record["referencing_column"]
+                        relation.referenced_field = record["referenced_column"]
+                        relation.name = record["constraint_name"]
+                        relation.strength = (
+                            QgsRelation.Composition
+                            if "strength" in record
+                            and record["strength"] == "COMPOSITE"
+                            else QgsRelation.Association
+                        )
 
                         # For domain-class relations, if we have an extended domain, get its child name
                         child_name = None
                         if referenced_layer.is_domain:
                             # Get child name (if domain is extended)
-                            fields = [field for field in referencing_layer.fields if field.name == record['referencing_column']]
+                            fields = [
+                                field
+                                for field in referencing_layer.fields
+                                if field.name == record["referencing_column"]
+                            ]
                             if fields:
                                 field = fields[0]
-                                if field.enum_domain and field.enum_domain not in classname_info:
+                                if (
+                                    field.enum_domain
+                                    and field.enum_domain not in classname_info
+                                ):
                                     child_name = field.enum_domain
                         relation.child_domain_name = child_name
 
@@ -331,9 +423,12 @@ class Generator(QObject):
         if self._db_connector.ili_version() == 3:
             # Used for ili2db version 3 relation creation
             domain_relations_generator = DomainRelationGenerator(
-                self._db_connector, self.inheritance)
-            domain_relations, bags_of_enum = domain_relations_generator.get_domain_relations_info(
-                layers)
+                self._db_connector, self.inheritance
+            )
+            (
+                domain_relations,
+                bags_of_enum,
+            ) = domain_relations_generator.get_domain_relations_info(layers)
             relations = relations + domain_relations
         else:
             # Create the bags_of_enum structure
@@ -341,17 +436,27 @@ class Generator(QObject):
             bags_of_enum = {}
             for record in bags_of_info:
                 for layer in layers:
-                    if record['current_layer_name'] == layer.name:
-                        new_item_list = [layer,
-                                         record['cardinality_min'] + '..' + record['cardinality_max'],
-                                         layer_map[record['target_layer_name']][0],
-                                         self._db_connector.tid,
-                                         self._db_connector.dispName]
-                        unique_current_layer_name = '{}_{}'.format(record['current_layer_name'], layer.geometry_column)
+                    if record["current_layer_name"] == layer.name:
+                        new_item_list = [
+                            layer,
+                            record["cardinality_min"]
+                            + ".."
+                            + record["cardinality_max"],
+                            layer_map[record["target_layer_name"]][0],
+                            self._db_connector.tid,
+                            self._db_connector.dispName,
+                        ]
+                        unique_current_layer_name = "{}_{}".format(
+                            record["current_layer_name"], layer.geometry_column
+                        )
                         if unique_current_layer_name in bags_of_enum.keys():
-                            bags_of_enum[unique_current_layer_name][record['attribute']] = new_item_list
+                            bags_of_enum[unique_current_layer_name][
+                                record["attribute"]
+                            ] = new_item_list
                         else:
-                            bags_of_enum[unique_current_layer_name] = {record['attribute']: new_item_list}
+                            bags_of_enum[unique_current_layer_name] = {
+                                record["attribute"]: new_item_list
+                            }
         return (relations, bags_of_enum)
 
     def full_node(self, layers, item):
@@ -359,21 +464,40 @@ class Generator(QObject):
         if item:
             current_node_name = next(iter(item))
             item_properties = item[current_node_name]
-            if item_properties and 'group' in item_properties and item_properties['group']:
-                current_node = LegendGroup(QCoreApplication.translate('LegendGroup', current_node_name),
-                                           static_sorting=True)
-                current_node.expanded = False if 'expanded' in item_properties and not item_properties[
-                    'expanded'] else True
-                current_node.checked = False if 'checked' in item_properties and not item_properties[
-                    'checked'] else True
-                current_node.mutually_exclusive = True if 'mutually-exclusive' in item_properties and item_properties[
-                    'mutually-exclusive'] else False
+            if (
+                item_properties
+                and "group" in item_properties
+                and item_properties["group"]
+            ):
+                current_node = LegendGroup(
+                    QCoreApplication.translate("LegendGroup", current_node_name),
+                    static_sorting=True,
+                )
+                current_node.expanded = (
+                    False
+                    if "expanded" in item_properties and not item_properties["expanded"]
+                    else True
+                )
+                current_node.checked = (
+                    False
+                    if "checked" in item_properties and not item_properties["checked"]
+                    else True
+                )
+                current_node.mutually_exclusive = (
+                    True
+                    if "mutually-exclusive" in item_properties
+                    and item_properties["mutually-exclusive"]
+                    else False
+                )
                 if current_node.mutually_exclusive:
-                    current_node.mutually_exclusive_child = item_properties[
-                        'mutually-exclusive-child'] if 'mutually-exclusive-child' in item_properties else -1
+                    current_node.mutually_exclusive_child = (
+                        item_properties["mutually-exclusive-child"]
+                        if "mutually-exclusive-child" in item_properties
+                        else -1
+                    )
 
-                if 'child-nodes' in item_properties:
-                    for child_item in item_properties['child-nodes']:
+                if "child-nodes" in item_properties:
+                    for child_item in item_properties["child-nodes"]:
                         node = self.full_node(layers, child_item)
                         if node:
                             current_node.append(node)
@@ -382,29 +506,46 @@ class Generator(QObject):
                     if layer.alias == current_node_name:
                         current_node = layer
                         if item_properties:
-                            current_node.expanded = False if 'expanded' in item_properties and not item_properties[
-                                'expanded'] else True
-                            current_node.checked = False if 'checked' in item_properties and not item_properties[
-                                'checked'] else True
-                            current_node.featurecount = True if 'featurecount' in item_properties and item_properties[
-                                'featurecount'] else False
+                            current_node.expanded = (
+                                False
+                                if "expanded" in item_properties
+                                and not item_properties["expanded"]
+                                else True
+                            )
+                            current_node.checked = (
+                                False
+                                if "checked" in item_properties
+                                and not item_properties["checked"]
+                                else True
+                            )
+                            current_node.featurecount = (
+                                True
+                                if "featurecount" in item_properties
+                                and item_properties["featurecount"]
+                                else False
+                            )
                         break
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
-        legend = LegendGroup(QCoreApplication.translate('LegendGroup', 'root'), ignore_node_names=ignore_node_names, static_sorting=layertree_structure is not None)
+        legend = LegendGroup(
+            QCoreApplication.translate("LegendGroup", "root"),
+            ignore_node_names=ignore_node_names,
+            static_sorting=layertree_structure is not None,
+        )
         if layertree_structure:
             for item in layertree_structure:
                 node = self.full_node(layers, item)
                 if node:
                     legend.append(node)
         else:
-            tables = LegendGroup(
-                QCoreApplication.translate('LegendGroup', 'tables'))
-            domains = LegendGroup(QCoreApplication.translate(
-                'LegendGroup', 'domains'), False)
-            system = LegendGroup(QCoreApplication.translate(
-                'LegendGroup', 'system'), False)
+            tables = LegendGroup(QCoreApplication.translate("LegendGroup", "tables"))
+            domains = LegendGroup(
+                QCoreApplication.translate("LegendGroup", "domains"), False
+            )
+            system = LegendGroup(
+                QCoreApplication.translate("LegendGroup", "system"), False
+            )
 
             point_layers = []
             line_layers = []
@@ -422,7 +563,10 @@ class Generator(QObject):
                 else:
                     if layer.is_domain:
                         domains.append(layer)
-                    elif layer.name in [self._db_connector.basket_table_name, self._db_connector.dataset_table_name]:
+                    elif layer.name in [
+                        self._db_connector.basket_table_name,
+                        self._db_connector.dataset_table_name,
+                    ]:
                         system.append(layer)
                     else:
                         tables.append(layer)
@@ -473,10 +617,10 @@ class Generator(QObject):
         new_tables_info = []
         for record in tables_info:
             if self.schema:
-                if record['schemaname'] != self.schema:
+                if record["schemaname"] != self.schema:
                     continue
 
-            if ignored_layers and record['tablename'] in ignored_layers:
+            if ignored_layers and record["tablename"] in ignored_layers:
                 continue
 
             new_tables_info.append(record)

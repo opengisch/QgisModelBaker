@@ -3,7 +3,7 @@
    ======
    BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
    FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
-   
+
    PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
    PUBLISHED: 2011-08-30
    ########################################################################
@@ -66,7 +66,7 @@ TYPE MODEL Localisation_V1 (en)
     Language: LanguageCode_ISO639_1;
     Text: MANDATORY TEXT;
   END LocalisedText;
-  
+
   STRUCTURE LocalisedMText =
     Language: LanguageCode_ISO639_1;
     Text: MANDATORY MTEXT;
@@ -75,8 +75,8 @@ TYPE MODEL Localisation_V1 (en)
   STRUCTURE MultilingualText =
     LocalisedText : BAG {1..*} OF LocalisedText;
     UNIQUE (LOCAL) LocalisedText:Language;
-  END MultilingualText;  
-  
+  END MultilingualText;
+
   STRUCTURE MultilingualMText =
     LocalisedText : BAG {1..*} OF LocalisedMText;
     UNIQUE (LOCAL) LocalisedText:Language;
@@ -101,7 +101,7 @@ TYPE MODEL LocalisationCH_V1 (en)
     Language == #rm OR
     Language == #en;
   END LocalisedText;
-  
+
   STRUCTURE LocalisedMText EXTENDS Localisation_V1.LocalisedMText =
   MANDATORY CONSTRAINT
     Language == #de OR
@@ -113,8 +113,8 @@ TYPE MODEL LocalisationCH_V1 (en)
 
   STRUCTURE MultilingualText EXTENDS Localisation_V1.MultilingualText =
     LocalisedText(EXTENDED) : BAG {1..*} OF LocalisedText;
-  END MultilingualText;  
-  
+  END MultilingualText;
+
   STRUCTURE MultilingualMText EXTENDS Localisation_V1.MultilingualMText =
     LocalisedText(EXTENDED) : BAG {1..*} OF LocalisedMText;
   END MultilingualMText;
@@ -134,7 +134,7 @@ MODEL Dictionaries_V1 (en)
     STRUCTURE Entry (ABSTRACT) =
       Text: MANDATORY TEXT;
     END Entry;
-      
+
     CLASS Dictionary =
       Language: MANDATORY LanguageCode_ISO639_1;
       Entries: LIST OF Entry;

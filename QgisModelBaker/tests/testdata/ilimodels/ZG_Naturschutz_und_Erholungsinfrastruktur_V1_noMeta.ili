@@ -5,7 +5,7 @@
 	 Themenbezeichnung gemaess GeoIV-ZG Anhang 2	(ID xx-ZG, GeoIV-ZG, Anhang 2)
 
 	 Zustaendige Stelle: Amt fuer Raumplanung Kanton Zug
-	 
+
 	 Zugangsberechtigungsstufe: A
 
 	 furtherInformation=http://www.zg.ch/behoerden/baudirektion/amt-fur-raumplanung
@@ -16,7 +16,7 @@
 /* ###################################################################################
 
 	 History:
-	 
+
 	 dd.mm.yyyy
 	 - Genehmigung Version xx durch Amt fuer Raumplanung
 
@@ -49,26 +49,26 @@ VERSION "2018-03-27"	=
 		NRO_Typ = (Ausgleichsflaeche, Trockensteinmauer, Senksteinhaufen, Gewaesserrevitalisierung, Artenschutzmassnahme, andere);
 		Zustaendigkeit_Kanton = (ARP, AFW, TBA, andere);
 
-		STRUCTURE PointStructure = 
+		STRUCTURE PointStructure =
 			Point: GeometryCHLV95_V1.Coord2;
 		END PointStructure;
-		
+
 		STRUCTURE MultiPoint =
 			Points: BAG {1..*} OF PointStructure;
 		END MultiPoint;
-		
-		STRUCTURE LineStructure = 
+
+		STRUCTURE LineStructure =
 			Line: Line;
 		END LineStructure;
-		
+
 		STRUCTURE MultiLine =
 			Lines: BAG {1..*} OF LineStructure;
 		END MultiLine;
-		
-		STRUCTURE SurfaceStructure = 
+
+		STRUCTURE SurfaceStructure =
 			Surface: Surface;
 		END SurfaceStructure;
-		
+
 		STRUCTURE MultiSurface =
 			Surfaces: BAG {1..*} OF SurfaceStructure;
 		END MultiSurface;
@@ -80,11 +80,11 @@ VERSION "2018-03-27"	=
 		STRUCTURE EI_Punkt_Typ =
 			EI_Punkt_Typen: EI_Punkt_Typen;
 		END EI_Punkt_Typ;
-		
+
 		STRUCTURE EI_Bewirtschaftung =
 			EI_Bewirtschaftungen: EI_Bewirtschaftungen;
 		END EI_Bewirtschaftung;
-		
+
 		STRUCTURE EI_Linie_Typ =
 			EI_Linie_Typen: EI_Linie_Typen;
 		END EI_Linie_Typ;
@@ -92,11 +92,11 @@ VERSION "2018-03-27"	=
 		STRUCTURE NI_Punkt_Typ =
 			NI_Punkt_Typen: NI_Punkt_Typen;
 		END NI_Punkt_Typ;
-		
+
 		STRUCTURE NS_Bewirtschaftung =
 			NS_Bewirtschaftungen: NS_Bewirtschaftungen;
 		END NS_Bewirtschaftung;
-		
+
 		STRUCTURE NI_Linie_Typ =
 			NI_Linie_Typen: NI_Linie_Typen;
 		END NI_Linie_Typ;
@@ -114,70 +114,70 @@ VERSION "2018-03-27"	=
 			Geometrie: MANDATORY MultiPoint;
 		END Punktobjekt;
 
-		CLASS Linienobjekt (ABSTRACT) EXTENDS Basisobjekt = 
+		CLASS Linienobjekt (ABSTRACT) EXTENDS Basisobjekt =
 			Geometrie: MANDATORY MultiLine;
 		END Linienobjekt;
-		
-		CLASS Erholungsinfrastruktur_Punktobjekt EXTENDS Punktobjekt = 
+
+		CLASS Erholungsinfrastruktur_Punktobjekt EXTENDS Punktobjekt =
 			!!@ili2db.mapping=ARRAY
 			Typ: BAG {1..*} OF EI_Punkt_Typ;
 			!!@ili2db.mapping=ARRAY
 			Bewirtschaftung: BAG {1..*} OF EI_Bewirtschaftung;
 		END Erholungsinfrastruktur_Punktobjekt;
-		
-		CLASS Erholungsinfrastruktur_Linienobjekt EXTENDS Linienobjekt = 
+
+		CLASS Erholungsinfrastruktur_Linienobjekt EXTENDS Linienobjekt =
 			!!@ili2db.mapping=ARRAY
 			Typ: BAG {1..*} OF EI_Linie_Typ;
 			!!@ili2db.mapping=ARRAY
 			Bewirtschaftung: BAG {1..*} OF EI_Bewirtschaftung;
 		END Erholungsinfrastruktur_Linienobjekt;
-		
-		CLASS Naturschutzinfrastruktur_Punktobjekt EXTENDS Punktobjekt = 
+
+		CLASS Naturschutzinfrastruktur_Punktobjekt EXTENDS Punktobjekt =
 			!!@ili2db.mapping=ARRAY
 			Typ: BAG {1..*} OF NI_Punkt_Typ;
 			!!@ili2db.mapping=ARRAY
 			Bewirtschaftung: BAG {1..*} OF NS_Bewirtschaftung;
 		END Naturschutzinfrastruktur_Punktobjekt;
-		
-		CLASS Naturschutzinfrastruktur_Linienobjekt EXTENDS Linienobjekt = 
+
+		CLASS Naturschutzinfrastruktur_Linienobjekt EXTENDS Linienobjekt =
 			!!@ili2db.mapping=ARRAY
 			Typ: BAG {1..*} OF NI_Linie_Typ;
 			!!@ili2db.mapping=ARRAY
 			Bewirtschaftung: BAG {1..*} OF NS_Bewirtschaftung;
 		END Naturschutzinfrastruktur_Linienobjekt;
-		
-	 CLASS Naturschutzrelevantes_Objekt_ohne_Schutzstatus EXTENDS Punktobjekt = 
+
+	 CLASS Naturschutzrelevantes_Objekt_ohne_Schutzstatus EXTENDS Punktobjekt =
 			Typ: MANDATORY NRO_Typ;
 			!!@ili2db.mapping=ARRAY
 			Bewirtschaftung: BAG {1..*} OF NS_Bewirtschaftung;
 			Rechtsgrundlage: TEXT*255;
 		END Naturschutzrelevantes_Objekt_ohne_Schutzstatus;
-		
-		CLASS Baum (ABSTRACT) = 
+
+		CLASS Baum (ABSTRACT) =
 			Mutationsdatum: MANDATORY XMLDate;
 			Bemerkungen: TEXT;
 			GIS_KEY: 1..999999;
 		END Baum;
-		
+
 		CLASS Einzelbaum EXTENDS Baum =
 			Geometrie: MANDATORY MultiPoint;
 			Vertragsnummer: MANDATORY TEXT*255;
 			Dokument: TEXT*255;
 		END Einzelbaum;
-		
+
 		CLASS Hochstamm_Obstgarten EXTENDS Baum =
-				Geometrie: MANDATORY MultiSurface; 
+				Geometrie: MANDATORY MultiSurface;
 		END Hochstamm_Obstgarten;
-		
+
 	END Geodaten;
-		
+
 	TOPIC TransferMetadaten =
     OID AS UUIDOID;
-    
+
 		CLASS Zustaendige_Stelle =
 			Name : MANDATORY TEXT*80;
 		END Zustaendige_Stelle;
-		
+
 		CLASS Datenbestand =
 			Stand : MANDATORY XMLDate;
 			Lieferdatum : MANDATORY XMLDate;

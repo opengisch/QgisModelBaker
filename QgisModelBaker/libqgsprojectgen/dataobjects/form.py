@@ -19,15 +19,14 @@
 """
 
 from qgis.core import (
-    QgsEditFormConfig,
     QgsAttributeEditorContainer,
+    QgsAttributeEditorField,
     QgsAttributeEditorRelation,
-    QgsAttributeEditorField
+    QgsEditFormConfig,
 )
 
 
 class Form(object):
-
     def __init__(self):
         self.__elements = list()
 
@@ -39,16 +38,23 @@ class Form(object):
         root_container = edit_form_config.invisibleRootContainer()
         root_container.clear()
         for element in self.__elements:
-            root_container.addChildElement(
-                element.create(root_container, qgis_layer))
+            root_container.addChildElement(element.create(root_container, qgis_layer))
         edit_form_config.setLayout(QgsEditFormConfig.TabLayout)
         # set nm-rel if referencing tables are junction table
         for relation in project.relations:
             if relation.referenced_layer == layer:
                 # get other relations, that have the same referencing_layer and set the first as nm-rel
                 for other_relation in project.relations:
-                    if other_relation.referencing_field != relation.referencing_field and other_relation.referencing_layer == relation.referencing_layer and relation.referencing_layer.is_nmrel and not other_relation.referenced_layer.is_basket_table:
-                        edit_form_config.setWidgetConfig(relation.id, {'nm-rel': other_relation.id})
+                    if (
+                        other_relation.referencing_field != relation.referencing_field
+                        and other_relation.referencing_layer
+                        == relation.referencing_layer
+                        and relation.referencing_layer.is_nmrel
+                        and not other_relation.referenced_layer.is_basket_table
+                    ):
+                        edit_form_config.setWidgetConfig(
+                            relation.id, {"nm-rel": other_relation.id}
+                        )
                         break
         return edit_form_config
 
@@ -57,7 +63,6 @@ class Form(object):
 
 
 class FormTab(object):
-
     def __init__(self, name, columns=1):
         self.name = name
         self.children = list()
@@ -77,7 +82,6 @@ class FormTab(object):
 
 
 class FormGroupBox(object):
-
     def __init__(self, name, columns=1):
         self.name = name
         self.children = list()
@@ -97,7 +101,6 @@ class FormGroupBox(object):
 
 
 class FormFieldWidget(object):
-
     def __init__(self, name, field_name):
         self.name = name if name else field_name
         self.field_name = field_name
@@ -109,19 +112,18 @@ class FormFieldWidget(object):
 
 
 class FormRelationWidget(object):
-
     def __init__(self, relation, nm_relation=None):
         self.relation = relation
         self.nm_relation = nm_relation
 
     def create(self, parent, layer):
         try:
-            widget = QgsAttributeEditorRelation(
-               self.relation.id, parent)
+            widget = QgsAttributeEditorRelation(self.relation.id, parent)
         except TypeError:
             # Feed deprecated API for 3.0.0 and 3.0.1
             widget = QgsAttributeEditorRelation(
-               self.relation.id, self.relation.id, parent)
+                self.relation.id, self.relation.id, parent
+            )
         if self.nm_relation:
             widget.setNmRelationId(self.nm_relation.id)
         return widget

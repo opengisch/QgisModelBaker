@@ -17,14 +17,11 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import IntFlag, Enum
+from enum import Enum, IntFlag
+
 from qgis.PyQt.QtCore import QCoreApplication
 
-
-CRS_PATTERNS = {
-    'LV95': 2056,
-    'LV03': 21781
-}
+CRS_PATTERNS = {"LV95": 2056, "LV03": 21781}
 
 
 class DbIliMode(IntFlag):
@@ -40,23 +37,31 @@ class DbIliMode(IntFlag):
 
 
 displayDbIliMode = {
-    DbIliMode.pg: QCoreApplication.translate('QgisModelBaker', 'PostGIS'),
-    DbIliMode.gpkg: QCoreApplication.translate('QgisModelBaker', 'GeoPackage'),
-    DbIliMode.mssql: QCoreApplication.translate('QgisModelBaker', 'SQL Server'),
-    DbIliMode.ili: QCoreApplication.translate('QgisModelBaker', 'Interlis'),
-    DbIliMode.ili2pg: QCoreApplication.translate('QgisModelBaker', 'Interlis (use PostGIS)'),
-    DbIliMode.ili2gpkg: QCoreApplication.translate('QgisModelBaker', 'Interlis (use GeoPackage)'),
-    DbIliMode.ili2mssql: QCoreApplication.translate('QgisModelBaker', 'Interlis (use SQL Server)')
+    DbIliMode.pg: QCoreApplication.translate("QgisModelBaker", "PostGIS"),
+    DbIliMode.gpkg: QCoreApplication.translate("QgisModelBaker", "GeoPackage"),
+    DbIliMode.mssql: QCoreApplication.translate("QgisModelBaker", "SQL Server"),
+    DbIliMode.ili: QCoreApplication.translate("QgisModelBaker", "Interlis"),
+    DbIliMode.ili2pg: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use PostGIS)"
+    ),
+    DbIliMode.ili2gpkg: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use GeoPackage)"
+    ),
+    DbIliMode.ili2mssql: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use SQL Server)"
+    ),
 }
+
 
 class DropMode(Enum):
     YES = 1
     NO = 2
     ASK = 3
 
+
 class DbActionType(Enum):
-    """Defines constants for generate, import data, or export actions of QgisModelBaker.
-    """
+    """Defines constants for generate, import data, or export actions of QgisModelBaker."""
+
     GENERATE = 1
     IMPORT_DATA = 2
     EXPORT = 3

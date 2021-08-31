@@ -27,6 +27,7 @@ class LayerUri(ABC):
     :ivar str uri: Database uri.
     :ivar str provider: Database provider.
     """
+
     def __init__(self, uri):
         """
         :param str uri: Database uri. This is the same database uri of the db connectors.
@@ -42,4 +43,3 @@ class LayerUri(ABC):
         :return: Layer uri.
         :rtype: str
         """
-        pass

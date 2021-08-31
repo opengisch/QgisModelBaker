@@ -18,10 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import (
-    QgsEditorWidgetSetup,
-    QgsDefaultValue
-)
+from qgis.core import QgsDefaultValue, QgsEditorWidgetSetup
 
 
 class Field:
@@ -37,13 +34,13 @@ class Field:
     def dump(self):
         definition = dict()
         if self.alias:
-            definition['alias'] = self.alias
+            definition["alias"] = self.alias
 
         return definition
 
     def load(self, definition):
-        if 'alias' in definition:
-            self.alias = definition['alias']
+        if "alias" in definition:
+            self.alias = definition["alias"]
 
     def create(self, layer):
         field_idx = layer.layer.fields().indexOf(self.name)

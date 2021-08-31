@@ -18,30 +18,27 @@
  ***************************************************************************/
 """
 
-import os
 import datetime
+import logging
+import os
 import shutil
 import tempfile
-import psycopg2
-import psycopg2.extras
-import logging
-import pyodbc
 
-from QgisModelBaker.libili2db import iliimporter, iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
-from qgis.testing import unittest, start_app
-from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import PgCommandConfigManager
-from qgis import utils
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from qgis.testing import start_app, unittest
+
 import QgisModelBaker.utils.db_utils as db_utils
+from QgisModelBaker.libili2db import iliimporter
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.tests.utils import (
+    ilidataimporter_config,
+    iliimporter_config,
+    testdata_path,
+)
 
 start_app()
 
 
 class TestDatasetHandling(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -52,13 +49,13 @@ class TestDatasetHandling(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
-        importer.configuration.ilifile = testdata_path(
-            'ilimodels/OeVBasketTest_V1.ili')
-        importer.configuration.ilimodels = 'OeVBasketTest'
-        importer.configuration.dbschema = 'any_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
+        importer.configuration.dbschema = "any_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 21781
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -69,8 +66,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_winti.xtf')
-        dataImporter.configuration.dataset = 'Winti'
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.dataset = "Winti"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -78,7 +76,7 @@ class TestDatasetHandling(unittest.TestCase):
         # Expected datasets and baskets
         db_connector = db_utils.get_db_connector(importer.configuration)
 
-        # Basket handling is active 
+        # Basket handling is active
         assert db_connector.get_basket_handling()
 
         # Two topics are created (by schema import)
@@ -94,8 +92,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_seuzach.xtf')
-        dataImporter.configuration.dataset = 'Seuzach'
+            "xtf/test_oevbaskettest_v1_seuzach.xtf"
+        )
+        dataImporter.configuration.dataset = "Seuzach"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -115,13 +114,13 @@ class TestDatasetHandling(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
-        importer.configuration.ilifile = testdata_path(
-            'ilimodels/OeVBasketTest_V1.ili')
-        importer.configuration.ilimodels = 'OeVBasketTest'
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_basket_gpkg.gpkg')
+            self.basetestpath, "tmp_basket_gpkg.gpkg"
+        )
         importer.configuration.srs_code = 21781
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -132,8 +131,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbfile = importer.configuration.dbfile
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_winti.xtf')
-        dataImporter.configuration.dataset = 'Winti'
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.dataset = "Winti"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -141,7 +141,7 @@ class TestDatasetHandling(unittest.TestCase):
         # Expected datasets and baskets
         db_connector = db_utils.get_db_connector(importer.configuration)
 
-        # Basket handling is active 
+        # Basket handling is active
         assert db_connector.get_basket_handling()
 
         # Two topics are created (by schema import)
@@ -157,8 +157,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbfile = importer.configuration.dbfile
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_seuzach.xtf')
-        dataImporter.configuration.dataset = 'Seuzach'
+            "xtf/test_oevbaskettest_v1_seuzach.xtf"
+        )
+        dataImporter.configuration.dataset = "Seuzach"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -179,13 +180,13 @@ class TestDatasetHandling(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql
         importer.configuration = iliimporter_config(importer.tool)
-        importer.configuration.ilifile = testdata_path(
-            'ilimodels/OeVBasketTest_V1.ili')
-        importer.configuration.ilimodels = 'OeVBasketTest'
-        importer.configuration.dbschema = 'baskets_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
+        importer.configuration.dbschema = "baskets_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 21781
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
 
@@ -197,8 +198,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_winti.xtf')
-        dataImporter.configuration.dataset = 'Winti'
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.dataset = "Winti"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -206,7 +208,7 @@ class TestDatasetHandling(unittest.TestCase):
         # Expected datasets and baskets
         db_connector = db_utils.get_db_connector(importer.configuration)
 
-        # Basket handling is active 
+        # Basket handling is active
         assert db_connector.get_basket_handling()
 
         # Two topics are created (by schema import)
@@ -222,8 +224,9 @@ class TestDatasetHandling(unittest.TestCase):
         dataImporter.configuration = ilidataimporter_config(importer.tool)
         dataImporter.configuration.dbschema = importer.configuration.dbschema
         dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_oevbaskettest_v1_seuzach.xtf')
-        dataImporter.configuration.dataset = 'Seuzach'
+            "xtf/test_oevbaskettest_v1_seuzach.xtf"
+        )
+        dataImporter.configuration.dataset = "Seuzach"
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -234,38 +237,52 @@ class TestDatasetHandling(unittest.TestCase):
         assert len(db_connector.get_datasets_info()) == 2
         # Means we have two baskets created (by schema import)
         assert len(db_connector.get_baskets_info()) == 4
-        
+
         # make mutations
         self.check_dataset_mutations(db_connector)
 
     def check_dataset_mutations(self, db_connector):
         # Create new dataset
-        assert set([record['datasetname'] for record in db_connector.get_datasets_info()]) == {'Winti','Seuzach'}
-        result = db_connector.create_dataset('Glarus Nord')
+        assert set(
+            [record["datasetname"] for record in db_connector.get_datasets_info()]
+        ) == {"Winti", "Seuzach"}
+        result = db_connector.create_dataset("Glarus Nord")
         assert result[0]
         assert len(db_connector.get_datasets_info()) == 3
         assert len(db_connector.get_baskets_info()) == 4
-        assert set([record['datasetname'] for record in db_connector.get_datasets_info()]) == {'Winti','Seuzach', 'Glarus Nord'}
+        assert set(
+            [record["datasetname"] for record in db_connector.get_datasets_info()]
+        ) == {"Winti", "Seuzach", "Glarus Nord"}
 
         # Get tid of 'Glarus Nord'
-        glarus_nord_tid = [record['t_id'] for record in db_connector.get_datasets_info() if record['datasetname'] == 'Glarus Nord'][0] 
-        
+        glarus_nord_tid = [
+            record["t_id"]
+            for record in db_connector.get_datasets_info()
+            if record["datasetname"] == "Glarus Nord"
+        ][0]
+
         # Get topics
         topics = db_connector.get_topics_info()
         assert len(topics) == 2
 
         # Generate the basket for 'Glarus Nord' and the first topic
-        result = db_connector.create_basket(glarus_nord_tid, f"{topics[0]['model']}.{topics[0]['topic']}")
+        result = db_connector.create_basket(
+            glarus_nord_tid, f"{topics[0]['model']}.{topics[0]['topic']}"
+        )
         # Generate the basketsfor 'Glarus Nord' and the second topic
-        result = db_connector.create_basket(glarus_nord_tid, f"{topics[1]['model']}.{topics[1]['topic']}")
+        result = db_connector.create_basket(
+            glarus_nord_tid, f"{topics[1]['model']}.{topics[1]['topic']}"
+        )
         assert len(db_connector.get_datasets_info()) == 3
         assert len(db_connector.get_baskets_info()) == 6
 
         # Rename dataset
-        result = db_connector.rename_dataset(glarus_nord_tid, 'Glarus West')
+        result = db_connector.rename_dataset(glarus_nord_tid, "Glarus West")
         assert len(db_connector.get_datasets_info()) == 3
         assert len(db_connector.get_baskets_info()) == 6
-        assert set([record['datasetname'] for record in db_connector.get_datasets_info()]) == {'Winti','Seuzach', 'Glarus West'}
+        assert set(
+            [record["datasetname"] for record in db_connector.get_datasets_info()]
+        ) == {"Winti", "Seuzach", "Glarus West"}
 
     def print_info(self, text):
         logging.info(text)
@@ -277,4 +294,3 @@ class TestDatasetHandling(unittest.TestCase):
     def tearDownClass(cls):
         """Run after all tests."""
         shutil.rmtree(cls.basetestpath, True)
-    

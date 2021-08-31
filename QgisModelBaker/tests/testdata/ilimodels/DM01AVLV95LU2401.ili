@@ -2,11 +2,11 @@ TRANSFER INTERLIS1;
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
-!! Datenmodell 2001 der Amtlichen Vermessung "Kanton Luzern" Version 24.01 
-!! (DM.01-AV-LU-V24-01) für LV95, basierend auf dem 
-!! Datenmodell 2001 der Amtlichen Vermessung "Urkantone" 
+!! Datenmodell 2001 der Amtlichen Vermessung "Kanton Luzern" Version 24.01
+!! (DM.01-AV-LU-V24-01) für LV95, basierend auf dem
+!! Datenmodell 2001 der Amtlichen Vermessung "Urkantone"
 !! (DM.01-AV-UR_SZ_OW_NW) Version 24.01 (mit Aenderung vom 14.07.2005),
-!! basierend auf dem 
+!! basierend auf dem
 !! Datenmodell 2001 der Amtlichen Vermessung "Bund" (DM.01-AV-CH-V24)
 !! beschrieben in INTERLIS Version 1 (SN 612030)
 !!
@@ -25,8 +25,8 @@ TRANSFER INTERLIS1;
 !! Genehmigung durch den Regierungsrat des Kantons Luzern: 22.05.2007
 !!
 !! Das vorliegende Datenmodell gilt fuer den Bezugsrahmen "Landesvermessung 1995
-!! (LV95)". Fuer den Bezugsrahmen "Landesvermessung 1903 (LV03)" existiert ein 
-!! Datenmodell DM01AVLU2401, das sich von vorliegenden Datenmodell einzig in 
+!! (LV95)". Fuer den Bezugsrahmen "Landesvermessung 1903 (LV03)" existiert ein
+!! Datenmodell DM01AVLU2401, das sich von vorliegenden Datenmodell einzig in
 !! der DOMAIN (Koordinatenbereich) unterscheidet.
 !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -111,9 +111,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: DATE;  !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -122,7 +122,7 @@ MODEL DM01AVLV95LU2401
 
     !! Ist der LFP1 auch Hoheitsgrenzpunkt, so muss Punktzeichen
     !! angegeben werden, da dieser Punkt in
-    !! Gemeindegrenzen.Hoheitsgrenzpunkt kopiert wird. 
+    !! Gemeindegrenzen.Hoheitsgrenzpunkt kopiert wird.
     TABLE LFP1 =  !! Triangulationspunkt I-IIIter Ordnung
       Entstehung: -> LFP1Nachfuehrung;  !! Beziehung 1-mc
       NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich
@@ -162,9 +162,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: DATE;      !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -197,7 +197,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC FixpunkteKategorie2 =
 
     TABLE LFP2Nachfuehrung =
@@ -206,18 +206,18 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: DATE;    !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
     IDENT NBIdent, Identifikator;
     END LFP2Nachfuehrung;
-     
+
     !! Ist der LFP2 auch Hoheitsgrenzpunkt, so muss Punktzeichen
     !! angegeben werden, da dieser Punkt in
-    !! Gemeindegrenzen.Hoheitsgrenzpunkt kopiert wird. 
+    !! Gemeindegrenzen.Hoheitsgrenzpunkt kopiert wird.
     TABLE LFP2 =  !! Triangulationspunkt IVter Ordnung
       Entstehung: -> LFP2Nachfuehrung;  !! Beziehung 1-mc
       NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich
@@ -257,9 +257,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: DATE;   !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -301,9 +301,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE;   !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -350,9 +350,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE; !! In Luzern OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -375,7 +375,7 @@ MODEL DM01AVLV95LU2401
       LageZuv: Zuverlaessigkeit;
       HoeheGen: OPTIONAL Genauigkeit;  !! abhaengig von HoeheGeom
       HoeheZuv: OPTIONAL Zuverlaessigkeit;  !! abhaengig von HoeheGeom
-      Punktzeichen: Versicherungsart; 
+      Punktzeichen: Versicherungsart;
       Protokoll: (
         ja,
         nein);
@@ -406,11 +406,11 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
-      GueltigerEintrag: OPTIONAL DATE;     !! Wie im Bundesmodell OPTIONAL 
+      GueltigerEintrag: OPTIONAL DATE;     !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
     IDENT NBIdent, Identifikator;
     END HFP3Nachfuehrung;
@@ -441,7 +441,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Bodenbedeckung =
 
     DOMAIN
@@ -450,7 +450,7 @@ MODEL DM01AVLV95LU2401
         Gebaeude,
         befestigt (
           Strasse_Weg (
-            Strasse, 
+            Strasse,
             Weg),
           Trottoir,
           Verkehrsinsel,
@@ -491,9 +491,9 @@ MODEL DM01AVLV95LU2401
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.050;
       Gueltigkeit: Status;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE;    !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -504,7 +504,7 @@ MODEL DM01AVLV95LU2401
       Entstehung: -> BBNachfuehrung
         // Gueltigkeit = projektiert //;  !! Beziehung 1-mc
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
-        WITHOUT OVERLAPS > 0.050 
+        WITHOUT OVERLAPS > 0.050
         LINEATTR = Linienart: OPTIONAL (offen, ueberdeckt, fiktiv); END;
       Qualitaet: Qualitaetsstandard;
       Art: BBArt;
@@ -517,9 +517,9 @@ MODEL DM01AVLV95LU2401
       Nummer: TEXT*12;  !! Vergabe durch Kanton (bzw. Gemeinde)
       !! GWR_EGID falls die Definition der Gebaeude mit jener des
       !! BFS uebereinstimmt
-      GWR_EGID: OPTIONAL [1..999999999]; 
-      NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich 
-    NO IDENT  
+      GWR_EGID: OPTIONAL [1..999999999];
+      NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich
+    NO IDENT
     END ProjGebaeudenummer;
 
     TABLE ProjGebaeudenummerPos =
@@ -575,7 +575,7 @@ MODEL DM01AVLV95LU2401
       !! GWR_EGID falls die Definition der Gebaeude mit jener des
       !! BFS uebereinstimmt
       GWR_EGID: OPTIONAL [1..999999999];
-      NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich; 
+      NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich;
     NO IDENT
     END Gebaeudenummer;
 
@@ -607,11 +607,11 @@ MODEL DM01AVLV95LU2401
     END ObjektnamePos;
 
     !! Im Plan fuer das Grundbuch werden Bodenbedeckungsflaechen
-    !! entweder gerastert oder mit Symbolen gefuellt. Dabei sind in 
-    !! Abhaengigkeit von Art nur folgende Symbole sinnvoll: 
-    !! befestigt.Wasserbecken, Reben, Hoch_Flachmoor 
+    !! entweder gerastert oder mit Symbolen gefuellt. Dabei sind in
+    !! Abhaengigkeit von Art nur folgende Symbole sinnvoll:
+    !! befestigt.Wasserbecken, Reben, Hoch_Flachmoor
     !! (Symbol Moor), Gewaesser.stehendes (Symbol Wasserbecken),
-    !! Gewaesser.fliessendes (Symbol Fliessrichtung), 
+    !! Gewaesser.fliessendes (Symbol Fliessrichtung),
     !! Gewaesser.Schilfguertel (Symbol Schilfguertel).
     TABLE BoFlaecheSymbol =
       BoFlaecheSymbol_von: -> BoFlaeche;  !! Beziehung 1-mc
@@ -630,7 +630,7 @@ MODEL DM01AVLV95LU2401
       ExaktDefiniert: (    !! Toleranzvorschriften gemaess TVAV beachten
         Ja,
         Nein);
-    IDENT Geometrie; 
+    IDENT Geometrie;
     END Einzelpunkt;
 
     TABLE EinzelpunktPos =
@@ -647,7 +647,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Einzelobjekte =
 
     DOMAIN
@@ -680,7 +680,7 @@ MODEL DM01AVLV95LU2401
         schmale_bestockte_Flaeche,
         Rinnsal,
         schmaler_Weg (
-          Fussweg, 
+          Fussweg,
           Fahrweg),
         Hochspannungsfreileitung,
         Druckleitung,
@@ -692,7 +692,7 @@ MODEL DM01AVLV95LU2401
         Faehre,
         Grotte_Hoehleneingang,
         Achse (
-          Achse, 
+          Achse,
           Schusslinie,
           Rutschbahn_Rodelbahn),
         wichtiger_Einzelbaum,
@@ -701,7 +701,7 @@ MODEL DM01AVLV95LU2401
         Bezugspunkt,
         weitere (
           Jauchegrube_Mistlege,
-          uebrige_Objekte,  !! Z.B. CKW-Kaesten  
+          uebrige_Objekte,  !! Z.B. CKW-Kaesten
           Hydrant,
           Schacht,
           Kulturgrenzlinie,
@@ -715,9 +715,9 @@ MODEL DM01AVLV95LU2401
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.050;
       Gueltigkeit: Status;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE;    !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -790,9 +790,9 @@ MODEL DM01AVLV95LU2401
       !! BFS uebereinstimmt
       GWR_EGID: OPTIONAL [1..999999999];
       NBIdent: TEXT*12;  !! Beziehung 1-m zu Nummerierungsbereich
-    NO IDENT    !! Bei Art = (unterirdisches_Gebaeude, Reservoir, 
+    NO IDENT    !! Bei Art = (unterirdisches_Gebaeude, Reservoir,
                 !! Silo_Turm_Gasometer, etc), wo Nummer von GVL, dann
-                !! IDENT NBIdent, Nummer;  
+                !! IDENT NBIdent, Nummer;
     END Objektnummer;
 
 
@@ -832,7 +832,7 @@ MODEL DM01AVLV95LU2401
   END Einzelobjekte.
 
 
- 
+
   TOPIC Hoehen =
 
     TABLE HONachfuehrung =
@@ -842,9 +842,9 @@ MODEL DM01AVLV95LU2401
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
       Gueltigkeit: Status;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE;      !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -860,7 +860,7 @@ MODEL DM01AVLV95LU2401
 
     TABLE HoehenpunktPos =
       HoehenpunktPos_von: -> Hoehenpunkt;  !! Beziehung 1-c;
-                       !! beschriftet Geometrie (Hoehe) 
+                       !! beschriftet Geometrie (Hoehe)
       Pos: LKoord;
       Ori: OPTIONAL Rotation // undefiniert = 100.0 //;
       HAli: OPTIONAL HALIGNMENT // undefiniert = Left //;
@@ -895,7 +895,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Nomenklatur =
 
     TABLE NKNachfuehrung =
@@ -904,9 +904,9 @@ MODEL DM01AVLV95LU2401
       Beschreibung: TEXT*30;
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.200;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: DATE;    !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -979,7 +979,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Liegenschaften =
 
     DOMAIN
@@ -1006,8 +1006,8 @@ MODEL DM01AVLV95LU2401
         WITHOUT OVERLAPS > 0.050;
       Gueltigkeit: Status;
       !! Fuer zukuenftige Nachfuehrungen sind die Attribute GueltigerEintrag und
-      !! GBEintrag zu erfassen. Datum1 und Datum2 betreffen die alten 
-      !! Nachfuehrungen und werden nicht mehr angewendet. In der naechsten Revision 
+      !! GBEintrag zu erfassen. Datum1 und Datum2 betreffen die alten
+      !! Nachfuehrungen und werden nicht mehr angewendet. In der naechsten Revision
       !! des Datenmodells werden die Attribute Datum1 und Datum2 geloescht und die
       !! Attribute GueltigerEintrag und GBEintrag werden obligatorisch.
       GueltigerEintrag: DATE; !! Techn. Bearbeitung, im Bundesmodell OPTIONAL; = Technischer Abschluss
@@ -1028,16 +1028,16 @@ MODEL DM01AVLV95LU2401
     !! Siehe auch Bemerkungen zu Hoheitsgrenzpunkt (Topic Gemeindegrenzen).
     TABLE Grenzpunkt =
       Entstehung: -> LSNachfuehrung;  !! Beziehung 1-mc
-      Identifikator: OPTIONAL TEXT*12;   
+      Identifikator: OPTIONAL TEXT*12;
       Geometrie: LKoord;
       LageGen: Genauigkeit;
       LageZuv: Zuverlaessigkeit;
-      Punktzeichen: Versicherungsart; 
+      Punktzeichen: Versicherungsart;
       ExaktDefiniert: (    !! Toleranzvorschriften gemaess TVAV beachten
         Ja,
         Nein);
       !! Wenn ein "huebscher" alter Hoheitsgrenzstein heruntergestuft wurde
-      !! und lediglich die Funktion eines Grenzpunkts hat (siehe auch 
+      !! und lediglich die Funktion eines Grenzpunkts hat (siehe auch
       !! Erklaerungen Kap. 3.11).
       HoheitsgrenzsteinAlt: (
         ja,
@@ -1048,7 +1048,7 @@ MODEL DM01AVLV95LU2401
 
     TABLE GrenzpunktPos =
       GrenzpunktPos_von: -> Grenzpunkt;  !! Beziehung 1-c;
-                     !! beschriftet Identifikator 
+                     !! beschriftet Identifikator
       Pos: LKoord;
       Ori: OPTIONAL Rotation // undefiniert = 100.0 //;
       HAli: OPTIONAL HALIGNMENT // undefiniert = Left //;
@@ -1104,7 +1104,7 @@ MODEL DM01AVLV95LU2401
       ProjLiegenschaft_von: -> ProjGrundstueck // Art = Liegenschaft //;
                            !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil ProjGrundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Grenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1122,10 +1122,10 @@ MODEL DM01AVLV95LU2401
     !! auch kein Objekt. Eine Beschriftung und Lokalisierung in ProjGrundstueckPos
     !! ist trotzdem moeglich.
     TABLE ProjSelbstRecht =
-      ProjSelbstRecht_von: -> ProjGrundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//; 
+      ProjSelbstRecht_von: -> ProjGrundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//;
                                  !! Beziehung 1-c
      !! NummerTeilGrundstueck ist fuer Teil ProjGrundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Grenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1145,7 +1145,7 @@ MODEL DM01AVLV95LU2401
     TABLE ProjBergwerk =
       ProjBergwerk_von: -> ProjGrundstueck // Art = Bergwerk //;  !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil ProjGrundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Grenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1199,7 +1199,7 @@ MODEL DM01AVLV95LU2401
     TABLE Liegenschaft =
       Liegenschaft_von: -> Grundstueck // Art = Liegenschaft //;  !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil Grundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: AREA WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Grenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1217,10 +1217,10 @@ MODEL DM01AVLV95LU2401
     !! auch kein Objekt. Eine Beschriftung und Lokalisierung in GrundstueckPos
     !! ist trotzdem moeglich.
     TABLE SelbstRecht =
-      SelbstRecht_von: -> Grundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//; 
+      SelbstRecht_von: -> Grundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//;
                              !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil Grundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Grenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1257,7 +1257,7 @@ MODEL DM01AVLV95LU2401
     !! Erweiterungen Kanton Luzern---------------------------------------------
 
 
-    !! Mutationshierarchie 
+    !! Mutationshierarchie
     !! -------------------
     !! In die folgende Tabelle werden alle Grundstuecke aufgenommen,
     !! die durch eine offene Mutation veraendert werden sollen
@@ -1272,7 +1272,7 @@ MODEL DM01AVLV95LU2401
       EntstehungsMut: OPTIONAL -> LSNachfuehrung;
                       !! Alter Bestand. Bei rechtsgueltigem Grundstueck
                       !! darf dieser Eintrag fehlen.
-      ErsetzungsMut: OPTIONAL -> LSNachfuehrung; 
+      ErsetzungsMut: OPTIONAL -> LSNachfuehrung;
                       !! Neuer Bestand. Bei dem allerneuesten Grundstuck in
                       !! einer Mutationskette fehlt dieser Eintrag.
       !! Wenn in einem Datensatz sowohl EntstehungsMut als auch
@@ -1280,16 +1280,16 @@ MODEL DM01AVLV95LU2401
       !! in der Mutationskette.
       NO IDENT
     END MutationsHierarchie;
-    
+
     !! HISTorisierung von Grundstuecken und Grenzpunkten
     !! --------------------------------
-    !! Umfasst alle bei einer Mutation geloeschten (historierten) 
+    !! Umfasst alle bei einer Mutation geloeschten (historierten)
     !! Grundstuecken und Grenzpunkten.
     !! Umfasst Zustand des letzten rechtsgueltigen Zustandes.
     !! Wichtig fuer Anwender, die Daten basierend auf den Grundstuecken ableiten
     !!
-    !! Der Inhalt dieser Tabellen wird bei einem normalen Transfer/Datenabgabe 
-    !! nicht exportiert; 
+    !! Der Inhalt dieser Tabellen wird bei einem normalen Transfer/Datenabgabe
+    !! nicht exportiert;
 
     TABLE HISTGrenzpunkt =
       Entstehung: -> LSNachfuehrung
@@ -1301,17 +1301,17 @@ MODEL DM01AVLV95LU2401
       Geometrie: LKoord;
       LageGen: Genauigkeit;
       LageZuv: Zuverlaessigkeit;
-      Punktzeichen: Versicherungsart; 
+      Punktzeichen: Versicherungsart;
       ExaktDefiniert: (    !! Toleranzvorschriften gemaess TVAV beachten
         Ja,
         Nein);
       !! Wenn ein "huebscher" alter Hoheitsgrenzstein heruntergestuft wurde
-      !! und lediglich die Funktion eines Grenzpunkts hat (siehe auch 
+      !! und lediglich die Funktion eines Grenzpunkts hat (siehe auch
       !! Erklaerungen Kap. 3.11).
       HoheitsgrenzsteinAlt: (
         ja,
         nein);
-    NO IDENT        
+    NO IDENT
     END HISTGrenzpunkt;
 
     TABLE HISTGrenzpunktPos =
@@ -1329,7 +1329,7 @@ MODEL DM01AVLV95LU2401
       Ori: OPTIONAL Rotation // undefiniert = 0.0 //;
     IDENT HISTGrenzpunktSymbol_von;
     END HISTGrenzpunktSymbol;
-    
+
     TABLE HISTGrundstueck =
       Entstehung: -> LSNachfuehrung
         // Gueltigkeit = gueltig //;  !! Beziehung 1-mc
@@ -1372,7 +1372,7 @@ MODEL DM01AVLV95LU2401
     TABLE HISTLiegenschaft =
       HISTLiegenschaft_von: -> HISTGrundstueck // Art = Liegenschaft //;  !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil Grundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Hilfsfixpunkt, Grenzpunkt, HISTGrenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1390,10 +1390,10 @@ MODEL DM01AVLV95LU2401
     !! auch kein Objekt. Eine Beschriftung und Lokalisierung in HISTGrundstueckPos
     !! ist trotzdem moeglich.
     TABLE HISTSelbstRecht =
-      HISTSelbstRecht_von: -> HISTGrundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//; 
+      HISTSelbstRecht_von: -> HISTGrundstueck // Art = Baurecht, Quellenrecht, Konzessionsrecht, Fischenzrecht, Baurecht_kant oder weitere//;
                              !! Beziehung 1-c
       !! NummerTeilGrundstueck ist fuer Teil Grundstueck noetig
-      NummerTeilGrundstueck: OPTIONAL TEXT*12; 
+      NummerTeilGrundstueck: OPTIONAL TEXT*12;
       Geometrie: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
         // Geometrie nur LFP1, LFP2, LFP3, Hilfsfixpunkt, Grenzpunkt, HISTGrenzpunkt oder Hoheitsgrenzpunkt //
         WITHOUT OVERLAPS > 0.050
@@ -1425,12 +1425,12 @@ MODEL DM01AVLV95LU2401
         END;
       Flaechenmass: DIM2 1 999999999;
     NO IDENT
-    END HISTBergwerk;  
+    END HISTBergwerk;
 
   END Liegenschaften.
 
 
-  TOPIC Rohrleitungen = 
+  TOPIC Rohrleitungen =
           !! gemaess Bundesgesetz ueber Rohrleitungsanlagen zur Befoerderung
           !! fluessiger oder gasfoermiger Brenn- oder Treibstoffe
 
@@ -1449,9 +1449,9 @@ MODEL DM01AVLV95LU2401
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.050;
       Gueltigkeit: Status;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
       GueltigerEintrag: OPTIONAL DATE;    !! Wie im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
@@ -1537,11 +1537,11 @@ MODEL DM01AVLV95LU2401
       Geometrie: LKoord
         // nicht zugleich LFP1, LFP2, LFP3, Hilfsfixpunkt, Grenzpunkt oder Hoheitsgrenzpunkt //;
       LageGen: Genauigkeit;
-      LageZuv: Zuverlaessigkeit; 
+      LageZuv: Zuverlaessigkeit;
       ExaktDefiniert: (    !! Toleranzvorschriften gemaess TVAV beachten
         Ja,
         Nein);
-    IDENT Geometrie; 
+    IDENT Geometrie;
     END Einzelpunkt;
 
     TABLE EinzelpunktPos =
@@ -1558,17 +1558,17 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Nummerierungsbereiche =
 
     DOMAIN
       Kantonskuerzel = (  !! BFS-Ordnung, ergaenzt mit FL und CH
-        ZH, BE, LU, UR, SZ, OW, NW, GL, ZG, FR, SO, BS, BL, SH, 
+        ZH, BE, LU, UR, SZ, OW, NW, GL, ZG, FR, SO, BS, BL, SH,
         AR, AI, SG, GR, AG, TG, TI, VD, VS, NE, GE, JU, FL, CH);
 
     !! Der hier definierte Benutzerschluessel und die zugeordnete
-    !! Flaeche koennen einem Gemeindegebiet entsprechen, einem Teil 
-    !! oder einer Aggregation mehrerer Gemeindegebiete; dazu 
+    !! Flaeche koennen einem Gemeindegebiet entsprechen, einem Teil
+    !! oder einer Aggregation mehrerer Gemeindegebiete; dazu
     !! kommen evtl. der Kanton und/oder die Schweiz (bzw. FL)
     !! als Ganzes (siehe Dokument Erlaeuterungen)
     TABLE Nummerierungsbereich =
@@ -1581,9 +1581,9 @@ MODEL DM01AVLV95LU2401
     END Nummerierungsbereich;
 
     !! Die Geometrien der Nummerierungsbereiche, die das Territorium gemaess der
-    !! gleichen logischen Einheit zerlegen (z.B.: Perimeter des Grundbuches Landeskartenblaetter), 
+    !! gleichen logischen Einheit zerlegen (z.B.: Perimeter des Grundbuches Landeskartenblaetter),
     !! muessen untereinander eine Gebietsaufteilung (AREA) bilden.
-    !! Innerhalb eines Nummerierungsbereichs muss die 
+    !! Innerhalb eines Nummerierungsbereichs muss die
     !! Geometrie ueberlappungsfrei (d.h. wie AREA) sein.
     TABLE NBGeometrie =
       NBGeometrie_von: -> Nummerierungsbereich;  !! Beziehung 1-m
@@ -1607,7 +1607,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Gemeindegrenzen =
 
     TABLE GEMNachfuehrung =
@@ -1617,11 +1617,11 @@ MODEL DM01AVLV95LU2401
       Perimeter: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
         WITHOUT OVERLAPS > 0.050;
       Gueltigkeit: Status;
-      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu 
-      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr 
-      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut 
+      !! Fuer zukuenftige Nachfuehrungen ist das Attribut GueltigerEintrag zu
+      !! erfassen. Datum1 betrifft die alten Nachfuehrungen und wird nicht mehr
+      !! angewendet. In der naechsten Revision des Datenmodells wird das Attribut
       !! Datum1 geloescht und das Attribut GueltigerEintrag wird obligatorisch.
-      GueltigerEintrag: DATE;     !! Nur im Bundesmodell OPTIONAL 
+      GueltigerEintrag: DATE;     !! Nur im Bundesmodell OPTIONAL
       Datum1: OPTIONAL DATE;  !! Nicht verwenden
     IDENT NBIdent, Identifikator;
     END GEMNachfuehrung;
@@ -1633,7 +1633,7 @@ MODEL DM01AVLV95LU2401
     !! - LFP1, LFP2 und LFP3, die an einer Hoheitsgrenze beteiligt sind,
     !!   sind hier ebenfalls enthalten; bei einer Uebernahme aus
     !!   dem Topic Fixpunkte bleiben die Attribute unveraendert;
-    !! - Hoheitsgrenzsteine sind spezielle Steine (siehe Erklaerungen 
+    !! - Hoheitsgrenzsteine sind spezielle Steine (siehe Erklaerungen
     !!   Kap. 3.11); sie erhalten Hoheitsgrenzstein = ja;
     TABLE Hoheitsgrenzpunkt =
       Entstehung: -> GEMNachfuehrung;  !! Beziehung 1-mc
@@ -1652,7 +1652,7 @@ MODEL DM01AVLV95LU2401
     END Hoheitsgrenzpunkt;
 
     TABLE HoheitsgrenzpunktPos =
-      HoheitsgrenzpunktPos_von: -> Hoheitsgrenzpunkt;  !! Beziehung 1-c; 
+      HoheitsgrenzpunktPos_von: -> Hoheitsgrenzpunkt;  !! Beziehung 1-c;
                                !! beschriftet Identifikator
       Pos: LKoord;
       Ori: OPTIONAL Rotation // undefiniert = 100.0 //;
@@ -1674,7 +1674,7 @@ MODEL DM01AVLV95LU2401
     END Gemeinde;
 
     TABLE ProjGemeindegrenze =
-      Entstehung: -> GEMNachfuehrung 
+      Entstehung: -> GEMNachfuehrung
         // Gueltigkeit = projektiert //;  !! Beziehung 1-mc
       ProjGemeindegrenze_von: -> Gemeinde;  !! Beziehung 1-mc
       Geometrie: POLYLINE WITH (STRAIGHTS, ARCS) VERTEX LKoord BASE
@@ -1705,7 +1705,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Bezirksgrenzen =
 
     TABLE Bezirksgrenzabschnitt =
@@ -1723,7 +1723,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Kantonsgrenzen =
 
     TABLE Kantonsgrenzabschnitt =
@@ -1741,7 +1741,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Landesgrenzen =
 
     TABLE Landesgrenzabschnitt =
@@ -1759,7 +1759,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Planeinteilungen =
 
     DOMAIN
@@ -1804,7 +1804,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC TSEinteilung =
 
     TABLE Toleranzstufe =
@@ -1836,7 +1836,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Rutschgebiete =
 
     TABLE Rutschung =
@@ -1863,7 +1863,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC PLZOrtschaft = !! siehe SN 612040;
                      !! Verantwortung der Kantone fuer Ortschaften
                      !! Verantwortung der Post fuer PLZ
@@ -1884,19 +1884,19 @@ MODEL DM01AVLV95LU2401
     TABLE OrtschaftsVerbund = !! Norm SN 612040: OrtschaftsVerbund
       !! Dieses Attribut ist nur noetig, um eine gueltige Syntax
       !! im INTERLIS 1 zu haben
-      Leer: OPTIONAL TEXT*1; 
+      Leer: OPTIONAL TEXT*1;
     NO IDENT
     END OrtschaftsVerbund;
 
     TABLE OrtschaftsVerbundText=
         OrtschaftsVerbundText_von: -> OrtschaftsVerbund;  !! Beziehung 1-m
         Text: TEXT*200;
-        Sprache: Sprachtyp; 
+        Sprache: Sprachtyp;
     IDENT OrtschaftsVerbundText_von, Sprache;
     END OrtschaftsVerbundText;
 
     !! Die realen Ortschaften bilden AREA
-    TABLE Ortschaft = 
+    TABLE Ortschaft =
       Entstehung: -> OSNachfuehrung  ;  !! Beziehung 1-mc
       Ortschaft_von: OPTIONAL -> OrtschaftsVerbund; !!Beziehung c-m
       Status: Status_GA;
@@ -1911,11 +1911,11 @@ MODEL DM01AVLV95LU2401
     !! KurzText (Schreibweise in der Postadresse): La Chx-de-Fds
     !! IndexText (Fuer Index): Chaux-de-Fonds
     TABLE OrtschaftsName =
-        OrtschaftsName_von: -> Ortschaft; !! Beziehung 1-m 
+        OrtschaftsName_von: -> Ortschaft; !! Beziehung 1-m
         Text: TEXT*40;
         KurzText: OPTIONAL TEXT*18;
         IndexText: OPTIONAL TEXT*16;
-        Sprache: Sprachtyp; 
+        Sprache: Sprachtyp;
     IDENT OrtschaftsName_von, Sprache;
     END OrtschaftsName;
 
@@ -1948,7 +1948,7 @@ MODEL DM01AVLV95LU2401
       Entstehung: -> PLZ6Nachfuehrung;  !! Beziehung 1-mc
       PLZ6_von: -> Ortschaft;  !! Beziehung 1-m
       !! Sind einer Ortschaft mehrere sechsstellige Postleitzahlen zugeordnet,
-      !! muss fuer jede derselben eine Flaeche definiert sein, und alle diese 
+      !! muss fuer jede derselben eine Flaeche definiert sein, und alle diese
       !! Flaechen muessen innerhalb der Flaeche der Ortschaft liegen.
       !! Die realen PLZ6 sind vom Typ AREA.
       Flaeche: OPTIONAL SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
@@ -1959,15 +1959,15 @@ MODEL DM01AVLV95LU2401
       Zusatzziffern: [0 .. 99];
     IDENT PLZ, Zusatzziffern;
     END PLZ6;
-   
+
   END PLZOrtschaft.
 
 
 
- 
+
   TOPIC Gebaeudeadressen =  !! siehe SN 612040;
                           !! Verantwortung der Gemeinden
- 
+
   !! Geometrische Beziehung zwischen Gebaeudeeingang und PLZ
   !! Geometrische Beziehung zwischen Gebaeudeeingang und Ortschaft
   !! Geometrische Beziehung zwischen Lokalisation und OrtschaftsVerbund
@@ -1986,7 +1986,7 @@ MODEL DM01AVLV95LU2401
     END GEBNachfuehrung;
 
     TABLE Lokalisation =
-      Entstehung: -> GEBNachfuehrung;  !! Beziehung 1-mc 
+      Entstehung: -> GEBNachfuehrung;  !! Beziehung 1-mc
       Nummerierungsprinzip: (
           keineNummern,
           beliebig,
@@ -2004,20 +2004,20 @@ MODEL DM01AVLV95LU2401
           Platz);
     NO IDENT
     END Lokalisation;
-    
+
     !! Beispiel fuer Text, KurzText und IndexText:
     !! Text (Vollstaendiger Name): Conrad-Ferdinand-Meyer-Strasse
     !! KurzText (Schreibweise in der Postadresse): CF Meyer Str
     !! IndexText (Fuer Index): Meyer CF Str
     TABLE LokalisationsName =
-      Benannte: -> Lokalisation; !! Beziehung 1-m 
-      Text: TEXT*60; 
-      KurzText: OPTIONAL TEXT*24; 
+      Benannte: -> Lokalisation; !! Beziehung 1-m
+      Text: TEXT*60;
+      KurzText: OPTIONAL TEXT*24;
       IndexText: OPTIONAL TEXT*16;
-      Sprache: Sprachtyp; 
+      Sprache: Sprachtyp;
     IDENT Benannte, Sprache;
-    END LokalisationsName; 
-    
+    END LokalisationsName;
+
     TABLE LokalisationsNamePos =  !! DM01: zusaetzlich zur SN
       LokalisationsNamePos_von: -> LokalisationsName; !! Beziehung 1-mc;
                         !!  beschriftet Text
@@ -2032,18 +2032,18 @@ MODEL DM01AVLV95LU2401
     NO IDENT
     END LokalisationsNamePos;
 
-    TABLE BenanntesGebiet =        
+    TABLE BenanntesGebiet =
       BenanntesGebiet_von: -> Lokalisation // Art = BenanntesGebiet //;
                               !! Beziehung 1-mc
       Flaeche: SURFACE WITH (STRAIGHTS, ARCS) VERTEX LKoord
-        WITHOUT OVERLAPS > 0.500; 
+        WITHOUT OVERLAPS > 0.500;
     NO IDENT
     END BenanntesGebiet;
 
     !! Die Geometrie entspricht der Strassenachse,
     !! siehe die Erklaerungen, Kapitel 3.18.2
-    !! Hauptstrassenabschnitt. Die privaten Zugangsabschnitte 
-    !! werden nicht im Bundesmodell erfasst 
+    !! Hauptstrassenabschnitt. Die privaten Zugangsabschnitte
+    !! werden nicht im Bundesmodell erfasst
     TABLE Strassenstueck =
       Strassenstueck_von: -> Lokalisation // Art = Strasse oder Platz //;
                               !! Beziehung 1-mc
@@ -2065,7 +2065,7 @@ MODEL DM01AVLV95LU2401
       InAenderung: (ja, nein);
       AttributeProvisorisch: (ja, nein);
       IstOffizielleBezeichnung: (ja, nein);
-      Lage: LKoord 
+      Lage: LKoord
       // Lage innerhalb BB.Gebaeude, EO-Elemente (unterirdisches_Gebaeude usw.) //;
         !! HoehenLage ist nuetzlich wenn mehrere Eingaenge auf mehreren Niveaux
         !! Ungefaehre Hoehe ueber gewachsenem Terrain
@@ -2093,7 +2093,7 @@ MODEL DM01AVLV95LU2401
     END Gebaeudeeingang;
 
     TABLE HausnummerPos = !! DM01: zusaetzlich zur SN
-      HausnummerPos_von: -> Gebaeudeeingang;  !! Beziehung 1-mc; 
+      HausnummerPos_von: -> Gebaeudeeingang;  !! Beziehung 1-mc;
       Pos: LKoord;
       Ori: OPTIONAL Rotation // undefiniert = 100.0 //;
       HAli: OPTIONAL HALIGNMENT // undefiniert = Center //;
@@ -2101,16 +2101,16 @@ MODEL DM01AVLV95LU2401
       Groesse: OPTIONAL Schriftgroesse // undefiniert = mittel //;
     NO IDENT
     END HausnummerPos;
-    
+
     TABLE GebaeudeName =
       GebaeudeName_von: -> Gebaeudeeingang; !! Beziehung 1-mc
       Text: TEXT*40;
       KurzText: OPTIONAL TEXT*24;
       IndexText: OPTIONAL TEXT*16;
-      Sprache: Sprachtyp; 
+      Sprache: Sprachtyp;
     IDENT GebaeudeName_von, Sprache;
     END GebaeudeName;
-    
+
     TABLE GebaeudeNamePos = !! DM01: zusaetzlich zur SN
       GebaeudeNamePos_von: -> GebaeudeName;  !! Beziehung 1-m
                           !! beschriftet Text
@@ -2122,11 +2122,11 @@ MODEL DM01AVLV95LU2401
       Hilfslinie: OPTIONAL POLYLINE WITH (STRAIGHTS) VERTEX LKoord;
     NO IDENT
     END GebaeudeNamePos;
-    
+
     TABLE GebaeudeBeschreibung =
       GebaeudeBeschreibung_von: -> Gebaeudeeingang; !! Beziehung 1-mc
       Text: TEXT*100;
-      Sprache: Sprachtyp; 
+      Sprache: Sprachtyp;
     IDENT GebaeudeBeschreibung_von, Sprache;
     END GebaeudeBeschreibung;
 
@@ -2134,7 +2134,7 @@ MODEL DM01AVLV95LU2401
 
 
 
- 
+
   TOPIC Planrahmen =
   !! Die in der Technischen Verordnung ueber die AV erwaehnten Objekte muessen
   !! verwaltet werden.
@@ -2214,7 +2214,7 @@ MODEL DM01AVLV95LU2401
     NO IDENT
     END Koordinatenanschrift;
 
-    TABLE KoordinatenanschriftPos = 
+    TABLE KoordinatenanschriftPos =
       KoordinatenanschriftPos_von: -> Koordinatenanschrift;  !! Beziehung 1-m;
                         !!  beschriftet Beschriftung
       Pos: LKoord;
@@ -2279,4 +2279,3 @@ CODE
   BLANK = DEFAULT, UNDEFINED = DEFAULT, CONTINUE = DEFAULT;
   TID = ANY;
 END.
-

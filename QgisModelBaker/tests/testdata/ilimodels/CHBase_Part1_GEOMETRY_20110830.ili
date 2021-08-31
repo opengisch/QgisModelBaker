@@ -3,7 +3,7 @@
    ======
    BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
    FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
-   
+
    PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
    PUBLISHED: 2011-0830
    ########################################################################
@@ -60,7 +60,7 @@ TYPE MODEL GeometryCHLV03_V1 (en)
     DirectedLine EXTENDS Line = DIRECTED POLYLINE;
     LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
     DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
-    
+
     /* minimal overlaps only (2mm) */
     SurfaceWithOverlaps2mm = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
     AreaWithOverlaps2mm = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
@@ -70,7 +70,7 @@ TYPE MODEL GeometryCHLV03_V1 (en)
     Accuracy = (cm, cm50, m, m10, m50, vague);
     Method = (measured, sketched, calculated);
 
-    STRUCTURE LineStructure = 
+    STRUCTURE LineStructure =
       Line: Line;
     END LineStructure;
 
@@ -138,7 +138,7 @@ TYPE MODEL GeometryCHLV95_V1 (en)
     DirectedLine EXTENDS Line = DIRECTED POLYLINE;
     LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
     DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
-    
+
     /* minimal overlaps only (2mm) */
     SurfaceWithOverlaps2mm = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
     AreaWithOverlaps2mm = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.002;
@@ -148,7 +148,7 @@ TYPE MODEL GeometryCHLV95_V1 (en)
     Accuracy = (cm, cm50, m, m10, m50, vague);
     Method = (measured, sketched, calculated);
 
-    STRUCTURE LineStructure = 
+    STRUCTURE LineStructure =
       Line: Line;
     END LineStructure;
 

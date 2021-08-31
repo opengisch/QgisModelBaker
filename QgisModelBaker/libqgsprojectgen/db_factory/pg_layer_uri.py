@@ -26,30 +26,35 @@ class PgLayerUri(LayerUri):
 
     :ivar str uri: Database uri.
     """
+
     def __init__(self, uri):
         LayerUri.__init__(self, uri)
         self.pg_estimated_metadata = False
-        self.provider = 'postgres'
+        self.provider = "postgres"
 
     def get_data_source_uri(self, record):
-        if record['geometry_column']:
-            str_pg_estimated_metadata = 'true' if self.pg_estimated_metadata else 'false'
+        if record["geometry_column"]:
+            str_pg_estimated_metadata = (
+                "true" if self.pg_estimated_metadata else "false"
+            )
             data_source_uri = '{uri} key={primary_key} estimatedmetadata={estimated_metadata} srid={srid} type={type} table="{schema}"."{table}" ({geometry_column})'.format(
                 uri=self.uri,
-                primary_key=record['primary_key'],
+                primary_key=record["primary_key"],
                 estimated_metadata=str_pg_estimated_metadata,
-                srid=record['srid'],
-                type=record['type'],
-                schema=record['schemaname'],
-                table=record['tablename'],
-                geometry_column=record['geometry_column']
+                srid=record["srid"],
+                type=record["type"],
+                schema=record["schemaname"],
+                table=record["tablename"],
+                geometry_column=record["geometry_column"],
             )
         else:
-            data_source_uri = '{uri} key={primary_key} table="{schema}"."{table}"'.format(
-                uri=self.uri,
-                primary_key=record['primary_key'],
-                schema=record['schemaname'],
-                table=record['tablename']
+            data_source_uri = (
+                '{uri} key={primary_key} table="{schema}"."{table}"'.format(
+                    uri=self.uri,
+                    primary_key=record["primary_key"],
+                    schema=record["schemaname"],
+                    table=record["tablename"],
+                )
             )
 
         return data_source_uri

@@ -17,27 +17,33 @@
  ***************************************************************************/
 """
 
-import os
 import datetime
+import logging
+import os
 import shutil
 import tempfile
+
 import psycopg2
 import psycopg2.extras
-import logging
 import pyodbc
-
-from QgisModelBaker.libili2db import iliimporter, iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import iliimporter_config, ilidataimporter_config, testdata_path
-from qgis.testing import unittest, start_app
-from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import PgCommandConfigManager
 from qgis import utils
+from qgis.testing import start_app, unittest
+
+from QgisModelBaker.libili2db import iliimporter
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import (
+    PgCommandConfigManager,
+)
+from QgisModelBaker.tests.utils import (
+    ilidataimporter_config,
+    iliimporter_config,
+    testdata_path,
+)
 
 start_app()
 
 
 class TestImport(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -48,12 +54,14 @@ class TestImport(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool, 'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = "CIAF_LADM"
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -62,11 +70,11 @@ class TestImport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2pg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = "CIAF_LADM"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -78,34 +86,49 @@ class TestImport(unittest.TestCase):
 
         # Expected predio data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT tipo, st_asText(geometria), st_srid(geometria), t_id
                 FROM {}.predio
-            """.format(importer.configuration.dbschema))
+            """.format(
+                importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
-        assert record[1] == 'POLYGON((1000257.426 1002020.376,1000437.688 1002196.495,1000275.472 1002428.19,1000072.25 1002291.539,1000158.572 1002164.914,1000159.942 1002163.128,1000257.426 1002020.376))'
+        assert (
+            record[1]
+            == "POLYGON((1000257.426 1002020.376,1000437.688 1002196.495,1000275.472 1002428.19,1000072.25 1002291.539,1000158.572 1002164.914,1000159.942 1002163.128,1000257.426 1002020.376))"
+        )
         assert record[2] == 3116
         predio_id = record[3]
 
         # Expected persona data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT documento_numero, nombre, t_id
                 FROM {}.persona
-            """.format(importer.configuration.dbschema))
+            """.format(
+                importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
-        assert record[0] == '1234354656'
-        assert record[1] == 'Pepito Perez'
+        assert record[0] == "1234354656"
+        assert record[1] == "Pepito Perez"
         persona_id = record[2]
 
         # Expected derecho data
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT tipo, interesado, unidad
                 FROM {}.derecho
-            """.format(importer.configuration.dbschema))
+            """.format(
+                importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
         assert record[1] == persona_id  # FK persona
@@ -116,12 +139,14 @@ class TestImport(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool, 'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = "CIAF_LADM"
         importer.configuration.dbfile = os.path.join(
-            self.basetestpath, 'tmp_import_gpkg.gpkg')
+            self.basetestpath, "tmp_import_gpkg.gpkg"
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -130,11 +155,11 @@ class TestImport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2gpkg
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = "CIAF_LADM"
         dataImporter.configuration.dbfile = importer.configuration.dbfile
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
@@ -157,8 +182,8 @@ class TestImport(unittest.TestCase):
         cursor.execute("select documento_numero, nombre, t_id from persona")
         for record in cursor:
             count += 1
-            assert record[0] == '1234354656'
-            assert record[1] == 'Pepito Perez'
+            assert record[0] == "1234354656"
+            assert record[1] == "Pepito Perez"
             persona_id = record[2]
 
         # Expected derecho data
@@ -178,12 +203,14 @@ class TestImport(unittest.TestCase):
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2mssql
         importer.configuration = iliimporter_config(
-            importer.tool, 'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
-        importer.configuration.dbschema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(
-            datetime.datetime.now())
+            importer.tool, "ilimodels/CIAF_LADM"
+        )
+        importer.configuration.ilimodels = "CIAF_LADM"
+        importer.configuration.dbschema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
 
@@ -193,60 +220,76 @@ class TestImport(unittest.TestCase):
         dataImporter = iliimporter.Importer(dataImport=True)
         dataImporter.tool = DbIliMode.ili2mssql
         dataImporter.configuration = ilidataimporter_config(
-            dataImporter.tool, 'ilimodels/CIAF_LADM')
-        dataImporter.configuration.ilimodels = 'CIAF_LADM'
+            dataImporter.tool, "ilimodels/CIAF_LADM"
+        )
+        dataImporter.configuration.ilimodels = "CIAF_LADM"
         dataImporter.configuration.dbschema = importer.configuration.dbschema
-        dataImporter.configuration.xtffile = testdata_path(
-            'xtf/test_ciaf_ladm.xtf')
+        dataImporter.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
         assert dataImporter.run() == iliimporter.Importer.SUCCESS
 
         # TODO Check importer.configuration.uri
-        uri = "DSN={dsn};DATABASE={db};UID={uid};PWD={pwd}"\
-             .format(dsn="testsqlserver",
-                     db=importer.configuration.database,
-                     uid=importer.configuration.dbusr,
-                     pwd=importer.configuration.dbpwd)
+        uri = "DSN={dsn};DATABASE={db};UID={uid};PWD={pwd}".format(
+            dsn="testsqlserver",
+            db=importer.configuration.database,
+            uid=importer.configuration.dbusr,
+            pwd=importer.configuration.dbpwd,
+        )
 
         # Check expected data is there in the database schema
         conn = pyodbc.connect(uri)
 
         # Expected predio data
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT ut.iliCode as tipo, geometria.STAsText(), geometria.STSrid, p.t_id
                 FROM {schema}.Predio as p INNER JOIN {schema}.LA_BAUnitTipo as ut on p.tipo=ut.T_Id
-            """.format(schema=importer.configuration.dbschema))
+            """.format(
+                schema=importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
-        assert record[0] == 'Unidad_Derecho'
-        assert record[1] == 'POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))'
+        assert record[0] == "Unidad_Derecho"
+        assert (
+            record[1]
+            == "POLYGON ((1000257.426 1002020.376, 1000437.688 1002196.495, 1000275.472 1002428.19, 1000072.25 1002291.539, 1000158.572 1002164.914, 1000159.942 1002163.128, 1000257.426 1002020.376))"
+        )
         assert record[2] == 3116
         predio_id = record[3]
 
         # Expected persona data
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT documento_numero, nombre, t_id
                 FROM {}.persona
-            """.format(importer.configuration.dbschema))
+            """.format(
+                importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
-        assert record[0] == '1234354656'
-        assert record[1] == 'Pepito Perez'
+        assert record[0] == "1234354656"
+        assert record[1] == "Pepito Perez"
         persona_id = record[2]
 
         # Expected derecho data
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
                 SELECT dt.iliCode as tipo, interesado, unidad
                 FROM {schema}.derecho as d INNER JOIN {schema}.COL_DerechoTipo as dt
                 on dt.T_id=d.tipo
-            """.format(schema=importer.configuration.dbschema))
+            """.format(
+                schema=importer.configuration.dbschema
+            )
+        )
         record = next(cursor)
         assert record is not None
-        assert record[0] == 'Posesion'
+        assert record[0] == "Posesion"
         assert record[1] == persona_id  # FK persona
         assert record[2] == predio_id  # FK predio
 

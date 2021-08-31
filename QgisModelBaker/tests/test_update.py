@@ -1,28 +1,33 @@
 import datetime
 import logging
 import os
-
-import pyodbc
-import psycopg2
-import psycopg2.extras
 import shutil
 import tempfile
 
-from QgisModelBaker.libili2db import iliupdater, iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from qgis.testing import unittest, start_app
+import psycopg2
+import psycopg2.extras
+import pyodbc
 from qgis import utils
+from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libqgsprojectgen.db_factory.mssql_command_config_manager import MssqlCommandConfigManager
-from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import PgCommandConfigManager
-from QgisModelBaker.tests.utils import iliimporter_config, iliupdater_config, testdata_path
-
+from QgisModelBaker.libili2db import iliimporter, iliupdater
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.db_factory.mssql_command_config_manager import (
+    MssqlCommandConfigManager,
+)
+from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import (
+    PgCommandConfigManager,
+)
+from QgisModelBaker.tests.utils import (
+    iliimporter_config,
+    iliupdater_config,
+    testdata_path,
+)
 
 start_app()
 
 
 class TestUpdate(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -30,8 +35,8 @@ class TestUpdate(unittest.TestCase):
 
     def test_update_postgis(self):
         tool = DbIliMode.ili2pg
-        dataset_name = 'updater_test'
-        schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        dataset_name = "updater_test"
+        schema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(datetime.datetime.now())
 
         importer = self.__get_importer(tool)
         importer.configuration.dbschema = schema
@@ -56,8 +61,8 @@ class TestUpdate(unittest.TestCase):
 
     def test_update_mssql(self):
         tool = DbIliMode.ili2mssql
-        dataset_name = 'updater_test'
-        schema = 'ciaf_ladm_{:%Y%m%d%H%M%S%f}'.format(datetime.datetime.now())
+        dataset_name = "updater_test"
+        schema = "ciaf_ladm_{:%Y%m%d%H%M%S%f}".format(datetime.datetime.now())
 
         importer = self.__get_importer(tool)
         importer.configuration.dbschema = schema
@@ -82,8 +87,8 @@ class TestUpdate(unittest.TestCase):
 
     def test_update_gpkg(self):
         tool = DbIliMode.ili2gpkg
-        dataset_name = 'updater_test'
-        db_file = os.path.join(self.base_test_path, 'tmp_update_gpkg.gpkg')
+        dataset_name = "updater_test"
+        db_file = os.path.join(self.base_test_path, "tmp_update_gpkg.gpkg")
 
         importer = self.__get_importer(tool)
         importer.configuration.dbfile = db_file
@@ -105,10 +110,10 @@ class TestUpdate(unittest.TestCase):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = tool
-        importer.configuration = iliimporter_config(tool, 'ilimodels/CIAF_LADM')
-        importer.configuration.ilimodels = 'CIAF_LADM'
+        importer.configuration = iliimporter_config(tool, "ilimodels/CIAF_LADM")
+        importer.configuration.ilimodels = "CIAF_LADM"
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -118,11 +123,11 @@ class TestUpdate(unittest.TestCase):
     def __get_updater(self, tool, dataset_name):
         updater = iliupdater.Updater()
         updater.tool = tool
-        updater.configuration = iliupdater_config(tool, 'ilimodels/CIAF_LADM')
+        updater.configuration = iliupdater_config(tool, "ilimodels/CIAF_LADM")
         updater.configuration.dataset = dataset_name
         updater.configuration.with_importbid = True
         updater.configuration.with_importtid = True
-        updater.configuration.xtffile = testdata_path('xtf/test_ciaf_ladm.xtf')
+        updater.configuration.xtffile = testdata_path("xtf/test_ciaf_ladm.xtf")
 
         updater.stdout.connect(self.print_info)
         updater.stderr.connect(self.print_error)
@@ -130,23 +135,31 @@ class TestUpdate(unittest.TestCase):
         return updater
 
     def __check_updater(self, dataset_name, cursor, schema=None):
-        schema = schema + '.' if schema else ''
+        schema = schema + "." if schema else ""
 
         # check_expected dataset
-        cursor.execute("""
+        cursor.execute(
+            """
               SELECT T_Id, datasetName
               FROM {}T_ILI2DB_DATASET
-            """.format(schema))
+            """.format(
+                schema
+            )
+        )
         record = next(cursor)
         assert record is not None
         t_id_dataset = record[0]
         assert record[1] == dataset_name
 
         # check --importBID
-        expected_basket_name = 'CIAF_LADM.Catastro'
+        expected_basket_name = "CIAF_LADM.Catastro"
 
-        cursor.execute("""SELECT T_Id, T_Ili_Tid 
-            FROM {}T_ILI2DB_BASKET WHERE dataset={}""".format(schema, t_id_dataset))
+        cursor.execute(
+            """SELECT T_Id, T_Ili_Tid
+            FROM {}T_ILI2DB_BASKET WHERE dataset={}""".format(
+                schema, t_id_dataset
+            )
+        )
 
         record = next(cursor)
         assert record is not None
@@ -154,10 +167,14 @@ class TestUpdate(unittest.TestCase):
         assert record[1] == expected_basket_name
 
         # check --importTID
-        expected_t_ili_tid = '1'
+        expected_t_ili_tid = "1"
 
-        cursor.execute("""SELECT T_Ili_Tid 
-            FROM {}avaluo WHERE T_basket = {}""".format(schema, t_id_basket))
+        cursor.execute(
+            """SELECT T_Ili_Tid
+            FROM {}avaluo WHERE T_basket = {}""".format(
+                schema, t_id_basket
+            )
+        )
 
         record = next(cursor)
         assert record is not None

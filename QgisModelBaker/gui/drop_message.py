@@ -18,30 +18,34 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils import get_ui_class
-from QgisModelBaker.libili2db.globals import DropMode
-
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
-from qgis.PyQt.QtCore import QSettings
 from qgis.gui import QgsGui
+from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtWidgets import QDialog
 
-DIALOG_UI = get_ui_class('drop_message.ui')
+from QgisModelBaker.libili2db.globals import DropMode
+from QgisModelBaker.utils import ui
+
+DIALOG_UI = ui.get_ui_class("drop_message.ui")
+
 
 class DropMessageDialog(QDialog, DIALOG_UI):
-
     def __init__(self, file_name, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.info_label.setText(self.tr('Do you want to use the Model Baker plugin to handle file {}?').format(file_name))
+        self.info_label.setText(
+            self.tr(
+                "Do you want to use the Model Baker plugin to handle file {}?"
+            ).format(file_name)
+        )
         self.accepted.connect(lambda: self.handle_dropped_file_configuration(True))
         self.rejected.connect(lambda: self.handle_dropped_file_configuration(False))
 
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
         if not self.chk_dontask.isChecked():
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.ASK.name)
+            settings.setValue("QgisModelBaker/drop_mode", DropMode.ASK.name)
         elif handle_dropped:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.YES.name)
+            settings.setValue("QgisModelBaker/drop_mode", DropMode.YES.name)
         else:
-            settings.setValue('QgisModelBaker/drop_mode', DropMode.NO.name)
+            settings.setValue("QgisModelBaker/drop_mode", DropMode.NO.name)

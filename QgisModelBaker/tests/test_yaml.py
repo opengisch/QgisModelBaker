@@ -1,11 +1,10 @@
-from qgis.testing import unittest
 import yaml
+from qgis.testing import unittest
 
 from QgisModelBaker.yamltools.loader import InheritanceLoader
 
 
 class YamlInheritanceTest(unittest.TestCase):
-
     def test_inheritance(self):
         document = """
           base_object: &base_object
@@ -25,15 +24,9 @@ class YamlInheritanceTest(unittest.TestCase):
 
         data = yaml.load(document, Loader=InheritanceLoader)
         expected = {
-            'base': 4,
-            'extra': 7,
-            'list': [
-                {'zzz': 5},
-                {'map1': 'x',
-                 'map2': 'b'},
-                'def',
-                'ghi'
-            ]
+            "base": 4,
+            "extra": 7,
+            "list": [{"zzz": 5}, {"map1": "x", "map2": "b"}, "def", "ghi"],
         }
 
-        assert expected == data['project']
+        assert expected == data["project"]

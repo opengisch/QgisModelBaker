@@ -18,77 +18,70 @@
  ***************************************************************************/
 """
 
-import webbrowser
 import re
-
-from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
-from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
-from QgisModelBaker.gui.edit_command import EditCommandDialog
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from QgisModelBaker.utils.ui import LogColor
-from QgisModelBaker.libili2db.ili2dbutils import (
-    color_log_text,
-    JavaNotFoundError
-)
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-
-from QgisModelBaker.utils.qt_utils import (
-    make_file_selector,
-    Validators,
-    FileValidator,
-    OverrideCursor
-)
-from qgis.PyQt.QtGui import (
-    QColor,
-    QDesktopServices,
-    QValidator
-)
-from qgis.PyQt.QtWidgets import (
-    QDialog,
-    QDialogButtonBox,
-    QCompleter,
-    QSizePolicy,
-    QGridLayout,
-    QAction,
-    QToolButton
-)
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QSettings,
-    Qt,
-    QLocale
-)
-from ..utils import get_ui_class
-from ..libili2db import (
-    iliimporter,
-    ili2dbconfig
-)
-
-from qgis.gui import (
-    QgsMessageBar,
-    QgsGui
-)
+import webbrowser
 
 from qgis.core import Qgis
+from qgis.gui import QgsGui, QgsMessageBar
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, QSettings, Qt
+from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QCompleter,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QSizePolicy,
+)
 
-DIALOG_UI = get_ui_class('import_data.ui')
+from QgisModelBaker.gui.edit_command import EditCommandDialog
+from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
+from QgisModelBaker.gui.options import OptionsDialog
+from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
+from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.utils.qt_utils import (
+    FileValidator,
+    OverrideCursor,
+    Validators,
+    make_file_selector,
+)
+from QgisModelBaker.utils.ui import LogColor
+
+from ..libili2db import ili2dbconfig, iliimporter
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ..utils import ui
+
+DIALOG_UI = ui.get_ui_class("import_data.ui")
 
 
 class ImportDataDialog(QDialog, DIALOG_UI):
 
-    ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'pdf', 'PDF', 'xml', 'XML', 'xls', 'XLS', 'xlsx', 'XLSX']
+    ValidExtensions = [
+        "xtf",
+        "XTF",
+        "itf",
+        "ITF",
+        "pdf",
+        "PDF",
+        "xml",
+        "XML",
+        "xls",
+        "XLS",
+        "xlsx",
+        "XLSX",
+    ]
 
-    ModelMissingRegExp = re.compile(r'Error: failed to query .*\.t_ili2db_seq')
+    ModelMissingRegExp = re.compile(r"Error: failed to query .*\.t_ili2db_seq")
 
     def __init__(self, iface, base_config, parent=None):
 
         QDialog.__init__(self, parent)
         self.iface = iface
         self.setupUi(self)
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.db_simple_factory = DbSimpleFactory()
         self.buttonBox.accepted.disconnect()
         self.buttonBox.clear()
@@ -96,25 +89,37 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
 
-        self.import_text = self.tr('Import Data')
+        self.import_text = self.tr("Import Data")
         self.set_button_to_import_action = QAction(self.import_text, None)
         self.set_button_to_import_action.triggered.connect(self.set_button_to_import)
 
-        self.import_without_validation_text = self.tr('Import without validation')
-        self.set_button_to_import_without_validation_action = QAction(self.import_without_validation_text, None)
-        self.set_button_to_import_without_validation_action.triggered.connect(self.set_button_to_import_without_validation)
+        self.import_without_validation_text = self.tr("Import without validation")
+        self.set_button_to_import_without_validation_action = QAction(
+            self.import_without_validation_text, None
+        )
+        self.set_button_to_import_without_validation_action.triggered.connect(
+            self.set_button_to_import_without_validation
+        )
 
-        self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
+        self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.import_tool_button.addAction(self.set_button_to_import_without_validation_action)
+        self.import_tool_button.addAction(
+            self.set_button_to_import_without_validation_action
+        )
         self.import_tool_button.addAction(self.edit_command_action)
         self.import_tool_button.setText(self.import_text)
         self.import_tool_button.clicked.connect(self.accepted)
 
         self.xtf_file_browse_button.clicked.connect(
-            make_file_selector(self.xtf_file_line_edit, title=self.tr('Open Transfer or Catalog File'),
-                               file_filter=self.tr('Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)')))
+            make_file_selector(
+                self.xtf_file_line_edit,
+                title=self.tr("Open Transfer or Catalog File"),
+                file_filter=self.tr(
+                    "Transfer File (*.xtf *.itf *.XTF *.ITF);;Catalogue File (*.xml *.XML *.xls *.XLS *.xlsx *.XLSX)"
+                ),
+            )
+        )
 
         self.type_combo_box.clear()
         self._lst_panel = dict()
@@ -132,34 +137,34 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
 
         self.multiple_models_dialog = MultipleModelsDialog(self)
-        self.multiple_models_button.clicked.connect(
-            self.multiple_models_dialog.open)
-        self.multiple_models_dialog.accepted.connect(
-            self.fill_models_line_edit)
+        self.multiple_models_button.clicked.connect(self.multiple_models_dialog.open)
+        self.multiple_models_dialog.accepted.connect(self.fill_models_line_edit)
 
-        self.validate_data = True # validates imported data by default, We use --disableValidation when is False
+        self.validate_data = True  # validates imported data by default, We use --disableValidation when is False
         self.base_configuration = base_config
         self.restore_configuration()
 
         self.validators = Validators()
-        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions])
+        fileValidator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions]
+        )
 
         self.xtf_file_line_edit.setValidator(fileValidator)
 
-        self.ili_models_line_edit.setPlaceholderText(self.tr('[Search model in repository]'))
+        self.ili_models_line_edit.setPlaceholderText(
+            self.tr("[Search model in repository]")
+        )
         self.ili_models_line_edit.textChanged.connect(self.complete_models_completer)
         self.ili_models_line_edit.punched.connect(self.complete_models_completer)
 
-        self.xtf_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.xtf_file_line_edit.textChanged.emit(
-            self.xtf_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
         # Reset to import as default text
-        self.xtf_file_line_edit.textChanged.connect( self.set_button_to_import)
+        self.xtf_file_line_edit.textChanged.connect(self.set_button_to_import)
 
         settings = QSettings()
-        ilifile = settings.value('QgisModelBaker/ili2db/ilifile')
+        ilifile = settings.value("QgisModelBaker/ili2db/ilifile")
         self.ilicache = IliCache(base_config, ilifile or None)
         self.update_models_completer()
         self.ilicache.refresh()
@@ -179,7 +184,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         self.validate_data = True
         self.import_tool_button.removeAction(self.set_button_to_import_action)
         self.import_tool_button.removeAction(self.edit_command_action)
-        self.import_tool_button.addAction(self.set_button_to_import_without_validation_action)
+        self.import_tool_button.addAction(
+            self.set_button_to_import_without_validation_action
+        )
         self.import_tool_button.addAction(self.edit_command_action)
         self.import_tool_button.setText(self.import_text)
 
@@ -190,7 +197,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         The buttons actions are changed to be able to switch the with-validation mode.
         """
         self.validate_data = False
-        self.import_tool_button.removeAction(self.set_button_to_import_without_validation_action)
+        self.import_tool_button.removeAction(
+            self.set_button_to_import_without_validation_action
+        )
         self.import_tool_button.removeAction(self.edit_command_action)
         self.import_tool_button.addAction(self.set_button_to_import_action)
         self.import_tool_button.addAction(self.edit_command_action)
@@ -216,9 +225,17 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         db_id = self.type_combo_box.currentData()
 
         if not edited_command:
-            if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
+            if (
+                not self.xtf_file_line_edit.validator().validate(
+                    configuration.xtffile, 0
+                )[0]
+                == QValidator.Acceptable
+            ):
                 self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS transfer or catalogue file before importing data.'))
+                    self.tr(
+                        "Please set a valid INTERLIS transfer or catalogue file before importing data."
+                    )
+                )
                 self.xtf_file_line_edit.setFocus()
                 return
 
@@ -296,11 +313,29 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         color_log_text(text, self.txtStdout)
         match = re.match(ImportDataDialog.ModelMissingRegExp, text)
         if match:
-            color_log_text('=======================================================================', self.txtStdout)
-            color_log_text(self.tr('It looks like the required schema for the imported data has not been generated.'), self.txtStdout)
-            color_log_text(self.tr('Did you generate the model in the database?'), self.txtStdout)
-            color_log_text(self.tr('Note: the model for a catalogue may be different from the data model itself.'), self.txtStdout)
-            color_log_text('=======================================================================', self.txtStdout)
+            color_log_text(
+                "=======================================================================",
+                self.txtStdout,
+            )
+            color_log_text(
+                self.tr(
+                    "It looks like the required schema for the imported data has not been generated."
+                ),
+                self.txtStdout,
+            )
+            color_log_text(
+                self.tr("Did you generate the model in the database?"), self.txtStdout
+            )
+            color_log_text(
+                self.tr(
+                    "Note: the model for a catalogue may be different from the data model itself."
+                ),
+                self.txtStdout,
+            )
+            color_log_text(
+                "=======================================================================",
+                self.txtStdout,
+            )
         self.advance_progress_bar_by_text(text)
 
     def show_message(self, level, message):
@@ -317,9 +352,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        color = '#004905' if exit_code == 0 else '#aa2222'
+        color = "#004905" if exit_code == 0 else "#aa2222"
         self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append('Finished ({})'.format(exit_code))
+        self.txtStdout.append("Finished ({})".format(exit_code))
         if result == iliimporter.Importer.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -387,12 +422,11 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self, configuration):
         settings = QSettings()
+        settings.setValue("QgisModelBaker/ili2pg/xtffile_import", configuration.xtffile)
+        settings.setValue("QgisModelBaker/ili2pg/deleteData", configuration.delete_data)
         settings.setValue(
-            'QgisModelBaker/ili2pg/xtffile_import', configuration.xtffile)
-        settings.setValue(
-            'QgisModelBaker/ili2pg/deleteData', configuration.delete_data)
-        settings.setValue(
-            'QgisModelBaker/importtype', self.type_combo_box.currentData().name)
+            "QgisModelBaker/importtype", self.type_combo_box.currentData().name
+        )
 
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
@@ -402,8 +436,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
     def restore_configuration(self):
         settings = QSettings()
         self.fill_toml_file_info_label()
-        self.xtf_file_line_edit.setText(settings.value(
-            'QgisModelBaker/ili2pg/xtffile_import'))
+        self.xtf_file_line_edit.setText(
+            settings.value("QgisModelBaker/ili2pg/xtffile_import")
+        )
         # set chk_delete_data always to unchecked because otherwise the user could delete the data accidentally
         self.chk_delete_data.setChecked(False)
 
@@ -414,7 +449,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
-        mode = settings.value('QgisModelBaker/importtype')
+        mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
 
@@ -452,24 +487,37 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                 value._show_panel()
 
     def link_activated(self, link):
-        if link.url() == '#configure':
+        if link.url() == "#configure":
             cfg = OptionsDialog(self.base_configuration)
             if cfg.exec_():
                 settings = QSettings()
-                settings.beginGroup('QgisModelBaker/ili2db')
+                settings.beginGroup("QgisModelBaker/ili2db")
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
 
     def complete_models_completer(self):
         if not self.ili_models_line_edit.text():
-            self.ili_models_line_edit.completer().setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+            self.ili_models_line_edit.completer().setCompletionMode(
+                QCompleter.UnfilteredPopupCompletion
+            )
             self.ili_models_line_edit.completer().complete()
         else:
-            match_contains = self.ili_models_line_edit.completer().completionModel().match(self.ili_models_line_edit.completer().completionModel().index(0, 0),
-                                            Qt.DisplayRole, self.ili_models_line_edit.text(), -1, Qt.MatchContains)
+            match_contains = (
+                self.ili_models_line_edit.completer()
+                .completionModel()
+                .match(
+                    self.ili_models_line_edit.completer().completionModel().index(0, 0),
+                    Qt.DisplayRole,
+                    self.ili_models_line_edit.text(),
+                    -1,
+                    Qt.MatchContains,
+                )
+            )
             if len(match_contains) > 1:
-                self.ili_models_line_edit.completer().setCompletionMode(QCompleter.PopupCompletion)
+                self.ili_models_line_edit.completer().setCompletionMode(
+                    QCompleter.PopupCompletion
+                )
                 self.ili_models_line_edit.completer().complete()
 
     def update_models_completer(self):
@@ -483,30 +531,43 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def fill_models_line_edit(self):
         self.ili_models_line_edit.setText(
-            self.multiple_models_dialog.get_models_string())
+            self.multiple_models_dialog.get_models_string()
+        )
 
     def fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
-            text = self.tr('Extra Model Information File: {}').format(('…'+self.ili2db_options.toml_file()[len(self.ili2db_options.toml_file())-40:]) if len(self.ili2db_options.toml_file()) > 40 else self.ili2db_options.toml_file())
+            text = self.tr("Extra Model Information File: {}").format(
+                (
+                    "…"
+                    + self.ili2db_options.toml_file()[
+                        len(self.ili2db_options.toml_file()) - 40 :
+                    ]
+                )
+                if len(self.ili2db_options.toml_file()) > 40
+                else self.ili2db_options.toml_file()
+            )
         self.toml_file_info_label.setText(text)
         self.toml_file_info_label.setToolTip(self.ili2db_options.toml_file())
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value(
-            'locale/userLocale')).name()[:2]
-        if os_language in ['es', 'de']:
+        os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
+        if os_language in ["es", "de"]:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(os_language))
+                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#import-an-interlis-transfer-file-xtf".format(
+                    os_language
+                )
+            )
         else:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#import-an-interlis-transfer-file-xtf")
+                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#import-an-interlis-transfer-file-xtf"
+            )
 
     def advance_progress_bar_by_text(self, text):
-        if text.strip() == 'Info: compile models...':
+        if text.strip() == "Info: compile models...":
             self.progress_bar.setValue(50)
             QCoreApplication.processEvents()
-        elif text.strip() == 'Info: create table structure...':
+        elif text.strip() == "Info: create table structure...":
             self.progress_bar.setValue(75)
             QCoreApplication.processEvents()
 
@@ -515,8 +576,10 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         config_manager = db_factory.get_db_command_config_manager(configuration)
         try:
             db_connector = db_factory.get_db_connector(
-                config_manager.get_uri(configuration.db_use_super_login) or config_manager.get_uri(),
-                configuration.dbschema)
+                config_manager.get_uri(configuration.db_use_super_login)
+                or config_manager.get_uri(),
+                configuration.dbschema,
+            )
             db_connector.new_message.connect(self.show_message)
             return db_connector
         except (DBConnectorError, FileNotFoundError):

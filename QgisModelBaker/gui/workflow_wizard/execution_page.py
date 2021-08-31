@@ -21,28 +21,21 @@
 import copy
 
 from qgis.PyQt.QtCore import QCoreApplication, QEventLoop
-
 from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QSpacerItem,
     QSizePolicy,
+    QSpacerItem,
     QVBoxLayout,
     QWidget,
+    QWizardPage,
 )
 
-from qgis.gui import QgsMessageBar, QgsGui
-
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
-from QgisModelBaker.gui.panel.log_panel import LogPanel
+from QgisModelBaker.libili2db.globals import DbActionType
 
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ...libili2db import iliimporter
+from ...utils import ui
+from ...utils.ui import LogColor
 
-from ...utils.ui import get_ui_class, LogColor
-
-PAGE_UI = get_ui_class("workflow_wizard/execution.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):
@@ -94,8 +87,8 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         if self.db_action_type == DbActionType.EXPORT:
             return -1
         return self.workflow_wizard.next_id()
-        
-    def setup_sessions(self, configuration, import_sessions):        
+
+    def setup_sessions(self, configuration, import_sessions):
         new_sessions = []
 
         for key in import_sessions:
@@ -110,7 +103,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 else None
             )
 
-            existing_widget = self._find_existing_session_widget((key, models, datasets))
+            existing_widget = self._find_existing_session_widget(
+                (key, models, datasets)
+            )
             if existing_widget:
                 new_sessions.append(existing_widget)
             else:
@@ -182,19 +177,16 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             color = LogColor.COLOR_SUCCESS
             if self.db_action_type == DbActionType.GENERATE:
                 message = self.tr(
-                        "Interlis model(s) successfully imported into the database!"
-                    )
+                    "Interlis model(s) successfully imported into the database!"
+                )
             elif self.db_action_type == DbActionType.IMPORT_DATA:
                 message = self.tr(
-                        "Transfer data successfully imported into the database!"
-                    )
+                    "Transfer data successfully imported into the database!"
+                )
             elif self.db_action_type == DbActionType.EXPORT:
-                message = self.tr(
-                        "Data successfully exported into transfer file!"
-                    )
+                message = self.tr("Data successfully exported into transfer file!")
         else:
             color = LogColor.COLOR_FAIL
             message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
-

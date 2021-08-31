@@ -17,33 +17,38 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils.qt_utils import slugify
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.globals import DbIliMode
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
+from QgisModelBaker.utils.qt_utils import slugify
+
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+
 
 def get_schema_identificator(layer_source_name, layer_source):
-    if layer_source_name == 'postgres' or layer_source_name == 'mssql':
-        return slugify(f'{layer_source.host()}_{layer_source.database()}_{layer_source.schema()}')
-    elif layer_source_name == 'ogr':
-        return slugify(layer_source.uri().split('|')[0].strip())
-    return ''
+    if layer_source_name == "postgres" or layer_source_name == "mssql":
+        return slugify(
+            f"{layer_source.host()}_{layer_source.database()}_{layer_source.schema()}"
+        )
+    elif layer_source_name == "ogr":
+        return slugify(layer_source.uri().split("|")[0].strip())
+    return ""
+
 
 def get_configuration(layer_source_name, layer_source):
-    mode = ''
+    mode = ""
     configuration = Ili2DbCommandConfiguration()
-    if layer_source_name == 'postgres':
+    if layer_source_name == "postgres":
         mode = DbIliMode.pg
         configuration.dbhost = layer_source.host()
         configuration.dbusr = layer_source.username()
         configuration.dbpwd = layer_source.password()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
-    elif layer_source_name == 'ogr':
+    elif layer_source_name == "ogr":
         mode = DbIliMode.gpkg
-        configuration.dbfile = layer_source.uri().split('|')[0].strip()
-    elif layer_source_name == 'mssql':
+        configuration.dbfile = layer_source.uri().split("|")[0].strip()
+    elif layer_source_name == "mssql":
         mode = DbIliMode.mssql
         configuration.dbhost = layer_source.host()
         configuration.dbusr = layer_source.username()
@@ -51,6 +56,7 @@ def get_configuration(layer_source_name, layer_source):
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
     return mode, configuration
+
 
 def get_db_connector(configuration):
     db_simple_factory = DbSimpleFactory()
@@ -65,11 +71,12 @@ def get_db_connector(configuration):
     except (DBConnectorError, FileNotFoundError):
         return None
 
+
 def db_ili_version(configuration):
     """
     Returns the ili2db version the database has been created with or None if the database
     could not be detected as a ili2db database
-    """ 
+    """
     db_connector = get_db_connector(configuration)
     if db_connector:
         return db_connector.ili_version()

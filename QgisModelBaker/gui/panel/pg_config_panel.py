@@ -18,14 +18,13 @@
 """
 from qgis.PyQt.QtCore import pyqtSignal
 
-from .db_config_panel import DbConfigPanel
-from ...utils import get_ui_class
-from QgisModelBaker.utils.qt_utils import (
-    Validators,
-    NonEmptyStringValidator)
 from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
 
-WIDGET_UI = get_ui_class('pg_settings_panel.ui')
+from ...utils import ui
+from .db_config_panel import DbConfigPanel
+
+WIDGET_UI = ui.get_ui_class("pg_settings_panel.ui")
 
 
 class PgConfigPanel(DbConfigPanel, WIDGET_UI):
@@ -35,6 +34,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
+
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent, db_action_type):
@@ -42,16 +42,30 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.setupUi(self)
 
         from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+
         self.pg_use_super_login.setText(
-            self.tr("Execute data management tasks with superuser login from settings ({})").format(BaseConfiguration().super_pg_user))
-        self.pg_use_super_login.setToolTip(self.tr("Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li><li>Export data to XTF</li></ul>"))
+            self.tr(
+                "Execute data management tasks with superuser login from settings ({})"
+            ).format(BaseConfiguration().super_pg_user)
+        )
+        self.pg_use_super_login.setToolTip(
+            self.tr(
+                "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li><li>Export data to XTF</li></ul>"
+            )
+        )
 
         if self._db_action_type == DbActionType.GENERATE:
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to create a default schema]"))
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to create a default schema]")
+            )
         elif self._db_action_type == DbActionType.IMPORT_DATA:
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to import data into a default schema]"))
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to import data into a default schema]")
+            )
         elif self._db_action_type == DbActionType.EXPORT:
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("[Leave empty to load all schemas in the database]"))
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to load all schemas in the database]")
+            )
 
         # define validators
         self.validators = Validators()
@@ -60,13 +74,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
 
-        self.pg_host_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
         self.pg_database_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.pg_database_line_edit.textChanged.emit(
-            self.pg_database_line_edit.text())
+            self.validators.validate_line_edits
+        )
+        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
 
         self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
@@ -76,14 +89,17 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     def _show_panel(self):
         if self.interlis_mode:
             self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]"))
+                self.tr("[Leave empty to create a default schema]")
+            )
         else:
             if self._db_action_type == DbActionType.IMPORT_DATA:
                 self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to import data into a default schema]"))
+                    self.tr("[Leave empty to import data into a default schema]")
+                )
             else:
                 self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to load all schemas in the database]"))
+                    self.tr("[Leave empty to load all schemas in the database]")
+                )
 
     def get_fields(self, configuration):
         configuration.dbhost = self.pg_host_line_edit.text().strip()
@@ -109,16 +125,21 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def is_valid(self):
         result = False
-        message = ''
+        message = ""
         if not self.pg_host_line_edit.text().strip():
             message = self.tr("Please set a host before creating the project.")
             self.pg_host_line_edit.setFocus()
         elif not self.pg_database_line_edit.text().strip():
             message = self.tr("Please set a database before creating the project.")
             self.pg_database_line_edit.setFocus()
-        elif not self.pg_auth_settings.username() and not self.pg_auth_settings.configId():
-            message = self.tr("Please set a username or select an authentication configuration before creating the "
-                              "project.")
+        elif (
+            not self.pg_auth_settings.username()
+            and not self.pg_auth_settings.configId()
+        ):
+            message = self.tr(
+                "Please set a username or select an authentication configuration before creating the "
+                "project."
+            )
             self.pg_auth_settings.setFocus()
         else:
             result = True

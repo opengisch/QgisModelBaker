@@ -22,17 +22,15 @@ import os
 import pathlib
 
 from qgis.PyQt.QtCore import Qt
-
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-
-from QgisModelBaker.utils.qt_utils import make_file_selector, QValidator, FileValidator
-
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
-from ...utils import get_ui_class
+from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.utils.qt_utils import FileValidator, QValidator, make_file_selector
 
-PAGE_UI = get_ui_class("workflow_wizard/import_source_selection.ui")
+from ...utils import ui
+
+PAGE_UI = ui.get_ui_class("workflow_wizard/import_source_selection.ui")
 
 
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
@@ -183,4 +181,3 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)
         self.remove_button.setEnabled(self._valid_selection())
-

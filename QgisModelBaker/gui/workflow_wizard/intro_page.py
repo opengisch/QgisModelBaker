@@ -18,14 +18,14 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtGui import QPixmap
 
-from qgis.PyQt.QtWidgets import QWizardPage, QWizard
+from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
-from ...utils import get_ui_class
 
-PAGE_UI = get_ui_class("workflow_wizard/intro.ui")
+from ...utils import ui
+
+PAGE_UI = ui.get_ui_class("workflow_wizard/intro.ui")
 
 
 class IntroPage(QWizardPage, PAGE_UI):
