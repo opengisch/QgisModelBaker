@@ -17,6 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
+from QgisModelBaker.libqgsprojectgen.generator.config import IGNORED_FIELDNAMES
 from .form import (
     Form,
     FormTab,
@@ -24,6 +26,7 @@ from .form import (
     FormFieldWidget
 )
 from qgis.core import (
+    Qgis,
     QgsVectorLayer,
     QgsDataSourceUri,
     QgsWkbTypes,
@@ -167,12 +170,48 @@ class Layer(object):
 
             self.__form.add_element(tab)
 
+            relations_to_add = []
             for relation in project.relations:
                 if relation.referenced_layer == self:
+
+                    # 1:m relation will be added only if does not point to a pure link table
+                    if (not (relation.referencing_layer.isPureLinkTable(project)
+                             or relation.referencing_layer.is_basket_table)
+                       or Qgis.QGIS_VERSION_INT < 31600):
+                        relations_to_add.append((relation, None))
+
+                    for nm_relation in project.relations:
+                        if nm_relation == relation:
+                            continue
+
+                        if nm_relation.referenced_layer == self:
+                            continue
+
+                        # relations to the same table with different geometries should not be added
+                        if nm_relation.referenced_layer.srid == self.srid:
+                            continue
+
+                        if nm_relation.referenced_layer.is_basket_table:
+                            continue
+
+                        if nm_relation.referencing_layer == relation.referencing_layer:
+                            relations_to_add.append((relation, nm_relation))
+
+            for relation, nm_relation in relations_to_add:
+                if nm_relation and Qgis.QGIS_VERSION_INT < 31600:
+                    logger = logging.getLogger(__name__)
+                    logger.warning('QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(nm_relation.name))
+                    continue
+
+                if nm_relation:
+                    tab = FormTab(nm_relation.referenced_layer.name)
+                else:
                     tab = FormTab(relation.referencing_layer.name)
-                    widget = FormRelationWidget(relation)
-                    tab.addChild(widget)
-                    self.__form.add_element(tab)
+
+                widget = FormRelationWidget(relation, nm_relation)
+                tab.addChild(widget)
+                self.__form.add_element(tab)
+
         else:
             for field in self.fields:
                 if not field.hidden:
@@ -195,3 +234,23 @@ class Layer(object):
             return self.__layer.id()
         else:
             return None
+
+    def isPureLinkTable(self, project):
+        '''
+        Returns True if the layer is a pure link table in a n:m relation.
+        With "pure" it is meant the layer has no more fields than foreign keys and its id.
+        '''
+
+        remaining_fields = set()
+        for field in self.fields:
+            if field.name not in IGNORED_FIELDNAMES:
+                remaining_fields.add(field.name)
+
+        # Remove all fields that are referencing fields
+        for relation in project.relations:
+            if relation.referencing_layer != self:
+                continue
+            remaining_fields.discard(relation.referencing_field)
+
+        return len(remaining_fields) == 0
+
