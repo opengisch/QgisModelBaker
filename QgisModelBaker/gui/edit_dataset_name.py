@@ -19,33 +19,39 @@
 """
 from enum import Enum
 
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+
 from QgisModelBaker.utils import get_ui_class
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
-
-DIALOG_UI = get_ui_class('edit_dataset_name.ui')
+DIALOG_UI = get_ui_class("edit_dataset_name.ui")
 
 
 class EditDatasetDialog(QDialog, DIALOG_UI):
-
     class UpdateMode(Enum):
         CREATE = 1
         RENAME = 2
 
-    def __init__(self, parent=None, db_connector = None, dataset = (None,None)):
+    def __init__(self, parent=None, db_connector=None, dataset=(None, None)):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        self.tid, self.datasetname= dataset
+        self.tid, self.datasetname = dataset
         self.db_connector = db_connector
 
-        self.ok_button.setText(self.tr("Create Dataset") if not self.datasetname else self.tr("Rename Dataset"))
+        self.ok_button.setText(
+            self.tr("Create Dataset")
+            if not self.datasetname
+            else self.tr("Rename Dataset")
+        )
         self.ok_button.clicked.connect(self.accepted)
         self.ok_button.setEnabled(False)
 
         self.dataset_line_edit.setText(self.datasetname)
-        self.dataset_line_edit.textChanged.connect(lambda text: self.ok_button.setEnabled( len(text) and text != self.datasetname))
+        self.dataset_line_edit.textChanged.connect(
+            lambda text: self.ok_button.setEnabled(
+                len(text) and text != self.datasetname
+            )
+        )
 
     def accepted(self):
         new_dataset_name = self.dataset_line_edit.text()
@@ -53,7 +59,9 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
         if not status:
             warning_box = QMessageBox(self)
             warning_box.setIcon(QMessageBox.Critical)
-            warning_title = self.tr("Rename Dataset") if self.tid else self.tr("Create Dataset")
+            warning_title = (
+                self.tr("Rename Dataset") if self.tid else self.tr("Create Dataset")
+            )
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(message)
             warning_box.exec_()

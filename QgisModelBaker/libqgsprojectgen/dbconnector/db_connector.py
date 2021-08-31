@@ -19,46 +19,47 @@
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
-from .config import IGNORED_SCHEMAS, IGNORED_TABLES, IGNORED_ILI_ELEMENTS, BASKET_TABLES
+from .config import BASKET_TABLES, IGNORED_ILI_ELEMENTS, IGNORED_SCHEMAS, IGNORED_TABLES
+
 
 class DBConnector(QObject):
-    '''SuperClass for all DB connectors.'''
+    """SuperClass for all DB connectors."""
 
     stdout = pyqtSignal(str)
     new_message = pyqtSignal(int, str)
 
     def __init__(self, uri, schema, parent=None):
         QObject.__init__(self, parent)
-        self.QGIS_DATE_TYPE = 'date'
-        self.QGIS_TIME_TYPE = 'time'
-        self.QGIS_DATE_TIME_TYPE = 'datetime'
-        self.iliCodeName = ''  # For Domain-Class relations, specific for each DB
-        self.tid = ''  # For BAG OF config and basket handling, specific for each DB
-        self.tilitid = ''  # For basket handling, specific for each DB
-        self.dispName = ''  # For BAG OF config, specific for each DB
-        self.basket_table_name = ''  # For basket handling, specific for each DB
-        self.dataset_table_name = ''  # For basket handling, specific for each DB
+        self.QGIS_DATE_TYPE = "date"
+        self.QGIS_TIME_TYPE = "time"
+        self.QGIS_DATE_TIME_TYPE = "datetime"
+        self.iliCodeName = ""  # For Domain-Class relations, specific for each DB
+        self.tid = ""  # For BAG OF config and basket handling, specific for each DB
+        self.tilitid = ""  # For basket handling, specific for each DB
+        self.dispName = ""  # For BAG OF config, specific for each DB
+        self.basket_table_name = ""  # For basket handling, specific for each DB
+        self.dataset_table_name = ""  # For basket handling, specific for each DB
 
     def map_data_types(self, data_type):
-        '''Map provider date/time types to QGIS date/time types'''
+        """Map provider date/time types to QGIS date/time types"""
         return None
 
     def db_or_schema_exists(self):
-        '''Whether the DB (for GPKG) or schema (for PG) exists or not.'''
+        """Whether the DB (for GPKG) or schema (for PG) exists or not."""
         raise NotImplementedError
 
     def create_db_or_schema(self, usr):
-        '''Create the DB (for GPKG) or schema (for PG)'''
+        """Create the DB (for GPKG) or schema (for PG)"""
         raise NotImplementedError
 
     def metadata_exists(self):
-        '''Whether t_ili2db_table_prop table exists or not.
+        """Whether t_ili2db_table_prop table exists or not.
         In other words... Does the DB/Schema hold an Interlis model?
-        '''
+        """
         return False
 
     def get_tables_info(self):
-        '''
+        """
         Info about tables found in the database (or database schema).
 
         Return:
@@ -76,11 +77,11 @@ class DBConnector(QObject):
                 extent [a string: "xmin;ymin;xmax;ymax"]
                 table_alias
                 model
-        '''
+        """
         return []
 
     def get_meta_attrs_info(self):
-        '''
+        """
         Info about meta attributes
 
         Return:
@@ -90,11 +91,11 @@ class DBConnector(QObject):
                 ilielement
                 attr_name
                 attr_value
-        '''
+        """
         raise NotImplementedError
 
     def get_meta_attr(self, ili_name):
-        '''
+        """
         Info about meta attributes of a given ili element
 
         Return:
@@ -103,11 +104,11 @@ class DBConnector(QObject):
             Expected columns are:
                 attr_name
                 attr_value
-        '''
+        """
         return []
 
     def get_fields_info(self, table_name):
-        '''
+        """
         Info about fields of a given table in the database.
 
         Return:
@@ -121,31 +122,31 @@ class DBConnector(QObject):
                 texttype
                 column_alias
                 fully_qualified_name
-        '''
+        """
         return []
 
     def get_min_max_info(self, table_name):
-        '''
+        """
         Info about range constraints found in a given table.
 
         Return:
             Dictionary with keys corresponding to column names and values
             corresponding to tuples in the form (min_value, max_value)
-        '''
+        """
         return {}
 
     def get_value_map_info(self, table_name):
-        '''
+        """
         Info about value map constraints found in a given table.
 
         Return:
             Dictionary with keys corresponding to column names and values
             with lists of allowed values
-        '''
+        """
         return {}
 
     def get_relations_info(self, filter_layer_list=[]):
-        '''
+        """
         Info about relations found in a database (or database schema).
 
         Return:
@@ -159,11 +160,11 @@ class DBConnector(QObject):
                 referenced_table_name
                 referenced_column_name
                 strength
-        '''
+        """
         return []
 
     def get_bags_of_info(self):
-        '''
+        """
         Info about bags_of found in a database (or database schema).
 
         Return:
@@ -175,16 +176,16 @@ class DBConnector(QObject):
                 target_layer_name
                 cardinality_max
                 cardinality_min
-        '''
+        """
         return []
 
     def get_ignored_layers(self):
-        '''
+        """
         The ignored layers according to the ignored schemas and ignored tables and the ignored ili elements
         listed in the config.py.
         Additionally all the ili elements that have the attribute name ili2db.mapping in the meta attribute
         table.
-        '''
+        """
         tables_info = self.get_tables_info()
         relations_info = self.get_relations_info()
         meta_attrs_info = self.get_meta_attrs_info()
@@ -194,29 +195,32 @@ class DBConnector(QObject):
         detected_tables = []
         referencing_detected_tables = []
         for record in meta_attrs_info:
-            if record['attr_name'] == 'ili2db.mapping':
-                mapping_ili_elements.append(record['ilielement'])
+            if record["attr_name"] == "ili2db.mapping":
+                mapping_ili_elements.append(record["ilielement"])
 
         for record in tables_info:
-            if 'ili_name' in record:
-                if record['ili_name'] in mapping_ili_elements or record['ili_name'] in IGNORED_ILI_ELEMENTS:
-                    detected_tables.append(record['tablename'])
+            if "ili_name" in record:
+                if (
+                    record["ili_name"] in mapping_ili_elements
+                    or record["ili_name"] in IGNORED_ILI_ELEMENTS
+                ):
+                    detected_tables.append(record["tablename"])
                     continue
-            if 'schemaname' in record:
-                if record['schemaname'] in IGNORED_SCHEMAS:
-                    static_tables.append(record['tablename'])
+            if "schemaname" in record:
+                if record["schemaname"] in IGNORED_SCHEMAS:
+                    static_tables.append(record["tablename"])
                     continue
-            if 'tablename' in record:
-                if record['tablename'] in IGNORED_TABLES:
-                    static_tables.append(record['tablename'])
+            if "tablename" in record:
+                if record["tablename"] in IGNORED_TABLES:
+                    static_tables.append(record["tablename"])
                     continue
-                if not basket_handling and record['tablename'] in BASKET_TABLES:
-                    static_tables.append(record['tablename'])
+                if not basket_handling and record["tablename"] in BASKET_TABLES:
+                    static_tables.append(record["tablename"])
                     continue
 
         for record in relations_info:
-            if record['referenced_table'] in detected_tables:
-                referencing_detected_tables.append(record['referencing_table'])
+            if record["referenced_table"] in detected_tables:
+                referencing_detected_tables.append(record["referencing_table"])
 
         return static_tables + detected_tables + referencing_detected_tables
 
@@ -301,12 +305,13 @@ class DBConnector(QObject):
                 topic
         """
         return {}
-    
+
     def create_basket(self, dataset_tid, topic):
         """
         Returns the state and the errormessage
         """
         return False, None
+
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.

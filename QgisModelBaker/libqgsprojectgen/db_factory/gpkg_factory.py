@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -17,16 +16,17 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .db_factory import DbFactory
-from ..dbconnector.gpkg_connector import GPKGConnector
-from .gpkg_layer_uri import GpkgLayerUri
 from QgisModelBaker.gui.panel.gpkg_config_panel import GpkgConfigPanel
+
+from ..dbconnector.gpkg_connector import GPKGConnector
+from .db_factory import DbFactory
 from .gpkg_command_config_manager import GpkgCommandConfigManager
+from .gpkg_layer_uri import GpkgLayerUri
 
 
 class GpkgFactory(DbFactory):
-    """Creates an entire set of objects so that QgisModelBaker supports Geopackage database.
-    """
+    """Creates an entire set of objects so that QgisModelBaker supports Geopackage database."""
+
     def get_db_connector(self, uri, schema):
         return GPKGConnector(uri, None)
 
@@ -40,10 +40,10 @@ class GpkgFactory(DbFactory):
         return GpkgLayerUri(uri)
 
     def pre_generate_project(self, configuration):
-        return True, ''
+        return True, ""
 
     def post_generate_project_validations(self, configuration):
-        return True, ''
+        return True, ""
 
     def get_tool_version(self, db_ili_version):
         """Returns ili2gpkg version, regarding to the given version of the used database
@@ -51,21 +51,20 @@ class GpkgFactory(DbFactory):
         :return: str ili2gpkg version.
         """
         if db_ili_version == 3:
-            return '3.11.3'
+            return "3.11.3"
         else:
-            return '4.5.0'
+            return "4.5.0"
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2gpkg.
 
         :return str A download url.
         """
-        return 'https://downloads.interlis.ch/ili2gpkg/ili2gpkg-{version}.zip'.format(version=self.get_tool_version(db_ili_version))
+        return "https://downloads.interlis.ch/ili2gpkg/ili2gpkg-{version}.zip".format(
+            version=self.get_tool_version(db_ili_version)
+        )
 
     def get_specific_messages(self):
-        messages = {
-            'db_or_schema': 'database',
-            'layers_source': 'GeoPackage'
-        }
+        messages = {"db_or_schema": "database", "layers_source": "GeoPackage"}
 
         return messages

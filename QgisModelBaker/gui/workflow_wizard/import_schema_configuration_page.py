@@ -18,29 +18,24 @@
  ***************************************************************************/
 """
 
+import configparser
 import os
 import pathlib
-import configparser
 import re
 
-from qgis.PyQt.QtCore import Qt, QSettings
-
-from qgis.PyQt.QtWidgets import QWizardPage, QCompleter
-
 from qgis.core import QgsCoordinateReferenceSystem
+from qgis.PyQt.QtCore import QSettings, Qt
+from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
+from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.libili2db.globals import CRS_PATTERNS
 from QgisModelBaker.libili2db.ilicache import (
     IliMetaConfigCache,
     IliMetaConfigItemModel,
     MetaConfigCompleterDelegate,
 )
 
-from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS
-
-from ...utils.ui import get_ui_class, LogColor
+from ...utils.ui import LogColor, get_ui_class
 
 PAGE_UI = get_ui_class("workflow_wizard/import_schema_configuration.ui")
 
@@ -63,7 +58,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.model_list_view.space_pressed.connect(
             self.workflow_wizard.import_models_model.check
         )
-        self.model_list_view.model().modelReset.connect(self._update_models_dependent_info)
+        self.model_list_view.model().modelReset.connect(
+            self._update_models_dependent_info
+        )
 
         self.crs = QgsCoordinateReferenceSystem()
         self.ili2db_options = Ili2dbOptionsDialog()
@@ -151,7 +148,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         settings.setValue(
             "QgisModelBaker/ili2db/srs_code", updated_configuration.srs_code
         )
-    
+
     def _update_models_dependent_info(self):
         """
         Checks all checked models for CRS_PATTERNS (takes first match)

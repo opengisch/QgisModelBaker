@@ -19,10 +19,7 @@
 """
 from typing import List
 
-from qgis.core import (QgsCoordinateReferenceSystem,
-                       QgsProject,
-                       QgsEditorWidgetSetup,
-                       QgsFieldConstraints)
+from qgis.core import QgsCoordinateReferenceSystem, QgsEditorWidgetSetup, QgsProject
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
@@ -38,7 +35,7 @@ class Project(QObject):
     def __init__(self, auto_transaction=True, evaluate_default_values=True):
         QObject.__init__(self)
         self.crs = None
-        self.name = 'Not set'
+        self.name = "Not set"
         self.layers = List[Layer]
         self.legend = LegendGroup()
         self.custom_layer_order_structure = list()
@@ -54,9 +51,9 @@ class Project(QObject):
 
     def dump(self):
         definition = dict()
-        definition['crs'] = self.crs.toWkt()
-        definition['auto_transaction'] = self.auto_transaction
-        definition['evaluate_default_values'] = self.evaluate_default_values
+        definition["crs"] = self.crs.toWkt()
+        definition["auto_transaction"] = self.auto_transaction
+        definition["evaluate_default_values"] = self.evaluate_default_values
 
         legend = list()
         for layer in self.layers:
@@ -67,18 +64,18 @@ class Project(QObject):
         for relation in self.relations:
             relations.append(relation.dump())
 
-        definition['legend'] = legend
-        definition['relations'] = relations
+        definition["legend"] = legend
+        definition["relations"] = relations
 
         return definition
 
     def load(self, definition):
-        self.crs = definition['crs']
-        self.auto_transaction = definition['auto_transaction']
-        self.evaluate_default_values = definition['evaluate_default_values']
+        self.crs = definition["crs"]
+        self.auto_transaction = definition["auto_transaction"]
+        self.evaluate_default_values = definition["evaluate_default_values"]
 
         self.layers = list()
-        for layer_definition in definition['layers']:
+        for layer_definition in definition["layers"]:
             layer = Layer()
             layer.load(layer_definition)
             self.layers.append(layer)
@@ -106,10 +103,8 @@ class Project(QObject):
                     crs = QgsCoordinateReferenceSystem(self.crs)  # Fallback
                 qgis_project.setCrs(crs)
 
-        qgis_relations = list(
-            qgis_project.relationManager().relations().values())
-        dict_layers = {
-            layer.layer.id(): layer for layer in self.layers}
+        qgis_relations = list(qgis_project.relationManager().relations().values())
+        dict_layers = {layer.layer.id(): layer for layer in self.layers}
         for relation in self.relations:
             rel = relation.create(qgis_project, qgis_relations)
             assert rel.isValid()
@@ -119,42 +114,55 @@ class Project(QObject):
             referencing_layer = dict_layers.get(rel.referencingLayerId(), None)
 
             if referenced_layer and referenced_layer.is_domain:
-                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
-                    'Relation': rel.id(),
-                    'ShowForm': False,
-                    'OrderByValue': True,
-                    'ShowOpenFormButton': False,
-                    'AllowNULL': True,
-                    'FilterExpression': "\"{}\" = '{}'".format(ENUM_THIS_CLASS_COLUMN, relation.child_domain_name) if relation.child_domain_name else '',
-                    'FilterFields': list()
-                }
+                editor_widget_setup = QgsEditorWidgetSetup(
+                    "RelationReference",
+                    {
+                        "Relation": rel.id(),
+                        "ShowForm": False,
+                        "OrderByValue": True,
+                        "ShowOpenFormButton": False,
+                        "AllowNULL": True,
+                        "FilterExpression": "\"{}\" = '{}'".format(
+                            ENUM_THIS_CLASS_COLUMN, relation.child_domain_name
+                        )
+                        if relation.child_domain_name
+                        else "",
+                        "FilterFields": list(),
+                    },
                 )
             elif referenced_layer and referenced_layer.is_basket_table:
-                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
-                    'Relation': rel.id(),
-                    'ShowForm': False,
-                    'OrderByValue': True,
-                    'ShowOpenFormButton': False,
-                    'AllowNULL': True,
-                    'AllowAddFeatures': False,
-                    'FilterExpression': "\"topic\" = '{}'".format( referencing_layer.model_topic_name ),
-                    'FilterFields': list()
-                }
+                editor_widget_setup = QgsEditorWidgetSetup(
+                    "RelationReference",
+                    {
+                        "Relation": rel.id(),
+                        "ShowForm": False,
+                        "OrderByValue": True,
+                        "ShowOpenFormButton": False,
+                        "AllowNULL": True,
+                        "AllowAddFeatures": False,
+                        "FilterExpression": "\"topic\" = '{}'".format(
+                            referencing_layer.model_topic_name
+                        ),
+                        "FilterFields": list(),
+                    },
                 )
             else:
-                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
-                    'Relation': rel.id(),
-                    'ShowForm': False,
-                    'OrderByValue': True,
-                    'ShowOpenFormButton': False,
-                    'AllowAddFeatures': True,
-                    'AllowNULL': True
-                }
+                editor_widget_setup = QgsEditorWidgetSetup(
+                    "RelationReference",
+                    {
+                        "Relation": rel.id(),
+                        "ShowForm": False,
+                        "OrderByValue": True,
+                        "ShowOpenFormButton": False,
+                        "AllowAddFeatures": True,
+                        "AllowNULL": True,
+                    },
                 )
 
             referencing_layer = rel.referencingLayer()
             referencing_layer.setEditorWidgetSetup(
-                rel.referencingFields()[0], editor_widget_setup)
+                rel.referencingFields()[0], editor_widget_setup
+            )
 
         qgis_project.relationManager().setRelations(qgis_relations)
 
@@ -167,28 +175,32 @@ class Project(QObject):
                 key_field = bag_of_enum_info[3]
                 value_field = bag_of_enum_info[4]
 
-                minimal_selection = cardinality.startswith('1')
+                minimal_selection = cardinality.startswith("1")
 
                 current_layer = layer_obj.create()
 
-                field_widget = 'ValueRelation'
+                field_widget = "ValueRelation"
                 field_widget_config = {
-                    'AllowMulti': True,
-                    'UseCompleter': False,
-                    'Value': value_field,
-                    'OrderByValue': False,
-                    'AllowNull': True,
-                    'Layer': domain_table.create().id(),
-                    'FilterExpression': '',
-                    'Key': key_field,
-                    'NofColumns': 1
+                    "AllowMulti": True,
+                    "UseCompleter": False,
+                    "Value": value_field,
+                    "OrderByValue": False,
+                    "AllowNull": True,
+                    "Layer": domain_table.create().id(),
+                    "FilterExpression": "",
+                    "Key": key_field,
+                    "NofColumns": 1,
                 }
                 field_idx = current_layer.fields().indexOf(attribute)
                 setup = QgsEditorWidgetSetup(field_widget, field_widget_config)
                 current_layer.setEditorWidgetSetup(field_idx, setup)
                 if minimal_selection:
                     constraint_expression = 'array_length("{}")>0'.format(attribute)
-                    current_layer.setConstraintExpression(field_idx, constraint_expression, self.tr('The minimal selection is 1'))
+                    current_layer.setConstraintExpression(
+                        field_idx,
+                        constraint_expression,
+                        self.tr("The minimal selection is 1"),
+                    )
 
         for layer in self.layers:
             layer.create_form(self)

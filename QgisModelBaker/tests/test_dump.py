@@ -17,29 +17,37 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.tests.utils import testdata_path
-from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
-from qgis.testing import unittest, start_app
-from QgisModelBaker.tests.utils import get_pg_connection_string
-
-from subprocess import call
 import os
+from subprocess import call
+
+from qgis.testing import start_app, unittest
+
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.tests.utils import get_pg_connection_string, testdata_path
 
 start_app()
 
 
 class TestCustomDump(unittest.TestCase):
-
     def test_ili2db3_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
-        myenv['PGPASSWORD'] = 'docker'
-        call(["pg_restore", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", testdata_path("dumps/_nupla_dump")], env=myenv)
+        myenv["PGPASSWORD"] = "docker"
+        call(
+            [
+                "pg_restore",
+                "-Fc",
+                "-h" + os.environ["PGHOST"],
+                "-Udocker",
+                "-dgis",
+                testdata_path("dumps/_nupla_dump"),
+            ],
+            env=myenv,
+        )
 
-        generator = Generator(DbIliMode.ili2pg,
-                              get_pg_connection_string(),
-                              'smart1',
-                              '_nupla')
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), "smart1", "_nupla"
+        )
 
         available_layers = generator.layers()
 
@@ -47,14 +55,34 @@ class TestCustomDump(unittest.TestCase):
 
     def test_ili2pg_dump_without_metattr(self):
         myenv = os.environ.copy()
-        myenv['PGPASSWORD'] = 'docker'
-        call(["psql", "-Fc", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", "--command=CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""], env=myenv)
-        call(["pg_restore", "-Fc", "-h" + os.environ['PGHOST'], "-Udocker", "-dgis", testdata_path("dumps/_nupla_ili2db4_dump")], env=myenv)
+        myenv["PGPASSWORD"] = "docker"
+        call(
+            [
+                "psql",
+                "-Fc",
+                "-Fc",
+                "-h" + os.environ["PGHOST"],
+                "-Udocker",
+                "-dgis",
+                '--command=CREATE EXTENSION IF NOT EXISTS "uuid-ossp"',
+            ],
+            env=myenv,
+        )
+        call(
+            [
+                "pg_restore",
+                "-Fc",
+                "-h" + os.environ["PGHOST"],
+                "-Udocker",
+                "-dgis",
+                testdata_path("dumps/_nupla_ili2db4_dump"),
+            ],
+            env=myenv,
+        )
 
-        generator = Generator(DbIliMode.ili2pg,
-                              get_pg_connection_string(),
-                              'smart1',
-                              '_nupla_ili2db4')
+        generator = Generator(
+            DbIliMode.ili2pg, get_pg_connection_string(), "smart1", "_nupla_ili2db4"
+        )
 
         available_layers = generator.layers()
 

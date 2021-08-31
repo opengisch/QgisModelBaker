@@ -18,22 +18,15 @@
  ***************************************************************************/
 """
 
-from enum import Enum
-import xml.etree.ElementTree as ET
-import re
 import os
+import re
+import xml.etree.ElementTree as ET
+from enum import Enum
 
-from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt, pyqtSignal, QStringListModel
+from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
+from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
 
-from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem, QIcon
-
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from QgisModelBaker.libili2db.ilicache import (
-    IliCache,
-)
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libili2db.ilicache import IliCache
 
 IliExtensions = ["ili"]
 TransferExtensions = [
@@ -53,7 +46,8 @@ TransferExtensions = [
 
 DEFAULT_DATASETNAME = "Baseset"
 
-class PageIds():
+
+class PageIds:
     Intro = 1
     ImportSourceSeletion = 2
     ImportDatabaseSelection = 3
@@ -66,6 +60,8 @@ class PageIds():
     ExportDataConfiguration = 10
     ExportDataExecution = 11
     ProjectCreation = 12
+
+
 class SourceModel(QStandardItemModel):
     """
     Model providing the data sources (files or repository items like models) and meta information like path or the chosen dataset
@@ -170,11 +166,13 @@ class SourceModel(QStandardItemModel):
             return True
         return False
 
+
 class ImportModelsModel(SourceModel):
     """
     Model providing all the models to import from the repositories, ili-files and xtf-files and considering models already existing in the database
     Inherits SourceModel to use functions and signals like print_info etc.
     """
+
     def __init__(self):
         super().__init__()
         self._checked_models = {}
@@ -203,7 +201,15 @@ class ImportModelsModel(SourceModel):
                     modelname,
                     filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                     filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
-                    previously_checked_models.get((modelname,filtered_source_model_index.data(int(SourceModel.Roles.PATH))), Qt.Checked)
+                    previously_checked_models.get(
+                        (
+                            modelname,
+                            filtered_source_model_index.data(
+                                int(SourceModel.Roles.PATH)
+                            ),
+                        ),
+                        Qt.Checked,
+                    )
                     if enabled
                     else Qt.Unchecked,
                     enabled,
@@ -235,7 +241,12 @@ class ImportModelsModel(SourceModel):
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
                         previously_checked_models.get(
-                            (model["name"],filtered_source_model_index.data(int(SourceModel.Roles.PATH))),
+                            (
+                                model["name"],
+                                filtered_source_model_index.data(
+                                    int(SourceModel.Roles.PATH)
+                                ),
+                            ),
                             Qt.Checked
                             if model is models[-1] and enabled
                             else Qt.Unchecked,
@@ -257,7 +268,9 @@ class ImportModelsModel(SourceModel):
         filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(r, 0)
-            xtf_file_path = filtered_source_model_index.data(int(SourceModel.Roles.PATH))
+            xtf_file_path = filtered_source_model_index.data(
+                int(SourceModel.Roles.PATH)
+            )
             models = self._transfer_file_models(xtf_file_path)
             for model in models:
                 if model["name"]:
@@ -267,10 +280,13 @@ class ImportModelsModel(SourceModel):
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
                         previously_checked_models.get(
-                            (model["name"],filtered_source_model_index.data(int(SourceModel.Roles.PATH))),
-                            Qt.Checked
-                            if enabled
-                            else Qt.Unchecked,
+                            (
+                                model["name"],
+                                filtered_source_model_index.data(
+                                    int(SourceModel.Roles.PATH)
+                                ),
+                            ),
+                            Qt.Checked if enabled else Qt.Unchecked,
                         ),
                         enabled,
                     )
@@ -291,14 +307,18 @@ class ImportModelsModel(SourceModel):
         models = []
         try:
             root = ET.parse(xtf_file_path).getroot()
-            for model_element in root.iter('{http://www.interlis.ch/INTERLIS2.3}MODEL'):
+            for model_element in root.iter("{http://www.interlis.ch/INTERLIS2.3}MODEL"):
                 model = {}
-                model['name']= model_element.get('NAME')
+                model["name"] = model_element.get("NAME")
                 models.append(model)
         except ET.ParseError as e:
             self.print_info.emit(
-                self.tr('Could not parse transferfile file `{file}` ({exception})'.format(
-                file=xtf_file_path, exception=str(e))))
+                self.tr(
+                    "Could not parse transferfile file `{file}` ({exception})".format(
+                        file=xtf_file_path, exception=str(e)
+                    )
+                )
+            )
         return models
 
     def _db_modelnames(self, db_connector=None):
@@ -314,7 +334,7 @@ class ImportModelsModel(SourceModel):
 
     def add_source(self, name, type, path, checked, enabled):
         item = QStandardItem()
-        self._checked_models[(name,path)] = checked
+        self._checked_models[(name, path)] = checked
         item.setFlags(
             Qt.ItemIsSelectable | Qt.ItemIsEnabled if enabled else Qt.NoItemFlags
         )
@@ -333,13 +353,23 @@ class ImportModelsModel(SourceModel):
                 else " (already in the database)",
             )
         if role == Qt.CheckStateRole:
-            return self._checked_models[(self.data(index, int(SourceModel.Roles.NAME)),self.data(index, int(SourceModel.Roles.PATH)))]
+            return self._checked_models[
+                (
+                    self.data(index, int(SourceModel.Roles.NAME)),
+                    self.data(index, int(SourceModel.Roles.PATH)),
+                )
+            ]
         return SourceModel.data(self, index, role)
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
-            self._checked_models[(self.data(index, int(SourceModel.Roles.NAME)),self.data(index, int(SourceModel.Roles.PATH)))] = data
+            self._checked_models[
+                (
+                    self.data(index, int(SourceModel.Roles.NAME)),
+                    self.data(index, int(SourceModel.Roles.PATH)),
+                )
+            ] = data
             self.endResetModel()
 
     def flags(self, index):
@@ -368,7 +398,12 @@ class ImportModelsModel(SourceModel):
                     else "repository " + model
                 )
 
-                if self._checked_models[(model,item.data(int(SourceModel.Roles.PATH)))] == Qt.Checked:
+                if (
+                    self._checked_models[
+                        (model, item.data(int(SourceModel.Roles.PATH)))
+                    ]
+                    == Qt.Checked
+                ):
                     models = []
                     if source in sessions:
                         models = sessions[source]["models"]
@@ -408,6 +443,7 @@ class ImportDataModel(QSortFilterProxyModel):
             i += 1
         return sessions
 
+
 class CheckEntriesModel(QStringListModel):
     """
     A checkable string list model
@@ -439,13 +475,13 @@ class CheckEntriesModel(QStringListModel):
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
         self._emit_data_changed()
 
-    def check_all(self,state):
+    def check_all(self, state):
         for name in self.stringList():
             self._checked_entries[name] = state
         self._emit_data_changed()
 
     def _emit_data_changed(self):
-        self.dataChanged.emit(self.index(0,0),self.index(self.rowCount(),0))
+        self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount(), 0))
 
     def checked_entries(self):
         return [
@@ -453,6 +489,8 @@ class CheckEntriesModel(QStringListModel):
             for name in self.stringList()
             if self._checked_entries[name] == Qt.Checked
         ]
+
+
 class ExportModelsModel(CheckEntriesModel):
     """
     Model providing all the models from the database (except the blacklisted ones) and it's checked state
@@ -528,10 +566,12 @@ class ExportModelsModel(CheckEntriesModel):
 
         return self.rowCount()
 
+
 class ExportDatasetsModel(CheckEntriesModel):
     """
     Model providing all the datasets from the database and it's checked state
     """
+
     def __init__(self):
         super().__init__()
 
@@ -543,7 +583,9 @@ class ExportDatasetsModel(CheckEntriesModel):
             for record in datasets_info:
                 datasetnames.append(record["datasetname"])
         self.setStringList(datasetnames)
-        
-        self._checked_entries = {datasetname: Qt.Checked for datasetname in datasetnames}
+
+        self._checked_entries = {
+            datasetname: Qt.Checked for datasetname in datasetnames
+        }
 
         return self.rowCount()

@@ -18,34 +18,29 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils import get_ui_class
-from QgisModelBaker.utils.qt_utils import selectFolder
-
+from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem
 
-from qgis.gui import QgsGui
+from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils.qt_utils import selectFolder
 
-
-DIALOG_UI = get_ui_class('custom_model_dir.ui')
+DIALOG_UI = get_ui_class("custom_model_dir.ui")
 
 
 class CustomModelDirDialog(QDialog, DIALOG_UI):
-
     def __init__(self, current_paths, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        QgsGui.instance().enableAutoGeometryRestore(self);
+        QgsGui.instance().enableAutoGeometryRestore(self)
         self.parent = parent
 
         paths = current_paths.split(";")
-        self.model_dir_list.addItems(
-            [path for path in paths if path.strip()] or [''])
+        self.model_dir_list.addItems([path for path in paths if path.strip()] or [""])
         for i in range(self.model_dir_list.count()):
             self.set_flags(self.model_dir_list.item(i))
 
-        self.model_dir_list.itemSelectionChanged.connect(
-            self.on_selection_changed)
+        self.model_dir_list.itemSelectionChanged.connect(self.on_selection_changed)
         self.on_selection_changed()
 
         self.add_button.clicked.connect(self.add_model_dir)
@@ -65,19 +60,23 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
             self.model_dir_list.takeItem(self.model_dir_list.row(item))
 
     def accepted(self):
-        items = [self.model_dir_list.item(
-            x) for x in range(self.model_dir_list.count())]
-        new_paths = ";".join([i.text().strip()
-                              for i in items if i.text().strip()])
+        items = [
+            self.model_dir_list.item(x) for x in range(self.model_dir_list.count())
+        ]
+        new_paths = ";".join([i.text().strip() for i in items if i.text().strip()])
         self.parent.custom_model_directories_line_edit.setText(new_paths)
 
     def browse_dir(self):
-        selectFolder(self.model_dir_list.currentItem(), title=QCoreApplication.translate(
-            'QgisModelBaker', 'Open Folder with ili Models'), parent=None)
+        selectFolder(
+            self.model_dir_list.currentItem(),
+            title=QCoreApplication.translate(
+                "QgisModelBaker", "Open Folder with ili Models"
+            ),
+            parent=None,
+        )
 
     def set_flags(self, item):
-        item.setFlags(Qt.ItemIsSelectable |
-                      Qt.ItemIsEditable | Qt.ItemIsEnabled)
+        item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled)
 
     def on_selection_changed(self):
         enable = len(self.model_dir_list.selectedItems()) == 1

@@ -18,18 +18,13 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils import db_utils
-from PyQt5.QtWidgets import QVBoxLayout
 from qgis.PyQt.QtCore import QSettings
-
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from QgisModelBaker.gui.panel.log_panel import LogPanel
+from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.utils import db_utils
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-
 from ...utils import get_ui_class
 
 PAGE_UI = get_ui_class("workflow_wizard/database_selection.ui")

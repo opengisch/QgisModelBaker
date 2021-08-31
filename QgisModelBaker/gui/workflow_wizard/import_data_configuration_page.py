@@ -18,40 +18,13 @@
  ***************************************************************************/
 """
 
-from enum import Enum
-import os
-from PyQt5.QtCore import pyqtSignal
 
-from PyQt5.QtWidgets import QGridLayout, QToolButton
-from PyQt5.uic.uiparser import _parse_alignment
-
-from qgis.PyQt.QtWidgets import (
-    QWizardPage,
-    QHeaderView,
-    QStyledItemDelegate,
-    QComboBox,
-    QAction,
-    QWidget,
-    QHBoxLayout,
-    QStyle,
-    QStyleOptionComboBox,
-    QApplication,
-    QLayout,
-    QFrame,
-)
-
-from qgis.PyQt.QtGui import QIcon, QStandardItemModel, QStandardItem
-
-from qgis.PyQt.QtCore import Qt, QVariant
-
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
-from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QComboBox, QHeaderView, QStyledItemDelegate, QWizardPage
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
+from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 
 from ...utils import get_ui_class
 
@@ -126,7 +99,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def setup_dialog(self, basket_handling):
         if basket_handling:
-            self.db_connector = db_utils.get_db_connector(self.workflow_wizard.import_data_configuration)
+            self.db_connector = db_utils.get_db_connector(
+                self.workflow_wizard.import_data_configuration
+            )
             # set defaults
             for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
                 index = self.workflow_wizard.import_data_file_model.index(row, 1)

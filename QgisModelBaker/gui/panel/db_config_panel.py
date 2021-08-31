@@ -16,12 +16,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import pyqtSignal
-from qgis.PyQt.QtWidgets import QWidget
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.libili2db.globals import DbActionType
 from abc import ABCMeta, abstractmethod
 from typing import Tuple
+
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtWidgets import QWidget
+
+from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
 
 class AbstractQWidgetMeta(ABCMeta, type(QWidget)):
@@ -35,6 +37,7 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
+
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent: QWidget, db_action_type: DbActionType):
@@ -49,9 +52,7 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
 
     @abstractmethod
     def _show_panel(self):
-        """Shows/Hides fields or changes help text before panel is shown.
-        """
-        pass
+        """Shows/Hides fields or changes help text before panel is shown."""
 
     @abstractmethod
     def get_fields(self, configuration: Ili2DbCommandConfiguration):
@@ -60,7 +61,6 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
         :param configuration: Object in which the values of the panel fields will be written.
         :type configuration: :class:`Ili2DbCommandConfiguration`
         """
-        pass
 
     @abstractmethod
     def set_fields(self, configuration: Ili2DbCommandConfiguration):
@@ -69,7 +69,6 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
         :param configuration: Object whose instance variables will be written to the fields in the panel
         :type configuration: :class:`Ili2DbCommandConfiguration`
         """
-        pass
 
     @abstractmethod
     def is_valid(self) -> Tuple[bool, str]:
@@ -77,5 +76,3 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
 
         :return: *True* and empty message if the panel has a minimum fields filled out, *False* and warning message otherwise.
         """
-        pass
-

@@ -17,12 +17,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from QgisModelBaker.libili2db.ili2dbconfig import ExportConfiguration, Ili2DbCommandConfiguration
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    ExportConfiguration,
+    Ili2DbCommandConfiguration,
+)
 from QgisModelBaker.libili2db.iliexecutable import IliExecutable
 
 
 class Exporter(IliExecutable):
-
     def __init__(self, parent=None):
         super(Exporter, self).__init__(parent)
         self.version = 4
@@ -36,7 +38,7 @@ class Exporter(IliExecutable):
     def _args(self, hide_password):
         args = super(Exporter, self)._args(hide_password)
 
-        if self.version == 3 and '--export3' in args:
-            args.remove('--export3')
+        if self.version == 3 and "--export3" in args:
+            args.remove("--export3")
 
         return args

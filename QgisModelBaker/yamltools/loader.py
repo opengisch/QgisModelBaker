@@ -18,8 +18,9 @@
  ***************************************************************************/
 """
 
-import yaml
 import re
+
+import yaml
 
 
 def extend_constructor(loader, node):
@@ -29,14 +30,13 @@ def extend_constructor(loader, node):
     """
     return ExtendObject(node)
 
+
 # Register the '<<<' syntax with our custom constructor
 yaml.add_implicit_resolver(
-    'tag:opengis.ch,2016:extend',
-    re.compile(r'^(?:<<<)$'),
-    ['<']
+    "tag:opengis.ch,2016:extend", re.compile(r"^(?:<<<)$"), ["<"]
 )
 
-yaml.add_constructor('tag:opengis.ch,2016:extend', extend_constructor)
+yaml.add_constructor("tag:opengis.ch,2016:extend", extend_constructor)
 
 
 class ExtendObject(object):
@@ -53,7 +53,6 @@ class YamlReaderError(RuntimeError):
 
 
 class InheritanceLoader(yaml.Loader):
-
     def __init__(self, stream):
         yaml.Loader.__init__(self, stream)
 
@@ -82,7 +81,7 @@ class InheritanceLoader(yaml.Loader):
 
             return result
         elif isinstance(item, ExtendObject):
-            return 'ay'
+            return "ay"
         else:
             return item
 
@@ -95,7 +94,12 @@ class InheritanceLoader(yaml.Loader):
         # ## debug output
         # sys.stderr.write("DEBUG: %s to %s\n" %(b,a))
         try:
-            if a is None or isinstance(a, str) or isinstance(a, int) or isinstance(a, float):
+            if (
+                a is None
+                or isinstance(a, str)
+                or isinstance(a, int)
+                or isinstance(a, float)
+            ):
                 # border case for first run or if a is a primitive
                 a = b
             elif isinstance(a, list):
@@ -116,11 +120,13 @@ class InheritanceLoader(yaml.Loader):
                             a[key] = b[key]
                 else:
                     raise YamlReaderError(
-                        'Cannot merge non-dict "%s" into dict "%s"' % (b, a))
+                        'Cannot merge non-dict "%s" into dict "%s"' % (b, a)
+                    )
             else:
-                raise YamlReaderError(
-                    'NOT IMPLEMENTED "%s" into "%s"' % (b, a))
+                raise YamlReaderError('NOT IMPLEMENTED "%s" into "%s"' % (b, a))
         except TypeError as e:
             raise YamlReaderError(
-                'TypeError "%s" in key "%s" when merging "%s" into "%s"' % (e, key, b, a))
+                'TypeError "%s" in key "%s" when merging "%s" into "%s"'
+                % (e, key, b, a)
+            )
         return a

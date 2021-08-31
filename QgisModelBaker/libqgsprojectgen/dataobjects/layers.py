@@ -17,37 +17,50 @@
  *                                                                         *
  ***************************************************************************/
 """
-from .form import (
-    Form,
-    FormTab,
-    FormRelationWidget,
-    FormFieldWidget
-)
 from qgis.core import (
-    QgsVectorLayer,
-    QgsDataSourceUri,
-    QgsWkbTypes,
-    QgsRectangle,
     QgsCoordinateReferenceSystem,
+    QgsDataSourceUri,
     QgsExpressionContextUtils,
-    QgsDataSourceUri
+    QgsRectangle,
+    QgsVectorLayer,
+    QgsWkbTypes,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
+from .form import Form, FormFieldWidget, FormRelationWidget, FormTab
+
 
 class Layer(object):
-
-    def __init__(self, provider, uri, name, srid, extent, geometry_column=None, wkb_type=QgsWkbTypes.Unknown, alias=None, is_domain=False, is_structure=False, is_nmrel=False, display_expression=None, coordinate_precision=None, is_basket_table=False, is_dataset_table = False, model_topic_name=None):
+    def __init__(
+        self,
+        provider,
+        uri,
+        name,
+        srid,
+        extent,
+        geometry_column=None,
+        wkb_type=QgsWkbTypes.Unknown,
+        alias=None,
+        is_domain=False,
+        is_structure=False,
+        is_nmrel=False,
+        display_expression=None,
+        coordinate_precision=None,
+        is_basket_table=False,
+        is_dataset_table=False,
+        model_topic_name=None,
+    ):
         self.provider = provider
         self.uri = uri
         self.name = name
         if extent is not None:
-            extent_coords = extent.split(';')
+            extent_coords = extent.split(";")
             extent = QgsRectangle(
-                        float(extent_coords[0]),
-                        float(extent_coords[1]),
-                        float(extent_coords[2]),
-                        float(extent_coords[3]))
+                float(extent_coords[0]),
+                float(extent_coords[1]),
+                float(extent_coords[2]),
+                float(extent_coords[3]),
+            )
         self.extent = extent
         self.geometry_column = geometry_column
         self.wkb_type = wkb_type
@@ -72,38 +85,38 @@ class Layer(object):
 
         self.__form = Form()
 
-        #legend settings
+        # legend settings
         self.expanded = True
         self.checked = True
         self.featurecount = False
 
     def dump(self):
         definition = dict()
-        definition['provider'] = self.provider
-        definition['uri'] = self.uri
-        definition['isdomain'] = self.is_domain
-        definition['isstructure'] = self.is_structure
-        definition['isnmrel'] = self.is_nmrel
-        definition['isbaskettable'] = self.is_basket_table
-        definition['isdatasettable'] = self.is_dataset_table
-        definition['displayexpression'] = self.display_expression
-        definition['coordinateprecision'] = self.coordinate_precision
-        definition['modeltopicname'] = self.model_topic_name
-        definition['form'] = self.__form.dump()
+        definition["provider"] = self.provider
+        definition["uri"] = self.uri
+        definition["isdomain"] = self.is_domain
+        definition["isstructure"] = self.is_structure
+        definition["isnmrel"] = self.is_nmrel
+        definition["isbaskettable"] = self.is_basket_table
+        definition["isdatasettable"] = self.is_dataset_table
+        definition["displayexpression"] = self.display_expression
+        definition["coordinateprecision"] = self.coordinate_precision
+        definition["modeltopicname"] = self.model_topic_name
+        definition["form"] = self.__form.dump()
         return definition
 
     def load(self, definition):
-        self.provider = definition['provider']
-        self.uri = definition['uri']
-        self.is_domain = definition['isdomain']
-        self.is_structure = definition['isstructure']
-        self.is_nmrel = definition['isnmrel']
-        self.is_basket_table = definition['isbaskettable']
-        self.is_dataset_table = definition['isdatasettable']
-        self.display_expression = definition['displayexpression']
-        self.coordinate_precision = definition['coordinateprecision']
-        self.model_topic_name = definition['modeltopicname']
-        self.__form.load(definition['form'])
+        self.provider = definition["provider"]
+        self.uri = definition["uri"]
+        self.is_domain = definition["isdomain"]
+        self.is_structure = definition["isstructure"]
+        self.is_nmrel = definition["isnmrel"]
+        self.is_basket_table = definition["isbaskettable"]
+        self.is_dataset_table = definition["isdatasettable"]
+        self.display_expression = definition["displayexpression"]
+        self.coordinate_precision = definition["coordinateprecision"]
+        self.model_topic_name = definition["modeltopicname"]
+        self.__form.load(definition["form"])
 
     def create(self):
         if self.__layer is None:
@@ -111,12 +124,17 @@ class Layer(object):
 
             settings = QSettings()
             # Take the "CRS for new layers" config, overwrite it while loading layers and...
-            old_proj_value = settings.value("/Projections/defaultBehaviour", "prompt", type=str)
+            old_proj_value = settings.value(
+                "/Projections/defaultBehaviour", "prompt", type=str
+            )
             settings.setValue("/Projections/defaultBehaviour", "useProject")
             self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
             settings.setValue("/Projections/defaultBehavior", old_proj_value)
 
-            if self.srid is not None and not self.__layer.crs().authid() == "EPSG:{}".format(self.srid):
+            if (
+                self.srid is not None
+                and not self.__layer.crs().authid() == "EPSG:{}".format(self.srid)
+            ):
                 crs = QgsCoordinateReferenceSystem().fromEpsgId(self.srid)
                 if not crs.isValid():
                     crs = QgsCoordinateReferenceSystem(self.srid)  # Fallback
@@ -126,11 +144,15 @@ class Layer(object):
             if self.display_expression:
                 self.__layer.setDisplayExpression(self.display_expression)
             if self.coordinate_precision and self.coordinate_precision < 1:
-                self.__layer.geometryOptions().setGeometryPrecision(self.coordinate_precision)
+                self.__layer.geometryOptions().setGeometryPrecision(
+                    self.coordinate_precision
+                )
                 self.__layer.geometryOptions().setRemoveDuplicateNodes(True)
 
             if self.model_topic_name:
-                QgsExpressionContextUtils.setLayerVariable(self.__layer, 'interlis_topic', self.model_topic_name)
+                QgsExpressionContextUtils.setLayerVariable(
+                    self.__layer, "interlis_topic", self.model_topic_name
+                )
 
         for field in self.fields:
             field.create(self)
@@ -142,11 +164,11 @@ class Layer(object):
         self.__layer.setEditFormConfig(edit_form)
 
     def post_generate(self, project):
-        '''
+        """
         Will be called when the whole project has been generated and
         therefore all relations are available and the form
         can also be generated.
-        '''
+        """
         has_tabs = False
         for relation in project.relations:
             if relation.referenced_layer == self:
@@ -159,7 +181,7 @@ class Layer(object):
                 num_tabs = 2
             else:
                 num_tabs = 1
-            tab = FormTab(QCoreApplication.translate('FormTab', 'General'), num_tabs)
+            tab = FormTab(QCoreApplication.translate("FormTab", "General"), num_tabs)
             for field in self.fields:
                 if not field.hidden:
                     widget = FormFieldWidget(field.alias, field.name)
@@ -188,9 +210,9 @@ class Layer(object):
 
     @property
     def real_id(self):
-        '''
+        """
         The layer id. Only valid after creating the layer.
-        '''
+        """
         if self.__layer:
             return self.__layer.id()
         else:

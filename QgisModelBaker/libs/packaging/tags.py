@@ -26,9 +26,9 @@ from ._typing import MYPY_CHECK_RUNNING, cast
 
 if MYPY_CHECK_RUNNING:  # pragma: no cover
     from typing import (
+        IO,
         Dict,
         FrozenSet,
-        IO,
         Iterable,
         Iterator,
         List,
@@ -545,7 +545,7 @@ class _ELFFileHeader(object):
         def unpack(fmt):
             # type: (str) -> int
             try:
-                result, = struct.unpack(
+                (result,) = struct.unpack(
                     fmt, file.read(struct.calcsize(fmt))
                 )  # type: (int, )
             except struct.error:

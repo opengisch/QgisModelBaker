@@ -18,14 +18,12 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsProject, QgsLayerTreeLayer
+from qgis.core import QgsLayerTreeLayer, QgsProject
 
 from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
 
-
 class LegendGroup(object):
-
     def __init__(self, name=None, ignore_node_names=None, static_sorting=False):
         self.name = name
         self.items = list()
@@ -67,9 +65,12 @@ class LegendGroup(object):
         if not group:
             group = qgis_project.layerTreeRoot()
 
-        existing_layer_source_uris = [found_layer.layer().dataProvider().dataSourceUri() for found_layer in qgis_project.layerTreeRoot().findLayers()]
+        existing_layer_source_uris = [
+            found_layer.layer().dataProvider().dataSourceUri()
+            for found_layer in qgis_project.layerTreeRoot().findLayers()
+        ]
 
-        static_index=0
+        static_index = 0
         for item in self.items:
             if isinstance(item, LegendGroup):
                 subgroup = group.findGroup(item.name)
@@ -78,16 +79,23 @@ class LegendGroup(object):
                 item.create(qgis_project, subgroup)
                 subgroup.setExpanded(item.expanded)
                 subgroup.setItemVisibilityChecked(item.checked)
-                subgroup.setIsMutuallyExclusive(item.mutually_exclusive, item.mutually_exclusive_child)
+                subgroup.setIsMutuallyExclusive(
+                    item.mutually_exclusive, item.mutually_exclusive_child
+                )
             else:
                 layer = item.layer
-                if layer.dataProvider().dataSourceUri() not in existing_layer_source_uris:
+                if (
+                    layer.dataProvider().dataSourceUri()
+                    not in existing_layer_source_uris
+                ):
                     if self.static_sorting:
                         index = static_index
                     elif layer.isSpatial():
-                        index = get_suggested_index_for_layer(layer, group, self.ignore_node_names)
+                        index = get_suggested_index_for_layer(
+                            layer, group, self.ignore_node_names
+                        )
                     else:
-                        index = 0                    
+                        index = 0
                     layernode = QgsLayerTreeLayer(layer)
                     layernode.setExpanded(item.expanded)
                     layernode.setItemVisibilityChecked(item.checked)

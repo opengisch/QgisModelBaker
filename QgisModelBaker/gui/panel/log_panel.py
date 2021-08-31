@@ -19,33 +19,18 @@
 """
 
 from PyQt5.QtWidgets import QGridLayout
-from qgis.PyQt.QtWidgets import (
-    QWidget,
-    QTextBrowser,
-    QSizePolicy,
-    QGridLayout
-)
-from qgis.PyQt.QtGui import (
-    QColor
-)
-
-from qgis.PyQt.QtCore import (
-    Qt
-)
-
-from qgis.gui import (
-    QgsMessageBar
-)
-from qgis.core import (
-    Qgis
-)
-from QgisModelBaker.utils.ui import LogColor
+from qgis.core import Qgis
+from qgis.gui import QgsMessageBar
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
 
 from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.utils.ui import LogColor
+
 
 class LogPanel(QWidget):
-
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
         self.txtStdout = QTextBrowser()

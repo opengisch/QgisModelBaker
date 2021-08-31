@@ -18,52 +18,101 @@
  ***************************************************************************/
 """
 
-from QgisModelBaker.utils.ui import LogColor
 import os
-import webbrowser
 import os.path
 import re
+import webbrowser
 
-from QgisModelBaker.gui.options import OptionsDialog, ModelListView
-from QgisModelBaker.gui.edit_command import EditCommandDialog
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from QgisModelBaker.libili2db.ili2dbutils import (
-    color_log_text,
-    JavaNotFoundError
-)
-from QgisModelBaker.utils.qt_utils import (
-    make_save_file_selector,
-    Validators,
-    FileValidator,
-    OverrideCursor
+from qgis.core import Qgis
+from qgis.gui import QgsGui, QgsMessageBar
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QLocale,
+    QSettings,
+    QStringListModel,
+    Qt,
+    QTimer,
 )
 from qgis.PyQt.QtGui import QColor, QDesktopServices, QValidator
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QSizePolicy, QGridLayout, QAction, QToolButton
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, Qt, QLocale, QStringListModel, QTimer
-from qgis.gui import QgsGui, QgsMessageBar
-from qgis.core import Qgis
-from ..utils import get_ui_class
-from ..libili2db import iliexporter, ili2dbconfig
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QMessageBox,
+    QSizePolicy,
+)
+
+from QgisModelBaker.gui.edit_command import EditCommandDialog
+from QgisModelBaker.gui.options import OptionsDialog
+from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
+from QgisModelBaker.utils.qt_utils import (
+    FileValidator,
+    OverrideCursor,
+    Validators,
+    make_save_file_selector,
+)
+from QgisModelBaker.utils.ui import LogColor
+
+from ..libili2db import ili2dbconfig, iliexporter
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ..utils import get_ui_class
 
-
-DIALOG_UI = get_ui_class('export.ui')
+DIALOG_UI = get_ui_class("export.ui")
 
 
 class ExportModels(QStringListModel):
 
-    blacklist = ['CHBaseEx_MapCatalogue_V1', 'CHBaseEx_WaterNet_V1', 'CHBaseEx_Sewage_V1', 'CHAdminCodes_V1',
-                    'AdministrativeUnits_V1', 'AdministrativeUnitsCH_V1', 'WithOneState_V1',
-                    'WithLatestModification_V1', 'WithModificationObjects_V1', 'GraphicCHLV03_V1', 'GraphicCHLV95_V1',
-                    'NonVector_Base_V2', 'NonVector_Base_V3', 'NonVector_Base_LV03_V3_1', 'NonVector_Base_LV95_V3_1',
-                    'GeometryCHLV03_V1', 'GeometryCHLV95_V1', 'InternationalCodes_V1', 'Localisation_V1',
-                    'LocalisationCH_V1', 'Dictionaries_V1', 'DictionariesCH_V1', 'CatalogueObjects_V1',
-                    'CatalogueObjectTrees_V1', 'AbstractSymbology', 'CodeISO', 'CoordSys', 'GM03_2_1Comprehensive',
-                    'GM03_2_1Core', 'GM03_2Comprehensive', 'GM03_2Core', 'GM03Comprehensive', 'GM03Core',
-                    'IliRepository09', 'IliSite09', 'IlisMeta07', 'IliVErrors', 'INTERLIS_ext', 'RoadsExdm2ben',
-                    'RoadsExdm2ben_10', 'RoadsExgm2ien', 'RoadsExgm2ien_10', 'StandardSymbology', 'StandardSymbology',
-                    'Time', 'Units']
+    blacklist = [
+        "CHBaseEx_MapCatalogue_V1",
+        "CHBaseEx_WaterNet_V1",
+        "CHBaseEx_Sewage_V1",
+        "CHAdminCodes_V1",
+        "AdministrativeUnits_V1",
+        "AdministrativeUnitsCH_V1",
+        "WithOneState_V1",
+        "WithLatestModification_V1",
+        "WithModificationObjects_V1",
+        "GraphicCHLV03_V1",
+        "GraphicCHLV95_V1",
+        "NonVector_Base_V2",
+        "NonVector_Base_V3",
+        "NonVector_Base_LV03_V3_1",
+        "NonVector_Base_LV95_V3_1",
+        "GeometryCHLV03_V1",
+        "GeometryCHLV95_V1",
+        "InternationalCodes_V1",
+        "Localisation_V1",
+        "LocalisationCH_V1",
+        "Dictionaries_V1",
+        "DictionariesCH_V1",
+        "CatalogueObjects_V1",
+        "CatalogueObjectTrees_V1",
+        "AbstractSymbology",
+        "CodeISO",
+        "CoordSys",
+        "GM03_2_1Comprehensive",
+        "GM03_2_1Core",
+        "GM03_2Comprehensive",
+        "GM03_2Core",
+        "GM03Comprehensive",
+        "GM03Core",
+        "IliRepository09",
+        "IliSite09",
+        "IlisMeta07",
+        "IliVErrors",
+        "INTERLIS_ext",
+        "RoadsExdm2ben",
+        "RoadsExdm2ben_10",
+        "RoadsExgm2ien",
+        "RoadsExgm2ien_10",
+        "StandardSymbology",
+        "StandardSymbology",
+        "Time",
+        "Units",
+    ]
 
     def __init__(self):
         super().__init__()
@@ -71,13 +120,13 @@ class ExportModels(QStringListModel):
 
     def refresh_models(self, db_connector=None):
         modelnames = list()
-        
+
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 for db_model in db_models:
-                    regex = re.compile(r'(?:\{[^\}]*\}|\s)')
-                    for modelname in regex.split(db_model['modelname']):
+                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+                    for modelname in regex.split(db_model["modelname"]):
                         if modelname and modelname not in ExportModels.blacklist:
                             modelnames.append(modelname.strip())
 
@@ -107,11 +156,15 @@ class ExportModels(QStringListModel):
             self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
     def checked_models(self):
-        return [modelname for modelname in self.stringList() if self._checked_models[modelname] == Qt.Checked]
+        return [
+            modelname
+            for modelname in self.stringList()
+            if self._checked_models[modelname] == Qt.Checked
+        ]
 
 
 class ExportDialog(QDialog, DIALOG_UI):
-    ValidExtensions = ['xtf', 'XTF', 'itf', 'ITF', 'gml', 'GML', 'xml', 'XML']
+    ValidExtensions = ["xtf", "XTF", "itf", "ITF", "gml", "GML", "xml", "XML"]
 
     def __init__(self, base_config, parent=None):
         QDialog.__init__(self, parent)
@@ -124,29 +177,40 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
 
-        self.export_text = self.tr('Export')
+        self.export_text = self.tr("Export")
         self.set_button_to_export_action = QAction(self.export_text, None)
         self.set_button_to_export_action.triggered.connect(self.set_button_to_export)
 
-        self.export_without_validation_text = self.tr('Export without validation')
-        self.set_button_to_export_without_validation_action = QAction(self.export_without_validation_text, None)
-        self.set_button_to_export_without_validation_action.triggered.connect(self.set_button_to_export_without_validation)
+        self.export_without_validation_text = self.tr("Export without validation")
+        self.set_button_to_export_without_validation_action = QAction(
+            self.export_without_validation_text, None
+        )
+        self.set_button_to_export_without_validation_action.triggered.connect(
+            self.set_button_to_export_without_validation
+        )
 
-        self.edit_command_action = QAction(self.tr('Edit ili2db command'), None)
+        self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
-        self.export_tool_button.addAction(self.set_button_to_export_without_validation_action)
+        self.export_tool_button.addAction(
+            self.set_button_to_export_without_validation_action
+        )
         self.export_tool_button.addAction(self.edit_command_action)
         self.export_tool_button.setText(self.export_text)
         self.export_tool_button.clicked.connect(self.accepted)
 
         self.xtf_file_browse_button.clicked.connect(
-            make_save_file_selector(self.xtf_file_line_edit, title=self.tr('Save in XTF Transfer File'),
-                                    file_filter=self.tr('XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)'),
-                                    extension='.xtf',
-                                    extensions=['.' + ext for ext in self.ValidExtensions]))
-        self.xtf_file_browse_button.clicked.connect(
-            self.xtf_browser_opened_to_true)
+            make_save_file_selector(
+                self.xtf_file_line_edit,
+                title=self.tr("Save in XTF Transfer File"),
+                file_filter=self.tr(
+                    "XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
+                ),
+                extension=".xtf",
+                extensions=["." + ext for ext in self.ValidExtensions],
+            )
+        )
+        self.xtf_file_browse_button.clicked.connect(self.xtf_browser_opened_to_true)
         self.xtf_browser_was_opened = False
 
         self.type_combo_box.clear()
@@ -161,20 +225,20 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         self.validators = Validators()
 
-        fileValidator = FileValidator(pattern=['*.' + ext for ext in self.ValidExtensions], allow_non_existing=True)
+        fileValidator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_non_existing=True,
+        )
 
         self.xtf_file_line_edit.setValidator(fileValidator)
-        self.xtf_file_line_edit.textChanged.connect(
-            self.validators.validate_line_edits)
-        self.xtf_file_line_edit.textChanged.connect(
-            self.xtf_browser_opened_to_false)
-        self.xtf_file_line_edit.textChanged.emit(
-            self.xtf_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.xtf_file_line_edit.textChanged.connect(self.xtf_browser_opened_to_false)
+        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
         # Reset to export as default text
         self.xtf_file_line_edit.textChanged.connect(self.set_button_to_export)
 
-        #refresh the models on changing values but avoid massive db connects by timer
+        # refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
         self.refreshTimer.setSingleShot(True)
         self.refreshTimer.timeout.connect(self.refresh_models)
@@ -182,7 +246,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         for key, value in self._lst_panel.items():
             value.notify_fields_modified.connect(self.request_for_refresh_models)
 
-        self.validate_data = True # validates exported data by default, We use --disableValidation when is False
+        self.validate_data = True  # validates exported data by default, We use --disableValidation when is False
         self.base_configuration = base_config
         self.restore_configuration()
 
@@ -209,7 +273,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def refreshed_export_models_model(self):
         tool = self.type_combo_box.currentData() & ~DbIliMode.ili
-        
+
         configuration = self.updated_configuration()
         schema = configuration.dbschema
 
@@ -255,7 +319,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.validate_data = True
         self.export_tool_button.removeAction(self.set_button_to_export_action)
         self.export_tool_button.removeAction(self.edit_command_action)
-        self.export_tool_button.addAction(self.set_button_to_export_without_validation_action)
+        self.export_tool_button.addAction(
+            self.set_button_to_export_without_validation_action
+        )
         self.export_tool_button.addAction(self.edit_command_action)
         self.export_tool_button.setText(self.export_text)
 
@@ -266,7 +332,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         The buttons actions are changed to be able to switch the with-validation mode.
         """
         self.validate_data = False
-        self.export_tool_button.removeAction(self.set_button_to_export_without_validation_action)
+        self.export_tool_button.removeAction(
+            self.set_button_to_export_without_validation_action
+        )
         self.export_tool_button.removeAction(self.edit_command_action)
         self.export_tool_button.addAction(self.set_button_to_export_action)
         self.export_tool_button.addAction(self.edit_command_action)
@@ -292,14 +360,23 @@ class ExportDialog(QDialog, DIALOG_UI):
         db_id = self.type_combo_box.currentData()
 
         if not edited_command:
-            if not self.xtf_file_line_edit.validator().validate(configuration.xtffile, 0)[0] == QValidator.Acceptable:
+            if (
+                not self.xtf_file_line_edit.validator().validate(
+                    configuration.xtffile, 0
+                )[0]
+                == QValidator.Acceptable
+            ):
                 self.txtStdout.setText(
-                    self.tr('Please set a valid INTERLIS XTF file before exporting data.'))
+                    self.tr(
+                        "Please set a valid INTERLIS XTF file before exporting data."
+                    )
+                )
                 self.xtf_file_line_edit.setFocus()
                 return
             if not configuration.ilimodels:
                 self.txtStdout.setText(
-                    self.tr('Please set a model before exporting data.'))
+                    self.tr("Please set a model before exporting data.")
+                )
                 self.export_models_view.setFocus()
                 return
 
@@ -311,10 +388,19 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         # If xtf browser was opened and the file exists, the user already chose
         # to overwrite the file
-        if os.path.isfile(self.xtf_file_line_edit.text().strip()) and not self.xtf_browser_was_opened:
+        if (
+            os.path.isfile(self.xtf_file_line_edit.text().strip())
+            and not self.xtf_browser_was_opened
+        ):
             self.msg = QMessageBox()
             self.msg.setIcon(QMessageBox.Warning)
-            self.msg.setText(self.tr("{filename} already exists.\nDo you want to replace it?").format(filename=os.path.basename(self.xtf_file_line_edit.text().strip())))
+            self.msg.setText(
+                self.tr(
+                    "{filename} already exists.\nDo you want to replace it?"
+                ).format(
+                    filename=os.path.basename(self.xtf_file_line_edit.text().strip())
+                )
+            )
             self.msg.setWindowTitle(self.tr("Save in XTF Transfer File"))
             self.msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg_box = self.msg.exec_()
@@ -348,7 +434,12 @@ class ExportDialog(QDialog, DIALOG_UI):
                         # failed with a db created by ili2db version 3
                         if not edited_command:
                             # fallback because of issues with --export3 argument
-                            self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (fallback)'))
+                            self.show_message(
+                                Qgis.Warning,
+                                self.tr(
+                                    "Tried export with ili2db version 3.x.x (fallback)"
+                                ),
+                            )
 
                             exporter.version = 3
                             # ... and enforce the Exporter to use ili2db version 3.x.x
@@ -357,7 +448,12 @@ class ExportDialog(QDialog, DIALOG_UI):
                                 self.progress_bar.hide()
                                 return
                         else:
-                            self.show_message(Qgis.Warning, self.tr('Tried export with ili2db version 3.x.x (no fallback with editted command)'))
+                            self.show_message(
+                                Qgis.Warning,
+                                self.tr(
+                                    "Tried export with ili2db version 3.x.x (no fallback with editted command)"
+                                ),
+                            )
                             return
                     else:
                         self.enable()
@@ -400,9 +496,9 @@ class ExportDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_process_finished(self, exit_code, result):
-        color = '#004905' if exit_code == 0 else '#aa2222'
+        color = "#004905" if exit_code == 0 else "#aa2222"
         self.txtStdout.setTextColor(QColor(color))
-        self.txtStdout.append(self.tr('Finished ({})'.format(exit_code)))
+        self.txtStdout.append(self.tr("Finished ({})".format(exit_code)))
         if result == iliexporter.Exporter.SUCCESS:
             self.buttonBox.clear()
             self.buttonBox.setEnabled(True)
@@ -434,7 +530,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
         configuration.tool = mode
         configuration.xtffile = self.xtf_file_line_edit.text().strip()
-        configuration.ilimodels = ';'.join(self.export_models_model.checked_models())
+        configuration.ilimodels = ";".join(self.export_models_model.checked_models())
         configuration.base_configuration = self.base_configuration
         configuration.db_ili_version = self.db_ili_version(configuration)
 
@@ -444,10 +540,10 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self, configuration):
         settings = QSettings()
+        settings.setValue("QgisModelBaker/ili2pg/xtffile_export", configuration.xtffile)
         settings.setValue(
-            'QgisModelBaker/ili2pg/xtffile_export', configuration.xtffile)
-        settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData().name)
+            "QgisModelBaker/importtype", self.type_combo_box.currentData().name
+        )
 
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
@@ -464,7 +560,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
-        mode = settings.value('QgisModelBaker/importtype')
+        mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
 
@@ -507,24 +603,27 @@ class ExportDialog(QDialog, DIALOG_UI):
                 value._show_panel()
 
     def link_activated(self, link):
-        if link.url() == '#configure':
+        if link.url() == "#configure":
             cfg = OptionsDialog(self.base_configuration)
             if cfg.exec_():
                 settings = QSettings()
-                settings.beginGroup('QgisModelBaker/ili2db')
+                settings.beginGroup("QgisModelBaker/ili2db")
                 self.base_configuration.save(settings)
         else:
             QDesktopServices.openUrl(link)
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value(
-            'locale/userLocale')).name()[:2]
-        if os_language in ['es', 'de']:
+        os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
+        if os_language in ["es", "de"]:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(os_language))
+                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#export-an-interlis-transfer-file-xtf".format(
+                    os_language
+                )
+            )
         else:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#export-an-interlis-transfer-file-xtf")
+                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#export-an-interlis-transfer-file-xtf"
+            )
 
     def xtf_browser_opened_to_true(self):
         """
@@ -539,7 +638,7 @@ class ExportDialog(QDialog, DIALOG_UI):
         self.xtf_browser_was_opened = False
 
     def advance_progress_bar_by_text(self, text):
-        if text.strip() == 'Info: compile models…':
+        if text.strip() == "Info: compile models…":
             self.progress_bar.setValue(50)
-        elif text.strip() == 'Info: create table structure…':
+        elif text.strip() == "Info: create table structure…":
             self.progress_bar.setValue(75)

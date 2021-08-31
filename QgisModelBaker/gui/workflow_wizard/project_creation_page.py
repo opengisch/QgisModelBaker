@@ -19,23 +19,17 @@
 """
 
 import yaml
-
-from qgis.PyQt.QtCore import Qt
-
-from qgis.PyQt.QtWidgets import QWizardPage
-
 from qgis.core import QgsProject
-
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from ...libqgsprojectgen.generator.generator import Generator
-from ...libqgsprojectgen.dataobjects import Project
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.libili2db.ilicache import IliToppingFileItemModel
 
-from ...utils.ui import get_ui_class, LogColor
+from ...libqgsprojectgen.dataobjects import Project
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from ...libqgsprojectgen.generator.generator import Generator
+from ...utils.ui import LogColor, get_ui_class
 
 PAGE_UI = get_ui_class("workflow_wizard/project_creation.ui")
 
@@ -105,7 +99,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             return
 
         self.workflow_wizard.log_panel.print_info(
-            f'\n{self.tr("Obtaining available layers from the database…")}')
+            f'\n{self.tr("Obtaining available layers from the database…")}'
+        )
 
         available_layers = generator.layers()
 

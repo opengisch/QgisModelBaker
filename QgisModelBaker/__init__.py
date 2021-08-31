@@ -21,4 +21,5 @@
 
 def classFactory(iface):
     from .qgismodelbaker import QgisModelBakerPlugin
+
     return QgisModelBakerPlugin(iface)

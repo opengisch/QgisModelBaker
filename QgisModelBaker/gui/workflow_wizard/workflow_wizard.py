@@ -17,67 +17,52 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import Enum
 
-from qgis.PyQt.QtCore import (
-    QTimer,
-    Qt,
-    QEventLoop,
-)
-
-from qgis.PyQt.QtWidgets import QWizard, QDialog, QVBoxLayout, QSplitter
-
-from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
-    SourceModel,
-    ImportDataModel,
-    ImportModelsModel,
-    ExportDatasetsModel,
-    ExportModelsModel,
-    TransferExtensions,
-    PageIds
-)
-
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
-from QgisModelBaker.libili2db.globals import DbActionType
-
-from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
-
-from QgisModelBaker.libili2db.ili2dbconfig import (
-    UpdateDataConfiguration,
-    ImportDataConfiguration,
-    SchemaImportConfiguration,
-    ExportConfiguration,
-)
-
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
+from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
+from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.utils.db_utils as db_utils
-
-from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
-from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
-    ImportSourceSeletionPage,
-)
+from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.workflow_wizard.database_selection_page import (
     DatabaseSelectionPage,
+)
+from QgisModelBaker.gui.workflow_wizard.execution_page import ExecutionPage
+from QgisModelBaker.gui.workflow_wizard.export_data_configuration_page import (
+    ExportDataConfigurationPage,
+)
+from QgisModelBaker.gui.workflow_wizard.import_data_configuration_page import (
+    ImportDataConfigurationPage,
 )
 from QgisModelBaker.gui.workflow_wizard.import_schema_configuration_page import (
     ImportSchemaConfigurationPage,
 )
-from QgisModelBaker.gui.workflow_wizard.execution_page import ExecutionPage
+from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
+    ImportSourceSeletionPage,
+)
+from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
-from QgisModelBaker.gui.workflow_wizard.import_data_configuration_page import (
-    ImportDataConfigurationPage,
+from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+    ExportDatasetsModel,
+    ExportModelsModel,
+    ImportDataModel,
+    ImportModelsModel,
+    PageIds,
+    SourceModel,
+    TransferExtensions,
 )
-from QgisModelBaker.gui.workflow_wizard.export_data_configuration_page import (
-    ExportDataConfigurationPage,
+from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    ExportConfiguration,
+    ImportDataConfiguration,
+    SchemaImportConfiguration,
+    UpdateDataConfiguration,
 )
+from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
 
 from ...utils.ui import LogColor
 
-class WorkflowWizard(QWizard):
 
+class WorkflowWizard(QWizard):
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self)
 
@@ -175,12 +160,8 @@ class WorkflowWizard(QWizard):
         self.setPage(
             PageIds.ImportDatabaseSelection, self.import_database_seletion_page
         )
-        self.setPage(
-            PageIds.ImportSchemaConfiguration, self.schema_configuration_page
-        )
-        self.setPage(
-            PageIds.ImportSchemaExecution, self.import_schema_execution_page
-        )
+        self.setPage(PageIds.ImportSchemaConfiguration, self.schema_configuration_page)
+        self.setPage(PageIds.ImportSchemaExecution, self.import_schema_execution_page)
         self.setPage(PageIds.ImportDataConfiguration, self.data_configuration_page)
         self.setPage(PageIds.ImportDataExecution, self.import_data_execution_page)
         self.setPage(PageIds.ProjectCreation, self.project_creation_page)
@@ -218,19 +199,14 @@ class WorkflowWizard(QWizard):
             if self._db_or_schema_exists(self.import_schema_configuration):
                 return PageIds.ProjectCreation
             else:
-                self.log_panel.print_info(
-                    self.tr("Database or schema does not exist.")
-                )
-            
+                self.log_panel.print_info(self.tr("Database or schema does not exist."))
 
         if self.current_id == PageIds.ExportDatabaseSelection:
             self._update_configurations(self.export_database_seletion_page)
             if self._db_or_schema_exists(self.export_data_configuration):
                 return PageIds.ExportDataConfiguration
             else:
-                self.log_panel.print_info(
-                    self.tr("Database or schema does not exist.")
-                )
+                self.log_panel.print_info(self.tr("Database or schema does not exist."))
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
             self.schema_configuration_page.update_configuration(
@@ -306,7 +282,11 @@ class WorkflowWizard(QWizard):
             self.data_configuration_page.setup_dialog(self._basket_handling())
 
         if self.current_id == PageIds.ImportDataExecution:
-            configuration = self.import_data_configuration if not self._basket_handling() else self.update_data_configuration
+            configuration = (
+                self.import_data_configuration
+                if not self._basket_handling()
+                else self.update_data_configuration
+            )
             self.import_data_execution_page.setup_sessions(
                 configuration,
                 self.import_data_file_model.import_sessions(
@@ -317,7 +297,6 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ExportDataConfiguration:
             self.refresh_export_models()
             self.export_data_configuration_page.setup_dialog(self._basket_handling())
-
 
         if self.current_id == PageIds.ExportDataExecution:
             sessions = {}
@@ -332,24 +311,14 @@ class WorkflowWizard(QWizard):
                 self.export_data_configuration, sessions
             )
 
-    def _update_configurations(self, page ):
+    def _update_configurations(self, page):
         # update all configurations to have the same db settings for all of them
-        page.update_configuration(
-            self.import_schema_configuration
-        )
-        page.update_configuration(
-            self.import_data_configuration
-        )
-        page.update_configuration(
-            self.update_data_configuration
-        )
-        page.update_configuration(
-            self.export_data_configuration
-        )
+        page.update_configuration(self.import_schema_configuration)
+        page.update_configuration(self.import_data_configuration)
+        page.update_configuration(self.update_data_configuration)
+        page.update_configuration(self.export_data_configuration)
         # and use schema config to save
-        page.save_configuration(
-            self.import_schema_configuration
-        )
+        page.save_configuration(self.import_schema_configuration)
 
     def _current_page_title(self, id):
         if id == PageIds.ImportSourceSeletion:
@@ -376,13 +345,11 @@ class WorkflowWizard(QWizard):
             return self.tr("Model Baker - Workflow Wizard")
 
     def _basket_handling(self):
-        db_connector = db_utils.get_db_connector(
-            self.import_data_configuration
-        )
+        db_connector = db_utils.get_db_connector(self.import_data_configuration)
         if db_connector:
             return db_connector.get_basket_handling()
         return False
-    
+
     def _db_or_schema_exists(self, configuration):
         db_connector = db_utils.get_db_connector(configuration)
         if db_connector:

@@ -17,18 +17,21 @@
  *                                                                         *
  ***************************************************************************/
 """
+import re
+
 import psycopg2
 import psycopg2.extras
-import re
 from psycopg2 import OperationalError
-from .db_connector import DBConnector, DBConnectorError
 from qgis.core import Qgis
 
-PG_METADATA_TABLE = 't_ili2db_table_prop'
-PG_METAATTRS_TABLE = 't_ili2db_meta_attrs'
-PG_SETTINGS_TABLE = 't_ili2db_settings'
-PG_DATASET_TABLE = 't_ili2db_dataset'
-PG_BASKET_TABLE = 't_ili2db_basket'
+from .db_connector import DBConnector, DBConnectorError
+
+PG_METADATA_TABLE = "t_ili2db_table_prop"
+PG_METAATTRS_TABLE = "t_ili2db_meta_attrs"
+PG_SETTINGS_TABLE = "t_ili2db_settings"
+PG_DATASET_TABLE = "t_ili2db_dataset"
+PG_BASKET_TABLE = "t_ili2db_basket"
+
 
 class PGConnector(DBConnector):
     _geom_parse_regexp = None
@@ -43,43 +46,49 @@ class PGConnector(DBConnector):
 
         self.schema = schema
         self._bMetadataTable = self._metadata_exists()
-        self.iliCodeName = 'ilicode'
-        self.tid = 't_id'
-        self.tilitid = 't_ili_tid'
-        self.dispName = 'dispname'
+        self.iliCodeName = "ilicode"
+        self.tid = "t_id"
+        self.tilitid = "t_ili_tid"
+        self.dispName = "dispname"
         self.basket_table_name = PG_BASKET_TABLE
         self.dataset_table_name = PG_DATASET_TABLE
 
     def map_data_types(self, data_type):
         if not data_type:
-            data_type = ''
+            data_type = ""
         data_type = data_type.lower()
-        if 'timestamp' in data_type:
+        if "timestamp" in data_type:
             data_type = self.QGIS_DATE_TIME_TYPE
-        elif 'date' in data_type:
+        elif "date" in data_type:
             data_type = self.QGIS_DATE_TYPE
-        elif 'time' in data_type:
+        elif "time" in data_type:
             data_type = self.QGIS_TIME_TYPE
 
         return data_type
 
     def _postgis_exists(self):
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""
+        cur.execute(
+            """
                     SELECT
                         count(extversion)
                     FROM pg_catalog.pg_extension
                     WHERE extname='postgis'
-                    """)
+                    """
+        )
 
         return bool(cur.fetchone()[0])
 
     def db_or_schema_exists(self):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '{}');
-            """.format(self.schema))
+            """.format(
+                    self.schema
+                )
+            )
 
             return bool(cur.fetchone()[0])
 
@@ -88,12 +97,16 @@ class PGConnector(DBConnector):
     def create_db_or_schema(self, usr):
         cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if usr:
-            authorization_string = ' AUTHORIZATION {}'.format(usr)
+            authorization_string = " AUTHORIZATION {}".format(usr)
         else:
-            authorization_string = ''
-        cur.execute("""
+            authorization_string = ""
+        cur.execute(
+            """
                     CREATE SCHEMA {schema}{authorization};
-        """.format(schema=self.schema, authorization=authorization_string))
+        """.format(
+                schema=self.schema, authorization=authorization_string
+            )
+        )
         self.conn.commit()
 
     def metadata_exists(self):
@@ -102,12 +115,16 @@ class PGConnector(DBConnector):
     def _metadata_exists(self):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT
                           count(tablename)
                         FROM pg_catalog.pg_tables
                         WHERE schemaname = '{}' and tablename = '{}'
-            """.format(self.schema, PG_METADATA_TABLE))
+            """.format(
+                    self.schema, PG_METADATA_TABLE
+                )
+            )
 
             return bool(cur.fetchone()[0])
 
@@ -116,12 +133,16 @@ class PGConnector(DBConnector):
     def _table_exists(self, tablename):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT
                           count(tablename)
                         FROM pg_catalog.pg_tables
                         WHERE schemaname = '{}' and tablename = '{}'
-            """.format(self.schema, tablename))
+            """.format(
+                    self.schema, tablename
+                )
+            )
 
             return bool(cur.fetchone()[0])
 
@@ -129,18 +150,18 @@ class PGConnector(DBConnector):
 
     def get_tables_info(self):
         if self.schema:
-            kind_settings_field = ''
-            domain_left_join = ''
-            schema_where = ''
-            table_alias = ''
-            ili_name = ''
-            extent = ''
-            coord_decimals = ''
-            alias_left_join = ''
-            model_name = ''
-            model_where = ''
-            attribute_name = ''
-            attribute_left_join = ''
+            kind_settings_field = ""
+            domain_left_join = ""
+            schema_where = ""
+            table_alias = ""
+            ili_name = ""
+            extent = ""
+            coord_decimals = ""
+            alias_left_join = ""
+            model_name = ""
+            model_where = ""
+            attribute_name = ""
+            attribute_left_join = ""
 
             if self.metadata_exists():
                 kind_settings_field = "p.setting AS kind_settings,"
@@ -158,7 +179,9 @@ class PGConnector(DBConnector):
                     AND cprop.columnname = g.f_geometry_column
                     AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                      'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
-                ) AS extent,""".format(self.schema)
+                ) AS extent,""".format(
+                    self.schema
+                )
                 coord_decimals = """(
                     SELECT CASE MAX(position('.' in cprop.setting)) WHEN 0 THEN 0 ELSE MAX( char_length(cprop.setting) -  position('.' in cprop.setting) ) END
                     FROM {}."t_ili2db_column_prop" AS cprop
@@ -166,25 +189,36 @@ class PGConnector(DBConnector):
                     AND cprop.columnname = g.f_geometry_column
                     AND cprop."tag" IN ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',
                      'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')
-                ) AS coord_decimals,""".format(self.schema)
+                ) AS coord_decimals,""".format(
+                    self.schema
+                )
                 model_name = "left(c.iliname, strpos(c.iliname, '.')-1) AS model,"
                 domain_left_join = """LEFT JOIN {}.t_ili2db_table_prop p
                               ON p.tablename = tbls.tablename
-                              AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(self.schema)
+                              AND p.tag = 'ch.ehi.ili2db.tableKind'""".format(
+                    self.schema
+                )
                 alias_left_join = """LEFT JOIN {}.t_ili2db_table_prop alias
                               ON alias.tablename = tbls.tablename
-                              AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+                              AND alias.tag = 'ch.ehi.ili2db.dispName'""".format(
+                    self.schema
+                )
                 model_where = """LEFT JOIN {}.t_ili2db_classname c
-                      ON tbls.tablename = c.sqlname""".format(self.schema)
+                      ON tbls.tablename = c.sqlname""".format(
+                    self.schema
+                )
                 attribute_name = "attrs.sqlname as attribute_name,"
                 attribute_left_join = """LEFT JOIN {}.t_ili2db_attrname attrs
-                      ON c.iliname = attrs.iliname""".format(self.schema)
+                      ON c.iliname = attrs.iliname""".format(
+                    self.schema
+                )
 
             schema_where = "AND schemaname = '{}'".format(self.schema)
 
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT
                           tbls.schemaname AS schemaname,
                           tbls.tablename AS tablename,
@@ -217,10 +251,21 @@ class PGConnector(DBConnector):
                           ON ga.attrelid = i.indrelid
                           AND ga.attname = g.f_geometry_column
                         WHERE i.indisprimary {schema_where}
-            """.format(kind_settings_field=kind_settings_field, table_alias=table_alias,
-                       model_name=model_name, ili_name=ili_name, extent=extent, coord_decimals=coord_decimals, domain_left_join=domain_left_join,
-                       alias_left_join=alias_left_join, model_where=model_where, attribute_name=attribute_name,
-                       attribute_left_join=attribute_left_join, schema_where=schema_where))
+            """.format(
+                    kind_settings_field=kind_settings_field,
+                    table_alias=table_alias,
+                    model_name=model_name,
+                    ili_name=ili_name,
+                    extent=extent,
+                    coord_decimals=coord_decimals,
+                    domain_left_join=domain_left_join,
+                    alias_left_join=alias_left_join,
+                    model_where=model_where,
+                    attribute_name=attribute_name,
+                    attribute_left_join=attribute_left_join,
+                    schema_where=schema_where,
+                )
+            )
 
             return self._preprocess_table(cur)
 
@@ -232,10 +277,14 @@ class PGConnector(DBConnector):
 
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT *
                         FROM {schema}.{metaattrs_table};
-            """.format(schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE))
+            """.format(
+                    schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE
+                )
+            )
 
             return cur
 
@@ -247,13 +296,19 @@ class PGConnector(DBConnector):
 
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT
                           attr_name,
                           attr_value
                         FROM {schema}.{metaattrs_table}
                         WHERE ilielement='{ili_name}';
-            """.format(schema=self.schema, metaattrs_table=PG_METAATTRS_TABLE, ili_name=ili_name))
+            """.format(
+                    schema=self.schema,
+                    metaattrs_table=PG_METAATTRS_TABLE,
+                    ili_name=ili_name,
+                )
+            )
 
             return cur
 
@@ -262,15 +317,15 @@ class PGConnector(DBConnector):
     def _preprocess_table(self, records):
         for record in records:
             my_rec = {key: value for key, value in record.items()}
-            geom_type = self._parse_pg_type(record['formatted_type'])
+            geom_type = self._parse_pg_type(record["formatted_type"])
             if not geom_type:
-                geom_type = record['simple_type']
-            my_rec['type'] = geom_type
+                geom_type = record["simple_type"]
+            my_rec["type"] = geom_type
             yield my_rec
 
     def _parse_pg_type(self, formatted_attr_type):
         if not self._geom_parse_regexp:
-            self._geom_parse_regexp = re.compile(r'geometry\((\w+?),\d+\)')
+            self._geom_parse_regexp = re.compile(r"geometry\((\w+?),\d+\)")
 
         typedef = None
 
@@ -287,22 +342,21 @@ class PGConnector(DBConnector):
     def get_fields_info(self, table_name):
         # Get all fields for this table
         if self.schema:
-            fields_cur = self.conn.cursor(
-                cursor_factory=psycopg2.extras.DictCursor)
+            fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-            unit_field = ''
-            text_kind_field = ''
-            full_name_field = ''
-            enum_domain_field = ''
-            attr_order_field = ''
-            column_alias = ''
-            unit_join = ''
-            text_kind_join = ''
-            disp_name_join = ''
-            full_name_join = ''
-            enum_domain_join = ''
-            attr_order_join = ''
-            order_by_attr_order= ''
+            unit_field = ""
+            text_kind_field = ""
+            full_name_field = ""
+            enum_domain_field = ""
+            attr_order_field = ""
+            column_alias = ""
+            unit_join = ""
+            text_kind_join = ""
+            disp_name_join = ""
+            full_name_join = ""
+            enum_domain_join = ""
+            attr_order_join = ""
+            order_by_attr_order = ""
 
             if self.metadata_exists():
                 unit_field = "unit.setting AS unit,"
@@ -313,34 +367,47 @@ class PGConnector(DBConnector):
                 unit_join = """LEFT JOIN {}.t_ili2db_column_prop unit
                                                     ON c.table_name=unit.tablename AND
                                                     c.column_name=unit.columnname AND
-                                                    unit.tag = 'ch.ehi.ili2db.unit'""".format(self.schema)
+                                                    unit.tag = 'ch.ehi.ili2db.unit'""".format(
+                    self.schema
+                )
                 text_kind_join = """LEFT JOIN {}.t_ili2db_column_prop txttype
                                                         ON c.table_name=txttype.tablename AND
                                                         c.column_name=txttype.columnname AND
-                                                        txttype.tag = 'ch.ehi.ili2db.textKind'""".format(self.schema)
+                                                        txttype.tag = 'ch.ehi.ili2db.textKind'""".format(
+                    self.schema
+                )
                 disp_name_join = """LEFT JOIN {}.t_ili2db_column_prop alias
                                                         ON c.table_name=alias.tablename AND
                                                         c.column_name=alias.columnname AND
-                                                        alias.tag = 'ch.ehi.ili2db.dispName'""".format(self.schema)
+                                                        alias.tag = 'ch.ehi.ili2db.dispName'""".format(
+                    self.schema
+                )
                 full_name_join = """LEFT JOIN {}.t_ili2db_attrname full_name
                                                             ON full_name.{}='{}' AND
                                                             c.column_name=full_name.sqlname
-                                                            """.format(self.schema,
-                                                                       "owner" if self.ili_version() == 3 else "colowner",
-                                                                       table_name)
+                                                            """.format(
+                    self.schema,
+                    "owner" if self.ili_version() == 3 else "colowner",
+                    table_name,
+                )
                 enum_domain_join = """LEFT JOIN {}.t_ili2db_column_prop enum_domain
                                                     ON c.table_name=enum_domain.tablename AND
                                                     c.column_name=enum_domain.columnname AND
-                                                    enum_domain.tag = 'ch.ehi.ili2db.enumDomain'""".format(self.schema)
+                                                    enum_domain.tag = 'ch.ehi.ili2db.enumDomain'""".format(
+                    self.schema
+                )
                 if self._table_exists(PG_METAATTRS_TABLE):
                     attr_order_field = "COALESCE(to_number(form_order.attr_value, '999'), 999) as attr_order,"
                     attr_order_join = """LEFT JOIN {}.t_ili2db_meta_attrs form_order
                                                             ON full_name.iliname=form_order.ilielement AND
                                                             form_order.attr_name='form_order'
-                                                            """.format(self.schema)
+                                                            """.format(
+                        self.schema
+                    )
                     order_by_attr_order = """ORDER BY attr_order"""
 
-                fields_cur.execute("""
+                fields_cur.execute(
+                    """
                     SELECT DISTINCT
                       c.column_name,
                       c.data_type,
@@ -363,16 +430,24 @@ class PGConnector(DBConnector):
                     {attr_order_join}
                     WHERE st.relid = '{schema}."{table}"'::regclass
                     {order_by_attr_order};
-                    """.format(schema=self.schema, table=table_name, unit_field=unit_field,
-                               text_kind_field=text_kind_field, column_alias=column_alias,
-                               full_name_field=full_name_field, enum_domain_field=enum_domain_field,
-                               attr_order_field=attr_order_field,
-                               unit_join=unit_join, text_kind_join=text_kind_join,
-                               disp_name_join=disp_name_join,
-                               full_name_join=full_name_join,
-                               enum_domain_join=enum_domain_join,
-                               attr_order_join=attr_order_join,
-                               order_by_attr_order=order_by_attr_order))
+                    """.format(
+                        schema=self.schema,
+                        table=table_name,
+                        unit_field=unit_field,
+                        text_kind_field=text_kind_field,
+                        column_alias=column_alias,
+                        full_name_field=full_name_field,
+                        enum_domain_field=enum_domain_field,
+                        attr_order_field=attr_order_field,
+                        unit_join=unit_join,
+                        text_kind_join=text_kind_join,
+                        disp_name_join=disp_name_join,
+                        full_name_join=full_name_join,
+                        enum_domain_join=enum_domain_join,
+                        attr_order_join=attr_order_join,
+                        order_by_attr_order=order_by_attr_order,
+                    )
+                )
 
                 return fields_cur
 
@@ -382,52 +457,64 @@ class PGConnector(DBConnector):
         # Get all 'c'heck constraints for this table
         if self.schema:
             constraints_cur = self.conn.cursor(
-                cursor_factory=psycopg2.extras.DictCursor)
-            constraints_cur.execute(r"""
+                cursor_factory=psycopg2.extras.DictCursor
+            )
+            constraints_cur.execute(
+                r"""
                 SELECT
                   pg_get_constraintdef(oid),
                   regexp_matches(pg_get_constraintdef(oid), 'CHECK \(\(\((.*) >= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\) AND \((.*) <= [\'']?([-]?[\d\.]+)[\''::integer|numeric]*\)\)\)') AS check_details
                 FROM pg_constraint
                 WHERE conrelid = '{schema}."{table}"'::regclass
                 AND contype = 'c'
-                """.format(schema=self.schema, table=table_name))
+                """.format(
+                    schema=self.schema, table=table_name
+                )
+            )
 
             # Create a mapping in the form of
             #
             # fieldname: (min, max)
             constraint_mapping = dict()
             for constraint in constraints_cur:
-                constraint_mapping[constraint['check_details'][0]] = (
-                    constraint['check_details'][1], constraint['check_details'][3])
+                constraint_mapping[constraint["check_details"][0]] = (
+                    constraint["check_details"][1],
+                    constraint["check_details"][3],
+                )
 
             return constraint_mapping
 
         return {}
 
-    ValueMapRegExp = re.compile('.*\'(.*)\'::.*')
+    ValueMapRegExp = re.compile(".*'(.*)'::.*")
 
     def get_value_map_info(self, table_name):
         if self.schema:
             constraints_cur = self.conn.cursor(
-                cursor_factory=psycopg2.extras.DictCursor)
-            constraints_cur.execute(r"""
+                cursor_factory=psycopg2.extras.DictCursor
+            )
+            constraints_cur.execute(
+                r"""
                 SELECT
                   regexp_matches(pg_get_constraintdef(oid), 'CHECK \(\(\((.*)\)::text = ANY \(\(ARRAY\[(.*)\]\)::text\[\]\)\)\)') AS check_details
                 FROM pg_constraint
                 WHERE conrelid = '{schema}."{table}"'::regclass
                 AND contype = 'c'
-                """.format(schema=self.schema, table=table_name))
+                """.format(
+                    schema=self.schema, table=table_name
+                )
+            )
             # Returns value in the form of
             #    {t_type,"'gl_ntznng_v1_4geobasisdaten_grundnutzung_zonenflaeche'::character varying, 'grundnutzung_zonenflaeche'::character varying"}
 
             constraint_mapping = dict()
             for constraint in constraints_cur:
                 values = list()
-                for value in constraint['check_details'][1].split(','):
+                for value in constraint["check_details"][1].split(","):
                     match = re.match(PGConnector.ValueMapRegExp, value)
                     values.append(match.group(1))
 
-                constraint_mapping[constraint['check_details'][0]] = values
+                constraint_mapping[constraint["check_details"][0]] = values
 
             return constraint_mapping
 
@@ -436,28 +523,39 @@ class PGConnector(DBConnector):
     def get_relations_info(self, filter_layer_list=[]):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
-                self.schema) if self.schema else ''
-            schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
-                self.schema) if self.schema else ''
+            schema_where1 = (
+                "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(self.schema)
+                if self.schema
+                else ""
+            )
+            schema_where2 = (
+                "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(self.schema)
+                if self.schema
+                else ""
+            )
             filter_layer_where = ""
             if filter_layer_list:
-                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
+                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format(
+                    "','".join(filter_layer_list)
+                )
 
-            strength_field = ''
-            strength_join = ''
-            strength_group_by = ''
+            strength_field = ""
+            strength_join = ""
+            strength_group_by = ""
             if self._table_exists(PG_METAATTRS_TABLE):
                 strength_field = ", META_ATTRS.attr_value as strength"
                 strength_join = """
                             LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
                              ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
                             LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
-                             ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'""".format(schema=self.schema,
-                                       colowner="owner" if self.ili_version() == 3 else "colowner")
+                             ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'""".format(
+                    schema=self.schema,
+                    colowner="owner" if self.ili_version() == 3 else "colowner",
+                )
                 strength_group_by = ", META_ATTRS.attr_value"
 
-            cur.execute("""SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION{strength_field}
+            cur.execute(
+                """SELECT RC.CONSTRAINT_NAME, KCU1.TABLE_NAME AS referencing_table, KCU1.COLUMN_NAME AS referencing_column, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME AS referenced_table, KCU2.COLUMN_NAME AS referenced_column, KCU1.ORDINAL_POSITION{strength_field}
                             FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
                             INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
                              ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME {schema_where1} {filter_layer_where}
@@ -467,8 +565,15 @@ class PGConnector(DBConnector):
                             {strength_join}
                             GROUP BY RC.CONSTRAINT_NAME, KCU1.TABLE_NAME, KCU1.COLUMN_NAME, KCU2.CONSTRAINT_SCHEMA, KCU2.TABLE_NAME, KCU2.COLUMN_NAME, KCU1.ORDINAL_POSITION{strength_group_by}
                             ORDER BY KCU1.ORDINAL_POSITION
-                            """.format(schema_where1=schema_where1, schema_where2=schema_where2,
-                                       filter_layer_where=filter_layer_where, strength_field=strength_field, strength_join=strength_join, strength_group_by=strength_group_by))
+                            """.format(
+                    schema_where1=schema_where1,
+                    schema_where2=schema_where2,
+                    filter_layer_where=filter_layer_where,
+                    strength_field=strength_field,
+                    strength_join=strength_join,
+                    strength_group_by=strength_group_by,
+                )
+            )
             return cur
 
         return []
@@ -476,11 +581,12 @@ class PGConnector(DBConnector):
     def get_bags_of_info(self):
         if self.schema and self.metadata_exists():
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""SELECT cprop.tablename as current_layer_name, cprop.columnname as attribute, cprop.setting as target_layer_name, 
+            cur.execute(
+                """SELECT cprop.tablename as current_layer_name, cprop.columnname as attribute, cprop.setting as target_layer_name,
                             meta_attrs_cardinality_min.attr_value as cardinality_min, meta_attrs_cardinality_max.attr_value as cardinality_max
                             FROM {schema}.t_ili2db_column_prop as cprop
                             LEFT JOIN {schema}.t_ili2db_classname as cname
-                            ON cname.sqlname = cprop.tablename 
+                            ON cname.sqlname = cprop.tablename
                             LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_array
                             ON meta_attrs_array.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_array.attr_name = 'ili2db.mapping'
                             LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_cardinality_min
@@ -488,7 +594,10 @@ class PGConnector(DBConnector):
                             LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_cardinality_max
                             ON meta_attrs_cardinality_max.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_cardinality_max.attr_name = 'ili2db.ili.attrCardinalityMax'
                             WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
-                            """.format(schema=self.schema))
+                            """.format(
+                    schema=self.schema
+                )
+            )
             return cur
         return []
 
@@ -498,15 +607,19 @@ class PGConnector(DBConnector):
         if self.schema and self.metadata_exists():
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-            where = ''
+            where = ""
             if sqlnames:
                 names = "'" + "','".join(sqlnames) + "'"
-                where = 'WHERE sqlname IN ({})'.format(names)
+                where = "WHERE sqlname IN ({})".format(names)
 
-            cur.execute("""SELECT iliname, sqlname
+            cur.execute(
+                """SELECT iliname, sqlname
                                FROM {schema}.t_ili2db_classname
                                {where}
-                           """.format(schema=self.schema, where=where))
+                           """.format(
+                    schema=self.schema, where=where
+                )
+            )
             return cur
 
         return {}
@@ -515,13 +628,19 @@ class PGConnector(DBConnector):
         """Used for ili2db version 3 relation creation"""
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            class_names = "'" + \
-                "','".join(list(models_info.keys()) +
-                           list(extended_classes.keys())) + "'"
-            cur.execute("""SELECT *
+            class_names = (
+                "'"
+                + "','".join(list(models_info.keys()) + list(extended_classes.keys()))
+                + "'"
+            )
+            cur.execute(
+                """SELECT *
                            FROM {schema}.t_ili2db_classname
                            WHERE iliname IN ({class_names})
-                        """.format(schema=self.schema, class_names=class_names))
+                        """.format(
+                    schema=self.schema, class_names=class_names
+                )
+            )
             return cur
 
         return {}
@@ -531,10 +650,14 @@ class PGConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             attr_names = "'" + "','".join(attrs_list) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute(
+                """SELECT iliname, sqlname, owner
                            FROM {schema}.t_ili2db_attrname
                            WHERE iliname IN ({attr_names})
-                        """.format(schema=self.schema, attr_names=attr_names))
+                        """.format(
+                    schema=self.schema, attr_names=attr_names
+                )
+            )
             return cur
 
         return {}
@@ -544,10 +667,14 @@ class PGConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             owner_names = "'" + "','".join(owners) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute(
+                """SELECT iliname, sqlname, owner
                            FROM {schema}.t_ili2db_attrname
                            WHERE owner IN ({owner_names})
-                        """.format(schema=self.schema, owner_names=owner_names))
+                        """.format(
+                    schema=self.schema, owner_names=owner_names
+                )
+            )
             return cur
 
         return {}
@@ -557,14 +684,22 @@ class PGConnector(DBConnector):
         if self.schema:
             cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-            cursor.execute("""SELECT distinct split_part(iliname,'.',1) as modelname 
-                            FROM {schema}.t_ili2db_trafo""".format(schema=self.schema))
+            cursor.execute(
+                """SELECT distinct split_part(iliname,'.',1) as modelname
+                            FROM {schema}.t_ili2db_trafo""".format(
+                    schema=self.schema
+                )
+            )
 
             models = cursor.fetchall()
 
-            cursor.execute("""SELECT modelname, content
+            cursor.execute(
+                """SELECT modelname, content
                            FROM {schema}.t_ili2db_model
-                        """.format(schema=self.schema))
+                        """.format(
+                    schema=self.schema
+                )
+            )
 
             contents = cursor.fetchall()
 
@@ -573,25 +708,34 @@ class PGConnector(DBConnector):
 
             for content in contents:
                 for model in models:
-                    if model['modelname'] in re.sub(r'(?:\{[^\}]*\}|\s)', '', content['modelname']):
-                        result['modelname'] = model['modelname']
-                        result['content'] = content['content']
+                    if model["modelname"] in re.sub(
+                        r"(?:\{[^\}]*\}|\s)", "", content["modelname"]
+                    ):
+                        result["modelname"] = model["modelname"]
+                        result["content"] = content["content"]
                         list_result.append(result)
                         result = dict()
-                        
+
             return list_result
         return {}
 
     def ili_version(self):
         cur = self.conn.cursor()
-        cur.execute("""SELECT *
+        cur.execute(
+            """SELECT *
                        FROM information_schema.columns
                        WHERE table_schema = '{schema}'
                        AND(table_name='t_ili2db_attrname' OR table_name = 't_ili2db_model' )
                        AND(column_name='owner' OR column_name = 'file' )
-                    """.format(schema=self.schema))
+                    """.format(
+                schema=self.schema
+            )
+        )
         if cur.rowcount > 1:
-            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            self.new_message.emit(
+                Qgis.Warning,
+                "DB schema created with ili2db version 3. Better use version 4.",
+            )
             return 3
         else:
             return 4
@@ -599,96 +743,156 @@ class PGConnector(DBConnector):
     def get_basket_handling(self):
         if self.schema and self._table_exists(PG_SETTINGS_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""SELECT setting
+            cur.execute(
+                """SELECT setting
                            FROM {schema}.{table}
                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """.format(schema=self.schema, table=PG_SETTINGS_TABLE))
+                        """.format(
+                    schema=self.schema, table=PG_SETTINGS_TABLE
+                )
+            )
             content = cur.fetchone()
             if content:
-                return content[0] == 'readWrite'
+                return content[0] == "readWrite"
         return False
 
     def get_baskets_info(self):
         if self.schema and self._table_exists(PG_BASKET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""SELECT b.t_id as basket_t_id, 
-                            b.t_ili_tid as basket_t_ili_tid, 
-                            b.topic as topic, 
+            cur.execute(
+                """SELECT b.t_id as basket_t_id,
+                            b.t_ili_tid as basket_t_ili_tid,
+                            b.topic as topic,
                             d.t_id as dataset_t_id,
                             d.datasetname as datasetname from {schema}.{basket_table} b
                             JOIN {schema}.{dataset_table} d
                             ON b.dataset = d.t_id
-                        """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_table=PG_DATASET_TABLE))
+                        """.format(
+                    schema=self.schema,
+                    basket_table=PG_BASKET_TABLE,
+                    dataset_table=PG_DATASET_TABLE,
+                )
+            )
             return cur.fetchall()
         return {}
 
     def get_datasets_info(self):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""SELECT t_id, datasetname
+            cur.execute(
+                """SELECT t_id, datasetname
                            FROM {schema}.{dataset_table}
-                        """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE))
+                        """.format(
+                    schema=self.schema, dataset_table=PG_DATASET_TABLE
+                )
+            )
             return cur.fetchall()
         return {}
 
     def create_dataset(self, datasetname):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            try: 
+            try:
                 cur.execute(
                     """
                     INSERT INTO {schema}.{dataset_table} VALUES (nextval('{schema}.{sequence}'), %(datasetname)s)
-                    """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=PG_DATASET_TABLE)
-                    , { 'datasetname': datasetname })
+                    """.format(
+                        schema=self.schema,
+                        sequence="t_ili2db_seq",
+                        dataset_table=PG_DATASET_TABLE,
+                    ),
+                    {"datasetname": datasetname},
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
+                return True, self.tr('Successfully created dataset "{}".').format(
+                    datasetname
+                )
             except psycopg2.errors.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)        
+                return False, self.tr('Dataset with name "{}" already exists.').format(
+                    datasetname
+                )
+        return False, self.tr('Could not create dataset "{}".').format(datasetname)
 
     def rename_dataset(self, tid, datasetname):
         if self.schema and self._table_exists(PG_DATASET_TABLE):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             try:
-                cur.execute("""
+                cur.execute(
+                    """
                     UPDATE {schema}.{dataset_table} SET datasetname = %(datasetname)s WHERE {tid_name} = {tid}
-                    """.format(schema=self.schema, dataset_table=PG_DATASET_TABLE, tid_name=self.tid, tid=tid),
-                    { 'datasetname': datasetname })
+                    """.format(
+                        schema=self.schema,
+                        dataset_table=PG_DATASET_TABLE,
+                        tid_name=self.tid,
+                        tid=tid,
+                    ),
+                    {"datasetname": datasetname},
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully renamed dataset \"{}\".").format(datasetname)
+                return True, self.tr('Successfully renamed dataset "{}".').format(
+                    datasetname
+                )
             except psycopg2.errors.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-        return False, self.tr("Could not rename dataset \"{}\".").format(datasetname)
+                return False, self.tr('Dataset with name "{}" already exists.').format(
+                    datasetname
+                )
+        return False, self.tr('Could not rename dataset "{}".').format(datasetname)
 
     def get_topics_info(self):
         if self.schema and self._table_exists("t_ili2db_classname"):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute("""
-                    SELECT DISTINCT split_part(iliname,'.',1) as model, 
-                    split_part(iliname,'.',2) as topic 
+            cur.execute(
+                """
+                    SELECT DISTINCT split_part(iliname,'.',1) as model,
+                    split_part(iliname,'.',2) as topic
                     FROM {schema}.t_ili2db_classname
-                """.format(schema=self.schema))
+                """.format(
+                    schema=self.schema
+                )
+            )
             return cur.fetchall()
         return {}
 
     def create_basket(self, dataset_tid, topic):
         if self.schema and self._table_exists(PG_BASKET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""
-                    SELECT * FROM {schema}.{basket_table} 
+            cur.execute(
+                """
+                    SELECT * FROM {schema}.{basket_table}
                     WHERE dataset = {dataset_tid} and topic = '{topic}'
-                """.format(schema=self.schema, basket_table=PG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                """.format(
+                    schema=self.schema,
+                    basket_table=PG_BASKET_TABLE,
+                    dataset_tid=dataset_tid,
+                    topic=topic,
+                )
+            )
             if cur.fetchone():
-                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
-            try: 
-                cur.execute("""
+                return False, self.tr('Basket for topic "{}" already exists.').format(
+                    topic
+                )
+            try:
+                cur.execute(
+                    """
                     INSERT INTO {schema}.{basket_table} ({tid_name}, dataset, topic, {tilitid_name}, attachmentkey )
                     VALUES (nextval('{schema}.{sequence}'), {dataset_tid}, '{topic}', uuid_generate_v4(), 'Qgis Model Baker')
-                """.format(schema=self.schema, sequence='t_ili2db_seq', tid_name = self.tid, tilitid_name = self.tilitid, basket_table=PG_BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                """.format(
+                        schema=self.schema,
+                        sequence="t_ili2db_seq",
+                        tid_name=self.tid,
+                        tilitid_name=self.tilitid,
+                        basket_table=PG_BASKET_TABLE,
+                        dataset_tid=dataset_tid,
+                        topic=topic,
+                    )
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
+                return True, self.tr(
+                    'Successfully created basket for topic "{}".'
+                ).format(topic)
             except psycopg2.errors.Error as e:
-                error_message = ' '.join(e.args)
-                return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
-        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
-
+                error_message = " ".join(e.args)
+                return False, self.tr(
+                    'Could not create basket for topic "{}": {}'
+                ).format(topic, error_message)
+        return False, self.tr('Could not create basket for topic "{}".').format(topic)

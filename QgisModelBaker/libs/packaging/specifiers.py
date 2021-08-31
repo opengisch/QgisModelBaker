@@ -10,19 +10,19 @@ import re
 
 from ._compat import string_types, with_metaclass
 from ._typing import MYPY_CHECK_RUNNING
-from .version import Version, LegacyVersion, parse
+from .version import LegacyVersion, Version, parse
 
 if MYPY_CHECK_RUNNING:  # pragma: no cover
     from typing import (
-        List,
+        Callable,
         Dict,
-        Union,
+        FrozenSet,
         Iterable,
         Iterator,
+        List,
         Optional,
-        Callable,
         Tuple,
-        FrozenSet,
+        Union,
     )
 
     ParsedVersion = Union[Version, LegacyVersion]
@@ -311,7 +311,7 @@ class LegacySpecifier(_IndividualSpecifier):
 
 
 def _require_version_compare(
-    fn  # type: (Callable[[Specifier, ParsedVersion, str], bool])
+    fn,  # type: (Callable[[Specifier, ParsedVersion, str], bool])
 ):
     # type: (...) -> Callable[[Specifier, ParsedVersion, str], bool]
     @functools.wraps(fn)

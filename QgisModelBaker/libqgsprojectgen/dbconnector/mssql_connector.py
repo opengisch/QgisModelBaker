@@ -18,18 +18,19 @@
 """
 
 import re
-import pyodbc
-from pyodbc import (ProgrammingError, InterfaceError)
 
+import pyodbc
+from pyodbc import InterfaceError, ProgrammingError
 from qgis.core import Qgis
 
-from .db_connector import (DBConnector, DBConnectorError)
+from .db_connector import DBConnector, DBConnectorError
 
-METADATA_TABLE = 't_ili2db_table_prop'
-METAATTRS_TABLE = 't_ili2db_meta_attrs'
-SETTINGS_TABLE = 't_ili2db_settings'
-DATASET_TABLE = 't_ili2db_dataset'
-BASKET_TABLE = 't_ili2db_basket'
+METADATA_TABLE = "t_ili2db_table_prop"
+METAATTRS_TABLE = "t_ili2db_meta_attrs"
+SETTINGS_TABLE = "t_ili2db_settings"
+DATASET_TABLE = "t_ili2db_dataset"
+BASKET_TABLE = "t_ili2db_basket"
+
 
 class MssqlConnector(DBConnector):
     def __init__(self, uri, schema):
@@ -37,38 +38,47 @@ class MssqlConnector(DBConnector):
 
         try:
             self.conn = pyodbc.connect(uri)
-        except (ProgrammingError, InterfaceError, pyodbc.Error, pyodbc.OperationalError) as e:
+        except (
+            ProgrammingError,
+            InterfaceError,
+            pyodbc.Error,
+            pyodbc.OperationalError,
+        ) as e:
             raise DBConnectorError(str(e), e)
 
         self.schema = schema
-        
+
         self._bMetadataTable = self._metadata_exists()
-        self.iliCodeName = 'iliCode'
-        self.tid = 'T_Id'
-        self.tilitid = 'T_Ili_Tid'
-        self.dispName = 'dispName'
+        self.iliCodeName = "iliCode"
+        self.tid = "T_Id"
+        self.tilitid = "T_Ili_Tid"
+        self.dispName = "dispName"
         self.basket_table_name = BASKET_TABLE
         self.dataset_table_name = DATASET_TABLE
 
     def map_data_types(self, data_type):
         result = data_type.lower()
-        if 'timestamp' in data_type:
+        if "timestamp" in data_type:
             result = self.QGIS_DATE_TIME_TYPE
-        elif 'date' in data_type:
+        elif "date" in data_type:
             result = self.QGIS_DATE_TYPE
-        elif 'time' in data_type:
+        elif "time" in data_type:
             result = self.QGIS_TIME_TYPE
 
         return result
-    
+
     def db_or_schema_exists(self):
         if self.schema:
             cur = self.conn.cursor()
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT case when count(schema_name)>0 then 1 else 0 end
                 FROM information_schema.schemata
                 where schema_name = '{}'
-            """.format(self.schema))
+            """.format(
+                    self.schema
+                )
+            )
 
             return bool(cur.fetchone()[0])
 
@@ -76,20 +86,24 @@ class MssqlConnector(DBConnector):
 
     def metadata_exists(self):
         return self._bMetadataTable
-    
+
     def _metadata_exists(self):
         return self._table_exists(METADATA_TABLE)
 
     def _table_exists(self, tablename):
         if self.schema:
             cur = self.conn.cursor()
-            cur.execute("""
+            cur.execute(
+                """
             SELECT count(TABLE_NAME) as 'count'
                 FROM INFORMATION_SCHEMA.TABLES
                 WHERE TABLE_TYPE = 'BASE TABLE'
                 AND TABLE_SCHEMA = '{}'
                     AND TABLE_NAME = '{}'
-            """.format(self.schema, tablename))
+            """.format(
+                    self.schema, tablename
+                )
+            )
 
             return bool(cur.fetchone()[0])
 
@@ -112,7 +126,9 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , tsrid.setting AS srid"
                 stmt += ln + "    , p.setting AS kind_settings"
                 stmt += ln + "    , alias.setting AS table_alias"
-                stmt += ln + "    , left(c.iliname, charindex('.', c.iliname)-1) AS model"
+                stmt += (
+                    ln + "    , left(c.iliname, charindex('.', c.iliname)-1) AS model"
+                )
                 stmt += ln + "    , c.iliname AS ili_name"
                 stmt += ln + "    , STUFF("
                 stmt += ln + "       (SELECT ';' + CAST(cp.setting AS VARCHAR(MAX))"
@@ -120,22 +136,41 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "        WHERE tbls.table_name = cp.tablename"
                 stmt += ln + "            AND clm.COLUMN_NAME = cp.columnname"
                 stmt += ln + "            AND cp.tag IN"
-                stmt += ln + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
-                stmt += ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
-                stmt += ln + "        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1"
+                stmt += (
+                    ln
+                    + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
+                )
+                stmt += (
+                    ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
+                )
+                stmt += (
+                    ln
+                    + "        order by case cp.tag WHEN 'ch.ehi.ili2db.c1Min' THEN 1"
+                )
                 stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Min' THEN 2"
                 stmt += ln + "            WHEN 'ch.ehi.ili2db.c1Max' THEN 3"
                 stmt += ln + "            WHEN 'ch.ehi.ili2db.c2Max' THEN 4"
                 stmt += ln + "            END"
-                stmt += ln + "        FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''"
+                stmt += (
+                    ln
+                    + "        FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,''"
+                )
                 stmt += ln + "        ) AS extent"
-                stmt += ln + "    , ( SELECT CASE MAX(CHARINDEX('.',cp.setting)) WHEN 0 THEN 0 ELSE MAX( LEN(cp.setting) -  CHARINDEX('.',cp.setting) ) END"
+                stmt += (
+                    ln
+                    + "    , ( SELECT CASE MAX(CHARINDEX('.',cp.setting)) WHEN 0 THEN 0 ELSE MAX( LEN(cp.setting) -  CHARINDEX('.',cp.setting) ) END"
+                )
                 stmt += ln + "        FROM {schema}.t_ili2db_column_prop cp"
                 stmt += ln + "        WHERE tbls.table_name = cp.tablename"
                 stmt += ln + "            AND clm.COLUMN_NAME = cp.columnname"
                 stmt += ln + "            AND cp.tag IN"
-                stmt += ln + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
-                stmt += ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
+                stmt += (
+                    ln
+                    + "                ('ch.ehi.ili2db.c1Min', 'ch.ehi.ili2db.c2Min',"
+                )
+                stmt += (
+                    ln + "                'ch.ehi.ili2db.c1Max', 'ch.ehi.ili2db.c2Max')"
+                )
                 stmt += ln + "      ) AS coord_decimals"
                 stmt += ln + "    , tgeomtype.setting AS simple_type"
                 stmt += ln + "    , null AS formatted_type"
@@ -173,7 +208,10 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    ON tbls.TABLE_NAME = tgeomtype.tablename"
                 stmt += ln + "    AND clm.COLUMN_NAME = tgeomtype.columnname"
                 stmt += ln + "    AND tgeomtype.tag= 'ch.ehi.ili2db.geomType'"
-            stmt += ln + "WHERE tbls.TABLE_TYPE = 'BASE TABLE' AND tbls.TABLE_SCHEMA = '{schema}'"
+            stmt += (
+                ln
+                + "WHERE tbls.TABLE_TYPE = 'BASE TABLE' AND tbls.TABLE_SCHEMA = '{schema}'"
+            )
             stmt = stmt.format(schema=self.schema)
 
             if not metadata_exists:
@@ -187,8 +225,8 @@ class MssqlConnector(DBConnector):
 
                 for row in cur.fetchall():
                     my_rec = dict(zip(columns, row))
-                    my_rec['srid'] = int(my_rec['srid']) if my_rec['srid'] else None
-                    my_rec['type'] = my_rec['simple_type']
+                    my_rec["srid"] = int(my_rec["srid"]) if my_rec["srid"] else None
+                    my_rec["type"] = my_rec["simple_type"]
                     res.append(my_rec)
 
         return res
@@ -207,21 +245,21 @@ class MssqlConnector(DBConnector):
             set @query = ''
             set @row_counter = ''
             set @separator = ''
-            
+
             DECLARE db_cursor CURSOR FOR {query}
-            OPEN db_cursor  
+            OPEN db_cursor
             FETCH NEXT FROM db_cursor INTO @schemaname, @tablename, @primary_key, @geometry_column
-            WHILE @@FETCH_STATUS = 0  
+            WHILE @@FETCH_STATUS = 0
             BEGIN
                 if @schemaname is null	set @full_tabname = @tablename else set @full_tabname = concat(@schemaname,'.', @tablename)
                 if @schemaname is not null set @schemaname = CONCAT('''', @schemaname, '''') else set @schemaname = 'NULL'
                 if @primary_key is not null set @primary_key = CONCAT('''', @primary_key, '''') else set @primary_key = 'NULL'
                 set @tablename = CONCAT('''', @tablename, '''')
-            
+
                 if @geometry_column is not null begin -- table has geometry
                     select @row_counter = concat('SELECT @C=count(concat(',@geometry_column,'.STSrid,', @geometry_column,'.STGeometryType()))', ' from ', @full_tabname)
                     execute sp_executesql @row_counter, N'@C INT OUTPUT', @C=@count OUTPUT
-                    
+
                     if @count > 0 begin -- table containts geometry data, geometry types are got from data
                         set @query = concat('SELECT distinct '
                         , @schemaname, ' as schemaname,'
@@ -252,9 +290,11 @@ class MssqlConnector(DBConnector):
                 set @separator = ' union '
                 FETCH NEXT FROM db_cursor INTO @schemaname, @tablename, @primary_key, @geometry_column
             END
-            CLOSE db_cursor  
+            CLOSE db_cursor
             DEALLOCATE db_cursor
-            execute sp_executesql @query """.format(query=query)
+            execute sp_executesql @query """.format(
+            query=query
+        )
 
         return cursor
 
@@ -266,10 +306,15 @@ class MssqlConnector(DBConnector):
 
         if self.schema:
             cur = self.conn.cursor()
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT *
                         FROM {schema}.{metaattrs_table};
-            """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE,))
+            """.format(
+                    schema=self.schema,
+                    metaattrs_table=METAATTRS_TABLE,
+                )
+            )
 
             result = self._get_dict_result(cur)
 
@@ -278,18 +323,24 @@ class MssqlConnector(DBConnector):
     def get_meta_attrs(self, ili_name):
         if not self._table_exists(METAATTRS_TABLE):
             return []
-        
+
         result = []
-        
+
         if self.schema:
             cur = self.conn.cursor()
-            cur.execute("""
+            cur.execute(
+                """
                         SELECT
                           attr_name,
                           attr_value
                         FROM {schema}.{metaattrs_table}
                         WHERE ilielement='{ili_name}';
-            """.format(schema=self.schema, metaattrs_table=METAATTRS_TABLE, ili_name=ili_name))
+            """.format(
+                    schema=self.schema,
+                    metaattrs_table=METAATTRS_TABLE,
+                    ili_name=ili_name,
+                )
+            )
 
             result = self._get_dict_result(cur)
 
@@ -308,7 +359,10 @@ class MssqlConnector(DBConnector):
             # TODO Remove 'distinct' when issue 255 is solved
             stmt += ln + "SELECT distinct "
             stmt += ln + "     c.column_name"
-            stmt += ln + "    , case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type"
+            stmt += (
+                ln
+                + "    , case c.data_type when 'decimal' then 'numeric' else c.DATA_TYPE end as data_type"
+            )
             stmt += ln + "    , c.numeric_scale"
             if metadata_exists:
                 stmt += ln + "    , unit.setting AS unit"
@@ -317,7 +371,10 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    , full_name.iliname AS fully_qualified_name"
                 stmt += ln + "    , enum_domain.setting as enum_domain"
                 if metaattrs_exists:
-                    stmt += ln + "    , COALESCE(CAST(form_order.attr_value AS int), 999) AS attr_order"
+                    stmt += (
+                        ln
+                        + "    , COALESCE(CAST(form_order.attr_value AS int), 999) AS attr_order"
+                    )
             stmt += ln + "    , null AS comment"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
             if metadata_exists:
@@ -334,7 +391,9 @@ class MssqlConnector(DBConnector):
                 stmt += ln + "    AND c.column_name = alias.columnname"
                 stmt += ln + "    AND alias.tag = 'ch.ehi.ili2db.dispName'"
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_attrname full_name"
-                stmt += ln + "    ON full_name.{}='{{table}}'".format("owner" if self.ili_version() == 3 else "colowner")
+                stmt += ln + "    ON full_name.{}='{{table}}'".format(
+                    "owner" if self.ili_version() == 3 else "colowner"
+                )
                 stmt += ln + "    AND c.column_name=full_name.sqlname"
                 stmt += ln + "LEFT JOIN {schema}.t_ili2db_column_prop enum_domain"
                 stmt += ln + "    ON c.table_name = enum_domain.tablename"
@@ -371,8 +430,10 @@ class MssqlConnector(DBConnector):
                 WHERE
                     cc.CONSTRAINT_SCHEMA = '{schema}'
                     AND TABLE_NAME = '{table}'
-                """.format(schema=self.schema, table=table_name)
-            
+                """.format(
+                schema=self.schema, table=table_name
+            )
+
             constraints_cur.execute(query)
 
             # Create a mapping in the form of
@@ -383,11 +444,13 @@ class MssqlConnector(DBConnector):
                 # The regex takes the query results (e.g. '([numero_pisos]>=(1) AND [numero_pisos]<=(100))')
                 # and gets the field name (regex-group 1), the minimum value (regex-group 2),
                 # and the maximum value (regex-group 4) of the field for each register
-                m = re.match(r"\(\[(.*)\]>=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\) AND \[(.*)\]<=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\)\)", constraint[0])
-                
+                m = re.match(
+                    r"\(\[(.*)\]>=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\) AND \[(.*)\]<=\(([+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\)\)",
+                    constraint[0],
+                )
+
                 if m:
-                    constraint_mapping[m.group(1)] = (
-                    m.group(2), m.group(4))
+                    constraint_mapping[m.group(1)] = (m.group(2), m.group(4))
 
             result = constraint_mapping
 
@@ -398,16 +461,24 @@ class MssqlConnector(DBConnector):
 
         if self.schema:
             cur = self.conn.cursor()
-            schema_where1 = "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(
-                self.schema) if self.schema else ''
-            schema_where2 = "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(
-                self.schema) if self.schema else ''
+            schema_where1 = (
+                "AND KCU1.CONSTRAINT_SCHEMA = '{}'".format(self.schema)
+                if self.schema
+                else ""
+            )
+            schema_where2 = (
+                "AND KCU2.CONSTRAINT_SCHEMA = '{}'".format(self.schema)
+                if self.schema
+                else ""
+            )
             filter_layer_where = ""
             if filter_layer_list:
-                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format("','".join(filter_layer_list))
+                filter_layer_where = "AND KCU1.TABLE_NAME IN ('{}')".format(
+                    "','".join(filter_layer_list)
+                )
 
-            strength_field = ''
-            strength_join = ''
+            strength_field = ""
+            strength_join = ""
             if self._table_exists(METAATTRS_TABLE):
                 strength_field = ",META_ATTRS.attr_value as strength"
                 strength_join = """
@@ -415,36 +486,44 @@ class MssqlConnector(DBConnector):
                     ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
                 LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
                     ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'
-                    """.format(schema=self.schema, colowner="owner" if self.ili_version() == 3 else "colowner")
+                    """.format(
+                    schema=self.schema,
+                    colowner="owner" if self.ili_version() == 3 else "colowner",
+                )
 
             query = """
-                SELECT  
-                    KCU1.CONSTRAINT_NAME AS constraint_name 
-                    ,KCU1.TABLE_NAME AS referencing_table 
-                    ,KCU1.COLUMN_NAME AS referencing_column 
+                SELECT
+                    KCU1.CONSTRAINT_NAME AS constraint_name
+                    ,KCU1.TABLE_NAME AS referencing_table
+                    ,KCU1.COLUMN_NAME AS referencing_column
                     ,KCU2.CONSTRAINT_SCHEMA AS constraint_schema
-                    ,KCU2.TABLE_NAME AS referenced_table 
-                    ,KCU2.COLUMN_NAME AS referenced_column 
+                    ,KCU2.TABLE_NAME AS referenced_table
+                    ,KCU2.COLUMN_NAME AS referenced_column
                     ,KCU1.ORDINAL_POSITION AS ordinal_position
                     {strength_field}
-                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
 
-                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 
-                    ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG  
-                    AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA 
-                    AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME 
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1
+                    ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG
+                    AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA
+                    AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME
 
-                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2 
-                    ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG  
-                    AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
-                    AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2
+                    ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG
+                    AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA
+                    AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION
                 {strength_join}
-                             
+
                 WHERE 1=1 {schema_where1} {schema_where2} {filter_layer_where}
                 order by constraint_name, ordinal_position
-                """.format(schema_where1=schema_where1, schema_where2=schema_where2,
-                           filter_layer_where=filter_layer_where, strength_field=strength_field, strength_join=strength_join)
+                """.format(
+                schema_where1=schema_where1,
+                schema_where2=schema_where2,
+                filter_layer_where=filter_layer_where,
+                strength_field=strength_field,
+                strength_join=strength_join,
+            )
             cur.execute(query)
             result = self._get_dict_result(cur)
 
@@ -457,15 +536,19 @@ class MssqlConnector(DBConnector):
         if self.schema and self.metadata_exists():
             cur = self.conn.cursor()
 
-            where = ''
+            where = ""
             if sqlnames:
                 names = "'" + "','".join(sqlnames) + "'"
-                where = 'WHERE sqlname IN ({})'.format(names)
+                where = "WHERE sqlname IN ({})".format(names)
 
-            cur.execute("""SELECT iliname, sqlname
+            cur.execute(
+                """SELECT iliname, sqlname
                            FROM {schema}.t_ili2db_classname
                            {where}
-                        """.format(schema=self.schema, where=where))
+                        """.format(
+                    schema=self.schema, where=where
+                )
+            )
 
             result = self._get_dict_result(cur)
 
@@ -477,10 +560,14 @@ class MssqlConnector(DBConnector):
         # Get MODELS
         if self.schema:
             cur = self.conn.cursor()
-            
-            cur.execute("""SELECT modelname, content
+
+            cur.execute(
+                """SELECT modelname, content
                            FROM {schema}.t_ili2db_model
-                        """.format(schema=self.schema))
+                        """.format(
+                    schema=self.schema
+                )
+            )
             result = self._get_dict_result(cur)
 
         return result
@@ -489,14 +576,20 @@ class MssqlConnector(DBConnector):
         result = {}
         if self.schema:
             cur = self.conn.cursor()
-            class_names = "'" + \
-                "','".join(list(models_info.keys()) +
-                           list(extended_classes.keys())) + "'"
-            cur.execute("""SELECT iliname, sqlname
+            class_names = (
+                "'"
+                + "','".join(list(models_info.keys()) + list(extended_classes.keys()))
+                + "'"
+            )
+            cur.execute(
+                """SELECT iliname, sqlname
                            FROM {schema}.t_ili2db_classname
                            WHERE iliname IN ({class_names})
-                        """.format(schema=self.schema, class_names=class_names))
-            result = self._get_dict_result(cur) 
+                        """.format(
+                    schema=self.schema, class_names=class_names
+                )
+            )
+            result = self._get_dict_result(cur)
         return result
 
     def get_attrili_attrdb_mapping(self, attrs_list):
@@ -505,10 +598,14 @@ class MssqlConnector(DBConnector):
             cur = self.conn.cursor()
             attr_names = "'" + "','".join(attrs_list) + "'"
 
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute(
+                """SELECT iliname, sqlname, owner
                            FROM {schema}.t_ili2db_attrname
                            WHERE iliname IN ({attr_names})
-                        """.format(schema=self.schema, attr_names=attr_names))
+                        """.format(
+                    schema=self.schema, attr_names=attr_names
+                )
+            )
             result = self._get_dict_result(cur)
         return result
 
@@ -517,13 +614,17 @@ class MssqlConnector(DBConnector):
         if self.schema:
             cur = self.conn.cursor()
             owner_names = "'" + "','".join(owners) + "'"
-            cur.execute("""SELECT iliname, sqlname, owner
+            cur.execute(
+                """SELECT iliname, sqlname, owner
                            FROM {schema}.t_ili2db_attrname
                            WHERE owner IN ({owner_names})
-                        """.format(schema=self.schema, owner_names=owner_names))
+                        """.format(
+                    schema=self.schema, owner_names=owner_names
+                )
+            )
             result = self._get_dict_result(cur)
         return result
-    
+
     def _get_dict_result(self, cur):
         columns = [column[0] for column in cur.description]
 
@@ -536,44 +637,61 @@ class MssqlConnector(DBConnector):
 
     def ili_version(self):
         cur = self.conn.cursor()
-        cur.execute("""SELECT count(COLUMN_NAME)
+        cur.execute(
+            """SELECT count(COLUMN_NAME)
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_SCHEMA='{schema}'
 	AND(TABLE_NAME='t_ili2db_attrname' OR TABLE_NAME='t_ili2db_model')
-                       AND(COLUMN_NAME='owner' OR COLUMN_NAME='file')""".format(schema=self.schema))
+                       AND(COLUMN_NAME='owner' OR COLUMN_NAME='file')""".format(
+                schema=self.schema
+            )
+        )
 
         res = cur.fetchone()[0]
         print(res)
         if res > 0:
-            self.new_message.emit(Qgis.Warning, "DB schema created with ili2db version 3. Better use version 4.")
+            self.new_message.emit(
+                Qgis.Warning,
+                "DB schema created with ili2db version 3. Better use version 4.",
+            )
             return 3
         else:
             return 4
 
     def get_basket_handling(self):
         if self.schema and self._table_exists(SETTINGS_TABLE):
-                cur = self.conn.cursor()
-                cur.execute("""SELECT setting
+            cur = self.conn.cursor()
+            cur.execute(
+                """SELECT setting
                             FROM {schema}.{table}
                             WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                            """.format(schema=self.schema, table=SETTINGS_TABLE))
-                content = cur.fetchone()
-                if content:
-                    return content[0] == 'readWrite'
+                            """.format(
+                    schema=self.schema, table=SETTINGS_TABLE
+                )
+            )
+            content = cur.fetchone()
+            if content:
+                return content[0] == "readWrite"
         return False
 
     def get_baskets_info(self):
         result = {}
         if self.schema and self._table_exists(BASKET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""SELECT b.t_id as basket_t_id, 
-                            b.t_ili_tid as basket_t_ili_tid, 
-                            b.topic as topic, 
+            cur.execute(
+                """SELECT b.t_id as basket_t_id,
+                            b.t_ili_tid as basket_t_ili_tid,
+                            b.topic as topic,
                             d.t_id as dataset_t_id,
                             d.datasetname as datasetname from {schema}.{basket_table} b
                             JOIN {schema}.{dataset_table} d
                             ON b.dataset = d.t_id
-                        """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_table=DATASET_TABLE))
+                        """.format(
+                    schema=self.schema,
+                    basket_table=BASKET_TABLE,
+                    dataset_table=DATASET_TABLE,
+                )
+            )
             result = self._get_dict_result(cur)
         return result
 
@@ -581,70 +699,121 @@ WHERE TABLE_SCHEMA='{schema}'
         result = {}
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""SELECT t_id, datasetname
+            cur.execute(
+                """SELECT t_id, datasetname
                            FROM {schema}.{dataset_table}
-                        """.format(schema=self.schema, dataset_table=DATASET_TABLE))
+                        """.format(
+                    schema=self.schema, dataset_table=DATASET_TABLE
+                )
+            )
             result = self._get_dict_result(cur)
         return result
-    
+
     def create_dataset(self, datasetname):
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
             try:
-                cur.execute("""
+                cur.execute(
+                    """
                     INSERT INTO {schema}.{dataset_table} VALUES (NEXT VALUE FOR {schema}.{sequence}, ?)
-                    """.format(schema=self.schema, sequence='t_ili2db_seq', dataset_table=DATASET_TABLE ),
-                    datasetname)
+                    """.format(
+                        schema=self.schema,
+                        sequence="t_ili2db_seq",
+                        dataset_table=DATASET_TABLE,
+                    ),
+                    datasetname,
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
+                return True, self.tr('Successfully created dataset "{}".').format(
+                    datasetname
+                )
             except pyodbc.errors.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
-        
+                return False, self.tr('Dataset with name "{}" already exists.').format(
+                    datasetname
+                )
+        return False, self.tr('Could not create dataset "{}".').format(datasetname)
+
     def rename_dataset(self, tid, datasetname):
         if self.schema and self._table_exists(DATASET_TABLE):
             cur = self.conn.cursor()
             try:
-                cur.execute("""
+                cur.execute(
+                    """
                     UPDATE {schema}.{dataset_table} SET datasetname = ? WHERE {tid_name} = {tid}
-                    """.format(schema=self.schema, dataset_table=DATASET_TABLE, tid_name=self.tid, tid=tid),
-                    datasetname)
+                    """.format(
+                        schema=self.schema,
+                        dataset_table=DATASET_TABLE,
+                        tid_name=self.tid,
+                        tid=tid,
+                    ),
+                    datasetname,
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully created dataset \"{}\".").format(datasetname)
+                return True, self.tr('Successfully created dataset "{}".').format(
+                    datasetname
+                )
             except pyodbc.errors.UniqueViolation as e:
-                return False, self.tr("Dataset with name \"{}\" already exists.").format(datasetname)
-        return False, self.tr("Could not create dataset \"{}\".").format(datasetname)
-        
+                return False, self.tr('Dataset with name "{}" already exists.').format(
+                    datasetname
+                )
+        return False, self.tr('Could not create dataset "{}".').format(datasetname)
+
     def get_topics_info(self):
         result = {}
         if self.schema and self._table_exists("t_ili2db_classname"):
             cur = self.conn.cursor()
-            cur.execute("""
-                    SELECT DISTINCT PARSENAME(iliname,1) as model, 
-                    PARSENAME(iliname,2) as topic 
+            cur.execute(
+                """
+                    SELECT DISTINCT PARSENAME(iliname,1) as model,
+                    PARSENAME(iliname,2) as topic
                     FROM {schema}.t_ili2db_classname
-                """.format(schema=self.schema))
+                """.format(
+                    schema=self.schema
+                )
+            )
             result = self._get_dict_result(cur)
         return result
 
     def create_basket(self, dataset_tid, topic):
         if self.schema and self._table_exists(BASKET_TABLE):
             cur = self.conn.cursor()
-            cur.execute("""
-                    SELECT * FROM {schema}.{basket_table} 
+            cur.execute(
+                """
+                    SELECT * FROM {schema}.{basket_table}
                     WHERE dataset = {dataset_tid} and topic = '{topic}'
-                """.format(schema=self.schema, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                """.format(
+                    schema=self.schema,
+                    basket_table=BASKET_TABLE,
+                    dataset_tid=dataset_tid,
+                    topic=topic,
+                )
+            )
             if cur.fetchone():
-                return False, self.tr("Basket for topic \"{}\" already exists.").format(topic)
-            try: 
-                cur.execute("""
+                return False, self.tr('Basket for topic "{}" already exists.').format(
+                    topic
+                )
+            try:
+                cur.execute(
+                    """
                     INSERT INTO {schema}.{basket_table} ({tid_name}, dataset, topic, {tilitid_name}, attachmentkey )
                     VALUES (NEXT VALUE FOR {schema}.{sequence}, {dataset_tid}, '{topic}', NEWID(), 'Qgis Model Baker')
-                """.format(schema=self.schema, sequence='t_ili2db_seq', tid_name = self.tid, tilitid_name = self.tilitid, basket_table=BASKET_TABLE, dataset_tid = dataset_tid, topic = topic ))
+                """.format(
+                        schema=self.schema,
+                        sequence="t_ili2db_seq",
+                        tid_name=self.tid,
+                        tilitid_name=self.tilitid,
+                        basket_table=BASKET_TABLE,
+                        dataset_tid=dataset_tid,
+                        topic=topic,
+                    )
+                )
                 self.conn.commit()
-                return True, self.tr("Successfully created basket for topic \"{}\".").format(topic)
+                return True, self.tr(
+                    'Successfully created basket for topic "{}".'
+                ).format(topic)
             except pyodbc.errors.Error as e:
-                error_message = ' '.join(e.args)
-                return False, self.tr("Could not create basket for topic \"{}\": {}").format(topic, error_message)
-        return False, self.tr("Could not create basket for topic \"{}\".").format(topic)
-
+                error_message = " ".join(e.args)
+                return False, self.tr(
+                    'Could not create basket for topic "{}": {}'
+                ).format(topic, error_message)
+        return False, self.tr('Could not create basket for topic "{}".').format(topic)

@@ -18,24 +18,19 @@
  ***************************************************************************/
 """
 
+from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtWidgets import QAction, QWidget
+
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
-
-from qgis.PyQt.QtWidgets import QWidget, QAction, QGridLayout
-from qgis.PyQt.QtCore import Qt
-from ...utils.ui import get_ui_class, LogColor
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ...libili2db import iliimporter, iliexporter, iliexecutable
-from QgisModelBaker.gui.panel.log_panel import LogPanel
-
 from QgisModelBaker.gui.edit_command import EditCommandDialog
-
+from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import OverrideCursor
-from QgisModelBaker.libili2db.globals import DbActionType
 
-from qgis.PyQt.QtCore import pyqtSignal
+from ...libili2db import iliexecutable, iliexporter, iliimporter
+from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from ...utils.ui import LogColor, get_ui_class
 
 WIDGET_UI = get_ui_class("workflow_wizard/session_panel.ui")
 

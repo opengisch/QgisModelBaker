@@ -17,7 +17,11 @@
  ***************************************************************************/
 """
 from abc import ABC, abstractmethod
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration, SchemaImportConfiguration
+
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+    SchemaImportConfiguration,
+)
 
 
 class DbCommandConfigManager(ABC):
@@ -44,7 +48,6 @@ class DbCommandConfigManager(ABC):
         :return: Database uri (connection string).
         :rtype str
         """
-        pass
 
     @abstractmethod
     def get_db_args(self, hide_password=False, su=False):
@@ -55,7 +58,6 @@ class DbCommandConfigManager(ABC):
         :return: ili2db arguments list.
         :rtype: list
         """
-        pass
 
     def get_schema_import_args(self):
         """Gets a list of ili2db arguments to use in operation schema import.
@@ -87,7 +89,6 @@ class DbCommandConfigManager(ABC):
 
         :return: None
         """
-        pass
 
     @abstractmethod
     def load_config_from_qsettings(self):
@@ -95,4 +96,3 @@ class DbCommandConfigManager(ABC):
 
         :return: None
         """
-        pass

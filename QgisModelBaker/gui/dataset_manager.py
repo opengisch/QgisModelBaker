@@ -18,34 +18,21 @@
 """
 from enum import Enum
 
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
+from qgis.core import QgsMapLayer, QgsProject
+from qgis.PyQt.QtCore import QSettings, Qt, QTimer
+from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
+from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
+
 import QgisModelBaker.utils.db_utils as db_utils
-
-
-from QgisModelBaker.libili2db.globals import DbIliMode, displayDbIliMode, DbActionType
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from qgis.core import QgsProject, QgsMapLayer
+from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
-from qgis.PyQt.QtWidgets import (
-    QDialog,
-    QHeaderView,
-    QTableView,
-    QMessageBox
-)
-from qgis.PyQt.QtCore import (
-    QSettings,
-    QTimer,
-    Qt
-)
+from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..utils import get_ui_class
 
-from qgis.PyQt.QtGui import (
-    QStandardItemModel,
-    QStandardItem
-)
+DIALOG_UI = get_ui_class("dataset_manager.ui")
 
-DIALOG_UI = get_ui_class('dataset_manager.ui')
 
 class DatasetModel(QStandardItemModel):
     class Roles(Enum):
@@ -61,22 +48,22 @@ class DatasetModel(QStandardItemModel):
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def refresh_model(self, db_connector = None):
+    def refresh_model(self, db_connector=None):
         self.beginResetModel()
         self.clear()
         if db_connector:
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
                 item = QStandardItem()
-                item.setData(record['datasetname'], int(Qt.DisplayRole))
-                item.setData(record['datasetname'], int(DatasetModel.Roles.DATASETNAME))
-                item.setData(record['t_id'], int(DatasetModel.Roles.TID))
+                item.setData(record["datasetname"], int(Qt.DisplayRole))
+                item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
+                item.setData(record["t_id"], int(DatasetModel.Roles.TID))
                 self.appendRow(item)
         self.endResetModel()
 
-class DatasetManagerDialog(QDialog, DIALOG_UI):
 
-    def __init__(self, iface, parent=None, wizard_embedded = False):
+class DatasetManagerDialog(QDialog, DIALOG_UI):
+    def __init__(self, iface, parent=None, wizard_embedded=False):
 
         QDialog.__init__(self, parent)
         self.iface = iface
@@ -93,8 +80,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
             db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(
-                self, DbActionType.EXPORT)
+            item_panel = db_factory.get_config_panel(self, DbActionType.EXPORT)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
@@ -104,7 +90,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.db_frame.setHidden(wizard_embedded)
 
         self.dataset_model = DatasetModel()
-        self.dataset_tableview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.dataset_tableview.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
         self.dataset_tableview.horizontalHeader().hide()
         self.dataset_tableview.verticalHeader().hide()
         self.dataset_tableview.setSelectionMode(QTableView.SingleSelection)
@@ -112,10 +100,12 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self._restore_configuration()
 
-        #refresh the models on changing values but avoid massive db connects by timer
+        # refresh the models on changing values but avoid massive db connects by timer
         self.refreshTimer = QTimer()
         self.refreshTimer.setSingleShot(True)
-        self.refreshTimer.timeout.connect(lambda: self._refresh_datasets(self._updated_configuration()))
+        self.refreshTimer.timeout.connect(
+            lambda: self._refresh_datasets(self._updated_configuration())
+        )
 
         for key, value in self._lst_panel.items():
             value.notify_fields_modified.connect(self._request_for_refresh_datasets)
@@ -125,7 +115,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.add_button.clicked.connect(self._add_dataset)
         self.edit_button.clicked.connect(self._edit_dataset)
         self.create_baskets_button.clicked.connect(self._create_baskets)
-        self.dataset_tableview.selectionModel().selectionChanged.connect( lambda: self._enable_dataset_handling(True))
+        self.dataset_tableview.selectionModel().selectionChanged.connect(
+            lambda: self._enable_dataset_handling(True)
+        )
 
     def _close_editing(self):
         editable_layers = []
@@ -134,14 +126,17 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 self.iface.vectorLayerTools().stopEditing(layer)
                 if layer.isEditable():
                     editable_layers.append(layer)
-        if editable_layers:    
+        if editable_layers:
             warning_box = QMessageBox(self)
             warning_box.setIcon(QMessageBox.Warning)
             warning_title = self.tr("Layers still editable")
             warning_box.setWindowTitle(warning_title)
-            warning_box.setText(self.tr("You have still layers in editable mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}").format('\n - '.join([layer.name() for layer in editable_layers])))
+            warning_box.setText(
+                self.tr(
+                    "You have still layers in editable mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
+                ).format("\n - ".join([layer.name() for layer in editable_layers]))
+            )
             warning_box.exec_()
-
 
     def _valid_selection(self):
         """
@@ -172,7 +167,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _request_for_refresh_datasets(self):
         # hold refresh back
         self.refreshTimer.start(500)
-        
+
     def _refresh_datasets(self, configuration):
         db_connector = db_utils.get_db_connector(configuration)
         if db_connector and db_connector.get_basket_handling:
@@ -193,8 +188,15 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         if self._valid_selection():
             db_connector = db_utils.get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
-                dataset = (self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.TID)), self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.DATASETNAME)))
-                edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset )
+                dataset = (
+                    self.dataset_tableview.selectedIndexes()[0].data(
+                        int(DatasetModel.Roles.TID)
+                    ),
+                    self.dataset_tableview.selectedIndexes()[0].data(
+                        int(DatasetModel.Roles.DATASETNAME)
+                    ),
+                )
+                edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
                 edit_dataset_dialog.exec_()
             self._refresh_datasets(self._updated_configuration())
 
@@ -204,15 +206,23 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             if db_connector and db_connector.get_basket_handling:
                 feedbacks = []
                 for record in db_connector.get_topics_info():
-                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(int(DatasetModel.Roles.TID))
-                    status, message = db_connector.create_basket( dataset_tid, '.'.join([record['model'], record['topic']]))
+                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(
+                        int(DatasetModel.Roles.TID)
+                    )
+                    status, message = db_connector.create_basket(
+                        dataset_tid, ".".join([record["model"], record["topic"]])
+                    )
                     feedbacks.append((status, message))
-    
+
                 info_box = QMessageBox(self)
-                info_box.setIcon(QMessageBox.Warning if len([feedback for feedback in feedbacks if not feedback[0]]) else QMessageBox.Information)
+                info_box.setIcon(
+                    QMessageBox.Warning
+                    if len([feedback for feedback in feedbacks if not feedback[0]])
+                    else QMessageBox.Information
+                )
                 info_title = self.tr("Created baskets")
                 info_box.setWindowTitle(info_title)
-                info_box.setText('\n'.join([feedback[1] for feedback in feedbacks]))
+                info_box.setText("\n".join([feedback[1] for feedback in feedbacks]))
                 info_box.exec_()
 
     def _restore_configuration(self):
@@ -221,11 +231,11 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         for db_id in self.db_simple_factory.get_db_list(False):
             configuration = Ili2DbCommandConfiguration()
             db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager( configuration)
+            config_manager = db_factory.get_db_command_config_manager(configuration)
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
-        mode = settings.value('QgisModelBaker/importtype')
+        mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
 
@@ -244,8 +254,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
     def _save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue('QgisModelBaker/importtype',
-                          self.type_combo_box.currentData().name)
+        settings.setValue(
+            "QgisModelBaker/importtype", self.type_combo_box.currentData().name
+        )
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
         config_manager = db_factory.get_db_command_config_manager(configuration)
