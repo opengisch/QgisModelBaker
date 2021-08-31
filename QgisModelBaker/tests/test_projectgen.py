@@ -133,11 +133,13 @@ class TestProjectGen(unittest.TestCase):
 
                 if Qgis.QGIS_VERSION_INT >= 31600:
                     tab_list = [tab.name() for tab in tabs]
-                    expected_tab_list = ['General',
-                                         'parzellenidentifikation',
-                                         'egrid_',
-                                         'deponietyp',
-                                         'untersmassn']
+                    expected_tab_list = [
+                        "General",
+                        "parzellenidentifikation",
+                        "egrid_",
+                        "deponietyp",
+                        "untersmassn",
+                    ]
                     assert set(tab_list) == set(expected_tab_list)
                     assert len(tab_list) == len(expected_tab_list)
 
@@ -253,11 +255,13 @@ class TestProjectGen(unittest.TestCase):
 
                 if Qgis.QGIS_VERSION_INT >= 31600:
                     tab_list = [tab.name() for tab in tabs]
-                    expected_tab_list = ['General',
-                                         'parzellenidentifikation',
-                                         'egrid_',
-                                         'deponietyp',
-                                         'untersmassn']
+                    expected_tab_list = [
+                        "General",
+                        "parzellenidentifikation",
+                        "egrid_",
+                        "deponietyp",
+                        "untersmassn",
+                    ]
                     assert len(tab_list) == len(expected_tab_list)
                     assert set(tab_list) == set(expected_tab_list)
 
@@ -371,12 +375,14 @@ class TestProjectGen(unittest.TestCase):
 
                 if Qgis.QGIS_VERSION_INT >= 31600:
                     tab_list = [tab.name() for tab in tabs]
-                    expected_tab_list = ['General',
-                                         'parzellenidentifikation',
-                                         'belasteter_standort_geo_lage_punkt',
-                                         'egrid_',
-                                         'deponietyp',
-                                         'untersmassn']
+                    expected_tab_list = [
+                        "General",
+                        "parzellenidentifikation",
+                        "belasteter_standort_geo_lage_punkt",
+                        "egrid_",
+                        "deponietyp",
+                        "untersmassn",
+                    ]
                     assert len(tab_list) == len(expected_tab_list)
                     assert set(tab_list) == set(expected_tab_list)
 
@@ -480,12 +486,14 @@ class TestProjectGen(unittest.TestCase):
 
                 if Qgis.QGIS_VERSION_INT >= 31600:
                     tab_list = [tab.name() for tab in tabs]
-                    expected_tab_list = ['General',
-                                         'parzellenidentifikation',
-                                         'belasteter_standort_geo_lage_punkt',
-                                         'egrid_',
-                                         'deponietyp',
-                                         'untersmassn']
+                    expected_tab_list = [
+                        "General",
+                        "parzellenidentifikation",
+                        "belasteter_standort_geo_lage_punkt",
+                        "egrid_",
+                        "deponietyp",
+                        "untersmassn",
+                    ]
                     assert len(tab_list) == len(expected_tab_list)
                     assert set(tab_list) == set(expected_tab_list)
 

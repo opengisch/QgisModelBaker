@@ -18,19 +18,9 @@
  ***************************************************************************/
 """
 import logging
-from QgisModelBaker.libqgsprojectgen.generator.config import IGNORED_FIELDNAMES
-from .form import (
-    Form,
-    FormTab,
-    FormRelationWidget,
-    FormFieldWidget
-)
+
 from qgis.core import (
     Qgis,
-    QgsVectorLayer,
-    QgsDataSourceUri,
-    QgsWkbTypes,
-    QgsRectangle,
     QgsCoordinateReferenceSystem,
     QgsDataSourceUri,
     QgsExpressionContextUtils,
@@ -39,6 +29,8 @@ from qgis.core import (
     QgsWkbTypes,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
+
+from QgisModelBaker.libqgsprojectgen.generator.config import IGNORED_FIELDNAMES
 
 from .form import Form, FormFieldWidget, FormRelationWidget, FormTab
 
@@ -207,9 +199,13 @@ class Layer(object):
                 if relation.referenced_layer == self:
 
                     # 1:m relation will be added only if does not point to a pure link table
-                    if (not (relation.referencing_layer.isPureLinkTable(project)
-                             or relation.referencing_layer.is_basket_table)
-                       or Qgis.QGIS_VERSION_INT < 31600):
+                    if (
+                        not (
+                            relation.referencing_layer.isPureLinkTable(project)
+                            or relation.referencing_layer.is_basket_table
+                        )
+                        or Qgis.QGIS_VERSION_INT < 31600
+                    ):
                         relations_to_add.append((relation, None))
 
                     for nm_relation in project.relations:
@@ -232,7 +228,11 @@ class Layer(object):
             for relation, nm_relation in relations_to_add:
                 if nm_relation and Qgis.QGIS_VERSION_INT < 31600:
                     logger = logging.getLogger(__name__)
-                    logger.warning('QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(nm_relation.name))
+                    logger.warning(
+                        'QGIS version older than 3.16. Relation editor widget for relation "{0}" will not be added.'.format(
+                            nm_relation.name
+                        )
+                    )
                     continue
 
                 if nm_relation:
@@ -268,10 +268,10 @@ class Layer(object):
             return None
 
     def isPureLinkTable(self, project):
-        '''
+        """
         Returns True if the layer is a pure link table in a n:m relation.
         With "pure" it is meant the layer has no more fields than foreign keys and its id.
-        '''
+        """
 
         remaining_fields = set()
         for field in self.fields:
@@ -285,4 +285,3 @@ class Layer(object):
             remaining_fields.discard(relation.referencing_field)
 
         return len(remaining_fields) == 0
-

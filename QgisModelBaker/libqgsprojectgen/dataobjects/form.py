@@ -122,7 +122,8 @@ class FormRelationWidget(object):
         except TypeError:
             # Feed deprecated API for 3.0.0 and 3.0.1
             widget = QgsAttributeEditorRelation(
-               self.relation.id, self.relation.id, parent)
+                self.relation.id, self.relation.id, parent
+            )
         if self.nm_relation:
             widget.setNmRelationId(self.nm_relation.id)
         return widget
