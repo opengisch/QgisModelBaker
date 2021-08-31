@@ -26,6 +26,7 @@ from QgisModelBaker.gui.options import OptionsDialog, CompletionLineEdit
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
+from QgisModelBaker.utils.ui import LogColor
 from QgisModelBaker.libili2db.ili2dbutils import (
     color_log_text,
     JavaNotFoundError
@@ -240,7 +241,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(0)
 
             self.disable()
-            self.txtStdout.setTextColor(QColor('#000000'))
+            self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
             self.txtStdout.clear()
 
             dataImporter = iliimporter.Importer(dataImport=True)
@@ -263,7 +264,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                     self.progress_bar.hide()
                     return
             except JavaNotFoundError as e:
-                self.txtStdout.setTextColor(QColor('#000000'))
+                self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
                 self.txtStdout.clear()
                 self.txtStdout.setText(e.error_string)
                 self.enable()
@@ -286,7 +287,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
         except AttributeError:
             pass
 
-    def print_info(self, text, text_color='#000000'):
+    def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
@@ -310,7 +311,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
     def on_process_started(self, command):
         self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
         self.txtStdout.clear()
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()

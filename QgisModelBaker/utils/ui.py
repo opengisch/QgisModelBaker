@@ -1,8 +1,14 @@
 import os
+from enum import Enum
 import warnings
 
 from qgis.PyQt.uic import loadUiType
 
+class LogColor():
+    COLOR_INFO = '#000000'
+    COLOR_SUCCESS = '#004905'
+    COLOR_FAIL = '#aa2222'
+    COLOR_TOPPING = '#341d5c'
 
 def get_ui_class(ui_file):
     """Get UI Python class from .ui file.

@@ -79,6 +79,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def get_fields(self, configuration):
         configuration.dbfile = self.gpkg_file_line_edit.text().strip()
+        configuration.dbschema = None
 
     def set_fields(self, configuration):
         self.gpkg_file_line_edit.setText(configuration.dbfile)

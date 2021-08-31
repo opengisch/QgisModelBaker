@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.utils.ui import LogColor
 import os
 import webbrowser
 import os.path
@@ -325,7 +326,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(0)
 
             self.disable()
-            self.txtStdout.setTextColor(QColor('#000000'))
+            self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
             self.txtStdout.clear()
 
             exporter = iliexporter.Exporter()
@@ -363,7 +364,7 @@ class ExportDialog(QDialog, DIALOG_UI):
                         self.progress_bar.hide()
                         return
             except JavaNotFoundError as e:
-                self.txtStdout.setTextColor(QColor('#000000'))
+                self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
                 self.txtStdout.clear()
                 self.txtStdout.setText(e.error_string)
                 self.enable()
@@ -376,7 +377,7 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.progress_bar.setValue(100)
 
     def print_info(self, text):
-        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
@@ -393,7 +394,7 @@ class ExportDialog(QDialog, DIALOG_UI):
 
     def on_process_started(self, command):
         self.disable()
-        self.txtStdout.setTextColor(QColor('#000000'))
+        self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
         self.txtStdout.clear()
         self.txtStdout.setText(command)
         QCoreApplication.processEvents()

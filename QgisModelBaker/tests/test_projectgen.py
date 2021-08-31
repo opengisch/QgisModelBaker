@@ -2599,7 +2599,7 @@ class TestProjectGen(unittest.TestCase):
         metaconfig.read(path)
         return metaconfig
 
-    # that's the same like in generate_project.py - should this go to utils and be accessed here dave?
+    # that's the same like in generate_project.py
     def get_topping_file_list(self, base_config, id_list):
         topping_file_model = self.get_topping_file_model(base_config, id_list)
         file_path_list = []

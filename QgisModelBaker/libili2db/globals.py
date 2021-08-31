@@ -60,4 +60,3 @@ class DbActionType(Enum):
     GENERATE = 1
     IMPORT_DATA = 2
     EXPORT = 3
-
