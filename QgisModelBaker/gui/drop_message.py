@@ -23,9 +23,9 @@ from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QDialog
 
 from QgisModelBaker.libili2db.globals import DropMode
-from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils import ui
 
-DIALOG_UI = get_ui_class("drop_message.ui")
+DIALOG_UI = ui.get_ui_class("drop_message.ui")
 
 
 class DropMessageDialog(QDialog, DIALOG_UI):

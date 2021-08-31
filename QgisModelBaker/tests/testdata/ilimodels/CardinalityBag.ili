@@ -2,16 +2,16 @@ INTERLIS 2.3;
 
 MODEL CardinalityBag
   AT "mailto:david@opengis.ch" VERSION "2015-09-23" =
-  
+
   DOMAIN
     EI_Typen = (Fischers, Fritz, Fischt, Frische, Fische);
 
   TOPIC Topic =
-  
+
     STRUCTURE StructText=
        text : TEXT*10;
     END StructText;
-    
+
     STRUCTURE EI_Typ =
       EI_Typen: EI_Typen;
     END EI_Typ;
@@ -30,4 +30,3 @@ MODEL CardinalityBag
 
   END Topic;
 END CardinalityBag.
-

@@ -30,9 +30,10 @@ from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ...libili2db import iliexecutable, iliexporter, iliimporter
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...utils.ui import LogColor, get_ui_class
+from ...utils import ui
+from ...utils.ui import LogColor
 
-WIDGET_UI = get_ui_class("workflow_wizard/session_panel.ui")
+WIDGET_UI = ui.get_ui_class("workflow_wizard/session_panel.ui")
 
 
 class SessionPanel(QWidget, WIDGET_UI):

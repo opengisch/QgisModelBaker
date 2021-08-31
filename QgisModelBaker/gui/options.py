@@ -30,10 +30,10 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     SchemaImportConfiguration,
 )
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.utils import get_ui_class, qt_utils
+from QgisModelBaker.utils import qt_utils, ui
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
-DIALOG_UI = get_ui_class("options.ui")
+DIALOG_UI = ui.get_ui_class("options.ui")
 
 
 class OptionsDialog(QDialog, DIALOG_UI):

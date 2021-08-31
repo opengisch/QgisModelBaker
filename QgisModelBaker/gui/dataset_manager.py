@@ -29,9 +29,9 @@ from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbI
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..utils import get_ui_class
+from ..utils import ui
 
-DIALOG_UI = get_ui_class("dataset_manager.ui")
+DIALOG_UI = ui.get_ui_class("dataset_manager.ui")
 
 
 class DatasetModel(QStandardItemModel):

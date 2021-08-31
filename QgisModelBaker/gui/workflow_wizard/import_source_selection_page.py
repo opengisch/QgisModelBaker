@@ -28,9 +28,9 @@ import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.utils.qt_utils import FileValidator, QValidator, make_file_selector
 
-from ...utils import get_ui_class
+from ...utils import ui
 
-PAGE_UI = get_ui_class("workflow_wizard/import_source_selection.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/import_source_selection.ui")
 
 
 class ImportSourceSeletionPage(QWizardPage, PAGE_UI):

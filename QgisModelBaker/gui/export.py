@@ -58,9 +58,9 @@ from QgisModelBaker.utils.ui import LogColor
 from ..libili2db import ili2dbconfig, iliexporter
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..utils import get_ui_class
+from ..utils import ui
 
-DIALOG_UI = get_ui_class("export.ui")
+DIALOG_UI = ui.get_ui_class("export.ui")
 
 
 class ExportModels(QStringListModel):

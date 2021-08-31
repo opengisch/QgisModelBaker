@@ -25,13 +25,14 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.libili2db.ilicache import IliToppingFileItemModel
 
-from ...libqgsprojectgen.dataobjects import Project
+from ...libqgsprojectgen.dataobjects.project import Project
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libqgsprojectgen.generator.generator import Generator
-from ...utils.ui import LogColor, get_ui_class
+from ...utils import ui
+from ...utils.ui import LogColor
 
-PAGE_UI = get_ui_class("workflow_wizard/project_creation.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/project_creation.ui")
 
 
 class ProjectCreationPage(QWizardPage, PAGE_UI):

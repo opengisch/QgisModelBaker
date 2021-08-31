@@ -23,8 +23,9 @@ from qgis.core import QgsApplication, QgsRelation, QgsWkbTypes
 from qgis.PyQt.QtCore import QCoreApplication, QLocale, QObject, pyqtSignal
 
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dataobjects import Field, LegendGroup
+from QgisModelBaker.libqgsprojectgen.dataobjects.fields import Field
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
+from QgisModelBaker.libqgsprojectgen.dataobjects.legend import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
 from QgisModelBaker.utils.qt_utils import slugify
 

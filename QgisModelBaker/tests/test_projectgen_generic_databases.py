@@ -29,7 +29,7 @@ from qgis.core import QgsProject
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dataobjects import Project
+from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.tests.utils import (

@@ -26,9 +26,9 @@ import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 
-from ...utils import get_ui_class
+from ...utils import ui
 
-PAGE_UI = get_ui_class("workflow_wizard/import_data_configuration.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
 
 class DatasetComboDelegate(QStyledItemDelegate):

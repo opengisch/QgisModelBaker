@@ -22,10 +22,10 @@ from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem
 
-from QgisModelBaker.utils import get_ui_class
+from QgisModelBaker.utils import ui
 from QgisModelBaker.utils.qt_utils import selectFolder
 
-DIALOG_UI = get_ui_class("custom_model_dir.ui")
+DIALOG_UI = ui.get_ui_class("custom_model_dir.ui")
 
 
 class CustomModelDirDialog(QDialog, DIALOG_UI):

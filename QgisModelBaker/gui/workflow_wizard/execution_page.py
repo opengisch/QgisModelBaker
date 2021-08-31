@@ -32,9 +32,10 @@ from qgis.PyQt.QtWidgets import (
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.libili2db.globals import DbActionType
 
-from ...utils.ui import LogColor, get_ui_class
+from ...utils import ui
+from ...utils.ui import LogColor
 
-PAGE_UI = get_ui_class("workflow_wizard/execution.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):

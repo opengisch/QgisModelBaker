@@ -25,9 +25,9 @@ from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbI
 from QgisModelBaker.utils import db_utils
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...utils import get_ui_class
+from ...utils import ui
 
-PAGE_UI = get_ui_class("workflow_wizard/database_selection.ui")
+PAGE_UI = ui.get_ui_class("workflow_wizard/database_selection.ui")
 
 
 class DatabaseSelectionPage(QWizardPage, PAGE_UI):

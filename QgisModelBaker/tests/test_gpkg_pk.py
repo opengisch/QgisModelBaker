@@ -33,7 +33,7 @@ from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dataobjects import Project
+from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import (
     GpkgCommandConfigManager,
 )

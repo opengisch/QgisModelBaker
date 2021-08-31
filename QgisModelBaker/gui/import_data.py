@@ -52,9 +52,9 @@ from QgisModelBaker.utils.ui import LogColor
 from ..libili2db import ili2dbconfig, iliimporter
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..utils import get_ui_class
+from ..utils import ui
 
-DIALOG_UI = get_ui_class("import_data.ui")
+DIALOG_UI = ui.get_ui_class("import_data.ui")
 
 
 class ImportDataDialog(QDialog, DIALOG_UI):
