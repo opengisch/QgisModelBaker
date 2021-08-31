@@ -34,5 +34,6 @@ echo ""
 
 
 pushd /usr/src
-xvfb-run pytest -v
+DEFAULT_PARAMS='-v'
+xvfb-run pytest ${@:-`echo $DEFAULT_PARAMS`}
 popd
