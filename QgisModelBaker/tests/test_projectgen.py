@@ -131,8 +131,15 @@ class TestProjectGen(unittest.TestCase):
                     ]
                 )
 
-                # This might need to be adjusted if we get better names
-                assert tabs[1].name() == "deponietyp_"
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    tab_list = [tab.name() for tab in tabs]
+                    expected_tab_list = ['General',
+                                         'parzellenidentifikation',
+                                         'egrid_',
+                                         'deponietyp',
+                                         'untersmassn']
+                    assert set(tab_list) == set(expected_tab_list)
+                    assert len(tab_list) == len(expected_tab_list)
 
             if (
                 layer.name == "belasteter_standort"
@@ -244,8 +251,15 @@ class TestProjectGen(unittest.TestCase):
                     ]
                 )
 
-                # This might need to be adjusted if we get better names
-                assert tabs[1].name() == "deponietyp_"
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    tab_list = [tab.name() for tab in tabs]
+                    expected_tab_list = ['General',
+                                         'parzellenidentifikation',
+                                         'egrid_',
+                                         'deponietyp',
+                                         'untersmassn']
+                    assert len(tab_list) == len(expected_tab_list)
+                    assert set(tab_list) == set(expected_tab_list)
 
             if (
                 layer.name == "belasteter_standort"
@@ -355,16 +369,16 @@ class TestProjectGen(unittest.TestCase):
                     ]
                 )
 
-                tab_list = [tab.name() for tab in tabs]
-                expected_tab_list = [
-                    "General",
-                    "parzellenidentifikation",
-                    "belasteter_standort_geo_lage_punkt",
-                    "egrid_",
-                    "deponietyp_",
-                    "untersmassn_",
-                ]
-                assert set(tab_list) == set(expected_tab_list)
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    tab_list = [tab.name() for tab in tabs]
+                    expected_tab_list = ['General',
+                                         'parzellenidentifikation',
+                                         'belasteter_standort_geo_lage_punkt',
+                                         'egrid_',
+                                         'deponietyp',
+                                         'untersmassn']
+                    assert len(tab_list) == len(expected_tab_list)
+                    assert set(tab_list) == set(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:
@@ -464,16 +478,16 @@ class TestProjectGen(unittest.TestCase):
                     ]
                 )
 
-                tab_list = [tab.name() for tab in tabs]
-                expected_tab_list = [
-                    "General",
-                    "parzellenidentifikation",
-                    "belasteter_standort_geo_lage_punkt",
-                    "egrid_",
-                    "deponietyp_",
-                    "untersmassn_",
-                ]
-                assert set(tab_list) == set(expected_tab_list)
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    tab_list = [tab.name() for tab in tabs]
+                    expected_tab_list = ['General',
+                                         'parzellenidentifikation',
+                                         'belasteter_standort_geo_lage_punkt',
+                                         'egrid_',
+                                         'deponietyp',
+                                         'untersmassn']
+                    assert len(tab_list) == len(expected_tab_list)
+                    assert set(tab_list) == set(expected_tab_list)
 
                 for tab in tabs:
                     if len(tab.findElements(tab.AeTypeRelation)) == 0:
