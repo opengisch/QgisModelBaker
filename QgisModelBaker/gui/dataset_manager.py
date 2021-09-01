@@ -18,7 +18,7 @@
 """
 from enum import Enum
 
-from qgis.core import QgsMapLayer, QgsProject
+from qgis.core import QgsApplication, QgsMapLayer, QgsProject
 from qgis.PyQt.QtCore import QSettings, Qt, QTimer
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
@@ -118,6 +118,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.selectionModel().selectionChanged.connect(
             lambda: self._enable_dataset_handling(True)
         )
+
+        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
+        self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
 
     def _close_editing(self):
         editable_layers = []

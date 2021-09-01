@@ -60,22 +60,14 @@
         <item>
          <widget class="QToolButton" name="add_button">
           <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../images/symbologyAdd.svg</normaloff>../../images/symbologyAdd.svg</iconset>
+           <string>+</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QToolButton" name="remove_button">
           <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../images/symbologyRemove.svg</normaloff>../../images/symbologyRemove.svg</iconset>
+           <string>-</string>
           </property>
          </widget>
         </item>
