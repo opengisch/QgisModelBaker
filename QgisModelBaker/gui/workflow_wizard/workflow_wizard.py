@@ -209,12 +209,7 @@ class WorkflowWizard(QWizard):
                 self.log_panel.print_info(self.tr("Database or schema does not exist."))
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
-            self.schema_configuration_page.update_configuration(
-                self.import_schema_configuration
-            )
-            self.schema_configuration_page.save_configuration(
-                self.import_schema_configuration
-            )
+            self._update_configurations(self.schema_configuration_page)
             if bool(self.import_models_model.checked_models()):
                 return PageIds.ImportSchemaExecution
             if self.import_data_file_model.rowCount():
@@ -312,12 +307,12 @@ class WorkflowWizard(QWizard):
             )
 
     def _update_configurations(self, page):
-        # update all configurations to have the same db settings for all of them
+        # update all configurations to have the same settings for all of them
         page.update_configuration(self.import_schema_configuration)
         page.update_configuration(self.import_data_configuration)
         page.update_configuration(self.update_data_configuration)
         page.update_configuration(self.export_data_configuration)
-        # and use schema config to save
+        # and use schema config to save (db settings and the schema settings)
         page.save_configuration(self.import_schema_configuration)
 
     def _current_page_title(self, id):
