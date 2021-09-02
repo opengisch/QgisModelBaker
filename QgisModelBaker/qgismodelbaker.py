@@ -263,6 +263,8 @@ class QgisModelBakerPlugin(QObject):
         del self.__about_action
         del self.__dataset_selector_action
         del self.__dataset_selector
+        # remove the toolbar
+        del self.toolbar
 
     def show_generate_dialog(self):
         if self.generate_dlg:
