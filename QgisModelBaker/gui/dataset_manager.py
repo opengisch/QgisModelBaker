@@ -185,7 +185,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         if db_connector and db_connector.get_basket_handling:
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
             edit_dataset_dialog.exec_()
-        self._refresh_datasets(self._updated_configuration())
+            self._refresh_datasets(self._updated_configuration())
+            self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
     def _edit_dataset(self):
         if self._valid_selection():
@@ -201,7 +202,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 )
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
                 edit_dataset_dialog.exec_()
-            self._refresh_datasets(self._updated_configuration())
+                self._refresh_datasets(self._updated_configuration())
+                self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
     def _create_baskets(self):
         if self._valid_selection():
@@ -227,6 +229,18 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 info_box.setWindowTitle(info_title)
                 info_box.setText("\n".join([feedback[1] for feedback in feedbacks]))
                 info_box.exec_()
+
+    def _jump_to_entry(self, datasetname):
+        matches = self.dataset_model.match(
+            self.dataset_model.index(0, 0),
+            Qt.DisplayRole,
+            datasetname,
+            1,
+            Qt.MatchExactly,
+        )
+        if matches:
+            self.dataset_tableview.setCurrentIndex(matches[0])
+            self.dataset_tableview.scrollTo(matches[0])
 
     def _restore_configuration(self):
         settings = QSettings()
