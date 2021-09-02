@@ -18,8 +18,10 @@
  ***************************************************************************/
 """
 
+import os
 
 from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QComboBox, QHeaderView, QStyledItemDelegate, QWizardPage
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
@@ -85,6 +87,14 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_dlg = None
         self.datasetmanager_button.setCheckable(True)
         self.datasetmanager_button.clicked.connect(self._show_datasetmanager_dialog)
+        self.datasetmanager_button.setIcon(
+            QIcon(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "../../images/QgisModelBaker-datasetmanager-icon.svg",
+                )
+            )
+        )
 
     def nextId(self):
         return self.workflow_wizard.next_id()

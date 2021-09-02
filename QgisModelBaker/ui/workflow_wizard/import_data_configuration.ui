@@ -119,10 +119,6 @@
           <property name="text">
            <string>Dataset Manager</string>
           </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../images/QgisModelBaker-datasetmanager-icon.svg</normaloff>../../images/QgisModelBaker-datasetmanager-icon.svg</iconset>
-          </property>
          </widget>
         </item>
        </layout>

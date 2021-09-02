@@ -21,6 +21,7 @@
 import os
 import pathlib
 
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
@@ -84,6 +85,8 @@ class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
         self.source_list_view.clicked.connect(
             lambda: self.remove_button.setEnabled(self._valid_selection())
         )
+        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
+        self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
 
     def nextId(self):
         self._disconnect_punch_slots()

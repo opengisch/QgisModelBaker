@@ -18,7 +18,7 @@
 """
 from enum import Enum
 
-from qgis.core import QgsMapLayer, QgsProject
+from qgis.core import QgsApplication, QgsMapLayer, QgsProject
 from qgis.PyQt.QtCore import QSettings, Qt, QTimer
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
@@ -119,6 +119,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             lambda: self._enable_dataset_handling(True)
         )
 
+        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
+        self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
+
     def _close_editing(self):
         editable_layers = []
         for layer in QgsProject.instance().mapLayers().values():
@@ -182,7 +185,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         if db_connector and db_connector.get_basket_handling:
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
             edit_dataset_dialog.exec_()
-        self._refresh_datasets(self._updated_configuration())
+            self._refresh_datasets(self._updated_configuration())
+            self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
     def _edit_dataset(self):
         if self._valid_selection():
@@ -198,7 +202,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 )
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
                 edit_dataset_dialog.exec_()
-            self._refresh_datasets(self._updated_configuration())
+                self._refresh_datasets(self._updated_configuration())
+                self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
     def _create_baskets(self):
         if self._valid_selection():
@@ -224,6 +229,18 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 info_box.setWindowTitle(info_title)
                 info_box.setText("\n".join([feedback[1] for feedback in feedbacks]))
                 info_box.exec_()
+
+    def _jump_to_entry(self, datasetname):
+        matches = self.dataset_model.match(
+            self.dataset_model.index(0, 0),
+            Qt.DisplayRole,
+            datasetname,
+            1,
+            Qt.MatchExactly,
+        )
+        if matches:
+            self.dataset_tableview.setCurrentIndex(matches[0])
+            self.dataset_tableview.scrollTo(matches[0])
 
     def _restore_configuration(self):
         settings = QSettings()
