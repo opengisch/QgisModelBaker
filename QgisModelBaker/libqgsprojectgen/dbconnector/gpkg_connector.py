@@ -684,6 +684,7 @@ class GPKGConnector(DBConnector):
                     SELECT DISTINCT substr(IliName, 0, instr(IliName, '.')) as model,
                     substr(substr(IliName, instr(IliName, '.')+1),0, instr(substr(IliName, instr(IliName, '.')+1),'.')) as topic
                     FROM T_ILI2DB_CLASSNAME
+					WHERE topic != ''
                 """
             )
             contents = cur.fetchall()
