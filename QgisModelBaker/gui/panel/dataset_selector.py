@@ -118,9 +118,9 @@ class DatasetSelector(QComboBox):
 
         # set the filter of the model according the current uri_identificator
         schema_topic_identificator = (
-            f"{schema_identificator}_{slugify(layer_model_topic_name)}"
+            f"{schema_identificator}_{slugify(layer_model_topic_name or '.*')}"
         )
-        self.filtered_model.setFilterFixedString(schema_topic_identificator)
+        self.filtered_model.setFilterRegExp(schema_topic_identificator)
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
             mode, configuration = get_configuration(source_name, source)

@@ -188,7 +188,8 @@ class Generator(QObject):
 
             model_topic_name = ""
             if "ili_name" in record and record["ili_name"]:
-                model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
+                if record["ili_name"].count(".") > 1:
+                    model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
 
             display_expression = ""
             if is_basket_table:
