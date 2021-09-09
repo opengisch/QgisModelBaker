@@ -193,7 +193,7 @@ class Generator(QObject):
 
             display_expression = ""
             if is_basket_table:
-                display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || topic || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), topic))".format(
+                display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || topic || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
                     tid=self._db_connector.tid,
                     tilitid=self._db_connector.tilitid,
                     dataset_layer_name=self._db_connector.dataset_table_name,
