@@ -767,6 +767,7 @@ WHERE TABLE_SCHEMA='{schema}'
                     SELECT DISTINCT PARSENAME(iliname,1) as model,
                     PARSENAME(iliname,2) as topic
                     FROM {schema}.t_ili2db_classname
+					WHERE PARSENAME(iliname,3) != ''
                 """.format(
                     schema=self.schema
                 )

@@ -843,9 +843,10 @@ class PGConnector(DBConnector):
             cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute(
                 """
-                    SELECT DISTINCT split_part(iliname,'.',1) as model,
-                    split_part(iliname,'.',2) as topic
+                    SELECT DISTINCT (string_to_array(iliname, '.'))[1] as model,
+                    (string_to_array(iliname, '.'))[2] as topic
                     FROM {schema}.t_ili2db_classname
+					WHERE array_length(string_to_array(iliname, '.'),1) > 2
                 """.format(
                     schema=self.schema
                 )
