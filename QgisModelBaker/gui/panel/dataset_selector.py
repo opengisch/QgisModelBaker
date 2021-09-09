@@ -78,6 +78,13 @@ class BasketSourceModel(QStandardItemModel):
         self.schema_baskets[schema_identificator] = baskets
         self.refresh()
 
+    def data(self, index, role):
+        item = self.item(index.row(), index.column())
+        if role == Qt.DisplayRole:
+            if item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split(".")[1]:
+                return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split('.')[1]})"
+        return item.data(int(role))
+
     def clear_schema_baskets(self):
         self.schema_baskets = {}
 
@@ -95,9 +102,10 @@ class DatasetSelector(QComboBox):
         self.basket_model = BasketSourceModel()
         self.filtered_model = QSortFilterProxyModel()
         self.filtered_model.setSourceModel(self.basket_model)
-        self.filtered_model.setFilterRole(
-            int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR)
+        self.current_schema_topic_identificator = int(
+            BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR
         )
+        self.filtered_model.setFilterRole(self.current_schema_topic_identificator)
         self.setModel(self.filtered_model)
         self.setEnabled(False)
 
@@ -112,15 +120,18 @@ class DatasetSelector(QComboBox):
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = get_schema_identificator(source_name, source)
-        layer_model_topic_name = QgsExpressionContextUtils.layerScope(layer).variable(
-            "interlis_topic"
+        layer_model_topic_name = (
+            QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
         )
 
         # set the filter of the model according the current uri_identificator
-        schema_topic_identificator = (
-            f"{schema_identificator}_{slugify(layer_model_topic_name or '.*')}"
+        self.current_schema_topic_identificator = slugify(
+            f"{schema_identificator}_{layer_model_topic_name}"
         )
-        self.filtered_model.setFilterRegExp(schema_topic_identificator)
+
+        self.filtered_model.setFilterRegExp(
+            f"{self.current_schema_topic_identificator}.*"
+        )
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
             mode, configuration = get_configuration(source_name, source)
@@ -137,7 +148,7 @@ class DatasetSelector(QComboBox):
 
         if self.filtered_model.rowCount():
             self.currentIndexChanged.connect(self._store_basket_tid)
-            self._set_index(schema_topic_identificator)
+            self._set_index(self.current_schema_topic_identificator)
             self.setEnabled(True)
 
     def reset_model(self, current_layer):
@@ -162,9 +173,6 @@ class DatasetSelector(QComboBox):
     def _store_basket_tid(self, index):
         model_index = self.model().index(index, 0)
         basket_tid = model_index.data(int(BasketSourceModel.Roles.BASKET_TID))
-        schema_topic_identificator = model_index.data(
-            int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR)
-        )
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), schema_topic_identificator, basket_tid
+            QgsProject.instance(), self.current_schema_topic_identificator, basket_tid
         )
