@@ -137,11 +137,10 @@ class DatasetSelector(QComboBox):
         )
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            mode, configuration = get_configuration_from_layersource(
+            valid, mode, configuration = get_configuration_from_layersource(
                 source_name, source
             )
-
-            if mode:
+            if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)
                 config_manager = db_factory.get_db_command_config_manager(configuration)
                 self.basket_model.reload_schema_baskets(

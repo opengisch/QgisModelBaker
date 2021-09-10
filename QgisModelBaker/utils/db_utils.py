@@ -46,7 +46,15 @@ def get_authconfig_map(authconfigid):
 
 
 def get_configuration_from_layersource(layer_source_name, layer_source):
+    """
+    Determines the connection parameters from a layer source.
+    Returns:
+        valid (boolean): if the needed database connection parameters are determined
+        mode (DbIliMode): Kind of database like pg, gpkg or mssql
+        configuration (Ili2DbCommandConfiguration): config with the determined parameters
+    """
     mode = ""
+    valid = False
     configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
@@ -60,9 +68,17 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
         configuration.dbhost = layer_source.host()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
+        valid = bool(
+            configuration.dbusr()
+            and configuration.dbpwd()
+            and configuration.dbhost()
+            and configuration.database()
+            and configuration.schema()
+        )
     elif layer_source_name == "ogr":
         mode = DbIliMode.gpkg
         configuration.dbfile = layer_source.uri().split("|")[0].strip()
+        valid = bool(configuration.dbfile)
     elif layer_source_name == "mssql":
         mode = DbIliMode.mssql
         configuration.dbhost = layer_source.host()
@@ -70,7 +86,14 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
         configuration.dbpwd = layer_source.password()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
-    return mode, configuration
+        valid = bool(
+            configuration.dbusr()
+            and configuration.dbpwd()
+            and configuration.dbhost()
+            and configuration.database()
+            and configuration.schema()
+        )
+    return valid, mode, configuration
 
 
 def get_db_connector(configuration):
