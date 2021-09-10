@@ -141,6 +141,13 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 "project."
             )
             self.pg_auth_settings.setFocus()
+        elif (
+            self.pg_auth_settings.configId() and not self.pg_use_super_login.isChecked()
+        ):
+            message = self.tr(
+                "Use superuser login for data management tasks when you use an authentication configuration."
+            )
+            self.pg_use_super_login.setFocus()
         else:
             result = True
 
