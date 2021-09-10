@@ -123,9 +123,9 @@ class DatasetSelector(QComboBox):
         self.filtered_model.setFilterFixedString(schema_topic_identificator)
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            mode, configuration = get_configuration(source_name, source)
+            valid, mode, configuration = get_configuration(source_name, source)
 
-            if mode:
+            if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)
                 config_manager = db_factory.get_db_command_config_manager(configuration)
                 self.basket_model.reload_schema_baskets(

@@ -37,6 +37,7 @@ def get_schema_identificator(layer_source_name, layer_source):
 
 def get_configuration(layer_source_name, layer_source):
     mode = ""
+    valid = False
     configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
@@ -48,9 +49,17 @@ def get_configuration(layer_source_name, layer_source):
         configuration.dbhost = layer_source.host()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
+        valid = bool(
+            configuration.dbusr()
+            and configuration.dbpwd()
+            and configuration.dbhost()
+            and configuration.database()
+            and configuration.schema()
+        )
     elif layer_source_name == "ogr":
         mode = DbIliMode.gpkg
         configuration.dbfile = layer_source.uri().split("|")[0].strip()
+        valid = bool(configuration.dbfile)
     elif layer_source_name == "mssql":
         mode = DbIliMode.mssql
         configuration.dbhost = layer_source.host()
@@ -58,7 +67,14 @@ def get_configuration(layer_source_name, layer_source):
         configuration.dbpwd = layer_source.password()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
-    return mode, configuration
+        valid = bool(
+            configuration.dbusr()
+            and configuration.dbpwd()
+            and configuration.dbhost()
+            and configuration.database()
+            and configuration.schema()
+        )
+    return valid, mode, configuration
 
 
 def get_db_connector(configuration):
