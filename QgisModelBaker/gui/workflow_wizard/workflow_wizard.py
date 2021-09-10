@@ -185,28 +185,35 @@ class WorkflowWizard(QWizard):
             return PageIds.ImportDatabaseSelection
 
         if self.current_id == PageIds.ImportDatabaseSelection:
-            self._update_configurations(self.import_database_seletion_page)
-            if self.refresh_import_models(True):
-                # when there are models to import, we go to the configuration page for schema import
-                return PageIds.ImportSchemaConfiguration
-            if self.import_data_file_model.rowCount():
-                # when there are transfer files found, we go to the configuration page for data import
-                return PageIds.ImportDataConfiguration
-            return PageIds.ProjectCreation
+            if self.import_database_seletion_page.is_valid():
+                self._update_configurations(self.import_database_seletion_page)
+                if self.refresh_import_models(True):
+                    # when there are models to import, we go to the configuration page for schema import
+                    return PageIds.ImportSchemaConfiguration
+                if self.import_data_file_model.rowCount():
+                    # when there are transfer files found, we go to the configuration page for data import
+                    return PageIds.ImportDataConfiguration
+                return PageIds.ProjectCreation
 
         if self.current_id == PageIds.GenerateDatabaseSelection:
-            self._update_configurations(self.generate_database_seletion_page)
-            if self._db_or_schema_exists(self.import_schema_configuration):
-                return PageIds.ProjectCreation
-            else:
-                self.log_panel.print_info(self.tr("Database or schema does not exist."))
+            if self.generate_database_seletion_page.is_valid():
+                self._update_configurations(self.generate_database_seletion_page)
+                if self._db_or_schema_exists(self.import_schema_configuration):
+                    return PageIds.ProjectCreation
+                else:
+                    self.log_panel.print_info(
+                        self.tr("Database or schema does not exist.")
+                    )
 
         if self.current_id == PageIds.ExportDatabaseSelection:
-            self._update_configurations(self.export_database_seletion_page)
-            if self._db_or_schema_exists(self.export_data_configuration):
-                return PageIds.ExportDataConfiguration
-            else:
-                self.log_panel.print_info(self.tr("Database or schema does not exist."))
+            if self.export_database_seletion_page.is_valid():
+                self._update_configurations(self.export_database_seletion_page)
+                if self._db_or_schema_exists(self.export_data_configuration):
+                    return PageIds.ExportDataConfiguration
+                else:
+                    self.log_panel.print_info(
+                        self.tr("Database or schema does not exist.")
+                    )
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
             self._update_configurations(self.schema_configuration_page)

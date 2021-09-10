@@ -355,9 +355,15 @@ class ExportDialog(QDialog, DIALOG_UI):
             self.accepted(edited_command)
 
     def accepted(self, edited_command=None):
-        configuration = self.updated_configuration()
-
         db_id = self.type_combo_box.currentData()
+
+        res, message = self._lst_panel[db_id].is_valid()
+
+        if not res:
+            self.txtStdout.setText(message)
+            return
+
+        configuration = self.updated_configuration()
 
         if not edited_command:
             if (
@@ -378,12 +384,6 @@ class ExportDialog(QDialog, DIALOG_UI):
                     self.tr("Please set a model before exporting data.")
                 )
                 self.export_models_view.setFocus()
-                return
-
-            res, message = self._lst_panel[db_id].is_valid()
-
-            if not res:
-                self.txtStdout.setText(message)
                 return
 
         # If xtf browser was opened and the file exists, the user already chose

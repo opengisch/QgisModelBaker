@@ -220,9 +220,14 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.accepted(edited_command)
 
     def accepted(self, edited_command=None):
-        configuration = self.updated_configuration()
-
         db_id = self.type_combo_box.currentData()
+        res, message = self._lst_panel[db_id].is_valid()
+
+        if not res:
+            self.txtStdout.setText(message)
+            return
+
+        configuration = self.updated_configuration()
 
         if not edited_command:
             if (
@@ -237,12 +242,6 @@ class ImportDataDialog(QDialog, DIALOG_UI):
                     )
                 )
                 self.xtf_file_line_edit.setFocus()
-                return
-
-            res, message = self._lst_panel[db_id].is_valid()
-
-            if not res:
-                self.txtStdout.setText(message)
                 return
 
         # create schema with superuser
