@@ -46,6 +46,13 @@ def get_authconfig_map(authconfigid):
 
 
 def get_configuration_from_layersource(layer_source_name, layer_source):
+    """
+    Determines the connection parameters from a layer source.
+    Returns:
+        valid (boolean): if the needed database connection parameters are determined
+        mode (DbIliMode): Kind of database like pg, gpkg or mssql
+        configuration (Ili2DbCommandConfiguration): config with the determined parameters
+    """
     mode = ""
     valid = False
     configuration = Ili2DbCommandConfiguration()
