@@ -142,7 +142,9 @@ class Project(QObject):
                         "AllowAddFeatures": False,
                         "FilterExpression": "\"topic\" = '{}'".format(
                             referencing_layer.model_topic_name
-                        ),
+                        )
+                        if referencing_layer.model_topic_name
+                        else "",
                         "FilterFields": list(),
                     },
                 )
