@@ -2547,7 +2547,7 @@ class TestProjectGen(unittest.TestCase):
                 display_expression = layer.layer.displayExpression()
                 assert (
                     display_expression
-                    == "coalesce(attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname') || ' (' || t_ili_tid || ') ', coalesce( attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname'), t_ili_tid))"
+                    == "coalesce(attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname') || ' (' || topic || ') ', coalesce( attribute(get_feature('t_ili2db_dataset', 't_id', dataset), 'datasetname'), t_ili_tid))"
                 )
 
         # check if the layers have been considered
@@ -2622,7 +2622,7 @@ class TestProjectGen(unittest.TestCase):
                 display_expression = layer.layer.displayExpression()
                 assert (
                     display_expression
-                    == "coalesce(attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname') || ' (' || T_Ili_Tid || ') ', coalesce( attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname'), T_Ili_Tid))"
+                    == "coalesce(attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname') || ' (' || topic || ') ', coalesce( attribute(get_feature('T_ILI2DB_DATASET', 'T_Id', dataset), 'datasetname'), T_Ili_Tid))"
                 )
 
         # check if the layers have been considered

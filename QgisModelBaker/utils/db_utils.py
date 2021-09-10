@@ -17,6 +17,8 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsApplication, QgsAuthMethodConfig
+
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.utils.qt_utils import slugify
@@ -35,14 +37,24 @@ def get_schema_identificator(layer_source_name, layer_source):
     return ""
 
 
-def get_configuration(layer_source_name, layer_source):
+def get_authconfig_map(authconfigid):
+    # to get username and password from the authconfig
+    auth_mgr = QgsApplication.authManager()
+    auth_cfg = QgsAuthMethodConfig()
+    auth_mgr.loadAuthenticationConfig(authconfigid, auth_cfg, True)
+    return auth_cfg.configMap()
+
+
+def get_configuration_from_layersource(layer_source_name, layer_source):
     mode = ""
     valid = False
     configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
         if layer_source.authConfigId():
-            configuration.dbauthid = layer_source.authConfigId()
+            authconfig_map = get_authconfig_map(layer_source.authConfigId())
+            configuration.dbusr = authconfig_map.get("username")
+            configuration.dbpwd = authconfig_map.get("password")
         else:
             configuration.dbusr = layer_source.username()
             configuration.dbpwd = layer_source.password()

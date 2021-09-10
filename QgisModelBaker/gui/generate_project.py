@@ -272,11 +272,17 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.accepted(edited_command)
 
     def accepted(self, edited_command=None):
-        configuration = self.updated_configuration()
-
         ili_mode = self.type_combo_box.currentData()
         db_id = ili_mode & ~DbIliMode.ili
         interlis_mode = ili_mode & DbIliMode.ili
+
+        res, message = self._lst_panel[db_id].is_valid()
+
+        if not res:
+            self.txtStdout.setText(message)
+            return
+
+        configuration = self.updated_configuration()
 
         if not edited_command:
             if interlis_mode:
@@ -305,12 +311,6 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     )
                     self.ili_file_line_edit.setFocus()
                     return
-
-            res, message = self._lst_panel[db_id].is_valid()
-
-            if not res:
-                self.txtStdout.setText(message)
-                return
 
         configuration.dbschema = configuration.dbschema or configuration.database
         self.save_configuration(configuration)

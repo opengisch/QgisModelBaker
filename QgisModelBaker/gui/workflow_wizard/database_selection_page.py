@@ -119,5 +119,15 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
 
+    def is_valid(self):
+        db_id = self.type_combo_box.currentData()
+        res, message = self._lst_panel[db_id].is_valid()
+        if not res:
+            self.workflow_wizard.log_panel.print_info(
+                message,
+                ui.LogColor.COLOR_FAIL,
+            )
+        return res
+
     def nextId(self):
         return self.workflow_wizard.next_id()
