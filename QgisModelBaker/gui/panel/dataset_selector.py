@@ -23,7 +23,10 @@ from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
-from QgisModelBaker.utils.db_utils import get_configuration, get_schema_identificator
+from QgisModelBaker.utils.db_utils import (
+    get_configuration_from_layersource,
+    get_schema_identificator,
+)
 from QgisModelBaker.utils.qt_utils import slugify
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
@@ -123,7 +126,9 @@ class DatasetSelector(QComboBox):
         self.filtered_model.setFilterFixedString(schema_topic_identificator)
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            mode, configuration = get_configuration(source_name, source)
+            mode, configuration = get_configuration_from_layersource(
+                source_name, source
+            )
 
             if mode:
                 db_factory = self.db_simple_factory.create_factory(mode)
