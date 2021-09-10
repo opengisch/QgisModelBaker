@@ -49,7 +49,7 @@ DEFAULT_DATASETNAME = "Baseset"
 
 class PageIds:
     Intro = 1
-    ImportSourceSeletion = 2
+    ImportSourceSelection = 2
     ImportDatabaseSelection = 3
     GenerateDatabaseSelection = 4
     ImportSchemaConfiguration = 5

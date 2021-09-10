@@ -34,7 +34,7 @@ from ...utils import ui
 PAGE_UI = ui.get_ui_class("workflow_wizard/import_source_selection.ui")
 
 
-class ImportSourceSeletionPage(QWizardPage, PAGE_UI):
+class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
 
     ValidExtensions = wizard_tools.IliExtensions + wizard_tools.TransferExtensions
 

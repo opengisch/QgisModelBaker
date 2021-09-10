@@ -37,7 +37,7 @@ from QgisModelBaker.gui.workflow_wizard.import_schema_configuration_page import 
     ImportSchemaConfigurationPage,
 )
 from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
-    ImportSourceSeletionPage,
+    ImportSourceSelectionPage,
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
@@ -110,10 +110,10 @@ class WorkflowWizard(QWizard):
 
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
-        self.source_seletion_page = ImportSourceSeletionPage(
-            self, self._current_page_title(PageIds.ImportSourceSeletion)
+        self.source_selection_page = ImportSourceSelectionPage(
+            self, self._current_page_title(PageIds.ImportSourceSelection)
         )
-        self.import_database_seletion_page = DatabaseSelectionPage(
+        self.import_database_selection_page = DatabaseSelectionPage(
             self,
             self._current_page_title(PageIds.ImportDatabaseSelection),
             DbActionType.IMPORT_DATA,
@@ -137,12 +137,12 @@ class WorkflowWizard(QWizard):
         self.project_creation_page = ProjectCreationPage(
             self, self._current_page_title(PageIds.ProjectCreation)
         )
-        self.generate_database_seletion_page = DatabaseSelectionPage(
+        self.generate_database_selection_page = DatabaseSelectionPage(
             self,
             self._current_page_title(PageIds.GenerateDatabaseSelection),
             DbActionType.GENERATE,
         )
-        self.export_database_seletion_page = DatabaseSelectionPage(
+        self.export_database_selection_page = DatabaseSelectionPage(
             self,
             self._current_page_title(PageIds.ExportDatabaseSelection),
             DbActionType.EXPORT,
@@ -156,9 +156,9 @@ class WorkflowWizard(QWizard):
             DbActionType.EXPORT,
         )
         self.setPage(PageIds.Intro, self.intro_page)
-        self.setPage(PageIds.ImportSourceSeletion, self.source_seletion_page)
+        self.setPage(PageIds.ImportSourceSelection, self.source_selection_page)
         self.setPage(
-            PageIds.ImportDatabaseSelection, self.import_database_seletion_page
+            PageIds.ImportDatabaseSelection, self.import_database_selection_page
         )
         self.setPage(PageIds.ImportSchemaConfiguration, self.schema_configuration_page)
         self.setPage(PageIds.ImportSchemaExecution, self.import_schema_execution_page)
@@ -166,10 +166,10 @@ class WorkflowWizard(QWizard):
         self.setPage(PageIds.ImportDataExecution, self.import_data_execution_page)
         self.setPage(PageIds.ProjectCreation, self.project_creation_page)
         self.setPage(
-            PageIds.GenerateDatabaseSelection, self.generate_database_seletion_page
+            PageIds.GenerateDatabaseSelection, self.generate_database_selection_page
         )
         self.setPage(
-            PageIds.ExportDatabaseSelection, self.export_database_seletion_page
+            PageIds.ExportDatabaseSelection, self.export_database_selection_page
         )
         self.setPage(
             PageIds.ExportDataConfiguration, self.export_data_configuration_page
@@ -181,12 +181,12 @@ class WorkflowWizard(QWizard):
     def next_id(self):
         # this is called on the nextId overrides of the pages - so after the next-button is pressed
         # it finalizes the edits on the current page and returns the evaluated id of the next page
-        if self.current_id == PageIds.ImportSourceSeletion:
+        if self.current_id == PageIds.ImportSourceSelection:
             return PageIds.ImportDatabaseSelection
 
         if self.current_id == PageIds.ImportDatabaseSelection:
-            if self.import_database_seletion_page.is_valid():
-                self._update_configurations(self.import_database_seletion_page)
+            if self.import_database_selection_page.is_valid():
+                self._update_configurations(self.import_database_selection_page)
                 if self.refresh_import_models(True):
                     # when there are models to import, we go to the configuration page for schema import
                     return PageIds.ImportSchemaConfiguration
@@ -196,8 +196,8 @@ class WorkflowWizard(QWizard):
                 return PageIds.ProjectCreation
 
         if self.current_id == PageIds.GenerateDatabaseSelection:
-            if self.generate_database_seletion_page.is_valid():
-                self._update_configurations(self.generate_database_seletion_page)
+            if self.generate_database_selection_page.is_valid():
+                self._update_configurations(self.generate_database_selection_page)
                 if self._db_or_schema_exists(self.import_schema_configuration):
                     return PageIds.ProjectCreation
                 else:
@@ -206,8 +206,8 @@ class WorkflowWizard(QWizard):
                     )
 
         if self.current_id == PageIds.ExportDatabaseSelection:
-            if self.export_database_seletion_page.is_valid():
-                self._update_configurations(self.export_database_seletion_page)
+            if self.export_database_selection_page.is_valid():
+                self._update_configurations(self.export_database_selection_page)
                 if self._db_or_schema_exists(self.export_data_configuration):
                     return PageIds.ExportDataConfiguration
                 else:
@@ -251,17 +251,17 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
-            self.import_database_seletion_page.restore_configuration(
+            self.import_database_selection_page.restore_configuration(
                 self.import_schema_configuration
             )
 
         if self.current_id == PageIds.GenerateDatabaseSelection:
-            self.generate_database_seletion_page.restore_configuration(
+            self.generate_database_selection_page.restore_configuration(
                 self.import_schema_configuration
             )
 
         if self.current_id == PageIds.ExportDatabaseSelection:
-            self.export_database_seletion_page.restore_configuration(
+            self.export_database_selection_page.restore_configuration(
                 self.export_data_configuration
             )
 
@@ -323,7 +323,7 @@ class WorkflowWizard(QWizard):
         page.save_configuration(self.import_schema_configuration)
 
     def _current_page_title(self, id):
-        if id == PageIds.ImportSourceSeletion:
+        if id == PageIds.ImportSourceSelection:
             return self.tr("Source Selection")
         elif id == PageIds.ImportDatabaseSelection:
             return self.tr("Database Configuration")
