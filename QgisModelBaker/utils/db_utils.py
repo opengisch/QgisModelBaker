@@ -40,9 +40,12 @@ def get_configuration(layer_source_name, layer_source):
     configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
+        if layer_source.authConfigId():
+            configuration.dbauthid = layer_source.authConfigId()
+        else:
+            configuration.dbusr = layer_source.username()
+            configuration.dbpwd = layer_source.password()
         configuration.dbhost = layer_source.host()
-        configuration.dbusr = layer_source.username()
-        configuration.dbpwd = layer_source.password()
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
     elif layer_source_name == "ogr":
