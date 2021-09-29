@@ -143,12 +143,17 @@ class DatasetSelector(QComboBox):
             if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)
                 config_manager = db_factory.get_db_command_config_manager(configuration)
-                self.basket_model.reload_schema_baskets(
-                    db_factory.get_db_connector(
-                        config_manager.get_uri(), configuration.dbschema
-                    ),
-                    schema_identificator,
-                )
+
+                try:
+                    self.basket_model.reload_schema_baskets(
+                        db_factory.get_db_connector(
+                            config_manager.get_uri(), configuration.dbschema
+                        ),
+                        schema_identificator,
+                    )
+                except:
+                    # let it pass, it will have no entries what is okey
+                    pass
 
         if self.filtered_model.rowCount():
             self.currentIndexChanged.connect(self._store_basket_tid)
