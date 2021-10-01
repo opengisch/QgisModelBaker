@@ -18,8 +18,6 @@
  ***************************************************************************/
 """
 
-import os
-import pathlib
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
@@ -87,6 +85,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         )
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.source_list_view.files_dropped.connect(
+            self.workflow_wizard.append_dropped_files
+        )
 
     def nextId(self):
         self._disconnect_punch_slots()
@@ -166,20 +167,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
 
-    def add_source(self, source):
-        if os.path.isfile(source):
-            name = pathlib.Path(source).name
-            type = pathlib.Path(source).suffix[1:]
-            path = source
-        else:
-            name = source
-            type = "model"
-            path = None
-        self.source_list_view.model().add_source(name, type, path)
-
     def _add_row(self):
         source = self.input_line_edit.text()
-        self.add_source(source)
+        self.workflow_wizard.add_source(source)
         self.input_line_edit.clearFocus()
         self.input_line_edit.clear()
 

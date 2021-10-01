@@ -90,7 +90,7 @@
        <widget class="CompletionLineEdit" name="input_line_edit" native="true"/>
       </item>
       <item row="2" column="0" colspan="3">
-       <widget class="QListView" name="source_list_view"/>
+       <widget class="FileDropListView" name="source_list_view"/>
       </item>
       <item row="0" column="2">
        <widget class="QToolButton" name="file_browse_button">
@@ -110,6 +110,12 @@
  <customwidgets>
   <customwidget>
    <class>CompletionLineEdit</class>
+   <extends></extends>
+   <header>QgisModelBaker.gui.options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileDropListView</class>
    <extends></extends>
    <header>QgisModelBaker.gui.options</header>
    <container>1</container>

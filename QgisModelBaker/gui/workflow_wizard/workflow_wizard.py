@@ -17,6 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
+import pathlib
 
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
@@ -428,10 +430,21 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
+    def add_source(self, source):
+        if os.path.isfile(source):
+            name = pathlib.Path(source).name
+            type = pathlib.Path(source).suffix[1:]
+            path = source
+        else:
+            name = source
+            type = "model"
+            path = None
+        self.source_model.add_source(name, type, path)
+
     def append_dropped_files(self, dropped_files):
         if dropped_files:
             for dropped_file in dropped_files:
-                self.source_selection_page.add_source(dropped_file)
+                self.add_source(dropped_file)
 
 
 class WorkflowWizardDialog(QDialog):
