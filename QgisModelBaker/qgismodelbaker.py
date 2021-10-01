@@ -447,20 +447,18 @@ class QgisModelBakerPlugin(QObject):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-    def handle_dropped_file(self, file_path):
-        if pathlib.Path(file_path).suffix[1:] in ["xtf", "XTF", "itf", "ITF"]:
-            if not self.importdata_dlg:
-                self.set_dropped_file_configuration(file_path)
-                self.show_importdata_dialog()
-            return True
-        return False
+    def handle_dropped_files(self, dropped_files):
+        if not self.workflow_wizard_dlg:
+            self._set_dropped_file_configuration()
+            self.show_workflow_wizard_dialog()
+        self.workflow_wizard_dlg.append_dropped_files(dropped_files)
+        return True
 
-    def set_dropped_file_configuration(self, file_path):
+    def _set_dropped_file_configuration(self):
         settings = QSettings()
-        settings.setValue("QgisModelBaker/ili2pg/xtffile_import", file_path)
         settings.setValue("QgisModelBaker/importtype", "gpkg")
-        output_file_name = "{}_{:%Y%m%d%H%M%S%f}.gpkg".format(
-            os.path.splitext(os.path.basename(file_path))[0], datetime.datetime.now()
+        output_file_name = "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(
+            datetime.datetime.now()
         )
         settings.setValue(
             "QgisModelBaker/ili2gpkg/dbfile",
@@ -476,28 +474,29 @@ class DropFileFilter(QObject):
         super(DropFileFilter, self).__init__(parent.iface.mainWindow())
         self.parent = parent
 
-    def is_handling_requested(self, file_path):
-        if pathlib.Path(file_path).suffix[1:] in ["xtf", "XTF", "itf", "ITF"]:
-            settings = QSettings()
-            drop_mode = DropMode[
-                settings.value("QgisModelBaker/drop_mode", DropMode.ASK.name, str)
-            ]
-            if drop_mode == DropMode.ASK:
-                drop_message_dialog = DropMessageDialog(os.path.basename(file_path))
-                return drop_message_dialog.exec_()
-            return drop_mode == DropMode.YES
-        return False
+    def _is_handling_requested(self, dropped_files):
+        settings = QSettings()
+        drop_mode = DropMode[
+            settings.value("QgisModelBaker/drop_mode", DropMode.ASK.name, str)
+        ]
+        if drop_mode == DropMode.ASK:
+            drop_message_dialog = DropMessageDialog(dropped_files)
+            return drop_message_dialog.exec_()
+        return drop_mode == DropMode.YES
 
     def eventFilter(self, obj, event):
         """
-        When exactly one valid import file is dropped, then ask to use it in import dialog.
+        When files are dropped, then ask to use it in the model baker.
         """
         if event.type() == QEvent.Drop:
-            if len(event.mimeData().urls()) == 1:
-                if self.is_handling_requested(event.mimeData().urls()[0].toLocalFile()):
-                    if self.parent.handle_dropped_file(
-                        event.mimeData().urls()[0].toLocalFile()
-                    ):
+            dropped_files = [
+                url.toLocalFile()
+                for url in event.mimeData().urls()
+                if pathlib.Path(url.toLocalFile()).suffix[1:]
+                in ["xtf", "XTF", "itf", "ITF", "ili"]
+            ]
+            if dropped_files:
+                if self._is_handling_requested(dropped_files):
+                    if self.parent.handle_dropped_files(dropped_files):
                         return True
-
         return False

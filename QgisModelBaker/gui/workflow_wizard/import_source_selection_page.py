@@ -166,8 +166,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
 
-    def _add_row(self):
-        source = self.input_line_edit.text()
+    def add_source(self, source):
         if os.path.isfile(source):
             name = pathlib.Path(source).name
             type = pathlib.Path(source).suffix[1:]
@@ -177,6 +176,10 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
             type = "model"
             path = None
         self.source_list_view.model().add_source(name, type, path)
+
+    def _add_row(self):
+        source = self.input_line_edit.text()
+        self.add_source(source)
         self.input_line_edit.clearFocus()
         self.input_line_edit.clear()
 

@@ -428,9 +428,14 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
+    def append_dropped_files(self, dropped_files):
+        if dropped_files:
+            for dropped_file in dropped_files:
+                self.source_selection_page.add_source(dropped_file)
+
 
 class WorkflowWizardDialog(QDialog):
-    def __init__(self, iface, base_config, parent=None):
+    def __init__(self, iface, base_config):
         QDialog.__init__(self)
         self.iface = iface
         self.base_config = base_config
@@ -451,3 +456,11 @@ class WorkflowWizardDialog(QDialog):
         splitter.addWidget(self.log_panel)
         layout.addWidget(splitter)
         self.setLayout(layout)
+
+    def append_dropped_files(self, dropped_files):
+        """
+        Appends the files, restarts the wizard and jumps to the next page (what is ImportSourceSelection)
+        """
+        self.workflow_wizard.append_dropped_files(dropped_files)
+        self.workflow_wizard.restart()
+        self.workflow_wizard.next()
