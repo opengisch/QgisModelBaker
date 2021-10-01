@@ -69,11 +69,11 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
         valid = bool(
-            configuration.dbusr()
-            and configuration.dbpwd()
-            and configuration.dbhost()
-            and configuration.database()
-            and configuration.schema()
+            configuration.dbusr
+            and configuration.dbpwd
+            and configuration.dbhost
+            and configuration.database
+            and configuration.dbschema
         )
     elif layer_source_name == "ogr":
         mode = DbIliMode.gpkg
@@ -87,11 +87,11 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
         configuration.database = layer_source.database()
         configuration.dbschema = layer_source.schema()
         valid = bool(
-            configuration.dbusr()
-            and configuration.dbpwd()
-            and configuration.dbhost()
-            and configuration.database()
-            and configuration.schema()
+            configuration.dbusr
+            and configuration.dbpwd
+            and configuration.dbhost
+            and configuration.database
+            and configuration.dbschema
         )
     return valid, mode, configuration
 
