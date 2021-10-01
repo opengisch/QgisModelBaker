@@ -281,12 +281,14 @@ class WorkflowWizard(QWizard):
             )
 
         if self.current_id == PageIds.ImportDataConfiguration:
-            self.data_configuration_page.setup_dialog(self._basket_handling())
+            self.data_configuration_page.setup_dialog(
+                self._basket_handling(self.import_data_configuration)
+            )
 
         if self.current_id == PageIds.ImportDataExecution:
             configuration = (
                 self.import_data_configuration
-                if not self._basket_handling()
+                if not self._basket_handling(self.import_data_configuration)
                 else self.update_data_configuration
             )
             self.import_data_execution_page.setup_sessions(
@@ -298,7 +300,9 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == PageIds.ExportDataConfiguration:
             self.refresh_export_models()
-            self.export_data_configuration_page.setup_dialog(self._basket_handling())
+            self.export_data_configuration_page.setup_dialog(
+                self._basket_handling(self.export_data_configuration)
+            )
 
         if self.current_id == PageIds.ExportDataExecution:
             sessions = {}
@@ -346,8 +350,8 @@ class WorkflowWizard(QWizard):
         else:
             return self.tr("Model Baker - Workflow Wizard")
 
-    def _basket_handling(self):
-        db_connector = db_utils.get_db_connector(self.import_data_configuration)
+    def _basket_handling(self, configuration):
+        db_connector = db_utils.get_db_connector(configuration)
         if db_connector:
             return db_connector.get_basket_handling()
         return False
