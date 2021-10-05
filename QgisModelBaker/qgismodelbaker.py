@@ -177,6 +177,7 @@ class QgisModelBakerPlugin(QObject):
         self.__generate_action.setCheckable(True)
         self.__export_action.setCheckable(True)
         self.__importdata_action.setCheckable(True)
+        self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
@@ -274,7 +275,9 @@ class QgisModelBakerPlugin(QObject):
                 self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
             self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
+            self.generate_dlg.setWindowFlags(
+                self.generate_dlg.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint
+            )
             self.generate_dlg.show()
             self.generate_dlg.finished.connect(self.generate_dialog_finished)
             self.__generate_action.setChecked(True)
@@ -291,7 +294,9 @@ class QgisModelBakerPlugin(QObject):
                 self.ili2db_configuration, self.iface.mainWindow()
             )
             self.export_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.export_dlg.setWindowFlags(self.export_dlg.windowFlags() | Qt.Tool)
+            self.export_dlg.setWindowFlags(
+                self.export_dlg.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint
+            )
             self.export_dlg.show()
             self.export_dlg.finished.connect(self.export_dialog_finished)
             self.__export_action.setChecked(True)
@@ -311,7 +316,9 @@ class QgisModelBakerPlugin(QObject):
 
             self.workflow_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.workflow_wizard_dlg.setWindowFlags(
-                self.workflow_wizard_dlg.windowFlags() | Qt.Tool
+                self.workflow_wizard_dlg.windowFlags()
+                | Qt.Tool
+                | Qt.WindowStaysOnTopHint
             )
             self.workflow_wizard_dlg.show()
             self.workflow_wizard_dlg.finished.connect(
@@ -332,7 +339,7 @@ class QgisModelBakerPlugin(QObject):
             )
             self.importdata_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.importdata_dlg.setWindowFlags(
-                self.importdata_dlg.windowFlags() | Qt.Tool
+                self.importdata_dlg.windowFlags() | Qt.Tool | Qt.WindowStaysOnTopHint
             )
             self.importdata_dlg.show()
             self.importdata_dlg.finished.connect(self.importdata_dialog_finished)
@@ -351,7 +358,9 @@ class QgisModelBakerPlugin(QObject):
             )
             self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(
-                self.datasetmanager_dlg.windowFlags() | Qt.Tool
+                self.datasetmanager_dlg.windowFlags()
+                | Qt.Tool
+                | Qt.WindowStaysOnTopHint
             )
             self.datasetmanager_dlg.show()
             self.datasetmanager_dlg.finished.connect(
