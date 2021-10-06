@@ -210,7 +210,7 @@ class ImportModelsModel(SourceModel):
                         ),
                         Qt.Checked,
                     )
-                    if enabled
+                    if enabled and modelname not in self.checked_models()
                     else Qt.Unchecked,
                     enabled,
                 )
@@ -248,7 +248,9 @@ class ImportModelsModel(SourceModel):
                                 ),
                             ),
                             Qt.Checked
-                            if model is models[-1] and enabled
+                            if model is models[-1]
+                            and enabled
+                            and model["name"] not in self.checked_models()
                             else Qt.Unchecked,
                         ),
                         enabled,
@@ -286,7 +288,9 @@ class ImportModelsModel(SourceModel):
                                     int(SourceModel.Roles.PATH)
                                 ),
                             ),
-                            Qt.Checked if enabled else Qt.Unchecked,
+                            Qt.Checked
+                            if enabled and model["name"] not in self.checked_models()
+                            else Qt.Unchecked,
                         ),
                         enabled,
                     )
