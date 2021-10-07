@@ -425,7 +425,7 @@ class ImportModelsModel(SourceModel):
                 model = item.data(int(SourceModel.Roles.NAME))
                 source = (
                     item.data(int(SourceModel.Roles.PATH))
-                    if type != "model"
+                    if type == "ili"
                     else "repository " + model
                 )
 
