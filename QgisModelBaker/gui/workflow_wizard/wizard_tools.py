@@ -20,7 +20,7 @@
 
 import os
 import re
-import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as CET
 from enum import Enum
 
 from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
@@ -308,21 +308,48 @@ class ImportModelsModel(SourceModel):
         return self.rowCount()
 
     def _transfer_file_models(self, xtf_file_path):
+        """
+        Get model names from an XTF file. Since XTF can be very large, we follow this strategy:
+        1. Parse line by line.
+            1.a. Compare parsed line with the regular expression to get the Header Section.
+            1.b. If found, stop parsing the XTF file and go to 2. If not found, append the new line to parsed lines and go
+                to next line.
+        2. Give the Header Section to an XML parser and extract models. Note that we don't give the full XTF file to the XML
+        parser because it will read it completely, which may be not optimal.
+        :param xtf_path: Path to an XTF file
+        :return: List of model names from the XTF
+        """
         models = []
-        try:
-            root = ET.parse(xtf_file_path).getroot()
-            for model_element in root.iter("{http://www.interlis.ch/INTERLIS2.3}MODEL"):
-                model = {}
-                model["name"] = model_element.get("NAME")
-                models.append(model)
-        except ET.ParseError as e:
-            self.print_info.emit(
-                self.tr(
-                    "Could not parse transferfile file `{file}` ({exception})".format(
-                        file=xtf_file_path, exception=str(e)
+        pattern = re.compile(r"(<HEADERSECTION[^>]*.*</HEADERSECTION>)")
+
+        text_found = "<foo/>"
+        with open(xtf_file_path, "r") as f:
+            lines = ""
+            for line in f:
+                lines += line
+                res = re.search(pattern, lines)
+                if res:
+                    text_found = str(res.groups()[0])
+                    break
+
+        if text_found:
+            try:
+                root = CET.fromstring(text_found)
+                element = root.find("MODELS")
+                if element:
+                    for sub_element in element:
+                        if "NAME" in sub_element.attrib:
+                            model = {}
+                            model["name"] = sub_element.attrib["NAME"]
+                            models.append(model)
+            except CET.ParseError as e:
+                self.print_info.emit(
+                    self.tr(
+                        "Could not parse transferfile file `{file}` ({exception})".format(
+                            file=xtf_file_path, exception=str(e)
+                        )
                     )
                 )
-            )
         return models
 
     def _db_modelnames(self, db_connector=None):
