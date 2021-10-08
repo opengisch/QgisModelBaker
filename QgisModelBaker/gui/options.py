@@ -208,6 +208,8 @@ class ModelListView(QListView):
 
 class FileDropListView(QListView):
 
+    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili"]
+
     files_dropped = pyqtSignal(list)
 
     def __init__(self, parent=None):
@@ -216,14 +218,20 @@ class FileDropListView(QListView):
         self.setDragDropMode(QListView.InternalMove)
 
     def dragEnterEvent(self, event):
-        event.acceptProposedAction()
+        for url in event.mimeData().urls():
+            if (
+                pathlib.Path(url.toLocalFile()).suffix[1:]
+                in FileDropListView.ValidExtenstions
+            ):
+                event.acceptProposedAction()
+                break
 
     def dropEvent(self, event):
         dropped_files = [
             url.toLocalFile()
             for url in event.mimeData().urls()
             if pathlib.Path(url.toLocalFile()).suffix[1:]
-            in ["xtf", "XTF", "itf", "ITF", "ili"]
+            in FileDropListView.ValidExtenstions
         ]
         self.files_dropped.emit(dropped_files)
         event.acceptProposedAction()
