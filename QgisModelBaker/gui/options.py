@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import pathlib
 import webbrowser
 
 from qgis.PyQt.QtCore import QLocale, QModelIndex, QSettings, Qt, pyqtSignal
@@ -203,3 +204,34 @@ class ModelListView(QListView):
             _selected_indexes = self.selectedIndexes()
             self.space_pressed.emit(_selected_indexes[0])
         super(ModelListView, self).keyPressEvent(e)
+
+
+class FileDropListView(QListView):
+
+    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili"]
+
+    files_dropped = pyqtSignal(list)
+
+    def __init__(self, parent=None):
+        super(FileDropListView, self).__init__(parent)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(QListView.InternalMove)
+
+    def dragEnterEvent(self, event):
+        for url in event.mimeData().urls():
+            if (
+                pathlib.Path(url.toLocalFile()).suffix[1:]
+                in FileDropListView.ValidExtenstions
+            ):
+                event.acceptProposedAction()
+                break
+
+    def dropEvent(self, event):
+        dropped_files = [
+            url.toLocalFile()
+            for url in event.mimeData().urls()
+            if pathlib.Path(url.toLocalFile()).suffix[1:]
+            in FileDropListView.ValidExtenstions
+        ]
+        self.files_dropped.emit(dropped_files)
+        event.acceptProposedAction()

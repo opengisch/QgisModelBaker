@@ -17,7 +17,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 
+from PyQt5.QtCore import QSize
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QDialog
@@ -29,14 +31,26 @@ DIALOG_UI = ui.get_ui_class("drop_message.ui")
 
 
 class DropMessageDialog(QDialog, DIALOG_UI):
-    def __init__(self, file_name, parent=None):
+    def __init__(self, dropped_files, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.setFixedSize(QSize())
         QgsGui.instance().enableAutoGeometryRestore(self)
+        file_list = "\n- ".join(
+            os.path.basename(path)
+            for path in dropped_files
+            if dropped_files.index(path) < 10
+        )
         self.info_label.setText(
             self.tr(
-                "Do you want to use the Model Baker plugin to handle file {}?"
-            ).format(file_name)
+                "Do you want to use the Model Baker plugin to handle the following {}?\n- {} {}"
+            ).format(
+                self.tr("files") if len(dropped_files) > 1 else self.tr("file"),
+                file_list,
+                self.tr("\nand {} more...").format(len(dropped_files) - 10)
+                if len(dropped_files) > 10
+                else "",
+            )
         )
         self.accepted.connect(lambda: self.handle_dropped_file_configuration(True))
         self.rejected.connect(lambda: self.handle_dropped_file_configuration(False))

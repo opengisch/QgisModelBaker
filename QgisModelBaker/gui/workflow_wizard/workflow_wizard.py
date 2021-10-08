@@ -17,6 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
+import pathlib
 
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
@@ -428,9 +430,25 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
+    def add_source(self, source):
+        if os.path.isfile(source):
+            name = pathlib.Path(source).name
+            type = pathlib.Path(source).suffix[1:]
+            path = source
+        else:
+            name = source
+            type = "model"
+            path = None
+        self.source_model.add_source(name, type, path)
+
+    def append_dropped_files(self, dropped_files):
+        if dropped_files:
+            for dropped_file in dropped_files:
+                self.add_source(dropped_file)
+
 
 class WorkflowWizardDialog(QDialog):
-    def __init__(self, iface, base_config, parent=None):
+    def __init__(self, iface, base_config):
         QDialog.__init__(self)
         self.iface = iface
         self.base_config = base_config
@@ -451,3 +469,11 @@ class WorkflowWizardDialog(QDialog):
         splitter.addWidget(self.log_panel)
         layout.addWidget(splitter)
         self.setLayout(layout)
+
+    def append_dropped_files(self, dropped_files):
+        """
+        Appends the files, restarts the wizard and jumps to the next page (what is ImportSourceSelection)
+        """
+        self.workflow_wizard.append_dropped_files(dropped_files)
+        self.workflow_wizard.restart()
+        self.workflow_wizard.next()
