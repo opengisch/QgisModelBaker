@@ -200,30 +200,31 @@ class Layer(object):
 
                     # 1:m relation will be added only if does not point to a pure link table
                     if (
-                        not (
-                            relation.referencing_layer.isPureLinkTable(project)
-                            or relation.referencing_layer.is_basket_table
-                        )
+                        not relation.referencing_layer.isPureLinkTable(project)
                         or Qgis.QGIS_VERSION_INT < 31600
                     ):
                         relations_to_add.append((relation, None))
 
-                    for nm_relation in project.relations:
-                        if nm_relation == relation:
-                            continue
+                    else:
+                        for nm_relation in project.relations:
+                            if nm_relation == relation:
+                                continue
 
-                        if nm_relation.referenced_layer == self:
-                            continue
+                            if nm_relation.referenced_layer == self:
+                                continue
 
-                        # relations to the same table with different geometries should not be added
-                        if nm_relation.referenced_layer.srid == self.srid:
-                            continue
+                            # relations to the same table with different geometries should not be added
+                            if nm_relation.referenced_layer.srid == self.srid:
+                                continue
 
-                        if nm_relation.referenced_layer.is_basket_table:
-                            continue
+                            if nm_relation.referenced_layer.is_basket_table:
+                                continue
 
-                        if nm_relation.referencing_layer == relation.referencing_layer:
-                            relations_to_add.append((relation, nm_relation))
+                            if (
+                                nm_relation.referencing_layer
+                                == relation.referencing_layer
+                            ):
+                                relations_to_add.append((relation, nm_relation))
 
             for relation, nm_relation in relations_to_add:
                 if nm_relation and Qgis.QGIS_VERSION_INT < 31600:
