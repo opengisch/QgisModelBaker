@@ -145,9 +145,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
             self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(
-                self.datasetmanager_dlg.windowFlags()
-                | Qt.Tool
-                | Qt.WindowStaysOnTopHint
+                self.datasetmanager_dlg.windowFlags() | Qt.Tool
             )
             self.datasetmanager_dlg.show()
             self.datasetmanager_dlg.finished.connect(
