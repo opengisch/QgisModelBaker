@@ -177,6 +177,7 @@ class QgisModelBakerPlugin(QObject):
         self.__generate_action.setCheckable(True)
         self.__export_action.setCheckable(True)
         self.__importdata_action.setCheckable(True)
+        self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
