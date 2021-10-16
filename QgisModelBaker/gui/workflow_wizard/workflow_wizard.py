@@ -455,7 +455,7 @@ class WorkflowWizardDialog(QDialog):
 
         self.setWindowTitle(self.tr("QGIS Model Baker - Workflow Wizard"))
         self.log_panel = LogPanel()
-        self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
+        self.workflow_wizard = WorkflowWizard(self, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.Widget)
         self.workflow_wizard.setFixedHeight(600)
