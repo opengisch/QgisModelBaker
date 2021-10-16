@@ -760,7 +760,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.ili_file_line_edit.setText(settings.value("QgisModelBaker/ili2db/ilifile"))
         srs_auth = settings.value("QgisModelBaker/ili2db/srs_auth", "EPSG")
-        srs_code = settings.value("QgisModelBaker/ili2db/srs_code", 21781, int)
+        srs_code = settings.value("QgisModelBaker/ili2db/srs_code", 2056, int)
         crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
         if not crs.isValid():
             crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
@@ -854,13 +854,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def crs_changed(self):
         self.srs_auth = "EPSG"  # Default
-        self.srs_code = 21781  # Default
+        self.srs_code = 2056  # Default
         srs_auth, srs_code = self.crsSelector.crs().authid().split(":")
         if srs_auth == "USER":
             self.crs_label.setStyleSheet("color: orange")
             self.crs_label.setToolTip(
                 self.tr(
-                    "Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, a default EPSG:21781 will be used instead."
+                    "Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, a default EPSG:2056 will be used instead."
                 )
             )
         else:
@@ -874,7 +874,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.crs_label.setStyleSheet("color: orange")
                 self.crs_label.setToolTip(
                     self.tr(
-                        "The srs code ('{}') should be an integer.\nA default EPSG:21781 will be used.".format(
+                        "The srs code ('{}') should be an integer.\nA default EPSG:2056 will be used.".format(
                             srs_code
                         )
                     )

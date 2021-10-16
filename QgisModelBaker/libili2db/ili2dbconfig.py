@@ -205,7 +205,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.create_basket_col = True
         self.create_import_tid = True
         self.srs_auth = "EPSG"  # Default SRS auth in ili2db
-        self.srs_code = 21781  # Default SRS code in ili2db
+        self.srs_code = 2056  # Default SRS code in ili2db
         self.stroke_arcs = True
         self.db_ili_version = None
         self.pre_script = ""
