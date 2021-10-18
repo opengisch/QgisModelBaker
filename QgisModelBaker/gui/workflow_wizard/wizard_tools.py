@@ -320,16 +320,17 @@ class ImportModelsModel(SourceModel):
         :return: List of model names from the XTF
         """
         models = []
-        pattern = re.compile(r"(<HEADERSECTION[^>]*.*</HEADERSECTION>)")
-
-        text_found = "<foo/>"
+        start_string = "<HEADERSECTION"
+        end_string = "</HEADERSECTION>"
+        text_found = ""
         with open(xtf_file_path, "r") as f:
             lines = ""
             for line in f:
                 lines += line
-                res = re.search(pattern, lines)
-                if res:
-                    text_found = str(res.groups()[0])
+                start_pos = lines.find(start_string)
+                end_pos = lines.find(end_string)
+                if end_pos > start_pos:
+                    text_found = lines[start_pos : end_pos + len(end_string)]
                     break
 
         if text_found:
