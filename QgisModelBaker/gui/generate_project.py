@@ -138,7 +138,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         self.buttonBox.addButton(QDialogButtonBox.Help)
         self.buttonBox.helpRequested.connect(self.help_requested)
         self.crs = QgsCoordinateReferenceSystem()
-        self.ili2db_options = Ili2dbOptionsDialog()
+        self.ili2db_options = Ili2dbOptionsDialog(self)
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
         self.multiple_models_dialog = MultipleModelsDialog(self)
