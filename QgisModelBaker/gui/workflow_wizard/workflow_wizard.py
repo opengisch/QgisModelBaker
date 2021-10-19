@@ -66,7 +66,7 @@ from ...utils.ui import LogColor
 
 class WorkflowWizard(QWizard):
     def __init__(self, iface, base_config, parent):
-        QWizard.__init__(self)
+        QWizard.__init__(self, parent)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
@@ -448,8 +448,8 @@ class WorkflowWizard(QWizard):
 
 
 class WorkflowWizardDialog(QDialog):
-    def __init__(self, iface, base_config):
-        QDialog.__init__(self)
+    def __init__(self, iface, base_config, parent):
+        QDialog.__init__(self, parent)
         self.iface = iface
         self.base_config = base_config
 

@@ -306,7 +306,7 @@ class QgisModelBakerPlugin(QObject):
             self.workflow_wizard_dlg.reject()
         else:
             self.workflow_wizard_dlg = WorkflowWizardDialog(
-                self.iface, self.ili2db_configuration
+                self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
             self.workflow_wizard_dlg.show()
 
