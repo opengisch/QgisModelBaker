@@ -132,7 +132,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
             self.db_layout.addWidget(item_panel)
 
         self.type_combo_box.currentIndexChanged.connect(self.type_changed)
-        self.ili2db_options = Ili2dbOptionsDialog()
+        self.ili2db_options = Ili2dbOptionsDialog(self)
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.ili2db_options.finished.connect(self.fill_toml_file_info_label)
 

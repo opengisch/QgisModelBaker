@@ -64,7 +64,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
 
         self.crs = QgsCoordinateReferenceSystem()
-        self.ili2db_options = Ili2dbOptionsDialog()
+        self.ili2db_options = Ili2dbOptionsDialog(self)
         self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
         self.ili2db_options.finished.connect(self._fill_toml_file_info_label)
 
