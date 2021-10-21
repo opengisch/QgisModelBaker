@@ -14,13 +14,6 @@
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="2">
-    <widget class="QProgressBar" name="progress_bar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
@@ -59,7 +52,27 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
+    <widget class="QProgressBar" name="progress_bar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="1">
     <widget class="QCommandLinkButton" name="create_project_button">
      <property name="text">
       <string>Generate</string>
