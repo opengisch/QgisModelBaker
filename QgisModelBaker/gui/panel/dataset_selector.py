@@ -25,7 +25,7 @@ from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
 from QgisModelBaker.utils.db_utils import (
     get_configuration_from_layersource,
-    get_schema_identificator,
+    get_schema_identificator_from_layersource,
 )
 from QgisModelBaker.utils.qt_utils import slugify
 
@@ -122,7 +122,9 @@ class DatasetSelector(QComboBox):
 
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = get_schema_identificator(source_name, source)
+        schema_identificator = get_schema_identificator_from_layersource(
+            source_name, source
+        )
         layer_model_topic_name = (
             QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
         )

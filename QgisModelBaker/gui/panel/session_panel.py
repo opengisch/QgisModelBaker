@@ -29,7 +29,6 @@ from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ...libili2db import iliexecutable, iliexporter, iliimporter
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...utils import ui
 from ...utils.ui import LogColor
 
@@ -107,13 +106,16 @@ class SessionPanel(QWidget, WIDGET_UI):
             )
             self.configuration.dataset = ";".join(self.datasets)
 
-        self.db_simple_factory = DbSimpleFactory()
-
         self.is_skipped_or_done = False
 
     @property
     def id(self):
-        return (self.file, self.models, self.datasets)
+        return (
+            self.file,
+            self.models,
+            self.datasets,
+            db_utils.get_schema_identificator_from_configuration(self.configuration),
+        )
 
     def set_button_to_create(self):
         """
