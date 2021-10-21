@@ -27,13 +27,23 @@ from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 
 
-def get_schema_identificator(layer_source_name, layer_source):
+def get_schema_identificator_from_layersource(layer_source_name, layer_source):
     if layer_source_name == "postgres" or layer_source_name == "mssql":
         return slugify(
             f"{layer_source.host()}_{layer_source.database()}_{layer_source.schema()}"
         )
     elif layer_source_name == "ogr":
         return slugify(layer_source.uri().split("|")[0].strip())
+    return ""
+
+
+def get_schema_identificator_from_configuration(configuration):
+    if configuration.tool == DbIliMode.pg or configuration.tool == DbIliMode.mssql:
+        return slugify(
+            f"{configuration.dbhost}_{configuration.database}_{configuration.dbschema}"
+        )
+    elif configuration.tool == DbIliMode.gpkg:
+        return slugify(configuration.dbfile)
     return ""
 
 

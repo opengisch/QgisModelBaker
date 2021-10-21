@@ -29,6 +29,7 @@ from qgis.PyQt.QtWidgets import (
     QWizardPage,
 )
 
+import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.libili2db.globals import DbActionType
 
@@ -103,11 +104,16 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 else None
             )
 
-            existing_widget = self._find_existing_session_widget(
-                (key, models, datasets)
+            skipped_session_widget = self._find_skipped_session_widget(
+                (
+                    key,
+                    models,
+                    datasets,
+                    db_utils.get_schema_identificator_from_configuration(configuration),
+                )
             )
-            if existing_widget:
-                new_sessions.append(existing_widget)
+            if skipped_session_widget:
+                new_sessions.append(skipped_session_widget)
             else:
                 import_session = SessionPanel(
                     copy.deepcopy(configuration),
@@ -148,9 +154,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         ]
         self.setComplete(not self.pending_sessions)
 
-    def _find_existing_session_widget(self, id):
+    def _find_skipped_session_widget(self, id):
         for session_widget in self.session_widget_list:
-            if id == session_widget.id:
+            if id == session_widget.id and session_widget.is_skipped_or_done:
                 return session_widget
         return None
 
