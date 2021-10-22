@@ -85,8 +85,10 @@ class SourceModel(QStandardItemModel):
         self.setColumnCount(3)
 
     def flags(self, index):
-        if index.column() > 0:
-            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        if index.column() == 1:
+            return Qt.ItemIsEnabled
+        if index.column() == 2:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def headerData(self, section, orientation, role):
@@ -97,15 +99,12 @@ class SourceModel(QStandardItemModel):
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
-            if index.column() == 1:
-                return item.data(int(SourceModel.Roles.IS_CATALOGUE))
-            if index.column() == 2:
-                return item.data(int(SourceModel.Roles.DATASET_NAME))
-            if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                return self.tr("{} ({})").format(
-                    item.data(int(Qt.DisplayRole)),
-                    item.data(int(SourceModel.Roles.PATH)),
-                )
+            if index.column() < 1:
+                if item.data(int(SourceModel.Roles.TYPE)) != "model":
+                    return self.tr("{} ({})").format(
+                        item.data(int(Qt.DisplayRole)),
+                        item.data(int(SourceModel.Roles.PATH)),
+                    )
         if role == Qt.DecorationRole:
             if index.column() == 0:
                 type = "data"

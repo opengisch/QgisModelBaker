@@ -20,10 +20,18 @@
 
 import os
 
-from PyQt5.QtWidgets import QCheckBox
-from qgis.PyQt.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from qgis.PyQt.QtCore import QEvent, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QComboBox, QHeaderView, QStyledItemDelegate, QWizardPage
+from qgis.PyQt.QtWidgets import (
+    QComboBox,
+    QHeaderView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+    QStyleOptionComboBox,
+    QWizardPage,
+)
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
@@ -61,25 +69,48 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
+    def editorEvent(self, event, model, option, index):
+        # trying to make the combo open on single click because it's annoying that a double click is needed
+        if event.type() == QEvent.MouseButtonRelease:
+            return self.editorEvent(
+                QEvent(QEvent.MouseButtonDblClick), model, option, index
+            )
+        return super().editorEvent(event, model, option, index)
+
+    def paint(self, painter, option, index):
+        opt = QStyleOptionComboBox()
+        opt.rect = option.rect
+        value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+        opt.currentText = value
+        QApplication.style().drawComplexControl(QStyle.CC_ComboBox, opt, painter)
+        opt = QStyleOptionComboBox()
+        opt.rect = option.rect
+        value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+        opt.currentText = value
+        QApplication.style().drawControl(QStyle.CE_ComboBoxLabel, opt, painter)
+
 
 class CatalogueCheckDelegate(QStyledItemDelegate):
-    def __init__(self, parent, db_connector):
+    def __init__(self, parent):
         super().__init__(parent)
 
-    def createEditor(self, parent, option, index):
-        self.editor = QCheckBox(parent)
-        return self.editor
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonRelease:
+            value = (
+                index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
+            )
+            model.setData(
+                index, not value, int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)
+            )
+            return True
+        return super().editorEvent(event, model, option, index)
 
-    def setEditorData(self, editor, index):
-        value = index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE))
-        editor.setChecked(bool(value))
-
-    def setModelData(self, editor, model, index):
-        value = editor.isChecked()
-        model.setData(index, value, int(wizard_tools.SourceModel.Roles.IS_CATALOGUE))
-
-    def updateEditorGeometry(self, editor, option, index):
-        editor.setGeometry(option.rect)
+    def paint(self, painter, option, index):
+        opt = QStyleOptionButton()
+        opt.rect = option.rect
+        value = index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
+        opt.state |= QStyle.State_On if value else QStyle.State_Off
+        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
 
 
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
@@ -102,6 +133,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
+        self.file_table_view.resizeColumnsToContents()
 
         self.db_connector = None
 
@@ -145,7 +177,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     )
 
                 self.file_table_view.setItemDelegateForColumn(
-                    1, CatalogueCheckDelegate(self, self.db_connector)
+                    1, CatalogueCheckDelegate(self)
                 )
                 self.file_table_view.setItemDelegateForColumn(
                     2, DatasetComboDelegate(self, self.db_connector)
