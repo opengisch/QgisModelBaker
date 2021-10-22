@@ -20,6 +20,7 @@
 
 import os
 
+from PyQt5.QtWidgets import QCheckBox
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QComboBox, QHeaderView, QStyledItemDelegate, QWizardPage
@@ -61,6 +62,26 @@ class DatasetComboDelegate(QStyledItemDelegate):
         editor.setGeometry(option.rect)
 
 
+class CatalogueCheckDelegate(QStyledItemDelegate):
+    def __init__(self, parent, db_connector):
+        super().__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        self.editor = QCheckBox(parent)
+        return self.editor
+
+    def setEditorData(self, editor, index):
+        value = index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE))
+        editor.setChecked(bool(value))
+
+    def setModelData(self, editor, model, index):
+        value = editor.isChecked()
+        model.setData(index, value, int(wizard_tools.SourceModel.Roles.IS_CATALOGUE))
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+
+
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
@@ -72,7 +93,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
-            [self.tr("Import File"), self.tr("Dataset")]
+            [self.tr("Import File"), self.tr("Cat"), self.tr("Dataset")]
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch
@@ -114,7 +135,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
             # set defaults
             for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
-                index = self.workflow_wizard.import_data_file_model.index(row, 1)
+                index = self.workflow_wizard.import_data_file_model.index(row, 2)
                 value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
                 if not value:
                     self.workflow_wizard.import_data_file_model.setData(
@@ -124,10 +145,14 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     )
 
                 self.file_table_view.setItemDelegateForColumn(
-                    1, DatasetComboDelegate(self, self.db_connector)
+                    1, CatalogueCheckDelegate(self, self.db_connector)
+                )
+                self.file_table_view.setItemDelegateForColumn(
+                    2, DatasetComboDelegate(self, self.db_connector)
                 )
         else:
             self.file_table_view.setColumnHidden(1, True)
+            self.file_table_view.setColumnHidden(2, True)
             self.datasetmanager_button.setHidden(True)
 
         # since it's not yet integrated but I keep it to remember
@@ -157,5 +182,5 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
         self.file_table_view.setItemDelegateForColumn(
-            1, DatasetComboDelegate(self, self.db_connector)
+            2, DatasetComboDelegate(self, self.db_connector)
         )

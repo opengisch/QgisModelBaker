@@ -45,6 +45,7 @@ TransferExtensions = [
 ]
 
 DEFAULT_DATASETNAME = "Baseset"
+CATALOGUE_DATASETNAME = "Catset"
 
 
 class PageIds:
@@ -74,13 +75,14 @@ class SourceModel(QStandardItemModel):
         TYPE = Qt.UserRole + 2
         PATH = Qt.UserRole + 3
         DATASET_NAME = Qt.UserRole + 5
+        IS_CATALOGUE = Qt.UserRole + 6
 
         def __int__(self):
             return self.value
 
     def __init__(self):
         super().__init__()
-        self.setColumnCount(2)
+        self.setColumnCount(3)
 
     def flags(self, index):
         if index.column() > 0:
@@ -95,7 +97,9 @@ class SourceModel(QStandardItemModel):
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
-            if index.column() > 0:
+            if index.column() == 1:
+                return item.data(int(SourceModel.Roles.IS_CATALOGUE))
+            if index.column() == 2:
                 return item.data(int(SourceModel.Roles.DATASET_NAME))
             if item.data(int(SourceModel.Roles.TYPE)) != "model":
                 return self.tr("{} ({})").format(
@@ -114,7 +118,8 @@ class SourceModel(QStandardItemModel):
                         os.path.dirname(__file__), f"../../images/file_types/{type}.png"
                     )
                 )
-        return item.data(int(role))
+        if item:
+            return item.data(int(role))
 
     def add_source(self, name, type, path):
         if self._source_in_model(name, type, path):
@@ -137,7 +142,11 @@ class SourceModel(QStandardItemModel):
         )
 
     def setData(self, index, data, role):
-        if index.column() > 0:
+        if index.column() == 1:
+            return QStandardItemModel.setData(
+                self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
+            )
+        if index.column() == 2:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.DATASET_NAME)
             )
@@ -469,7 +478,12 @@ class ImportDataModel(QSortFilterProxyModel):
         i = 0
         for r in order_list:
             source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            dataset = self.index(r, 1).data(int(SourceModel.Roles.DATASET_NAME))
+            is_catalogue = self.index(r, 1).data(int(SourceModel.Roles.IS_CATALOGUE))
+            dataset = (
+                self.index(r, 2).data(int(SourceModel.Roles.DATASET_NAME))
+                if not is_catalogue
+                else CATALOGUE_DATASETNAME
+            )
             sessions[source] = {}
             sessions[source]["datasets"] = [dataset]
             i += 1
