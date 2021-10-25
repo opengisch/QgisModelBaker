@@ -208,7 +208,7 @@ class ModelListView(QListView):
 
 class FileDropListView(QListView):
 
-    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili"]
+    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
 
     files_dropped = pyqtSignal(list)
 
