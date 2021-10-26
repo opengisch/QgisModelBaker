@@ -85,10 +85,6 @@ class SourceModel(QStandardItemModel):
         self.setColumnCount(3)
 
     def flags(self, index):
-        if index.column() == 1:
-            return Qt.ItemIsEnabled
-        if index.column() == 2:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def headerData(self, section, orientation, role):
@@ -471,6 +467,13 @@ class ImportDataModel(QSortFilterProxyModel):
 
     def __init__(self):
         super().__init__()
+
+    def flags(self, index):
+        if index.column() == 1:
+            return Qt.ItemIsEnabled
+        if index.column() == 2:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
+        return Qt.ItemIsEnabled
 
     def import_sessions(self, order_list) -> dict():
         sessions = {}
