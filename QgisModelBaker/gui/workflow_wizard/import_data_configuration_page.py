@@ -50,7 +50,11 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def refresh_datasets(self, db_connector):
         if db_connector:
             datasets_info = db_connector.get_datasets_info()
-            self.items = [record["datasetname"] for record in datasets_info]
+            self.items = [
+                record["datasetname"]
+                for record in datasets_info
+                if record["datasetname"] != wizard_tools.CATALOGUE_DATASETNAME
+            ]
 
     def createEditor(self, parent, option, index):
         self.editor = QComboBox(parent)
@@ -72,9 +76,15 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def editorEvent(self, event, model, option, index):
         # trying to make the combo open on single click because it's annoying that a double click is needed
         if event.type() == QEvent.MouseButtonRelease:
+            print("ha!")
             return self.editorEvent(
                 QEvent(QEvent.MouseButtonDblClick), model, option, index
             )
+        elif event.type() == QEvent.MouseButtonRelease:
+            print("double")
+        else:
+            print(f" its {event.type()}")
+
         return super().editorEvent(event, model, option, index)
 
     def paint(self, painter, option, index):
