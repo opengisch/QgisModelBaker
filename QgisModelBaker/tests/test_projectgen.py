@@ -2538,7 +2538,7 @@ class TestProjectGen(unittest.TestCase):
                 assert map["Relation"] == "belasteter_standort_t_basket_fkey"
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte'"
+                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
                 )
 
             # check the display expression of the basket table
@@ -2613,7 +2613,7 @@ class TestProjectGen(unittest.TestCase):
                 )
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte'"
+                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
                 )
 
             # check the display expression of the basket table
