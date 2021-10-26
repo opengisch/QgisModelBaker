@@ -121,10 +121,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
             [self.tr("Import File"), self.tr("Cat"), self.tr("Dataset")]
         )
-        self.file_table_view.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
-        )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.Stretch
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeToContents
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeToContents
+        )
+
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
@@ -191,7 +198,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.ili2db_options_button.setHidden(True)
         self.chk_delete_data.setHidden(True)
 
-    def _update_delegates(self, top_left, bottom_right):
+    def _update_delegates(self, top_left):
         if top_left.column() == 1:
             self.file_table_view.setItemDelegateForColumn(
                 2, DatasetComboDelegate(self, self.db_connector)

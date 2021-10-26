@@ -94,32 +94,35 @@ class SourceModel(QStandardItemModel):
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
-        if role == Qt.DisplayRole:
-            if index.column() < 1:
-                if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                    return self.tr("{} ({})").format(
-                        item.data(int(Qt.DisplayRole)),
-                        item.data(int(SourceModel.Roles.PATH)),
-                    )
-            if index.column() == 2:
-                if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
-                    return "---"
-                else:
-                    return item.data(int(SourceModel.Roles.DATASET_NAME))
-
-        if role == Qt.DecorationRole:
-            if index.column() == 0:
-                type = "data"
-                if item.data(int(SourceModel.Roles.TYPE)) and item.data(
-                    int(SourceModel.Roles.TYPE)
-                ).lower() in ["model", "ili", "xtf", "xml"]:
-                    type = item.data(int(SourceModel.Roles.TYPE)).lower()
-                return QIcon(
-                    os.path.join(
-                        os.path.dirname(__file__), f"../../images/file_types/{type}.png"
-                    )
-                )
         if item:
+            if role == Qt.DisplayRole:
+                if index.column() < 1:
+                    if item.data(int(SourceModel.Roles.TYPE)) != "model":
+                        return self.tr("{} ({})").format(
+                            item.data(int(Qt.DisplayRole)),
+                            item.data(int(SourceModel.Roles.PATH)),
+                        )
+                if index.column() == 2:
+                    if self.index(index.row(), 1).data(
+                        int(SourceModel.Roles.IS_CATALOGUE)
+                    ):
+                        return "---"
+                    else:
+                        return item.data(int(SourceModel.Roles.DATASET_NAME))
+
+            if role == Qt.DecorationRole:
+                if index.column() == 0:
+                    type = "data"
+                    if item.data(int(SourceModel.Roles.TYPE)) and item.data(
+                        int(SourceModel.Roles.TYPE)
+                    ).lower() in ["model", "ili", "xtf", "xml"]:
+                        type = item.data(int(SourceModel.Roles.TYPE)).lower()
+                    return QIcon(
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            f"../../images/file_types/{type}.png",
+                        )
+                    )
             return item.data(int(role))
 
     def add_source(self, name, type, path):
