@@ -73,29 +73,14 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
-    def editorEvent(self, event, model, option, index):
-        # trying to make the combo open on single click because it's annoying that a double click is needed
-        if event.type() == QEvent.MouseButtonRelease:
-            print("ha!")
-            return self.editorEvent(
-                QEvent(QEvent.MouseButtonDblClick), model, option, index
-            )
-        elif event.type() == QEvent.MouseButtonRelease:
-            print("double")
-        else:
-            print(f" its {event.type()}")
-
-        return super().editorEvent(event, model, option, index)
-
     def paint(self, painter, option, index):
+        """
+        Here it paints only the lable without a StyleItem for the ComboBox, because to edit it needs multiple clicks and the behavior gets confusing.
+        """
         opt = QStyleOptionComboBox()
+        opt.editable = False
         opt.rect = option.rect
-        value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
-        opt.currentText = value
-        QApplication.style().drawComplexControl(QStyle.CC_ComboBox, opt, painter)
-        opt = QStyleOptionComboBox()
-        opt.rect = option.rect
-        value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+        value = index.data(int(Qt.DisplayRole))
         opt.currentText = value
         QApplication.style().drawControl(QStyle.CE_ComboBoxLabel, opt, painter)
 
@@ -144,6 +129,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
         self.file_table_view.resizeColumnsToContents()
+        self.workflow_wizard.import_data_file_model.dataChanged.connect(
+            self._update_delegates
+        )
 
         self.db_connector = None
 
@@ -202,6 +190,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.model_list_view.setHidden(True)
         self.ili2db_options_button.setHidden(True)
         self.chk_delete_data.setHidden(True)
+
+    def _update_delegates(self, top_left, bottom_right):
+        if top_left.column() == 1:
+            self.file_table_view.setItemDelegateForColumn(
+                2, DatasetComboDelegate(self, self.db_connector)
+            )
 
     def _show_datasetmanager_dialog(self):
         if self.datasetmanager_dlg:

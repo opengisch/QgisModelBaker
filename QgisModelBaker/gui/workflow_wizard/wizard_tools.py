@@ -101,6 +101,12 @@ class SourceModel(QStandardItemModel):
                         item.data(int(Qt.DisplayRole)),
                         item.data(int(SourceModel.Roles.PATH)),
                     )
+            if index.column() == 2:
+                if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+                    return "---"
+                else:
+                    return item.data(int(SourceModel.Roles.DATASET_NAME))
+
         if role == Qt.DecorationRole:
             if index.column() == 0:
                 type = "data"
@@ -472,6 +478,8 @@ class ImportDataModel(QSortFilterProxyModel):
         if index.column() == 1:
             return Qt.ItemIsEnabled
         if index.column() == 2:
+            if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+                return Qt.ItemIsEnabled
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
         return Qt.ItemIsEnabled
 
