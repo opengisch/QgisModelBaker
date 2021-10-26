@@ -140,7 +140,7 @@ class Project(QObject):
                         "ShowOpenFormButton": False,
                         "AllowNULL": True,
                         "AllowAddFeatures": False,
-                        "FilterExpression": "\"topic\" = '{}' and  attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{}'".format(
+                        "FilterExpression": "\"topic\" = '{}' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{}'".format(
                             referencing_layer.model_topic_name, "Catalogueset"
                         )  # CATALOGUE_DATASETNAME should be used here
                         if referencing_layer.model_topic_name
