@@ -119,7 +119,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
-            [self.tr("Import File"), self.tr("Cat"), self.tr("Dataset")]
+            [self.tr("Import File"), self.tr("Catalogue"), self.tr("Dataset")]
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.horizontalHeader().setSectionResizeMode(
