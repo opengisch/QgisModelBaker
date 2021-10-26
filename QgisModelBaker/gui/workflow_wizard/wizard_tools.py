@@ -45,7 +45,7 @@ TransferExtensions = [
 ]
 
 DEFAULT_DATASETNAME = "Baseset"
-CATALOGUE_DATASETNAME = "Catset"
+CATALOGUE_DATASETNAME = "Catalogueset"
 
 
 class PageIds:
@@ -626,6 +626,8 @@ class ExportDatasetsModel(CheckEntriesModel):
         if db_connector and db_connector.db_or_schema_exists():
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
                 datasetnames.append(record["datasetname"])
         self.setStringList(datasetnames)
 

@@ -25,6 +25,7 @@ from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
+from QgisModelBaker.gui.workflow_wizard.wizard_tools import CATALOGUE_DATASETNAME
 from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 
@@ -54,6 +55,8 @@ class DatasetModel(QStandardItemModel):
         if db_connector:
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
                 item = QStandardItem()
                 item.setData(record["datasetname"], int(Qt.DisplayRole))
                 item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
