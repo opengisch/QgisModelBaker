@@ -158,8 +158,9 @@ class DatasetSelector(QComboBox):
                     pass
 
         if self.filtered_model.rowCount():
-            self.currentIndexChanged.connect(self._store_basket_tid)
             self._set_index(self.current_schema_topic_identificator)
+            self._store_basket_tid(self.currentIndex())
+            self.currentIndexChanged.connect(self._store_basket_tid)
             self.setEnabled(True)
 
     def reset_model(self, current_layer):
