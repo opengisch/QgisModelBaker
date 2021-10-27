@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Version    | Who   | Modification
+=======================================================================================
+2019-07-17 | BAFU  | Italienische Texte ergänzt
+
+File PlanerischerGewaesserschutz_Codetexte_V1_1.xml, VERSION="2019-07-17" (https://models.geo.admin.ch/BAFU/)
+-->
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="BAFU" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="Units" VERSION="2012-02-20" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="CoordSys" VERSION="2015-11-24" URI="http://models.interlis.ch/models"/>
+      <MODEL NAME="LocalisationCH_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="CHAdminCodes_V1" VERSION="2018-02-19" URI="http://models.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV03_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV95_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="LegendeEintrag_PlanGewaesserschutz_V1_1" VERSION="2017-06-20" URI="https://models.geo.admin.ch/BAFU/"/>
+      <MODEL NAME="PlanerischerGewaesserschutz_LV03_V1_1" VERSION="2017-06-20" URI="https://models.geo.admin.ch/BAFU/"/>
+      <MODEL NAME="PlanerischerGewaesserschutz_LV95_V1_1" VERSION="2017-06-20" URI="https://models.geo.admin.ch/BAFU/"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag BID="ch.admin.bafu.planerischergewaesserschutz_codetexte_v1_1">
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="S1">
+        <Symbol_Zone>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALkAAAB1CAIAAACd5dfEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAF6SURBVHhe7daxUcNAEEBRmUJIaMd9qCb14Xac0MjBoBvLKDA/573ktoA/u3cZYywQvM0X/qIVKq1Q/fqvrOttTrAs23ad049jrwiFk1MSbhDVcYOOiD7e58C/df/c3+czZK9QaYVKK1RaodIKlVaotEKlFSqtUGmFSitUWqHSCpVWqLRCpRUqrVBphUorVFqh0gqVVqi0QqUVKq1QaYVKK1RaodIKlVaotEKlFSqtUGmFSitUWqHSCpVWqLRCpRUqrVBphUorVFqh0gqVVqi0QqUVKq1QaYVKK1RaodIKlVaotEKlFSqtUGmFSitUWqHSCpVWqLRCpRUqrVBphUorVFqh0gqVVqi0QqUVKq1QaYVKK1RaodIKlVaotEKlFSqtUGmFSitUWqHSCpVWqLRCpRUqrVBphUorVFqh0gqVVqi0QqUVKq1QaYVKK1RaodIKlVaotEJ1GWPs07re9gEetu06J3uF7mjluSD4dkriuEHwmhtEpRWaZfkCwywg14wiZv0AAAAASUVORK5CYII=</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzzone S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Zone de protection des eaux souterraines S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Zona di protezione delle acque sotterranee S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>S1</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>S1</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="S2">
+        <Symbol_Zone>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALkAAAB1CAIAAACd5dfEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMHSURBVHhe7dKxjQIBAAPBr5ZOviKS7+4eWYsRyDpdzlobOpyfw7lr04q7Oq24q3uzcrvdzRosnntZ+fiZPQJHphU7CxzZsPL7d9iXVwzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEcmVZsVAzgyLRio2IAR6YVGxUDODKt2KgYwJFpxUbFAI5MKzYqBnBkWrFRMYAj04qNigEc2bBi1sCRacXOAkf2svLYx8++PFg892bFuZNpxV2dVtzVacVd23H8A4tVL8xan6w8AAAAAElFTkSuQmCC</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzzone S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Zone de protection des eaux souterraines S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Zona di protezione delle acque sotterranee S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>S2</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>S2</ArtCode_Zone_LV95>
+     </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="S3">
+        <Symbol_Zone>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALoAAAB1CAIAAAB20mzHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMISURBVHhe7dK7bQMBAMPQTOsFM4lnyCAXF5T8gWD4alNgqfL9HM59PLm4E5OLO7EnLpfLr1mDxcPuXF6uZrfAkcnF3gWObHC5/h325RUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARyYXGxUDODK52KgYwJHJxUbFAI5MLjYqBnBkcrFRMYAjk4uNigEcmVxsVAzgyORio2IARza4mDVwZHKxd4Eju3O57eVqXx4sHvbExbn3k4s7Mbm4E5OL+3jH8Q+IBQqLJgWTmAAAAABJRU5ErkJggg==</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzzone S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Zone de protection des eaux souterraines S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Zona di protezione delle acque sotterranee S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>S3</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>S3</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="S3Zu">
+        <Symbol_Zone>
+          <BINBLBOX>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</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zuströmbereich Zu anstelle einer S3 oder einer Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Aire d’alimentation Zu au lieu de S3 ou Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Settore di alimentazione Zu al posto di una S3 o una Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>S3Zu</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>S3Zu</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="S_kantonaleArt">
+        <Symbol_Zone>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALsAAAB3CAIAAADU2KbyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIXSURBVHhe7dLJTURRAANBoiUagiEY8hnQV4NGIxa/M2X10cd6upmdjBg7GzF2tm/EPJvdLRafexTTy+xu4bhGjP29cFz7UczL65v+eVEgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRIEZjUSBGY1EgRmNRGMWYfS0c14ixvxeOa49iPtbL7FosPveNGLNfRoydjRg7GzF2NmLsbMTYyW63d5khSgs3Qgo2AAAAAElFTkSuQmCC</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Nicht nach Bundesrecht vorgesehener Schutzzonentyp</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Types de zones de protection non prévus par le droit fédéral</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Tipo di zona di protezione non previsto dal diritto federale</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>S_kantonaleArt</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>S_kantonaleArt</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="Sh">
+        <Symbol_Zone>
+          <BINBLBOX>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</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzzone Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Zone de protection des eaux souterraines Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Zona di protezione delle acque sotterranee Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>Sh</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>Sh</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone TID="Sm">
+        <Symbol_Zone>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALgAAAB0CAIAAAC5e29fAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAwmSURBVHhe7ZZBVm07YsUy2ppgRlJjyEB+/B5nOSoBWxdoBi01OJZNazfuf/3zyy8v8DuUX17idyi/vMR/DOVf//rvX3+9PrP4y/8NRZd+/fX4jON3KL9un3F8OJR//88/Q6KUEqUtUUqJUkqUtkQpJUpbopSS83nH8Bx9YyhHopQSpS1RSolSSpS2RCklSluilJI7huf7e0M5EqWUKG2JUkqUUqK0JUopUdoSpfRyx/B8f3soR6KUEqUtUUqJUkqUtkQpJUpbopS+ccfwfP9kKEeilBKlLVFKiVJKlLZEKSVKW6KUHu4Y/v6DP/xoKEeilBKlLVFKiVJKlLZEKSVKW6KU3jE8738+lCNRSonSliilRCklSluilBKlLVHa3jE8jz8cyvlbz1KilBKlLVFKiVJKlLZEKSVKW6I05Bje+HgoB71MiVJKlLZEKSVKKVHaEqWUKG2J0mdqDIdPh3LQ45QopURpS5RSopQSpS1RSonSlih96PsxrKEc9D4lSilR2hKllCilRGlLlFKitCVK730/ho9/zBK+f0WilBKlLVFKiVJKlLZEKSVKW6Ik7xie258N5Uju+xclSilR2hKllCilRGlLlFKitCVK9I7huTqGciT38EWJUkqUtkQpJUopUdoSpZQobYnS9Y7hubeHciQ8f0WilBKlLVFKiVJKlLZEKSVKW6L05h3DcymHciRKKVFKidKWKKVEKSVKW6KUEqUtUTreMTw3XhnKkSilRCklSluilBKllChtiVJKlLZE6Y7hyS8O5UiUUqKUEqUtUUqJUkqUtkQpJUpbwvM7hqe9PpQjUUqJUkqUtkQpJUopUdoSpZQobck9vGN4wpeGciRKKVFKidKWKKVEKSVKW6KUEqUteTu5Y3hOvzqUI1FKiVJKlLZEKSVKKVHaEqWUKG3J+bxjeI6+MZQjUUqJUkqUtkQpJUopUdoSpZQobckdw/P9vaEciVJKlFKitCVKKVFKidKWKKVEaXu5Y3i+vz2UI1FKiVJKlLZEKSVKKVHaEqWUKG3fuGN4vn8ylCNRSolSSpS2RCklSilR2hKllChtD3cMf1//4UdDORKllCilRGlLlFKilBKlLVFKidL2juF5/OFQzt96tiVKKVFKidKWKKVEKSVKW6KUEqUhx/DGx0M56OWWKKVEKSVKW6KUEqWUKG2JUkqUPlNjOHw6lIMeb4lSSpRSorQlSilRSonSliilROlD349hDeWg91uilBKllChtiVJKlFKitCVKKVF67/sxfPxjlvB9SpRSopQSpS1RSolSSpS2RCklSvKO4bn92VCO5L5/RaKUEqWUKG2JUkqUUqK0JUopUaJ3DM/VMZQjuYevSJRSopQSpS1RSolSSpS2RCklStc7hufeHsqR8DwlSilRSonSliilRCklSluilBKlN+8Ynks5lCNR2hKllCilRGlLlFKilBKlLVFKidLxjuG58cpQjkRpS5RSopQSpS1RSolSSpS2RCklSncMT35xKEeitCVKKVFKidKWKKVEKSVKW6KUEp7fMTzt9aEcidKWKKVEKSVKW6KUEqWUKG2JUkru4R3DE740lCNR2hKllCilRGlLlFKilBKlLVFKydvJHcNz+tWhHInSliilRCklSluilBKllChtiVJKzucdw3P0jaEcidKWKKVEKSVKW6KUEqWUKG2JUkruGJ7v7w3lSJS2RCklSilR2hKllCilRGlLlNLLHcPz/e2hHInSliilRCklSluilBKllChtiVL6xh3D8/2ToRyJ0pYopUQpJUpbopQSpZQobYlSerhj+PsP/vCjoRyJ0pYopUQpJUpbopQSpZQobYlSesfwvP/5UI5EaUuUUqKUEqUtUUqJUkqUtkRpe8fwPP5wKOdvPUuJ0pYopUQpJUpbopQSpZQobYnSkGN44+OhHPQyJUpbopQSpZQobYlSSpRSorQlSp+pMRw+HcpBj1OitCVKKVFKidKWKKVEKSVKW6L0oe/HsIZy0PuUKG2JUkqUUqK0JUopUUqJ0pYovff9GD7+MUv4/hWJ0pYopUQpJUpbopQSpZQobYmSvGN4bn82lCO571+UKG2JUkqUUqK0JUopUUqJ0pYo0TuG5+oYypHcwxclSluilBKllChtiVJKlFKitCVK1zuG594eypHw/BWJ0pYopUQpJUpbopQSpZQobYnSm3cMz6UcypEopURpS5RSopQSpS1RSolSSpS2ROl4x/DceGUoR6KUEqUtUUqJUkqUtkQpJUopUdoSpTuGJ784lCNRSonSliilRCklSluilBKllChtCc/vGJ72+lCORCklSluilBKllChtiVJKlFKitCX38I7hCV8aypEopURpS5RSopQSpS1RSolSSpS25O3kjuE5/epQjkQpJUpbopQSpZQobYlSSpRSorQl5/OO4Tn6xlCORCklSluilBKllChtiVJKlFKitCV3DM/394ZyJEopUdoSpZQopURpS5RSopQSpe3ljuH5/vZQjkQpJUpbopQSpZQobYlSSpRSorR9447h+f7JUI5EKSVKW6KUEqWUKG2JUkqUUqK0Pdwx/H39hx8N5UiUUqK0JUopUUqJ0pYopUQpJUrbO4bn8c+HciRKKVHaEqWUKKVEaUuUUqKUEqXhHcPz8sOhnL/1LCVKKVHaEqWUKKVEaUuUUqKUEqXP5Bje+HgoB71MiVJKlLZEKSVKKVHaEqWUKKVE6UM1hsOnQznocUqUUqK0JUopUUqJ0pYopUQpJUrvfT+GNZSD3qdEKSVKW6KUEqWUKG2JUkqUUqIk34/h4x+zhO9fkSilRGlLlFKilBKlLVFKiVJKlOgdw3P1s6EcyX3/okQpJUpbopQSpZQobYlSSpRSonS9Y3jujaEcyT18UaKUEqUtUUqJUkqUtkQpJUopUXrzjuG5tIdyJDx/RaKUEqUtUUqJUkqUtkQpJUopUTreMTw3cihHopQSpZQobYlSSpRSorQlSilRSonSHcOTXxnKkSilRCklSluilBKllChtiVJKlFLC8zuGp704lCNRSolSSpS2RCklSilR2hKllCil5B7eMTzh9aEciVJKlFKitCVKKVFKidKWKKVEKSVvJ3cMz+mXhnIkSilRSonSliilRCklSluilBKllJzPO4bn6KtDORKllCilRGlLlFKilBKlLVFKiVJK7hie728M5UiUUqKUEqUtUUqJUkqUtkQpJUrp5Y7h+f7eUI5EKSVKKVHaEqWUKKVEaUuUUqKUvnHH8Hx/eyhHopQSpZQobYlSSpRSorQlSilRSg93DH//wR++P5QjUUqJUkqUtkQpJUopUdoSpZQopXcMz/sfDuVIlFKilBKlLVFKiVJKlLZEKSVK2zuG5/GHQzl/69mWKKVEKSVKW6KUEqWUKG2JUkqUhhzDGx8P5aCXW6KUEqWUKG2JUkqUUqK0JUopUfpMjeHw6VAOerwlSilRSonSliilRCklSluilBKlD30/hjWUg95viVJKlFKitCVKKVFKidKWKKVE6b3vx/Dxj1nC9ylRSolSSpS2RCklSilR2hKllCjJO4bn9mdDOZL7/hWJUkqUUqK0JUopUUqJ0pYopUSJ3jE8V8dQjuQeviJRSolSSpS2RCklSilR2hKllChd7xiee3soR8LzlCilRCklSluilBKllChtiVJKlN68Y3gu5VCORGlLlFKilBKlLVFKiVJKlLZEKSVKxzuG58YrQzkSpS1RSolSSpS2RCklSilR2hKllCjdMTz5xaEcidKWKKVEKSVKW6KUEqWUKG2JUkp4fsfwtNeHciRKW6KUEqWUKG2JUkqUUqK0JUopuYd3DE/40lCORGlLlFKilBKlLVFKiVJKlLZEKSVvJ3cMz+lXh3IkSluilBKllChtiVJKlFKitCVKKTmfdwzP0TeGciRKW6KUEqWUKG2JUkqUUqK0JUopuWN4vr83lCNR2hKllCilRGlLlFKilBKlLVFKL3cMz/e3h3IkSluilBKllChtiVJKlFKitCVK6Rt3DM/3T4ZyJEpbopQSpZQobYlSSpRSorQlSunhjuHvP/jDj4ZyJEpbopQSpZQobYlSSpRSorQlSukdw/P+w6H8+uv1GcfvUH7dPuPgUA669Ov/c59Z/OU/hvLLL5/xO5RfXuJ3KL+8wD///C9g8ET+3EIUJgAAAABJRU5ErkJggg==</BINBLBOX>
+        </Symbol_Zone>
+        <LegendeText_Zone>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzzone Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Zone de protection des eaux souterraines Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Zona di protezione delle acque sotterranee Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Zone>
+        <ArtCode_Zone_LV03>Sm</ArtCode_Zone_LV03>
+        <ArtCode_Zone_LV95>Sm</ArtCode_Zone_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Zone>
+
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="Areal">
+        <Symbol_Areal>
+          <BINBLBOX>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</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Grundwasserschutzareal</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Périmètre de protection des eaux souterraines</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Area di protezione delle acque sotterranee</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>Areal</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>Areal</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="ZukuenftigeZoneS1">
+        <Symbol_Areal>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALsAAAB1CAIAAACZEAf5AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJVSURBVHhe7dIxagNRAEPBnNYHSpvDboyQXSwm4tcZ8UqV83WZnYwYOxsxdrYPYh7fP9K7snjtLub2lp4VR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxwZMdoVR0aMdsWREaNdcWTEaFccGTHaFUdGjHbFkRGjXXFkxGhXHBkx2hVHRox2xZERo11xZMRoVxzZXcxzt7f+eWXx2gcxZn+MGDsbMXY2Yuxk1/UL2ZFLiQtDJp4AAAAASUVORK5CYII=</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Künftige Schutzzone S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Future zone de protection S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Futura zona di protezione S1</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>ZukuenftigeZoneS1</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>ZukuenftigeZoneS1</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="ZukuenftigeZoneS2">
+        <Symbol_Areal>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALwAAAB2CAIAAAD9WG4uAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFoSURBVHhe7dKxDcJAAARBqqUgUkqiAqoxDv6RZRmsjT2nSS/b22IWJxrLE43lHURzfzzha2Sx2T6a3QFWI4450XBuxDH3O5rXm6sTDZloyERDJhoy0ZCJhkw0ZKIhEw2ZaMhEQyYaMtGQiYZMNGSiIRMNmWjIREMmGjLRkImGTDRkoiETDZloyERDJhoy0ZCJhkw0ZKIhEw2ZaMhEQyYaMtGQiYZMNGSiIRMNmWjIREMmGjLRkImGTDRkoiETDZloyERDJhoy0ZCJhkw0ZKIhEw2ZaMhEQyYaMtGQiYZMNGSiIRMNmWjIREMmGjLRkImGTDRkoiETDZloyERDJhoy0ZCJhkw0ZKIhEw2ZaMhEQyYaMtGQiYZMNGSiIRMNmWjIREMmGjLRkImGTDRkoiETDZloyERDJhoy0ZCJhkw0ZDkamEYcc6Lh3Ihjbh/Nut2BixtZbHYQjdn/icbyRGN5orE80VjcsnwAUi9YMvjvTv4AAAAASUVORK5CYII=</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Künftige Schutzzone S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Future zone de protection S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Futura zona di protezione S2</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>ZukuenftigeZoneS2</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>ZukuenftigeZoneS2</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="ZukuenftigeZoneS3">
+        <Symbol_Areal>
+          <BINBLBOX>iVBORw0KGgoAAAANSUhEUgAAALgAAAByCAIAAABvIoxCAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALUSURBVHhe7dKxTQMBAARBqqUgUtqhH0LCx9K+z9JKtj73nja8cD6O1i4sKO3SHlA+v76r1snivhOKTlW3sMGCUk/DBjOUn9+/evOGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARssKOWGARvMUKoWNlhQ6mnYYCeU23SqN+9kcd8DSmsvFpR2aUFpF3Yc/46NLFyuv4PaAAAAAElFTkSuQmCC</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Künftige Schutzzone S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Future zone de protection S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Futura zona di protezione S3</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>ZukuenftigeZoneS3</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>ZukuenftigeZoneS3</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="ZukuenftigeZoneSh">
+        <Symbol_Areal>
+          <BINBLBOX>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</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Künftige Schutzzone Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Future zone de protection Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Futura zona di protezione Sh</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>ZukuenftigeZoneSh</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>ZukuenftigeZoneSh</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+      <LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal TID="ZukuenftigeZoneSm">
+        <Symbol_Areal>
+          <BINBLBOX>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</BINBLBOX>
+        </Symbol_Areal>
+        <LegendeText_Areal>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Künftige Schutzzone Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Future zone de protection Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Futura zona di protezione Sm</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </LegendeText_Areal>
+        <ArtCode_Areal_LV03>ZukuenftigeZoneSm</ArtCode_Areal_LV03>
+        <ArtCode_Areal_LV95>ZukuenftigeZoneSm</ArtCode_Areal_LV95>
+      </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag.LegendeEintrag_Areal>
+
+    </LegendeEintrag_PlanGewaesserschutz_V1_1.LegendeEintrag>
+  </DATASECTION>
+</TRANSFER>

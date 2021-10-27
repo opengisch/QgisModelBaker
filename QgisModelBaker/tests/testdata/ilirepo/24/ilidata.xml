@@ -537,6 +537,16 @@
         <id>ch.sh.ili.catalogue.KbS_Codetexte_V1_4</id>
         <version>2021-03-01</version>
         <owner>mailto:romedi@sh.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Katalog für Kbs Codetexte V1 4</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
         <categories>
           <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
@@ -564,7 +574,7 @@
         <id>ch.gl.ili.catalogue.GL_Forstreviere_V1_Kataloge</id>
         <version>2021-03-01</version>
         <owner>mailto:romedi@sh.ch</owner>
-        <shortDescription>
+        <title>
           <DatasetIdx16.MultilingualMText>
             <LocalisedText>
               <DatasetIdx16.LocalisedMText>
@@ -573,7 +583,7 @@
               </DatasetIdx16.LocalisedMText>
             </LocalisedText>
           </DatasetIdx16.MultilingualMText>
-        </shortDescription>
+        </title>
         <categories>
           <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/model/GL_Forstreviere_V1</value>
@@ -677,9 +687,19 @@
         <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1</id>
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Kataloge für Planerischer Gewässerschutz</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/LegendeEintrag_PlanGewaesserschutz_V1_1</value>
+            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_V1</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/type/referenceData</value>
@@ -694,6 +714,47 @@
             <file>
               <DatasetIdx16.File>
                 <path>referencedata/opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1.xml</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+        <model>
+            <DatasetIdx16.ModelLink>
+                <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
+            </DatasetIdx16.ModelLink>
+        </model>
+    </DatasetIdx16.DataIndex.DatasetMetadata>
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="130f7a92-db44-4de0-9a0c-3e6c5b04a52b">
+        <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Duplikat</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Kataloge für Planerischer Gewässerschutz Duplikat</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_V1</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/referenceData</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>referencedata/opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1_duplicate.xml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
