@@ -539,7 +539,13 @@
         <owner>mailto:romedi@sh.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/type/referenceData</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
           </DatasetIdx16.Code_>
         </categories>
          <files>
@@ -548,6 +554,43 @@
             <file>
               <DatasetIdx16.File>
                 <path>referencedata/KbS_Codetexte_V1_4.xml</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="8c0dd53b-310e-4a4a-92bd-55f54cc9e554">
+        <id>ch.gl.ili.catalogue.GL_Forstreviere_V1_Kataloge</id>
+        <version>2021-03-01</version>
+        <owner>mailto:romedi@sh.ch</owner>
+        <shortDescription>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Kataloge für Forstreviere mit Model GL_Forstreviere_V1</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </shortDescription>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/GL_Forstreviere_V1</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/referenceData</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+         <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>referencedata/GL_Forstreviere_V1_Kataloge.xml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -634,6 +677,17 @@
         <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1</id>
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/LegendeEintrag_PlanGewaesserschutz_V1_1</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/referenceData</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
         <files>
           <DatasetIdx16.DataFile>
             <fileFormat>text/plain;version=2.3</fileFormat>
