@@ -46,6 +46,55 @@ TransferExtensions = [
 
 DEFAULT_DATASETNAME = "Baseset"
 
+TRANSFERFILE_MODELS_BLACKLIST = [
+    "CHBaseEx_MapCatalogue_V1",
+    "CHBaseEx_WaterNet_V1",
+    "CHBaseEx_Sewage_V1",
+    "CHAdminCodes_V1",
+    "AdministrativeUnits_V1",
+    "AdministrativeUnitsCH_V1",
+    "WithOneState_V1",
+    "WithLatestModification_V1",
+    "WithModificationObjects_V1",
+    "GraphicCHLV03_V1",
+    "GraphicCHLV95_V1",
+    "NonVector_Base_V2",
+    "NonVector_Base_V3",
+    "NonVector_Base_LV03_V3_1",
+    "NonVector_Base_LV95_V3_1",
+    "GeometryCHLV03_V1",
+    "GeometryCHLV95_V1",
+    "InternationalCodes_V1",
+    "Localisation_V1",
+    "LocalisationCH_V1",
+    "Dictionaries_V1",
+    "DictionariesCH_V1",
+    "CatalogueObjects_V1",
+    "CatalogueObjectTrees_V1",
+    "AbstractSymbology",
+    "CodeISO",
+    "CoordSys",
+    "GM03_2_1Comprehensive",
+    "GM03_2_1Core",
+    "GM03_2Comprehensive",
+    "GM03_2Core",
+    "GM03Comprehensive",
+    "GM03Core",
+    "IliRepository09",
+    "IliSite09",
+    "IlisMeta07",
+    "IliVErrors",
+    "INTERLIS_ext",
+    "RoadsExdm2ben",
+    "RoadsExdm2ben_10",
+    "RoadsExgm2ien",
+    "RoadsExgm2ien_10",
+    "StandardSymbology",
+    "StandardSymbology",
+    "Time",
+    "Units",
+]
+
 
 class PageIds:
     Intro = 1
@@ -339,7 +388,11 @@ class ImportModelsModel(SourceModel):
                 element = root.find("MODELS")
                 if element:
                     for sub_element in element:
-                        if "NAME" in sub_element.attrib:
+                        if (
+                            "NAME" in sub_element.attrib
+                            and sub_element.attrib["NAME"]
+                            not in TRANSFERFILE_MODELS_BLACKLIST
+                        ):
                             model = {}
                             model["name"] = sub_element.attrib["NAME"]
                             models.append(model)
@@ -528,55 +581,6 @@ class ExportModelsModel(CheckEntriesModel):
     Model providing all the models from the database (except the blacklisted ones) and it's checked state
     """
 
-    blacklist = [
-        "CHBaseEx_MapCatalogue_V1",
-        "CHBaseEx_WaterNet_V1",
-        "CHBaseEx_Sewage_V1",
-        "CHAdminCodes_V1",
-        "AdministrativeUnits_V1",
-        "AdministrativeUnitsCH_V1",
-        "WithOneState_V1",
-        "WithLatestModification_V1",
-        "WithModificationObjects_V1",
-        "GraphicCHLV03_V1",
-        "GraphicCHLV95_V1",
-        "NonVector_Base_V2",
-        "NonVector_Base_V3",
-        "NonVector_Base_LV03_V3_1",
-        "NonVector_Base_LV95_V3_1",
-        "GeometryCHLV03_V1",
-        "GeometryCHLV95_V1",
-        "InternationalCodes_V1",
-        "Localisation_V1",
-        "LocalisationCH_V1",
-        "Dictionaries_V1",
-        "DictionariesCH_V1",
-        "CatalogueObjects_V1",
-        "CatalogueObjectTrees_V1",
-        "AbstractSymbology",
-        "CodeISO",
-        "CoordSys",
-        "GM03_2_1Comprehensive",
-        "GM03_2_1Core",
-        "GM03_2Comprehensive",
-        "GM03_2Core",
-        "GM03Comprehensive",
-        "GM03Core",
-        "IliRepository09",
-        "IliSite09",
-        "IlisMeta07",
-        "IliVErrors",
-        "INTERLIS_ext",
-        "RoadsExdm2ben",
-        "RoadsExdm2ben_10",
-        "RoadsExgm2ien",
-        "RoadsExgm2ien_10",
-        "StandardSymbology",
-        "StandardSymbology",
-        "Time",
-        "Units",
-    ]
-
     def __init__(self):
         super().__init__()
 
@@ -589,7 +593,7 @@ class ExportModelsModel(CheckEntriesModel):
                 for db_model in db_models:
                     regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
-                        if modelname and modelname not in ExportModelsModel.blacklist:
+                        if modelname and modelname not in TRANSFERFILE_MODELS_BLACKLIST:
                             modelnames.append(modelname.strip())
 
         self.setStringList(modelnames)
