@@ -103,10 +103,14 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
 
-        # the export_models_model keeps every single model found in the current database and a checked state
+        # the export_models_model keeps every single model found in the current database and keeps the selected models
         self.export_models_model = ExportModelsModel()
-        # the export_datasets_models keeps every dataset found in the current database and keeps the selected dataset
+        # the export_datasets_model keeps every dataset found in the current database and keeps the selected dataset
         self.export_datasets_model = ExportDatasetsModel()
+        # the export_baskets_model keeps every baskets found in the current database and keeps the selected baskets
+        # do they need to be filtered by the selected dataset?
+        self.export_baskets_model = ExportDatasetsModel()
+
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
 

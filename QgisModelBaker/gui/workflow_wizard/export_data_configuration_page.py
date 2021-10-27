@@ -98,6 +98,19 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.export_datasets_model.check
         )
 
+        self.export_baskets_checkbox.setCheckState(Qt.Checked)
+        self.export_baskets_checkbox.stateChanged.connect(self._select_all_baskets)
+        self.workflow_wizard.export_baskets_model.dataChanged.connect(
+            lambda: self._set_baskets_checkbox()
+        )
+        self.export_baskets_view.setModel(self.workflow_wizard.export_baskets_model)
+        self.export_baskets_view.clicked.connect(
+            self.workflow_wizard.export_baskets_model.check
+        )
+        self.export_baskets_view.space_pressed.connect(
+            self.workflow_wizard.export_baskets_model.check
+        )
+
     def isComplete(self):
         return self.is_complete
 
@@ -137,6 +150,15 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _set_datasets_checkbox(self):
         self.export_datasets_checkbox.setCheckState(
             self._evaluated_check_state(self.workflow_wizard.export_datasets_model)
+        )
+
+    def _select_all_baskets(self, state):
+        if state != Qt.PartiallyChecked:
+            self.workflow_wizard.export_datasets_model.check_all(state)
+
+    def _set_baskets_checkbox(self):
+        self.export_baskets_checkbox.setCheckState(
+            self._evaluated_check_state(self.workflow_wizard.export_baskets_model)
         )
 
     def _evaluated_check_state(self, model):
