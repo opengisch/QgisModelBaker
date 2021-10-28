@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QValidator
@@ -37,6 +38,12 @@ PAGE_UI = ui.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     ValidExtensions = wizard_tools.TransferExtensions
+
+    class FilterMode(IntEnum):
+        NO_FILTER = 1
+        MODEL = 2
+        DATASET = 3
+        BASKET = 4
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
@@ -71,6 +78,21 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
+
+        self.filter_combobox.addItem(
+            self.tr("Everything"), ExportDataConfigurationPage.FilterMode.NO_FILTER
+        )
+        self.filter_combobox.addItem(
+            self.tr("Models"), ExportDataConfigurationPage.FilterMode.MODEL
+        )
+        self.filter_combobox.addItem(
+            self.tr("Datasets"), ExportDataConfigurationPage.FilterMode.DATASET
+        )
+        self.filter_combobox.addItem(
+            self.tr("Baskets"), ExportDataConfigurationPage.FilterMode.BASKET
+        )
+
+        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
 
         self.export_models_checkbox.setCheckState(Qt.Checked)
         self.export_models_checkbox.stateChanged.connect(self._select_all_models)
@@ -126,6 +148,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.export_datasets_label.setHidden(not basket_handling)
         self.export_datasets_checkbox.setHidden(not basket_handling)
         self.export_datasets_view.setHidden(not basket_handling)
+
+    def _filter_changed(self):
+        self.filter_combobox.currentData()
 
     def _set_current_export_target(self, text):
         self.setComplete(
