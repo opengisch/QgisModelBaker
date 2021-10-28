@@ -89,51 +89,42 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             return -1
         return self.workflow_wizard.next_id()
 
-    def setup_sessions(self, configuration, import_sessions):
+    def setup_sessions(self, configuration, sessions):
         new_sessions = []
 
-        for key in import_sessions:
-            models = (
-                import_sessions[key]["models"]
-                if "models" in import_sessions[key]
-                else []
-            )
+        for key in sessions:
+            models = sessions[key]["models"] if "models" in sessions[key] else []
             datasets = (
-                import_sessions[key]["datasets"]
-                if "datasets" in import_sessions[key]
-                else None
+                sessions[key]["datasets"] if "datasets" in sessions[key] else None
             )
+            baskets = sessions[key]["baskets"] if "baskets" in sessions[key] else None
 
             skipped_session_widget = self._find_skipped_session_widget(
                 (
                     key,
                     models,
                     datasets,
+                    baskets,
                     db_utils.get_schema_identificator_from_configuration(configuration),
                 )
             )
             if skipped_session_widget:
                 new_sessions.append(skipped_session_widget)
             else:
-                import_session = SessionPanel(
+                session = SessionPanel(
                     copy.deepcopy(configuration),
                     key,
                     models,
                     datasets,
+                    baskets,
                     self.db_action_type,
                 )
-                import_session.on_done_or_skipped.connect(
-                    self._on_done_or_skipped_received
-                )
-                import_session.print_info.connect(
-                    self.workflow_wizard.log_panel.print_info
-                )
-                import_session.on_stderr.connect(
-                    self.workflow_wizard.log_panel.on_stderr
-                )
-                import_session.on_process_started.connect(self._on_process_started)
-                import_session.on_process_finished.connect(self._on_process_finished)
-                new_sessions.append(import_session)
+                session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
+                session.print_info.connect(self.workflow_wizard.log_panel.print_info)
+                session.on_stderr.connect(self.workflow_wizard.log_panel.on_stderr)
+                session.on_process_started.connect(self._on_process_started)
+                session.on_process_finished.connect(self._on_process_finished)
+                new_sessions.append(session)
 
         self.session_widget_list = new_sessions
 

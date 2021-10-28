@@ -44,7 +44,14 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_done_or_skipped = pyqtSignal(object)
 
     def __init__(
-        self, general_configuration, file, models, datasets, db_action_type, parent=None
+        self,
+        general_configuration,
+        file,
+        models,
+        datasets,
+        baskets,
+        db_action_type,
+        parent=None,
     ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -52,6 +59,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.file = file
         self.models = models
         self.datasets = datasets
+        self.baskets = baskets
 
         # set up the gui
         self.create_text = self.tr("Run")
@@ -105,6 +113,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 )
             )
             self.configuration.dataset = ";".join(self.datasets)
+            self.configuration.baskets = self.baskets
 
         self.is_skipped_or_done = False
 
@@ -114,6 +123,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.file,
             self.models,
             self.datasets,
+            self.baskets,
             db_utils.get_schema_identificator_from_configuration(self.configuration),
         )
 

@@ -625,3 +625,36 @@ class ExportDatasetsModel(CheckEntriesModel):
         }
 
         return self.rowCount()
+
+
+class ExportBasketsModel(CheckEntriesModel):
+    """
+    Model providing all the datasets from the database and it's checked state
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._basket_ids = None
+
+    def refresh_model(self, db_connector=None):
+        basketnames = []
+        self._basket_ids = {}
+
+        if db_connector and db_connector.db_or_schema_exists():
+            baskets_info = db_connector.get_baskets_info()
+            for record in baskets_info:
+                basketname = f"{record['datasetname']}-{record['topic']} ({record['basket_t_ili_tid']})"
+                basketnames.append(basketname)
+                self._basket_ids[basketname] = record["basket_t_ili_tid"]
+        self.setStringList(basketnames)
+
+        self._checked_entries = {basketname: Qt.Checked for basketname in basketnames}
+
+        return self.rowCount()
+
+    def checked_entries(self):
+        return [
+            self._basket_ids[name]
+            for name in self.stringList()
+            if self._checked_entries[name] == Qt.Checked and name in self._basket_ids
+        ]

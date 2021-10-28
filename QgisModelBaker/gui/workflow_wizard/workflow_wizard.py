@@ -44,6 +44,7 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+    ExportBasketsModel,
     ExportDatasetsModel,
     ExportModelsModel,
     ImportDataModel,
@@ -108,8 +109,7 @@ class WorkflowWizard(QWizard):
         # the export_datasets_model keeps every dataset found in the current database and keeps the selected dataset
         self.export_datasets_model = ExportDatasetsModel()
         # the export_baskets_model keeps every baskets found in the current database and keeps the selected baskets
-        # do they need to be filtered by the selected dataset?
-        self.export_baskets_model = ExportDatasetsModel()
+        self.export_baskets_model = ExportBasketsModel()
 
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
@@ -321,6 +321,11 @@ class WorkflowWizard(QWizard):
                 if self._basket_handling(self.export_data_configuration)
                 else []
             )
+            sessions[self.current_export_target]["baskets"] = (
+                self.export_baskets_model.checked_entries()
+                if self._basket_handling(self.export_data_configuration)
+                else []
+            )
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )
@@ -374,6 +379,7 @@ class WorkflowWizard(QWizard):
         db_connector = db_utils.get_db_connector(self.export_data_configuration)
         self.export_models_model.refresh_model(db_connector)
         self.export_datasets_model.refresh_model(db_connector)
+        self.export_baskets_model.refresh_model(db_connector)
         return
 
     def refresh_import_models(self, silent=False):

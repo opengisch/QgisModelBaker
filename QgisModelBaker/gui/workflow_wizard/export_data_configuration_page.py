@@ -154,7 +154,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def _select_all_baskets(self, state):
         if state != Qt.PartiallyChecked:
-            self.workflow_wizard.export_datasets_model.check_all(state)
+            self.workflow_wizard.export_baskets_model.check_all(state)
 
     def _set_baskets_checkbox(self):
         self.export_baskets_checkbox.setCheckState(
