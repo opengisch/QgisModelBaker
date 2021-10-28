@@ -21,7 +21,7 @@
 import os
 import re
 import xml.etree.cElementTree as CET
-from enum import Enum
+from enum import Enum, IntEnum
 
 from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
 from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -109,6 +109,13 @@ class PageIds:
     ExportDataConfiguration = 10
     ExportDataExecution = 11
     ProjectCreation = 12
+
+
+class ExportFilterMode(IntEnum):
+    NO_FILTER = 1
+    MODEL = 2
+    DATASET = 3
+    BASKET = 4
 
 
 class SourceModel(QStandardItemModel):

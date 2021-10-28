@@ -46,6 +46,7 @@ from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCrea
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
     ExportBasketsModel,
     ExportDatasetsModel,
+    ExportFilterMode,
     ExportModelsModel,
     ImportDataModel,
     ImportModelsModel,
@@ -113,6 +114,7 @@ class WorkflowWizard(QWizard):
 
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
+        self.current_export_filter = ExportFilterMode.NO_FILTER
 
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))

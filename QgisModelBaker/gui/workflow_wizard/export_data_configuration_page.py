@@ -18,7 +18,6 @@
  ***************************************************************************/
 """
 
-from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QValidator
@@ -38,12 +37,6 @@ PAGE_UI = ui.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     ValidExtensions = wizard_tools.TransferExtensions
-
-    class FilterMode(IntEnum):
-        NO_FILTER = 1
-        MODEL = 2
-        DATASET = 3
-        BASKET = 4
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
@@ -100,27 +93,26 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self._refresh_filter_combobox(basket_handling)
 
     def _refresh_filter_combobox(self, basket_handling):
-        current_index = self.filter_combobox.currentIndex()
-
+        stored_index = self.filter_combobox.findData(
+            self.workflow_wizard.current_export_filter
+        )
         self.filter_combobox.clear()
         self.filter_combobox.addItem(
             self.tr("No filter (export all models)"),
-            ExportDataConfigurationPage.FilterMode.NO_FILTER,
+            wizard_tools.ExportFilterMode.NO_FILTER,
         )
         self.filter_combobox.addItem(
-            self.tr("Models"), ExportDataConfigurationPage.FilterMode.MODEL
+            self.tr("Models"), wizard_tools.ExportFilterMode.MODEL
         )
         if basket_handling:
             self.filter_combobox.addItem(
-                self.tr("Datasets"), ExportDataConfigurationPage.FilterMode.DATASET
+                self.tr("Datasets"), wizard_tools.ExportFilterMode.DATASET
             )
             self.filter_combobox.addItem(
-                self.tr("Baskets"), ExportDataConfigurationPage.FilterMode.BASKET
+                self.tr("Baskets"), wizard_tools.ExportFilterMode.BASKET
             )
-            self.filter_combobox.setCurrentIndex(current_index)
-
         self.filter_combobox.setCurrentIndex(
-            current_index if self.filter_combobox.itemData(current_index) else 0
+            stored_index if self.filter_combobox.itemData(stored_index) else 0
         )
         self._filter_changed()
 
@@ -141,37 +133,31 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.export_items_view.model().check
         )
 
-    def _set_current_export_target(self, text):
-        self.setComplete(
-            self.xtf_file_line_edit.validator().validate(text, 0)[0]
-            == QValidator.Acceptable
-        )
-        self.workflow_wizard.current_export_target = text
-
     def _filter_changed(self):
         filter = self.filter_combobox.currentData()
-        if filter == ExportDataConfigurationPage.FilterMode.NO_FILTER:
+        if filter == wizard_tools.ExportFilterMode.NO_FILTER:
             self.export_items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
         else:
             self.export_items_view.setHidden(False)
             self.select_all_checkbox.setHidden(False)
-            if filter == ExportDataConfigurationPage.FilterMode.MODEL:
+            if filter == wizard_tools.ExportFilterMode.MODEL:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_models_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all models"))
-            if filter == ExportDataConfigurationPage.FilterMode.DATASET:
+            if filter == wizard_tools.ExportFilterMode.DATASET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_datasets_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all datasets"))
-            if filter == ExportDataConfigurationPage.FilterMode.BASKET:
+            if filter == wizard_tools.ExportFilterMode.BASKET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_baskets_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all baskets"))
             self._set_select_all_checkbox()
+        self.workflow_wizard.current_export_filter = filter
 
     def _select_all_items(self, state):
         if state != Qt.PartiallyChecked:
@@ -189,3 +175,10 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
                 return Qt.Checked
             return Qt.PartiallyChecked
         return Qt.Unchecked
+
+    def _set_current_export_target(self, text):
+        self.setComplete(
+            self.xtf_file_line_edit.validator().validate(text, 0)[0]
+            == QValidator.Acceptable
+        )
+        self.workflow_wizard.current_export_target = text
