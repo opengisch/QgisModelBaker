@@ -44,7 +44,9 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+    ExportBasketsModel,
     ExportDatasetsModel,
+    ExportFilterMode,
     ExportModelsModel,
     ImportDataModel,
     ImportModelsModel,
@@ -103,12 +105,16 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
 
-        # the export_models_model keeps every single model found in the current database and a checked state
+        # the export_models_model keeps every single model found in the current database and keeps the selected models
         self.export_models_model = ExportModelsModel()
-        # the export_datasets_models keeps every dataset found in the current database and keeps the selected dataset
+        # the export_datasets_model keeps every dataset found in the current database and keeps the selected dataset
         self.export_datasets_model = ExportDatasetsModel()
+        # the export_baskets_model keeps every baskets found in the current database and keeps the selected baskets
+        self.export_baskets_model = ExportBasketsModel()
+
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
+        self.current_export_filter = ExportFilterMode.NO_FILTER
 
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
@@ -211,6 +217,7 @@ class WorkflowWizard(QWizard):
             if self.export_database_selection_page.is_valid():
                 self._update_configurations(self.export_database_selection_page)
                 if self._db_or_schema_exists(self.export_data_configuration):
+                    self.refresh_export_models()
                     return PageIds.ExportDataConfiguration
                 else:
                     self.log_panel.print_info(
@@ -301,7 +308,6 @@ class WorkflowWizard(QWizard):
             )
 
         if self.current_id == PageIds.ExportDataConfiguration:
-            self.refresh_export_models()
             self.export_data_configuration_page.setup_dialog(
                 self._basket_handling(self.export_data_configuration)
             )
@@ -309,14 +315,23 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ExportDataExecution:
             sessions = {}
             sessions[self.current_export_target] = {}
-            sessions[self.current_export_target][
-                "models"
-            ] = self.export_models_model.checked_entries()
-            sessions[self.current_export_target]["datasets"] = (
-                self.export_datasets_model.checked_entries()
-                if self._basket_handling(self.export_data_configuration)
-                else []
-            )
+            models = []
+            datasets = []
+            baskets = []
+            if self.current_export_filter == ExportFilterMode.MODEL:
+                models = self.export_models_model.checked_entries()
+            elif self.current_export_filter == ExportFilterMode.DATASET:
+                datasets = self.export_datasets_model.checked_entries()
+            elif self.current_export_filter == ExportFilterMode.BASKET:
+                baskets = self.export_baskets_model.checked_entries()
+            else:
+                # no filter - export all models
+                models = self.export_models_model.stringList()
+
+            sessions[self.current_export_target]["models"] = models
+            sessions[self.current_export_target]["datasets"] = datasets
+            sessions[self.current_export_target]["baskets"] = baskets
+
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )
@@ -370,6 +385,7 @@ class WorkflowWizard(QWizard):
         db_connector = db_utils.get_db_connector(self.export_data_configuration)
         self.export_models_model.refresh_model(db_connector)
         self.export_datasets_model.refresh_model(db_connector)
+        self.export_baskets_model.refresh_model(db_connector)
         return
 
     def refresh_import_models(self, silent=False):
