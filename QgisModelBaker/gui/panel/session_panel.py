@@ -108,8 +108,11 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
             self.info_label.setText(
-                self.tr("Export {} of {} into {}").format(
-                    ", ".join(self.models), ", ".join(self.datasets), self.file
+                self.tr('Export of "{}" \nto {}').format(
+                    '", "'.join(self.models)
+                    or '", "'.join(self.datasets)
+                    or '", "'.join(self.baskets),
+                    self.file,
                 )
             )
             self.configuration.dataset = ";".join(self.datasets)

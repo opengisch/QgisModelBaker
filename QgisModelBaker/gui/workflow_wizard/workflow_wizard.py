@@ -315,19 +315,23 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ExportDataExecution:
             sessions = {}
             sessions[self.current_export_target] = {}
-            sessions[self.current_export_target][
-                "models"
-            ] = self.export_models_model.checked_entries()
-            sessions[self.current_export_target]["datasets"] = (
-                self.export_datasets_model.checked_entries()
-                if self._basket_handling(self.export_data_configuration)
-                else []
-            )
-            sessions[self.current_export_target]["baskets"] = (
-                self.export_baskets_model.checked_entries()
-                if self._basket_handling(self.export_data_configuration)
-                else []
-            )
+            models = []
+            datasets = []
+            baskets = []
+            if self.current_export_filter == ExportFilterMode.MODEL:
+                models = self.export_models_model.checked_entries()
+            elif self.current_export_filter == ExportFilterMode.DATASET:
+                datasets = self.export_datasets_model.checked_entries()
+            elif self.current_export_filter == ExportFilterMode.BASKET:
+                baskets = self.export_baskets_model.checked_entries()
+            else:
+                # no filter - export all models
+                models = self.export_models_model.stringList()
+
+            sessions[self.current_export_target]["models"] = models
+            sessions[self.current_export_target]["datasets"] = datasets
+            sessions[self.current_export_target]["baskets"] = baskets
+
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )
