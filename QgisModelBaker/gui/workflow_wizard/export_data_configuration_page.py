@@ -150,8 +150,8 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.export_items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
         else:
-            self.export_items_view.setHidden(False)
-            self.select_all_checkbox.setHidden(False)
+            self.export_items_view.setVisible(True)
+            self.select_all_checkbox.setVisible(True)
             if filter == wizard_tools.ExportFilterMode.MODEL:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_models_model
