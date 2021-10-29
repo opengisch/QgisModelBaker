@@ -217,6 +217,7 @@ class WorkflowWizard(QWizard):
             if self.export_database_selection_page.is_valid():
                 self._update_configurations(self.export_database_selection_page)
                 if self._db_or_schema_exists(self.export_data_configuration):
+                    self.refresh_export_models()
                     return PageIds.ExportDataConfiguration
                 else:
                     self.log_panel.print_info(
@@ -307,7 +308,6 @@ class WorkflowWizard(QWizard):
             )
 
         if self.current_id == PageIds.ExportDataConfiguration:
-            self.refresh_export_models()
             self.export_data_configuration_page.setup_dialog(
                 self._basket_handling(self.export_data_configuration)
             )

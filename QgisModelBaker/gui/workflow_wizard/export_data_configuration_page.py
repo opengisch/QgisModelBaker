@@ -72,11 +72,8 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
-        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
-
-        self.select_all_checkbox.setCheckState(Qt.Checked)
         self.select_all_checkbox.stateChanged.connect(self._select_all_items)
-        self._set_export_filter_view_model(self.workflow_wizard.export_models_model)
+        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
 
     def isComplete(self):
         return self.is_complete
@@ -90,7 +87,15 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         return self.workflow_wizard.next_id()
 
     def setup_dialog(self, basket_handling):
+        # disconnect currentIndexChanged signal while refreshing the combobox
+        try:
+            self.filter_combobox.currentIndexChanged.disconnect()
+        except Exception:
+            pass
+
         self._refresh_filter_combobox(basket_handling)
+
+        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
 
     def _refresh_filter_combobox(self, basket_handling):
         stored_index = self.filter_combobox.findData(
@@ -111,10 +116,16 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.filter_combobox.addItem(
                 self.tr("Baskets"), wizard_tools.ExportFilterMode.BASKET
             )
-        self.filter_combobox.setCurrentIndex(
-            stored_index if self.filter_combobox.itemData(stored_index) else 0
-        )
-        self._filter_changed()
+        if self.filter_combobox.itemData(stored_index):
+            self.filter_combobox.setCurrentIndex(stored_index)
+            if (
+                self.filter_combobox.itemData(stored_index)
+                != wizard_tools.ExportFilterMode.NO_FILTER
+            ):
+                self._set_select_all_checkbox()
+        else:
+            self.filter_combobox.setCurrentIndex(0)
+            self._filter_changed()
 
     def _set_export_filter_view_model(self, model):
         try:
@@ -125,12 +136,12 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             pass
 
         self.export_items_view.setModel(model)
-        self.export_items_view.model().dataChanged.connect(
-            lambda: self._set_select_all_checkbox()
-        )
         self.export_items_view.clicked.connect(self.export_items_view.model().check)
         self.export_items_view.space_pressed.connect(
             self.export_items_view.model().check
+        )
+        self.export_items_view.model().dataChanged.connect(
+            lambda: self._set_select_all_checkbox()
         )
 
     def _filter_changed(self):
@@ -160,7 +171,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.current_export_filter = filter
 
     def _select_all_items(self, state):
-        if state != Qt.PartiallyChecked:
+        if state != Qt.PartiallyChecked and state != self._evaluated_check_state(
+            self.export_items_view.model()
+        ):
             self.export_items_view.model().check_all(state)
 
     def _set_select_all_checkbox(self):
