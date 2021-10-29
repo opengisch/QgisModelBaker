@@ -415,16 +415,18 @@ class IliMetaConfigCache(IliCache):
     file_download_failed = pyqtSignal(str, str)
     model_refreshed = pyqtSignal(int)
 
-    def __init__(self, configuration, models=None):
+    def __init__(self, configuration, type="metaconfig", models=None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser("~/.ilimetaconfigcache")
         self.information_file = "ilidata.xml"
+
         self.model = IliMetaConfigItemModel()
         self.model.modelReset.connect(
             lambda: self.model_refreshed.emit(self.model.rowCount())
         )
 
         self.filter_models = models.split(";") if models else []
+        self.type = type
         self.directories = (
             self.base_configuration.metaconfig_directories
             if self.base_configuration
@@ -470,7 +472,6 @@ class IliMetaConfigCache(IliCache):
                 if categories_element is not None:
                     model = ""
                     type = ""
-                    tool = ""
                     for category in categories_element.findall(
                         "ili23:DatasetIdx16.Code_", self.ns
                     ):
@@ -480,12 +481,8 @@ class IliMetaConfigCache(IliCache):
                         if type_code_regex.search(category_value):
                             type = type_code_regex.search(category_value).group(1)
                         if tool_code_regex.search(category_value):
-                            tool = tool_code_regex.search(category_value).group(1)
-                    if (
-                        model not in self.filter_models
-                        or type != "metaconfig"
-                        or tool != "modelbaker"
-                    ):
+                            tool_code_regex.search(category_value).group(1)
+                    if model not in self.filter_models or type != self.type:
                         continue
 
                     title = list()
@@ -514,6 +511,17 @@ class IliMetaConfigCache(IliCache):
                                         ).text,
                                     }
                                     title.append(title_information)
+
+                    model_link_name = None
+                    for model_element in metaconfig_metadata.findall(
+                        "ili23:model", self.ns
+                    ):
+                        for model_link in model_element.findall(
+                            "ili23:DatasetIdx16.ModelLink", self.ns
+                        ):
+                            model_link_name = model_link.find(
+                                "ili23:name", self.ns
+                            ).text
 
                     for files_element in metaconfig_metadata.findall(
                         "ili23:files", self.ns
@@ -558,6 +566,8 @@ class IliMetaConfigCache(IliCache):
                                         metaconfig["title"] = title
                                     else:
                                         metaconfig["title"] = None
+
+                                    metaconfig["model_link_name"] = model_link_name
                                     repo_metaconfigs.append(metaconfig)
 
         self.repositories[netloc] = sorted(
@@ -617,6 +627,7 @@ class IliMetaConfigItemModel(QStandardItemModel):
         TITLE = Qt.UserRole + 6
         ID = Qt.UserRole + 7
         URL = Qt.UserRole + 8
+        MODEL_LINK = Qt.UserRole + 9
 
         def __int__(self):
             return self.value
@@ -665,6 +676,11 @@ class IliMetaConfigItemModel(QStandardItemModel):
                     metaconfig["title"], int(IliMetaConfigItemModel.Roles.TITLE)
                 )
                 item.setData(metaconfig["url"], int(IliMetaConfigItemModel.Roles.URL))
+
+                item.setData(
+                    metaconfig["model_link_name"],
+                    int(IliMetaConfigItemModel.Roles.MODEL_LINK),
+                )
 
                 ids.append(metaconfig["id"])
                 self.appendRow(item)
@@ -783,16 +799,6 @@ class IliToppingFileCache(IliMetaConfigCache):
 
         self.repositories[netloc] = repo_files
         self.model.set_repositories(self.repositories)
-
-        # download remote files and check local files
-        # self.download_files()
-
-    def download_files(self):
-        # go through all files and give feedback to download_status
-        for file in [e for values in self.repositories.values() for e in values]:
-            self.download_file(
-                file["repository"], file["url"], file["relative_file_path"], file["id"]
-            )
 
     def on_download_status(self, dataset_id):
         # here we could add some more logic

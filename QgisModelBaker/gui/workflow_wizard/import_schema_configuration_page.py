@@ -166,7 +166,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def _update_ilimetaconfigcache(self):
         self.ilimetaconfigcache = IliMetaConfigCache(
             self.workflow_wizard.import_schema_configuration.base_configuration,
-            ";".join(self.model_list_view.model().checked_models()),
+            models=";".join(self.model_list_view.model().checked_models()),
         )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self._on_metaconfig_received(path)

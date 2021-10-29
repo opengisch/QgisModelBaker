@@ -829,7 +829,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 break
         self.ili2db_options.set_toml_file_key(text)
         self.fill_toml_file_info_label()
-        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration, text)
+        self.ilimetaconfigcache = IliMetaConfigCache(
+            self.base_configuration, models=text
+        )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self.on_metaconfig_received(path)
         )
