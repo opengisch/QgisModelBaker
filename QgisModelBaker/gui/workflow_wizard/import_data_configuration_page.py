@@ -20,9 +20,18 @@
 
 import os
 
-from qgis.PyQt.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from qgis.PyQt.QtCore import QEvent, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QComboBox, QHeaderView, QStyledItemDelegate, QWizardPage
+from qgis.PyQt.QtWidgets import (
+    QComboBox,
+    QHeaderView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+    QStyleOptionComboBox,
+    QWizardPage,
+)
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
@@ -41,7 +50,11 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def refresh_datasets(self, db_connector):
         if db_connector:
             datasets_info = db_connector.get_datasets_info()
-            self.items = [record["datasetname"] for record in datasets_info]
+            self.items = [
+                record["datasetname"]
+                for record in datasets_info
+                if record["datasetname"] != wizard_tools.CATALOGUE_DATASETNAME
+            ]
 
     def createEditor(self, parent, option, index):
         self.editor = QComboBox(parent)
@@ -60,6 +73,40 @@ class DatasetComboDelegate(QStyledItemDelegate):
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
+    def paint(self, painter, option, index):
+        """
+        Here it paints only the lable without a StyleItem for the ComboBox, because to edit it needs multiple clicks and the behavior gets confusing.
+        """
+        opt = QStyleOptionComboBox()
+        opt.editable = False
+        opt.rect = option.rect
+        value = index.data(int(Qt.DisplayRole))
+        opt.currentText = value
+        QApplication.style().drawControl(QStyle.CE_ComboBoxLabel, opt, painter)
+
+
+class CatalogueCheckDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonRelease:
+            value = (
+                index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
+            )
+            model.setData(
+                index, not value, int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)
+            )
+            return True
+        return super().editorEvent(event, model, option, index)
+
+    def paint(self, painter, option, index):
+        opt = QStyleOptionButton()
+        opt.rect = option.rect
+        value = index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
+        opt.state |= QStyle.State_On if value else QStyle.State_Off
+        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
+
 
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
@@ -72,15 +119,26 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
-            [self.tr("Import File"), self.tr("Dataset")]
-        )
-        self.file_table_view.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
+            [self.tr("Import File"), self.tr("Catalogue"), self.tr("Dataset")]
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.Stretch
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeToContents
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeToContents
+        )
+
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
+        self.file_table_view.resizeColumnsToContents()
+        self.workflow_wizard.import_data_file_model.dataChanged.connect(
+            self._update_delegates
+        )
 
         self.db_connector = None
 
@@ -114,7 +172,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
             # set defaults
             for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
-                index = self.workflow_wizard.import_data_file_model.index(row, 1)
+                index = self.workflow_wizard.import_data_file_model.index(row, 2)
                 value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
                 if not value:
                     self.workflow_wizard.import_data_file_model.setData(
@@ -124,10 +182,14 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     )
 
                 self.file_table_view.setItemDelegateForColumn(
-                    1, DatasetComboDelegate(self, self.db_connector)
+                    1, CatalogueCheckDelegate(self)
+                )
+                self.file_table_view.setItemDelegateForColumn(
+                    2, DatasetComboDelegate(self, self.db_connector)
                 )
         else:
             self.file_table_view.setColumnHidden(1, True)
+            self.file_table_view.setColumnHidden(2, True)
             self.datasetmanager_button.setHidden(True)
 
         # since it's not yet integrated but I keep it to remember
@@ -135,6 +197,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.model_list_view.setHidden(True)
         self.ili2db_options_button.setHidden(True)
         self.chk_delete_data.setHidden(True)
+
+    def _update_delegates(self, top_left):
+        if top_left.column() == 1:
+            self.file_table_view.setItemDelegateForColumn(
+                2, DatasetComboDelegate(self, self.db_connector)
+            )
 
     def _show_datasetmanager_dialog(self):
         if self.datasetmanager_dlg:
@@ -157,5 +225,5 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
         self.file_table_view.setItemDelegateForColumn(
-            1, DatasetComboDelegate(self, self.db_connector)
+            2, DatasetComboDelegate(self, self.db_connector)
         )

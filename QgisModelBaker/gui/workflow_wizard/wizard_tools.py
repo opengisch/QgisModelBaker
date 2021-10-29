@@ -45,6 +45,7 @@ TransferExtensions = [
 ]
 
 DEFAULT_DATASETNAME = "Baseset"
+CATALOGUE_DATASETNAME = "Catalogueset"
 
 TRANSFERFILE_MODELS_BLACKLIST = [
     "CHBaseEx_MapCatalogue_V1",
@@ -123,17 +124,16 @@ class SourceModel(QStandardItemModel):
         TYPE = Qt.UserRole + 2
         PATH = Qt.UserRole + 3
         DATASET_NAME = Qt.UserRole + 5
+        IS_CATALOGUE = Qt.UserRole + 6
 
         def __int__(self):
             return self.value
 
     def __init__(self):
         super().__init__()
-        self.setColumnCount(2)
+        self.setColumnCount(3)
 
     def flags(self, index):
-        if index.column() > 0:
-            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def headerData(self, section, orientation, role):
@@ -143,27 +143,36 @@ class SourceModel(QStandardItemModel):
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
-        if role == Qt.DisplayRole:
-            if index.column() > 0:
-                return item.data(int(SourceModel.Roles.DATASET_NAME))
-            if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                return self.tr("{} ({})").format(
-                    item.data(int(Qt.DisplayRole)),
-                    item.data(int(SourceModel.Roles.PATH)),
-                )
-        if role == Qt.DecorationRole:
-            if index.column() == 0:
-                type = "data"
-                if item.data(int(SourceModel.Roles.TYPE)) and item.data(
-                    int(SourceModel.Roles.TYPE)
-                ).lower() in ["model", "ili", "xtf", "xml"]:
-                    type = item.data(int(SourceModel.Roles.TYPE)).lower()
-                return QIcon(
-                    os.path.join(
-                        os.path.dirname(__file__), f"../../images/file_types/{type}.png"
+        if item:
+            if role == Qt.DisplayRole:
+                if index.column() < 1:
+                    if item.data(int(SourceModel.Roles.TYPE)) != "model":
+                        return self.tr("{} ({})").format(
+                            item.data(int(Qt.DisplayRole)),
+                            item.data(int(SourceModel.Roles.PATH)),
+                        )
+                if index.column() == 2:
+                    if self.index(index.row(), 1).data(
+                        int(SourceModel.Roles.IS_CATALOGUE)
+                    ):
+                        return "---"
+                    else:
+                        return item.data(int(SourceModel.Roles.DATASET_NAME))
+
+            if role == Qt.DecorationRole:
+                if index.column() == 0:
+                    type = "data"
+                    if item.data(int(SourceModel.Roles.TYPE)) and item.data(
+                        int(SourceModel.Roles.TYPE)
+                    ).lower() in ["model", "ili", "xtf", "xml"]:
+                        type = item.data(int(SourceModel.Roles.TYPE)).lower()
+                    return QIcon(
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            f"../../images/file_types/{type}.png",
+                        )
                     )
-                )
-        return item.data(int(role))
+            return item.data(int(role))
 
     def add_source(self, name, type, path):
         if self._source_in_model(name, type, path):
@@ -186,7 +195,11 @@ class SourceModel(QStandardItemModel):
         )
 
     def setData(self, index, data, role):
-        if index.column() > 0:
+        if index.column() == 1:
+            return QStandardItemModel.setData(
+                self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
+            )
+        if index.column() == 2:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.DATASET_NAME)
             )
@@ -517,12 +530,26 @@ class ImportDataModel(QSortFilterProxyModel):
     def __init__(self):
         super().__init__()
 
+    def flags(self, index):
+        if index.column() == 1:
+            return Qt.ItemIsEnabled
+        if index.column() == 2:
+            if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+                return Qt.ItemIsEnabled
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
+        return Qt.ItemIsEnabled
+
     def import_sessions(self, order_list) -> dict():
         sessions = {}
         i = 0
         for r in order_list:
             source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            dataset = self.index(r, 1).data(int(SourceModel.Roles.DATASET_NAME))
+            is_catalogue = self.index(r, 1).data(int(SourceModel.Roles.IS_CATALOGUE))
+            dataset = (
+                self.index(r, 2).data(int(SourceModel.Roles.DATASET_NAME))
+                if not is_catalogue
+                else CATALOGUE_DATASETNAME
+            )
             sessions[source] = {}
             sessions[source]["datasets"] = [dataset]
             i += 1
@@ -617,6 +644,8 @@ class ExportDatasetsModel(CheckEntriesModel):
         if db_connector and db_connector.db_or_schema_exists():
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
                 datasetnames.append(record["datasetname"])
         self.setStringList(datasetnames)
 

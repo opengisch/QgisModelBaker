@@ -23,6 +23,7 @@ from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
+from QgisModelBaker.gui.workflow_wizard.wizard_tools import CATALOGUE_DATASETNAME
 from QgisModelBaker.utils.db_utils import (
     get_configuration_from_layersource,
     get_schema_identificator_from_layersource,
@@ -73,6 +74,8 @@ class BasketSourceModel(QStandardItemModel):
         baskets_info = db_connector.get_baskets_info()
         baskets = []
         for record in baskets_info:
+            if record["datasetname"] == CATALOGUE_DATASETNAME:
+                continue
             basket = {}
             basket["datasetname"] = record["datasetname"]
             basket["topic"] = record["topic"]
