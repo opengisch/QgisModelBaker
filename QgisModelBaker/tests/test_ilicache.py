@@ -165,6 +165,7 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
+                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         assert models == expected_models
@@ -451,7 +452,7 @@ class IliCacheTest(unittest.TestCase):
         ilireferencedatacache = IliDataCache(
             configuration=None,
             type="referenceData",
-            models="PlanerischerGewaesserschutz_LV95_V1_1, GL_Forstreviere_V1",
+            models="PlanerischerGewaesserschutz_LV95_V1_1; GL_Forstreviere_V1",
         )
         ilireferencedatacache._process_informationfile(
             os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
@@ -501,7 +502,7 @@ class IliCacheTest(unittest.TestCase):
         ilireferencedatacache = IliDataCache(
             configuration,
             type="referenceData",
-            models="PlanerischerGewaesserschutz_V1, GL_Forstreviere_V1",
+            models="PlanerischerGewaesserschutz_V1; GL_Forstreviere_V1",
         )
         ilireferencedatacache.refresh()
         # local repo repository
@@ -535,7 +536,8 @@ class IliCacheTest(unittest.TestCase):
             )
         ]
         expected_linked_models = {
-            "LegendeEintrag_PlanGewaesserschutz_V1_1" "GL_Forstreviere_V1"
+            "LegendeEintrag_PlanGewaesserschutz_V1_1",
+            "GL_Forstreviere_V1",
         }
         assert linkedmodels == expected_linked_models
 
