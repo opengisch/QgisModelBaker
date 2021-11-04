@@ -445,6 +445,100 @@ class IliCacheTest(unittest.TestCase):
                 test_path, "testdata", "ilirepo", "24"
             ) == matches_on_id[0].data(int(IliDataItemModel.Roles.URL))
 
+    def test_ilidata_xml_parser_24_linkedmodels(self):
+        # find the linked models of PlanerischerGewaesserschutz_LV95_V1_1 (finding it's catalogue opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1 and with it the ModelLink to LegendeEintrag_PlanGewaesserschutz_V1_1)
+        # and for GL_Forstreviere_V1 (what is in fact GL_Forstreviere_V1 as well because the catalogue is defined there as well but it's fine for tests.)
+        ilireferencedatacache = IliDataCache(
+            configuration=None,
+            type="referenceData",
+            models="PlanerischerGewaesserschutz_LV95_V1_1, GL_Forstreviere_V1",
+        )
+        ilireferencedatacache._process_informationfile(
+            os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
+            "test_repo",
+            os.path.join(test_path, "testdata", "ilirepo", "24"),
+        )
+        assert "test_repo" in ilireferencedatacache.repositories.keys()
+        referencedata = set(
+            [
+                e["id"]
+                for e in next(
+                    elem for elem in ilireferencedatacache.repositories.values()
+                )
+            ]
+        )
+        expected_referencedata = {
+            "ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1",
+            "ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Duplikat",
+            "ch.gl.ili.catalogue.GL_Forstreviere_V1_Kataloge",
+        }
+        assert referencedata == expected_referencedata
+
+        linkedmodels = [
+            self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
+            for r in range(self.ilireferencedatacache.model.rowCount())
+            if self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
+        ]
+        expected_linked_models = {
+            "LegendeEintrag_PlanGewaesserschutz_V1_1",
+            "GL_Forstreviere_V1",
+        }
+        assert linkedmodels == expected_linked_models
+
+    def test_ilidata_xml_parser_24_local_repo_linkedmodels(self):
+        # find the linked models of PlanerischerGewaesserschutz_LV95_V1_1 (finding it's catalogue opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1 and with it the ModelLink to LegendeEintrag_PlanGewaesserschutz_V1_1)
+        # and for GL_Forstreviere_V1 (what is in fact GL_Forstreviere_V1 as well because the catalogue is defined there as well but it's fine for tests.)
+        configuration = BaseConfiguration()
+        configuration.custom_model_directories_enabled = True
+        configuration.custom_model_directories = os.path.join(
+            test_path, "testdata", "ilirepo", "24"
+        )
+
+        ilireferencedatacache = IliDataCache(
+            configuration,
+            type="referenceData",
+            models="PlanerischerGewaesserschutz_V1, GL_Forstreviere_V1",
+        )
+        ilireferencedatacache.refresh()
+        # local repo repository
+        assert (
+            os.path.join(test_path, "testdata", "ilirepo", "24")
+            in ilireferencedatacache.repositories.keys()
+        )
+
+        referencedata = set(
+            [
+                e["id"]
+                for e in next(
+                    elem for elem in ilireferencedatacache.repositories.values()
+                )
+            ]
+        )
+        expected_referencedata = {
+            "ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1",
+            "ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Duplikat",
+            "ch.gl.ili.catalogue.GL_Forstreviere_V1_Kataloge",
+        }
+        assert referencedata == expected_referencedata
+
+        linkedmodels = [
+            self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
+            for r in range(self.ilireferencedatacache.model.rowCount())
+            if self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
+        ]
+        expected_linked_models = {
+            "LegendeEintrag_PlanGewaesserschutz_V1_1" "GL_Forstreviere_V1"
+        }
+        assert linkedmodels == expected_linked_models
+
     def test_ilidata_xml_parser_24_toppingfiles(self):
         # find qml files according to the ids(s) with direct ilidata.xml scan
         qml_file_ids = [

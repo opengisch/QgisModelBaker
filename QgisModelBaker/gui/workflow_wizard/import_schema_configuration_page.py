@@ -381,17 +381,17 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.setComplete(True)
 
     def _update_linked_models(self):
-        items = [
-            self.ilireferencedatacache.model.item(r)
+        linked_models = [
+            self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
             for r in range(self.ilireferencedatacache.model.rowCount())
+            if self.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINK)
+            )
         ]
-        if items:
-            for item in items:
-                linked_model = item.data(int(IliDataItemModel.Roles.MODEL_LINK))
-                if linked_model:
-                    self.workflow_wizard.source_model.add_source(
-                        linked_model, "model", None
-                    )
+        for linked_model in linked_models:
+            self.workflow_wizard.source_model.add_source(linked_model, "model", None)
 
     def _load_crs_from_metaconfig(self, ili2db_metaconfig):
         srs_auth = self.srs_auth

@@ -605,6 +605,11 @@
             </file>
           </DatasetIdx16.DataFile>
         </files>
+        <model>
+            <DatasetIdx16.ModelLink>
+                <name>GL_Forstreviere_V1</name>
+            </DatasetIdx16.ModelLink>
+        </model>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
       <!-- PlanerischerGewässerschutz -->
