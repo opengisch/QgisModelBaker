@@ -699,7 +699,7 @@
         </title>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_V1</value>
+            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_LV95_V1_1</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/type/referenceData</value>
@@ -740,7 +740,48 @@
         </title>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_V1</value>
+            <value>http://codes.interlis.ch/model/PlanerischerGewaesserschutz_LV95_V1_1</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/type/referenceData</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+            <value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>referencedata/opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1_duplicate.xml</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+        <model>
+            <DatasetIdx16.ModelLink>
+                <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
+            </DatasetIdx16.ModelLink>
+        </model>
+    </DatasetIdx16.DataIndex.DatasetMetadata>
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="4caeb071-5beb-41df-a7b7-7c70b04cff4b">
+        <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Recursion</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualMText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedMText>
+                <Language>de</Language>
+                <Text>Recursion test. Same model in categories than in the model link (this should not happen in reality)</Text>
+              </DatasetIdx16.LocalisedMText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualMText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+            <value>http://codes.interlis.ch/model/LegendeEintrag_PlanGewaesserschutz_V1_1</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
             <value>http://codes.interlis.ch/type/referenceData</value>

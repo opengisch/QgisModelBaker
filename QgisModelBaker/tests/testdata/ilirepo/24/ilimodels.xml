@@ -134,6 +134,17 @@
         <md5>822579b7bd802a6718cebf0cc1f5d85c</md5>
       </IliRepository20.RepositoryIndex.ModelMetadata>
 
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1009">
+        <Name>PlanerischerGewaesserschutz_LV95_V1_1</Name>
+        <SchemaLanguage>ili2_3</SchemaLanguage>
+        <File>refhb24/PlanerischerGewaesserschutz_V1_1.ili</File>
+        <Version>2017-06-20</Version>
+        <publishingDate>2017-06-20</publishingDate>
+        <Issuer>mailto:david@opengis.ch</Issuer>
+        <technicalContact>mailto:david@opengis.ch</technicalContact>
+        <md5>822579b7bd802a6718cebf0cc1f5d85c</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
     </IliRepository20.RepositoryIndex>
   </DATASECTION>
 </TRANSFER>

@@ -7,8 +7,8 @@ from qgis.testing import unittest
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.libili2db.ilicache import (
     IliCache,
-    IliMetaConfigCache,
-    IliMetaConfigItemModel,
+    IliDataCache,
+    IliDataItemModel,
     IliToppingFileCache,
     IliToppingFileItemModel,
 )
@@ -295,9 +295,7 @@ class IliCacheTest(unittest.TestCase):
 
     def test_ilidata_xml_parser_24_metaconfig_kbs(self):
         # find kbs metaconfig file according to the model(s) with direct ilidata.xml scan
-        ilimetaconfigcache = IliMetaConfigCache(
-            configuration=None, models="KbS_LV95_V1_4"
-        )
+        ilimetaconfigcache = IliDataCache(configuration=None, models="KbS_LV95_V1_4")
         ilimetaconfigcache._process_informationfile(
             os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
             "test_repo",
@@ -325,7 +323,7 @@ class IliCacheTest(unittest.TestCase):
 
         matches_on_id = ilimetaconfigcache_model.match(
             ilimetaconfigcache_model.index(0, 0),
-            int(IliMetaConfigItemModel.Roles.ID),
+            int(IliDataItemModel.Roles.ID),
             "ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0",
             1,
             Qt.MatchExactly,
@@ -342,32 +340,32 @@ class IliCacheTest(unittest.TestCase):
                 == matches_on_id[0].data(Qt.DisplayRole)
             )
             assert "test_repo" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.ILIREPO)
+                int(IliDataItemModel.Roles.ILIREPO)
             )
             assert "2021-01-06" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.VERSION)
+                int(IliDataItemModel.Roles.VERSION)
             )
             assert "KbS_LV95_V1_4" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.MODEL)
+                int(IliDataItemModel.Roles.MODEL)
             )
             assert "metaconfig/opengisch_KbS_LV95_V1_4.ini" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+                int(IliDataItemModel.Roles.RELATIVEFILEPATH)
             )
             assert "mailto:david@opengis.ch" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.OWNER)
+                int(IliDataItemModel.Roles.OWNER)
             )
             assert [
                 {
                     "language": "de",
                     "text": "Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)",
                 }
-            ] == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE))
+            ] == matches_on_id[0].data(int(IliDataItemModel.Roles.TITLE))
             assert "ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0" == matches_on_id[
                 0
-            ].data(int(IliMetaConfigItemModel.Roles.ID))
+            ].data(int(IliDataItemModel.Roles.ID))
             assert os.path.join(
                 test_path, "testdata", "ilirepo", "24"
-            ) == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL))
+            ) == matches_on_id[0].data(int(IliDataItemModel.Roles.URL))
 
     def test_ilidata_xml_parser_24_local_repo_metaconfig(self):
         # find planerischerGewaesserschutz metaconfig file according to the model(s) with local repo scan
@@ -377,7 +375,7 @@ class IliCacheTest(unittest.TestCase):
             test_path, "testdata", "ilirepo", "24"
         )
 
-        ilimetaconfigcache = IliMetaConfigCache(
+        ilimetaconfigcache = IliDataCache(
             configuration,
             models="PlanerischerGewaesserschutz_V1;LegendeEintrag_PlanGewaesserschutz_V1_1",
         )
@@ -404,7 +402,7 @@ class IliCacheTest(unittest.TestCase):
 
         matches_on_id = ilimetaconfigcache_model.match(
             ilimetaconfigcache_model.index(0, 0),
-            int(IliMetaConfigItemModel.Roles.ID),
+            int(IliDataItemModel.Roles.ID),
             "ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile",
             1,
             Qt.MatchExactly,
@@ -418,32 +416,30 @@ class IliCacheTest(unittest.TestCase):
             )
             assert os.path.join(
                 test_path, "testdata", "ilirepo", "24"
-            ) == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ILIREPO))
+            ) == matches_on_id[0].data(int(IliDataItemModel.Roles.ILIREPO))
             assert "2021-03-12" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.VERSION)
+                int(IliDataItemModel.Roles.VERSION)
             )
             assert "LegendeEintrag_PlanGewaesserschutz_V1_1" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.MODEL)
+                int(IliDataItemModel.Roles.MODEL)
             )
             assert (
                 "metaconfig/opengisch_PlanerischerGewaesserschutz_localfile.ini"
-                == matches_on_id[0].data(
-                    int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
-                )
+                == matches_on_id[0].data(int(IliDataItemModel.Roles.RELATIVEFILEPATH))
             )
             assert "mailto:david@opengis.ch" == matches_on_id[0].data(
-                int(IliMetaConfigItemModel.Roles.OWNER)
+                int(IliDataItemModel.Roles.OWNER)
             )
             assert [
                 {"language": "de", "text": "Mit lokalem Legendenkatalog"}
-            ] == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.TITLE))
+            ] == matches_on_id[0].data(int(IliDataItemModel.Roles.TITLE))
             assert (
                 "ch.opengis.ili.config.PlanerischerGewaesserschutz_config_localfile"
-                == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.ID))
+                == matches_on_id[0].data(int(IliDataItemModel.Roles.ID))
             )
             assert os.path.join(
                 test_path, "testdata", "ilirepo", "24"
-            ) == matches_on_id[0].data(int(IliMetaConfigItemModel.Roles.URL))
+            ) == matches_on_id[0].data(int(IliDataItemModel.Roles.URL))
 
     def test_ilidata_xml_parser_24_toppingfiles(self):
         # find qml files according to the ids(s) with direct ilidata.xml scan

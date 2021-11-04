@@ -60,8 +60,8 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
 from QgisModelBaker.libili2db.ilicache import (
     IliCache,
-    IliMetaConfigCache,
-    IliMetaConfigItemModel,
+    IliDataCache,
+    IliDataItemModel,
     IliToppingFileCache,
     IliToppingFileItemModel,
     MetaConfigCompleterDelegate,
@@ -176,7 +176,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         self.restore_configuration()
 
-        self.ilimetaconfigcache = IliMetaConfigCache(self.base_configuration)
+        self.ilimetaconfigcache = IliDataCache(self.base_configuration)
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = None
@@ -829,9 +829,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 break
         self.ili2db_options.set_toml_file_key(text)
         self.fill_toml_file_info_label()
-        self.ilimetaconfigcache = IliMetaConfigCache(
-            self.base_configuration, models=text
-        )
+        self.ilimetaconfigcache = IliDataCache(self.base_configuration, models=text)
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self.on_metaconfig_received(path)
         )
@@ -1008,7 +1006,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         if matches:
             model_index = matches[0]
             metaconfig_id = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ID)
+                model_index, int(IliDataItemModel.Roles.ID)
             )
 
             if self.current_metaconfig_id == metaconfig_id:
@@ -1022,16 +1020,16 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             )
             self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
             repository = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ILIREPO)
+                model_index, int(IliDataItemModel.Roles.ILIREPO)
             )
             url = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.URL)
+                model_index, int(IliDataItemModel.Roles.URL)
             )
             path = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+                model_index, int(IliDataItemModel.Roles.RELATIVEFILEPATH)
             )
             dataset_id = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ID)
+                model_index, int(IliDataItemModel.Roles.ID)
             )
             # disable the create button while downloading
             self.create_tool_button.setEnabled(False)

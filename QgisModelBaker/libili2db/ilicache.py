@@ -409,7 +409,7 @@ class ModelCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliMetaConfigCache(IliCache):
+class IliDataCache(IliCache):
 
     file_download_succeeded = pyqtSignal(str, str)
     file_download_failed = pyqtSignal(str, str)
@@ -420,7 +420,7 @@ class IliMetaConfigCache(IliCache):
         self.cache_path = os.path.expanduser("~/.ilimetaconfigcache")
         self.information_file = "ilidata.xml"
 
-        self.model = IliMetaConfigItemModel()
+        self.model = IliDataItemModel()
         self.model.modelReset.connect(
             lambda: self.model_refreshed.emit(self.model.rowCount())
         )
@@ -617,7 +617,7 @@ class IliMetaConfigCache(IliCache):
         return file_path
 
 
-class IliMetaConfigItemModel(QStandardItemModel):
+class IliDataItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
@@ -655,31 +655,23 @@ class IliMetaConfigItemModel(QStandardItemModel):
 
                 item.setData(display_value, int(Qt.DisplayRole))
                 item.setData(display_value, int(Qt.EditRole))
-                item.setData(metaconfig["id"], int(IliMetaConfigItemModel.Roles.ID))
+                item.setData(metaconfig["id"], int(IliDataItemModel.Roles.ID))
                 item.setData(
-                    metaconfig["repository"], int(IliMetaConfigItemModel.Roles.ILIREPO)
+                    metaconfig["repository"], int(IliDataItemModel.Roles.ILIREPO)
                 )
-                item.setData(
-                    metaconfig["version"], int(IliMetaConfigItemModel.Roles.VERSION)
-                )
-                item.setData(
-                    metaconfig["model"], int(IliMetaConfigItemModel.Roles.MODEL)
-                )
+                item.setData(metaconfig["version"], int(IliDataItemModel.Roles.VERSION))
+                item.setData(metaconfig["model"], int(IliDataItemModel.Roles.MODEL))
                 item.setData(
                     metaconfig["relative_file_path"],
-                    int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH),
+                    int(IliDataItemModel.Roles.RELATIVEFILEPATH),
                 )
-                item.setData(
-                    metaconfig["owner"], int(IliMetaConfigItemModel.Roles.OWNER)
-                )
-                item.setData(
-                    metaconfig["title"], int(IliMetaConfigItemModel.Roles.TITLE)
-                )
-                item.setData(metaconfig["url"], int(IliMetaConfigItemModel.Roles.URL))
+                item.setData(metaconfig["owner"], int(IliDataItemModel.Roles.OWNER))
+                item.setData(metaconfig["title"], int(IliDataItemModel.Roles.TITLE))
+                item.setData(metaconfig["url"], int(IliDataItemModel.Roles.URL))
 
                 item.setData(
                     metaconfig["model_link_name"],
-                    int(IliMetaConfigItemModel.Roles.MODEL_LINK),
+                    int(IliDataItemModel.Roles.MODEL_LINK),
                 )
 
                 ids.append(metaconfig["id"])
@@ -711,9 +703,9 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         super().paint(painter, option, index)
 
     def drawDisplay(self, painter, option, rect, text):
-        repository = option.index.data(int(IliMetaConfigItemModel.Roles.ILIREPO))
-        model = option.index.data(int(IliMetaConfigItemModel.Roles.MODEL))
-        owner = option.index.data(int(IliMetaConfigItemModel.Roles.OWNER))
+        repository = option.index.data(int(IliDataItemModel.Roles.ILIREPO))
+        model = option.index.data(int(IliDataItemModel.Roles.MODEL))
+        owner = option.index.data(int(IliDataItemModel.Roles.OWNER))
         display_text = option.index.data(int(Qt.DisplayRole))
 
         self.repository_label.setText(
@@ -736,7 +728,7 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliToppingFileCache(IliMetaConfigCache):
+class IliToppingFileCache(IliDataCache):
 
     download_finished = pyqtSignal()
     """
@@ -745,7 +737,7 @@ class IliToppingFileCache(IliMetaConfigCache):
     """
 
     def __init__(self, configuration, file_ids=None, tool_dir=None):
-        IliMetaConfigCache.__init__(self, configuration)
+        IliDataCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser("~/.ilitoppingfilescache")
         self.model = IliToppingFileItemModel()
         self.file_ids = file_ids
