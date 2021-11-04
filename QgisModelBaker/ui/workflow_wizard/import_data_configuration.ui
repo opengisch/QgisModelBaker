@@ -48,58 +48,52 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="3" column="0">
-       <widget class="QLabel" name="model_label">
-        <property name="text">
-         <string>Models to import</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="ModelListView" name="model_list_view" native="true"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QTableView" name="file_table_view">
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="chk_delete_data">
-          <property name="toolTip">
-           <string>Delete existing data including dependencies like catalogues etc.</string>
-          </property>
+      <item row="2" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QToolButton" name="add_button">
           <property name="text">
-           <string>Delete existing data in affected tables</string>
+           <string>+</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item>
+         <widget class="QToolButton" name="remove_button">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>563</width>
+            <width>674</width>
             <height>20</height>
            </size>
           </property>
          </spacer>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="ili2db_options_button">
-          <property name="text">
-           <string>Advanced Options</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
-      <item row="2" column="0">
+      <item row="1" column="0" colspan="4">
+       <widget class="QTableView" name="file_table_view">
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="file_label">
+        <property name="text">
+         <string>Files to import</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="4">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
          <spacer name="horizontalSpacer_2">
@@ -123,23 +117,13 @@
         </item>
        </layout>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="toml_file_info_label">
-        <property name="maximumSize">
-         <size>
-          <width>580</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
+      <item row="3" column="1" rowspan="2" colspan="3">
+       <widget class="CompletionLineEdit" name="ilireferencedata_line_edit" native="true"/>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="file_label">
+      <item row="3" column="0" rowspan="2">
+       <widget class="QLabel" name="ilireferencedata_label">
         <property name="text">
-         <string>Files to import</string>
+         <string>Topping Transferdata</string>
         </property>
        </widget>
       </item>
@@ -150,7 +134,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ModelListView</class>
+   <class>CompletionLineEdit</class>
    <extends></extends>
    <header>QgisModelBaker.gui.options</header>
    <container>1</container>

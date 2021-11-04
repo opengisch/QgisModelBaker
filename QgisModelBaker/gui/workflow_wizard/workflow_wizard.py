@@ -229,9 +229,12 @@ class WorkflowWizard(QWizard):
                 )
 
         if self.current_id == PageIds.ImportSchemaExecution:
-            if self.import_data_file_model.rowCount():
-                return PageIds.ImportDataConfiguration
-            return PageIds.ProjectCreation
+            # Where should we decide if we go here?
+            # Should we parse ilidata and if there is something we go here and otehrwise not?
+            # if self.import_data_file_model.rowCount():
+            #    return PageIds.ImportDataConfiguration
+            # return PageIds.ProjectCreation
+            return PageIds.ImportDataConfiguration
 
         if self.current_id == PageIds.ImportDataConfiguration:
             return PageIds.ImportDataExecution
