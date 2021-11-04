@@ -84,10 +84,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         completer = QCompleter(
             self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit
         )
-        self.ilireferencedatacache = IliDataCache(
-            self.workflow_wizard.import_schema_configuration.base_configuration,
-            "referenceData",
-        )
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
@@ -103,6 +99,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.ili_metaconfig_line_edit.textChanged.connect(
             self._on_metaconfig_completer_activated
+        )
+
+        self.ilireferencedatacache = IliDataCache(
+            self.workflow_wizard.import_schema_configuration.base_configuration,
+            "referenceData",
         )
 
     def isComplete(self):
@@ -355,7 +356,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
 
     def _on_metaconfig_received(self, path):
-        self.workflow_wizard.log_panel.txtStdout.clear()
         self.workflow_wizard.log_panel.print_info(
             self.tr("Metaconfig file successfully downloaded: {}").format(path),
             LogColor.COLOR_TOPPING,
