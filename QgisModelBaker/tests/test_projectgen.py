@@ -2662,7 +2662,8 @@ class TestProjectGen(unittest.TestCase):
 
         # get the metaconfiguration
         ilimetaconfigcache = IliDataCache(
-            importer.configuration.base_configuration, "KbS_LV95_V1_4"
+            configuration=importer.configuration.base_configuration,
+            models="KbS_LV95_V1_4",
         )
         ilimetaconfigcache.refresh()
         matches_on_id = ilimetaconfigcache.model.match(
@@ -3047,7 +3048,8 @@ class TestProjectGen(unittest.TestCase):
 
         # get the metaconfiguration
         ilimetaconfigcache = IliDataCache(
-            importer.configuration.base_configuration, "KbS_LV95_V1_4"
+            configuration=importer.configuration.base_configuration,
+            models="KbS_LV95_V1_4",
         )
         ilimetaconfigcache.refresh()
         matches_on_id = ilimetaconfigcache.model.match(

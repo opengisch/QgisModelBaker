@@ -199,6 +199,7 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
+                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         expected_models_of_local_ili_files = set(
@@ -223,6 +224,7 @@ class IliCacheTest(unittest.TestCase):
                 "GeometryCHLV95_V1",
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
+                "GL_Forstreviere_V1",
             ]
         )
 
@@ -263,6 +265,7 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
+                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         expected_models_of_local_ili_files = set(
@@ -287,6 +290,7 @@ class IliCacheTest(unittest.TestCase):
                 "GeometryCHLV95_V1",
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
+                "GL_Forstreviere_V1",
             ]
         )
         assert models == set.union(
