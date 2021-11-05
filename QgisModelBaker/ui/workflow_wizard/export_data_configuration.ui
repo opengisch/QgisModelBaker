@@ -39,8 +39,14 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -48,16 +54,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QLabel" name="export_models_label">
-        <property name="text">
-         <string>Models</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="xtf_file_line_edit"/>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="xtf_file_label">
         <property name="text">
@@ -65,10 +61,20 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1" rowspan="2" colspan="2">
-       <widget class="ModelListView" name="export_models_view" native="true"/>
+      <item row="1" column="1" colspan="3">
+       <widget class="QComboBox" name="filter_combobox"/>
       </item>
-      <item row="0" column="2">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Filter</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="xtf_file_line_edit"/>
+      </item>
+      <item row="0" column="3">
        <widget class="QToolButton" name="xtf_file_browse_button">
         <property name="toolTip">
          <string>Browse XTF files</string>
@@ -78,25 +84,18 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="export_datasets_label">
-        <property name="text">
-         <string>Datasets</string>
+      <item row="3" column="0" rowspan="2" colspan="4">
+       <widget class="ModelListView" name="export_items_view" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="SemiTristateCheckbox" name="export_datasets_checkbox" native="true">
-        <property name="text" stdset="0">
-         <string>Select all datasets</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1" colspan="2">
-       <widget class="ModelListView" name="export_datasets_view" native="true"/>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="SemiTristateCheckbox" name="export_models_checkbox" native="true">
+      <item row="2" column="0" colspan="4">
+       <widget class="SemiTristateCheckbox" name="select_all_checkbox" native="true">
         <property name="text" stdset="0">
          <string>Select all models</string>
         </property>

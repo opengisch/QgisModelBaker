@@ -21,7 +21,7 @@
 import os
 import re
 import xml.etree.cElementTree as CET
-from enum import Enum
+from enum import Enum, IntEnum
 
 from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
 from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -45,6 +45,56 @@ TransferExtensions = [
 ]
 
 DEFAULT_DATASETNAME = "Baseset"
+CATALOGUE_DATASETNAME = "Catalogueset"
+
+TRANSFERFILE_MODELS_BLACKLIST = [
+    "CHBaseEx_MapCatalogue_V1",
+    "CHBaseEx_WaterNet_V1",
+    "CHBaseEx_Sewage_V1",
+    "CHAdminCodes_V1",
+    "AdministrativeUnits_V1",
+    "AdministrativeUnitsCH_V1",
+    "WithOneState_V1",
+    "WithLatestModification_V1",
+    "WithModificationObjects_V1",
+    "GraphicCHLV03_V1",
+    "GraphicCHLV95_V1",
+    "NonVector_Base_V2",
+    "NonVector_Base_V3",
+    "NonVector_Base_LV03_V3_1",
+    "NonVector_Base_LV95_V3_1",
+    "GeometryCHLV03_V1",
+    "GeometryCHLV95_V1",
+    "InternationalCodes_V1",
+    "Localisation_V1",
+    "LocalisationCH_V1",
+    "Dictionaries_V1",
+    "DictionariesCH_V1",
+    "CatalogueObjects_V1",
+    "CatalogueObjectTrees_V1",
+    "AbstractSymbology",
+    "CodeISO",
+    "CoordSys",
+    "GM03_2_1Comprehensive",
+    "GM03_2_1Core",
+    "GM03_2Comprehensive",
+    "GM03_2Core",
+    "GM03Comprehensive",
+    "GM03Core",
+    "IliRepository09",
+    "IliSite09",
+    "IlisMeta07",
+    "IliVErrors",
+    "INTERLIS_ext",
+    "RoadsExdm2ben",
+    "RoadsExdm2ben_10",
+    "RoadsExgm2ien",
+    "RoadsExgm2ien_10",
+    "StandardSymbology",
+    "StandardSymbology",
+    "Time",
+    "Units",
+]
 
 
 class PageIds:
@@ -62,6 +112,13 @@ class PageIds:
     ProjectCreation = 12
 
 
+class ExportFilterMode(IntEnum):
+    NO_FILTER = 1
+    MODEL = 2
+    DATASET = 3
+    BASKET = 4
+
+
 class SourceModel(QStandardItemModel):
     """
     Model providing the data sources (files or repository items like models) and meta information like path or the chosen dataset
@@ -74,17 +131,16 @@ class SourceModel(QStandardItemModel):
         TYPE = Qt.UserRole + 2
         PATH = Qt.UserRole + 3
         DATASET_NAME = Qt.UserRole + 5
+        IS_CATALOGUE = Qt.UserRole + 6
 
         def __int__(self):
             return self.value
 
     def __init__(self):
         super().__init__()
-        self.setColumnCount(2)
+        self.setColumnCount(3)
 
     def flags(self, index):
-        if index.column() > 0:
-            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def headerData(self, section, orientation, role):
@@ -94,27 +150,36 @@ class SourceModel(QStandardItemModel):
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
-        if role == Qt.DisplayRole:
-            if index.column() > 0:
-                return item.data(int(SourceModel.Roles.DATASET_NAME))
-            if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                return self.tr("{} ({})").format(
-                    item.data(int(Qt.DisplayRole)),
-                    item.data(int(SourceModel.Roles.PATH)),
-                )
-        if role == Qt.DecorationRole:
-            if index.column() == 0:
-                type = "data"
-                if item.data(int(SourceModel.Roles.TYPE)) and item.data(
-                    int(SourceModel.Roles.TYPE)
-                ).lower() in ["model", "ili", "xtf", "xml"]:
-                    type = item.data(int(SourceModel.Roles.TYPE)).lower()
-                return QIcon(
-                    os.path.join(
-                        os.path.dirname(__file__), f"../../images/file_types/{type}.png"
+        if item:
+            if role == Qt.DisplayRole:
+                if index.column() < 1:
+                    if item.data(int(SourceModel.Roles.TYPE)) != "model":
+                        return self.tr("{} ({})").format(
+                            item.data(int(Qt.DisplayRole)),
+                            item.data(int(SourceModel.Roles.PATH)),
+                        )
+                if index.column() == 2:
+                    if self.index(index.row(), 1).data(
+                        int(SourceModel.Roles.IS_CATALOGUE)
+                    ):
+                        return "---"
+                    else:
+                        return item.data(int(SourceModel.Roles.DATASET_NAME))
+
+            if role == Qt.DecorationRole:
+                if index.column() == 0:
+                    type = "data"
+                    if item.data(int(SourceModel.Roles.TYPE)) and item.data(
+                        int(SourceModel.Roles.TYPE)
+                    ).lower() in ["model", "ili", "xtf", "xml"]:
+                        type = item.data(int(SourceModel.Roles.TYPE)).lower()
+                    return QIcon(
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            f"../../images/file_types/{type}.png",
+                        )
                     )
-                )
-        return item.data(int(role))
+            return item.data(int(role))
 
     def add_source(self, name, type, path):
         if self._source_in_model(name, type, path):
@@ -137,7 +202,11 @@ class SourceModel(QStandardItemModel):
         )
 
     def setData(self, index, data, role):
-        if index.column() > 0:
+        if index.column() == 1:
+            return QStandardItemModel.setData(
+                self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
+            )
+        if index.column() == 2:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.DATASET_NAME)
             )
@@ -339,7 +408,11 @@ class ImportModelsModel(SourceModel):
                 element = root.find("MODELS")
                 if element:
                     for sub_element in element:
-                        if "NAME" in sub_element.attrib:
+                        if (
+                            "NAME" in sub_element.attrib
+                            and sub_element.attrib["NAME"]
+                            not in TRANSFERFILE_MODELS_BLACKLIST
+                        ):
                             model = {}
                             model["name"] = sub_element.attrib["NAME"]
                             models.append(model)
@@ -464,12 +537,26 @@ class ImportDataModel(QSortFilterProxyModel):
     def __init__(self):
         super().__init__()
 
+    def flags(self, index):
+        if index.column() == 1:
+            return Qt.ItemIsEnabled
+        if index.column() == 2:
+            if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+                return Qt.ItemIsEnabled
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
+        return Qt.ItemIsEnabled
+
     def import_sessions(self, order_list) -> dict():
         sessions = {}
         i = 0
         for r in order_list:
             source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            dataset = self.index(r, 1).data(int(SourceModel.Roles.DATASET_NAME))
+            is_catalogue = self.index(r, 1).data(int(SourceModel.Roles.IS_CATALOGUE))
+            dataset = (
+                self.index(r, 2).data(int(SourceModel.Roles.DATASET_NAME))
+                if not is_catalogue
+                else CATALOGUE_DATASETNAME
+            )
             sessions[source] = {}
             sessions[source]["datasets"] = [dataset]
             i += 1
@@ -528,55 +615,6 @@ class ExportModelsModel(CheckEntriesModel):
     Model providing all the models from the database (except the blacklisted ones) and it's checked state
     """
 
-    blacklist = [
-        "CHBaseEx_MapCatalogue_V1",
-        "CHBaseEx_WaterNet_V1",
-        "CHBaseEx_Sewage_V1",
-        "CHAdminCodes_V1",
-        "AdministrativeUnits_V1",
-        "AdministrativeUnitsCH_V1",
-        "WithOneState_V1",
-        "WithLatestModification_V1",
-        "WithModificationObjects_V1",
-        "GraphicCHLV03_V1",
-        "GraphicCHLV95_V1",
-        "NonVector_Base_V2",
-        "NonVector_Base_V3",
-        "NonVector_Base_LV03_V3_1",
-        "NonVector_Base_LV95_V3_1",
-        "GeometryCHLV03_V1",
-        "GeometryCHLV95_V1",
-        "InternationalCodes_V1",
-        "Localisation_V1",
-        "LocalisationCH_V1",
-        "Dictionaries_V1",
-        "DictionariesCH_V1",
-        "CatalogueObjects_V1",
-        "CatalogueObjectTrees_V1",
-        "AbstractSymbology",
-        "CodeISO",
-        "CoordSys",
-        "GM03_2_1Comprehensive",
-        "GM03_2_1Core",
-        "GM03_2Comprehensive",
-        "GM03_2Core",
-        "GM03Comprehensive",
-        "GM03Core",
-        "IliRepository09",
-        "IliSite09",
-        "IlisMeta07",
-        "IliVErrors",
-        "INTERLIS_ext",
-        "RoadsExdm2ben",
-        "RoadsExdm2ben_10",
-        "RoadsExgm2ien",
-        "RoadsExgm2ien_10",
-        "StandardSymbology",
-        "StandardSymbology",
-        "Time",
-        "Units",
-    ]
-
     def __init__(self):
         super().__init__()
 
@@ -589,7 +627,7 @@ class ExportModelsModel(CheckEntriesModel):
                 for db_model in db_models:
                     regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
-                        if modelname and modelname not in ExportModelsModel.blacklist:
+                        if modelname and modelname not in TRANSFERFILE_MODELS_BLACKLIST:
                             modelnames.append(modelname.strip())
 
         self.setStringList(modelnames)
@@ -613,6 +651,8 @@ class ExportDatasetsModel(CheckEntriesModel):
         if db_connector and db_connector.db_or_schema_exists():
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
                 datasetnames.append(record["datasetname"])
         self.setStringList(datasetnames)
 
@@ -621,3 +661,36 @@ class ExportDatasetsModel(CheckEntriesModel):
         }
 
         return self.rowCount()
+
+
+class ExportBasketsModel(CheckEntriesModel):
+    """
+    Model providing all the datasets from the database and it's checked state
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._basket_ids = None
+
+    def refresh_model(self, db_connector=None):
+        basketnames = []
+        self._basket_ids = {}
+
+        if db_connector and db_connector.db_or_schema_exists():
+            baskets_info = db_connector.get_baskets_info()
+            for record in baskets_info:
+                basketname = f"{record['datasetname']}-{record['topic']} ({record['basket_t_ili_tid']})"
+                basketnames.append(basketname)
+                self._basket_ids[basketname] = record["basket_t_ili_tid"]
+        self.setStringList(basketnames)
+
+        self._checked_entries = {basketname: Qt.Checked for basketname in basketnames}
+
+        return self.rowCount()
+
+    def checked_entries(self):
+        return [
+            self._basket_ids[name]
+            for name in self.stringList()
+            if self._checked_entries[name] == Qt.Checked and name in self._basket_ids
+        ]

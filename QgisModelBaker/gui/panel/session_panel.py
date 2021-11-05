@@ -29,7 +29,6 @@ from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ...libili2db import iliexecutable, iliexporter, iliimporter
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...utils import ui
 from ...utils.ui import LogColor
 
@@ -45,7 +44,14 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_done_or_skipped = pyqtSignal(object)
 
     def __init__(
-        self, general_configuration, file, models, datasets, db_action_type, parent=None
+        self,
+        general_configuration,
+        file,
+        models,
+        datasets,
+        baskets,
+        db_action_type,
+        parent=None,
     ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -53,6 +59,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.file = file
         self.models = models
         self.datasets = datasets
+        self.baskets = baskets
 
         # set up the gui
         self.create_text = self.tr("Run")
@@ -101,19 +108,27 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
             self.info_label.setText(
-                self.tr("Export {} of {} into {}").format(
-                    ", ".join(self.models), ", ".join(self.datasets), self.file
+                self.tr('Export of "{}" \nto {}').format(
+                    '", "'.join(self.models)
+                    or '", "'.join(self.datasets)
+                    or '", "'.join(self.baskets),
+                    self.file,
                 )
             )
             self.configuration.dataset = ";".join(self.datasets)
-
-        self.db_simple_factory = DbSimpleFactory()
+            self.configuration.baskets = self.baskets
 
         self.is_skipped_or_done = False
 
     @property
     def id(self):
-        return (self.file, self.models, self.datasets)
+        return (
+            self.file,
+            self.models,
+            self.datasets,
+            self.baskets,
+            db_utils.get_schema_identificator_from_configuration(self.configuration),
+        )
 
     def set_button_to_create(self):
         """
@@ -121,7 +136,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         So on clicking the button the creation will start with validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.configuration.disable_validations = False
+        self.configuration.disable_validation = False
         self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.addAction(
@@ -136,7 +151,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         So on clicking the button the creation will start without validation.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
-        self.configuration.disable_validations = True
+        self.configuration.disable_validation = True
         self.create_tool_button.removeAction(
             self.set_button_to_create_without_constraints_action
         )
