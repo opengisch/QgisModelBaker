@@ -21,16 +21,18 @@
 import os
 import re
 
-from qgis.core import QgsApplication
 from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QEvent, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
     QComboBox,
+    QCompleter,
     QHeaderView,
     QStyle,
     QStyledItemDelegate,
     QStyleOptionButton,
+    QStyleOptionComboBox,
     QWizardPage,
 )
 
@@ -125,6 +127,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard = parent
         self.is_complete = True
+        self.basket_handling = False
 
         self.ilireferencedatacache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration,
@@ -226,30 +229,45 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.db_connector = db_utils.get_db_connector(
             self.workflow_wizard.import_data_configuration
         )
-        if basket_handling:
-            # set defaults
-            for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
-                index = self.workflow_wizard.import_data_file_model.index(row, 2)
-                value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
-                if not value:
-                    self.workflow_wizard.import_data_file_model.setData(
-                        index,
-                        wizard_tools.DEFAULT_DATASETNAME,
-                        int(wizard_tools.SourceModel.Roles.DATASET_NAME),
-                    )
+        self.basket_handling = basket_handling
 
-                self.file_table_view.setItemDelegateForColumn(
-                    1, CatalogueCheckDelegate(self)
-                )
-                self.file_table_view.setItemDelegateForColumn(
-                    2, DatasetComboDelegate(self, self.db_connector)
-                )
+        if self.basket_handling:
+            self._set_basket_defaults()
         else:
             self.file_table_view.setColumnHidden(1, True)
             self.file_table_view.setColumnHidden(2, True)
             self.datasetmanager_button.setHidden(True)
 
         self._update_ilireferencedatacache()
+
+    def _set_basket_defaults(self):
+        for row in range(self.workflow_wizard.source_model.rowCount()):
+            index = self.workflow_wizard.source_model.index(row, 2)
+            value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+            if not value:
+                self.workflow_wizard.source_model.setData(
+                    index,
+                    wizard_tools.DEFAULT_DATASETNAME,
+                    int(wizard_tools.SourceModel.Roles.DATASET_NAME),
+                )
+                is_xml = (
+                    self.workflow_wizard.source_model.index(row, 0)
+                    .data(int(wizard_tools.SourceModel.Roles.TYPE))
+                    .lower()
+                    == "xml"
+                )
+                self.workflow_wizard.source_model.setData(
+                    self.workflow_wizard.source_model.index(row, 1),
+                    is_xml,
+                    int(wizard_tools.SourceModel.Roles.IS_CATALOGUE),
+                )
+
+            self.file_table_view.setItemDelegateForColumn(
+                1, CatalogueCheckDelegate(self)
+            )
+            self.file_table_view.setItemDelegateForColumn(
+                2, DatasetComboDelegate(self, self.db_connector)
+            )
 
     def _update_ilireferencedatacache(self):
         self.ilireferencedatacache = IliDataCache(
@@ -386,7 +404,8 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             ),
             LogColor.COLOR_TOPPING,
         )
-        self.workflow_wizard.add_source(path)
+        if self.workflow_wizard.add_source(path) and self.basket_handling:
+            self._set_basket_defaults()
         self.ilireferencedata_line_edit.clearFocus()
         self.ilireferencedata_line_edit.clear()
         self.setComplete(True)

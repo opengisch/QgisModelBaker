@@ -184,11 +184,11 @@ class SourceModel(QStandardItemModel):
     def add_source(self, name, type, path):
         if self._source_in_model(name, type, path):
             self.print_info.emit(
-                self.tr("Source alread added {} ({})").format(
+                self.tr("Source already added {} ({})").format(
                     name, path if path else "repository"
                 )
             )
-            return
+            return False
 
         item = QStandardItem()
         item.setData(name, int(Qt.DisplayRole))
@@ -200,6 +200,7 @@ class SourceModel(QStandardItemModel):
         self.print_info.emit(
             self.tr("Add source {} ({})").format(name, path if path else "repository")
         )
+        return True
 
     def setData(self, index, data, role):
         if index.column() == 1:

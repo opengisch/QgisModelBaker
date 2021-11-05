@@ -346,7 +346,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText("")
-        self.workflow_wizard.log_panel.txtStdout.clear()
 
     def _set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
@@ -391,7 +390,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             )
         ]
         for linked_model in linked_models:
-            self.workflow_wizard.source_model.add_source(linked_model, "model", None)
+            if self.workflow_wizard.source_model.add_source(
+                linked_model, "model", None
+            ):
+                self.workflow_wizard.refresh_import_models()
 
     def _load_crs_from_metaconfig(self, ili2db_metaconfig):
         srs_auth = self.srs_auth
@@ -430,7 +432,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if "models" in ili2db_metaconfig:
                 for model in ili2db_metaconfig.get("models").strip().split(";"):
                     self.workflow_wizard.source_model.add_source(model, "model", None)
-                self.workflow_wizard.refresh_import_models()
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded models"), LogColor.COLOR_TOPPING
                 )
@@ -532,3 +533,4 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             ),
                             LogColor.COLOR_TOPPING,
                         )
+            self.workflow_wizard.refresh_import_models()

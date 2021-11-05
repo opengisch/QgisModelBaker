@@ -460,7 +460,7 @@ class WorkflowWizard(QWizard):
             name = source
             type = "model"
             path = None
-        self.source_model.add_source(name, type, path)
+        return self.source_model.add_source(name, type, path)
 
     def append_dropped_files(self, dropped_files):
         if dropped_files:
