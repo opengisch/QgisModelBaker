@@ -493,7 +493,7 @@ class IliMetaConfigCache(IliCache):
                         "ili23:title", self.ns
                     ):
                         for multilingual_m_text_element in title_element.findall(
-                            "ili23:DatasetIdx16.MultilingualMText", self.ns
+                            "ili23:DatasetIdx16.MultilingualText", self.ns
                         ):
                             for (
                                 localised_text_element
@@ -503,7 +503,7 @@ class IliMetaConfigCache(IliCache):
                                 for (
                                     localised_m_text_element
                                 ) in localised_text_element.findall(
-                                    "ili23:DatasetIdx16.LocalisedMText", self.ns
+                                    "ili23:DatasetIdx16.LocalisedText", self.ns
                                 ):
                                     title_information = {
                                         "language": localised_m_text_element.find(
