@@ -643,38 +643,38 @@ class IliDataItemModel(QStandardItemModel):
 
         for repository in repositories.values():
 
-            for metaconfig in repository:
-                if any(metaconfig["id"] == s for s in ids):
+            for dataitem in repository:
+                if any(dataitem["id"] == s for s in ids):
                     continue
 
                 item = QStandardItem()
-                display_value = metaconfig["id"]
-                if metaconfig["title"] and "text" in metaconfig["title"][0]:
+                display_value = dataitem["id"]
+                if dataitem["title"] and "text" in dataitem["title"][0]:
                     # since there is no multilanguage handling we take the first entry
-                    display_value = metaconfig["title"][0]["text"]
+                    display_value = dataitem["title"][0]["text"]
 
                 item.setData(display_value, int(Qt.DisplayRole))
                 item.setData(display_value, int(Qt.EditRole))
-                item.setData(metaconfig["id"], int(IliDataItemModel.Roles.ID))
+                item.setData(dataitem["id"], int(IliDataItemModel.Roles.ID))
                 item.setData(
-                    metaconfig["repository"], int(IliDataItemModel.Roles.ILIREPO)
+                    dataitem["repository"], int(IliDataItemModel.Roles.ILIREPO)
                 )
-                item.setData(metaconfig["version"], int(IliDataItemModel.Roles.VERSION))
-                item.setData(metaconfig["model"], int(IliDataItemModel.Roles.MODEL))
+                item.setData(dataitem["version"], int(IliDataItemModel.Roles.VERSION))
+                item.setData(dataitem["model"], int(IliDataItemModel.Roles.MODEL))
                 item.setData(
-                    metaconfig["relative_file_path"],
+                    dataitem["relative_file_path"],
                     int(IliDataItemModel.Roles.RELATIVEFILEPATH),
                 )
-                item.setData(metaconfig["owner"], int(IliDataItemModel.Roles.OWNER))
-                item.setData(metaconfig["title"], int(IliDataItemModel.Roles.TITLE))
-                item.setData(metaconfig["url"], int(IliDataItemModel.Roles.URL))
+                item.setData(dataitem["owner"], int(IliDataItemModel.Roles.OWNER))
+                item.setData(dataitem["title"], int(IliDataItemModel.Roles.TITLE))
+                item.setData(dataitem["url"], int(IliDataItemModel.Roles.URL))
 
                 item.setData(
-                    metaconfig["model_link_name"],
+                    dataitem["model_link_name"],
                     int(IliDataItemModel.Roles.MODEL_LINK),
                 )
 
-                ids.append(metaconfig["id"])
+                ids.append(dataitem["id"])
                 self.appendRow(item)
                 row += 1
         self.endResetModel()

@@ -452,7 +452,7 @@ class IliCacheTest(unittest.TestCase):
         ilireferencedatacache = IliDataCache(
             configuration=None,
             type="referenceData",
-            models="PlanerischerGewaesserschutz_LV95_V1_1; GL_Forstreviere_V1",
+            models="PlanerischerGewaesserschutz_LV95_V1_1;GL_Forstreviere_V1",
         )
         ilireferencedatacache._process_informationfile(
             os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
@@ -475,15 +475,17 @@ class IliCacheTest(unittest.TestCase):
         }
         assert referencedata == expected_referencedata
 
-        linkedmodels = [
-            self.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-            for r in range(self.ilireferencedatacache.model.rowCount())
-            if self.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-        ]
+        linkedmodels = set(
+            [
+                ilireferencedatacache.model.item(r).data(
+                    int(IliDataItemModel.Roles.MODEL_LINK)
+                )
+                for r in range(ilireferencedatacache.model.rowCount())
+                if ilireferencedatacache.model.item(r).data(
+                    int(IliDataItemModel.Roles.MODEL_LINK)
+                )
+            ]
+        )
         expected_linked_models = {
             "LegendeEintrag_PlanGewaesserschutz_V1_1",
             "GL_Forstreviere_V1",
@@ -502,7 +504,7 @@ class IliCacheTest(unittest.TestCase):
         ilireferencedatacache = IliDataCache(
             configuration,
             type="referenceData",
-            models="PlanerischerGewaesserschutz_V1; GL_Forstreviere_V1",
+            models="PlanerischerGewaesserschutz_LV95_V1_1;GL_Forstreviere_V1",
         )
         ilireferencedatacache.refresh()
         # local repo repository
@@ -526,15 +528,17 @@ class IliCacheTest(unittest.TestCase):
         }
         assert referencedata == expected_referencedata
 
-        linkedmodels = [
-            self.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-            for r in range(self.ilireferencedatacache.model.rowCount())
-            if self.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-        ]
+        linkedmodels = set(
+            [
+                ilireferencedatacache.model.item(r).data(
+                    int(IliDataItemModel.Roles.MODEL_LINK)
+                )
+                for r in range(ilireferencedatacache.model.rowCount())
+                if ilireferencedatacache.model.item(r).data(
+                    int(IliDataItemModel.Roles.MODEL_LINK)
+                )
+            ]
+        )
         expected_linked_models = {
             "LegendeEintrag_PlanGewaesserschutz_V1_1",
             "GL_Forstreviere_V1",
