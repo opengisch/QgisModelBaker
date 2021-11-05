@@ -545,7 +545,7 @@ class ImportDataModel(QSortFilterProxyModel):
             if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
                 return Qt.ItemIsEnabled
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        return Qt.ItemIsEnabled
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def import_sessions(self, order_list) -> dict():
         sessions = {}

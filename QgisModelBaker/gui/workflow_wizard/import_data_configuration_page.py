@@ -421,9 +421,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.setComplete(True)
 
     def _remove_selected_rows(self):
-        return
         indices = self.file_table_view.selectionModel().selectedIndexes()
-        self.file_table_view.model().remove_sources(indices)
+        source_indices = [
+            self.file_table_view.model().mapToSource(selected_index)
+            for selected_index in indices
+        ]
+        self.workflow_wizard.source_model.remove_sources(source_indices)
         self.remove_button.setEnabled(self._valid_selection())
 
     def _update_delegates(self, top_left):
