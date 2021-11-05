@@ -20,14 +20,14 @@
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -52,19 +52,19 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="27414157-9d7c-4fe2-a864-2942fab24f3c">
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="af40a18c-f048-4bf7-93e7-1dac3e10f427">
         <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg</id>
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Einfaches GPKG Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -94,14 +94,14 @@
         <version>2021-03-12</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Einfaches Styling (lokal) und Tree (lokal) und TOML (lokal) und SH Cat (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -131,14 +131,14 @@
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Einfaches GPKG Styling und Tree (lokal) und TOML und SH Cat (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -168,14 +168,14 @@
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Styling für polygonStructure und falscher Layertree ID (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -232,14 +232,14 @@
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Metaconfig mit ili2db Params (OPENGIS.ch)</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -308,7 +308,7 @@
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="eeea4152-6a2c-11eb-84dd-43cf319ea780">
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="37d4be2e-ec55-4556-8568-ff4cac6d0a4c">
         <id>ch.opengis.topping.opengisch_KbS_LV95_V1_4_004_GPKG</id>
         <version>2021-01-20</version>
         <owner>mailto:david@opengis.ch</owner>
@@ -431,7 +431,7 @@
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
       <!-- layertree KbS_LV95_V1_4 GPKG -->
-      <DatasetIdx16.DataIndex.DatasetMetadata TID="333a9e68-268e-4ed2-8f8a-eeeeaab43432">
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="a632a38a-1bf7-4a7c-9347-ba9364911e97">
         <id>ch.opengis.config.KbS_LV95_V1_4_layertree_GPKG</id>
         <version>2021-01-06</version>
         <owner>mailto:david@opengis.ch</owner>
@@ -560,14 +560,14 @@
         <version>2021-03-12</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Mit Cat-Model und Legendenkatalog</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
@@ -597,14 +597,14 @@
         <version>2021-03-12</version>
         <owner>mailto:david@opengis.ch</owner>
         <title>
-          <DatasetIdx16.MultilingualMText>
+          <DatasetIdx16.MultilingualText>
             <LocalisedText>
-              <DatasetIdx16.LocalisedMText>
+              <DatasetIdx16.LocalisedText>
                 <Language>de</Language>
                 <Text>Mit lokalem Legendenkatalog</Text>
-              </DatasetIdx16.LocalisedMText>
+              </DatasetIdx16.LocalisedText>
             </LocalisedText>
-          </DatasetIdx16.MultilingualMText>
+          </DatasetIdx16.MultilingualText>
         </title>
         <categories>
           <DatasetIdx16.Code_>
