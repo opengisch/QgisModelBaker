@@ -212,7 +212,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
-                list(qml_section.values()), self.workflow_wizard.log_panel
+                list(qml_section.values())
             )
             for layer in project.layers:
                 if layer.alias:

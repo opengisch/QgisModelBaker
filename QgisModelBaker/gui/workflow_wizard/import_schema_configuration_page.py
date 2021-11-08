@@ -101,9 +101,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self._on_metaconfig_completer_activated
         )
 
-        self.ilireferencedatacache = IliDataCache(
-            self.workflow_wizard.import_schema_configuration.base_configuration,
-            "referenceData",
+        self.workflow_wizard.ilireferencedatacache.model_refreshed.connect(
+            self._update_linked_models
         )
 
     def isComplete(self):
@@ -186,13 +185,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._refresh_ili_metaconfig_cache()
 
     def _update_ilireferencedatacache(self):
-        self.ilireferencedatacache = IliDataCache(
-            self.workflow_wizard.import_schema_configuration.base_configuration,
-            type="referenceData",
-            models=";".join(self.model_list_view.model().checked_models()),
+        self.workflow_wizard.refresh_referencedata_cache(
+            self.model_list_view.model().checked_models(), "referenceData"
         )
-        self.ilireferencedatacache.model_refreshed.connect(self._update_linked_models)
-        self._refresh_ili_referencedata_cache()
 
     def _fill_toml_file_info_label(self):
         text = None
@@ -246,12 +241,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.log_panel.show_message
         )
         self.ilimetaconfigcache.refresh()
-
-    def _refresh_ili_referencedata_cache(self):
-        self.ilireferencedatacache.new_message.connect(
-            self.workflow_wizard.log_panel.show_message
-        )
-        self.ilireferencedatacache.refresh()
 
     def _complete_metaconfig_completer(self):
         if not self.ili_metaconfig_line_edit.text():
@@ -381,11 +370,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _update_linked_models(self):
         linked_models = [
-            self.ilireferencedatacache.model.item(r).data(
+            self.workflow_wizard.ilireferencedatacache.model.item(r).data(
                 int(IliDataItemModel.Roles.MODEL_LINK)
             )
-            for r in range(self.ilireferencedatacache.model.rowCount())
-            if self.ilireferencedatacache.model.item(r).data(
+            for r in range(self.workflow_wizard.ilireferencedatacache.model.rowCount())
+            if self.workflow_wizard.ilireferencedatacache.model.item(r).data(
                 int(IliDataItemModel.Roles.MODEL_LINK)
             )
         ]

@@ -19,7 +19,6 @@
 """
 
 import os
-import re
 
 from PyQt5.QtWidgets import QApplication
 from qgis.core import QgsApplication
@@ -40,7 +39,6 @@ import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.libili2db.ilicache import (
-    IliDataCache,
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
@@ -129,18 +127,20 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.is_complete = True
         self.basket_handling = False
 
-        self.ilireferencedatacache = IliDataCache(
-            self.workflow_wizard.import_schema_configuration.base_configuration,
-            "referenceData",
+        self.workflow_wizard.ilireferencedatacache.file_download_succeeded.connect(
+            lambda dataset_id, path: self._on_referencedata_received(path)
+        )
+        self.workflow_wizard.ilireferencedatacache.file_download_failed.connect(
+            self._on_referencedata_failed
         )
         self.ilireferencedata_delegate = MetaConfigCompleterDelegate()
-        self._refresh_ili_referencedata_cache()
         self.ilireferencedata_line_edit.setPlaceholderText(
             self.tr("[Search referenced data files from UsabILIty Hub]")
         )
         self.ilireferencedata_line_edit.setEnabled(False)
         completer = QCompleter(
-            self.ilireferencedatacache.model, self.ilireferencedata_line_edit
+            self.workflow_wizard.ilireferencedatacache.model,
+            self.ilireferencedata_line_edit,
         )
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
@@ -237,8 +237,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.file_table_view.setColumnHidden(1, True)
             self.file_table_view.setColumnHidden(2, True)
             self.datasetmanager_button.setHidden(True)
-
-        self._update_ilireferencedatacache()
+        self._update_referencedata_completer()
 
     def _set_basket_defaults(self):
         for row in range(self.workflow_wizard.source_model.rowCount()):
@@ -268,43 +267,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.file_table_view.setItemDelegateForColumn(
                 2, DatasetComboDelegate(self, self.db_connector)
             )
-
-    def _update_ilireferencedatacache(self):
-        self.ilireferencedatacache = IliDataCache(
-            self.workflow_wizard.import_data_configuration.base_configuration,
-            type="referenceData",
-            models=";".join(self._db_modelnames()),
-        )
-        self.ilireferencedatacache.file_download_succeeded.connect(
-            lambda dataset_id, path: self._on_referencedata_received(path)
-        )
-        self.ilireferencedatacache.file_download_failed.connect(
-            self._on_referencedata_failed
-        )
-        self.ilireferencedatacache.model_refreshed.connect(
-            self._update_referencedata_completer
-        )
-        self._refresh_ili_referencedata_cache()
-
-    def _db_modelnames(self):
-        modelnames = list()
-        if self.db_connector:
-            if (
-                self.db_connector.db_or_schema_exists()
-                and self.db_connector.metadata_exists()
-            ):
-                db_models = self.db_connector.get_models()
-                for db_model in db_models:
-                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
-                    for modelname in regex.split(db_model["modelname"]):
-                        modelnames.append(modelname.strip())
-        return modelnames
-
-    def _refresh_ili_referencedata_cache(self):
-        self.ilireferencedatacache.new_message.connect(
-            self.workflow_wizard.log_panel.show_message
-        )
-        self.ilireferencedatacache.refresh()
 
     def _complete_referencedata_completer(self):
         if self.ilireferencedata_line_edit.hasFocus():
@@ -352,18 +314,20 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _valid_selection(self):
         return bool(self.file_table_view.selectedIndexes())
 
-    def _update_referencedata_completer(self, rows):
+    def _update_referencedata_completer(self):
         self.ilireferencedata_line_edit.completer().setModel(
-            self.ilireferencedatacache.model
+            self.workflow_wizard.ilireferencedatacache.model
         )
-        self.ilireferencedata_line_edit.setEnabled(bool(rows))
+        self.ilireferencedata_line_edit.setEnabled(
+            bool(self.workflow_wizard.ilireferencedatacache.model.rowCount())
+        )
 
     def _add_row(self):
         self._get_referencedata()
 
     def _get_referencedata(self):
-        matches = self.ilireferencedatacache.model.match(
-            self.ilireferencedatacache.model.index(0, 0),
+        matches = self.workflow_wizard.ilireferencedatacache.model.match(
+            self.workflow_wizard.ilireferencedatacache.model.index(0, 0),
             Qt.DisplayRole,
             self.ilireferencedata_line_edit.text(),
             1,
@@ -371,29 +335,29 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         if matches:
             model_index = matches[0]
-            repository = self.ilireferencedatacache.model.data(
+            repository = self.workflow_wizard.ilireferencedatacache.model.data(
                 model_index, int(IliDataItemModel.Roles.ILIREPO)
             )
-            url = self.ilireferencedatacache.model.data(
+            url = self.workflow_wizard.ilireferencedatacache.model.data(
                 model_index, int(IliDataItemModel.Roles.URL)
             )
-            path = self.ilireferencedatacache.model.data(
+            path = self.workflow_wizard.ilireferencedatacache.model.data(
                 model_index, int(IliDataItemModel.Roles.RELATIVEFILEPATH)
             )
-            dataset_id = self.ilireferencedatacache.model.data(
+            dataset_id = self.workflow_wizard.ilireferencedatacache.model.data(
                 model_index, int(IliDataItemModel.Roles.ID)
             )
             # disable the next buttton
             self.setComplete(False)
             if path:
-                self.ilireferencedatacache.download_file(
+                self.workflow_wizard.ilireferencedatacache.download_file(
                     repository, url, path, dataset_id
                 )
             else:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("File not specified for metaconfig with id {}.").format(
-                        dataset_id
-                    ),
+                    self.tr(
+                        "File not specified for referenced transfer file with id {}."
+                    ).format(dataset_id),
                     LogColor.COLOR_TOPPING,
                 )
 

@@ -19,6 +19,7 @@
 """
 import os
 import pathlib
+import re
 
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
@@ -61,7 +62,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     SchemaImportConfiguration,
     UpdateDataConfiguration,
 )
-from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
+from QgisModelBaker.libili2db.ilicache import IliDataCache, IliToppingFileCache
 
 from ...utils.ui import LogColor
 
@@ -80,14 +81,15 @@ class WorkflowWizard(QWizard):
         self.log_panel = parent.log_panel
 
         # configuration objects are keeped on top level to be able to access them from individual pages
+        self.base_config = base_config
         self.import_schema_configuration = SchemaImportConfiguration()
         self.import_data_configuration = ImportDataConfiguration()
         self.update_data_configuration = UpdateDataConfiguration()
         self.export_data_configuration = ExportConfiguration()
-        self.import_schema_configuration.base_configuration = base_config
-        self.import_data_configuration.base_configuration = base_config
-        self.update_data_configuration.base_configuration = base_config
-        self.export_data_configuration.base_configuration = base_config
+        self.import_schema_configuration.base_configuration = self.base_config
+        self.import_data_configuration.base_configuration = self.base_config
+        self.update_data_configuration.base_configuration = self.base_config
+        self.export_data_configuration.base_configuration = self.base_config
 
         # data models are keeped on top level because sometimes they need to be accessed to evaluate the wizard workflow
         # the source_model keeps all the sources (files or repositories) used and the dataset property
@@ -104,6 +106,11 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
+        self.ilireferencedatacache = IliDataCache(
+            self.import_schema_configuration.base_configuration,
+            "referenceData",
+        )
+        self.ilireferencedatacache.new_message.connect(self.log_panel.show_message)
 
         # the export_models_model keeps every single model found in the current database and keeps the selected models
         self.export_models_model = ExportModelsModel()
@@ -236,12 +243,15 @@ class WorkflowWizard(QWizard):
                 )
 
         if self.current_id == PageIds.ImportSchemaExecution:
-            # Where should we decide if we go here?
-            # Should we parse ilidata and if there is something we go here and otehrwise not?
-            # if self.import_data_file_model.rowCount():
-            #    return PageIds.ImportDataConfiguration
-            # return PageIds.ProjectCreation
-            return PageIds.ImportDataConfiguration
+            # if transfer file available or possible (by getting via UsabILIty Hub)
+            if (
+                self.import_data_file_model.rowCount()
+                or self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration), "referenceData"
+                ).rowCount()
+            ):
+                return PageIds.ImportDataConfiguration
+            return PageIds.ProjectCreation
 
         if self.current_id == PageIds.ImportDataConfiguration:
             return PageIds.ImportDataExecution
@@ -397,8 +407,8 @@ class WorkflowWizard(QWizard):
             self.source_model, db_connector, silent
         )
 
-    def get_topping_file_list(self, id_list, log_panel):
-        topping_file_model = self.get_topping_file_model(id_list, log_panel)
+    def get_topping_file_list(self, id_list):
+        topping_file_model = self.get_topping_file_model(id_list)
         file_path_list = []
 
         for file_id in id_list:
@@ -407,13 +417,13 @@ class WorkflowWizard(QWizard):
             )
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
-                log_panel.print_info(
+                self.log_panel.print_info(
                     self.tr("- - Got file {}").format(file_path), LogColor.COLOR_TOPPING
                 )
                 file_path_list.append(file_path)
         return file_path_list
 
-    def get_topping_file_model(self, id_list, log_panel):
+    def get_topping_file_model(self, id_list):
         topping_file_cache = IliToppingFileCache(
             self.import_schema_configuration.base_configuration, id_list
         )
@@ -427,13 +437,13 @@ class WorkflowWizard(QWizard):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
+        self.log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
 
         if len(topping_file_cache.downloaded_files) != len(id_list):
             loop.exec()
 
         if len(topping_file_cache.downloaded_files) == len(id_list):
-            log_panel.print_info(
+            self.log_panel.print_info(
                 self.tr("- - All topping files successfully downloaded"),
                 LogColor.COLOR_TOPPING,
             )
@@ -442,7 +452,7 @@ class WorkflowWizard(QWizard):
             for downloaded_file_id in topping_file_cache.downloaded_files:
                 if downloaded_file_id in missing_file_ids:
                     missing_file_ids.remove(downloaded_file_id)
-            log_panel.print_info(
+            self.log_panel.print_info(
                 self.tr(
                     "- - Some topping files where not successfully downloaded: {}"
                 ).format(" ".join(missing_file_ids)),
@@ -450,6 +460,36 @@ class WorkflowWizard(QWizard):
             )
 
         return topping_file_cache.model
+
+    def update_referecedata_cache_model(self, filter_models, type):
+        # updates the model and waits for the end
+        loop = QEventLoop()
+        self.ilireferencedatacache.model_refreshed.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(10000)
+        self.refresh_referencedata_cache(filter_models, type)
+        loop.exec()
+        return self.ilireferencedatacache.model
+
+    def refresh_referencedata_cache(self, filter_models, type):
+        self.ilireferencedatacache.base_configuration = self.base_config
+        self.ilireferencedatacache.filter_models = filter_models
+        self.ilireferencedatacache.type = type
+        self.ilireferencedatacache.refresh()
+
+    def _db_modelnames(self, configuration):
+        db_connector = db_utils.get_db_connector(configuration)
+        modelnames = list()
+        if db_connector:
+            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
+                db_models = db_connector.get_models()
+                for db_model in db_models:
+                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+                    for modelname in regex.split(db_model["modelname"]):
+                        modelnames.append(modelname.strip())
+        return modelnames
 
     def add_source(self, source, origin_info):
         if os.path.isfile(source):
