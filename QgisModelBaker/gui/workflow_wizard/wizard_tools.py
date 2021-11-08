@@ -452,8 +452,8 @@ class ImportModelsModel(SourceModel):
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
+                regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
-                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
                         modelnames.append(modelname.strip())
         return modelnames
@@ -656,8 +656,8 @@ class ExportModelsModel(CheckEntriesModel):
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
+                regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
-                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
                         if modelname and modelname not in TRANSFERFILE_MODELS_BLACKLIST:
                             modelnames.append(modelname.strip())
