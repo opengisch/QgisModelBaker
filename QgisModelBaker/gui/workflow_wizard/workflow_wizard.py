@@ -451,7 +451,7 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
-    def add_source(self, source):
+    def add_source(self, source, origin_info):
         if os.path.isfile(source):
             name = pathlib.Path(source).name
             type = pathlib.Path(source).suffix[1:]
@@ -460,12 +460,14 @@ class WorkflowWizard(QWizard):
             name = source
             type = "model"
             path = None
-        return self.source_model.add_source(name, type, path)
+        return self.source_model.add_source(name, type, path, origin_info)
 
     def append_dropped_files(self, dropped_files):
         if dropped_files:
             for dropped_file in dropped_files:
-                self.add_source(dropped_file)
+                self.add_source(
+                    dropped_file, self.tr("Added by user with drag'n'drop.")
+                )
 
 
 class WorkflowWizardDialog(QDialog):

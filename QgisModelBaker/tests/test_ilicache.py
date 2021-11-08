@@ -165,7 +165,6 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
-                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         assert models == expected_models
@@ -200,7 +199,6 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
-                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         expected_models_of_local_ili_files = set(
@@ -266,7 +264,6 @@ class IliCacheTest(unittest.TestCase):
                 "StandardSymbology",
                 "Time",
                 "Units",
-                "PlanerischerGewaesserschutz_LV95_V1_1",
             ]
         )
         expected_models_of_local_ili_files = set(

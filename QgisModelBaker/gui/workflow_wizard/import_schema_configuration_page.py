@@ -391,7 +391,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         ]
         for linked_model in linked_models:
             if self.workflow_wizard.source_model.add_source(
-                linked_model, "model", None
+                linked_model,
+                "model",
+                None,
+                self.tr("Linked model referenced over ilidata repository."),
             ):
                 self.workflow_wizard.refresh_import_models()
 
@@ -431,7 +434,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
             if "models" in ili2db_metaconfig:
                 for model in ili2db_metaconfig.get("models").strip().split(";"):
-                    self.workflow_wizard.source_model.add_source(model, "model", None)
+                    self.workflow_wizard.source_model.add_source(
+                        model,
+                        "model",
+                        None,
+                        self.tr("Model defined in metaconfigurationfile."),
+                    )
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded models"), LogColor.COLOR_TOPPING
                 )
@@ -524,7 +532,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             LogColor.COLOR_TOPPING,
                         )
                         self.workflow_wizard.source_model.add_source(
-                            name, type, referencedata_file_path
+                            name,
+                            type,
+                            referencedata_file_path,
+                            self.tr(
+                                "Datafile referenced in the metaconfigurationfile."
+                            ),
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(

@@ -132,6 +132,7 @@ class SourceModel(QStandardItemModel):
         PATH = Qt.UserRole + 3
         DATASET_NAME = Qt.UserRole + 5
         IS_CATALOGUE = Qt.UserRole + 6
+        ORIGIN_INFO = Qt.UserRole + 7
 
         def __int__(self):
             return self.value
@@ -153,11 +154,12 @@ class SourceModel(QStandardItemModel):
         if item:
             if role == Qt.DisplayRole:
                 if index.column() < 1:
-                    if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                        return self.tr("{} ({})").format(
-                            item.data(int(Qt.DisplayRole)),
-                            item.data(int(SourceModel.Roles.PATH)),
-                        )
+                    return "{}{}".format(
+                        item.data(int(Qt.DisplayRole)),
+                        f" ({item.data(int(SourceModel.Roles.PATH))})"
+                        if item.data(int(SourceModel.Roles.TYPE)) != "model"
+                        else "",
+                    )
                 if index.column() == 2:
                     if self.index(index.row(), 1).data(
                         int(SourceModel.Roles.IS_CATALOGUE)
@@ -181,11 +183,11 @@ class SourceModel(QStandardItemModel):
                     )
             return item.data(int(role))
 
-    def add_source(self, name, type, path):
+    def add_source(self, name, type, path, origin_info=None):
         if self._source_in_model(name, type, path):
             self.print_info.emit(
-                self.tr("Source already added {} ({})").format(
-                    name, path if path else "repository"
+                self.tr("Source already added {} ({}) {}").format(
+                    name, path if path else "repository", origin_info
                 )
             )
             return False
@@ -195,10 +197,13 @@ class SourceModel(QStandardItemModel):
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
+        item.setData(origin_info, int(SourceModel.Roles.ORIGIN_INFO))
         self.appendRow([item, QStandardItem()])
 
         self.print_info.emit(
-            self.tr("Add source {} ({})").format(name, path if path else "repository")
+            self.tr("Add source {} ({}) {}").format(
+                name, path if path else "repository", origin_info
+            )
         )
         return True
 
@@ -271,6 +276,9 @@ class ImportModelsModel(SourceModel):
                     modelname,
                     filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                     filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                    filtered_source_model_index.data(
+                        int(SourceModel.Roles.ORIGIN_INFO)
+                    ),
                     previously_checked_models.get(
                         (
                             modelname,
@@ -310,6 +318,9 @@ class ImportModelsModel(SourceModel):
                         model["name"],
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.ORIGIN_INFO)
+                        ),
                         previously_checked_models.get(
                             (
                                 model["name"],
@@ -351,6 +362,9 @@ class ImportModelsModel(SourceModel):
                         model["name"],
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.ORIGIN_INFO)
+                        ),
                         previously_checked_models.get(
                             (
                                 model["name"],
@@ -438,7 +452,7 @@ class ImportModelsModel(SourceModel):
                         modelnames.append(modelname.strip())
         return modelnames
 
-    def add_source(self, name, type, path, checked, enabled):
+    def add_source(self, name, type, path, origin_info, checked, enabled):
         item = QStandardItem()
         self._checked_models[(name, path)] = checked
         item.setFlags(
@@ -448,16 +462,19 @@ class ImportModelsModel(SourceModel):
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
+        item.setData(origin_info, int(SourceModel.Roles.ORIGIN_INFO))
         self.appendRow(item)
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self.tr("{}{}").format(
-                SourceModel.data(self, index, (Qt.DisplayRole)),
+            return "{}{}".format(
                 ""
                 if index.flags() & Qt.ItemIsEnabled
-                else " (already in the database)",
+                else self.tr("Already in the database: "),
+                SourceModel.data(self, index, (Qt.DisplayRole)),
             )
+        if role == Qt.ToolTipRole:
+            return self.data(index, int(SourceModel.Roles.ORIGIN_INFO))
         if role == Qt.CheckStateRole:
             return self._checked_models[
                 (

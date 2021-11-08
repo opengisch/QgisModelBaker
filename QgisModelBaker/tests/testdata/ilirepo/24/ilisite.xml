@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ceis-20091125" VERSION="2.3">
+<MODELS><MODEL NAME="IliSite09" VERSION="2009-11-12" URI="mailto:ce@eisenhutinformatik.ch" /></MODELS>
+</HEADERSECTION>
+<DATASECTION>
+<IliSite09.SiteMetadata  BID="b0">
+  <IliSite09.SiteMetadata.Site  TID="1">
+  <Name>test repo</Name>
+  <Title>Connection to the world</Title>
+  <shortDescription>Connection to the world</shortDescription>
+  <Owner>mailto:david@opengis.ch</Owner>
+  <technicalContact>mailto:info@interlis.ch</technicalContact>
+  <subsidiarySite>
+    <IliSite09.RepositoryLocation_>
+      <value>http://models.interlis.ch</value>
+    </IliSite09.RepositoryLocation_>
+  </subsidiarySite>
+  </IliSite09.SiteMetadata.Site>
+</IliSite09.SiteMetadata>
+</DATASECTION>
+</TRANSFER>

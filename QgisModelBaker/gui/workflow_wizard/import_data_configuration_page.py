@@ -404,7 +404,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             ),
             LogColor.COLOR_TOPPING,
         )
-        if self.workflow_wizard.add_source(path) and self.basket_handling:
+        if (
+            self.workflow_wizard.add_source(
+                path, self.tr("Datafile referenced over ilidata repository.")
+            )
+            and self.basket_handling
+        ):
             self._set_basket_defaults()
         self.ilireferencedata_line_edit.clearFocus()
         self.ilireferencedata_line_edit.clear()
