@@ -137,6 +137,11 @@ class SourceModel(QStandardItemModel):
         def __int__(self):
             return self.value
 
+    class Columns(IntEnum):
+        SOURCE = 0
+        IS_CATALOGUE = 1
+        DATASET = 2
+
     def __init__(self):
         super().__init__()
         self.setColumnCount(3)
@@ -153,15 +158,15 @@ class SourceModel(QStandardItemModel):
         item = self.item(index.row(), index.column())
         if item:
             if role == Qt.DisplayRole:
-                if index.column() < 1:
+                if index.column() == SourceModel.Columns.SOURCE:
                     return "{}{}".format(
                         item.data(int(Qt.DisplayRole)),
                         f" ({item.data(int(SourceModel.Roles.PATH))})"
                         if item.data(int(SourceModel.Roles.TYPE)) != "model"
                         else "",
                     )
-                if index.column() == 2:
-                    if self.index(index.row(), 1).data(
+                if index.column() == SourceModel.Columns.DATASET:
+                    if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
                         int(SourceModel.Roles.IS_CATALOGUE)
                     ):
                         return "---"
@@ -169,7 +174,7 @@ class SourceModel(QStandardItemModel):
                         return item.data(int(SourceModel.Roles.DATASET_NAME))
 
             if role == Qt.DecorationRole:
-                if index.column() == 0:
+                if index.column() == SourceModel.Columns.SOURCE:
                     type = "data"
                     if item.data(int(SourceModel.Roles.TYPE)) and item.data(
                         int(SourceModel.Roles.TYPE)
@@ -203,11 +208,11 @@ class SourceModel(QStandardItemModel):
         return True
 
     def setData(self, index, data, role):
-        if index.column() == 1:
+        if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
             )
-        if index.column() == 2:
+        if index.column() == SourceModel.Columns.DATASET:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.DATASET_NAME)
             )
@@ -263,7 +268,9 @@ class ImportModelsModel(SourceModel):
         # models from the repos
         filtered_source_model.setFilterFixedString("model")
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             modelname = filtered_source_model_index.data(int(SourceModel.Roles.NAME))
             if modelname:
                 enabled = modelname not in db_modelnames
@@ -300,7 +307,9 @@ class ImportModelsModel(SourceModel):
         # models from the files
         filtered_source_model.setFilterFixedString("ili")
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             ili_file_path = filtered_source_model_index.data(
                 int(SourceModel.Roles.PATH)
             )
@@ -345,7 +354,9 @@ class ImportModelsModel(SourceModel):
         # models from the transfer files
         filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             xtf_file_path = filtered_source_model_index.data(
                 int(SourceModel.Roles.PATH)
             )
@@ -506,7 +517,7 @@ class ImportModelsModel(SourceModel):
     def import_sessions(self):
         sessions = {}
         for r in range(0, self.rowCount()):
-            item = self.index(r, 0)
+            item = self.index(r, SourceModel.Columns.SOURCE)
             if item.data(int(Qt.Checked)):
                 type = item.data(int(SourceModel.Roles.TYPE))
                 model = item.data(int(SourceModel.Roles.NAME))
@@ -551,10 +562,12 @@ class ImportDataModel(QSortFilterProxyModel):
         super().__init__()
 
     def flags(self, index):
-        if index.column() == 1:
+        if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return Qt.ItemIsEnabled
-        if index.column() == 2:
-            if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+        if index.column() == SourceModel.Columns.DATASET:
+            if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
+                int(SourceModel.Roles.IS_CATALOGUE)
+            ):
                 return Qt.ItemIsEnabled
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
@@ -563,10 +576,16 @@ class ImportDataModel(QSortFilterProxyModel):
         sessions = {}
         i = 0
         for r in order_list:
-            source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            is_catalogue = self.index(r, 1).data(int(SourceModel.Roles.IS_CATALOGUE))
+            source = self.index(r, SourceModel.Columns.SOURCE).data(
+                int(SourceModel.Roles.PATH)
+            )
+            is_catalogue = self.index(r, SourceModel.Columns.IS_CATALOGUE).data(
+                int(SourceModel.Roles.IS_CATALOGUE)
+            )
             dataset = (
-                self.index(r, 2).data(int(SourceModel.Roles.DATASET_NAME))
+                self.index(r, SourceModel.Columns.DATASET).data(
+                    int(SourceModel.Roles.DATASET_NAME)
+                )
                 if not is_catalogue
                 else CATALOGUE_DATASETNAME
             )
