@@ -235,7 +235,12 @@ class WorkflowWizard(QWizard):
             self._update_configurations(self.schema_configuration_page)
             if bool(self.import_models_model.checked_models()):
                 return PageIds.ImportSchemaExecution
-            if self.import_data_file_model.rowCount():
+            if (
+                self.import_data_file_model.rowCount()
+                or self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration), "referenceData"
+                ).rowCount()
+            ):
                 return PageIds.ImportDataConfiguration
             else:
                 self.log_panel.print_info(

@@ -185,11 +185,6 @@ class SourceModel(QStandardItemModel):
 
     def add_source(self, name, type, path, origin_info=None):
         if self._source_in_model(name, type, path):
-            self.print_info.emit(
-                self.tr("Source already added {} ({}) {}").format(
-                    name, path if path else "repository", origin_info
-                )
-            )
             return False
 
         item = QStandardItem()

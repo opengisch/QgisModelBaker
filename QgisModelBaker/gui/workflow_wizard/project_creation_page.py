@@ -143,9 +143,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     "qgis.modelbaker.layertree"
                 ].split(";")
                 layertree_data_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        layertree_data_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(layertree_data_list)
                 )
                 for layertree_file_path in layertree_data_file_path_list:
                     self.workflow_wizard.log_panel.print_info(

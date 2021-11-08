@@ -100,7 +100,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ili_metaconfig_line_edit.textChanged.connect(
             self._on_metaconfig_completer_activated
         )
-
         self.workflow_wizard.ilireferencedatacache.model_refreshed.connect(
             self._update_linked_models
         )
@@ -446,9 +445,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 ili_meta_attrs_list = ili2db_metaconfig.get("iliMetaAttrs").split(";")
                 ili_meta_attrs_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        ili_meta_attrs_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(ili_meta_attrs_list)
                 )
                 self.ili2db_options.load_toml_file_path(
                     ";".join(self.model_list_view.model().checked_models()),
@@ -466,7 +463,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 prescript_list = ili2db_metaconfig.get("prescript").split(";")
                 prescript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    prescript_list, self.workflow_wizard.log_panel
+                    prescript_list
                 )
                 self.ili2db_options.load_pre_script_path(
                     ";".join(prescript_file_path_list)
@@ -483,7 +480,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 postscript_list = ili2db_metaconfig.get("postscript").split(";")
                 postscript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    postscript_list, self.workflow_wizard.log_panel
+                    postscript_list
                 )
                 self.ili2db_options.load_post_script_path(
                     ";".join(postscript_file_path_list)
@@ -506,9 +503,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     "ch.interlis.referenceData"
                 ].split(";")
                 referencedata_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        reference_data_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(reference_data_list)
                 )
                 for referencedata_file_path in referencedata_file_path_list:
                     if os.path.isfile(referencedata_file_path):
