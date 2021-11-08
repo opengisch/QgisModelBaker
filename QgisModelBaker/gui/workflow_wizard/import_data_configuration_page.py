@@ -348,8 +348,8 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 model_index, int(IliDataItemModel.Roles.ID)
             )
             # disable the next buttton
-            self.setComplete(False)
             if path:
+                self.setComplete(False)
                 self.workflow_wizard.ilireferencedatacache.download_file(
                     repository, url, path, dataset_id
                 )

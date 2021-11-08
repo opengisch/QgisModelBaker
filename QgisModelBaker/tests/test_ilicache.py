@@ -224,6 +224,8 @@ class IliCacheTest(unittest.TestCase):
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
                 "GL_Forstreviere_V1",
+                "PlanerischerGewaesserschutz_LV95_V1_1",
+                "PlanerischerGewaesserschutz_LV03_V1_1",
             ]
         )
 
@@ -289,6 +291,8 @@ class IliCacheTest(unittest.TestCase):
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
                 "GL_Forstreviere_V1",
+                "PlanerischerGewaesserschutz_LV95_V1_1",
+                "PlanerischerGewaesserschutz_LV03_V1_1",
             ]
         )
         assert models == set.union(

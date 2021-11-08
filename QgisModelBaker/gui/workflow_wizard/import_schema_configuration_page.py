@@ -249,25 +249,24 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             )
             self.ili_metaconfig_line_edit.completer().complete()
         else:
-            if ";" not in self.ili_metaconfig_line_edit.text():
-                match_contains = (
+            match_contains = (
+                self.ili_metaconfig_line_edit.completer()
+                .completionModel()
+                .match(
                     self.ili_metaconfig_line_edit.completer()
                     .completionModel()
-                    .match(
-                        self.ili_metaconfig_line_edit.completer()
-                        .completionModel()
-                        .index(0, 0),
-                        Qt.DisplayRole,
-                        self.ili_metaconfig_line_edit.text(),
-                        -1,
-                        Qt.MatchContains,
-                    )
+                    .index(0, 0),
+                    Qt.DisplayRole,
+                    self.ili_metaconfig_line_edit.text(),
+                    -1,
+                    Qt.MatchContains,
                 )
-                if len(match_contains) > 1:
-                    self.ili_metaconfig_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
-                    )
-                    self.ili_metaconfig_line_edit.completer().complete()
+            )
+            if len(match_contains) > 1:
+                self.ili_metaconfig_line_edit.completer().setCompletionMode(
+                    QCompleter.PopupCompletion
+                )
+                self.ili_metaconfig_line_edit.completer().complete()
 
     def _update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(
