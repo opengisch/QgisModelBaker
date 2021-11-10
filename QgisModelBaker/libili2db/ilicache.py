@@ -177,6 +177,8 @@ class IliCache(QObject):
                 for location in subsite.findall(
                     "ili23:IliSite09.RepositoryLocation_", self.ns
                 ):
+                    loc = location.find("ili23:value", self.ns).text
+                    print(loc)
                     self.download_repository(location.find("ili23:value", self.ns).text)
 
     def _process_informationfile(self, file, netloc, url):
@@ -470,21 +472,25 @@ class IliDataCache(IliCache):
                     "ili23:categories", self.ns
                 )
                 if categories_element is not None:
-                    model = ""
+                    models = []
                     type = ""
                     for category in categories_element.findall(
                         "ili23:DatasetIdx16.Code_", self.ns
                     ):
                         category_value = category.find("ili23:value", self.ns).text
                         if model_code_regex.search(category_value):
-                            model = model_code_regex.search(category_value).group(1)
+                            models.append(
+                                model_code_regex.search(category_value).group(1)
+                            )
                         if type_code_regex.search(category_value):
                             type = type_code_regex.search(category_value).group(1)
                         if tool_code_regex.search(category_value):
                             tool_code_regex.search(category_value).group(1)
-                    if model not in self.filter_models or type != self.type:
+                    if (
+                        not any(model in models for model in self.filter_models)
+                        or type != self.type
+                    ):
                         continue
-
                     title = list()
                     for title_element in metaconfig_metadata.findall(
                         "ili23:title", self.ns
@@ -560,7 +566,7 @@ class IliDataCache(IliCache):
 
                                     metaconfig["repository"] = netloc
                                     metaconfig["url"] = url
-                                    metaconfig["model"] = model
+                                    metaconfig["models"] = models
                                     metaconfig["relative_file_path"] = path
                                     if title is not None:
                                         metaconfig["title"] = title
@@ -621,7 +627,7 @@ class IliDataItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
-        MODEL = Qt.UserRole + 3
+        MODELS = Qt.UserRole + 3
         RELATIVEFILEPATH = Qt.UserRole + 4
         OWNER = Qt.UserRole + 5
         TITLE = Qt.UserRole + 6
@@ -660,7 +666,7 @@ class IliDataItemModel(QStandardItemModel):
                     dataitem["repository"], int(IliDataItemModel.Roles.ILIREPO)
                 )
                 item.setData(dataitem["version"], int(IliDataItemModel.Roles.VERSION))
-                item.setData(dataitem["model"], int(IliDataItemModel.Roles.MODEL))
+                item.setData(dataitem["models"], int(IliDataItemModel.Roles.MODELS))
                 item.setData(
                     dataitem["relative_file_path"],
                     int(IliDataItemModel.Roles.RELATIVEFILEPATH),
@@ -704,13 +710,13 @@ class MetaConfigCompleterDelegate(QItemDelegate):
 
     def drawDisplay(self, painter, option, rect, text):
         repository = option.index.data(int(IliDataItemModel.Roles.ILIREPO))
-        model = option.index.data(int(IliDataItemModel.Roles.MODEL))
+        models = option.index.data(int(IliDataItemModel.Roles.MODELS))
         owner = option.index.data(int(IliDataItemModel.Roles.OWNER))
         display_text = option.index.data(int(Qt.DisplayRole))
 
         self.repository_label.setText(
-            '<font color="#666666"><i>of {owner} with {model} at {repository}</i></font>'.format(
-                owner=owner, model=model, repository=repository
+            '<font color="#666666"><i>of {owner} with {models} at {repository}</i></font>'.format(
+                owner=owner, models="/".join(models), repository=repository
             )
         )
         self.metaconfig_label.setText(
