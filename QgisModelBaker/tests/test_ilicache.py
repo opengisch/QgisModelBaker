@@ -351,8 +351,9 @@ class IliCacheTest(unittest.TestCase):
             assert "2021-01-06" == matches_on_id[0].data(
                 int(IliDataItemModel.Roles.VERSION)
             )
-            assert "KbS_LV95_V1_4" == matches_on_id[0].data(
-                int(IliDataItemModel.Roles.MODELS)[0]
+            assert (
+                "KbS_LV95_V1_4"
+                == matches_on_id[0].data(int(IliDataItemModel.Roles.MODELS))[0]
             )
             assert "metaconfig/opengisch_KbS_LV95_V1_4.ini" == matches_on_id[0].data(
                 int(IliDataItemModel.Roles.RELATIVEFILEPATH)
@@ -426,8 +427,9 @@ class IliCacheTest(unittest.TestCase):
             assert "2021-03-12" == matches_on_id[0].data(
                 int(IliDataItemModel.Roles.VERSION)
             )
-            assert "LegendeEintrag_PlanGewaesserschutz_V1_1" == matches_on_id[0].data(
-                int(IliDataItemModel.Roles.MODELS)[0]
+            assert (
+                "LegendeEintrag_PlanGewaesserschutz_V1_1"
+                == matches_on_id[0].data(int(IliDataItemModel.Roles.MODELS))[0]
             )
             assert (
                 "metaconfig/opengisch_PlanerischerGewaesserschutz_localfile.ini"
