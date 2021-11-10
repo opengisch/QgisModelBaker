@@ -462,7 +462,7 @@ class Generator(QObject):
 
     def full_node(self, layers, item):
         current_node = None
-        if isinstance(item, dict):
+        if item and isinstance(item, dict):
             current_node_name = next(iter(item))
             item_properties = item[current_node_name]
             if (
