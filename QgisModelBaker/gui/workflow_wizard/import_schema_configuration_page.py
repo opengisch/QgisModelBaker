@@ -367,15 +367,23 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.setComplete(True)
 
     def _update_linked_models(self):
-        linked_models = [
-            self.workflow_wizard.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-            for r in range(self.workflow_wizard.ilireferencedatacache.model.rowCount())
+        linked_models = []
+
+        for r in range(self.workflow_wizard.ilireferencedatacache.model.rowCount()):
             if self.workflow_wizard.ilireferencedatacache.model.item(r).data(
-                int(IliDataItemModel.Roles.MODEL_LINK)
-            )
-        ]
+                int(IliDataItemModel.Roles.MODEL_LINKS)
+            ):
+                linked_models.extend(
+                    [
+                        model_link.split(".")[0]
+                        for model_link in self.workflow_wizard.ilireferencedatacache.model.item(
+                            r
+                        ).data(
+                            int(IliDataItemModel.Roles.MODEL_LINKS)
+                        )
+                    ]
+                )
+
         for linked_model in linked_models:
             if self.workflow_wizard.source_model.add_source(
                 linked_model,

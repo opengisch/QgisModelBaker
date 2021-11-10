@@ -476,22 +476,26 @@ class IliCacheTest(unittest.TestCase):
         }
         assert referencedata == expected_referencedata
 
-        linkedmodels = set(
-            [
-                ilireferencedatacache.model.item(r).data(
-                    int(IliDataItemModel.Roles.MODEL_LINK)
+        linked_model_list = []
+        for r in range(ilireferencedatacache.model.rowCount()):
+            if ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINKS)
+            ):
+                linked_model_list.extend(
+                    [
+                        model_link.split(".")[0]
+                        for model_link in ilireferencedatacache.model.item(r).data(
+                            int(IliDataItemModel.Roles.MODEL_LINKS)
+                        )
+                    ]
                 )
-                for r in range(ilireferencedatacache.model.rowCount())
-                if ilireferencedatacache.model.item(r).data(
-                    int(IliDataItemModel.Roles.MODEL_LINK)
-                )
-            ]
-        )
+
+        linked_model_set = set(linked_model_list)
         expected_linked_models = {
             "LegendeEintrag_PlanGewaesserschutz_V1_1",
             "GL_Forstreviere_V1",
         }
-        assert linkedmodels == expected_linked_models
+        assert linked_model_set == expected_linked_models
 
     def test_ilidata_xml_parser_24_local_repo_linkedmodels(self):
         # find the linked models of PlanerischerGewaesserschutz_LV95_V1_1 (finding it's catalogue opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1 and with it the ModelLink to LegendeEintrag_PlanGewaesserschutz_V1_1)
@@ -529,22 +533,27 @@ class IliCacheTest(unittest.TestCase):
         }
         assert referencedata == expected_referencedata
 
-        linkedmodels = set(
-            [
-                ilireferencedatacache.model.item(r).data(
-                    int(IliDataItemModel.Roles.MODEL_LINK)
+        linked_model_list = []
+        for r in range(ilireferencedatacache.model.rowCount()):
+            if ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINKS)
+            ):
+                linked_model_list.extend(
+                    [
+                        model_link.split(".")[0]
+                        for model_link in ilireferencedatacache.model.item(r).data(
+                            int(IliDataItemModel.Roles.MODEL_LINKS)
+                        )
+                    ]
                 )
-                for r in range(ilireferencedatacache.model.rowCount())
-                if ilireferencedatacache.model.item(r).data(
-                    int(IliDataItemModel.Roles.MODEL_LINK)
-                )
-            ]
-        )
+
+        linked_model_set = set(linked_model_list)
+
         expected_linked_models = {
             "LegendeEintrag_PlanGewaesserschutz_V1_1",
             "GL_Forstreviere_V1",
         }
-        assert linkedmodels == expected_linked_models
+        assert linked_model_set == expected_linked_models
 
     def test_ilidata_xml_parser_24_toppingfiles(self):
         # find qml files according to the ids(s) with direct ilidata.xml scan

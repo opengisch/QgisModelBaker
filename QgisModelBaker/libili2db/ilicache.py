@@ -177,8 +177,6 @@ class IliCache(QObject):
                 for location in subsite.findall(
                     "ili23:IliSite09.RepositoryLocation_", self.ns
                 ):
-                    loc = location.find("ili23:value", self.ns).text
-                    print(loc)
                     self.download_repository(location.find("ili23:value", self.ns).text)
 
     def _process_informationfile(self, file, netloc, url):
@@ -518,16 +516,22 @@ class IliDataCache(IliCache):
                                     }
                                     title.append(title_information)
 
-                    model_link_name = None
-                    for model_element in metaconfig_metadata.findall(
-                        "ili23:model", self.ns
+                    model_link_names = []
+                    for basket_element in metaconfig_metadata.findall(
+                        "ili23:baskets", self.ns
                     ):
-                        for model_link in model_element.findall(
-                            "ili23:DatasetIdx16.ModelLink", self.ns
+                        for basket_metadata in basket_element.findall(
+                            "ili23:DatasetIdx16.DataIndex.BasketMetadata", self.ns
                         ):
-                            model_link_name = model_link.find(
-                                "ili23:name", self.ns
-                            ).text
+                            for model_element in basket_metadata.findall(
+                                "ili23:model", self.ns
+                            ):
+                                for model_link in model_element.findall(
+                                    "ili23:DatasetIdx16.ModelLink", self.ns
+                                ):
+                                    model_link_names.append(
+                                        model_link.find("ili23:name", self.ns).text
+                                    )
 
                     for files_element in metaconfig_metadata.findall(
                         "ili23:files", self.ns
@@ -573,7 +577,7 @@ class IliDataCache(IliCache):
                                     else:
                                         metaconfig["title"] = None
 
-                                    metaconfig["model_link_name"] = model_link_name
+                                    metaconfig["model_link_names"] = model_link_names
                                     repo_metaconfigs.append(metaconfig)
 
         self.repositories[netloc] = sorted(
@@ -633,7 +637,7 @@ class IliDataItemModel(QStandardItemModel):
         TITLE = Qt.UserRole + 6
         ID = Qt.UserRole + 7
         URL = Qt.UserRole + 8
-        MODEL_LINK = Qt.UserRole + 9
+        MODEL_LINKS = Qt.UserRole + 9
 
         def __int__(self):
             return self.value
@@ -676,8 +680,8 @@ class IliDataItemModel(QStandardItemModel):
                 item.setData(dataitem["url"], int(IliDataItemModel.Roles.URL))
 
                 item.setData(
-                    dataitem["model_link_name"],
-                    int(IliDataItemModel.Roles.MODEL_LINK),
+                    dataitem["model_link_names"],
+                    int(IliDataItemModel.Roles.MODEL_LINKS),
                 )
 
                 ids.append(dataitem["id"])

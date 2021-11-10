@@ -605,11 +605,18 @@
             </file>
           </DatasetIdx16.DataFile>
         </files>
-        <model>
-            <DatasetIdx16.ModelLink>
-                <name>GL_Forstreviere_V1</name>
-            </DatasetIdx16.ModelLink>
-        </model>
+        <baskets>
+          <DatasetIdx16.DataIndex.BasketMetadata>
+            <id>ch.gl.ili.catalogue.GL_Forstreviere_V1</id>
+            <model>
+                <DatasetIdx16.ModelLink>
+                    <name>GL_Forstreviere_V1.GL_Forstreviere_Kataloge</name>
+                </DatasetIdx16.ModelLink>
+            </model>
+            <version>2021-03-01</version>
+            <owner>mailto:romedi@sh.ch</owner>
+          </DatasetIdx16.DataIndex.BasketMetadata>
+        </baskets>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 
       <!-- PlanerischerGewässerschutz -->
@@ -723,11 +730,18 @@
             </file>
           </DatasetIdx16.DataFile>
         </files>
-        <model>
-            <DatasetIdx16.ModelLink>
-                <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
-            </DatasetIdx16.ModelLink>
-        </model>
+        <baskets>
+          <DatasetIdx16.DataIndex.BasketMetadata>
+            <id>ch.opengis.ili.catalogue.LegendeEintrag_PlanGewaesserschutz_V1_1</id>
+            <model>
+                <DatasetIdx16.ModelLink>
+                    <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
+                </DatasetIdx16.ModelLink>
+            </model>
+            <version>2021-03-01</version>
+            <owner>mailto:david@opengis.ch</owner>
+          </DatasetIdx16.DataIndex.BasketMetadata>
+        </baskets>
     </DatasetIdx16.DataIndex.DatasetMetadata>
       <DatasetIdx16.DataIndex.DatasetMetadata TID="130f7a92-db44-4de0-9a0c-3e6c5b04a52b">
         <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Duplikat</id>
@@ -764,11 +778,18 @@
             </file>
           </DatasetIdx16.DataFile>
         </files>
-        <model>
-            <DatasetIdx16.ModelLink>
-                <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
-            </DatasetIdx16.ModelLink>
-        </model>
+        <baskets>
+          <DatasetIdx16.DataIndex.BasketMetadata>
+            <id>ch.opengis.ili.catalogue.LegendeEintrag_PlanGewaesserschutz_V1_1</id>
+            <model>
+                <DatasetIdx16.ModelLink>
+                    <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
+                </DatasetIdx16.ModelLink>
+            </model>
+            <version>2021-03-01</version>
+            <owner>mailto:david@opengis.ch</owner>
+          </DatasetIdx16.DataIndex.BasketMetadata>
+        </baskets>
     </DatasetIdx16.DataIndex.DatasetMetadata>
       <DatasetIdx16.DataIndex.DatasetMetadata TID="4caeb071-5beb-41df-a7b7-7c70b04cff4b">
         <id>ch.opengis.ili.catalogue.PlanerischerGewaesserschutz_Codetexte_V1_1_Recursion</id>
@@ -805,11 +826,18 @@
             </file>
           </DatasetIdx16.DataFile>
         </files>
-        <model>
-            <DatasetIdx16.ModelLink>
-                <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
-            </DatasetIdx16.ModelLink>
-        </model>
+        <baskets>
+          <DatasetIdx16.DataIndex.BasketMetadata>
+            <id>ch.opengis.ili.catalogue.LegendeEintrag_PlanGewaesserschutz_V1_1</id>
+            <model>
+                <DatasetIdx16.ModelLink>
+                    <name>LegendeEintrag_PlanGewaesserschutz_V1_1</name>
+                </DatasetIdx16.ModelLink>
+            </model>
+            <version>2021-03-01</version>
+            <owner>mailto:david@opengis.ch</owner>
+          </DatasetIdx16.DataIndex.BasketMetadata>
+        </baskets>
     </DatasetIdx16.DataIndex.DatasetMetadata>
    </DatasetIdx16.DataIndex>
   </DATASECTION>
