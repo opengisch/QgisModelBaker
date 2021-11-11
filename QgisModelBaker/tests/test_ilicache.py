@@ -223,7 +223,6 @@ class IliCacheTest(unittest.TestCase):
                 "GeometryCHLV95_V1",
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
-                "GL_Forstreviere_V1",
                 "PlanerischerGewaesserschutz_LV95_V1_1",
                 "PlanerischerGewaesserschutz_LV03_V1_1",
             ]
@@ -290,7 +289,6 @@ class IliCacheTest(unittest.TestCase):
                 "GeometryCHLV95_V1",
                 "InternationalCodes_V1",
                 "CatalogueObjects_V1",
-                "GL_Forstreviere_V1",
                 "PlanerischerGewaesserschutz_LV95_V1_1",
                 "PlanerischerGewaesserschutz_LV03_V1_1",
             ]
