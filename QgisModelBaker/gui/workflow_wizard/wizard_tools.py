@@ -257,7 +257,7 @@ class ImportModelsModel(SourceModel):
         filtered_source_model = QSortFilterProxyModel()
         filtered_source_model.setSourceModel(source_model)
         filtered_source_model.setFilterRole(int(SourceModel.Roles.TYPE))
-
+        self.print_info.emit(self.tr("Refresh available models:"))
         self.clear()
         previously_checked_models = self._checked_models
         self._checked_models = {}
