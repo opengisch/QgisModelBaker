@@ -47,6 +47,7 @@ from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
+from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
 from QgisModelBaker.libili2db.globals import DropMode
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
@@ -77,6 +78,7 @@ class QgisModelBakerPlugin(QObject):
         self.__separator = None
         self.__dataset_selector_action = None
         self.__dataset_selector = None
+        self.__validate_dock = None
         basepath = pathlib.Path(__file__).parent.absolute()
         metadata = configparser.ConfigParser()
         metadata.read(os.path.join(basepath, "metadata.txt"))
@@ -227,7 +229,7 @@ class QgisModelBakerPlugin(QObject):
 
         self.toolbar.addAction(self.__datasetmanager_action)
 
-        self.register_event_filter()
+        self.init_validate_dock()
 
     def unload(self):
         self.unregister_event_filter()
@@ -253,7 +255,6 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__dataset_selector.set_current_layer
         )
-
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
@@ -266,6 +267,33 @@ class QgisModelBakerPlugin(QObject):
         del self.__dataset_selector
         # remove the toolbar
         del self.toolbar
+
+        self.remove_validate_dock()
+
+    def init_validate_dock(self):
+        settings = QSettings()
+        self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
+        self.iface.addDockWidget(
+            settings.value(
+                "QgisModelBaker/validateDockArea", Qt.RightDockWidgetArea, type=int
+            ),
+            self.__validate_dock,
+        )
+        # self.__validate_dock.setWindowIcon(QIcon(self.plugin_dir + '/icons/mActionSearch.svg'))
+        self.__validate_dock.setVisible(
+            settings.value("QgisModelBaker/dockWidgetIsVisible", False, type=bool)
+        )
+
+    def remove_validate_dock(self):
+        settings = QSettings()
+        settings.setValue(
+            "QgisModelBaker/validateDockArea",
+            self.iface.mainWindow().dockWidgetArea(self.__validate_dock),
+        )
+        settings.setValue(
+            "QgisModelBaker/validateDockIsVisible", self.__validate_dock.isVisible()
+        )
+        self.iface.removeDockWidget(self.__validate_dock)
 
     def show_generate_dialog(self):
         if self.generate_dlg:
