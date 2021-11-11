@@ -409,22 +409,24 @@ class ModelCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliMetaConfigCache(IliCache):
+class IliDataCache(IliCache):
 
     file_download_succeeded = pyqtSignal(str, str)
     file_download_failed = pyqtSignal(str, str)
     model_refreshed = pyqtSignal(int)
 
-    def __init__(self, configuration, models=None):
+    def __init__(self, configuration, type="metaconfig", models=None):
         IliCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser("~/.ilimetaconfigcache")
         self.information_file = "ilidata.xml"
-        self.model = IliMetaConfigItemModel()
+
+        self.model = IliDataItemModel()
         self.model.modelReset.connect(
             lambda: self.model_refreshed.emit(self.model.rowCount())
         )
 
         self.filter_models = models.split(";") if models else []
+        self.type = type
         self.directories = (
             self.base_configuration.metaconfig_directories
             if self.base_configuration
@@ -468,26 +470,25 @@ class IliMetaConfigCache(IliCache):
                     "ili23:categories", self.ns
                 )
                 if categories_element is not None:
-                    model = ""
+                    models = []
                     type = ""
-                    tool = ""
                     for category in categories_element.findall(
                         "ili23:DatasetIdx16.Code_", self.ns
                     ):
                         category_value = category.find("ili23:value", self.ns).text
                         if model_code_regex.search(category_value):
-                            model = model_code_regex.search(category_value).group(1)
+                            models.append(
+                                model_code_regex.search(category_value).group(1)
+                            )
                         if type_code_regex.search(category_value):
                             type = type_code_regex.search(category_value).group(1)
                         if tool_code_regex.search(category_value):
-                            tool = tool_code_regex.search(category_value).group(1)
+                            tool_code_regex.search(category_value).group(1)
                     if (
-                        model not in self.filter_models
-                        or type != "metaconfig"
-                        or tool != "modelbaker"
+                        not any(model in models for model in self.filter_models)
+                        or type != self.type
                     ):
                         continue
-
                     title = list()
                     for title_element in metaconfig_metadata.findall(
                         "ili23:title", self.ns
@@ -514,6 +515,23 @@ class IliMetaConfigCache(IliCache):
                                         ).text,
                                     }
                                     title.append(title_information)
+
+                    model_link_names = []
+                    for basket_element in metaconfig_metadata.findall(
+                        "ili23:baskets", self.ns
+                    ):
+                        for basket_metadata in basket_element.findall(
+                            "ili23:DatasetIdx16.DataIndex.BasketMetadata", self.ns
+                        ):
+                            for model_element in basket_metadata.findall(
+                                "ili23:model", self.ns
+                            ):
+                                for model_link in model_element.findall(
+                                    "ili23:DatasetIdx16.ModelLink", self.ns
+                                ):
+                                    model_link_names.append(
+                                        model_link.find("ili23:name", self.ns).text
+                                    )
 
                     for files_element in metaconfig_metadata.findall(
                         "ili23:files", self.ns
@@ -552,12 +570,14 @@ class IliMetaConfigCache(IliCache):
 
                                     metaconfig["repository"] = netloc
                                     metaconfig["url"] = url
-                                    metaconfig["model"] = model
+                                    metaconfig["models"] = models
                                     metaconfig["relative_file_path"] = path
                                     if title is not None:
                                         metaconfig["title"] = title
                                     else:
                                         metaconfig["title"] = None
+
+                                    metaconfig["model_link_names"] = model_link_names
                                     repo_metaconfigs.append(metaconfig)
 
         self.repositories[netloc] = sorted(
@@ -607,16 +627,17 @@ class IliMetaConfigCache(IliCache):
         return file_path
 
 
-class IliMetaConfigItemModel(QStandardItemModel):
+class IliDataItemModel(QStandardItemModel):
     class Roles(Enum):
         ILIREPO = Qt.UserRole + 1
         VERSION = Qt.UserRole + 2
-        MODEL = Qt.UserRole + 3
+        MODELS = Qt.UserRole + 3
         RELATIVEFILEPATH = Qt.UserRole + 4
         OWNER = Qt.UserRole + 5
         TITLE = Qt.UserRole + 6
         ID = Qt.UserRole + 7
         URL = Qt.UserRole + 8
+        MODEL_LINKS = Qt.UserRole + 9
 
         def __int__(self):
             return self.value
@@ -632,41 +653,38 @@ class IliMetaConfigItemModel(QStandardItemModel):
 
         for repository in repositories.values():
 
-            for metaconfig in repository:
-                if any(metaconfig["id"] == s for s in ids):
+            for dataitem in repository:
+                if any(dataitem["id"] == s for s in ids):
                     continue
 
                 item = QStandardItem()
-                display_value = metaconfig["id"]
-                if metaconfig["title"] and "text" in metaconfig["title"][0]:
+                display_value = dataitem["id"]
+                if dataitem["title"] and "text" in dataitem["title"][0]:
                     # since there is no multilanguage handling we take the first entry
-                    display_value = metaconfig["title"][0]["text"]
+                    display_value = dataitem["title"][0]["text"]
 
                 item.setData(display_value, int(Qt.DisplayRole))
                 item.setData(display_value, int(Qt.EditRole))
-                item.setData(metaconfig["id"], int(IliMetaConfigItemModel.Roles.ID))
+                item.setData(dataitem["id"], int(IliDataItemModel.Roles.ID))
                 item.setData(
-                    metaconfig["repository"], int(IliMetaConfigItemModel.Roles.ILIREPO)
+                    dataitem["repository"], int(IliDataItemModel.Roles.ILIREPO)
                 )
+                item.setData(dataitem["version"], int(IliDataItemModel.Roles.VERSION))
+                item.setData(dataitem["models"], int(IliDataItemModel.Roles.MODELS))
                 item.setData(
-                    metaconfig["version"], int(IliMetaConfigItemModel.Roles.VERSION)
+                    dataitem["relative_file_path"],
+                    int(IliDataItemModel.Roles.RELATIVEFILEPATH),
                 )
-                item.setData(
-                    metaconfig["model"], int(IliMetaConfigItemModel.Roles.MODEL)
-                )
-                item.setData(
-                    metaconfig["relative_file_path"],
-                    int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH),
-                )
-                item.setData(
-                    metaconfig["owner"], int(IliMetaConfigItemModel.Roles.OWNER)
-                )
-                item.setData(
-                    metaconfig["title"], int(IliMetaConfigItemModel.Roles.TITLE)
-                )
-                item.setData(metaconfig["url"], int(IliMetaConfigItemModel.Roles.URL))
+                item.setData(dataitem["owner"], int(IliDataItemModel.Roles.OWNER))
+                item.setData(dataitem["title"], int(IliDataItemModel.Roles.TITLE))
+                item.setData(dataitem["url"], int(IliDataItemModel.Roles.URL))
 
-                ids.append(metaconfig["id"])
+                item.setData(
+                    dataitem["model_link_names"],
+                    int(IliDataItemModel.Roles.MODEL_LINKS),
+                )
+
+                ids.append(dataitem["id"])
                 self.appendRow(item)
                 row += 1
         self.endResetModel()
@@ -695,14 +713,14 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         super().paint(painter, option, index)
 
     def drawDisplay(self, painter, option, rect, text):
-        repository = option.index.data(int(IliMetaConfigItemModel.Roles.ILIREPO))
-        model = option.index.data(int(IliMetaConfigItemModel.Roles.MODEL))
-        owner = option.index.data(int(IliMetaConfigItemModel.Roles.OWNER))
+        repository = option.index.data(int(IliDataItemModel.Roles.ILIREPO))
+        models = option.index.data(int(IliDataItemModel.Roles.MODELS))
+        owner = option.index.data(int(IliDataItemModel.Roles.OWNER))
         display_text = option.index.data(int(Qt.DisplayRole))
 
         self.repository_label.setText(
-            '<font color="#666666"><i>of {owner} with {model} at {repository}</i></font>'.format(
-                owner=owner, model=model, repository=repository
+            '<font color="#666666"><i>of {owner} with {models} at {repository}</i></font>'.format(
+                owner=owner, models="/".join(models), repository=repository
             )
         )
         self.metaconfig_label.setText(
@@ -720,7 +738,7 @@ class MetaConfigCompleterDelegate(QItemDelegate):
         self.widget.render(painter, rect.topLeft(), QRegion(), QWidget.DrawChildren)
 
 
-class IliToppingFileCache(IliMetaConfigCache):
+class IliToppingFileCache(IliDataCache):
 
     download_finished = pyqtSignal()
     """
@@ -729,7 +747,7 @@ class IliToppingFileCache(IliMetaConfigCache):
     """
 
     def __init__(self, configuration, file_ids=None, tool_dir=None):
-        IliMetaConfigCache.__init__(self, configuration)
+        IliDataCache.__init__(self, configuration)
         self.cache_path = os.path.expanduser("~/.ilitoppingfilescache")
         self.model = IliToppingFileItemModel()
         self.file_ids = file_ids
@@ -783,16 +801,6 @@ class IliToppingFileCache(IliMetaConfigCache):
 
         self.repositories[netloc] = repo_files
         self.model.set_repositories(self.repositories)
-
-        # download remote files and check local files
-        # self.download_files()
-
-    def download_files(self):
-        # go through all files and give feedback to download_status
-        for file in [e for values in self.repositories.values() for e in values]:
-            self.download_file(
-                file["repository"], file["url"], file["relative_file_path"], file["id"]
-            )
 
     def on_download_status(self, dataset_id):
         # here we could add some more logic

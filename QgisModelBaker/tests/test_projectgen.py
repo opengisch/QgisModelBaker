@@ -35,8 +35,8 @@ from qgis.testing import start_app, unittest
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ilicache import (
-    IliMetaConfigCache,
-    IliMetaConfigItemModel,
+    IliDataCache,
+    IliDataItemModel,
     IliToppingFileCache,
     IliToppingFileItemModel,
 )
@@ -2661,13 +2661,14 @@ class TestProjectGen(unittest.TestCase):
         )
 
         # get the metaconfiguration
-        ilimetaconfigcache = IliMetaConfigCache(
-            importer.configuration.base_configuration, "KbS_LV95_V1_4"
+        ilimetaconfigcache = IliDataCache(
+            configuration=importer.configuration.base_configuration,
+            models="KbS_LV95_V1_4",
         )
         ilimetaconfigcache.refresh()
         matches_on_id = ilimetaconfigcache.model.match(
             ilimetaconfigcache.model.index(0, 0),
-            int(IliMetaConfigItemModel.Roles.ID),
+            int(IliDataItemModel.Roles.ID),
             "ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_localfiletest",
             1,
             Qt.MatchExactly,
@@ -2675,16 +2676,16 @@ class TestProjectGen(unittest.TestCase):
         assert bool(matches_on_id) is True
 
         repository = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO)
+            matches_on_id[0], int(IliDataItemModel.Roles.ILIREPO)
         )
         url = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL)
+            matches_on_id[0], int(IliDataItemModel.Roles.URL)
         )
         path = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+            matches_on_id[0], int(IliDataItemModel.Roles.RELATIVEFILEPATH)
         )
         dataset_id = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.ID)
+            matches_on_id[0], int(IliDataItemModel.Roles.ID)
         )
 
         metaconfig_path = ilimetaconfigcache.download_file(
@@ -3046,13 +3047,14 @@ class TestProjectGen(unittest.TestCase):
         )
 
         # get the metaconfiguration
-        ilimetaconfigcache = IliMetaConfigCache(
-            importer.configuration.base_configuration, "KbS_LV95_V1_4"
+        ilimetaconfigcache = IliDataCache(
+            configuration=importer.configuration.base_configuration,
+            models="KbS_LV95_V1_4",
         )
         ilimetaconfigcache.refresh()
         matches_on_id = ilimetaconfigcache.model.match(
             ilimetaconfigcache.model.index(0, 0),
-            int(IliMetaConfigItemModel.Roles.ID),
+            int(IliDataItemModel.Roles.ID),
             "ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0_gpkg_localfiletest",
             1,
             Qt.MatchExactly,
@@ -3060,16 +3062,16 @@ class TestProjectGen(unittest.TestCase):
         assert bool(matches_on_id) is True
 
         repository = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.ILIREPO)
+            matches_on_id[0], int(IliDataItemModel.Roles.ILIREPO)
         )
         url = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.URL)
+            matches_on_id[0], int(IliDataItemModel.Roles.URL)
         )
         path = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+            matches_on_id[0], int(IliDataItemModel.Roles.RELATIVEFILEPATH)
         )
         dataset_id = ilimetaconfigcache.model.data(
-            matches_on_id[0], int(IliMetaConfigItemModel.Roles.ID)
+            matches_on_id[0], int(IliDataItemModel.Roles.ID)
         )
 
         metaconfig_path = ilimetaconfigcache.download_file(

@@ -21,10 +21,12 @@
 import os
 
 from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QEvent, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
     QComboBox,
+    QCompleter,
     QHeaderView,
     QStyle,
     QStyledItemDelegate,
@@ -36,8 +38,13 @@ from qgis.PyQt.QtWidgets import (
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
+from QgisModelBaker.libili2db.ilicache import (
+    IliDataItemModel,
+    MetaConfigCompleterDelegate,
+)
 
 from ...utils import ui
+from ...utils.ui import LogColor
 
 PAGE_UI = ui.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
@@ -117,19 +124,65 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
 
         self.workflow_wizard = parent
+        self.is_complete = True
+        self.basket_handling = False
+
+        self.workflow_wizard.ilireferencedatacache.file_download_succeeded.connect(
+            lambda dataset_id, path: self._on_referencedata_received(path)
+        )
+        self.workflow_wizard.ilireferencedatacache.file_download_failed.connect(
+            self._on_referencedata_failed
+        )
+        self.ilireferencedata_delegate = MetaConfigCompleterDelegate()
+        self.ilireferencedata_line_edit.setPlaceholderText(
+            self.tr("[Search referenced data files from UsabILIty Hub]")
+        )
+        self.ilireferencedata_line_edit.setEnabled(False)
+        completer = QCompleter(
+            self.workflow_wizard.ilireferencedatacache.model,
+            self.ilireferencedata_line_edit,
+        )
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.popup().setItemDelegate(self.ilireferencedata_delegate)
+        self.ilireferencedata_line_edit.setCompleter(completer)
+        self.ilireferencedata_line_edit.textChanged.emit(
+            self.ilireferencedata_line_edit.text()
+        )
+        self.ilireferencedata_line_edit.textChanged.connect(
+            self._complete_referencedata_completer
+        )
+        self.ilireferencedata_line_edit.punched.connect(
+            self._complete_referencedata_completer
+        )
+
+        self.add_button.clicked.connect(self._add_row)
+        self.remove_button.clicked.connect(self._remove_selected_rows)
+
+        self.add_button.setEnabled(False)
+        self.ilireferencedata_line_edit.textChanged.connect(
+            lambda: self.add_button.setEnabled(self._valid_referencedata())
+        )
+        self.remove_button.setEnabled(self._valid_selection())
+        self.file_table_view.clicked.connect(
+            lambda: self.remove_button.setEnabled(self._valid_selection())
+        )
+
+        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
+        self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
             [self.tr("Import File"), self.tr("Catalogue"), self.tr("Dataset")]
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            0, QHeaderView.Stretch
+            wizard_tools.SourceModel.Columns.SOURCE, QHeaderView.Stretch
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.ResizeToContents
+            wizard_tools.SourceModel.Columns.IS_CATALOGUE, QHeaderView.ResizeToContents
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.ResizeToContents
+            wizard_tools.SourceModel.Columns.DATASET, QHeaderView.ResizeToContents
         )
 
         self.file_table_view.verticalHeader().setSectionsMovable(True)
@@ -154,6 +207,13 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
         )
 
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.completeChanged.emit()
+
     def nextId(self):
         return self.workflow_wizard.next_id()
 
@@ -166,42 +226,195 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         return order_list
 
     def setup_dialog(self, basket_handling):
-        if basket_handling:
-            self.db_connector = db_utils.get_db_connector(
-                self.workflow_wizard.import_data_configuration
-            )
-            # set defaults
-            for row in range(self.workflow_wizard.import_data_file_model.rowCount()):
-                index = self.workflow_wizard.import_data_file_model.index(row, 2)
-                value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
-                if not value:
-                    self.workflow_wizard.import_data_file_model.setData(
-                        index,
-                        wizard_tools.DEFAULT_DATASETNAME,
-                        int(wizard_tools.SourceModel.Roles.DATASET_NAME),
-                    )
+        self.db_connector = db_utils.get_db_connector(
+            self.workflow_wizard.import_data_configuration
+        )
+        self.basket_handling = basket_handling
 
-                self.file_table_view.setItemDelegateForColumn(
-                    1, CatalogueCheckDelegate(self)
-                )
-                self.file_table_view.setItemDelegateForColumn(
-                    2, DatasetComboDelegate(self, self.db_connector)
-                )
+        if self.basket_handling:
+            self._set_basket_defaults()
         else:
-            self.file_table_view.setColumnHidden(1, True)
-            self.file_table_view.setColumnHidden(2, True)
+            self.file_table_view.setColumnHidden(
+                wizard_tools.SourceModel.Columns.IS_CATALOGUE, True
+            )
+            self.file_table_view.setColumnHidden(
+                wizard_tools.SourceModel.Columns.DATASET, True
+            )
             self.datasetmanager_button.setHidden(True)
+        self._update_referencedata_completer()
 
-        # since it's not yet integrated but I keep it to remember
-        self.model_label.setHidden(True)
-        self.model_list_view.setHidden(True)
-        self.ili2db_options_button.setHidden(True)
-        self.chk_delete_data.setHidden(True)
+    def _set_basket_defaults(self):
+        for row in range(self.workflow_wizard.source_model.rowCount()):
+            index = self.workflow_wizard.source_model.index(
+                row, wizard_tools.SourceModel.Columns.DATASET
+            )
+            value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+            if not value:
+                self.workflow_wizard.source_model.setData(
+                    index,
+                    wizard_tools.DEFAULT_DATASETNAME,
+                    int(wizard_tools.SourceModel.Roles.DATASET_NAME),
+                )
+                is_xml = (
+                    self.workflow_wizard.source_model.index(
+                        row, wizard_tools.SourceModel.Columns.SOURCE
+                    )
+                    .data(int(wizard_tools.SourceModel.Roles.TYPE))
+                    .lower()
+                    == "xml"
+                )
+                self.workflow_wizard.source_model.setData(
+                    self.workflow_wizard.source_model.index(
+                        row, wizard_tools.SourceModel.Columns.IS_CATALOGUE
+                    ),
+                    is_xml,
+                    int(wizard_tools.SourceModel.Roles.IS_CATALOGUE),
+                )
+
+            self.file_table_view.setItemDelegateForColumn(
+                wizard_tools.SourceModel.Columns.IS_CATALOGUE,
+                CatalogueCheckDelegate(self),
+            )
+            self.file_table_view.setItemDelegateForColumn(
+                wizard_tools.SourceModel.Columns.DATASET,
+                DatasetComboDelegate(self, self.db_connector),
+            )
+
+    def _complete_referencedata_completer(self):
+        if self.ilireferencedata_line_edit.hasFocus():
+            if not self.ilireferencedata_line_edit.text():
+                self.ilireferencedata_line_edit.completer().setCompletionMode(
+                    QCompleter.UnfilteredPopupCompletion
+                )
+                self.ilireferencedata_line_edit.completer().complete()
+            else:
+                match_contains = (
+                    self.ilireferencedata_line_edit.completer()
+                    .completionModel()
+                    .match(
+                        self.ilireferencedata_line_edit.completer()
+                        .completionModel()
+                        .index(0, 0),
+                        Qt.DisplayRole,
+                        self.ilireferencedata_line_edit.text(),
+                        -1,
+                        Qt.MatchContains,
+                    )
+                )
+                if len(match_contains) > 1:
+                    self.ilireferencedata_line_edit.completer().setCompletionMode(
+                        QCompleter.PopupCompletion
+                    )
+                    self.ilireferencedata_line_edit.completer().complete()
+
+    def _valid_referencedata(self):
+        match_contains = (
+            self.ilireferencedata_line_edit.completer()
+            .completionModel()
+            .match(
+                self.ilireferencedata_line_edit.completer()
+                .completionModel()
+                .index(0, 0),
+                Qt.DisplayRole,
+                self.ilireferencedata_line_edit.text(),
+                -1,
+                Qt.MatchExactly,
+            )
+        )
+        return len(match_contains) == 1
+
+    def _valid_selection(self):
+        return bool(self.file_table_view.selectedIndexes())
+
+    def _update_referencedata_completer(self):
+        self.ilireferencedata_line_edit.completer().setModel(
+            self.workflow_wizard.ilireferencedatacache.model
+        )
+        self.ilireferencedata_line_edit.setEnabled(
+            bool(self.workflow_wizard.ilireferencedatacache.model.rowCount())
+        )
+
+    def _add_row(self):
+        self._get_referencedata()
+
+    def _get_referencedata(self):
+        matches = self.workflow_wizard.ilireferencedatacache.model.match(
+            self.workflow_wizard.ilireferencedatacache.model.index(0, 0),
+            Qt.DisplayRole,
+            self.ilireferencedata_line_edit.text(),
+            1,
+            Qt.MatchExactly,
+        )
+        if matches:
+            model_index = matches[0]
+            repository = self.workflow_wizard.ilireferencedatacache.model.data(
+                model_index, int(IliDataItemModel.Roles.ILIREPO)
+            )
+            url = self.workflow_wizard.ilireferencedatacache.model.data(
+                model_index, int(IliDataItemModel.Roles.URL)
+            )
+            path = self.workflow_wizard.ilireferencedatacache.model.data(
+                model_index, int(IliDataItemModel.Roles.RELATIVEFILEPATH)
+            )
+            dataset_id = self.workflow_wizard.ilireferencedatacache.model.data(
+                model_index, int(IliDataItemModel.Roles.ID)
+            )
+            # disable the next buttton
+            if path:
+                self.setComplete(False)
+                self.workflow_wizard.ilireferencedatacache.download_file(
+                    repository, url, path, dataset_id
+                )
+            else:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        "File not specified for referenced transfer file with id {}."
+                    ).format(dataset_id),
+                    LogColor.COLOR_TOPPING,
+                )
+
+    def _on_referencedata_received(self, path):
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Referenced transfer file successfully downloaded: {}").format(
+                path
+            ),
+            LogColor.COLOR_TOPPING,
+        )
+        if (
+            self.workflow_wizard.add_source(
+                path, self.tr("Datafile referenced over ilidata repository.")
+            )
+            and self.basket_handling
+        ):
+            self._set_basket_defaults()
+        self.ilireferencedata_line_edit.clearFocus()
+        self.ilireferencedata_line_edit.clear()
+        self.setComplete(True)
+
+    def _on_referencedata_failed(self, dataset_id, error_msg):
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Download of referenced transfer file failed: {}.").format(
+                error_msg
+            ),
+            LogColor.COLOR_TOPPING,
+        )
+        # enable the next buttton
+        self.setComplete(True)
+
+    def _remove_selected_rows(self):
+        indices = self.file_table_view.selectionModel().selectedIndexes()
+        source_indices = [
+            self.file_table_view.model().mapToSource(selected_index)
+            for selected_index in indices
+        ]
+        self.workflow_wizard.source_model.remove_sources(source_indices)
+        self.remove_button.setEnabled(self._valid_selection())
 
     def _update_delegates(self, top_left):
-        if top_left.column() == 1:
+        if top_left.column() == wizard_tools.SourceModel.Columns.IS_CATALOGUE:
             self.file_table_view.setItemDelegateForColumn(
-                2, DatasetComboDelegate(self, self.db_connector)
+                wizard_tools.SourceModel.Columns.DATASET,
+                DatasetComboDelegate(self, self.db_connector),
             )
 
     def _show_datasetmanager_dialog(self):
@@ -225,5 +438,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
         self.file_table_view.setItemDelegateForColumn(
-            2, DatasetComboDelegate(self, self.db_connector)
+            wizard_tools.SourceModel.Columns.DATASET,
+            DatasetComboDelegate(self, self.db_connector),
         )

@@ -132,9 +132,15 @@ class SourceModel(QStandardItemModel):
         PATH = Qt.UserRole + 3
         DATASET_NAME = Qt.UserRole + 5
         IS_CATALOGUE = Qt.UserRole + 6
+        ORIGIN_INFO = Qt.UserRole + 7
 
         def __int__(self):
             return self.value
+
+    class Columns(IntEnum):
+        SOURCE = 0
+        IS_CATALOGUE = 1
+        DATASET = 2
 
     def __init__(self):
         super().__init__()
@@ -152,14 +158,15 @@ class SourceModel(QStandardItemModel):
         item = self.item(index.row(), index.column())
         if item:
             if role == Qt.DisplayRole:
-                if index.column() < 1:
-                    if item.data(int(SourceModel.Roles.TYPE)) != "model":
-                        return self.tr("{} ({})").format(
-                            item.data(int(Qt.DisplayRole)),
-                            item.data(int(SourceModel.Roles.PATH)),
-                        )
-                if index.column() == 2:
-                    if self.index(index.row(), 1).data(
+                if index.column() == SourceModel.Columns.SOURCE:
+                    return "{}{}".format(
+                        item.data(int(Qt.DisplayRole)),
+                        f" ({item.data(int(SourceModel.Roles.PATH))})"
+                        if item.data(int(SourceModel.Roles.TYPE)) != "model"
+                        else "",
+                    )
+                if index.column() == SourceModel.Columns.DATASET:
+                    if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
                         int(SourceModel.Roles.IS_CATALOGUE)
                     ):
                         return "---"
@@ -167,7 +174,7 @@ class SourceModel(QStandardItemModel):
                         return item.data(int(SourceModel.Roles.DATASET_NAME))
 
             if role == Qt.DecorationRole:
-                if index.column() == 0:
+                if index.column() == SourceModel.Columns.SOURCE:
                     type = "data"
                     if item.data(int(SourceModel.Roles.TYPE)) and item.data(
                         int(SourceModel.Roles.TYPE)
@@ -181,32 +188,31 @@ class SourceModel(QStandardItemModel):
                     )
             return item.data(int(role))
 
-    def add_source(self, name, type, path):
+    def add_source(self, name, type, path, origin_info=None):
         if self._source_in_model(name, type, path):
-            self.print_info.emit(
-                self.tr("Source alread added {} ({})").format(
-                    name, path if path else "repository"
-                )
-            )
-            return
+            return False
 
         item = QStandardItem()
         item.setData(name, int(Qt.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
+        item.setData(origin_info, int(SourceModel.Roles.ORIGIN_INFO))
         self.appendRow([item, QStandardItem()])
 
         self.print_info.emit(
-            self.tr("Add source {} ({})").format(name, path if path else "repository")
+            self.tr("Add source {} ({}) {}").format(
+                name, path if path else "repository", origin_info
+            )
         )
+        return True
 
     def setData(self, index, data, role):
-        if index.column() == 1:
+        if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
             )
-        if index.column() == 2:
+        if index.column() == SourceModel.Columns.DATASET:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.DATASET_NAME)
             )
@@ -251,7 +257,7 @@ class ImportModelsModel(SourceModel):
         filtered_source_model = QSortFilterProxyModel()
         filtered_source_model.setSourceModel(source_model)
         filtered_source_model.setFilterRole(int(SourceModel.Roles.TYPE))
-
+        self.print_info.emit(self.tr("Refresh available models:"))
         self.clear()
         previously_checked_models = self._checked_models
         self._checked_models = {}
@@ -262,7 +268,9 @@ class ImportModelsModel(SourceModel):
         # models from the repos
         filtered_source_model.setFilterFixedString("model")
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             modelname = filtered_source_model_index.data(int(SourceModel.Roles.NAME))
             if modelname:
                 enabled = modelname not in db_modelnames
@@ -270,6 +278,9 @@ class ImportModelsModel(SourceModel):
                     modelname,
                     filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                     filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                    filtered_source_model_index.data(
+                        int(SourceModel.Roles.ORIGIN_INFO)
+                    ),
                     previously_checked_models.get(
                         (
                             modelname,
@@ -296,7 +307,9 @@ class ImportModelsModel(SourceModel):
         # models from the files
         filtered_source_model.setFilterFixedString("ili")
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             ili_file_path = filtered_source_model_index.data(
                 int(SourceModel.Roles.PATH)
             )
@@ -309,6 +322,9 @@ class ImportModelsModel(SourceModel):
                         model["name"],
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.ORIGIN_INFO)
+                        ),
                         previously_checked_models.get(
                             (
                                 model["name"],
@@ -338,7 +354,9 @@ class ImportModelsModel(SourceModel):
         # models from the transfer files
         filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
-            filtered_source_model_index = filtered_source_model.index(r, 0)
+            filtered_source_model_index = filtered_source_model.index(
+                r, SourceModel.Columns.SOURCE
+            )
             xtf_file_path = filtered_source_model_index.data(
                 int(SourceModel.Roles.PATH)
             )
@@ -350,6 +368,9 @@ class ImportModelsModel(SourceModel):
                         model["name"],
                         filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
                         filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.ORIGIN_INFO)
+                        ),
                         previously_checked_models.get(
                             (
                                 model["name"],
@@ -431,13 +452,13 @@ class ImportModelsModel(SourceModel):
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
+                regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
-                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
                         modelnames.append(modelname.strip())
         return modelnames
 
-    def add_source(self, name, type, path, checked, enabled):
+    def add_source(self, name, type, path, origin_info, checked, enabled):
         item = QStandardItem()
         self._checked_models[(name, path)] = checked
         item.setFlags(
@@ -447,16 +468,19 @@ class ImportModelsModel(SourceModel):
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
+        item.setData(origin_info, int(SourceModel.Roles.ORIGIN_INFO))
         self.appendRow(item)
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self.tr("{}{}").format(
-                SourceModel.data(self, index, (Qt.DisplayRole)),
+            return "{}{}".format(
                 ""
                 if index.flags() & Qt.ItemIsEnabled
-                else " (already in the database)",
+                else self.tr("Already in the database: "),
+                SourceModel.data(self, index, (Qt.DisplayRole)),
             )
+        if role == Qt.ToolTipRole:
+            return self.data(index, int(SourceModel.Roles.ORIGIN_INFO))
         if role == Qt.CheckStateRole:
             return self._checked_models[
                 (
@@ -493,7 +517,7 @@ class ImportModelsModel(SourceModel):
     def import_sessions(self):
         sessions = {}
         for r in range(0, self.rowCount()):
-            item = self.index(r, 0)
+            item = self.index(r, SourceModel.Columns.SOURCE)
             if item.data(int(Qt.Checked)):
                 type = item.data(int(SourceModel.Roles.TYPE))
                 model = item.data(int(SourceModel.Roles.NAME))
@@ -538,22 +562,30 @@ class ImportDataModel(QSortFilterProxyModel):
         super().__init__()
 
     def flags(self, index):
-        if index.column() == 1:
+        if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return Qt.ItemIsEnabled
-        if index.column() == 2:
-            if self.index(index.row(), 1).data(int(SourceModel.Roles.IS_CATALOGUE)):
+        if index.column() == SourceModel.Columns.DATASET:
+            if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
+                int(SourceModel.Roles.IS_CATALOGUE)
+            ):
                 return Qt.ItemIsEnabled
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        return Qt.ItemIsEnabled
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def import_sessions(self, order_list) -> dict():
         sessions = {}
         i = 0
         for r in order_list:
-            source = self.index(r, 0).data(int(SourceModel.Roles.PATH))
-            is_catalogue = self.index(r, 1).data(int(SourceModel.Roles.IS_CATALOGUE))
+            source = self.index(r, SourceModel.Columns.SOURCE).data(
+                int(SourceModel.Roles.PATH)
+            )
+            is_catalogue = self.index(r, SourceModel.Columns.IS_CATALOGUE).data(
+                int(SourceModel.Roles.IS_CATALOGUE)
+            )
             dataset = (
-                self.index(r, 2).data(int(SourceModel.Roles.DATASET_NAME))
+                self.index(r, SourceModel.Columns.DATASET).data(
+                    int(SourceModel.Roles.DATASET_NAME)
+                )
                 if not is_catalogue
                 else CATALOGUE_DATASETNAME
             )
@@ -624,8 +656,8 @@ class ExportModelsModel(CheckEntriesModel):
         if db_connector:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
+                regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
-                    regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                     for modelname in regex.split(db_model["modelname"]):
                         if modelname and modelname not in TRANSFERFILE_MODELS_BLACKLIST:
                             modelnames.append(modelname.strip())

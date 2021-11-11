@@ -143,9 +143,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     "qgis.modelbaker.layertree"
                 ].split(";")
                 layertree_data_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        layertree_data_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(layertree_data_list)
                 )
                 for layertree_file_path in layertree_data_file_path_list:
                     self.workflow_wizard.log_panel.print_info(
@@ -212,7 +210,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
-                list(qml_section.values()), self.workflow_wizard.log_panel
+                list(qml_section.values())
             )
             for layer in project.layers:
                 if layer.alias:

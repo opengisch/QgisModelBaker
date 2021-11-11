@@ -30,8 +30,8 @@ from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.libili2db.globals import CRS_PATTERNS
 from QgisModelBaker.libili2db.ilicache import (
-    IliMetaConfigCache,
-    IliMetaConfigItemModel,
+    IliDataCache,
+    IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
 
@@ -70,7 +70,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.crsSelector.crsChanged.connect(self._crs_changed)
 
-        self.ilimetaconfigcache = IliMetaConfigCache(
+        self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
@@ -99,6 +99,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.ili_metaconfig_line_edit.textChanged.connect(
             self._on_metaconfig_completer_activated
+        )
+        self.workflow_wizard.ilireferencedatacache.model_refreshed.connect(
+            self._update_linked_models
         )
 
     def isComplete(self):
@@ -152,8 +155,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _update_models_dependent_info(self):
         """
-        Checks all checked models for CRS_PATTERNS (takes first match)
-        Calls update of ilimetaconfig cache
+        When something in the models model change:
+        - Checks all checked models for CRS_PATTERNS (takes first match)
+        - Calls update of ilimetaconfig cache to provide metaconfigurations
+        - Calls update of ilireferencedata cache to load referenced
         """
         model_list_string = ", ".join(self.model_list_view.model().checked_models())
         for pattern, crs in CRS_PATTERNS.items():
@@ -162,11 +167,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self._update_crs_info()
                 break
         self._update_ilimetaconfigcache()
+        self._update_ilireferencedatacache()
 
     def _update_ilimetaconfigcache(self):
-        self.ilimetaconfigcache = IliMetaConfigCache(
+        self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration,
-            ";".join(self.model_list_view.model().checked_models()),
+            models=";".join(self.model_list_view.model().checked_models()),
         )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self._on_metaconfig_received(path)
@@ -176,6 +182,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self._update_metaconfig_completer
         )
         self._refresh_ili_metaconfig_cache()
+
+    def _update_ilireferencedatacache(self):
+        self.workflow_wizard.refresh_referencedata_cache(
+            self.model_list_view.model().checked_models(), "referenceData"
+        )
 
     def _fill_toml_file_info_label(self):
         text = None
@@ -238,25 +249,24 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             )
             self.ili_metaconfig_line_edit.completer().complete()
         else:
-            if ";" not in self.ili_metaconfig_line_edit.text():
-                match_contains = (
+            match_contains = (
+                self.ili_metaconfig_line_edit.completer()
+                .completionModel()
+                .match(
                     self.ili_metaconfig_line_edit.completer()
                     .completionModel()
-                    .match(
-                        self.ili_metaconfig_line_edit.completer()
-                        .completionModel()
-                        .index(0, 0),
-                        Qt.DisplayRole,
-                        self.ili_metaconfig_line_edit.text(),
-                        -1,
-                        Qt.MatchContains,
-                    )
+                    .index(0, 0),
+                    Qt.DisplayRole,
+                    self.ili_metaconfig_line_edit.text(),
+                    -1,
+                    Qt.MatchContains,
                 )
-                if len(match_contains) > 1:
-                    self.ili_metaconfig_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
-                    )
-                    self.ili_metaconfig_line_edit.completer().complete()
+            )
+            if len(match_contains) > 1:
+                self.ili_metaconfig_line_edit.completer().setCompletionMode(
+                    QCompleter.PopupCompletion
+                )
+                self.ili_metaconfig_line_edit.completer().complete()
 
     def _update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(
@@ -275,7 +285,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if matches:
             model_index = matches[0]
             metaconfig_id = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ID)
+                model_index, int(IliDataItemModel.Roles.ID)
             )
 
             if self.current_metaconfig_id == metaconfig_id:
@@ -289,16 +299,16 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             )
             self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
             repository = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ILIREPO)
+                model_index, int(IliDataItemModel.Roles.ILIREPO)
             )
             url = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.URL)
+                model_index, int(IliDataItemModel.Roles.URL)
             )
             path = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.RELATIVEFILEPATH)
+                model_index, int(IliDataItemModel.Roles.RELATIVEFILEPATH)
             )
             dataset_id = self.ilimetaconfigcache.model.data(
-                model_index, int(IliMetaConfigItemModel.Roles.ID)
+                model_index, int(IliDataItemModel.Roles.ID)
             )
             # disable the next buttton
             self.setComplete(False)
@@ -323,7 +333,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText("")
-        self.workflow_wizard.log_panel.txtStdout.clear()
 
     def _set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
@@ -333,7 +342,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
 
     def _on_metaconfig_received(self, path):
-        self.workflow_wizard.log_panel.txtStdout.clear()
         self.workflow_wizard.log_panel.print_info(
             self.tr("Metaconfig file successfully downloaded: {}").format(path),
             LogColor.COLOR_TOPPING,
@@ -357,6 +365,33 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
         # enable the next buttton
         self.setComplete(True)
+
+    def _update_linked_models(self):
+        linked_models = []
+
+        for r in range(self.workflow_wizard.ilireferencedatacache.model.rowCount()):
+            if self.workflow_wizard.ilireferencedatacache.model.item(r).data(
+                int(IliDataItemModel.Roles.MODEL_LINKS)
+            ):
+                linked_models.extend(
+                    [
+                        model_link.split(".")[0]
+                        for model_link in self.workflow_wizard.ilireferencedatacache.model.item(
+                            r
+                        ).data(
+                            int(IliDataItemModel.Roles.MODEL_LINKS)
+                        )
+                    ]
+                )
+
+        for linked_model in linked_models:
+            if self.workflow_wizard.source_model.add_source(
+                linked_model,
+                "model",
+                None,
+                self.tr("Linked model referenced over ilidata repository."),
+            ):
+                self.workflow_wizard.refresh_import_models()
 
     def _load_crs_from_metaconfig(self, ili2db_metaconfig):
         srs_auth = self.srs_auth
@@ -394,8 +429,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
             if "models" in ili2db_metaconfig:
                 for model in ili2db_metaconfig.get("models").strip().split(";"):
-                    self.workflow_wizard.source_model.add_source(model, "model", None)
-                self.workflow_wizard.refresh_import_models()
+                    self.workflow_wizard.source_model.add_source(
+                        model,
+                        "model",
+                        None,
+                        self.tr("Model defined in metaconfigurationfile."),
+                    )
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded models"), LogColor.COLOR_TOPPING
                 )
@@ -413,9 +452,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 ili_meta_attrs_list = ili2db_metaconfig.get("iliMetaAttrs").split(";")
                 ili_meta_attrs_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        ili_meta_attrs_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(ili_meta_attrs_list)
                 )
                 self.ili2db_options.load_toml_file_path(
                     ";".join(self.model_list_view.model().checked_models()),
@@ -433,7 +470,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 prescript_list = ili2db_metaconfig.get("prescript").split(";")
                 prescript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    prescript_list, self.workflow_wizard.log_panel
+                    prescript_list
                 )
                 self.ili2db_options.load_pre_script_path(
                     ";".join(prescript_file_path_list)
@@ -450,7 +487,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 postscript_list = ili2db_metaconfig.get("postscript").split(";")
                 postscript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    postscript_list, self.workflow_wizard.log_panel
+                    postscript_list
                 )
                 self.ili2db_options.load_post_script_path(
                     ";".join(postscript_file_path_list)
@@ -473,9 +510,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     "ch.interlis.referenceData"
                 ].split(";")
                 referencedata_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(
-                        reference_data_list, self.workflow_wizard.log_panel
-                    )
+                    self.workflow_wizard.get_topping_file_list(reference_data_list)
                 )
                 for referencedata_file_path in referencedata_file_path_list:
                     if os.path.isfile(referencedata_file_path):
@@ -488,7 +523,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             LogColor.COLOR_TOPPING,
                         )
                         self.workflow_wizard.source_model.add_source(
-                            name, type, referencedata_file_path
+                            name,
+                            type,
+                            referencedata_file_path,
+                            self.tr(
+                                "Datafile referenced in the metaconfigurationfile."
+                            ),
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(
@@ -497,3 +537,4 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             ),
                             LogColor.COLOR_TOPPING,
                         )
+            self.workflow_wizard.refresh_import_models()

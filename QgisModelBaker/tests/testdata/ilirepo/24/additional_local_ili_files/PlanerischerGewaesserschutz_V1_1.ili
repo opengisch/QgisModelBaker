@@ -1,0 +1,400 @@
+INTERLIS 2.3;
+
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+!!@ IDGeoIV="130.1,131.1,132.1"
+MODEL PlanerischerGewaesserschutz_LV03_V1_1 (de)
+AT "https://models.geo.admin.ch/BAFU/"
+VERSION "2017-06-20"  =
+  IMPORTS LocalisationCH_V1,CHAdminCodes_V1,Units,GeometryCHLV03_V1;
+
+  UNIT
+
+    CubicMeterPerSecond [m3sec] = (Units.m3 / INTERLIS.s);
+
+  DOMAIN
+
+    Menge = 0 .. 100000 [m3sec];
+
+    RechtsstatusArt = (
+      inKraft,
+      provisorisch
+    );
+
+    CHSurface = SURFACE WITH (STRAIGHTS) VERTEX GeometryCHLV03_V1.Coord2 WITHOUT OVERLAPS > 0.001;
+
+  TOPIC GSBereiche =
+
+    DOMAIN
+
+      GSBereichTyp = (
+        Ao,
+        Au,
+        Zo,
+        Zu,
+        UB
+      );
+
+    CLASS GSBereich =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV03_V1_1.CHSurface;
+      Typ : MANDATORY GSBereichTyp;
+      KantonaleTypBezeichnung : LocalisationCH_V1.LocalisedText;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+    END GSBereich;
+
+  END GSBereiche;
+
+  TOPIC GWSZonen =
+
+    DOMAIN
+
+      SchutzarealTyp = (
+        Areal,
+        ZukuenftigeZoneS1,
+        ZukuenftigeZoneS2,
+        ZukuenftigeZoneS3,
+        ZukuenftigeZoneSh,
+        ZukuenftigeZoneSm
+      );
+
+      SchutzzoneTyp = (
+        S1,
+        S2,
+        S3,
+        S3Zu,
+        S_kantonaleArt,
+        Sh,
+        Sm
+      );
+
+      DokumentArt = (
+        Rechtsvorschrift,
+        GesetzlicheGrundlage,
+        Hinweis
+      );
+
+    STRUCTURE Kanton_ =
+      Value: CHAdminCodes_V1.CHCantonCode;
+    END Kanton_;
+
+    /** Rechtskraftdatum ist MANDATORY falls Rechtsstatus = "inKraft"
+     */
+    CLASS Status =
+      Rechtsstatus : MANDATORY PlanerischerGewaesserschutz_LV03_V1_1.RechtsstatusArt;
+      Rechtskraftdatum : INTERLIS.XMLDate;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      KantonalerStatus : LocalisationCH_V1.LocalisedText;
+      MANDATORY CONSTRAINT Rechtsstatus!=#inKraft OR DEFINED(Rechtskraftdatum);
+    END Status;
+
+    CLASS GWSAreal =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV03_V1_1.CHSurface;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      Typ : MANDATORY SchutzarealTyp;
+      istAltrechtlich : MANDATORY BOOLEAN;
+    END GWSAreal;
+
+    CLASS GWSZone =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV03_V1_1.CHSurface;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      Typ : MANDATORY SchutzzoneTyp;
+      KantonaleTypBezeichnung : LocalisationCH_V1.LocalisedText;
+      istAltrechtlich : MANDATORY BOOLEAN;
+    END GWSZone;
+
+    ASSOCIATION StatusGWSAreal =
+      Status -- {1} Status;
+      GWSAreal -<> {0..*} GWSAreal;
+    END StatusGWSAreal;
+
+    ASSOCIATION StatusGWSZone =
+      Status -- {1} Status;
+      GWSZone -<> {0..*} GWSZone;
+    END StatusGWSZone;
+
+    CLASS Dokument =
+      Art : MANDATORY DokumentArt;
+      Titel : MANDATORY TEXT*80;
+      OffiziellerTitel : TEXT;
+      Abkuerzung : TEXT*10;
+      OffizielleNr : TEXT*20;
+      Kanton : CHAdminCodes_V1.CHCantonCode;
+      WeitereKantone : BAG {0..*} OF Kanton_;
+      Gemeinde : CHAdminCodes_V1.CHMunicipalityCode;
+      publiziertAb : MANDATORY INTERLIS.XMLDate;
+      Rechtsstatus : MANDATORY PlanerischerGewaesserschutz_LV03_V1_1.RechtsstatusArt;
+      TextImWeb : URI;
+      /** Das Dokument als PDF-Datei
+       */
+      Dokument : BLACKBOX BINARY;
+      MANDATORY CONSTRAINT DEFINED(TextImWeb) OR DEFINED(Dokument);
+    END Dokument;
+
+    ASSOCIATION HinweisWeitereDokumente =
+      Ursprung -- {0..*} Dokument;
+      Hinweis -- {0..*} Dokument;
+    END HinweisWeitereDokumente;
+
+    ASSOCIATION RechtsvorschriftGWSAreal =
+      Rechtsvorschrift -- {0..*} Dokument;
+      GWSAreal -- {0..*} GWSAreal;
+    END RechtsvorschriftGWSAreal;
+
+    ASSOCIATION RechtsvorschriftGWSZone =
+      Rechtsvorschrift -- {0..*} Dokument;
+      GWSZone -- {0..*} GWSZone;
+    END RechtsvorschriftGWSZone;
+
+  END GWSZonen;
+
+  TOPIC TransferMetadaten =
+
+    /** Eine organisatorische Einheit innerhalb der öffentlichen Verwaltung, z.B. eine für Geobasisdaten zuständigen Stelle.
+     */
+    CLASS Amt =
+      /** Name des Amtes z.B. "Amt für Gemeinden und Raumordnung des Kantons Bern".
+       */
+      Name : MANDATORY LocalisationCH_V1.MultilingualText;
+      /** Verweis auf die Website des Amtes z.B. "http://www.jgk.be.ch/site/agr/".
+       */
+      AmtImWeb : URI;
+      UID : TEXT*12;
+    END Amt;
+
+    /** Angaben zum Darstellungsdienst.
+     */
+    CLASS Darstellungsdienst =
+      /** WMS GetMap-Request (für Maschine-Maschine-Kommunikation) inkl. alle benötigten Parameter, z.B. "http://ecogis.admin.ch/de/wms?version=1.1.1&service=WMS&request=GetMap&LAYERS=invent_leit&srs=EPSG:21781&WIDTH=500&HEIGHT=500&bbox=500000,100000,700000,300000&FORMAT=image/png&TRANSPARENT=TRUE"
+       */
+      VerweisWMS : URI;
+      /** Verweis auf ein Dokument das die Karte beschreibt; z.B. "http://www.apps.be.ch/geoportal/output/gdp_adm_x3012app0081524772611.png"
+       */
+      LegendeImWeb : URI;
+    END Darstellungsdienst;
+
+    CLASS Datenbestand =
+      BasketId : MANDATORY TEXT;
+      Stand : MANDATORY INTERLIS.XMLDate;
+      Lieferdatum : INTERLIS.XMLDate;
+      Bemerkungen : MTEXT;
+      /** Verweis auf weitere maschinenlesbare Metadaten (XML). z.B. http://www.geocat.ch/geonetwork/srv/deu/gm03.xml?id=705
+       */
+      weitereMetadaten : URI;
+    END Datenbestand;
+
+    ASSOCIATION zustaendigeStelleDatenbestand =
+      zustaendigeStelle -- {1} Amt;
+      Datenbestand -<> {0..*} Datenbestand;
+    END zustaendigeStelleDatenbestand;
+
+    ASSOCIATION DarstellungsdienstDatenbestand =
+      Darstellungsdienst -- {1} Darstellungsdienst;
+      Datenbestand -<> {0..*} Datenbestand;
+    END DarstellungsdienstDatenbestand;
+
+  END TransferMetadaten;
+
+END PlanerischerGewaesserschutz_LV03_V1_1.
+
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+!!@ IDGeoIV="130.1,131.1,132.1"
+MODEL PlanerischerGewaesserschutz_LV95_V1_1 (de)
+AT "https://models.geo.admin.ch/BAFU/"
+VERSION "2017-06-20"  =
+  IMPORTS LocalisationCH_V1,CHAdminCodes_V1,Units,GeometryCHLV95_V1;
+
+  UNIT
+
+    CubicMeterPerSecond [m3sec] = (Units.m3 / INTERLIS.s);
+
+  DOMAIN
+
+    Menge = 0 .. 100000 [m3sec];
+
+    RechtsstatusArt = (
+      inKraft,
+      provisorisch
+    );
+
+    CHSurface = SURFACE WITH (STRAIGHTS) VERTEX GeometryCHLV95_V1.Coord2 WITHOUT OVERLAPS > 0.001;
+
+  TOPIC GSBereiche =
+
+    DOMAIN
+
+      GSBereichTyp = (
+        Ao,
+        Au,
+        Zo,
+        Zu,
+        UB
+      );
+
+    CLASS GSBereich =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV95_V1_1.CHSurface;
+      Typ : MANDATORY GSBereichTyp;
+      KantonaleTypBezeichnung : LocalisationCH_V1.LocalisedText;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+    END GSBereich;
+
+  END GSBereiche;
+
+  TOPIC GWSZonen =
+
+    DOMAIN
+
+      SchutzarealTyp = (
+        Areal,
+        ZukuenftigeZoneS1,
+        ZukuenftigeZoneS2,
+        ZukuenftigeZoneS3,
+        ZukuenftigeZoneSh,
+        ZukuenftigeZoneSm
+      );
+
+      SchutzzoneTyp = (
+        S1,
+        S2,
+        S3,
+        S3Zu,
+        S_kantonaleArt,
+        Sh,
+        Sm
+      );
+
+      DokumentArt = (
+        Rechtsvorschrift,
+        GesetzlicheGrundlage,
+        Hinweis
+      );
+
+    STRUCTURE Kanton_ =
+      Value: CHAdminCodes_V1.CHCantonCode;
+    END Kanton_;
+
+    /** Rechtskraftdatum ist MANDATORY falls Rechtsstatus = "inKraft"
+     */
+    CLASS Status =
+      Rechtsstatus : MANDATORY PlanerischerGewaesserschutz_LV95_V1_1.RechtsstatusArt;
+      Rechtskraftdatum : INTERLIS.XMLDate;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      KantonalerStatus : LocalisationCH_V1.LocalisedText;
+      MANDATORY CONSTRAINT Rechtsstatus!=#inKraft OR DEFINED(Rechtskraftdatum);
+    END Status;
+
+    CLASS GWSAreal =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV95_V1_1.CHSurface;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      Typ : MANDATORY SchutzarealTyp;
+      istAltrechtlich : MANDATORY BOOLEAN;
+    END GWSAreal;
+
+    CLASS GWSZone =
+      Identifikator : INTERLIS.STANDARDOID;
+      Geometrie : MANDATORY PlanerischerGewaesserschutz_LV95_V1_1.CHSurface;
+      Bemerkungen : LocalisationCH_V1.LocalisedMText;
+      Typ : MANDATORY SchutzzoneTyp;
+      KantonaleTypBezeichnung : LocalisationCH_V1.LocalisedText;
+      istAltrechtlich : MANDATORY BOOLEAN;
+    END GWSZone;
+
+    ASSOCIATION StatusGWSAreal =
+      Status -- {1} Status;
+      GWSAreal -<> {0..*} GWSAreal;
+    END StatusGWSAreal;
+
+    ASSOCIATION StatusGWSZone =
+      Status -- {1} Status;
+      GWSZone -<> {0..*} GWSZone;
+    END StatusGWSZone;
+
+
+    CLASS Dokument =
+      Art : MANDATORY DokumentArt;
+      Titel : MANDATORY TEXT*80;
+      OffiziellerTitel : TEXT;
+      Abkuerzung : TEXT*10;
+      OffizielleNr : TEXT*20;
+      Kanton : CHAdminCodes_V1.CHCantonCode;
+      WeitereKantone : BAG {0..*} OF Kanton_;
+      Gemeinde : CHAdminCodes_V1.CHMunicipalityCode;
+      publiziertAb : MANDATORY INTERLIS.XMLDate;
+      Rechtsstatus : MANDATORY PlanerischerGewaesserschutz_LV95_V1_1.RechtsstatusArt;
+      TextImWeb : URI;
+      /** Das Dokument als PDF-Datei
+       */
+      Dokument : BLACKBOX BINARY;
+      MANDATORY CONSTRAINT DEFINED(TextImWeb) OR DEFINED(Dokument);
+    END Dokument;
+
+    ASSOCIATION HinweisWeitereDokumente =
+      Ursprung -- {0..*} Dokument;
+      Hinweis -- {0..*} Dokument;
+    END HinweisWeitereDokumente;
+
+    ASSOCIATION RechtsvorschriftGWSAreal =
+      Rechtsvorschrift -- {0..*} Dokument;
+      GWSAreal -- {0..*} GWSAreal;
+    END RechtsvorschriftGWSAreal;
+
+    ASSOCIATION RechtsvorschriftGWSZone =
+      Rechtsvorschrift -- {0..*} Dokument;
+      GWSZone -- {0..*} GWSZone;
+    END RechtsvorschriftGWSZone;
+
+  END GWSZonen;
+
+  TOPIC TransferMetadaten =
+
+    /** Eine organisatorische Einheit innerhalb der öffentlichen Verwaltung, z.B. eine für Geobasisdaten zuständigen Stelle.
+     */
+    CLASS Amt =
+      /** Name des Amtes z.B. "Amt für Gemeinden und Raumordnung des Kantons Bern".
+       */
+      Name : MANDATORY LocalisationCH_V1.MultilingualText;
+      /** Verweis auf die Website des Amtes z.B. "http://www.jgk.be.ch/site/agr/".
+       */
+      AmtImWeb : URI;
+      UID : TEXT*12;
+    END Amt;
+
+    /** Angaben zum Darstellungsdienst.
+     */
+    CLASS Darstellungsdienst =
+      /** WMS GetMap-Request (für Maschine-Maschine-Kommunikation) inkl. alle benötigten Parameter, z.B. "http://ecogis.admin.ch/de/wms?version=1.1.1&service=WMS&request=GetMap&LAYERS=invent_leit&srs=EPSG:21781&WIDTH=500&HEIGHT=500&bbox=500000,100000,700000,300000&FORMAT=image/png&TRANSPARENT=TRUE"
+       */
+      VerweisWMS : URI;
+      /** Verweis auf ein Dokument das die Karte beschreibt; z.B. "http://www.apps.be.ch/geoportal/output/gdp_adm_x3012app0081524772611.png"
+       */
+      LegendeImWeb : URI;
+    END Darstellungsdienst;
+
+    CLASS Datenbestand =
+      BasketId : MANDATORY TEXT;
+      Stand : MANDATORY INTERLIS.XMLDate;
+      Lieferdatum : INTERLIS.XMLDate;
+      Bemerkungen : MTEXT;
+      /** Verweis auf weitere maschinenlesbare Metadaten (XML). z.B. http://www.geocat.ch/geonetwork/srv/deu/gm03.xml?id=705
+       */
+      weitereMetadaten : URI;
+    END Datenbestand;
+
+    ASSOCIATION zustaendigeStelleDatenbestand =
+      zustaendigeStelle -- {1} Amt;
+      Datenbestand -<> {0..*} Datenbestand;
+    END zustaendigeStelleDatenbestand;
+
+    ASSOCIATION DarstellungsdienstDatenbestand =
+      Darstellungsdienst -- {1} Darstellungsdienst;
+      Datenbestand -<> {0..*} Datenbestand;
+    END DarstellungsdienstDatenbestand;
+
+  END TransferMetadaten;
+
+END PlanerischerGewaesserschutz_LV95_V1_1.

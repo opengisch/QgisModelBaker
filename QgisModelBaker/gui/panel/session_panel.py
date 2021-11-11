@@ -18,6 +18,8 @@
  ***************************************************************************/
 """
 
+import os
+
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtWidgets import QAction, QWidget
 
@@ -93,7 +95,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.db_action_type = db_action_type
         if self.db_action_type == DbActionType.GENERATE:
             self.configuration.ilifile = ""
-            if self.file != "repository":
+            if os.path.isfile(self.file):
                 self.configuration.ilifile = self.file
             self.configuration.ilimodels = ";".join(self.models)
             self.info_label.setText(self.tr("Import {}").format(", ".join(self.models)))
