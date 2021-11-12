@@ -34,6 +34,16 @@
      </layout>
     </item>
     <item>
+     <widget class="QLabel" name="info_label">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QTableView" name="result_table_view"/>
     </item>
    </layout>

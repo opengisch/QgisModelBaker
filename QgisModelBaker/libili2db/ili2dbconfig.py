@@ -125,6 +125,7 @@ class Ili2DbCommandConfiguration(object):
         self.disable_validation = False
         self.metaconfig = None
         self.metaconfig_id = None
+        self.db_ili_version = None
 
     def append_args(self, args, values, consider_metaconfig=False):
         if consider_metaconfig and self.metaconfig and values:
@@ -161,7 +162,6 @@ class ExportConfiguration(Ili2DbCommandConfiguration):
         self.xtffile = ""
         self.with_exporttid = False
         self.iliexportmodels = ""
-        self.db_ili_version = None
         self.dataset = ""
         self.baskets = list()
 
@@ -207,7 +207,6 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
         self.srs_auth = "EPSG"  # Default SRS auth in ili2db
         self.srs_code = 2056  # Default SRS code in ili2db
         self.stroke_arcs = True
-        self.db_ili_version = None
         self.pre_script = ""
         self.post_script = ""
 
@@ -338,7 +337,6 @@ class UpdateDataConfiguration(Ili2DbCommandConfiguration):
         self.dataset = ""
         self.with_importtid = False
         self.with_importbid = False
-        self.db_ili_version = None
 
     def to_ili2db_args(self, extra_args=[], with_action=True):
         args = list()
@@ -362,5 +360,42 @@ class UpdateDataConfiguration(Ili2DbCommandConfiguration):
         self.append_args(args, Ili2DbCommandConfiguration.to_ili2db_args(self))
 
         self.append_args(args, [self.xtffile])
+
+        return args
+
+
+class ValidateConfiguration(Ili2DbCommandConfiguration):
+    def __init__(self):
+        super().__init__()
+        self.ilimodels = ""
+        self.topics = ""
+        self.dataset = ""
+        self.baskets = list()
+        self.xtflog = ""
+
+    def to_ili2db_args(self, extra_args=[], with_action=True):
+        args = list()
+
+        if with_action:
+            self.append_args(args, ["--validate"])
+
+        self.append_args(args, extra_args)
+
+        if self.ilimodels:
+            self.append_args(args, ["--models", self.ilimodels])
+
+        if self.topics:
+            self.append_args(args, ["--dataset", self.topics])
+
+        if self.dataset:
+            self.append_args(args, ["--dataset", self.dataset])
+
+        if self.baskets:
+            self.append_args(args, ["--baskets", ";".join(self.baskets)])
+
+        if self.xtflog:
+            self.append_args(args, ["--xtflog", self.xtflog])
+
+        self.append_args(args, Ili2DbCommandConfiguration.to_ili2db_args(self))
 
         return args

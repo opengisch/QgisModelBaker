@@ -55,7 +55,9 @@ def get_authconfig_map(authconfigid):
     return auth_cfg.configMap()
 
 
-def get_configuration_from_layersource(layer_source_name, layer_source):
+def get_configuration_from_layersource(
+    layer_source_name, layer_source, configuration=Ili2DbCommandConfiguration()
+):
     """
     Determines the connection parameters from a layer source.
     Returns:
@@ -65,7 +67,6 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
     """
     mode = ""
     valid = False
-    configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
         if layer_source.authConfigId():
