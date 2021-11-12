@@ -496,8 +496,15 @@ class DropFileFilter(QObject):
                 if pathlib.Path(url.toLocalFile()).suffix[1:]
                 in ["xtf", "XTF", "itf", "ITF", "ili"]
             ]
+            additional_xml_files = [
+                url.toLocalFile()
+                for url in event.mimeData().urls()
+                if pathlib.Path(url.toLocalFile()).suffix[1:] in ["xml", "XML"]
+            ]
             if dropped_files:
-                if self._is_handling_requested(dropped_files):
-                    if self.parent.handle_dropped_files(dropped_files):
+                if self._is_handling_requested(dropped_files + additional_xml_files):
+                    if self.parent.handle_dropped_files(
+                        dropped_files + additional_xml_files
+                    ):
                         return True
         return False
