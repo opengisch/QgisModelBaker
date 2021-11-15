@@ -24,6 +24,7 @@ from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import CATALOGUE_DATASETNAME
+from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.utils.db_utils import (
     get_configuration_from_layersource,
     get_schema_identificator_from_layersource,
@@ -142,8 +143,9 @@ class DatasetSelector(QComboBox):
         )
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
-            valid, mode, configuration = get_configuration_from_layersource(
-                source_name, source
+            configuration = Ili2DbCommandConfiguration()
+            valid, mode = get_configuration_from_layersource(
+                source_name, source, configuration
             )
             if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)
