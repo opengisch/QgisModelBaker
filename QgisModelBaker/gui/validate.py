@@ -21,11 +21,19 @@ import os
 import xml.etree.cElementTree as CET
 from enum import Enum
 
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from qgis.core import QgsDataSourceUri
+from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsDataSourceUri, QgsProject, QgsRectangle
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
-from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
+from qgis.PyQt.QtWidgets import (
+    QDockWidget,
+    QHeaderView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+)
 
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
@@ -55,8 +63,9 @@ class ValidationResultModel(QStandardItemModel):
         ILI_Q_NAME = Qt.UserRole + 8
         DATA_SOURCE = Qt.UserRole + 9
         LINE = Qt.UserRole + 10
-        GEOMETRY = Qt.UserRole + 11
-        TECH_DETAILS = Qt.UserRole + 12
+        COORD_X = Qt.UserRole + 11
+        COORD_Y = Qt.UserRole + 12
+        TECH_DETAILS = Qt.UserRole + 13
 
         def __int__(self):
             return self.value
@@ -97,7 +106,14 @@ class ValidationResultModel(QStandardItemModel):
                     ili_q_name = self.get_element_text(error.find(ns + "IliQName"))
                     data_source = self.get_element_text(error.find(ns + "DataSource"))
                     line = self.get_element_text(error.find(ns + "Line"))
-                    geometry = self.get_element_text(error.find(ns + "Geometry"))
+                    coord_x = None
+                    coord_y = None
+                    geometry = error.find(ns + "Geometry")
+                    if geometry:
+                        coord = geometry.find(ns + "COORD")
+                        if coord:
+                            coord_x = self.get_element_text(coord.find(ns + "C1"))
+                            coord_y = self.get_element_text(coord.find(ns + "C2"))
                     tech_details = self.get_element_text(error.find(ns + "TechDetails"))
 
                     if type in ["Error", "Warning"]:
@@ -116,9 +132,8 @@ class ValidationResultModel(QStandardItemModel):
                             data_source, int(ValidationResultModel.Roles.DATA_SOURCE)
                         )
                         item.setData(line, int(ValidationResultModel.Roles.LINE))
-                        item.setData(
-                            geometry, int(ValidationResultModel.Roles.GEOMETRY)
-                        )
+                        item.setData(coord_x, int(ValidationResultModel.Roles.COORD_X))
+                        item.setData(coord_y, int(ValidationResultModel.Roles.COORD_Y))
                         item.setData(
                             tech_details, int(ValidationResultModel.Roles.TECH_DETAILS)
                         )
@@ -148,6 +163,23 @@ class ValidationResultTableModel(ValidationResultModel):
             return item.data(role)
 
 
+class OpenFormDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonRelease:
+            value = f"t_ili_tid {index.data(int(ValidationResultModel.Roles.TID))}"
+            print(value)
+            return True
+        return super().editorEvent(event, model, option, index)
+
+    def paint(self, painter, option, index):
+        opt = QStyleOptionButton()
+        opt.rect = option.rect
+        QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
+
+
 class ValidateDock(QDockWidget, DIALOG_UI):
     def __init__(self, base_config, iface):
         QDockWidget.__init__(self, iface.mainWindow())
@@ -168,8 +200,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _table_clicked(self):
         index = self.result_table_view.selectionModel().currentIndex()
-        value = f"t_ili_tid {index.sibling(index.row(),index.column()).data(int(ValidationResultModel.Roles.TID))} and {index.sibling(index.row(),index.column()).data(int(ValidationResultModel.Roles.GEOMETRY))}"
-        print(value)
+        coord_x = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.COORD_X)
+        )
+        coord_y = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.COORD_Y)
+        )
+        self._zoom_to_coordinate(coord_x, coord_y)
+
+        t_ili_tid = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.TID)
+        )
+        if t_ili_tid:
+            layer, feature = self._get_feature_in_project(t_ili_tid)
+            if layer and feature:
+                self.iface.openFeatureForm(layer, feature, True)
 
     def _visibility_changed(self, visible):
         if visible:
@@ -189,7 +234,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setWordWrap(True)
         self.result_table_view.setTextElideMode(Qt.ElideLeft)
         self.result_table_view.resizeRowsToContents()
-
+        self.result_table_view.verticalHeader().hide()
+        self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
         self.setDisabled(True)
 
     def set_current_layer(self, layer):
@@ -274,6 +320,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setModel(
             self.result_models[self.current_schema_identificator]
         )
+        """
+        not sure if we should make it like this
+        self.result_table_view.setItemDelegateForColumn(
+            0,
+            OpenFormDelegate(self),
+        )
+        """
         self.progress_bar.setFormat(
             self.tr("Schema is valid") if valid else self.tr("Schema is not valid")
         )
@@ -283,3 +336,22 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _disable_controls(self, disable):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
+
+    def _zoom_to_coordinate(self, x, y):
+        if x and y:
+            scale = 50
+            rect = QgsRectangle(
+                float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+            )
+            self.iface.mapCanvas().setExtent(rect)
+            self.iface.mapCanvas().refresh()
+
+    def _get_feature_in_project(self, t_ili_tid):
+        for layer in QgsProject.instance().mapLayers().values():
+            idx = layer.fields().lookupField("t_ili_tid")
+            if idx < 0:
+                continue
+            for feature in layer.getFeatures():
+                if feature.attributes()[idx] == t_ili_tid:
+                    return layer, feature
+        return None, None
