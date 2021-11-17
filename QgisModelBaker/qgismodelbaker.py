@@ -286,7 +286,6 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.connect(
             self.__validate_dock.set_current_layer
         )
-        print("added")
 
     def remove_validate_dock(self):
         settings = QSettings()
@@ -302,7 +301,6 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__validate_dock.set_current_layer
         )
-        print("removed")
         del self.__validate_dock
 
     def show_generate_dialog(self):

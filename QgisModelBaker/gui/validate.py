@@ -27,6 +27,7 @@ from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
 from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.db_utils import (
@@ -46,7 +47,16 @@ class ValidationResultModel(QStandardItemModel):
     class Roles(Enum):
         ID = Qt.UserRole + 1
         MESSAGE = Qt.UserRole + 2
-        TID = Qt.UserRole + 3
+        TYPE = Qt.UserRole + 3
+        OBJ_TAG = Qt.UserRole + 4
+        TID = Qt.UserRole + 5
+        TECH_ID = Qt.UserRole + 6
+        USER_ID = Qt.UserRole + 7
+        ILI_Q_NAME = Qt.UserRole + 8
+        DATA_SOURCE = Qt.UserRole + 9
+        LINE = Qt.UserRole + 10
+        GEOMETRY = Qt.UserRole + 11
+        TECH_DETAILS = Qt.UserRole + 12
 
         def __int__(self):
             return self.value
@@ -77,49 +87,64 @@ class ValidationResultModel(QStandardItemModel):
             if root:
                 ns = "{http://www.interlis.ch/INTERLIS2.3}"
                 for error in root.iter(ns + "IliVErrors.ErrorLog.Error"):
-                    print("sd")
                     id = error.attrib["TID"]
                     message = self.get_element_text(error.find(ns + "Message"))
+                    type = self.get_element_text(error.find(ns + "Type"))
+                    obj_tag = self.get_element_text(error.find(ns + "ObjTag"))
                     tid = self.get_element_text(error.find(ns + "Tid"))
-                    """
-                    Type
-                    ObjTag
-                    Tid
-                    TechId
-                    UserId
-                    IliQName
-                    DataSource
-                    Line
-                    Geometry
-                    TechDetails
-                    """
-                    item = QStandardItem()
-                    item.setData(id, int(ValidationResultModel.Roles.ID))
-                    item.setData(message, int(ValidationResultModel.Roles.MESSAGE))
-                    item.setData(tid, int(ValidationResultModel.Roles.TID))
-                    self.appendRow(item)
-                    print(f"{message} {tid}")
+                    tech_id = self.get_element_text(error.find(ns + "TechId"))
+                    user_id = self.get_element_text(error.find(ns + "UserId"))
+                    ili_q_name = self.get_element_text(error.find(ns + "IliQName"))
+                    data_source = self.get_element_text(error.find(ns + "DataSource"))
+                    line = self.get_element_text(error.find(ns + "Line"))
+                    geometry = self.get_element_text(error.find(ns + "Geometry"))
+                    tech_details = self.get_element_text(error.find(ns + "TechDetails"))
+
+                    if type in ["Error", "Warning"]:
+                        item = QStandardItem()
+                        item.setData(id, int(ValidationResultModel.Roles.ID))
+                        item.setData(message, int(ValidationResultModel.Roles.MESSAGE))
+                        item.setData(type, int(ValidationResultModel.Roles.TYPE))
+                        item.setData(obj_tag, int(ValidationResultModel.Roles.OBJ_TAG))
+                        item.setData(tid, int(ValidationResultModel.Roles.TID))
+                        item.setData(tech_id, int(ValidationResultModel.Roles.TECH_ID))
+                        item.setData(user_id, int(ValidationResultModel.Roles.USER_ID))
+                        item.setData(
+                            ili_q_name, int(ValidationResultModel.Roles.ILI_Q_NAME)
+                        )
+                        item.setData(
+                            data_source, int(ValidationResultModel.Roles.DATA_SOURCE)
+                        )
+                        item.setData(line, int(ValidationResultModel.Roles.LINE))
+                        item.setData(
+                            geometry, int(ValidationResultModel.Roles.GEOMETRY)
+                        )
+                        item.setData(
+                            tech_details, int(ValidationResultModel.Roles.TECH_DETAILS)
+                        )
+                        self.appendRow(item)
         self.endResetModel()
 
 
 class ValidationResultTableModel(ValidationResultModel):
-    def __init__(self):
+    """
+    roles can define on what position what role should be provided
+    """
+
+    def __init__(self, roles):
         super().__init__()
-        self.setColumnCount(3)
-        self.setHorizontalHeaderLabels(
-            [self.tr("Id"), self.tr("Message"), self.tr("T_IliTid")]
-        )
+        self.roles = roles
+        self.setColumnCount(len(self.roles))
+        self.setHorizontalHeaderLabels([role.name for role in self.roles])
+
+    def flags(self, index):
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def data(self, index, role):
         item = self.item(index.row(), 0)
         if item:
             if role == Qt.DisplayRole:
-                if index.column() == 0:
-                    return item.data(int(ValidationResultModel.Roles.ID))
-                if index.column() == 1:
-                    return item.data(int(ValidationResultModel.Roles.MESSAGE))
-                if index.column() == 2:
-                    return item.data(int(ValidationResultModel.Roles.TID))
+                return item.data(int(self.roles[index.column()]))
             return item.data(role)
 
 
@@ -127,40 +152,62 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def __init__(self, base_config, iface):
         QDockWidget.__init__(self, iface.mainWindow())
         self.setupUi(self)
+        self.iface = iface
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.info_label.setText("")
-        self.setDisabled(True)
         self.run_button.clicked.connect(self.run)
+        self.result_models = {}
+        self.requested_roles = [
+            ValidationResultModel.Roles.TID,
+            ValidationResultModel.Roles.MESSAGE,
+            ValidationResultModel.Roles.TYPE,
+        ]
+        self._reset_gui()
+        self.result_table_view.clicked.connect(self._table_clicked)
+        self.visibilityChanged.connect(self._visibility_changed)
+
+    def _table_clicked(self):
+        index = self.result_table_view.selectionModel().currentIndex()
+        value = f"t_ili_tid {index.sibling(index.row(),index.column()).data(int(ValidationResultModel.Roles.TID))} and {index.sibling(index.row(),index.column()).data(int(ValidationResultModel.Roles.GEOMETRY))}"
+        print(value)
+
+    def _visibility_changed(self, visible):
+        if visible:
+            self.set_current_layer(self.iface.activeLayer())
+
+    def _reset_gui(self):
         self.current_configuration = ValidateConfiguration()
         self.current_schema_identificator = ""
-        self.result_models = {}
-        self.result_table_view.setModel(ValidationResultTableModel())
+        self.info_label.setText("")
+        self.progress_bar.setTextVisible(False)
+        self.result_table_view.setModel(
+            ValidationResultTableModel(self.requested_roles)
+        )
         self.result_table_view.horizontalHeader().setSectionResizeMode(
             1, QHeaderView.Stretch
         )
+        self.result_table_view.setWordWrap(True)
+        self.result_table_view.setTextElideMode(Qt.ElideLeft)
+        self.result_table_view.resizeRowsToContents()
 
-    def set_current_layer(self, layer):
-        self.info_label.setText("")
         self.setDisabled(True)
 
+    def set_current_layer(self, layer):
         if not layer or not layer.dataProvider().isValid():
+            self._reset_gui()
             return
 
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        self.current_schema_identificator = get_schema_identificator_from_layersource(
+        schema_identificator = get_schema_identificator_from_layersource(
             source_name, source
         )
-        # layer_model_topic_name = (
-        #    QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
-        # )
+        if schema_identificator == self.current_schema_identificator:
+            return
 
-        # set the filter of the model according the current uri_identificator
-        # current_schema_topic_identificator = slugify(
-        #    f"{schema_identificator}_{layer_model_topic_name}"
-        # )
+        self._reset_gui()
 
+        self.current_schema_identificator = schema_identificator
         valid, mode = get_configuration_from_layersource(
             source_name, source, self.current_configuration
         )
@@ -171,45 +218,68 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 output_file_name,
             )
             self.current_configuration.tool = mode
-            self.info_label.setText(
-                f"{self.current_schema_identificator}\n{layer.name()}\n{self.current_configuration.database} / {self.current_configuration.dbschema or self.current_configuration.dbfile}"
-            )
+            if mode == DbIliMode.gpkg:
+                self.info_label.setText(self.current_configuration.dbfile)
+            else:
+                self.info_label.setText(
+                    f'Database "{self.current_configuration.database}" and schema "{self.current_configuration.dbschema}"'
+                )
 
             if self.result_models.get(self.current_schema_identificator):
-                self.result_table_view.setModel(
-                    self.result_models[self.current_schema_identificator]
+                self._set_result(
+                    self.result_models[self.current_schema_identificator].valid
                 )
             self.setDisabled(False)
 
     def run(self, edited_command=None):
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(False)
+        self._disable_controls(True)
         validator = ilivalidator.Validator()
         if validator:
             validator.tool = self.current_configuration.tool
             validator.configuration = self.current_configuration
 
-        validation_state = False
+        self.progress_bar.setValue(20)
+        validation_result_state = False
         with OverrideCursor(Qt.WaitCursor):
-            self.setDisabled(True)
             try:
-                validation_state = (
+                validation_result_state = (
                     validator.run(edited_command) == ilivalidator.Validator.SUCCESS
                 )
             except JavaNotFoundError:
-                print("cannot make validation")
-                self.setDisabled(False)
+                self.progress_bar.setValue(0)
+                self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
+                self.progress_bar.setTextVisible(True)
+                self._disable_controls(False)
                 return
 
-        result_model = ValidationResultTableModel()
+        self.progress_bar.setValue(50)
+        result_model = ValidationResultTableModel(self.requested_roles)
         result_model.configuration = self.current_configuration
-        result_model.valid = validation_state
+        result_model.valid = validation_result_state
         result_model.reload()
 
+        self.progress_bar.setValue(75)
         self.result_models[self.current_schema_identificator] = result_model
-        self.result_table_view.setModel(
-            self.result_models[self.current_schema_identificator]
-        )
+        self._disable_controls(False)
+        self._set_result(self.result_models[self.current_schema_identificator].valid)
+        self.progress_bar.setValue(100)
 
-        self.setDisabled(False)
         print(
             f"Result here {self.result_models[self.current_schema_identificator].configuration.xtflog}"
         )
+
+    def _set_result(self, valid):
+        self.result_table_view.setModel(
+            self.result_models[self.current_schema_identificator]
+        )
+        self.progress_bar.setFormat(
+            self.tr("Schema is valid") if valid else self.tr("Schema is not valid")
+        )
+        self.progress_bar.setTextVisible(True)
+        self.result_table_view.setDisabled(valid)
+
+    def _disable_controls(self, disable):
+        self.run_button.setDisabled(disable)
+        self.result_table_view.setDisabled(disable)
