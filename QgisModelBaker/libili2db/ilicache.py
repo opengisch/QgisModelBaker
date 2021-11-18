@@ -236,7 +236,9 @@ class IliCache(QObject):
                     repo_models.append(model)
 
         self.repositories[netloc] = sorted(
-            repo_models, key=lambda m: m["version"] if m["version"] else 0, reverse=True
+            repo_models,
+            key=lambda m: m["version"] if m["version"] else "0",
+            reverse=True,
         )
 
         self.model.set_repositories(self.repositories)
@@ -593,7 +595,7 @@ class IliDataCache(IliCache):
 
         self.repositories[netloc] = sorted(
             repo_metaconfigs,
-            key=lambda m: m["version"] if m["version"] else 0,
+            key=lambda m: m["version"] if m["version"] else "0",
             reverse=True,
         )
 
@@ -886,7 +888,9 @@ class IliToppingFileCache(IliDataCache):
                                     repo_files.append(toppingfile)
 
         self.repositories[netloc] = sorted(
-            repo_files, key=lambda m: m["version"] if m["version"] else 0, reverse=True
+            repo_files,
+            key=lambda m: m["version"] if m["version"] else "0",
+            reverse=True,
         )
 
         self.model.set_repositories(self.repositories)
