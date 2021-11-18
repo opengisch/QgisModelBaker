@@ -714,3 +714,41 @@ class IliCacheTest(unittest.TestCase):
             "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
         }
         assert files == expected_files
+
+    def test_ilimodels_xml_parser_invalid(self):
+        """
+        parse invalid models withouth crashing
+        """
+        ilicache = IliCache([])
+        ilicache._process_informationfile(
+            os.path.join(test_path, "testdata", "ilirepo", "invalid", "ilimodels.xml"),
+            "test_repo",
+            "/testdata/ilirepo/invalid/ilimodels.xml",
+        )
+        assert "test_repo" in ilicache.repositories.keys()
+        models = set(
+            [e["name"] for e in next(elem for elem in ilicache.repositories.values())]
+        )
+        expected_models = set(["CoordSys", "AbstractSymbology"])
+        assert models == expected_models
+
+    def test_ilidata_xml_parser_invalid(self):
+        """
+        parse invalid data withouth crashing
+        """
+        ilimetaconfigcache = IliDataCache(configuration=None, models="KbS_LV95_V1_4")
+        ilimetaconfigcache._process_informationfile(
+            os.path.join(test_path, "testdata", "ilirepo", "invalid", "ilidata.xml"),
+            "test_repo",
+            os.path.join(test_path, "testdata", "ilirepo", "invalid"),
+        )
+        assert "test_repo" in ilimetaconfigcache.repositories.keys()
+        metaconfigs = set(
+            [
+                e["id"]
+                for e in next(elem for elem in ilimetaconfigcache.repositories.values())
+            ]
+        )
+        # not finding invalid metaconfig but the one with none as id
+        expected_metaconfigs = {None, "ch.opengis.ili.config.valid"}
+        assert metaconfigs == expected_metaconfigs

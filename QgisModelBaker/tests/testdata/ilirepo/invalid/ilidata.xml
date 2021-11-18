@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ceis" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="DatasetIdx16" VERSION="2018-10-19" URI="mailto:ce@eisenhutinformatik.ch"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <DatasetIdx16.DataIndex BID="4fd597ad-f2b7-430d-9cc5-1e15f85e4aef">
+      <DatasetIdx16.DataIndex.Metadata TID="72c20986-b358-48da-b5eb-4fe7f3a0fc12">
+        <id>usabilityhub</id>
+        <version>2021-01-06</version>
+        <owner>http://models.opengis.ch</owner>
+        <technicalContact>mailto:david@opengis.ch</technicalContact>
+      </DatasetIdx16.DataIndex.Metadata>
+
+      <!-- invalid element with missing id and version -->
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedText>
+                <Language>de</Language>
+                <Text>Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
+              </DatasetIdx16.LocalisedText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>metaconfig/opengisch_KbS_LV95_V1_4.ini</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <!-- invalid element with missing mandatory attributes version and owner and missing attributes used to work in ilicache-->
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
+        <id>ch.opengis.ili.config.invalid</id>
+        <title>
+          <DatasetIdx16.MultilingualText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedText>
+              </DatasetIdx16.LocalisedText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <DatasetIdx16.DataIndex.DatasetMetadata TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
+        <id>ch.opengis.ili.config.valid</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedText>
+                <Language>de</Language>
+                <Text>Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
+              </DatasetIdx16.LocalisedText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>metaconfig/opengisch_KbS_LV95_V1_4.ini</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetadata>
+
+      <!--invalid element with wrong name (DatasetMetaHansHuckebein)-->
+      <DatasetIdx16.DataIndex.DatasetMetaHansHuckebein TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
+        <id>ch.opengis.ili.config.hanshuckebein</id>
+        <version>2021-01-06</version>
+        <owner>mailto:david@opengis.ch</owner>
+        <title>
+          <DatasetIdx16.MultilingualText>
+            <LocalisedText>
+              <DatasetIdx16.LocalisedText>
+                <Language>de</Language>
+                <Text>Einfaches Styling und Tree und TOML und SH Cat (OPENGIS.ch)</Text>
+              </DatasetIdx16.LocalisedText>
+            </LocalisedText>
+          </DatasetIdx16.MultilingualText>
+        </title>
+        <categories>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.interlis.ch/type/metaconfig</value>
+          </DatasetIdx16.Code_>
+          <DatasetIdx16.Code_>
+          	<value>http://codes.opengis.ch/modelbaker</value>
+          </DatasetIdx16.Code_>
+        </categories>
+        <files>
+          <DatasetIdx16.DataFile>
+            <fileFormat>text/plain;version=2.3</fileFormat>
+            <file>
+              <DatasetIdx16.File>
+                <path>metaconfig/opengisch_KbS_LV95_V1_4.ini</path>
+              </DatasetIdx16.File>
+            </file>
+          </DatasetIdx16.DataFile>
+        </files>
+      </DatasetIdx16.DataIndex.DatasetMetaHansHuckebein>
+   </DatasetIdx16.DataIndex>
+  </DATASECTION>
+</TRANSFER>

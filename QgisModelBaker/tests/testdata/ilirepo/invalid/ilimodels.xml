@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="KOGIS-20200115" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="IliRepository09" VERSION="2009-12-01" URI="mailto:ce@eisenhutinformatik.ch"/>
+      <MODEL NAME="IliRepository20" VERSION="2020-01-15" URI="http://models.interlis.ch/core"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <!-- ====================================================================  -->
+    <!-- INTERLIS REFERENCE MODELS OF THE SWISS CONFEDERATION (ili2_4)         -->
+
+    <IliRepository20.RepositoryIndex BID="ch.interlis.ilimodels.b2">
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1001">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/AbstractSymbology.ili</File>
+        <Version>2020-02-20</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>1da81c8764c7fce8e896e7aa36e2d499</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <!--invalid element with missing mandatory attributes (only name)-->
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1002">
+        <Name>CoordSys</Name>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <!--invalid element with missing (mandatory) name-->
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1003">
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/Units.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>822579b7bd802a6718cebf0cc1f5d85c</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <!--invalid element with wrong name (ModelMetaHansHuckebein)-->
+      <IliRepository20.RepositoryIndex.ModelMetaHansHuckebein TID="1003">
+        <Name>Huckebein</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/Units.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>822579b7bd802a6718cebf0cc1f5d85c</md5>
+      </IliRepository20.RepositoryIndex.ModelMetaHansHuckebein>
+
+    </IliRepository20.RepositoryIndex>
+  </DATASECTION>
+</TRANSFER>
