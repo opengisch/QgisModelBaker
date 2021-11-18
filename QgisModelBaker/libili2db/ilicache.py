@@ -177,7 +177,9 @@ class IliCache(QObject):
                 for location in subsite.findall(
                     "ili23:IliSite09.RepositoryLocation_", self.ns
                 ):
-                    self.download_repository(location.find("ili23:value", self.ns).text)
+                    value = self.get_element_text(location.find("ili23:value", self.ns))
+                    if value:
+                        self.download_repository(value)
 
     def _process_informationfile(self, file, netloc, url):
         """
@@ -206,16 +208,15 @@ class IliCache(QObject):
                 "ili23:IliRepository09.RepositoryIndex.ModelMetadata", self.ns
             ):
                 model = dict()
-                model["name"] = model_metadata.find("ili23:Name", self.ns).text
-                version = model["version"] = model_metadata.find(
-                    "ili23:Version", self.ns
+                model["name"] = self.get_element_text(
+                    element=model_metadata.find("ili23:Name", self.ns)
                 )
-                if version is not None:
-                    model["version"] = version.text
-                else:
-                    model["version"] = None
-                model["repository"] = netloc
-                repo_models.append(model)
+                if model["name"]:
+                    model["version"] = self.get_element_text(
+                        model_metadata.find("ili23:Version", self.ns)
+                    )
+                    model["repository"] = netloc
+                    repo_models.append(model)
 
         for repo in root.iter(
             "{http://www.interlis.ch/INTERLIS2.3}IliRepository20.RepositoryIndex"
@@ -224,14 +225,15 @@ class IliCache(QObject):
                 "ili23:IliRepository20.RepositoryIndex.ModelMetadata", self.ns
             ):
                 model = dict()
-                model["name"] = model_metadata.find("ili23:Name", self.ns).text
-                version = model_metadata.find("ili23:Version", self.ns)
-                if version is not None:
-                    model["version"] = version.text
-                else:
-                    model["version"] = None
-                model["repository"] = netloc
-                repo_models.append(model)
+                model["name"] = self.get_element_text(
+                    model_metadata.find("ili23:Name", self.ns)
+                )
+                if model["name"]:
+                    model["version"] = self.get_element_text(
+                        model_metadata.find("ili23:Version", self.ns)
+                    )
+                    model["repository"] = netloc
+                    repo_models.append(model)
 
         self.repositories[netloc] = sorted(
             repo_models, key=lambda m: m["version"] if m["version"] else 0, reverse=True
@@ -330,6 +332,11 @@ class IliCache(QObject):
             for model in repo:
                 names.append(model["name"])
         return names
+
+    def get_element_text(self, element):
+        if element is not None:
+            return element.text
+        return None
 
 
 class IliModelItemModel(QStandardItemModel):
@@ -475,15 +482,18 @@ class IliDataCache(IliCache):
                     for category in categories_element.findall(
                         "ili23:DatasetIdx16.Code_", self.ns
                     ):
-                        category_value = category.find("ili23:value", self.ns).text
-                        if model_code_regex.search(category_value):
-                            models.append(
-                                model_code_regex.search(category_value).group(1)
-                            )
-                        if type_code_regex.search(category_value):
-                            type = type_code_regex.search(category_value).group(1)
-                        if tool_code_regex.search(category_value):
-                            tool_code_regex.search(category_value).group(1)
+                        category_value = self.get_element_text(
+                            category.find("ili23:value", self.ns)
+                        )
+                        if category_value:
+                            if model_code_regex.search(category_value):
+                                models.append(
+                                    model_code_regex.search(category_value).group(1)
+                                )
+                            if type_code_regex.search(category_value):
+                                type = type_code_regex.search(category_value).group(1)
+                            if tool_code_regex.search(category_value):
+                                tool_code_regex.search(category_value).group(1)
                     if (
                         not any(model in models for model in self.filter_models)
                         or type != self.type
@@ -493,26 +503,30 @@ class IliDataCache(IliCache):
                     for title_element in metaconfig_metadata.findall(
                         "ili23:title", self.ns
                     ):
-                        for multilingual_m_text_element in title_element.findall(
+                        for multilingual_text_element in title_element.findall(
                             "ili23:DatasetIdx16.MultilingualText", self.ns
                         ):
                             for (
                                 localised_text_element
-                            ) in multilingual_m_text_element.findall(
+                            ) in multilingual_text_element.findall(
                                 "ili23:LocalisedText", self.ns
                             ):
                                 for (
-                                    localised_m_text_element
+                                    localised_text_element
                                 ) in localised_text_element.findall(
                                     "ili23:DatasetIdx16.LocalisedText", self.ns
                                 ):
                                     title_information = {
-                                        "language": localised_m_text_element.find(
-                                            "ili23:Language", self.ns
-                                        ).text,
-                                        "text": localised_m_text_element.find(
-                                            "ili23:Text", self.ns
-                                        ).text,
+                                        "language": self.get_element_text(
+                                            localised_text_element.find(
+                                                "ili23:Language", self.ns
+                                            )
+                                        ),
+                                        "text": self.get_element_text(
+                                            localised_text_element.find(
+                                                "ili23:Text", self.ns
+                                            )
+                                        ),
                                     }
                                     title.append(title_information)
 
@@ -530,7 +544,9 @@ class IliDataCache(IliCache):
                                     "ili23:DatasetIdx16.ModelLink", self.ns
                                 ):
                                     model_link_names.append(
-                                        model_link.find("ili23:name", self.ns).text
+                                        self.get_element_text(
+                                            model_link.find("ili23:name", self.ns)
+                                        )
                                     )
 
                     for files_element in metaconfig_metadata.findall(
@@ -545,28 +561,23 @@ class IliDataCache(IliCache):
                                 for file in file_element.findall(
                                     "ili23:DatasetIdx16.File", self.ns
                                 ):
-                                    path = file.find("ili23:path", self.ns).text
+                                    path = self.get_element_text(
+                                        file.find("ili23:path", self.ns)
+                                    )
 
                                     metaconfig = dict()
-                                    metaconfig["id"] = metaconfig_metadata.find(
-                                        "ili23:id", self.ns
-                                    ).text
-
-                                    version = metaconfig_metadata.find(
-                                        "ili23:version", self.ns
+                                    metaconfig["id"] = self.get_element_text(
+                                        metaconfig_metadata.find("ili23:id", self.ns)
                                     )
-                                    if version is not None:
-                                        metaconfig["version"] = version.text
-                                    else:
-                                        metaconfig["version"] = None
 
-                                    owner = metaconfig_metadata.find(
-                                        "ili23:owner", self.ns
+                                    metaconfig["version"] = self.get_element_text(
+                                        metaconfig_metadata.find(
+                                            "ili23:version", self.ns
+                                        )
                                     )
-                                    if owner is not None:
-                                        metaconfig["owner"] = owner.text
-                                    else:
-                                        metaconfig["owner"] = None
+                                    metaconfig["owner"] = self.get_element_text(
+                                        metaconfig_metadata.find("ili23:owner", self.ns)
+                                    )
 
                                     metaconfig["repository"] = netloc
                                     metaconfig["url"] = url
@@ -835,7 +846,7 @@ class IliToppingFileCache(IliDataCache):
                 "ili23:DatasetIdx16.DataIndex.DatasetMetadata", self.ns
             ):
                 dataset_id = "ilidata:{}".format(
-                    topping_metadata.find("ili23:id", self.ns).text
+                    self.get_element_text(topping_metadata.find("ili23:id", self.ns))
                 )
                 if dataset_id in self.file_ids:
                     for files_element in topping_metadata.findall(
@@ -850,26 +861,19 @@ class IliToppingFileCache(IliDataCache):
                                 for file in file_element.findall(
                                     "ili23:DatasetIdx16.File", self.ns
                                 ):
-                                    path = file.find("ili23:path", self.ns).text
+                                    path = self.get_element_text(
+                                        file.find("ili23:path", self.ns)
+                                    )
 
                                     toppingfile = dict()
                                     toppingfile["id"] = dataset_id
 
-                                    version = topping_metadata.find(
-                                        "ili23:version", self.ns
+                                    toppingfile["version"] = self.get_element_text(
+                                        topping_metadata.find("ili23:version", self.ns)
                                     )
-                                    if version is not None:
-                                        toppingfile["version"] = version.text
-                                    else:
-                                        toppingfile["version"] = None
-
-                                    owner = topping_metadata.find(
-                                        "ili23:owner", self.ns
+                                    toppingfile["owner"] = self.get_element_text(
+                                        topping_metadata.find("ili23:owner", self.ns)
                                     )
-                                    if owner is not None:
-                                        toppingfile["owner"] = owner.text
-                                    else:
-                                        toppingfile["owner"] = None
 
                                     toppingfile["repository"] = netloc
                                     # relative_file_path like qml/something.qml
