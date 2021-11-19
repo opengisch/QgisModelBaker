@@ -228,8 +228,8 @@ class QgisModelBakerPlugin(QObject):
         )
 
         self.toolbar.addAction(self.__datasetmanager_action)
-
         self.init_validate_dock()
+        self.register_event_filter()
 
     def unload(self):
         self.unregister_event_filter()
