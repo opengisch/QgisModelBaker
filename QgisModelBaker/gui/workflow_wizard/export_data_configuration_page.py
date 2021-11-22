@@ -44,8 +44,6 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setTitle(title)
-
-        self.workflow_wizard = parent
         self.is_complete = False
 
         self.xtf_file_browse_button.clicked.connect(
