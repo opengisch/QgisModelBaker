@@ -6,15 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>777</width>
+    <height>579</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Model Baker Data Validation</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <layout class="QVBoxLayout" name="filter_layout"/>
+    </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>

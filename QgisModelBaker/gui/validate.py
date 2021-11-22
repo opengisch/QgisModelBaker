@@ -35,13 +35,17 @@ from qgis.PyQt.QtWidgets import (
     QStyleOptionButton,
 )
 
+import QgisModelBaker.utils.db_utils as db_utils
+from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
+from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+    ExportBasketsModel,
+    ExportDatasetsModel,
+    ExportFilterMode,
+    ExportModelsModel,
+)
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
-from QgisModelBaker.utils.db_utils import (
-    get_configuration_from_layersource,
-    get_schema_identificator_from_layersource,
-)
 from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ..libili2db import ilivalidator
@@ -163,6 +167,15 @@ class ValidationResultTableModel(ValidationResultModel):
             return item.data(role)
 
 
+class SchemaValidation:
+    def __init__(self):
+        self.models_model = ExportModelsModel()
+        self.datasets_model = ExportDatasetsModel()
+        self.baskets_model = ExportBasketsModel()
+        self.filter_mode = ExportFilterMode.MODEL
+        self.result_model = None
+
+
 class OpenFormDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super().__init__(parent)
@@ -188,12 +201,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
         self.run_button.clicked.connect(self.run)
-        self.result_models = {}
+        self.schema_validations = {}
         self.requested_roles = [
             ValidationResultModel.Roles.TID,
             ValidationResultModel.Roles.MESSAGE,
             ValidationResultModel.Roles.TYPE,
         ]
+
+        self.current_models_model = ExportModelsModel()
+        self.current_datasets_model = ExportDatasetsModel()
+        self.current_baskets_model = ExportBasketsModel()
+        self.current_export_filter = ExportFilterMode.MODEL
+
+        self.filter_data_panel = FilterDataPanel(self)
+        self.filter_layout.addWidget(self.filter_data_panel)
+
         self._reset_gui()
         self.result_table_view.clicked.connect(self._table_clicked)
         self.visibilityChanged.connect(self._visibility_changed)
@@ -220,9 +242,16 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if visible:
             self.set_current_layer(self.iface.activeLayer())
 
-    def _reset_gui(self):
+    def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
         self.current_schema_identificator = ""
+        self.current_models_model = ExportModelsModel()
+        self.current_datasets_model = ExportDatasetsModel()
+        self.current_baskets_model = ExportBasketsModel()
+        self.current_export_filter = ExportFilterMode.MODEL
+
+    def _reset_gui(self):
+        self._reset_current_values()
         self.info_label.setText("")
         self.progress_bar.setTextVisible(False)
         self.result_table_view.setModel(
@@ -236,6 +265,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.resizeRowsToContents()
         self.result_table_view.verticalHeader().hide()
         self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
+
         self.setDisabled(True)
 
     def set_current_layer(self, layer):
@@ -245,7 +275,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         source_name = layer.dataProvider().name()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = get_schema_identificator_from_layersource(
+        schema_identificator = db_utils.get_schema_identificator_from_layersource(
             source_name, source
         )
         if schema_identificator == self.current_schema_identificator:
@@ -254,7 +284,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self._reset_gui()
 
         self.current_schema_identificator = schema_identificator
-        valid, mode = get_configuration_from_layersource(
+        valid, mode = db_utils.get_configuration_from_layersource(
             source_name, source, self.current_configuration
         )
         if valid and mode:
@@ -271,11 +301,59 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     f'Database "{self.current_configuration.database}" and schema "{self.current_configuration.dbschema}"'
                 )
 
-            if self.result_models.get(self.current_schema_identificator):
-                self._set_result(
-                    self.result_models[self.current_schema_identificator].valid
-                )
+            if self.schema_validations.get(self.current_schema_identificator):
+                # don't set result if never got a validation (empty SchemaValidation)
+                if self.schema_validations[
+                    self.current_schema_identificator
+                ].result_model:
+                    self._set_result(
+                        self.schema_validations[
+                            self.current_schema_identificator
+                        ].result_model.valid
+                    )
+            else:
+                self.schema_validations[
+                    self.current_schema_identificator
+                ] = SchemaValidation()
+            self.refresh_export_models()
+            self.current_models_model = self.schema_validations[
+                self.current_schema_identificator
+            ].models_model
+            self.current_datasets_model = self.schema_validations[
+                self.current_schema_identificator
+            ].datasets_model
+            self.current_baskets_model = self.schema_validations[
+                self.current_schema_identificator
+            ].baskets_model
+            self.current_export_filter = self.schema_validations[
+                self.current_schema_identificator
+            ].filter_mode
+            self.filter_data_panel.setup_dialog(
+                self._basket_handling(self.current_configuration)
+            )
+
             self.setDisabled(False)
+
+    # might be taken from somewhere else
+    def refresh_export_models(self):
+        db_connector = db_utils.get_db_connector(self.current_configuration)
+        self.schema_validations[
+            self.current_schema_identificator
+        ].models_model.refresh_model(db_connector)
+        self.schema_validations[
+            self.current_schema_identificator
+        ].datasets_model.refresh_model(db_connector)
+        self.schema_validations[
+            self.current_schema_identificator
+        ].baskets_model.refresh_model(db_connector)
+        return
+
+    # might be taken from somewhere else
+    def _basket_handling(self, configuration):
+        db_connector = db_utils.get_db_connector(configuration)
+        if db_connector:
+            return db_connector.get_basket_handling()
+        return False
 
     def run(self, edited_command=None):
         self.progress_bar.setValue(0)
@@ -285,6 +363,23 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if validator:
             validator.tool = self.current_configuration.tool
             validator.configuration = self.current_configuration
+
+        mode = self.schema_validations[self.current_schema_identificator].filter_mode
+        validator.configuration.ilimodels = (
+            ";".join(self.current_models_model.checked_entries())
+            if mode == ExportFilterMode.MODEL
+            else ""
+        )
+        validator.configuration.dataset = (
+            ";".join(self.current_datasets_model.checked_entries())
+            if mode == ExportFilterMode.DATASET
+            else ""
+        )
+        validator.configuration.baskets = (
+            self.current_baskets_model.checked_entries()
+            if mode == ExportFilterMode.BASKET
+            else []
+        )
 
         self.progress_bar.setValue(20)
         validation_result_state = False
@@ -307,18 +402,24 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         result_model.reload()
 
         self.progress_bar.setValue(75)
-        self.result_models[self.current_schema_identificator] = result_model
+        self.schema_validations[
+            self.current_schema_identificator
+        ].result_model = result_model
         self._disable_controls(False)
-        self._set_result(self.result_models[self.current_schema_identificator].valid)
+        self._set_result(
+            self.schema_validations[
+                self.current_schema_identificator
+            ].result_model.valid
+        )
         self.progress_bar.setValue(100)
 
         print(
-            f"Result here {self.result_models[self.current_schema_identificator].configuration.xtflog}"
+            f"Result here {self.schema_validations[self.current_schema_identificator].result_model.configuration.xtflog}"
         )
 
     def _set_result(self, valid):
         self.result_table_view.setModel(
-            self.result_models[self.current_schema_identificator]
+            self.schema_validations[self.current_schema_identificator].result_model
         )
         """
         not sure if we should make it like this
