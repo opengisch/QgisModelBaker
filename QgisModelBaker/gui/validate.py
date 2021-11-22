@@ -21,19 +21,11 @@ import os
 import xml.etree.cElementTree as CET
 from enum import Enum
 
-from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QApplication
 from qgis.core import QgsDataSourceUri, QgsProject, QgsRectangle
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
-from qgis.PyQt.QtWidgets import (
-    QDockWidget,
-    QHeaderView,
-    QStyle,
-    QStyledItemDelegate,
-    QStyleOptionButton,
-)
+from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
@@ -53,6 +45,36 @@ from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..utils import ui
 
 DIALOG_UI = ui.get_ui_class("validator.ui")
+
+VALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #adde9b; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+INVALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #de9b9b; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+NOSTATUS_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #9bcade; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
 
 # validate tools
 class ValidationResultModel(QStandardItemModel):
@@ -167,15 +189,8 @@ class ValidationResultTableModel(ValidationResultModel):
             return item.data(role)
 
 
-class SchemaValidation:
-    def __init__(self):
-        self.models_model = ExportModelsModel()
-        self.datasets_model = ExportDatasetsModel()
-        self.baskets_model = ExportBasketsModel()
-        self.filter_mode = ExportFilterMode.MODEL
-        self.result_model = None
-
-
+"""
+maybe for later use
 class OpenFormDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super().__init__(parent)
@@ -191,9 +206,17 @@ class OpenFormDelegate(QStyledItemDelegate):
         opt = QStyleOptionButton()
         opt.rect = option.rect
         QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
+"""
 
 
 class ValidateDock(QDockWidget, DIALOG_UI):
+    class SchemaValidation:
+        def __init__(self):
+            self.models_model = ExportModelsModel()
+            self.datasets_model = ExportDatasetsModel()
+            self.baskets_model = ExportBasketsModel()
+            self.result_model = None
+
     def __init__(self, base_config, iface):
         QDockWidget.__init__(self, iface.mainWindow())
         self.setupUi(self)
@@ -208,10 +231,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             ValidationResultModel.Roles.TYPE,
         ]
 
+        self.current_configuration = ValidateConfiguration()
+        self.current_schema_identificator = ""
         self.current_models_model = ExportModelsModel()
         self.current_datasets_model = ExportDatasetsModel()
         self.current_baskets_model = ExportBasketsModel()
-        self.current_export_filter = ExportFilterMode.MODEL
+        self.current_filter_mode = ExportFilterMode.NO_FILTER
 
         self.filter_data_panel = FilterDataPanel(self)
         self.filter_layout.addWidget(self.filter_data_panel)
@@ -248,12 +273,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_models_model = ExportModelsModel()
         self.current_datasets_model = ExportDatasetsModel()
         self.current_baskets_model = ExportBasketsModel()
-        self.current_export_filter = ExportFilterMode.MODEL
+        self.current_filter_mode = ExportFilterMode.NO_FILTER
 
     def _reset_gui(self):
         self._reset_current_values()
         self.info_label.setText("")
         self.progress_bar.setTextVisible(False)
+        self.setStyleSheet(NOSTATUS_STYLE)
         self.result_table_view.setModel(
             ValidationResultTableModel(self.requested_roles)
         )
@@ -302,7 +328,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 )
 
             if self.schema_validations.get(self.current_schema_identificator):
-                # don't set result if never got a validation (empty SchemaValidation)
+                # don't set result if never got a validation (empty ValidateDock.SchemaValidation)
                 if self.schema_validations[
                     self.current_schema_identificator
                 ].result_model:
@@ -314,8 +340,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             else:
                 self.schema_validations[
                     self.current_schema_identificator
-                ] = SchemaValidation()
-            self.refresh_export_models()
+                ] = ValidateDock.SchemaValidation()
+
+            self._refresh_export_models()
             self.current_models_model = self.schema_validations[
                 self.current_schema_identificator
             ].models_model
@@ -325,17 +352,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.current_baskets_model = self.schema_validations[
                 self.current_schema_identificator
             ].baskets_model
-            self.current_export_filter = self.schema_validations[
-                self.current_schema_identificator
-            ].filter_mode
-            self.filter_data_panel.setup_dialog(
-                self._basket_handling(self.current_configuration)
-            )
-
+            self.filter_data_panel.setup_dialog(self._basket_handling())
             self.setDisabled(False)
 
     # might be taken from somewhere else
-    def refresh_export_models(self):
+    def _refresh_export_models(self):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         self.schema_validations[
             self.current_schema_identificator
@@ -349,13 +370,14 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         return
 
     # might be taken from somewhere else
-    def _basket_handling(self, configuration):
-        db_connector = db_utils.get_db_connector(configuration)
+    def _basket_handling(self):
+        db_connector = db_utils.get_db_connector(self.current_configuration)
         if db_connector:
             return db_connector.get_basket_handling()
         return False
 
     def run(self, edited_command=None):
+        self.setStyleSheet(NOSTATUS_STYLE)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
         self._disable_controls(True)
@@ -364,22 +386,25 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             validator.tool = self.current_configuration.tool
             validator.configuration = self.current_configuration
 
-        mode = self.schema_validations[self.current_schema_identificator].filter_mode
-        validator.configuration.ilimodels = (
-            ";".join(self.current_models_model.checked_entries())
-            if mode == ExportFilterMode.MODEL
-            else ""
-        )
-        validator.configuration.dataset = (
-            ";".join(self.current_datasets_model.checked_entries())
-            if mode == ExportFilterMode.DATASET
-            else ""
-        )
-        validator.configuration.baskets = (
-            self.current_baskets_model.checked_entries()
-            if mode == ExportFilterMode.BASKET
-            else []
-        )
+        validator.configuration.ilimodels = ""
+        validator.configuration.dataset = ""
+        validator.configuration.baskets = []
+        if self.current_filter_mode == ExportFilterMode.MODEL:
+            validator.configuration.ilimodels = ";".join(
+                self.current_models_model.checked_entries()
+            )
+        elif self.current_filter_mode == ExportFilterMode.DATASET:
+            validator.configuration.dataset = ";".join(
+                self.current_datasets_model.checked_entries()
+            )
+        elif self.current_filter_mode == ExportFilterMode.BASKET:
+            validator.configuration.baskets = (
+                self.current_baskets_model.checked_entries()
+            )
+        else:
+            validator.configuration.ilimodels = ";".join(
+                self.current_models_model.stringList()
+            )
 
         self.progress_bar.setValue(20)
         validation_result_state = False
@@ -413,10 +438,6 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         )
         self.progress_bar.setValue(100)
 
-        print(
-            f"Result here {self.schema_validations[self.current_schema_identificator].result_model.configuration.xtflog}"
-        )
-
     def _set_result(self, valid):
         self.result_table_view.setModel(
             self.schema_validations[self.current_schema_identificator].result_model
@@ -428,9 +449,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             OpenFormDelegate(self),
         )
         """
-        self.progress_bar.setFormat(
-            self.tr("Schema is valid") if valid else self.tr("Schema is not valid")
-        )
+        if valid:
+            self.progress_bar.setFormat(self.tr("Schema is valid"))
+            self.setStyleSheet(VALID_STYLE)
+        else:
+            self.progress_bar.setFormat(self.tr("Schema is not valid"))
+            self.setStyleSheet(INVALID_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
 

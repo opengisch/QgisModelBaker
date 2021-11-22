@@ -16,34 +16,6 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <layout class="QVBoxLayout" name="filter_layout"/>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="check_label">
-        <property name="text">
-         <string>Check it</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="run_button">
-        <property name="text">
-         <string>✔</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QProgressBar" name="progress_bar">
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <widget class="QLabel" name="info_label">
       <property name="text">
        <string/>
@@ -54,7 +26,34 @@
      </widget>
     </item>
     <item>
-     <widget class="QTableView" name="result_table_view"/>
+     <layout class="QVBoxLayout" name="filter_layout"/>
+    </item>
+    <item>
+     <widget class="QWidget" name="validation_layout" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QToolButton" name="run_button">
+           <property name="text">
+            <string>✔</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="progress_bar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="result_table_view"/>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

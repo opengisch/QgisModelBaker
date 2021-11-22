@@ -49,11 +49,15 @@ class FilterDataPanel(QWidget, WIDGET_UI):
 
             self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
 
+        if self.parent.current_filter_mode == wizard_tools.ExportFilterMode.NO_FILTER:
+            self.items_view.setHidden(True)
+            self.select_all_checkbox.setHidden(True)
+
     def _refresh_filter_combobox(self, basket_handling):
-        stored_index = self.filter_combobox.findData(self.parent.current_export_filter)
+        stored_index = self.filter_combobox.findData(self.parent.current_filter_mode)
         self.filter_combobox.clear()
         self.filter_combobox.addItem(
-            self.tr("No filter (export all models)"),
+            self.tr("No filter (all models)"),
             wizard_tools.ExportFilterMode.NO_FILTER,
         )
         self.filter_combobox.addItem(
@@ -79,28 +83,26 @@ class FilterDataPanel(QWidget, WIDGET_UI):
 
     def _set_export_filter_view_model(self, model):
         try:
-            self.export_items_view.clicked.disconnect()
-            self.export_items_view.space_pressed.disconnect()
-            self.export_items_view.model().dataChanged.disconnect()
+            self.items_view.clicked.disconnect()
+            self.items_view.space_pressed.disconnect()
+            self.items_view.model().dataChanged.disconnect()
         except Exception:
             pass
 
-        self.export_items_view.setModel(model)
-        self.export_items_view.clicked.connect(self.export_items_view.model().check)
-        self.export_items_view.space_pressed.connect(
-            self.export_items_view.model().check
-        )
-        self.export_items_view.model().dataChanged.connect(
+        self.items_view.setModel(model)
+        self.items_view.clicked.connect(self.items_view.model().check)
+        self.items_view.space_pressed.connect(self.items_view.model().check)
+        self.items_view.model().dataChanged.connect(
             lambda: self._set_select_all_checkbox()
         )
 
     def _filter_changed(self):
         filter = self.filter_combobox.currentData()
         if filter == wizard_tools.ExportFilterMode.NO_FILTER:
-            self.export_items_view.setHidden(True)
+            self.items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
         else:
-            self.export_items_view.setVisible(True)
+            self.items_view.setVisible(True)
             self.select_all_checkbox.setVisible(True)
             if filter == wizard_tools.ExportFilterMode.MODEL:
                 self._set_export_filter_view_model(self.parent.current_models_model)
@@ -112,17 +114,17 @@ class FilterDataPanel(QWidget, WIDGET_UI):
                 self._set_export_filter_view_model(self.parent.current_baskets_model)
                 self.select_all_checkbox.setText(self.tr("Select all baskets"))
             self._set_select_all_checkbox()
-        self.parent.current_export_filter = filter
+        self.parent.current_filter_mode = filter
 
     def _select_all_items(self, state):
         if state != Qt.PartiallyChecked and state != self._evaluated_check_state(
-            self.export_items_view.model()
+            self.items_view.model()
         ):
-            self.export_items_view.model().check_all(state)
+            self.items_view.model().check_all(state)
 
     def _set_select_all_checkbox(self):
         self.select_all_checkbox.setCheckState(
-            self._evaluated_check_state(self.export_items_view.model())
+            self._evaluated_check_state(self.items_view.model())
         )
 
     def _evaluated_check_state(self, model):
