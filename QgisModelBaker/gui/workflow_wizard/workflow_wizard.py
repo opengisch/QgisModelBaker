@@ -45,13 +45,13 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
-    ExportBasketsModel,
-    ExportDatasetsModel,
-    ExportFilterMode,
-    ExportModelsModel,
     ImportDataModel,
     ImportModelsModel,
     PageIds,
+    SchemaBasketsModel,
+    SchemaDataFilterMode,
+    SchemaDatasetsModel,
+    SchemaModelsModel,
     SourceModel,
     TransferExtensions,
 )
@@ -113,15 +113,15 @@ class WorkflowWizard(QWizard):
         self.ilireferencedatacache.new_message.connect(self.log_panel.show_message)
 
         # the export_models_model keeps every single model found in the current database and keeps the selected models
-        self.export_models_model = ExportModelsModel()
+        self.export_models_model = SchemaModelsModel()
         # the export_datasets_model keeps every dataset found in the current database and keeps the selected dataset
-        self.export_datasets_model = ExportDatasetsModel()
+        self.export_datasets_model = SchemaDatasetsModel()
         # the export_baskets_model keeps every baskets found in the current database and keeps the selected baskets
-        self.export_baskets_model = ExportBasketsModel()
+        self.export_baskets_model = SchemaBasketsModel()
 
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
-        self.current_export_filter = ExportFilterMode.NO_FILTER
+        self.current_export_filter = SchemaDataFilterMode.NO_FILTER
 
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
@@ -336,11 +336,11 @@ class WorkflowWizard(QWizard):
             models = []
             datasets = []
             baskets = []
-            if self.current_export_filter == ExportFilterMode.MODEL:
+            if self.current_export_filter == SchemaDataFilterMode.MODEL:
                 models = self.export_models_model.checked_entries()
-            elif self.current_export_filter == ExportFilterMode.DATASET:
+            elif self.current_export_filter == SchemaDataFilterMode.DATASET:
                 datasets = self.export_datasets_model.checked_entries()
-            elif self.current_export_filter == ExportFilterMode.BASKET:
+            elif self.current_export_filter == SchemaDataFilterMode.BASKET:
                 baskets = self.export_baskets_model.checked_entries()
             else:
                 # no filter - export all models

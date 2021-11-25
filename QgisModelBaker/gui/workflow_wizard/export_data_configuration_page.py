@@ -102,23 +102,23 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.filter_combobox.clear()
         self.filter_combobox.addItem(
             self.tr("No filter (export all models)"),
-            wizard_tools.ExportFilterMode.NO_FILTER,
+            wizard_tools.SchemaDataFilterMode.NO_FILTER,
         )
         self.filter_combobox.addItem(
-            self.tr("Models"), wizard_tools.ExportFilterMode.MODEL
+            self.tr("Models"), wizard_tools.SchemaDataFilterMode.MODEL
         )
         if basket_handling:
             self.filter_combobox.addItem(
-                self.tr("Datasets"), wizard_tools.ExportFilterMode.DATASET
+                self.tr("Datasets"), wizard_tools.SchemaDataFilterMode.DATASET
             )
             self.filter_combobox.addItem(
-                self.tr("Baskets"), wizard_tools.ExportFilterMode.BASKET
+                self.tr("Baskets"), wizard_tools.SchemaDataFilterMode.BASKET
             )
         if self.filter_combobox.itemData(stored_index):
             self.filter_combobox.setCurrentIndex(stored_index)
             if (
                 self.filter_combobox.itemData(stored_index)
-                != wizard_tools.ExportFilterMode.NO_FILTER
+                != wizard_tools.SchemaDataFilterMode.NO_FILTER
             ):
                 self._set_select_all_checkbox()
         else:
@@ -144,23 +144,23 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def _filter_changed(self):
         filter = self.filter_combobox.currentData()
-        if filter == wizard_tools.ExportFilterMode.NO_FILTER:
+        if filter == wizard_tools.SchemaDataFilterMode.NO_FILTER:
             self.export_items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
         else:
             self.export_items_view.setVisible(True)
             self.select_all_checkbox.setVisible(True)
-            if filter == wizard_tools.ExportFilterMode.MODEL:
+            if filter == wizard_tools.SchemaDataFilterMode.MODEL:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_models_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all models"))
-            if filter == wizard_tools.ExportFilterMode.DATASET:
+            if filter == wizard_tools.SchemaDataFilterMode.DATASET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_datasets_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all datasets"))
-            if filter == wizard_tools.ExportFilterMode.BASKET:
+            if filter == wizard_tools.SchemaDataFilterMode.BASKET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_baskets_model
                 )

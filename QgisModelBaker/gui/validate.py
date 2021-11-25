@@ -30,10 +30,10 @@ from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
 from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
-    ExportBasketsModel,
-    ExportDatasetsModel,
-    ExportFilterMode,
-    ExportModelsModel,
+    SchemaBasketsModel,
+    SchemaDataFilterMode,
+    SchemaDatasetsModel,
+    SchemaModelsModel,
 )
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
@@ -78,6 +78,10 @@ NOSTATUS_STYLE = """
 
 # validate tools
 class ValidationResultModel(QStandardItemModel):
+    """
+    Model containing all the error/warning data of the current xtf file.
+    """
+
     class Roles(Enum):
         ID = Qt.UserRole + 1
         MESSAGE = Qt.UserRole + 2
@@ -165,6 +169,7 @@ class ValidationResultModel(QStandardItemModel):
                         )
                         self.appendRow(item)
 
+                    # dave remove log
                     print(
                         """
                         id: {}\n
@@ -203,7 +208,7 @@ class ValidationResultModel(QStandardItemModel):
 
 class ValidationResultTableModel(ValidationResultModel):
     """
-    roles can define on what position what role should be provided
+    Model providing the data of the parsed xtf file to the defined columns for the table view use.
     """
 
     def __init__(self, roles):
@@ -230,7 +235,8 @@ class ValidationResultTableModel(ValidationResultModel):
 
 
 """
-maybe for later use
+dave remove it if not used.
+maybe for later use:
 class OpenFormDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super().__init__(parent)
@@ -251,10 +257,14 @@ class OpenFormDelegate(QStyledItemDelegate):
 
 class ValidateDock(QDockWidget, DIALOG_UI):
     class SchemaValidation:
+        """
+        A "validation" should be keeped on layer change and "reused" if it's the same database schema of the layer.
+        """
+
         def __init__(self):
-            self.models_model = ExportModelsModel()
-            self.datasets_model = ExportDatasetsModel()
-            self.baskets_model = ExportBasketsModel()
+            self.models_model = SchemaModelsModel()
+            self.datasets_model = SchemaDatasetsModel()
+            self.baskets_model = SchemaBasketsModel()
             self.result_model = None
 
     def __init__(self, base_config, iface):
@@ -263,53 +273,32 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.iface = iface
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.run_button.clicked.connect(self.run)
+
         self.schema_validations = {}
         self.requested_roles = [ValidationResultModel.Roles.MESSAGE]
 
         self.current_configuration = ValidateConfiguration()
         self.current_schema_identificator = ""
-        self.current_models_model = ExportModelsModel()
-        self.current_datasets_model = ExportDatasetsModel()
-        self.current_baskets_model = ExportBasketsModel()
-        self.current_filter_mode = ExportFilterMode.NO_FILTER
+        self.current_models_model = SchemaModelsModel()
+        self.current_datasets_model = SchemaDatasetsModel()
+        self.current_baskets_model = SchemaBasketsModel()
+        self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
         self.filter_data_panel = FilterDataPanel(self)
-        self.filter_data_panel.setMaximumHeight(self.height() / 4)
         self.filter_layout.addWidget(self.filter_data_panel)
         self._reset_gui()
+
+        self.run_button.clicked.connect(self._run)
         self.result_table_view.clicked.connect(self._table_clicked)
         self.visibilityChanged.connect(self._visibility_changed)
-
-    def _table_clicked(self):
-        index = self.result_table_view.selectionModel().currentIndex()
-        coord_x = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.COORD_X)
-        )
-        coord_y = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.COORD_Y)
-        )
-        self._zoom_to_coordinate(coord_x, coord_y)
-
-        t_ili_tid = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.TID)
-        )
-        if t_ili_tid:
-            layer, feature = self._get_feature_in_project(t_ili_tid)
-            if layer and feature:
-                self.iface.openFeatureForm(layer, feature, True)
-
-    def _visibility_changed(self, visible):
-        if visible:
-            self.set_current_layer(self.iface.activeLayer())
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
         self.current_schema_identificator = ""
-        self.current_models_model = ExportModelsModel()
-        self.current_datasets_model = ExportDatasetsModel()
-        self.current_baskets_model = ExportBasketsModel()
-        self.current_filter_mode = ExportFilterMode.NO_FILTER
+        self.current_models_model = SchemaModelsModel()
+        self.current_datasets_model = SchemaDatasetsModel()
+        self.current_baskets_model = SchemaBasketsModel()
+        self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
     def _reset_gui(self):
         self._reset_current_values()
@@ -327,6 +316,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
         self.result_table_view.setSelectionMode(QHeaderView.SingleSelection)
 
+        self.filter_data_panel.setMaximumHeight(self.height() / 4)
         self.setDisabled(True)
 
     def set_current_layer(self, layer):
@@ -377,7 +367,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     self.current_schema_identificator
                 ] = ValidateDock.SchemaValidation()
 
-            self._refresh_export_models()
+            self._refresh_schemadata_models()
             self.current_models_model = self.schema_validations[
                 self.current_schema_identificator
             ].models_model
@@ -390,8 +380,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.filter_data_panel.setup_dialog(self._basket_handling())
             self.setDisabled(False)
 
-    # might be taken from somewhere else
-    def _refresh_export_models(self):
+    def _visibility_changed(self, visible):
+        if visible:
+            self.set_current_layer(self.iface.activeLayer())
+
+    def _refresh_schemadata_models(self):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         self.schema_validations[
             self.current_schema_identificator
@@ -404,14 +397,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         ].baskets_model.refresh_model(db_connector)
         return
 
-    # might be taken from somewhere else
     def _basket_handling(self):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         if db_connector:
             return db_connector.get_basket_handling()
         return False
 
-    def run(self, edited_command=None):
+    def _run(self, edited_command=None):
         self.setStyleSheet(NOSTATUS_STYLE)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
@@ -424,15 +416,15 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         validator.configuration.ilimodels = ""
         validator.configuration.dataset = ""
         validator.configuration.baskets = []
-        if self.current_filter_mode == ExportFilterMode.MODEL:
+        if self.current_filter_mode == SchemaDataFilterMode.MODEL:
             validator.configuration.ilimodels = ";".join(
                 self.current_models_model.checked_entries()
             )
-        elif self.current_filter_mode == ExportFilterMode.DATASET:
+        elif self.current_filter_mode == SchemaDataFilterMode.DATASET:
             validator.configuration.dataset = ";".join(
                 self.current_datasets_model.checked_entries()
             )
-        elif self.current_filter_mode == ExportFilterMode.BASKET:
+        elif self.current_filter_mode == SchemaDataFilterMode.BASKET:
             validator.configuration.baskets = (
                 self.current_baskets_model.checked_entries()
             )
@@ -482,7 +474,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setTextElideMode(Qt.ElideLeft)
         self.result_table_view.resizeRowsToContents()
 
-        """
+        """ dave remove if not used
         not sure if we should make it like this
         self.result_table_view.setItemDelegateForColumn(
             0,
@@ -501,6 +493,24 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _disable_controls(self, disable):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
+
+    def _table_clicked(self):
+        index = self.result_table_view.selectionModel().currentIndex()
+        coord_x = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.COORD_X)
+        )
+        coord_y = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.COORD_Y)
+        )
+        self._zoom_to_coordinate(coord_x, coord_y)
+
+        t_ili_tid = index.sibling(index.row(), index.column()).data(
+            int(ValidationResultModel.Roles.TID)
+        )
+        if t_ili_tid:
+            layer, feature = self._get_feature_in_project(t_ili_tid)
+            if layer and feature:
+                self.iface.openFeatureForm(layer, feature, True)
 
     def _zoom_to_coordinate(self, x, y):
         if x and y:

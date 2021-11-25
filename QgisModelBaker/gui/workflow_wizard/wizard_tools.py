@@ -112,7 +112,7 @@ class PageIds:
     ProjectCreation = 12
 
 
-class ExportFilterMode(IntEnum):
+class SchemaDataFilterMode(IntEnum):
     NO_FILTER = 1
     MODEL = 2
     DATASET = 3
@@ -642,7 +642,7 @@ class CheckEntriesModel(QStringListModel):
         ]
 
 
-class ExportModelsModel(CheckEntriesModel):
+class SchemaModelsModel(CheckEntriesModel):
     """
     Model providing all the models from the database (except the blacklisted ones) and it's checked state
     """
@@ -669,7 +669,7 @@ class ExportModelsModel(CheckEntriesModel):
         return self.rowCount()
 
 
-class ExportDatasetsModel(CheckEntriesModel):
+class SchemaDatasetsModel(CheckEntriesModel):
     """
     Model providing all the datasets from the database and it's checked state
     """
@@ -695,7 +695,7 @@ class ExportDatasetsModel(CheckEntriesModel):
         return self.rowCount()
 
 
-class ExportBasketsModel(CheckEntriesModel):
+class SchemaBasketsModel(CheckEntriesModel):
     """
     Model providing all the datasets from the database and it's checked state
     """
