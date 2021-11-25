@@ -21,7 +21,7 @@ import os
 import xml.etree.cElementTree as CET
 from enum import Enum
 
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QColor, QStandardItem, QStandardItemModel
 from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject, QgsRectangle
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
@@ -46,6 +46,8 @@ from ..utils import ui
 
 DIALOG_UI = ui.get_ui_class("validator.ui")
 
+VALID_COLOR = "#adde9b"
+
 VALID_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
     QProgressBar::chunk {background-color: #adde9b; width: 20px;}
@@ -55,6 +57,8 @@ VALID_STYLE = """
         text-align: center;
     }
     """
+
+INVALID_COLOR = "#de9b9b"
 
 INVALID_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
@@ -96,6 +100,8 @@ class ValidationResultModel(QStandardItemModel):
         COORD_X = Qt.UserRole + 11
         COORD_Y = Qt.UserRole + 12
         TECH_DETAILS = Qt.UserRole + 13
+
+        FIXED = Qt.UserRole + 14
 
         def __int__(self):
             return self.value
@@ -167,6 +173,7 @@ class ValidationResultModel(QStandardItemModel):
                         item.setData(
                             tech_details, int(ValidationResultModel.Roles.TECH_DETAILS)
                         )
+                        item.setData(False, int(ValidationResultModel.Roles.FIXED))
                         self.appendRow(item)
 
                     # dave remove log
@@ -225,6 +232,12 @@ class ValidationResultTableModel(ValidationResultModel):
         if item:
             if role == Qt.DisplayRole:
                 return item.data(int(self.roles[index.column()]))
+            if role == Qt.DecorationRole:
+                return (
+                    QColor(VALID_COLOR)
+                    if item.data(int(ValidationResultModel.Roles.FIXED))
+                    else QColor(INVALID_COLOR)
+                )
             if role == Qt.ToolTipRole:
                 tooltip_text = "{type} at {tid}".format(
                     type=item.data(int(ValidationResultModel.Roles.TYPE)),
@@ -504,6 +517,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
+        id = index.data(int(ValidationResultModel.Roles.ID))
 
         menu = QMenu()
         if coord_x and coord_y:
@@ -516,6 +530,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             action_open_form = QAction(self.tr("Open Attributeform"), self)
             action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
             menu.addAction(action_open_form)
+        if id:
+            action_fix = QAction(
+                self.tr("Set to unfixed")
+                if index.data(int(ValidationResultModel.Roles.FIXED))
+                else self.tr("Set to fixed"),
+                self,
+            )
+            action_fix.triggered.connect(
+                lambda: self.result_table_view.model().setData(
+                    index,
+                    not index.data(int(ValidationResultModel.Roles.FIXED)),
+                    int(ValidationResultModel.Roles.FIXED),
+                )
+            )
+            menu.addAction(action_fix)
         menu.exec_(self.result_table_view.mapToGlobal(pos))
 
     def _zoom_to_coordinate(self, x, y):
