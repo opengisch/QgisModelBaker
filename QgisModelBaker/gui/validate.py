@@ -22,7 +22,7 @@ import xml.etree.cElementTree as CET
 from enum import Enum
 
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from qgis.core import QgsDataSourceUri, QgsProject, QgsRectangle
+from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject, QgsRectangle
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
 from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
@@ -164,6 +164,40 @@ class ValidationResultModel(QStandardItemModel):
                             tech_details, int(ValidationResultModel.Roles.TECH_DETAILS)
                         )
                         self.appendRow(item)
+
+                    print(
+                        """
+                        id: {}\n
+                    message: {}\n
+                    type: {}\n
+                    obj_tag: {}\n
+                    tid: {}\n
+                    tech_id: {}\n
+                    user_id: {}\n
+                    ili_q_name: {}\n
+                    data_source: {}\n
+                    line: {}\n
+                    coord_x: {}\n
+                    coord_y: {}\n
+                    geometry: {}\n
+                    tech_details
+                    """.format(
+                            id,
+                            message,
+                            type,
+                            obj_tag,
+                            tid,
+                            tech_id,
+                            user_id,
+                            ili_q_name,
+                            data_source,
+                            line,
+                            coord_x,
+                            coord_y,
+                            geometry,
+                            tech_details,
+                        )
+                    )
         self.endResetModel()
 
 
@@ -186,6 +220,12 @@ class ValidationResultTableModel(ValidationResultModel):
         if item:
             if role == Qt.DisplayRole:
                 return item.data(int(self.roles[index.column()]))
+            if role == Qt.ToolTipRole:
+                tooltip_text = "{type} at {tid}".format(
+                    type=item.data(int(ValidationResultModel.Roles.TYPE)),
+                    tid=item.data(int(ValidationResultModel.Roles.TID)),
+                )
+                return tooltip_text
             return item.data(role)
 
 
@@ -225,11 +265,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         QgsGui.instance().enableAutoGeometryRestore(self)
         self.run_button.clicked.connect(self.run)
         self.schema_validations = {}
-        self.requested_roles = [
-            ValidationResultModel.Roles.TID,
-            ValidationResultModel.Roles.MESSAGE,
-            ValidationResultModel.Roles.TYPE,
-        ]
+        self.requested_roles = [ValidationResultModel.Roles.MESSAGE]
 
         self.current_configuration = ValidateConfiguration()
         self.current_schema_identificator = ""
@@ -240,6 +276,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         self.filter_data_panel = FilterDataPanel(self)
         self.filter_layout.addWidget(self.filter_data_panel)
+        self.filter_layout.sizePolicy().setVerticalStretch(1)
+        self.validation_layout.sizePolicy().setVerticalStrech(5)
 
         self._reset_gui()
         self.result_table_view.clicked.connect(self._table_clicked)
@@ -284,13 +322,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             ValidationResultTableModel(self.requested_roles)
         )
         self.result_table_view.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.Stretch
+            0, QHeaderView.Stretch
         )
-        self.result_table_view.setWordWrap(True)
-        self.result_table_view.setTextElideMode(Qt.ElideLeft)
-        self.result_table_view.resizeRowsToContents()
         self.result_table_view.verticalHeader().hide()
+        self.result_table_view.horizontalHeader().hide()
         self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
+        self.result_table_view.setSelectionMode(QHeaderView.SingleSelection)
 
         self.setDisabled(True)
 
@@ -442,6 +479,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setModel(
             self.schema_validations[self.current_schema_identificator].result_model
         )
+
+        self.result_table_view.setWordWrap(True)
+        self.result_table_view.setTextElideMode(Qt.ElideLeft)
+        self.result_table_view.resizeRowsToContents()
+
         """
         not sure if we should make it like this
         self.result_table_view.setItemDelegateForColumn(
@@ -473,10 +515,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
-            idx = layer.fields().lookupField("t_ili_tid")
-            if idx < 0:
-                continue
-            for feature in layer.getFeatures():
-                if feature.attributes()[idx] == t_ili_tid:
-                    return layer, feature
+            if layer.type() == QgsMapLayer.VectorLayer:
+                idx = layer.fields().lookupField("t_ili_tid")
+                if idx < 0:
+                    continue
+                for feature in layer.getFeatures():
+                    if feature.attributes()[idx] == t_ili_tid:
+                        return layer, feature
         return None, None
