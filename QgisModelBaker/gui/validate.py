@@ -25,7 +25,7 @@ from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject, QgsRectangle
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
-from qgis.PyQt.QtWidgets import QDockWidget, QHeaderView
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
@@ -289,9 +289,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.filter_layout.addWidget(self.filter_data_panel)
         self._reset_gui()
 
+        # self.result_table_view.right_pressed.connect(self._table_clicked)
         self.run_button.clicked.connect(self._run)
-        self.result_table_view.clicked.connect(self._table_clicked)
         self.visibilityChanged.connect(self._visibility_changed)
+
+        self.result_table_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.result_table_view.customContextMenuRequested.connect(self._table_clicked)
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
@@ -494,23 +497,26 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
 
-    def _table_clicked(self):
-        index = self.result_table_view.selectionModel().currentIndex()
-        coord_x = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.COORD_X)
-        )
-        coord_y = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.COORD_Y)
-        )
-        self._zoom_to_coordinate(coord_x, coord_y)
+    def _table_clicked(self, pos):
+        selection_index = self.result_table_view.selectionModel().currentIndex()
+        index = selection_index.sibling(selection_index.row(), selection_index.column())
 
-        t_ili_tid = index.sibling(index.row(), index.column()).data(
-            int(ValidationResultModel.Roles.TID)
-        )
+        coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
+        coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
+        t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
+
+        menu = QMenu()
+        if coord_x and coord_y:
+            action_zoom_to = QAction(self.tr("Zoom to Coordinates"), self)
+            action_zoom_to.triggered.connect(
+                lambda: self._zoom_to_coordinate(coord_x, coord_y)
+            )
+            menu.addAction(action_zoom_to)
         if t_ili_tid:
-            layer, feature = self._get_feature_in_project(t_ili_tid)
-            if layer and feature:
-                self.iface.openFeatureForm(layer, feature, True)
+            action_open_form = QAction(self.tr("Open Attributeform"), self)
+            action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
+            menu.addAction(action_open_form)
+        menu.exec_(self.result_table_view.mapToGlobal(pos))
 
     def _zoom_to_coordinate(self, x, y):
         if x and y:
@@ -520,6 +526,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             )
             self.iface.mapCanvas().setExtent(rect)
             self.iface.mapCanvas().refresh()
+
+    def _open_form(self, t_ili_tid):
+        layer, feature = self._get_feature_in_project(t_ili_tid)
+        if layer and feature:
+            self.iface.openFeatureForm(layer, feature, True)
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
