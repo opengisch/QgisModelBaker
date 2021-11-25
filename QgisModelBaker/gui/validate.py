@@ -275,10 +275,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_filter_mode = ExportFilterMode.NO_FILTER
 
         self.filter_data_panel = FilterDataPanel(self)
+        self.filter_data_panel.setMaximumHeight(self.height() / 4)
         self.filter_layout.addWidget(self.filter_data_panel)
-        self.filter_layout.sizePolicy().setVerticalStretch(1)
-        self.validation_layout.sizePolicy().setVerticalStrech(5)
-
         self._reset_gui()
         self.result_table_view.clicked.connect(self._table_clicked)
         self.visibilityChanged.connect(self._visibility_changed)
