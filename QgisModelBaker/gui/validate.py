@@ -285,6 +285,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
         self.filter_data_panel = FilterDataPanel(self)
+        self.filter_data_panel.setMaximumHeight(self.height() / 4)
         self.filter_layout.addWidget(self.filter_data_panel)
         self._reset_gui()
 
@@ -316,7 +317,6 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
         self.result_table_view.setSelectionMode(QHeaderView.SingleSelection)
 
-        self.filter_data_panel.setMaximumHeight(self.height() / 4)
         self.setDisabled(True)
 
     def set_current_layer(self, layer):
