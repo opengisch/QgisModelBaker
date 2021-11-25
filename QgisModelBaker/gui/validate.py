@@ -175,41 +175,6 @@ class ValidationResultModel(QStandardItemModel):
                         )
                         item.setData(False, int(ValidationResultModel.Roles.FIXED))
                         self.appendRow(item)
-
-                    # dave remove log
-                    print(
-                        """
-                        id: {}\n
-                    message: {}\n
-                    type: {}\n
-                    obj_tag: {}\n
-                    tid: {}\n
-                    tech_id: {}\n
-                    user_id: {}\n
-                    ili_q_name: {}\n
-                    data_source: {}\n
-                    line: {}\n
-                    coord_x: {}\n
-                    coord_y: {}\n
-                    geometry: {}\n
-                    tech_details
-                    """.format(
-                            id,
-                            message,
-                            type,
-                            obj_tag,
-                            tid,
-                            tech_id,
-                            user_id,
-                            ili_q_name,
-                            data_source,
-                            line,
-                            coord_x,
-                            coord_y,
-                            geometry,
-                            tech_details,
-                        )
-                    )
         self.endResetModel()
 
 
@@ -246,26 +211,13 @@ class ValidationResultTableModel(ValidationResultModel):
                 return tooltip_text
             return item.data(role)
 
-
-"""
-dave remove it if not used.
-maybe for later use:
-class OpenFormDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-    def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonRelease:
-            value = f"t_ili_tid {index.data(int(ValidationResultModel.Roles.TID))}"
-            print(value)
-            return True
-        return super().editorEvent(event, model, option, index)
-
-    def paint(self, painter, option, index):
-        opt = QStyleOptionButton()
-        opt.rect = option.rect
-        QApplication.style().drawControl(QStyle.CE_PushButton, opt, painter)
-"""
+    def setFixed(self, index):
+        item = self.item(index.row(), 0)
+        if item:
+            item.setData(
+                not item.data(int(ValidationResultModel.Roles.FIXED)),
+                int(ValidationResultModel.Roles.FIXED),
+            )
 
 
 class ValidateDock(QDockWidget, DIALOG_UI):
@@ -490,13 +442,6 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setTextElideMode(Qt.ElideLeft)
         self.result_table_view.resizeRowsToContents()
 
-        """ dave remove if not used
-        not sure if we should make it like this
-        self.result_table_view.setItemDelegateForColumn(
-            0,
-            OpenFormDelegate(self),
-        )
-        """
         if valid:
             self.progress_bar.setFormat(self.tr("Schema is valid"))
             self.setStyleSheet(VALID_STYLE)
@@ -527,7 +472,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             )
             menu.addAction(action_zoom_to)
         if t_ili_tid:
-            action_open_form = QAction(self.tr("Open Attributeform"), self)
+            action_open_form = QAction(self.tr("Open Feature Form"), self)
             action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
             menu.addAction(action_open_form)
         if id:
@@ -538,11 +483,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 self,
             )
             action_fix.triggered.connect(
-                lambda: self.result_table_view.model().setData(
-                    index,
-                    not index.data(int(ValidationResultModel.Roles.FIXED)),
-                    int(ValidationResultModel.Roles.FIXED),
-                )
+                lambda: self.result_table_view.model().setFixed(index)
             )
             menu.addAction(action_fix)
         menu.exec_(self.result_table_view.mapToGlobal(pos))
