@@ -30,6 +30,7 @@ from decimal import Decimal
 import yaml
 from qgis.core import Qgis, QgsEditFormConfig, QgsProject, QgsRelation
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
+from qgis.PyQt.QtXml import QDomDocument
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db import iliimporter
@@ -3512,6 +3513,84 @@ class TestProjectGen(unittest.TestCase):
             (field for field in infra_po.fields if field.name == "naechste_kontrolle")
         )
         assert naechste_kontrolle.alias == "Naechste_Kontrolle"
+
+    def test_array_mapping(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
+        importer.configuration.ilimodels = 'ArrayMapping'
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath,
+            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(
+                datetime.datetime.now()
+            ),
+        )
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = 'smart2'
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, "smart2")
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        layer_the_class = None
+        for layer in available_layers:
+            if (layer.name == "theclass"):
+                layer_the_class = layer
+                break
+        assert layer_the_class
+
+        layer_the_class = QgsProject.instance().mapLayersByName("TheClass")[0]
+        fields = layer_the_class.fields()
+        index=fields.indexOf("itemsarray")
+        print("index = '{}'".format(index))
+        setup=fields.at(index).editorWidgetSetup()
+        
+        print("setup.type() = '{}'".format(setup.type()))
+
+
+        print(layer_the_class.layer.fields().indexOf("itemsarray"))
+        print(layer_the_class.layer.editFormConfig().widgetConfig("itemsarray"))
+
+        #field_item_array = None
+        #for field in  layer.layer.fields():
+        #    if field.name() == 'itemsarray':
+        #        field_item_array = field
+        #        continue
+        #assert field_item_array
+
+        #editor_widget_setup = field_item_array.editorWidgetSetup()
+        #self.assertEqual(editor_widget_setup.type(), 'ValueMap')
+
+        field_item_array = None
+        for field in layer_the_class.fields:
+            if field.name == 'itemsarray':
+                 field_item_array = field
+                 continue
+        assert field_item_array
+
+        print("widget: {}".format(field_item_array.widget))
+        print("widget_config: {}".format(field_item_array.widget_config))
+
+        self.assertEqual(field_item_array.widget, 'KeyValue') # List
+
 
     def print_info(self, text):
         logging.info(text)
