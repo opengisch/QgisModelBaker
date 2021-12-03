@@ -29,6 +29,7 @@ import pyodbc
 from qgis import utils
 from qgis.testing import start_app, unittest
 
+import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import (
@@ -292,6 +293,162 @@ class TestImport(unittest.TestCase):
         assert record[0] == "Posesion"
         assert record[1] == persona_id  # FK persona
         assert record[2] == predio_id  # FK predio
+
+    def test_tid_import_postgis(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
+        importer.configuration.dbschema = "any_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        # Expected tid handling
+        db_connector = db_utils.get_db_connector(importer.configuration)
+        assert db_connector.get_tid_handling()
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2pg
+        dataImporter.configuration = ilidataimporter_config(importer.tool)
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.xtffile = testdata_path(
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.with_importtid = True
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
+
+        # Check expected data is there in the database schema
+        config_manager = PgCommandConfigManager(dataImporter.configuration)
+        uri = config_manager.get_uri()
+        conn = psycopg2.connect(uri)
+
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                SELECT {}
+                FROM {}.haltestelle
+                WHERE aname = 'Oberwinterthur'
+            """.format(
+                db_connector.tilitid, dataImporter.configuration.dbschema
+            )
+        )
+        record = next(cursor)
+        assert record is not None
+        assert record[0] == "59ba6620-6cbc-452f-91c2-ea2574b47330"
+
+    def test_tid_import_geopackage(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath, "tmp_basket_gpkg.gpkg"
+        )
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        # Expected tid handling
+        db_connector = db_utils.get_db_connector(importer.configuration)
+        assert db_connector.get_tid_handling()
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2gpkg
+        dataImporter.configuration = ilidataimporter_config(importer.tool)
+        dataImporter.configuration.dbfile = importer.configuration.dbfile
+        dataImporter.configuration.xtffile = testdata_path(
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.with_importtid = True
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
+
+        # Check expected data is there in the database schema
+        conn = utils.spatialite_connect(importer.configuration.dbfile)
+
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                SELECT {}
+                FROM haltestelle
+                WHERE aname = 'Oberwinterthur'
+            """.format(
+                db_connector.tilitid, dataImporter.configuration.dbschema
+            )
+        )
+        record = next(cursor)
+        assert record is not None
+        assert record[0] == "59ba6620-6cbc-452f-91c2-ea2574b47330"
+
+    def test_tid_import_mssql(self):
+        # Schema Import
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/OeVBasketTest_V1.ili")
+        importer.configuration.ilimodels = "OeVBasketTest"
+        importer.configuration.dbschema = "baskets_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        # Expected tid handling
+        db_connector = db_utils.get_db_connector(importer.configuration)
+        assert db_connector.get_tid_handling()
+
+        # Import data
+        dataImporter = iliimporter.Importer(dataImport=True)
+        dataImporter.tool = DbIliMode.ili2mssql
+        dataImporter.configuration = ilidataimporter_config(importer.tool)
+        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.xtffile = testdata_path(
+            "xtf/test_oevbaskettest_v1_winti.xtf"
+        )
+        dataImporter.configuration.with_importtid = True
+        dataImporter.stdout.connect(self.print_info)
+        dataImporter.stderr.connect(self.print_error)
+        assert dataImporter.run() == iliimporter.Importer.SUCCESS
+
+        # Check expected data is there in the database schema
+        uri = "DSN={dsn};DATABASE={db};UID={uid};PWD={pwd}".format(
+            dsn="testsqlserver",
+            db=importer.configuration.database,
+            uid=importer.configuration.dbusr,
+            pwd=importer.configuration.dbpwd,
+        )
+        conn = pyodbc.connect(uri)
+
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+                SELECT {}
+                FROM {}.haltestelle
+                WHERE aname = 'Oberwinterthur'
+            """.format(
+                db_connector.tilitid, dataImporter.configuration.dbschema
+            )
+        )
+        record = next(cursor)
+        assert record is not None
+        assert record[0] == "59ba6620-6cbc-452f-91c2-ea2574b47330"
 
     def print_info(self, text):
         logging.info(text)

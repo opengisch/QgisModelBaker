@@ -249,6 +249,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
             self.append_args(args, ["--createEnumTabsWithId"], True)
             self.append_args(args, ["--createTidCol"], True)
 
+        # version 3 backwards compatibility (not needed in newer versions)
         if self.create_import_tid:
             self.append_args(args, ["--importTid"])
 
