@@ -102,6 +102,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
+            self.configuration.with_importtid = self._get_tid_handling()
             self.info_label.setText(
                 self.tr("Import {} of {}").format(", ".join(self.models), self.file)
             )
@@ -109,6 +110,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
+            self.configuration.with_exporttid = self._get_tid_handling()
             self.info_label.setText(
                 self.tr('Export of "{}" \nto {}').format(
                     '", "'.join(self.models)
@@ -280,3 +282,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 ).format(message),
                 LogColor.COLOR_FAIL,
             )
+
+    def _get_tid_handling(self):
+        db_connector = db_utils.get_db_connector(self.configuration)
+        return db_connector.get_tid_handling()

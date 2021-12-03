@@ -312,6 +312,14 @@ class DBConnector(QObject):
         """
         return False, None
 
+    def get_tid_handling(self):
+        """
+        Returns if there is a tid handling enabled according to the settings table.
+        It's the tid handling that has been enabled "manually" (or by a plugin) and
+        not if t_ili_tids are used according the stable id defined in the model.
+        """
+        return False
+
 
 class DBConnectorError(Exception):
     """This error is raised when DbConnector could not connect to database.
