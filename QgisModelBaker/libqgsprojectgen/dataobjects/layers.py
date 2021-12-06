@@ -144,7 +144,7 @@ class Layer(object):
                 if not crs.isValid():
                     crs = QgsCoordinateReferenceSystem(self.srid)  # Fallback
                 self.__layer.setCrs(crs)
-            if self.is_domain or self.is_basket_table or self.is_dataset_table:
+            if self.is_domain or self.is_dataset_table:
                 self.__layer.setReadOnly()
             if self.display_expression:
                 self.__layer.setDisplayExpression(self.display_expression)
