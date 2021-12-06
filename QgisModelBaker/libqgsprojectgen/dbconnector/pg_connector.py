@@ -21,7 +21,7 @@ import re
 
 import psycopg2
 import psycopg2.extras
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, sql
 from qgis.core import Qgis
 
 from .db_connector import DBConnector, DBConnectorError
@@ -744,12 +744,15 @@ class PGConnector(DBConnector):
         if self.schema and self._table_exists(PG_SETTINGS_TABLE):
             cur = self.conn.cursor()
             cur.execute(
-                """SELECT setting
-                           FROM {schema}.{table}
-                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
-                        """.format(
-                    schema=self.schema, table=PG_SETTINGS_TABLE
-                )
+                sql.SQL(
+                    """SELECT setting
+                           FROM {}.{}
+                           WHERE tag = %s
+                        """
+                ).format(
+                    sql.Identifier(self.schema), sql.Identifier(PG_SETTINGS_TABLE)
+                ),
+                ("ch.ehi.ili2db.BasketHandling",),
             )
             content = cur.fetchone()
             if content:
@@ -897,3 +900,22 @@ class PGConnector(DBConnector):
                     'Could not create basket for topic "{}": {}'
                 ).format(topic, error_message)
         return False, self.tr('Could not create basket for topic "{}".').format(topic)
+
+    def get_tid_handling(self):
+        if self.schema and self._table_exists(PG_SETTINGS_TABLE):
+            cur = self.conn.cursor()
+            cur.execute(
+                sql.SQL(
+                    """SELECT setting
+                           FROM {}.{}
+                           WHERE tag = %s
+                        """
+                ).format(
+                    sql.Identifier(self.schema), sql.Identifier(PG_SETTINGS_TABLE)
+                ),
+                ("ch.ehi.ili2db.TidHandling",),
+            )
+            content = cur.fetchone()
+            if content:
+                return content[0] == "property"
+        return False

@@ -664,10 +664,11 @@ WHERE TABLE_SCHEMA='{schema}'
             cur.execute(
                 """SELECT setting
                             FROM {schema}.{table}
-                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            WHERE tag = ?
                             """.format(
                     schema=self.schema, table=SETTINGS_TABLE
-                )
+                ),
+                ("ch.ehi.ili2db.BasketHandling",),
             )
             content = cur.fetchone()
             if content:
@@ -818,3 +819,20 @@ WHERE TABLE_SCHEMA='{schema}'
                     'Could not create basket for topic "{}": {}'
                 ).format(topic, error_message)
         return False, self.tr('Could not create basket for topic "{}".').format(topic)
+
+    def get_tid_handling(self):
+        if self.schema and self._table_exists(SETTINGS_TABLE):
+            cur = self.conn.cursor()
+            cur.execute(
+                """SELECT setting
+                            FROM {schema}.{table}
+                            WHERE tag = ?
+                            """.format(
+                    schema=self.schema, table=SETTINGS_TABLE
+                ),
+                ("ch.ehi.ili2db.TidHandling",),
+            )
+            content = cur.fetchone()
+            if content:
+                return content[0] == "property"
+        return False

@@ -251,7 +251,8 @@ class DBConnector(QObject):
 
     def get_basket_handling(self):
         """
-        Returns if there is a basket handling enabled according to the settings table
+        Returns `True` if a basket handling is enabled according to the settings table.
+        Means when the database has been created with `--createBasketCol`.
         """
         return False
 
@@ -311,6 +312,13 @@ class DBConnector(QObject):
         Returns the state and the errormessage
         """
         return False, None
+
+    def get_tid_handling(self):
+        """
+        Returns `True` if a tid handling is enabled according to the settings table (when the database has been created with `--createTidCol`).
+        If t_ili_tids are used only because of a stable id definition in the model (with `OID as` in the topic or the class definition), this parameter is not set and this function will return `False`.
+        """
+        return False
 
 
 class DBConnectorError(Exception):

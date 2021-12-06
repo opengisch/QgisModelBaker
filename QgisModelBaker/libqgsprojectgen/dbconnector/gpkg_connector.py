@@ -587,10 +587,11 @@ class GPKGConnector(DBConnector):
             cursor.execute(
                 """SELECT setting
                             FROM {}
-                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            WHERE tag = ?
                             """.format(
                     GPKG_SETTINGS_TABLE
-                )
+                ),
+                ["ch.ehi.ili2db.BasketHandling"],
             )
             content = cursor.fetchone()
             if content:
@@ -729,3 +730,20 @@ class GPKGConnector(DBConnector):
                     'Could not create basket for topic "{}": {}'
                 ).format(topic, error_message)
         return False, self.tr('Could not create basket for topic "{}".').format(topic)
+
+    def get_tid_handling(self):
+        if self._table_exists(GPKG_SETTINGS_TABLE):
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """SELECT setting
+                            FROM {}
+                            WHERE tag = ?
+                            """.format(
+                    GPKG_SETTINGS_TABLE
+                ),
+                ["ch.ehi.ili2db.TidHandling"],
+            )
+            content = cursor.fetchone()
+            if content:
+                return content[0] == "property"
+        return False
