@@ -2520,10 +2520,24 @@ class TestProjectGen(unittest.TestCase):
             "t_ili2db_dataset",
             "t_ili2db_basket",
         }
+        """ Temporarily - since ModelBaker does not set the OID correctly - the t_ili2db_basket table is not read only)"""
+        assert [
+            layer.name() == "t_ili2db_dataset"
+            and layer.layer().readOnly()
+            or layer.name() == "t_ili2db_basket"
+            and not layer.layer().readOnly()
+            for layer in system_group_layers
+        ] == [
+            True,
+            True,
+        ]
+
+        """ Reuse this test when the layers are both read only again
         assert [layer.layer().readOnly() for layer in system_group_layers] == [
             True,
             True,
         ]
+        """
 
         count = 0
         for layer in available_layers:
@@ -2595,10 +2609,25 @@ class TestProjectGen(unittest.TestCase):
             "T_ILI2DB_DATASET",
             "T_ILI2DB_BASKET",
         }
+
+        """ Temporarily - since ModelBaker does not set the OID correctly - the t_ili2db_basket table is not read only)"""
+        assert [
+            layer.name() == "T_ILI2DB_DATASET"
+            and layer.layer().readOnly()
+            or layer.name() == "T_ILI2DB_BASKET"
+            and not layer.layer().readOnly()
+            for layer in system_group_layers
+        ] == [
+            True,
+            True,
+        ]
+
+        """ Reuse this test when the layers are both read only again
         assert [layer.layer().readOnly() for layer in system_group_layers] == [
             True,
             True,
         ]
+        """
 
         count = 0
         for layer in available_layers:
