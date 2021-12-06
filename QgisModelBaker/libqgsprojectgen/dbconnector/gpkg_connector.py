@@ -636,10 +636,11 @@ class GPKGConnector(DBConnector):
             cur = self.conn.cursor()
             try:
                 (
+                    status,
                     next_id,
                     fetch_and_increment_feedback,
                 ) = self._fetch_and_increment_key_object(self.tid)
-                if not next_id:
+                if not status:
                     return False, self.tr('Could not create dataset "{}": {}').format(
                         datasetname, fetch_and_increment_feedback
                     )
@@ -718,10 +719,11 @@ class GPKGConnector(DBConnector):
                 )
             try:
                 (
+                    status,
                     next_id,
                     fetch_and_increment_feedback,
                 ) = self._fetch_and_increment_key_object(self.tid)
-                if not next_id:
+                if not status:
                     return False, self.tr(
                         'Could not create basket for topic "{}": {}'
                     ).format(topic, fetch_and_increment_feedback)
@@ -768,7 +770,7 @@ class GPKGConnector(DBConnector):
         return False
 
     def _fetch_and_increment_key_object(self, field_name):
-
+        next_id = 0
         if self._table_exists("T_KEY_OBJECT"):
             # fetch last unique id of field_name
             cur = self.conn.cursor()
@@ -782,14 +784,12 @@ class GPKGConnector(DBConnector):
 
             content = cur.fetchone()
 
-            current_id = 0
             create_date = "date('now')"
-            if content:
-                current_id = content[0]
-                create_date = content[1]
 
             # increment
-            next_id = current_id + 1
+            if content:
+                next_id = content[0] + 1
+                create_date = content[1]
 
             # and update
             try:
@@ -801,15 +801,25 @@ class GPKGConnector(DBConnector):
                     {"key": field_name, "next_id": next_id, "create_date": create_date},
                 )
                 self.conn.commit()
-                return next_id, self.tr(
-                    "Successfully updated the T_LastUniqueId to {}."
-                ).format(next_id)
+                return (
+                    True,
+                    next_id,
+                    self.tr("Successfully updated the T_LastUniqueId to {}.").format(
+                        next_id
+                    ),
+                )
             except sqlite3.Error as e:
                 error_message = " ".join(e.args)
 
-                return 0, self.tr("Could not the T_LastUniqueId to {}: {}").format(
-                    next_id, error_message
+                return (
+                    False,
+                    next_id,
+                    self.tr("Could not the T_LastUniqueId to {}: {}").format(
+                        next_id, error_message
+                    ),
                 )
-        return 0, self.tr(
-            "Could fetch T_LastUniqueId because T_KEY_OBJECT does not exist."
+        return (
+            False,
+            next_id,
+            self.tr("Could fetch T_LastUniqueId because T_KEY_OBJECT does not exist."),
         )
