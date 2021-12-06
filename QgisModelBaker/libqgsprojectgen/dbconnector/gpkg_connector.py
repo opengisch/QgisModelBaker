@@ -804,7 +804,7 @@ class GPKGConnector(DBConnector):
                 return (
                     True,
                     next_id,
-                    self.tr("Successfully updated the T_LastUniqueId to {}.").format(
+                    self.tr("Successfully set the T_LastUniqueId to {}.").format(
                         next_id
                     ),
                 )
@@ -814,12 +814,14 @@ class GPKGConnector(DBConnector):
                 return (
                     False,
                     next_id,
-                    self.tr("Could not the T_LastUniqueId to {}: {}").format(
+                    self.tr("Could not set the T_LastUniqueId to {}: {}").format(
                         next_id, error_message
                     ),
                 )
         return (
             False,
             next_id,
-            self.tr("Could fetch T_LastUniqueId because T_KEY_OBJECT does not exist."),
+            self.tr(
+                "Could not fetch T_LastUniqueId because T_KEY_OBJECT does not exist."
+            ),
         )
