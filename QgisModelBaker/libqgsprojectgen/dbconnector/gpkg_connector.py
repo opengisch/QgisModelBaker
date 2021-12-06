@@ -635,13 +635,22 @@ class GPKGConnector(DBConnector):
         if self._table_exists(GPKG_DATASET_TABLE):
             cur = self.conn.cursor()
             try:
+                (
+                    next_id,
+                    fetch_and_increment_feedback,
+                ) = self._fetch_and_increment_key_object(self.tid)
+                if not next_id:
+                    return False, self.tr('Could not create dataset "{}": {}').format(
+                        datasetname, fetch_and_increment_feedback
+                    )
+
                 cur.execute(
                     """
-                    INSERT INTO {dataset_table} (datasetName) VALUES (:datasetname)
+                    INSERT INTO {dataset_table} ({tid_name},datasetName) VALUES (:next_id, :datasetname)
                     """.format(
-                        dataset_table=GPKG_DATASET_TABLE
+                        tid_name=self.tid, dataset_table=GPKG_DATASET_TABLE
                     ),
-                    {"datasetname": datasetname},
+                    {"datasetname": datasetname, "next_id": next_id},
                 )
                 self.conn.commit()
                 return True, self.tr('Successfully created dataset "{}".').format(
@@ -708,13 +717,23 @@ class GPKGConnector(DBConnector):
                     topic
                 )
             try:
+                (
+                    next_id,
+                    fetch_and_increment_feedback,
+                ) = self._fetch_and_increment_key_object(self.tid)
+                if not next_id:
+                    return False, self.tr(
+                        'Could not create basket for topic "{}": {}'
+                    ).format(topic, fetch_and_increment_feedback)
                 cur.execute(
                     """
-                    INSERT INTO {basket_table} (dataset, topic, {tilitid_name}, attachmentkey )
-                    VALUES ({dataset_tid}, '{topic}', '{uuid}', 'Qgis Model Baker')
+                    INSERT INTO {basket_table} ({tid_name}, dataset, topic, {tilitid_name}, attachmentkey )
+                    VALUES ({next_id}, {dataset_tid}, '{topic}', '{uuid}', 'Qgis Model Baker')
                 """.format(
+                        tid_name=self.tid,
                         tilitid_name=self.tilitid,
                         basket_table=GPKG_BASKET_TABLE,
+                        next_id=next_id,
                         dataset_tid=dataset_tid,
                         topic=topic,
                         uuid=uuid.uuid4(),
@@ -747,3 +766,50 @@ class GPKGConnector(DBConnector):
             if content:
                 return content[0] == "property"
         return False
+
+    def _fetch_and_increment_key_object(self, field_name):
+
+        if self._table_exists("T_KEY_OBJECT"):
+            # fetch last unique id of field_name
+            cur = self.conn.cursor()
+            cur.execute(
+                """
+                    SELECT T_LastUniqueId, T_CreateDate FROM T_KEY_OBJECT
+                    WHERE T_Key = ?
+                """,
+                [field_name],
+            )
+
+            content = cur.fetchone()
+
+            current_id = 0
+            create_date = "date('now')"
+            if content:
+                current_id = content[0]
+                create_date = content[1]
+
+            # increment
+            next_id = current_id + 1
+
+            # and update
+            try:
+                cur.execute(
+                    """
+                    INSERT OR REPLACE INTO T_KEY_OBJECT (T_Key, T_LastUniqueId, T_LastChange, T_CreateDate, T_User )
+                    VALUES (:key, :next_id, date('now'), :create_date, 'Qgis Model Baker')
+                """,
+                    {"key": field_name, "next_id": next_id, "create_date": create_date},
+                )
+                self.conn.commit()
+                return next_id, self.tr(
+                    "Successfully updated the T_LastUniqueId to {}."
+                ).format(next_id)
+            except sqlite3.Error as e:
+                error_message = " ".join(e.args)
+
+                return 0, self.tr("Could not the T_LastUniqueId to {}: {}").format(
+                    next_id, error_message
+                )
+        return 0, self.tr(
+            "Could fetch T_LastUniqueId because T_KEY_OBJECT does not exist."
+        )
