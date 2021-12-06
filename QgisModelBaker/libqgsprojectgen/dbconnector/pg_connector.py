@@ -746,10 +746,11 @@ class PGConnector(DBConnector):
             cur.execute(
                 """SELECT setting
                            FROM {schema}.{table}
-                           WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                           WHERE tag = %s
                         """.format(
                     schema=self.schema, table=PG_SETTINGS_TABLE
-                )
+                ),
+                ("ch.ehi.ili2db.BasketHandling",),
             )
             content = cur.fetchone()
             if content:
@@ -904,10 +905,11 @@ class PGConnector(DBConnector):
             cur.execute(
                 """SELECT setting
                            FROM {schema}.{table}
-                           WHERE tag = 'ch.ehi.ili2db.TidHandling'
+                           WHERE tag = %s
                         """.format(
                     schema=self.schema, table=PG_SETTINGS_TABLE
-                )
+                ),
+                ("ch.ehi.ili2db.TidHandling",),
             )
             content = cur.fetchone()
             if content:

@@ -664,10 +664,11 @@ WHERE TABLE_SCHEMA='{schema}'
             cur.execute(
                 """SELECT setting
                             FROM {schema}.{table}
-                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            WHERE tag = ?
                             """.format(
                     schema=self.schema, table=SETTINGS_TABLE
-                )
+                ),
+                ("ch.ehi.ili2db.BasketHandling",),
             )
             content = cur.fetchone()
             if content:
@@ -825,10 +826,11 @@ WHERE TABLE_SCHEMA='{schema}'
             cur.execute(
                 """SELECT setting
                             FROM {schema}.{table}
-                            WHERE tag = 'ch.ehi.ili2db.TidHandling'
+                            WHERE tag = ?
                             """.format(
                     schema=self.schema, table=SETTINGS_TABLE
-                )
+                ),
+                ("ch.ehi.ili2db.TidHandling",),
             )
             content = cur.fetchone()
             if content:

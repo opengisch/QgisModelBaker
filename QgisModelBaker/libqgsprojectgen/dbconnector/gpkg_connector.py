@@ -587,10 +587,11 @@ class GPKGConnector(DBConnector):
             cursor.execute(
                 """SELECT setting
                             FROM {}
-                            WHERE tag = 'ch.ehi.ili2db.BasketHandling'
+                            WHERE tag = ?
                             """.format(
                     GPKG_SETTINGS_TABLE
-                )
+                ),
+                ["ch.ehi.ili2db.BasketHandling"],
             )
             content = cursor.fetchone()
             if content:
@@ -736,10 +737,11 @@ class GPKGConnector(DBConnector):
             cursor.execute(
                 """SELECT setting
                             FROM {}
-                            WHERE tag = 'ch.ehi.ili2db.TidHandling'
+                            WHERE tag = ?
                             """.format(
                     GPKG_SETTINGS_TABLE
-                )
+                ),
+                ["ch.ehi.ili2db.TidHandling"],
             )
             content = cursor.fetchone()
             if content:
