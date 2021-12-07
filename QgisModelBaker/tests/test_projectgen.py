@@ -3550,47 +3550,16 @@ class TestProjectGen(unittest.TestCase):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project)
 
-        layer_the_class = None
+        count = 0
         for layer in available_layers:
-            if (layer.name == "theclass"):
-                layer_the_class = layer
-                break
-        assert layer_the_class
+            if layer.name == "theclass":
+                type = (
+                    layer.layer.fields().field("itemsarray").editorWidgetSetup().type()
+                )
+                self.assertEqual(type, "List")
+                count += 1
 
-        layer_the_class = QgsProject.instance().mapLayersByName("TheClass")[0]
-        fields = layer_the_class.fields()
-        index=fields.indexOf("itemsarray")
-        print("index = '{}'".format(index))
-        setup=fields.at(index).editorWidgetSetup()
-        
-        print("setup.type() = '{}'".format(setup.type()))
-
-
-        print(layer_the_class.layer.fields().indexOf("itemsarray"))
-        print(layer_the_class.layer.editFormConfig().widgetConfig("itemsarray"))
-
-        #field_item_array = None
-        #for field in  layer.layer.fields():
-        #    if field.name() == 'itemsarray':
-        #        field_item_array = field
-        #        continue
-        #assert field_item_array
-
-        #editor_widget_setup = field_item_array.editorWidgetSetup()
-        #self.assertEqual(editor_widget_setup.type(), 'ValueMap')
-
-        field_item_array = None
-        for field in layer_the_class.fields:
-            if field.name == 'itemsarray':
-                 field_item_array = field
-                 continue
-        assert field_item_array
-
-        print("widget: {}".format(field_item_array.widget))
-        print("widget_config: {}".format(field_item_array.widget_config))
-
-        self.assertEqual(field_item_array.widget, 'KeyValue') # List
-
+        assert count == 1
 
     def print_info(self, text):
         logging.info(text)

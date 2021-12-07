@@ -385,6 +385,36 @@ class GPKGConnector(DBConnector):
 
         return constraint_mapping
 
+    def get_value_mapping_info(self, ili_name, field_name):
+        
+        if not self._table_exists(GPKG_METAATTRS_TABLE):
+            return []
+
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """
+                        SELECT
+                          attr_value
+                        FROM {meta_attr_table}
+                        WHERE ilielement='{ili_name}.{field_name}' COLLATE NOCASE
+                        AND attr_name='ili2db.mapping'
+                        LIMIT 1
+        """.format(
+                meta_attr_table=GPKG_METAATTRS_TABLE,
+                ili_name=ili_name,
+                field_name=field_name
+            )
+        )
+        records = cursor.fetchall()
+        cursor.close()
+
+        print("ili_name: '{}', field_name: '{}', records: '{}'".format(ili_name, field_name, records))
+
+        if len(records) == 1:
+            return records[0]["attr_value"]
+
+        return None
+
     def get_relations_info(self, filter_layer_list=[]):
         # We need to get the PK for each table, so first get tables_info
         # and then build something more searchable

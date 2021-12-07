@@ -303,6 +303,9 @@ class Generator(QObject):
                         {val: val} for val in value_map_info[column_name]
                     ]
 
+                if self.get_value_mapping_info(record["ili_name"], column_name ) == "ARRAY":
+                    field.widget = "List"
+
                 if "texttype" in fielddef and fielddef["texttype"] == "MTEXT":
                     field.widget = "TextEdit"
                     field.widget_config["IsMultiline"] = True
@@ -633,6 +636,9 @@ class Generator(QObject):
 
     def get_value_map_info(self, table_name):
         return self._db_connector.get_value_map_info(table_name)
+        
+    def get_value_mapping_info(self, ili_name, field_name):
+        return self._db_connector.get_value_mapping_info(ili_name, field_name)
 
     def get_relations_info(self, filter_layer_list=[]):
         return self._db_connector.get_relations_info(filter_layer_list)
