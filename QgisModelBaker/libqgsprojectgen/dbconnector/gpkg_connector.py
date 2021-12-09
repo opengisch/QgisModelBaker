@@ -388,7 +388,7 @@ class GPKGConnector(DBConnector):
     def get_value_mapping_info(self, ili_name, field_name):
         
         if not self._table_exists(GPKG_METAATTRS_TABLE):
-            return []
+            return None
 
         cursor = self.conn.cursor()
         cursor.execute(
@@ -407,8 +407,6 @@ class GPKGConnector(DBConnector):
         )
         records = cursor.fetchall()
         cursor.close()
-
-        print("ili_name: '{}', field_name: '{}', records: '{}'".format(ili_name, field_name, records))
 
         if len(records) == 1:
             return records[0]["attr_value"]

@@ -125,6 +125,15 @@ class DBConnector(QObject):
         """
         return []
 
+    def get_value_mapping_info(self, ili_name, field_name):
+        """
+        Info about meta attribute mapping of a given ili element and field name
+
+        Return:
+            Mapping type
+        """
+        return None
+
     def get_min_max_info(self, table_name):
         """
         Info about range constraints found in a given table.

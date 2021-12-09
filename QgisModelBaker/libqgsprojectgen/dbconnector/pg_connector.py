@@ -486,6 +486,41 @@ class PGConnector(DBConnector):
 
         return {}
 
+    def get_value_mapping_info(self, ili_name, field_name):
+
+        if not self._table_exists(PG_METAATTRS_TABLE):
+            return None
+
+        if not self.schema:
+            return None
+
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+            """
+                    SELECT
+                      attr_value
+                    FROM {schema}.{metaattrs_table}
+                    WHERE LOWER(ilielement)=LOWER('{ili_name}.{field_name}')
+                    AND attr_name='ili2db.mapping'
+                    LIMIT 1;
+            """.format(
+                schema=self.schema,
+                metaattrs_table=PG_METAATTRS_TABLE,
+                ili_name=ili_name,
+                field_name=field_name
+            )
+        )
+
+        records = cur.fetchall()
+        cur.close()
+
+        print("ili_name: '{}', field_name: '{}', records: '{}'".format(ili_name, field_name, records))
+
+        if len(records) == 1:
+            return records[0]["attr_value"]
+
+        return None
+
     ValueMapRegExp = re.compile(".*'(.*)'::.*")
 
     def get_value_map_info(self, table_name):
