@@ -381,6 +381,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         return False
 
     def _run(self, edited_command=None):
+        if self.iface.actionToggleEditing().isChecked():
+            self.iface.actionToggleEditing().trigger()
         self.setStyleSheet(NOSTATUS_STYLE)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
