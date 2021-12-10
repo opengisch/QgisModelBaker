@@ -119,8 +119,8 @@ class TestExport(unittest.TestCase):
         result_model.reload()
         assert result_model.rowCount() == 1
         assert (
-            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)
-            == "Intersection coord1 (81.785, 99.314), tids 90, 90"
+            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)[0:36]
+            == "Intersection coord1 (81.785, 99.314)"
         )
 
     def test_validate_postgis(self):
@@ -195,8 +195,8 @@ class TestExport(unittest.TestCase):
         result_model.reload()
         assert result_model.rowCount() == 1
         assert (
-            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)
-            == "Intersection coord1 (81.785, 99.314), tids 90, 90"
+            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)[0:36]
+            == "Intersection coord1 (81.785, 99.314)"
         )
 
     def test_validate_mssql(self):
@@ -271,8 +271,8 @@ class TestExport(unittest.TestCase):
         result_model.reload()
         assert result_model.rowCount() == 1
         assert (
-            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)
-            == "Intersection coord1 (81.785, 99.314), tids 90, 90"
+            result_model.index(0, 0).data(ValidationResultModel.Roles.MESSAGE)[0:36]
+            == "Intersection coord1 (81.785, 99.314)"
         )
 
     def print_info(self, text):
