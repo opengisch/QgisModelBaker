@@ -314,10 +314,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             )
             self.current_configuration.tool = mode
             if mode == DbIliMode.gpkg:
-                self.info_label.setText(self.current_configuration.dbfile)
+                self.info_label.setText(
+                    self.tr(
+                        "<html><head/><body><p>Datasource is the databasefile <i>{}</i></p></body></html>"
+                    ).format(self.current_configuration.dbfile)
+                )
             else:
                 self.info_label.setText(
-                    f'Database "{self.current_configuration.database}" and schema "{self.current_configuration.dbschema}"'
+                    self.tr(
+                        "<html><head/><body><p>Datasource is the schema <i>{}</i> at database <i>{}</i></p></body></html>"
+                    ).format(
+                        self.current_configuration.database,
+                        self.current_configuration.dbschema,
+                    )
                 )
 
             if self.schema_validations.get(self.current_schema_identificator):
