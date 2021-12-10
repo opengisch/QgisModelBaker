@@ -254,7 +254,6 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.filter_layout.addWidget(self.filter_data_panel)
         self._reset_gui()
 
-        # self.result_table_view.right_pressed.connect(self._table_clicked)
         self.run_button.clicked.connect(self._run)
         self.visibilityChanged.connect(self._visibility_changed)
 
@@ -457,6 +456,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.result_table_view.setDisabled(disable)
 
     def _table_clicked(self, pos):
+        if not self.result_table_view.indexAt(pos).isValid():
+            self.result_table_view.clearSelection()
+            return
         selection_index = self.result_table_view.selectionModel().currentIndex()
         index = selection_index.sibling(selection_index.row(), selection_index.column())
 
