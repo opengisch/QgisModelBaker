@@ -289,7 +289,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def set_current_layer(self, layer):
         if not layer or not layer.dataProvider().isValid():
-            self._reset_gui()
+            self.setDisabled(True)
             return
 
         source_name = layer.dataProvider().name()
@@ -298,6 +298,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             source_name, source
         )
         if schema_identificator == self.current_schema_identificator:
+            self.setEnabled(True)
             return
 
         self._reset_gui()
