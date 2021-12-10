@@ -152,7 +152,7 @@ class ValidationResultModel(QStandardItemModel):
                             coord_y = self.get_element_text(coord.find(ns + "C2"))
                     tech_details = self.get_element_text(error.find(ns + "TechDetails"))
 
-                    if type in ["Error", "Warning"]:
+                    if type in ["Error", "Warning"] and message != "...validate failed":
                         item = QStandardItem()
                         item.setData(id, int(ValidationResultModel.Roles.ID))
                         item.setData(message, int(ValidationResultModel.Roles.MESSAGE))
@@ -500,6 +500,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _open_form(self, t_ili_tid):
         layer, feature = self._get_feature_in_project(t_ili_tid)
         if layer and feature:
+            self.iface.layerTreeView().setCurrentLayer(layer)
             self.iface.openFeatureForm(layer, feature, True)
 
     def _get_feature_in_project(self, t_ili_tid):
