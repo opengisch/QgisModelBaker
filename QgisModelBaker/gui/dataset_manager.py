@@ -139,7 +139,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(
                 self.tr(
-                    "You have still layers in editable mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
+                    "You still have layers in edit mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
                 ).format("\n - ".join([layer.name() for layer in editable_layers]))
             )
             warning_box.exec_()
