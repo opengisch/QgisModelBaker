@@ -58,7 +58,6 @@ class TestExport(unittest.TestCase):
         )
         importer.configuration.srs_code = 2056
         importer.configuration.inheritance = "smart2"
-        importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -68,7 +67,7 @@ class TestExport(unittest.TestCase):
         dataImporter.tool = DbIliMode.ili2gpkg
         dataImporter.configuration = ilidataimporter_config(dataImporter.tool)
         dataImporter.configuration.ilimodels = "RoadsSimple"
-        dataImporter.configuration.dbschema = importer.configuration.dbschema
+        dataImporter.configuration.dbfile = importer.configuration.dbfile
         dataImporter.stdout.connect(self.print_info)
         dataImporter.stderr.connect(self.print_error)
 
@@ -90,7 +89,7 @@ class TestExport(unittest.TestCase):
         validator = ilivalidator.Validator()
         validator.tool = DbIliMode.ili2gpkg
         validator.configuration = ilivalidator_config(validator.tool)
-        validator.configuration.dbschema = importer.configuration.dbschema
+        validator.configuration.dbfile = importer.configuration.dbfile
         validator.configuration.xtflog = os.path.join(
             self.basetestpath,
             "tmp_validation_result_{:%Y%m%d%H%M%S%f}.xtf".format(
