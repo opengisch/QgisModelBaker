@@ -30,6 +30,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     ImportDataConfiguration,
     SchemaImportConfiguration,
     UpdateDataConfiguration,
+    ValidateConfiguration,
 )
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
@@ -133,6 +134,34 @@ def iliupdater_config(tool=DbIliMode.ili2pg, modeldir=None):
         configuration.dbpwd = "<YourStrong!Passw0rd>"
         configuration.database = "gis"
 
+    configuration.base_configuration = base_config
+
+    return configuration
+
+
+def ilivalidator_config(
+    tool=DbIliMode.ili2pg, modeldir=None, gpkg_path="geopackage/test_validate.gpkg"
+):
+    base_config = BaseConfiguration()
+    if modeldir is None:
+        base_config.custom_model_directories_enabled = False
+    else:
+        base_config.custom_model_directories = testdata_path(modeldir)
+        base_config.custom_model_directories_enabled = True
+
+    configuration = ValidateConfiguration()
+    if tool == DbIliMode.ili2pg:
+        configuration.dbhost = os.environ["PGHOST"]
+        configuration.dbusr = "docker"
+        configuration.dbpwd = "docker"
+        configuration.database = "gis"
+    elif tool == DbIliMode.ili2mssql:
+        configuration.dbhost = "mssql"
+        configuration.dbusr = "sa"
+        configuration.dbpwd = "<YourStrong!Passw0rd>"
+        configuration.database = "gis"
+    elif tool == DbIliMode.ili2gpkg:
+        configuration.dbfile = testdata_path(gpkg_path)
     configuration.base_configuration = base_config
 
     return configuration
