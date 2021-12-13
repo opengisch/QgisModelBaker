@@ -3542,6 +3542,151 @@ class TestProjectGen(unittest.TestCase):
         )
         assert naechste_kontrolle.alias == "Naechste_Kontrolle"
 
+    def test_array_mapping_postgis(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
+        importer.configuration.ilimodels = "ArrayMapping"
+        importer.configuration.dbschema = "array_mapping_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2pg,
+            get_pg_connection_string(),
+            importer.configuration.inheritance,
+            importer.configuration.dbschema,
+        )
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == "theclass":
+                type = (
+                    layer.layer.fields().field("itemsarray").editorWidgetSetup().type()
+                )
+                self.assertEqual(type, "List")
+                count += 1
+
+        assert count == 1
+
+    def test_array_mapping_geopackage(self):
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
+        importer.configuration.ilimodels = "ArrayMapping"
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath,
+            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
+        )
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, "smart2")
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == "theclass":
+                type = (
+                    layer.layer.fields().field("itemsarray").editorWidgetSetup().type()
+                )
+                self.assertEqual(type, "List")
+                count += 1
+
+        assert count == 1
+
+    def test_array_mapping_mssql(self):
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2mssql
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
+        importer.configuration.ilimodels = "ArrayMapping"
+        importer.configuration.dbschema = "array_mapping_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+
+        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
+            drv="{ODBC Driver 17 for SQL Server}",
+            server=importer.configuration.dbhost,
+            db=importer.configuration.database,
+            uid=importer.configuration.dbusr,
+            pwd=importer.configuration.dbpwd,
+        )
+
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2mssql, uri, "smart2", importer.configuration.dbschema
+        )
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == "theclass":
+                type = (
+                    layer.layer.fields().field("itemsarray").editorWidgetSetup().type()
+                )
+                self.assertEqual(type, "List")
+                count += 1
+
+        assert count == 1
+
     def print_info(self, text):
         logging.info(text)
 

@@ -344,12 +344,21 @@ class GPKGConnector(DBConnector):
             if (
                 "fully_qualified_name" in record
             ):  # e.g., t_id's don't have a fully qualified name
+                attr_order_found = False
+                attr_mapping_found = False
                 for meta_attr in meta_attrs:
-                    if (
-                        record["fully_qualified_name"] == meta_attr["ilielement"]
-                        and meta_attr["attr_name"] == "form_order"
-                    ):
+                    if record["fully_qualified_name"] != meta_attr["ilielement"]:
+                        continue
+
+                    if meta_attr["attr_name"] == "form_order":
                         record["attr_order"] = meta_attr["attr_value"]
+                        attr_order_found = True
+
+                    if meta_attr["attr_name"] == "ili2db.mapping":
+                        record["attr_mapping"] = meta_attr["attr_value"]
+                        attr_mapping_found = True
+
+                    if attr_order_found and attr_mapping_found:
                         break
 
             complete_records.append(record)

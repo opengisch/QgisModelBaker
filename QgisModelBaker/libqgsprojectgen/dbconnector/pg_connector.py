@@ -349,6 +349,7 @@ class PGConnector(DBConnector):
             full_name_field = ""
             enum_domain_field = ""
             attr_order_field = ""
+            attr_mapping_field = ""
             column_alias = ""
             unit_join = ""
             text_kind_join = ""
@@ -356,6 +357,7 @@ class PGConnector(DBConnector):
             full_name_join = ""
             enum_domain_join = ""
             attr_order_join = ""
+            attr_mapping_join = ""
             order_by_attr_order = ""
 
             if self.metadata_exists():
@@ -398,13 +400,23 @@ class PGConnector(DBConnector):
                 )
                 if self._table_exists(PG_METAATTRS_TABLE):
                     attr_order_field = "COALESCE(to_number(form_order.attr_value, '999'), 999) as attr_order,"
-                    attr_order_join = """LEFT JOIN {}.t_ili2db_meta_attrs form_order
+                    attr_order_join = """LEFT JOIN {schema}.{t_ili2db_meta_attrs} form_order
                                                             ON full_name.iliname=form_order.ilielement AND
                                                             form_order.attr_name='form_order'
                                                             """.format(
-                        self.schema
+                        schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
                     )
                     order_by_attr_order = """ORDER BY attr_order"""
+
+                    attr_mapping_field = (
+                        "meta_attr_mapping_value.attr_value as attr_mapping,"
+                    )
+                    attr_mapping_join = """LEFT JOIN {schema}.{t_ili2db_meta_attrs} meta_attr_mapping_value
+                                                            ON full_name.iliname=meta_attr_mapping_value.ilielement AND
+                                                            meta_attr_mapping_value.attr_name='ili2db.mapping'
+                                                            """.format(
+                        schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
+                    )
 
                 fields_cur.execute(
                     """
@@ -418,6 +430,7 @@ class PGConnector(DBConnector):
                       {full_name_field}
                       {enum_domain_field}
                       {attr_order_field}
+                      {attr_mapping_field}
                       pgd.description AS comment
                     FROM pg_catalog.pg_statio_all_tables st
                     LEFT JOIN information_schema.columns c ON c.table_schema=st.schemaname AND c.table_name=st.relname
@@ -428,6 +441,7 @@ class PGConnector(DBConnector):
                     {full_name_join}
                     {enum_domain_join}
                     {attr_order_join}
+                    {attr_mapping_join}
                     WHERE st.relid = '{schema}."{table}"'::regclass
                     {order_by_attr_order};
                     """.format(
@@ -439,12 +453,14 @@ class PGConnector(DBConnector):
                         full_name_field=full_name_field,
                         enum_domain_field=enum_domain_field,
                         attr_order_field=attr_order_field,
+                        attr_mapping_field=attr_mapping_field,
                         unit_join=unit_join,
                         text_kind_join=text_kind_join,
                         disp_name_join=disp_name_join,
                         full_name_join=full_name_join,
                         enum_domain_join=enum_domain_join,
                         attr_order_join=attr_order_join,
+                        attr_mapping_join=attr_mapping_join,
                         order_by_attr_order=order_by_attr_order,
                     )
                 )
@@ -486,7 +502,7 @@ class PGConnector(DBConnector):
 
         return {}
 
-    ValueMapRegExp = re.compile(".*'(.*)'::.*")
+    _ValueMapRegExp = re.compile(".*'(.*)'::.*")
 
     def get_value_map_info(self, table_name):
         if self.schema:
@@ -511,7 +527,7 @@ class PGConnector(DBConnector):
             for constraint in constraints_cur:
                 values = list()
                 for value in constraint["check_details"][1].split(","):
-                    match = re.match(PGConnector.ValueMapRegExp, value)
+                    match = re.match(PGConnector._ValueMapRegExp, value)
                     values.append(match.group(1))
 
                 constraint_mapping[constraint["check_details"][0]] = values
@@ -547,9 +563,10 @@ class PGConnector(DBConnector):
                 strength_join = """
                             LEFT JOIN {schema}.t_ili2db_attrname AS ATTRNAME
                              ON ATTRNAME.sqlname = KCU1.COLUMN_NAME AND ATTRNAME.{colowner} = KCU1.TABLE_NAME AND ATTRNAME.target = KCU2.TABLE_NAME
-                            LEFT JOIN {schema}.t_ili2db_meta_attrs AS META_ATTRS
+                            LEFT JOIN {schema}.{t_ili2db_meta_attrs} AS META_ATTRS
                              ON META_ATTRS.ilielement = ATTRNAME.iliname AND META_ATTRS.attr_name = 'ili2db.ili.assocKind'""".format(
                     schema=self.schema,
+                    t_ili2db_meta_attrs=PG_METAATTRS_TABLE,
                     colowner="owner" if self.ili_version() == 3 else "colowner",
                 )
                 strength_group_by = ", META_ATTRS.attr_value"
@@ -587,15 +604,15 @@ class PGConnector(DBConnector):
                             FROM {schema}.t_ili2db_column_prop as cprop
                             LEFT JOIN {schema}.t_ili2db_classname as cname
                             ON cname.sqlname = cprop.tablename
-                            LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_array
+                            LEFT JOIN {schema}.{t_ili2db_meta_attrs} as meta_attrs_array
                             ON meta_attrs_array.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_array.attr_name = 'ili2db.mapping'
-                            LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_cardinality_min
+                            LEFT JOIN {schema}.{t_ili2db_meta_attrs} as meta_attrs_cardinality_min
                             ON meta_attrs_cardinality_min.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_cardinality_min.attr_name = 'ili2db.ili.attrCardinalityMin'
-                            LEFT JOIN {schema}.t_ili2db_meta_attrs as meta_attrs_cardinality_max
+                            LEFT JOIN {schema}.{t_ili2db_meta_attrs} as meta_attrs_cardinality_max
                             ON meta_attrs_cardinality_max.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_cardinality_max.attr_name = 'ili2db.ili.attrCardinalityMax'
                             WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
                             """.format(
-                    schema=self.schema
+                    schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
                 )
             )
             return cur

@@ -374,6 +374,7 @@ class MssqlConnector(DBConnector):
                     stmt += (
                         ln
                         + "    , COALESCE(CAST(form_order.attr_value AS int), 999) AS attr_order"
+                        + "    , attr_mapping.attr_value AS attr_mapping"
                     )
             stmt += ln + "    , null AS comment"
             stmt += ln + "FROM INFORMATION_SCHEMA.COLUMNS AS c"
@@ -403,6 +404,9 @@ class MssqlConnector(DBConnector):
                     stmt += ln + "LEFT JOIN {schema}.t_ili2db_meta_attrs form_order"
                     stmt += ln + "    ON full_name.iliname=form_order.ilielement AND"
                     stmt += ln + "    form_order.attr_name='form_order'"
+                    stmt += ln + "LEFT JOIN {schema}.t_ili2db_meta_attrs attr_mapping"
+                    stmt += ln + "    ON full_name.iliname=attr_mapping.ilielement AND"
+                    stmt += ln + "    attr_mapping.attr_name='ili2db.mapping'"
             stmt += ln + "WHERE TABLE_NAME = '{table}' AND TABLE_SCHEMA = '{schema}'"
             if metadata_exists and metaattrs_exists:
                 stmt += ln + "ORDER BY attr_order;"

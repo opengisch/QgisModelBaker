@@ -303,6 +303,9 @@ class Generator(QObject):
                         {val: val} for val in value_map_info[column_name]
                     ]
 
+                if "attr_mapping" in fielddef and fielddef["attr_mapping"] == "ARRAY":
+                    field.widget = "List"
+
                 if "texttype" in fielddef and fielddef["texttype"] == "MTEXT":
                     field.widget = "TextEdit"
                     field.widget_config["IsMultiline"] = True
