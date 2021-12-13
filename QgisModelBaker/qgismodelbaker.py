@@ -458,7 +458,7 @@ class QgisModelBakerPlugin(QObject):
     def remove_validate_dock(self):
         settings = QSettings()
         settings.setValue(
-            "QgisModelBaker//validate_dock/area",
+            "QgisModelBaker/validate_dock/area",
             self.iface.mainWindow().dockWidgetArea(self.__validate_dock),
         )
         settings.setValue(
