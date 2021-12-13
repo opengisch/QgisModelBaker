@@ -47,6 +47,7 @@ from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
+from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
 from QgisModelBaker.libili2db.globals import DropMode
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
@@ -71,12 +72,14 @@ class QgisModelBakerPlugin(QObject):
         self.__importdata_action = None
         self.__workflow_wizard_action = None
         self.__datasetmanager_action = None
+        self.__validate_action = None
         self.__configure_action = None
         self.__help_action = None
         self.__about_action = None
         self.__separator = None
         self.__dataset_selector_action = None
         self.__dataset_selector = None
+        self.__validate_dock = None
         basepath = pathlib.Path(__file__).parent.absolute()
         metadata = configparser.ConfigParser()
         metadata.read(os.path.join(basepath, "metadata.txt"))
@@ -117,7 +120,6 @@ class QgisModelBakerPlugin(QObject):
             pyplugin_installer.instance().uninstallPlugin(
                 "projectgenerator", quiet=True
             )
-
         self.__generate_action = QAction(
             QIcon(
                 os.path.join(
@@ -157,6 +159,16 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Dataset Manager"),
             None,
         )
+        self.__validate_action = QAction(
+            QIcon(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "images/QgisModelBaker-validator_icon.svg",
+                )
+            ),
+            self.tr("Data Validator"),
+            None,
+        )
         self.__workflow_wizard_action = QAction(
             QIcon(
                 os.path.join(
@@ -179,11 +191,13 @@ class QgisModelBakerPlugin(QObject):
         self.__importdata_action.setCheckable(True)
         self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
+        self.__validate_action.setCheckable(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__importdata_action.triggered.connect(self.show_importdata_dialog)
         self.__datasetmanager_action.triggered.connect(self.show_datasetmanager_dialog)
+        self.__validate_action.triggered.connect(self.show_validate_dock)
         self.__export_action.triggered.connect(self.show_export_dialog)
         self.__workflow_wizard_action.triggered.connect(
             self.show_workflow_wizard_dialog
@@ -205,6 +219,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__validate_action
+        )
+        self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
         )
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__separator)
@@ -224,9 +241,8 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.connect(
             self.__dataset_selector.set_current_layer
         )
-
         self.toolbar.addAction(self.__datasetmanager_action)
-
+        self.init_validate_dock()
         self.register_event_filter()
 
     def unload(self):
@@ -244,6 +260,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__validate_action
+        )
+        self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
         )
         self.iface.removePluginDatabaseMenu(self.tr("Model Baker"), self.__help_action)
@@ -253,12 +272,12 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__dataset_selector.set_current_layer
         )
-
         del self.__generate_action
         del self.__export_action
         del self.__importdata_action
         del self.__workflow_wizard_action
         del self.__datasetmanager_action
+        del self.__validate_action
         del self.__configure_action
         del self.__help_action
         del self.__about_action
@@ -266,6 +285,8 @@ class QgisModelBakerPlugin(QObject):
         del self.__dataset_selector
         # remove the toolbar
         del self.toolbar
+
+        self.remove_validate_dock()
 
     def show_generate_dialog(self):
         if self.generate_dlg:
@@ -365,6 +386,9 @@ class QgisModelBakerPlugin(QObject):
         self.__datasetmanager_action.setChecked(False)
         self.datasetmanager_dlg = None
 
+    def show_validate_dock(self):
+        self.__validate_dock.setVisible(not self.__validate_dock.isVisible())
+
     def show_options_dialog(self):
         dlg = OptionsDialog(self.ili2db_configuration)
         if dlg.exec_():
@@ -411,6 +435,41 @@ class QgisModelBakerPlugin(QObject):
         )
         self.msg.setStandardButtons(QMessageBox.Close)
         self.msg.exec_()
+
+    def init_validate_dock(self):
+        settings = QSettings()
+        self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
+        self.iface.addDockWidget(
+            settings.value(
+                "QgisModelBaker/validate_dock/area", Qt.RightDockWidgetArea, type=int
+            ),
+            self.__validate_dock,
+        )
+        self.__validate_dock.visibilityChanged.connect(
+            self.__validate_action.setChecked
+        )
+        self.__validate_dock.setVisible(
+            settings.value("QgisModelBaker/validate_dock/isVisible", False, type=bool)
+        )
+        self.iface.layerTreeView().currentLayerChanged.connect(
+            self.__validate_dock.set_current_layer
+        )
+
+    def remove_validate_dock(self):
+        settings = QSettings()
+        settings.setValue(
+            "QgisModelBaker/validate_dock/area",
+            self.iface.mainWindow().dockWidgetArea(self.__validate_dock),
+        )
+        settings.setValue(
+            "QgisModelBaker/validate_dock/isVisible", self.__validate_dock.isVisible()
+        )
+        self.__validate_dock.setVisible(False)
+        self.iface.removeDockWidget(self.__validate_dock)
+        self.iface.layerTreeView().currentLayerChanged.disconnect(
+            self.__validate_dock.set_current_layer
+        )
+        del self.__validate_dock
 
     def get_generator(self):
         return Generator

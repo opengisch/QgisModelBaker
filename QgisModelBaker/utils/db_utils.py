@@ -20,7 +20,6 @@
 from qgis.core import QgsApplication, QgsAuthMethodConfig
 
 from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.utils.qt_utils import slugify
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
@@ -55,7 +54,7 @@ def get_authconfig_map(authconfigid):
     return auth_cfg.configMap()
 
 
-def get_configuration_from_layersource(layer_source_name, layer_source):
+def get_configuration_from_layersource(layer_source_name, layer_source, configuration):
     """
     Determines the connection parameters from a layer source.
     Returns:
@@ -65,7 +64,6 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
     """
     mode = ""
     valid = False
-    configuration = Ili2DbCommandConfiguration()
     if layer_source_name == "postgres":
         mode = DbIliMode.pg
         if layer_source.authConfigId():
@@ -103,7 +101,7 @@ def get_configuration_from_layersource(layer_source_name, layer_source):
             and configuration.database
             and configuration.dbschema
         )
-    return valid, mode, configuration
+    return valid, mode
 
 
 def get_db_connector(configuration):

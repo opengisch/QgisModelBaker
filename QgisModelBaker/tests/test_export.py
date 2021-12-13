@@ -310,7 +310,7 @@ class TestExport(unittest.TestCase):
         assert exporter.run() == iliexporter.Exporter.SUCCESS
         self.compare_xtfs(testdata_path("xtf/test_roads_simple.xtf"), obtained_xtf_path)
 
-    def test_ili2db3_simple_export_postgis(self):
+    def test_simple_export_postgis(self):
         # Schema Import
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
