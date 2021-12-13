@@ -441,7 +441,7 @@ class QgisModelBakerPlugin(QObject):
         self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
         self.iface.addDockWidget(
             settings.value(
-                "QgisModelBaker/validateDockArea", Qt.RightDockWidgetArea, type=int
+                "QgisModelBaker/validate_dock/area", Qt.RightDockWidgetArea, type=int
             ),
             self.__validate_dock,
         )
@@ -449,7 +449,7 @@ class QgisModelBakerPlugin(QObject):
             self.__validate_action.setChecked
         )
         self.__validate_dock.setVisible(
-            settings.value("QgisModelBaker/dockWidgetIsVisible", False, type=bool)
+            settings.value("QgisModelBaker/validate_dock/isVisible", False, type=bool)
         )
         self.iface.layerTreeView().currentLayerChanged.connect(
             self.__validate_dock.set_current_layer
@@ -458,11 +458,11 @@ class QgisModelBakerPlugin(QObject):
     def remove_validate_dock(self):
         settings = QSettings()
         settings.setValue(
-            "QgisModelBaker/validateDockArea",
+            "QgisModelBaker//validate_dock/area",
             self.iface.mainWindow().dockWidgetArea(self.__validate_dock),
         )
         settings.setValue(
-            "QgisModelBaker/validateDockIsVisible", self.__validate_dock.isVisible()
+            "QgisModelBaker/validate_dock/isVisible", self.__validate_dock.isVisible()
         )
         self.__validate_dock.setVisible(False)
         self.iface.removeDockWidget(self.__validate_dock)
