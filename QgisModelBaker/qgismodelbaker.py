@@ -120,7 +120,6 @@ class QgisModelBakerPlugin(QObject):
             pyplugin_installer.instance().uninstallPlugin(
                 "projectgenerator", quiet=True
             )
-
         self.__generate_action = QAction(
             QIcon(
                 os.path.join(
@@ -161,6 +160,12 @@ class QgisModelBakerPlugin(QObject):
             None,
         )
         self.__validate_action = QAction(
+            QIcon(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "images/QgisModelBaker-validator_icon.svg",
+                )
+            ),
             self.tr("Data Validator"),
             None,
         )
