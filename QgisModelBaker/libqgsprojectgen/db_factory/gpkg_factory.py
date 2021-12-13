@@ -53,7 +53,7 @@ class GpkgFactory(DbFactory):
         if db_ili_version == 3:
             return "3.11.3"
         else:
-            return "4.5.0"
+            return "4.6.1"
 
     def get_tool_url(self, db_ili_version):
         """Returns download url of ili2gpkg.
