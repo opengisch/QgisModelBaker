@@ -349,6 +349,7 @@ class PGConnector(DBConnector):
             full_name_field = ""
             enum_domain_field = ""
             attr_order_field = ""
+            attr_mapping_field = ""
             column_alias = ""
             unit_join = ""
             text_kind_join = ""
@@ -356,6 +357,7 @@ class PGConnector(DBConnector):
             full_name_join = ""
             enum_domain_join = ""
             attr_order_join = ""
+            attr_mapping_join = ""
             order_by_attr_order = ""
 
             if self.metadata_exists():
@@ -500,6 +502,8 @@ class PGConnector(DBConnector):
 
         return {}
 
+    _ValueMapRegExp = re.compile(".*'(.*)'::.*")
+
     def get_value_map_info(self, table_name):
         if self.schema:
             constraints_cur = self.conn.cursor(
@@ -523,7 +527,7 @@ class PGConnector(DBConnector):
             for constraint in constraints_cur:
                 values = list()
                 for value in constraint["check_details"][1].split(","):
-                    match = re.match(PGConnector.ValueMapRegExp, value)
+                    match = re.match(PGConnector._ValueMapRegExp, value)
                     values.append(match.group(1))
 
                 constraint_mapping[constraint["check_details"][0]] = values
