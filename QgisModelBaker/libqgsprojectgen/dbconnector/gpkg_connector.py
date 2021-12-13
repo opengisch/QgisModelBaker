@@ -344,12 +344,21 @@ class GPKGConnector(DBConnector):
             if (
                 "fully_qualified_name" in record
             ):  # e.g., t_id's don't have a fully qualified name
+                attr_order_found = False
+                attr_mapping_found = False
                 for meta_attr in meta_attrs:
-                    if (
-                        record["fully_qualified_name"] == meta_attr["ilielement"]
-                        and meta_attr["attr_name"] == "form_order"
-                    ):
+                    if record["fully_qualified_name"] != meta_attr["ilielement"]:
+                        continue
+
+                    if meta_attr["attr_name"] == "form_order":
                         record["attr_order"] = meta_attr["attr_value"]
+                        attr_order_found = True
+
+                    if meta_attr["attr_name"] == "ili2db.mapping":
+                        record["attr_mapping"] = meta_attr["attr_value"]
+                        attr_mapping_found = True
+
+                    if attr_order_found and attr_mapping_found:
                         break
 
             complete_records.append(record)
@@ -384,34 +393,6 @@ class GPKGConnector(DBConnector):
                 constraint_mapping[res2.group(1)] = (res2.group(2), res2.group(3))
 
         return constraint_mapping
-
-    def get_value_mapping_info(self, ili_name, field_name):
-        
-        if not self._table_exists(GPKG_METAATTRS_TABLE):
-            return None
-
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """
-                        SELECT
-                          attr_value
-                        FROM {meta_attr_table}
-                        WHERE ilielement='{ili_name}.{field_name}' COLLATE NOCASE
-                        AND attr_name='ili2db.mapping'
-                        LIMIT 1
-        """.format(
-                meta_attr_table=GPKG_METAATTRS_TABLE,
-                ili_name=ili_name,
-                field_name=field_name
-            )
-        )
-        records = cursor.fetchall()
-        cursor.close()
-
-        if len(records) == 1:
-            return records[0]["attr_value"]
-
-        return None
 
     def get_relations_info(self, filter_layer_list=[]):
         # We need to get the PK for each table, so first get tables_info
