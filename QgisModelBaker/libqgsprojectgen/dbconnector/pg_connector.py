@@ -402,18 +402,18 @@ class PGConnector(DBConnector):
                                                             ON full_name.iliname=form_order.ilielement AND
                                                             form_order.attr_name='form_order'
                                                             """.format(
-                        schema=self.schema,
-                        t_ili2db_meta_attrs=PG_METAATTRS_TABLE
+                        schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
                     )
                     order_by_attr_order = """ORDER BY attr_order"""
 
-                    attr_mapping_field = "meta_attr_mapping_value.attr_value as attr_mapping,"
+                    attr_mapping_field = (
+                        "meta_attr_mapping_value.attr_value as attr_mapping,"
+                    )
                     attr_mapping_join = """LEFT JOIN {schema}.{t_ili2db_meta_attrs} meta_attr_mapping_value
                                                             ON full_name.iliname=meta_attr_mapping_value.ilielement AND
                                                             meta_attr_mapping_value.attr_name='ili2db.mapping'
                                                             """.format(
-                        schema=self.schema,
-                        t_ili2db_meta_attrs=PG_METAATTRS_TABLE
+                        schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
                     )
 
                 fields_cur.execute(
@@ -608,8 +608,7 @@ class PGConnector(DBConnector):
                             ON meta_attrs_cardinality_max.ilielement ILIKE cname.iliname||'.'||cprop.columnname AND meta_attrs_cardinality_max.attr_name = 'ili2db.ili.attrCardinalityMax'
                             WHERE cprop.tag = 'ch.ehi.ili2db.foreignKey' AND meta_attrs_array.attr_value = 'ARRAY'
                             """.format(
-                    schema=self.schema,
-                    t_ili2db_meta_attrs=PG_METAATTRS_TABLE
+                    schema=self.schema, t_ili2db_meta_attrs=PG_METAATTRS_TABLE
                 )
             )
             return cur

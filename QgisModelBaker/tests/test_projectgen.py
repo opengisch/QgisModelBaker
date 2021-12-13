@@ -30,7 +30,6 @@ from decimal import Decimal
 import yaml
 from qgis.core import Qgis, QgsEditFormConfig, QgsProject, QgsRelation
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
-from qgis.PyQt.QtXml import QDomDocument
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db import iliimporter
@@ -3519,13 +3518,13 @@ class TestProjectGen(unittest.TestCase):
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
-        importer.configuration.ilimodels = 'ArrayMapping'
+        importer.configuration.ilimodels = "ArrayMapping"
         importer.configuration.dbschema = "array_mapping_{:%Y%m%d%H%M%S%f}".format(
             datetime.datetime.now()
         )
 
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -3566,15 +3565,13 @@ class TestProjectGen(unittest.TestCase):
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path("ilimodels/ArrayMapping.ili")
-        importer.configuration.ilimodels = 'ArrayMapping'
+        importer.configuration.ilimodels = "ArrayMapping"
         importer.configuration.dbfile = os.path.join(
             self.basetestpath,
-            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(
-                datetime.datetime.now()
-            ),
+            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
         )
         importer.configuration.srs_code = 3116
-        importer.configuration.inheritance = 'smart2'
+        importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
