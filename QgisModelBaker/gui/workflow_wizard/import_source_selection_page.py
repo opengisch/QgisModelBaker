@@ -23,18 +23,18 @@ from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
-import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
 from QgisModelBaker.utils.qt_utils import FileValidator, QValidator, make_file_selector
 
-from ...utils import ui
+from ...utils import gui_utils
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/import_source_selection.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_source_selection.ui")
 
 
 class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
 
-    ValidExtensions = wizard_tools.IliExtensions + wizard_tools.TransferExtensions
+    ValidExtensions = gui_utils.IliExtensions + gui_utils.TransferExtensions
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)

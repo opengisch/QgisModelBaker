@@ -81,10 +81,10 @@ from ..libqgsprojectgen.dataobjects.project import Project
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ..libqgsprojectgen.generator.generator import Generator
-from ..utils import ui
-from ..utils.ui import LogColor
+from ..utils import gui_utils
+from ..utils.gui_utils import LogColor
 
-DIALOG_UI = ui.get_ui_class("generate_project.ui")
+DIALOG_UI = gui_utils.get_ui_class("generate_project.ui")
 
 
 class GenerateProjectDialog(QDialog, DIALOG_UI):

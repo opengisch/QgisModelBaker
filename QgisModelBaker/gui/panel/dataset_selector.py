@@ -23,12 +23,12 @@ from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
-from QgisModelBaker.gui.workflow_wizard.wizard_tools import CATALOGUE_DATASETNAME
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.utils.db_utils import (
     get_configuration_from_layersource,
     get_schema_identificator_from_layersource,
 )
+from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME
 from QgisModelBaker.utils.qt_utils import slugify
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory

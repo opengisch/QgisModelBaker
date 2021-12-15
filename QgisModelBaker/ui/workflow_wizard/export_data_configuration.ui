@@ -110,13 +110,13 @@
   <customwidget>
    <class>ModelListView</class>
    <extends></extends>
-   <header>QgisModelBaker.gui.options</header>
+   <header>QgisModelBaker.utils.gui_utils</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SemiTristateCheckbox</class>
    <extends>QWidget</extends>
-   <header>QgisModelBaker.gui.options</header>
+   <header>QgisModelBaker.utils.gui_utils</header>
   </customwidget>
  </customwidgets>
  <resources/>

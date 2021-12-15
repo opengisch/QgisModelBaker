@@ -27,10 +27,10 @@ from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
 )
 
-from ...utils import ui
+from ...utils import gui_utils
 from .db_config_panel import DbConfigPanel
 
-WIDGET_UI = ui.get_ui_class("gpkg_settings_panel.ui")
+WIDGET_UI = gui_utils.get_ui_class("gpkg_settings_panel.ui")
 
 
 class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):

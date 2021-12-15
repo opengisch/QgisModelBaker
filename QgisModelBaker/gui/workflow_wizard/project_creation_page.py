@@ -29,10 +29,10 @@ from ...libqgsprojectgen.dataobjects.project import Project
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libqgsprojectgen.generator.generator import Generator
-from ...utils import ui
-from ...utils.ui import LogColor
+from ...utils import gui_utils
+from ...utils.gui_utils import LogColor
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/project_creation.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 
 
 class ProjectCreationPage(QWizardPage, PAGE_UI):

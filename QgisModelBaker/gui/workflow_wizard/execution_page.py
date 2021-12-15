@@ -33,10 +33,10 @@ import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.libili2db.globals import DbActionType
 
-from ...utils import ui
-from ...utils.ui import LogColor
+from ...utils import gui_utils
+from ...utils.gui_utils import LogColor
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/execution.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):

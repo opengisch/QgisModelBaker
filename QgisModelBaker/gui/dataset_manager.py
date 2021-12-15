@@ -25,14 +25,14 @@ from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from QgisModelBaker.gui.workflow_wizard.wizard_tools import CATALOGUE_DATASETNAME
 from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
+from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..utils import ui
+from ..utils import gui_utils
 
-DIALOG_UI = ui.get_ui_class("dataset_manager.ui")
+DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
 
 class DatasetModel(QStandardItemModel):

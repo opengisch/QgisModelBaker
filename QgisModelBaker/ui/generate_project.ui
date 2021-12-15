@@ -275,7 +275,7 @@
   <customwidget>
    <class>CompletionLineEdit</class>
    <extends></extends>
-   <header>QgisModelBaker.gui.options</header>
+   <header>QgisModelBaker.utils.gui_utils</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

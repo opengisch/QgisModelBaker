@@ -44,7 +44,15 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
-from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libili2db.ili2dbconfig import (
+    ExportConfiguration,
+    ImportDataConfiguration,
+    SchemaImportConfiguration,
+    UpdateDataConfiguration,
+)
+from QgisModelBaker.libili2db.ilicache import IliDataCache, IliToppingFileCache
+from QgisModelBaker.utils.gui_utils import (
     ImportDataModel,
     ImportModelsModel,
     PageIds,
@@ -55,16 +63,8 @@ from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
     SourceModel,
     TransferExtensions,
 )
-from QgisModelBaker.libili2db.globals import DbActionType
-from QgisModelBaker.libili2db.ili2dbconfig import (
-    ExportConfiguration,
-    ImportDataConfiguration,
-    SchemaImportConfiguration,
-    UpdateDataConfiguration,
-)
-from QgisModelBaker.libili2db.ilicache import IliDataCache, IliToppingFileCache
 
-from ...utils.ui import LogColor
+from ...utils.gui_utils import LogColor
 
 
 class WorkflowWizard(QWizard):

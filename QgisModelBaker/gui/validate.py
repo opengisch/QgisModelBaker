@@ -29,22 +29,22 @@ from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.gui.workflow_wizard.wizard_tools import (
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
+from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.utils.gui_utils import (
     SchemaBasketsModel,
     SchemaDataFilterMode,
     SchemaDatasetsModel,
     SchemaModelsModel,
 )
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ..libili2db import ilivalidator
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..utils import ui
+from ..utils import gui_utils
 
-DIALOG_UI = ui.get_ui_class("validator.ui")
+DIALOG_UI = gui_utils.get_ui_class("validator.ui")
 
 VALID_COLOR = "#adde9b"
 

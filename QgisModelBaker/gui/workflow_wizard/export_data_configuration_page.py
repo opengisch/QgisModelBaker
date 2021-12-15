@@ -23,20 +23,20 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     Validators,
     make_save_file_selector,
 )
 
-from ...utils import ui
+from ...utils import gui_utils
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/export_data_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
-    ValidExtensions = wizard_tools.TransferExtensions
+    ValidExtensions = gui_utils.TransferExtensions
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
@@ -102,23 +102,23 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.filter_combobox.clear()
         self.filter_combobox.addItem(
             self.tr("No filter (export all models)"),
-            wizard_tools.SchemaDataFilterMode.NO_FILTER,
+            gui_utils.SchemaDataFilterMode.NO_FILTER,
         )
         self.filter_combobox.addItem(
-            self.tr("Models"), wizard_tools.SchemaDataFilterMode.MODEL
+            self.tr("Models"), gui_utils.SchemaDataFilterMode.MODEL
         )
         if basket_handling:
             self.filter_combobox.addItem(
-                self.tr("Datasets"), wizard_tools.SchemaDataFilterMode.DATASET
+                self.tr("Datasets"), gui_utils.SchemaDataFilterMode.DATASET
             )
             self.filter_combobox.addItem(
-                self.tr("Baskets"), wizard_tools.SchemaDataFilterMode.BASKET
+                self.tr("Baskets"), gui_utils.SchemaDataFilterMode.BASKET
             )
         if self.filter_combobox.itemData(stored_index):
             self.filter_combobox.setCurrentIndex(stored_index)
             if (
                 self.filter_combobox.itemData(stored_index)
-                != wizard_tools.SchemaDataFilterMode.NO_FILTER
+                != gui_utils.SchemaDataFilterMode.NO_FILTER
             ):
                 self._set_select_all_checkbox()
         else:
@@ -144,23 +144,23 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def _filter_changed(self):
         filter = self.filter_combobox.currentData()
-        if filter == wizard_tools.SchemaDataFilterMode.NO_FILTER:
+        if filter == gui_utils.SchemaDataFilterMode.NO_FILTER:
             self.export_items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
         else:
             self.export_items_view.setVisible(True)
             self.select_all_checkbox.setVisible(True)
-            if filter == wizard_tools.SchemaDataFilterMode.MODEL:
+            if filter == gui_utils.SchemaDataFilterMode.MODEL:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_models_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all models"))
-            if filter == wizard_tools.SchemaDataFilterMode.DATASET:
+            if filter == gui_utils.SchemaDataFilterMode.DATASET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_datasets_model
                 )
                 self.select_all_checkbox.setText(self.tr("Select all datasets"))
-            if filter == wizard_tools.SchemaDataFilterMode.BASKET:
+            if filter == gui_utils.SchemaDataFilterMode.BASKET:
                 self._set_export_filter_view_model(
                     self.workflow_wizard.export_baskets_model
                 )

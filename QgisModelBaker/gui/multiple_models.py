@@ -21,7 +21,7 @@ from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QListWidgetItem
 
-from QgisModelBaker.utils.ui import get_ui_class
+from QgisModelBaker.utils.gui_utils import get_ui_class
 
 DIALOG_UI = get_ui_class("multiple_models.ui")
 
