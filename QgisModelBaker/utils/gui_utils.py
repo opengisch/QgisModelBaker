@@ -1,7 +1,94 @@
 import os
+import pathlib
+import re
 import warnings
+import xml.etree.cElementTree as CET
+from enum import Enum, IntEnum
 
+from qgis.PyQt.QtCore import (
+    QModelIndex,
+    QSortFilterProxyModel,
+    QStringListModel,
+    Qt,
+    pyqtSignal,
+)
+from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
+from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
 from qgis.PyQt.uic import loadUiType
+
+from QgisModelBaker.libili2db.ilicache import IliCache
+from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME, DatasetModel
+from QgisModelBaker.utils.qt_utils import slugify
+
+# globals
+
+IliExtensions = ["ili"]
+TransferExtensions = [
+    "xtf",
+    "XTF",
+    "itf",
+    "ITF",
+    "pdf",
+    "PDF",
+    "xml",
+    "XML",
+    "xls",
+    "XLS",
+    "xlsx",
+    "XLSX",
+]
+
+DEFAULT_DATASETNAME = "Baseset"
+CATALOGUE_DATASETNAME = "Catalogueset"
+
+TRANSFERFILE_MODELS_BLACKLIST = [
+    "CHBaseEx_MapCatalogue_V1",
+    "CHBaseEx_WaterNet_V1",
+    "CHBaseEx_Sewage_V1",
+    "CHAdminCodes_V1",
+    "AdministrativeUnits_V1",
+    "AdministrativeUnitsCH_V1",
+    "WithOneState_V1",
+    "WithLatestModification_V1",
+    "WithModificationObjects_V1",
+    "GraphicCHLV03_V1",
+    "GraphicCHLV95_V1",
+    "NonVector_Base_V2",
+    "NonVector_Base_V3",
+    "NonVector_Base_LV03_V3_1",
+    "NonVector_Base_LV95_V3_1",
+    "GeometryCHLV03_V1",
+    "GeometryCHLV95_V1",
+    "InternationalCodes_V1",
+    "Localisation_V1",
+    "LocalisationCH_V1",
+    "Dictionaries_V1",
+    "DictionariesCH_V1",
+    "CatalogueObjects_V1",
+    "CatalogueObjectTrees_V1",
+    "AbstractSymbology",
+    "CodeISO",
+    "CoordSys",
+    "GM03_2_1Comprehensive",
+    "GM03_2_1Core",
+    "GM03_2Comprehensive",
+    "GM03_2Core",
+    "GM03Comprehensive",
+    "GM03Core",
+    "IliRepository09",
+    "IliSite09",
+    "IlisMeta07",
+    "IliVErrors",
+    "INTERLIS_ext",
+    "RoadsExdm2ben",
+    "RoadsExdm2ben_10",
+    "RoadsExgm2ien",
+    "RoadsExgm2ien_10",
+    "StandardSymbology",
+    "StandardSymbology",
+    "Time",
+    "Units",
+]
 
 
 class LogColor:
@@ -11,6 +98,29 @@ class LogColor:
     COLOR_TOPPING = "#341d5c"
 
 
+class SchemaDataFilterMode(IntEnum):
+    NO_FILTER = 1
+    MODEL = 2
+    DATASET = 3
+    BASKET = 4
+
+
+class PageIds:
+    Intro = 1
+    ImportSourceSelection = 2
+    ImportDatabaseSelection = 3
+    GenerateDatabaseSelection = 4
+    ImportSchemaConfiguration = 5
+    ImportSchemaExecution = 6
+    ImportDataConfiguration = 7
+    ImportDataExecution = 8
+    ExportDatabaseSelection = 9
+    ExportDataConfiguration = 10
+    ExportDataExecution = 11
+    ProjectCreation = 12
+
+
+# util functions
 def get_ui_class(ui_file):
     """Get UI Python class from .ui file.
        Can be filename.ui or subdirectory/filename.ui
@@ -27,12 +137,7 @@ def get_ui_class(ui_file):
         return loadUiType(ui_file_path)[0]
 
 
-import pathlib
-
-from qgis.PyQt.QtCore import QModelIndex, Qt, pyqtSignal
-from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
-
-
+# extended gui components
 class CompletionLineEdit(QLineEdit):
 
     punched = pyqtSignal()
@@ -112,105 +217,9 @@ class FileDropListView(QListView):
         event.acceptProposedAction()
 
 
-import os
-import re
-import xml.etree.cElementTree as CET
-from enum import Enum, IntEnum
-
-from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
-from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
-
-from QgisModelBaker.libili2db.ilicache import IliCache
-
-IliExtensions = ["ili"]
-TransferExtensions = [
-    "xtf",
-    "XTF",
-    "itf",
-    "ITF",
-    "pdf",
-    "PDF",
-    "xml",
-    "XML",
-    "xls",
-    "XLS",
-    "xlsx",
-    "XLSX",
-]
-
-DEFAULT_DATASETNAME = "Baseset"
-CATALOGUE_DATASETNAME = "Catalogueset"
-
-TRANSFERFILE_MODELS_BLACKLIST = [
-    "CHBaseEx_MapCatalogue_V1",
-    "CHBaseEx_WaterNet_V1",
-    "CHBaseEx_Sewage_V1",
-    "CHAdminCodes_V1",
-    "AdministrativeUnits_V1",
-    "AdministrativeUnitsCH_V1",
-    "WithOneState_V1",
-    "WithLatestModification_V1",
-    "WithModificationObjects_V1",
-    "GraphicCHLV03_V1",
-    "GraphicCHLV95_V1",
-    "NonVector_Base_V2",
-    "NonVector_Base_V3",
-    "NonVector_Base_LV03_V3_1",
-    "NonVector_Base_LV95_V3_1",
-    "GeometryCHLV03_V1",
-    "GeometryCHLV95_V1",
-    "InternationalCodes_V1",
-    "Localisation_V1",
-    "LocalisationCH_V1",
-    "Dictionaries_V1",
-    "DictionariesCH_V1",
-    "CatalogueObjects_V1",
-    "CatalogueObjectTrees_V1",
-    "AbstractSymbology",
-    "CodeISO",
-    "CoordSys",
-    "GM03_2_1Comprehensive",
-    "GM03_2_1Core",
-    "GM03_2Comprehensive",
-    "GM03_2Core",
-    "GM03Comprehensive",
-    "GM03Core",
-    "IliRepository09",
-    "IliSite09",
-    "IlisMeta07",
-    "IliVErrors",
-    "INTERLIS_ext",
-    "RoadsExdm2ben",
-    "RoadsExdm2ben_10",
-    "RoadsExgm2ien",
-    "RoadsExgm2ien_10",
-    "StandardSymbology",
-    "StandardSymbology",
-    "Time",
-    "Units",
-]
-
-
-class PageIds:
-    Intro = 1
-    ImportSourceSelection = 2
-    ImportDatabaseSelection = 3
-    GenerateDatabaseSelection = 4
-    ImportSchemaConfiguration = 5
-    ImportSchemaExecution = 6
-    ImportDataConfiguration = 7
-    ImportDataExecution = 8
-    ExportDatabaseSelection = 9
-    ExportDataConfiguration = 10
-    ExportDataExecution = 11
-    ProjectCreation = 12
-
-
-class SchemaDataFilterMode(IntEnum):
-    NO_FILTER = 1
-    MODEL = 2
-    DATASET = 3
-    BASKET = 4
+"""
+Introduced for the wizard
+"""
 
 
 class SourceModel(QStandardItemModel):
@@ -791,7 +800,7 @@ class SchemaDatasetsModel(CheckEntriesModel):
 
 class SchemaBasketsModel(CheckEntriesModel):
     """
-    Model providing all the datasets from the database and it's checked state
+    Model providing all the baskets from the database and it's checked state
     """
 
     def __init__(self):
@@ -820,3 +829,112 @@ class SchemaBasketsModel(CheckEntriesModel):
             for name in self.stringList()
             if self._checked_entries[name] == Qt.Checked and name in self._basket_ids
         ]
+
+
+"""
+Introduced for the dataset manager:
+"""
+
+
+class DatasetModel(QStandardItemModel):
+    """
+    Model providing all the datasets from the database
+    """
+
+    class Roles(Enum):
+        TID = Qt.UserRole + 1
+        DATASETNAME = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def refresh_model(self, db_connector=None):
+        self.beginResetModel()
+        self.clear()
+        if db_connector:
+            datasets_info = db_connector.get_datasets_info()
+            for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
+                item = QStandardItem()
+                item.setData(record["datasetname"], int(Qt.DisplayRole))
+                item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
+                item.setData(record["t_id"], int(DatasetModel.Roles.TID))
+                self.appendRow(item)
+        self.endResetModel()
+
+
+"""
+Introduced for the dataset selector combo:
+"""
+
+
+class BasketSourceModel(QStandardItemModel):
+    class Roles(Enum):
+        DATASETNAME = Qt.UserRole + 1
+        MODEL_TOPIC = Qt.UserRole + 2
+        BASKET_TID = Qt.UserRole + 3
+        # The SCHEMA_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
+        # This because a dataset is usually valid per topic and db schema
+        SCHEMA_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+        self.schema_baskets = {}
+
+    def refresh(self):
+        self.beginResetModel()
+        self.clear()
+        for schema_identificator in self.schema_baskets.keys():
+            for basket in self.schema_baskets[schema_identificator]:
+                item = QStandardItem()
+                item.setData(basket["datasetname"], int(Qt.DisplayRole))
+                item.setData(
+                    basket["datasetname"], int(BasketSourceModel.Roles.DATASETNAME)
+                )
+                item.setData(basket["topic"], int(BasketSourceModel.Roles.MODEL_TOPIC))
+                item.setData(
+                    basket["basket_t_id"], int(BasketSourceModel.Roles.BASKET_TID)
+                )
+                item.setData(
+                    f"{schema_identificator}_{slugify(basket['topic'])}",
+                    int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR),
+                )
+                self.appendRow(item)
+        self.endResetModel()
+
+    def reload_schema_baskets(self, db_connector, schema_identificator):
+        baskets_info = db_connector.get_baskets_info()
+        baskets = []
+        for record in baskets_info:
+            if record["datasetname"] == CATALOGUE_DATASETNAME:
+                continue
+            basket = {}
+            basket["datasetname"] = record["datasetname"]
+            basket["topic"] = record["topic"]
+            basket["basket_t_id"] = record["basket_t_id"]
+            baskets.append(basket)
+        self.schema_baskets[schema_identificator] = baskets
+        self.refresh()
+
+    def data(self, index, role):
+        item = self.item(index.row(), index.column())
+        if role == Qt.DisplayRole:
+            if item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split(".")[1]:
+                return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split('.')[1]})"
+        return item.data(int(role))
+
+    def clear_schema_baskets(self):
+        self.schema_baskets = {}
+
+    def schema_baskets_loaded(self, schema_identificator):
+        return schema_identificator in self.schema_baskets

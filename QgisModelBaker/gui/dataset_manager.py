@@ -16,53 +16,21 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import Enum
 
 from qgis.core import QgsApplication, QgsMapLayer, QgsProject
 from qgis.PyQt.QtCore import QSettings, Qt, QTimer
-from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
 from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME
+from QgisModelBaker.utils.gui_utils import DatasetModel
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..utils import gui_utils
 
 DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
-
-
-class DatasetModel(QStandardItemModel):
-    class Roles(Enum):
-        TID = Qt.UserRole + 1
-        DATASETNAME = Qt.UserRole + 2
-
-        def __int__(self):
-            return self.value
-
-    def __init__(self):
-        super().__init__()
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
-    def refresh_model(self, db_connector=None):
-        self.beginResetModel()
-        self.clear()
-        if db_connector:
-            datasets_info = db_connector.get_datasets_info()
-            for record in datasets_info:
-                if record["datasetname"] == CATALOGUE_DATASETNAME:
-                    continue
-                item = QStandardItem()
-                item.setData(record["datasetname"], int(Qt.DisplayRole))
-                item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
-                item.setData(record["t_id"], int(DatasetModel.Roles.TID))
-                self.appendRow(item)
-        self.endResetModel()
 
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):

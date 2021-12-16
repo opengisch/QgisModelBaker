@@ -16,11 +16,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import Enum
 
 from qgis.core import QgsDataSourceUri, QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
-from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
@@ -28,75 +26,10 @@ from QgisModelBaker.utils.db_utils import (
     get_configuration_from_layersource,
     get_schema_identificator_from_layersource,
 )
-from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME
+from QgisModelBaker.utils.gui_utils import BasketSourceModel
 from QgisModelBaker.utils.qt_utils import slugify
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-
-
-class BasketSourceModel(QStandardItemModel):
-    class Roles(Enum):
-        DATASETNAME = Qt.UserRole + 1
-        MODEL_TOPIC = Qt.UserRole + 2
-        BASKET_TID = Qt.UserRole + 3
-        # The SCHEMA_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
-        # This because a dataset is usually valid per topic and db schema
-        SCHEMA_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
-
-        def __int__(self):
-            return self.value
-
-    def __init__(self):
-        super().__init__()
-        self.schema_baskets = {}
-
-    def refresh(self):
-        self.beginResetModel()
-        self.clear()
-        for schema_identificator in self.schema_baskets.keys():
-            for basket in self.schema_baskets[schema_identificator]:
-                item = QStandardItem()
-                item.setData(basket["datasetname"], int(Qt.DisplayRole))
-                item.setData(
-                    basket["datasetname"], int(BasketSourceModel.Roles.DATASETNAME)
-                )
-                item.setData(basket["topic"], int(BasketSourceModel.Roles.MODEL_TOPIC))
-                item.setData(
-                    basket["basket_t_id"], int(BasketSourceModel.Roles.BASKET_TID)
-                )
-                item.setData(
-                    f"{schema_identificator}_{slugify(basket['topic'])}",
-                    int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR),
-                )
-                self.appendRow(item)
-        self.endResetModel()
-
-    def reload_schema_baskets(self, db_connector, schema_identificator):
-        baskets_info = db_connector.get_baskets_info()
-        baskets = []
-        for record in baskets_info:
-            if record["datasetname"] == CATALOGUE_DATASETNAME:
-                continue
-            basket = {}
-            basket["datasetname"] = record["datasetname"]
-            basket["topic"] = record["topic"]
-            basket["basket_t_id"] = record["basket_t_id"]
-            baskets.append(basket)
-        self.schema_baskets[schema_identificator] = baskets
-        self.refresh()
-
-    def data(self, index, role):
-        item = self.item(index.row(), index.column())
-        if role == Qt.DisplayRole:
-            if item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split(".")[1]:
-                return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split('.')[1]})"
-        return item.data(int(role))
-
-    def clear_schema_baskets(self):
-        self.schema_baskets = {}
-
-    def schema_baskets_loaded(self, schema_identificator):
-        return schema_identificator in self.schema_baskets
 
 
 class DatasetSelector(QComboBox):
