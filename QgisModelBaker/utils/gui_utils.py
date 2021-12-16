@@ -687,7 +687,7 @@ class ImportDataModel(QSortFilterProxyModel):
         return sessions
 
 
-class ModelListView(QListView):
+class SpaceCheckListView(QListView):
     """
     List view allowing to check/uncheck items by space press
     """
@@ -703,7 +703,7 @@ class ModelListView(QListView):
         if e.key() == Qt.Key_Space:
             _selected_indexes = self.selectedIndexes()
             self.space_pressed.emit(_selected_indexes[0])
-        super(ModelListView, self).keyPressEvent(e)
+        super(SpaceCheckListView, self).keyPressEvent(e)
 
 
 class CheckEntriesModel(QStringListModel):

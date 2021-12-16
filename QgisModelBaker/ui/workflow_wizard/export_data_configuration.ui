@@ -85,7 +85,7 @@
        </widget>
       </item>
       <item row="3" column="0" rowspan="2" colspan="4">
-       <widget class="ModelListView" name="export_items_view" native="true">
+       <widget class="SpaceCheckListView" name="export_items_view" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -108,7 +108,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ModelListView</class>
+   <class>SpaceCheckListView</class>
    <extends></extends>
    <header>QgisModelBaker.utils.gui_utils</header>
    <container>1</container>
