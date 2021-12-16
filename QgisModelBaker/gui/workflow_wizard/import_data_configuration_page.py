@@ -42,9 +42,8 @@ from QgisModelBaker.libili2db.ilicache import (
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
-
-from ...utils import gui_utils
-from ...utils.gui_utils import LogColor
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
+from QgisModelBaker.utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
@@ -60,7 +59,7 @@ class DatasetComboDelegate(QStyledItemDelegate):
             self.items = [
                 record["datasetname"]
                 for record in datasets_info
-                if record["datasetname"] != gui_utils.CATALOGUE_DATASETNAME
+                if record["datasetname"] != CATALOGUE_DATASETNAME
             ]
 
     def createEditor(self, parent, option, index):
@@ -250,7 +249,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             if not value:
                 self.workflow_wizard.source_model.setData(
                     index,
-                    gui_utils.DEFAULT_DATASETNAME,
+                    DEFAULT_DATASETNAME,
                     int(gui_utils.SourceModel.Roles.DATASET_NAME),
                 )
                 is_xml = (

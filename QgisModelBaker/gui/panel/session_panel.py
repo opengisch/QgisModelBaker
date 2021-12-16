@@ -28,11 +28,11 @@ import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
+from QgisModelBaker.utils.gui_utils import LogColor
 from QgisModelBaker.utils.qt_utils import OverrideCursor
 
 from ...libili2db import iliexecutable, iliexporter, iliimporter
-from ...utils import gui_utils
-from ...utils.gui_utils import LogColor
 
 WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
 
@@ -237,9 +237,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def _create_default_dataset(self):
         self.print_info.emit(
-            self.tr("Create the default dataset {}").format(
-                gui_utils.DEFAULT_DATASETNAME
-            ),
+            self.tr("Create the default dataset {}").format(DEFAULT_DATASETNAME),
             LogColor.COLOR_INFO,
         )
         db_connector = db_utils.get_db_connector(self.configuration)
@@ -248,18 +246,18 @@ class SessionPanel(QWidget, WIDGET_UI):
         default_datasets_info_tids = [
             datasets_info["t_id"]
             for datasets_info in db_connector.get_datasets_info()
-            if datasets_info["datasetname"] == gui_utils.DEFAULT_DATASETNAME
+            if datasets_info["datasetname"] == DEFAULT_DATASETNAME
         ]
         if default_datasets_info_tids:
             default_dataset_tid = default_datasets_info_tids[0]
         else:
-            status, message = db_connector.create_dataset(gui_utils.DEFAULT_DATASETNAME)
+            status, message = db_connector.create_dataset(DEFAULT_DATASETNAME)
             self.print_info.emit(message, LogColor.COLOR_INFO)
             if status:
                 default_datasets_info_tids = [
                     datasets_info["t_id"]
                     for datasets_info in db_connector.get_datasets_info()
-                    if datasets_info["datasetname"] == gui_utils.DEFAULT_DATASETNAME
+                    if datasets_info["datasetname"] == DEFAULT_DATASETNAME
                 ]
                 if default_datasets_info_tids:
                     default_dataset_tid = default_datasets_info_tids[0]

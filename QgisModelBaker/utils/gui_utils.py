@@ -17,6 +17,7 @@ from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libili2db.ilicache import IliCache
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 from QgisModelBaker.utils.qt_utils import slugify
 
 # globals
@@ -43,9 +44,6 @@ TransferExtensions = [
     "xlsx",
     "XLSX",
 ]
-
-DEFAULT_DATASETNAME = "Baseset"
-CATALOGUE_DATASETNAME = "Catalogueset"
 
 TRANSFERFILE_MODELS_BLACKLIST = [
     "CHBaseEx_MapCatalogue_V1",
