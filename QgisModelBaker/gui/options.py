@@ -23,7 +23,7 @@ from qgis.PyQt.QtCore import QLocale, QSettings
 from qgis.PyQt.QtWidgets import QDialog
 
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
-from QgisModelBaker.libili2db.globals import DbIliMode, DropMode
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import (
     ExportConfiguration,
     ImportDataConfiguration,
@@ -31,6 +31,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
 )
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.utils import gui_utils, qt_utils
+from QgisModelBaker.utils.gui_utils import DropMode
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
 DIALOG_UI = gui_utils.get_ui_class("options.ui")

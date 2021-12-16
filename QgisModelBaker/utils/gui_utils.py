@@ -17,10 +17,16 @@ from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libili2db.ilicache import IliCache
-from QgisModelBaker.utils.gui_utils import CATALOGUE_DATASETNAME, DatasetModel
 from QgisModelBaker.utils.qt_utils import slugify
 
 # globals
+
+
+class DropMode(Enum):
+    YES = 1
+    NO = 2
+    ASK = 3
+
 
 IliExtensions = ["ili"]
 TransferExtensions = [
@@ -120,7 +126,7 @@ class PageIds:
     ProjectCreation = 12
 
 
-# util functions
+# Util functions
 def get_ui_class(ui_file):
     """Get UI Python class from .ui file.
        Can be filename.ui or subdirectory/filename.ui
@@ -137,8 +143,11 @@ def get_ui_class(ui_file):
         return loadUiType(ui_file_path)[0]
 
 
-# extended gui components
+# Extended GUI components and used models
 class CompletionLineEdit(QLineEdit):
+    """
+    Extended LineEdit for completion reason punching it on entering or mouse press to open popup.
+    """
 
     punched = pyqtSignal()
 
@@ -170,23 +179,10 @@ class SemiTristateCheckbox(QCheckBox):
             self.setCheckState(Qt.Checked)
 
 
-class ModelListView(QListView):
-
-    space_pressed = pyqtSignal(QModelIndex)
-
-    def __init__(self, parent=None):
-        super(QListView, self).__init__(parent)
-        self.space_pressed.connect(self.update)
-
-    # to act when space is pressed
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Space:
-            _selected_indexes = self.selectedIndexes()
-            self.space_pressed.emit(_selected_indexes[0])
-        super(ModelListView, self).keyPressEvent(e)
-
-
 class FileDropListView(QListView):
+    """
+    List view allowing to drop ili and transfer files.
+    """
 
     ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
 
@@ -215,11 +211,6 @@ class FileDropListView(QListView):
         ]
         self.files_dropped.emit(dropped_files)
         event.acceptProposedAction()
-
-
-"""
-Introduced for the wizard
-"""
 
 
 class SourceModel(QStandardItemModel):
@@ -698,6 +689,25 @@ class ImportDataModel(QSortFilterProxyModel):
         return sessions
 
 
+class ModelListView(QListView):
+    """
+    List view allowing to check/uncheck items by space press
+    """
+
+    space_pressed = pyqtSignal(QModelIndex)
+
+    def __init__(self, parent=None):
+        super(QListView, self).__init__(parent)
+        self.space_pressed.connect(self.update)
+
+    # to act when space is pressed
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Space:
+            _selected_indexes = self.selectedIndexes()
+            self.space_pressed.emit(_selected_indexes[0])
+        super(ModelListView, self).keyPressEvent(e)
+
+
 class CheckEntriesModel(QStringListModel):
     """
     A checkable string list model
@@ -747,7 +757,7 @@ class CheckEntriesModel(QStringListModel):
 
 class SchemaModelsModel(CheckEntriesModel):
     """
-    Model providing all the models from the database (except the blacklisted ones) and it's checked state
+    Model providing all the models from the database (except the blacklisted ones) and it's checked state used to filter data according to models
     """
 
     def __init__(self):
@@ -774,7 +784,7 @@ class SchemaModelsModel(CheckEntriesModel):
 
 class SchemaDatasetsModel(CheckEntriesModel):
     """
-    Model providing all the datasets from the database and it's checked state
+    Model providing all the datasets from the database and it's checked state used to filter data according to datasets
     """
 
     def __init__(self):
@@ -800,7 +810,7 @@ class SchemaDatasetsModel(CheckEntriesModel):
 
 class SchemaBasketsModel(CheckEntriesModel):
     """
-    Model providing all the baskets from the database and it's checked state
+    Model providing all the baskets from the database and it's checked state used to filter data according to baskets
     """
 
     def __init__(self):
@@ -831,14 +841,9 @@ class SchemaBasketsModel(CheckEntriesModel):
         ]
 
 
-"""
-Introduced for the dataset manager:
-"""
-
-
 class DatasetModel(QStandardItemModel):
     """
-    Model providing all the datasets from the database
+    ItemModel providing all the datasets from the database.
     """
 
     class Roles(Enum):
@@ -870,12 +875,12 @@ class DatasetModel(QStandardItemModel):
         self.endResetModel()
 
 
-"""
-Introduced for the dataset selector combo:
-"""
-
-
 class BasketSourceModel(QStandardItemModel):
+    """
+    Model providing the baskets described by topic and datasets.
+    The data is keeped per schema/topic during the QGIS session to avoid to many database requests.
+    """
+
     class Roles(Enum):
         DATASETNAME = Qt.UserRole + 1
         MODEL_TOPIC = Qt.UserRole + 2
