@@ -340,7 +340,6 @@ class WorkflowWizard(QWizard):
                 models = self.current_models_model.checked_entries()
             elif self.current_filter_mode == SchemaDataFilterMode.DATASET:
                 datasets = self.current_datasets_model.checked_entries()
-                print(datasets)
             elif self.current_filter_mode == SchemaDataFilterMode.BASKET:
                 baskets = self.current_baskets_model.checked_entries()
                 print(baskets)
