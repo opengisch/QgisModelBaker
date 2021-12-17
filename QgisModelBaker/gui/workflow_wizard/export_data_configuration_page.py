@@ -19,11 +19,11 @@
 """
 
 
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     Validators,
@@ -44,6 +44,10 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.setupUi(self)
         self.setTitle(title)
+
+        self.filter_data_panel = FilterDataPanel(self.workflow_wizard)
+        self.filter_layout.addWidget(self.filter_data_panel)
+
         self.is_complete = False
 
         self.xtf_file_browse_button.clicked.connect(
@@ -70,9 +74,6 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
         self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
 
-        self.select_all_checkbox.stateChanged.connect(self._select_all_items)
-        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
-
     def isComplete(self):
         return self.is_complete
 
@@ -85,107 +86,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         return self.workflow_wizard.next_id()
 
     def setup_dialog(self, basket_handling):
-        # disconnect currentIndexChanged signal while refreshing the combobox
-        try:
-            self.filter_combobox.currentIndexChanged.disconnect()
-        except Exception:
-            pass
-
-        self._refresh_filter_combobox(basket_handling)
-
-        self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
-
-    def _refresh_filter_combobox(self, basket_handling):
-        stored_index = self.filter_combobox.findData(
-            self.workflow_wizard.current_export_filter
-        )
-        self.filter_combobox.clear()
-        self.filter_combobox.addItem(
-            self.tr("No filter (export all models)"),
-            wizard_tools.SchemaDataFilterMode.NO_FILTER,
-        )
-        self.filter_combobox.addItem(
-            self.tr("Models"), wizard_tools.SchemaDataFilterMode.MODEL
-        )
-        if basket_handling:
-            self.filter_combobox.addItem(
-                self.tr("Datasets"), wizard_tools.SchemaDataFilterMode.DATASET
-            )
-            self.filter_combobox.addItem(
-                self.tr("Baskets"), wizard_tools.SchemaDataFilterMode.BASKET
-            )
-        if self.filter_combobox.itemData(stored_index):
-            self.filter_combobox.setCurrentIndex(stored_index)
-            if (
-                self.filter_combobox.itemData(stored_index)
-                != wizard_tools.SchemaDataFilterMode.NO_FILTER
-            ):
-                self._set_select_all_checkbox()
-        else:
-            self.filter_combobox.setCurrentIndex(0)
-            self._filter_changed()
-
-    def _set_export_filter_view_model(self, model):
-        try:
-            self.export_items_view.clicked.disconnect()
-            self.export_items_view.space_pressed.disconnect()
-            self.export_items_view.model().dataChanged.disconnect()
-        except Exception:
-            pass
-
-        self.export_items_view.setModel(model)
-        self.export_items_view.clicked.connect(self.export_items_view.model().check)
-        self.export_items_view.space_pressed.connect(
-            self.export_items_view.model().check
-        )
-        self.export_items_view.model().dataChanged.connect(
-            lambda: self._set_select_all_checkbox()
-        )
-
-    def _filter_changed(self):
-        filter = self.filter_combobox.currentData()
-        if filter == wizard_tools.SchemaDataFilterMode.NO_FILTER:
-            self.export_items_view.setHidden(True)
-            self.select_all_checkbox.setHidden(True)
-        else:
-            self.export_items_view.setVisible(True)
-            self.select_all_checkbox.setVisible(True)
-            if filter == wizard_tools.SchemaDataFilterMode.MODEL:
-                self._set_export_filter_view_model(
-                    self.workflow_wizard.export_models_model
-                )
-                self.select_all_checkbox.setText(self.tr("Select all models"))
-            if filter == wizard_tools.SchemaDataFilterMode.DATASET:
-                self._set_export_filter_view_model(
-                    self.workflow_wizard.export_datasets_model
-                )
-                self.select_all_checkbox.setText(self.tr("Select all datasets"))
-            if filter == wizard_tools.SchemaDataFilterMode.BASKET:
-                self._set_export_filter_view_model(
-                    self.workflow_wizard.export_baskets_model
-                )
-                self.select_all_checkbox.setText(self.tr("Select all baskets"))
-            self._set_select_all_checkbox()
-        self.workflow_wizard.current_export_filter = filter
-
-    def _select_all_items(self, state):
-        if state != Qt.PartiallyChecked and state != self._evaluated_check_state(
-            self.export_items_view.model()
-        ):
-            self.export_items_view.model().check_all(state)
-
-    def _set_select_all_checkbox(self):
-        self.select_all_checkbox.setCheckState(
-            self._evaluated_check_state(self.export_items_view.model())
-        )
-
-    def _evaluated_check_state(self, model):
-        nbr_of_checked = len(model.checked_entries())
-        if nbr_of_checked:
-            if nbr_of_checked == model.rowCount():
-                return Qt.Checked
-            return Qt.PartiallyChecked
-        return Qt.Unchecked
+        self.filter_data_panel.setup_dialog(basket_handling)
 
     def _set_current_export_target(self, text):
         self.setComplete(
