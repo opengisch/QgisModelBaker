@@ -112,16 +112,16 @@ class WorkflowWizard(QWizard):
         )
         self.ilireferencedatacache.new_message.connect(self.log_panel.show_message)
 
-        # the export_models_model keeps every single model found in the current database and keeps the selected models
-        self.export_models_model = SchemaModelsModel()
-        # the export_datasets_model keeps every dataset found in the current database and keeps the selected dataset
-        self.export_datasets_model = SchemaDatasetsModel()
-        # the export_baskets_model keeps every baskets found in the current database and keeps the selected baskets
-        self.export_baskets_model = SchemaBasketsModel()
+        # the current_models_model keeps every single model found in the current database and keeps the selected models
+        self.current_models_model = SchemaModelsModel()
+        # the current_datasets_model keeps every dataset found in the current database and keeps the selected dataset
+        self.current_datasets_model = SchemaDatasetsModel()
+        # the current_baskets_model keeps every baskets found in the current database and keeps the selected baskets
+        self.current_baskets_model = SchemaBasketsModel()
 
         # the current export target is the current set target file for the export. It's keeped top level to have a consequent behavior of those information.
         self.current_export_target = ""
-        self.current_export_filter = SchemaDataFilterMode.NO_FILTER
+        self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
@@ -336,15 +336,15 @@ class WorkflowWizard(QWizard):
             models = []
             datasets = []
             baskets = []
-            if self.current_export_filter == SchemaDataFilterMode.MODEL:
-                models = self.export_models_model.checked_entries()
-            elif self.current_export_filter == SchemaDataFilterMode.DATASET:
-                datasets = self.export_datasets_model.checked_entries()
-            elif self.current_export_filter == SchemaDataFilterMode.BASKET:
-                baskets = self.export_baskets_model.checked_entries()
+            if self.current_filter_mode == SchemaDataFilterMode.MODEL:
+                models = self.current_models_model.checked_entries()
+            elif self.current_filter_mode == SchemaDataFilterMode.DATASET:
+                datasets = self.current_datasets_model.checked_entries()
+            elif self.current_filter_mode == SchemaDataFilterMode.BASKET:
+                baskets = self.current_baskets_model.checked_entries()
             else:
                 # no filter - export all models
-                models = self.export_models_model.stringList()
+                models = self.current_models_model.stringList()
 
             sessions[self.current_export_target]["models"] = models
             sessions[self.current_export_target]["datasets"] = datasets
@@ -401,9 +401,9 @@ class WorkflowWizard(QWizard):
 
     def refresh_export_models(self):
         db_connector = db_utils.get_db_connector(self.export_data_configuration)
-        self.export_models_model.refresh_model(db_connector)
-        self.export_datasets_model.refresh_model(db_connector)
-        self.export_baskets_model.refresh_model(db_connector)
+        self.current_models_model.refresh_model(db_connector)
+        self.current_datasets_model.refresh_model(db_connector)
+        self.current_baskets_model.refresh_model(db_connector)
         return
 
     def refresh_import_models(self, silent=False):
