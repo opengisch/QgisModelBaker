@@ -89,6 +89,7 @@ class WorkflowWizard(QWizard):
         self.import_schema_configuration.base_configuration = self.base_config
         self.import_data_configuration.base_configuration = self.base_config
         self.update_data_configuration.base_configuration = self.base_config
+        self.update_data_configuration.with_importbid = True
         self.export_data_configuration.base_configuration = self.base_config
 
         # data models are keeped on top level because sometimes they need to be accessed to evaluate the wizard workflow
