@@ -33,7 +33,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     ValidExtensions = ["toml", "TOML"]
     SQLValidExtensions = ["sql", "SQL"]
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, remove_create_tid_group=True):
+        """
+        remove_create_tid_group is to remove the "Create Import Tid" setting because on Schema Import it does nothing (legacy issues).
+        After removing the single dialog for data import, this setting can be removed completely from the GUI.
+        """
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
@@ -95,6 +99,8 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.post_script_file_line_edit.textChanged.emit(
             self.post_script_file_line_edit.text()
         )
+
+        self.create_import_tid_groupbox.setHidden(remove_create_tid_group)
 
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
