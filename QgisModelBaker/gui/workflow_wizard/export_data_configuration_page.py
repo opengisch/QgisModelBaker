@@ -22,7 +22,7 @@
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
@@ -30,13 +30,11 @@ from QgisModelBaker.utils.qt_utils import (
     make_save_file_selector,
 )
 
-from ...utils import ui
-
-PAGE_UI = ui.get_ui_class("workflow_wizard/export_data_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
-    ValidExtensions = wizard_tools.TransferExtensions
+    ValidExtensions = gui_utils.TransferExtensions
 
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)

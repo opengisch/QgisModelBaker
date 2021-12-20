@@ -17,24 +17,24 @@
  *                                                                         *
  ***************************************************************************/
 """
-import pathlib
 import webbrowser
 
-from qgis.PyQt.QtCore import QLocale, QModelIndex, QSettings, Qt, pyqtSignal
-from qgis.PyQt.QtWidgets import QCheckBox, QDialog, QLineEdit, QListView
+from qgis.PyQt.QtCore import QLocale, QSettings
+from qgis.PyQt.QtWidgets import QDialog
 
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
-from QgisModelBaker.libili2db.globals import DbIliMode, DropMode
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import (
     ExportConfiguration,
     ImportDataConfiguration,
     SchemaImportConfiguration,
 )
 from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.utils import qt_utils, ui
+from QgisModelBaker.utils import gui_utils, qt_utils
+from QgisModelBaker.utils.gui_utils import DropMode
 from QgisModelBaker.utils.qt_utils import FileValidator, Validators
 
-DIALOG_UI = ui.get_ui_class("options.ui")
+DIALOG_UI = gui_utils.get_ui_class("options.ui")
 
 
 class OptionsDialog(QDialog, DIALOG_UI):
@@ -156,82 +156,3 @@ class OptionsDialog(QDialog, DIALOG_UI):
         command = "\n  ".join([executable] + config.to_ili2db_args())
 
         self.ili2db_options_textedit.setText(command)
-
-
-class CompletionLineEdit(QLineEdit):
-
-    punched = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super(CompletionLineEdit, self).__init__(parent)
-        self.readyToEdit = True
-
-    def focusInEvent(self, e):
-        super(CompletionLineEdit, self).focusInEvent(e)
-        self.punched.emit()
-
-    def mouseReleaseEvent(self, e):
-        super(CompletionLineEdit, self).mouseReleaseEvent(e)
-        self.punched.emit()
-
-
-class SemiTristateCheckbox(QCheckBox):
-    """
-    Checkbox that does never get the Qt.PartialCheckState on clicked (by user) but can get the Qt.PartialCheckState by direct setCheckState() (by program)
-    """
-
-    def __init__(self, parent=None):
-        super(SemiTristateCheckbox, self).__init__(parent)
-
-    def nextCheckState(self) -> None:
-        if self.checkState() == Qt.Checked:
-            self.setCheckState(Qt.Unchecked)
-        else:
-            self.setCheckState(Qt.Checked)
-
-
-class ModelListView(QListView):
-
-    space_pressed = pyqtSignal(QModelIndex)
-
-    def __init__(self, parent=None):
-        super(QListView, self).__init__(parent)
-        self.space_pressed.connect(self.update)
-
-    # to act when space is pressed
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Space:
-            _selected_indexes = self.selectedIndexes()
-            self.space_pressed.emit(_selected_indexes[0])
-        super(ModelListView, self).keyPressEvent(e)
-
-
-class FileDropListView(QListView):
-
-    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
-
-    files_dropped = pyqtSignal(list)
-
-    def __init__(self, parent=None):
-        super(FileDropListView, self).__init__(parent)
-        self.setAcceptDrops(True)
-        self.setDragDropMode(QListView.InternalMove)
-
-    def dragEnterEvent(self, event):
-        for url in event.mimeData().urls():
-            if (
-                pathlib.Path(url.toLocalFile()).suffix[1:]
-                in FileDropListView.ValidExtenstions
-            ):
-                event.acceptProposedAction()
-                break
-
-    def dropEvent(self, event):
-        dropped_files = [
-            url.toLocalFile()
-            for url in event.mimeData().urls()
-            if pathlib.Path(url.toLocalFile()).suffix[1:]
-            in FileDropListView.ValidExtenstions
-        ]
-        self.files_dropped.emit(dropped_files)
-        event.acceptProposedAction()

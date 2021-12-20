@@ -1,32 +1,33 @@
-# -*- coding: utf-8 -*-
-"""
-/***************************************************************************
-                              -------------------
-        begin                : 25.08.2021
-        git sha              : :%H$
-        copyright            : (C) 2021 by Dave Signer
-        email                : david at opengis ch
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
-
 import os
+import pathlib
 import re
+import warnings
 import xml.etree.cElementTree as CET
 from enum import Enum, IntEnum
 
-from qgis.PyQt.QtCore import QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal
+from qgis.PyQt.QtCore import (
+    QModelIndex,
+    QSortFilterProxyModel,
+    QStringListModel,
+    Qt,
+    pyqtSignal,
+)
 from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
+from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
+from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libili2db.ilicache import IliCache
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
+from QgisModelBaker.utils.qt_utils import slugify
+
+# globals
+
+
+class DropMode(Enum):
+    YES = 1
+    NO = 2
+    ASK = 3
+
 
 IliExtensions = ["ili"]
 TransferExtensions = [
@@ -43,9 +44,6 @@ TransferExtensions = [
     "xlsx",
     "XLSX",
 ]
-
-DEFAULT_DATASETNAME = "Baseset"
-CATALOGUE_DATASETNAME = "Catalogueset"
 
 TRANSFERFILE_MODELS_BLACKLIST = [
     "CHBaseEx_MapCatalogue_V1",
@@ -97,6 +95,20 @@ TRANSFERFILE_MODELS_BLACKLIST = [
 ]
 
 
+class LogColor:
+    COLOR_INFO = "#000000"
+    COLOR_SUCCESS = "#004905"
+    COLOR_FAIL = "#aa2222"
+    COLOR_TOPPING = "#341d5c"
+
+
+class SchemaDataFilterMode(IntEnum):
+    NO_FILTER = 1
+    MODEL = 2
+    DATASET = 3
+    BASKET = 4
+
+
 class PageIds:
     Intro = 1
     ImportSourceSelection = 2
@@ -112,11 +124,91 @@ class PageIds:
     ProjectCreation = 12
 
 
-class SchemaDataFilterMode(IntEnum):
-    NO_FILTER = 1
-    MODEL = 2
-    DATASET = 3
-    BASKET = 4
+# Util functions
+def get_ui_class(ui_file):
+    """Get UI Python class from .ui file.
+       Can be filename.ui or subdirectory/filename.ui
+    :param ui_file: The file of the ui in svir.ui
+    :type ui_file: str
+    """
+    os.path.sep.join(ui_file.split("/"))
+    ui_file_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.pardir, "ui", ui_file)
+    )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return loadUiType(ui_file_path)[0]
+
+
+# Extended GUI components and used models
+class CompletionLineEdit(QLineEdit):
+    """
+    Extended LineEdit for completion reason punching it on entering or mouse press to open popup.
+    """
+
+    punched = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(CompletionLineEdit, self).__init__(parent)
+        self.readyToEdit = True
+
+    def focusInEvent(self, e):
+        super(CompletionLineEdit, self).focusInEvent(e)
+        self.punched.emit()
+
+    def mouseReleaseEvent(self, e):
+        super(CompletionLineEdit, self).mouseReleaseEvent(e)
+        self.punched.emit()
+
+
+class SemiTristateCheckbox(QCheckBox):
+    """
+    Checkbox that does never get the Qt.PartialCheckState on clicked (by user) but can get the Qt.PartialCheckState by direct setCheckState() (by program)
+    """
+
+    def __init__(self, parent=None):
+        super(SemiTristateCheckbox, self).__init__(parent)
+
+    def nextCheckState(self) -> None:
+        if self.checkState() == Qt.Checked:
+            self.setCheckState(Qt.Unchecked)
+        else:
+            self.setCheckState(Qt.Checked)
+
+
+class FileDropListView(QListView):
+    """
+    List view allowing to drop ili and transfer files.
+    """
+
+    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
+
+    files_dropped = pyqtSignal(list)
+
+    def __init__(self, parent=None):
+        super(FileDropListView, self).__init__(parent)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(QListView.InternalMove)
+
+    def dragEnterEvent(self, event):
+        for url in event.mimeData().urls():
+            if (
+                pathlib.Path(url.toLocalFile()).suffix[1:]
+                in FileDropListView.ValidExtenstions
+            ):
+                event.acceptProposedAction()
+                break
+
+    def dropEvent(self, event):
+        dropped_files = [
+            url.toLocalFile()
+            for url in event.mimeData().urls()
+            if pathlib.Path(url.toLocalFile()).suffix[1:]
+            in FileDropListView.ValidExtenstions
+        ]
+        self.files_dropped.emit(dropped_files)
+        event.acceptProposedAction()
 
 
 class SourceModel(QStandardItemModel):
@@ -183,7 +275,7 @@ class SourceModel(QStandardItemModel):
                     return QIcon(
                         os.path.join(
                             os.path.dirname(__file__),
-                            f"../../images/file_types/{type}.png",
+                            f"../images/file_types/{type}.png",
                         )
                     )
             return item.data(int(role))
@@ -595,6 +687,25 @@ class ImportDataModel(QSortFilterProxyModel):
         return sessions
 
 
+class SpaceCheckListView(QListView):
+    """
+    List view allowing to check/uncheck items by space press
+    """
+
+    space_pressed = pyqtSignal(QModelIndex)
+
+    def __init__(self, parent=None):
+        super(QListView, self).__init__(parent)
+        self.space_pressed.connect(self.update)
+
+    # to act when space is pressed
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Space:
+            _selected_indexes = self.selectedIndexes()
+            self.space_pressed.emit(_selected_indexes[0])
+        super(SpaceCheckListView, self).keyPressEvent(e)
+
+
 class CheckEntriesModel(QStringListModel):
     """
     A checkable string list model
@@ -644,7 +755,7 @@ class CheckEntriesModel(QStringListModel):
 
 class SchemaModelsModel(CheckEntriesModel):
     """
-    Model providing all the models from the database (except the blacklisted ones) and it's checked state
+    Model providing all the models from the database (except the blacklisted ones) and it's checked state used to filter data according to models
     """
 
     def __init__(self):
@@ -671,7 +782,7 @@ class SchemaModelsModel(CheckEntriesModel):
 
 class SchemaDatasetsModel(CheckEntriesModel):
     """
-    Model providing all the datasets from the database and it's checked state
+    Model providing all the datasets from the database and it's checked state used to filter data according to datasets
     """
 
     def __init__(self):
@@ -697,7 +808,7 @@ class SchemaDatasetsModel(CheckEntriesModel):
 
 class SchemaBasketsModel(CheckEntriesModel):
     """
-    Model providing all the datasets from the database and it's checked state
+    Model providing all the baskets from the database and it's checked state used to filter data according to baskets
     """
 
     def __init__(self):
@@ -726,3 +837,107 @@ class SchemaBasketsModel(CheckEntriesModel):
             for name in self.stringList()
             if self._checked_entries[name] == Qt.Checked and name in self._basket_ids
         ]
+
+
+class DatasetModel(QStandardItemModel):
+    """
+    ItemModel providing all the datasets from the database.
+    """
+
+    class Roles(Enum):
+        TID = Qt.UserRole + 1
+        DATASETNAME = Qt.UserRole + 2
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def refresh_model(self, db_connector=None):
+        self.beginResetModel()
+        self.clear()
+        if db_connector:
+            datasets_info = db_connector.get_datasets_info()
+            for record in datasets_info:
+                if record["datasetname"] == CATALOGUE_DATASETNAME:
+                    continue
+                item = QStandardItem()
+                item.setData(record["datasetname"], int(Qt.DisplayRole))
+                item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
+                item.setData(record["t_id"], int(DatasetModel.Roles.TID))
+                self.appendRow(item)
+        self.endResetModel()
+
+
+class BasketSourceModel(QStandardItemModel):
+    """
+    Model providing the baskets described by topic and datasets.
+    The data is keeped per schema/topic during the QGIS session to avoid to many database requests.
+    """
+
+    class Roles(Enum):
+        DATASETNAME = Qt.UserRole + 1
+        MODEL_TOPIC = Qt.UserRole + 2
+        BASKET_TID = Qt.UserRole + 3
+        # The SCHEMA_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
+        # This because a dataset is usually valid per topic and db schema
+        SCHEMA_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
+
+        def __int__(self):
+            return self.value
+
+    def __init__(self):
+        super().__init__()
+        self.schema_baskets = {}
+
+    def refresh(self):
+        self.beginResetModel()
+        self.clear()
+        for schema_identificator in self.schema_baskets.keys():
+            for basket in self.schema_baskets[schema_identificator]:
+                item = QStandardItem()
+                item.setData(basket["datasetname"], int(Qt.DisplayRole))
+                item.setData(
+                    basket["datasetname"], int(BasketSourceModel.Roles.DATASETNAME)
+                )
+                item.setData(basket["topic"], int(BasketSourceModel.Roles.MODEL_TOPIC))
+                item.setData(
+                    basket["basket_t_id"], int(BasketSourceModel.Roles.BASKET_TID)
+                )
+                item.setData(
+                    f"{schema_identificator}_{slugify(basket['topic'])}",
+                    int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR),
+                )
+                self.appendRow(item)
+        self.endResetModel()
+
+    def reload_schema_baskets(self, db_connector, schema_identificator):
+        baskets_info = db_connector.get_baskets_info()
+        baskets = []
+        for record in baskets_info:
+            if record["datasetname"] == CATALOGUE_DATASETNAME:
+                continue
+            basket = {}
+            basket["datasetname"] = record["datasetname"]
+            basket["topic"] = record["topic"]
+            basket["basket_t_id"] = record["basket_t_id"]
+            baskets.append(basket)
+        self.schema_baskets[schema_identificator] = baskets
+        self.refresh()
+
+    def data(self, index, role):
+        item = self.item(index.row(), index.column())
+        if role == Qt.DisplayRole:
+            if item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split(".")[1]:
+                return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split('.')[1]})"
+        return item.data(int(role))
+
+    def clear_schema_baskets(self):
+        self.schema_baskets = {}
+
+    def schema_baskets_loaded(self, schema_identificator):
+        return schema_identificator in self.schema_baskets

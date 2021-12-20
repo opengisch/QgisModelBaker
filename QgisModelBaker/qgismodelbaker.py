@@ -49,10 +49,10 @@ from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
-from QgisModelBaker.libili2db.globals import DropMode
 from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.utils.gui_utils import DropMode
 
 
 class QgisModelBakerPlugin(QObject):

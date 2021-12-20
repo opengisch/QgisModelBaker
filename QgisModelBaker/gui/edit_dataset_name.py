@@ -21,9 +21,9 @@ from enum import Enum
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
-from QgisModelBaker.utils import ui
+from QgisModelBaker.utils import gui_utils
 
-DIALOG_UI = ui.get_ui_class("edit_dataset_name.ui")
+DIALOG_UI = gui_utils.get_ui_class("edit_dataset_name.ui")
 
 
 class EditDatasetDialog(QDialog, DIALOG_UI):

@@ -2,9 +2,9 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 27.08.2020
+        begin                : 16.12.2021
         git sha              : :%H$
-        copyright            : (C) 2020 by Dave Signer
+        copyright            : (C) 2021 by Dave Signer
         email                : david at opengis ch
  ***************************************************************************/
 
@@ -17,17 +17,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.gui import QgsGui
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
-from QgisModelBaker.utils import gui_utils
-
-DIALOG_UI = gui_utils.get_ui_class("edit_command.ui")
-
-
-class EditCommandDialog(QDialog, DIALOG_UI):
-    def __init__(self, parent=None):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        QgsGui.instance().enableAutoGeometryRestore(self)
-        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr("Run"))
+DEFAULT_DATASETNAME = "Baseset"
+CATALOGUE_DATASETNAME = "Catalogueset"

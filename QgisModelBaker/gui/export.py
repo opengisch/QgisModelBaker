@@ -47,20 +47,20 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
+from QgisModelBaker.utils.gui_utils import LogColor
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     OverrideCursor,
     Validators,
     make_save_file_selector,
 )
-from QgisModelBaker.utils.ui import LogColor
 
 from ..libili2db import ili2dbconfig, iliexporter
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..utils import ui
+from ..utils import gui_utils
 
-DIALOG_UI = ui.get_ui_class("export.ui")
+DIALOG_UI = gui_utils.get_ui_class("export.ui")
 
 
 class ExportModels(QStringListModel):

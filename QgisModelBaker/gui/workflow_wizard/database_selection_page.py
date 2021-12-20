@@ -25,9 +25,9 @@ from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbI
 from QgisModelBaker.utils import db_utils
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...utils import ui
+from ...utils import gui_utils
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/database_selection.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/database_selection.ui")
 
 
 class DatabaseSelectionPage(QWizardPage, PAGE_UI):
@@ -125,7 +125,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         if not res:
             self.workflow_wizard.log_panel.print_info(
                 message,
-                ui.LogColor.COLOR_FAIL,
+                gui_utils.LogColor.COLOR_FAIL,
             )
         return res
 

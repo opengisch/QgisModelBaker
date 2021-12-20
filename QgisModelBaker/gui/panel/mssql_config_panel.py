@@ -22,10 +22,10 @@ from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
 
-from ...utils import ui
+from ...utils import gui_utils
 from .db_config_panel import DbConfigPanel
 
-WIDGET_UI = ui.get_ui_class("mssql_settings_panel.ui")
+WIDGET_UI = gui_utils.get_ui_class("mssql_settings_panel.ui")
 
 
 class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):

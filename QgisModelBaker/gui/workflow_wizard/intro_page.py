@@ -21,11 +21,11 @@
 
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
+import QgisModelBaker.utils.gui_utils as gui_utils
 
-from ...utils import ui
+from ...utils import gui_utils
 
-PAGE_UI = ui.get_ui_class("workflow_wizard/intro.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/intro.ui")
 
 
 class IntroPage(QWizardPage, PAGE_UI):
@@ -38,7 +38,7 @@ class IntroPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
 
-        self.next_id = wizard_tools.PageIds.ImportSourceSelection
+        self.next_id = gui_utils.PageIds.ImportSourceSelection
         self.import_button.clicked.connect(self._on_import)
         self.generate_button.clicked.connect(self._on_generate)
         self.export_button.clicked.connect(self._on_export)
@@ -47,13 +47,13 @@ class IntroPage(QWizardPage, PAGE_UI):
         return self.next_id
 
     def _on_import(self):
-        self.next_id = wizard_tools.PageIds.ImportSourceSelection
+        self.next_id = gui_utils.PageIds.ImportSourceSelection
         self.workflow_wizard.next()
 
     def _on_generate(self):
-        self.next_id = wizard_tools.PageIds.GenerateDatabaseSelection
+        self.next_id = gui_utils.PageIds.GenerateDatabaseSelection
         self.workflow_wizard.next()
 
     def _on_export(self):
-        self.next_id = wizard_tools.PageIds.ExportDatabaseSelection
+        self.next_id = gui_utils.PageIds.ExportDatabaseSelection
         self.workflow_wizard.next()

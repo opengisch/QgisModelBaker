@@ -25,6 +25,7 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.legend import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
 ENUM_THIS_CLASS_COLUMN = "thisclass"
 
@@ -141,8 +142,8 @@ class Project(QObject):
                         "AllowNULL": True,
                         "AllowAddFeatures": False,
                         "FilterExpression": "\"topic\" = '{}' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{}'".format(
-                            referencing_layer.model_topic_name, "Catalogueset"
-                        )  # CATALOGUE_DATASETNAME should be used here
+                            referencing_layer.model_topic_name, CATALOGUE_DATASETNAME
+                        )
                         if referencing_layer.model_topic_name
                         else "",
                         "FilterFields": list(),

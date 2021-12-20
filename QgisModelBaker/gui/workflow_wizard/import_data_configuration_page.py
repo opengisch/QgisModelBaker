@@ -35,18 +35,17 @@ from qgis.PyQt.QtWidgets import (
     QWizardPage,
 )
 
-import QgisModelBaker.gui.workflow_wizard.wizard_tools as wizard_tools
 import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.libili2db.ilicache import (
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
+from QgisModelBaker.utils.gui_utils import LogColor
 
-from ...utils import ui
-from ...utils.ui import LogColor
-
-PAGE_UI = ui.get_ui_class("workflow_wizard/import_data_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
 
 class DatasetComboDelegate(QStyledItemDelegate):
@@ -60,7 +59,7 @@ class DatasetComboDelegate(QStyledItemDelegate):
             self.items = [
                 record["datasetname"]
                 for record in datasets_info
-                if record["datasetname"] != wizard_tools.CATALOGUE_DATASETNAME
+                if record["datasetname"] != CATALOGUE_DATASETNAME
             ]
 
     def createEditor(self, parent, option, index):
@@ -69,13 +68,13 @@ class DatasetComboDelegate(QStyledItemDelegate):
         return self.editor
 
     def setEditorData(self, editor, index):
-        value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+        value = index.data(int(gui_utils.SourceModel.Roles.DATASET_NAME))
         num = self.items.index(value) if value in self.items else 0
         editor.setCurrentIndex(num)
 
     def setModelData(self, editor, model, index):
         value = editor.currentText()
-        model.setData(index, value, int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+        model.setData(index, value, int(gui_utils.SourceModel.Roles.DATASET_NAME))
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -98,11 +97,9 @@ class CatalogueCheckDelegate(QStyledItemDelegate):
 
     def editorEvent(self, event, model, option, index):
         if event.type() == QEvent.MouseButtonRelease:
-            value = (
-                index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
-            )
+            value = index.data(int(gui_utils.SourceModel.Roles.IS_CATALOGUE)) or False
             model.setData(
-                index, not value, int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)
+                index, not value, int(gui_utils.SourceModel.Roles.IS_CATALOGUE)
             )
             return True
         return super().editorEvent(event, model, option, index)
@@ -110,7 +107,7 @@ class CatalogueCheckDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         opt = QStyleOptionButton()
         opt.rect = option.rect
-        value = index.data(int(wizard_tools.SourceModel.Roles.IS_CATALOGUE)) or False
+        value = index.data(int(gui_utils.SourceModel.Roles.IS_CATALOGUE)) or False
         opt.state |= QStyle.State_On if value else QStyle.State_Off
         QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
 
@@ -176,13 +173,13 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            wizard_tools.SourceModel.Columns.SOURCE, QHeaderView.Stretch
+            gui_utils.SourceModel.Columns.SOURCE, QHeaderView.Stretch
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            wizard_tools.SourceModel.Columns.IS_CATALOGUE, QHeaderView.ResizeToContents
+            gui_utils.SourceModel.Columns.IS_CATALOGUE, QHeaderView.ResizeToContents
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            wizard_tools.SourceModel.Columns.DATASET, QHeaderView.ResizeToContents
+            gui_utils.SourceModel.Columns.DATASET, QHeaderView.ResizeToContents
         )
 
         self.file_table_view.verticalHeader().setSectionsMovable(True)
@@ -235,10 +232,10 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self._set_basket_defaults()
         else:
             self.file_table_view.setColumnHidden(
-                wizard_tools.SourceModel.Columns.IS_CATALOGUE, True
+                gui_utils.SourceModel.Columns.IS_CATALOGUE, True
             )
             self.file_table_view.setColumnHidden(
-                wizard_tools.SourceModel.Columns.DATASET, True
+                gui_utils.SourceModel.Columns.DATASET, True
             )
             self.datasetmanager_button.setHidden(True)
         self._update_referencedata_completer()
@@ -246,37 +243,37 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _set_basket_defaults(self):
         for row in range(self.workflow_wizard.source_model.rowCount()):
             index = self.workflow_wizard.source_model.index(
-                row, wizard_tools.SourceModel.Columns.DATASET
+                row, gui_utils.SourceModel.Columns.DATASET
             )
-            value = index.data(int(wizard_tools.SourceModel.Roles.DATASET_NAME))
+            value = index.data(int(gui_utils.SourceModel.Roles.DATASET_NAME))
             if not value:
                 self.workflow_wizard.source_model.setData(
                     index,
-                    wizard_tools.DEFAULT_DATASETNAME,
-                    int(wizard_tools.SourceModel.Roles.DATASET_NAME),
+                    DEFAULT_DATASETNAME,
+                    int(gui_utils.SourceModel.Roles.DATASET_NAME),
                 )
                 is_xml = (
                     self.workflow_wizard.source_model.index(
-                        row, wizard_tools.SourceModel.Columns.SOURCE
+                        row, gui_utils.SourceModel.Columns.SOURCE
                     )
-                    .data(int(wizard_tools.SourceModel.Roles.TYPE))
+                    .data(int(gui_utils.SourceModel.Roles.TYPE))
                     .lower()
                     == "xml"
                 )
                 self.workflow_wizard.source_model.setData(
                     self.workflow_wizard.source_model.index(
-                        row, wizard_tools.SourceModel.Columns.IS_CATALOGUE
+                        row, gui_utils.SourceModel.Columns.IS_CATALOGUE
                     ),
                     is_xml,
-                    int(wizard_tools.SourceModel.Roles.IS_CATALOGUE),
+                    int(gui_utils.SourceModel.Roles.IS_CATALOGUE),
                 )
 
             self.file_table_view.setItemDelegateForColumn(
-                wizard_tools.SourceModel.Columns.IS_CATALOGUE,
+                gui_utils.SourceModel.Columns.IS_CATALOGUE,
                 CatalogueCheckDelegate(self),
             )
             self.file_table_view.setItemDelegateForColumn(
-                wizard_tools.SourceModel.Columns.DATASET,
+                gui_utils.SourceModel.Columns.DATASET,
                 DatasetComboDelegate(self, self.db_connector),
             )
 
@@ -411,9 +408,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.remove_button.setEnabled(self._valid_selection())
 
     def _update_delegates(self, top_left):
-        if top_left.column() == wizard_tools.SourceModel.Columns.IS_CATALOGUE:
+        if top_left.column() == gui_utils.SourceModel.Columns.IS_CATALOGUE:
             self.file_table_view.setItemDelegateForColumn(
-                wizard_tools.SourceModel.Columns.DATASET,
+                gui_utils.SourceModel.Columns.DATASET,
                 DatasetComboDelegate(self, self.db_connector),
             )
 
@@ -438,6 +435,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.datasetmanager_button.setChecked(False)
         self.datasetmanager_dlg = None
         self.file_table_view.setItemDelegateForColumn(
-            wizard_tools.SourceModel.Columns.DATASET,
+            gui_utils.SourceModel.Columns.DATASET,
             DatasetComboDelegate(self, self.db_connector),
         )
