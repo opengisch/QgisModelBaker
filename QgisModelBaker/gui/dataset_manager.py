@@ -198,7 +198,14 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 )
                 info_title = self.tr("Created baskets")
                 info_box.setWindowTitle(info_title)
-                info_box.setText("\n".join([feedback[1] for feedback in feedbacks]))
+                info_box.setText(
+                    "{}{}".format(
+                        "\n".join([feedback[1] for feedback in feedbacks]),
+                        "\n\nBe aware that the IDs of the baskets are created as UUIDs. To change that, edit the t_ili2db_basket table manually."
+                        if len([feedback for feedback in feedbacks if feedback[0]])
+                        else "",
+                    )
+                )
                 info_box.exec_()
 
     def _jump_to_entry(self, datasetname):
