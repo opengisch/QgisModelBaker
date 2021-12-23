@@ -352,7 +352,7 @@ class Generator(QObject):
                         field.default_value_expression = (
                             f"@{schema_topic_identificator}"
                         )
-                    elif self.tool == DbIliMode.ili2gpkg:
+                    elif self.tool in [DbIliMode.ili2gpkg, DbIliMode.gpkg]:
                         schema_topic_identificator = slugify(
                             f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}"
                         )
