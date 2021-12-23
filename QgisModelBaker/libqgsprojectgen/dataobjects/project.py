@@ -141,8 +141,12 @@ class Project(QObject):
                         "ShowOpenFormButton": False,
                         "AllowNULL": True,
                         "AllowAddFeatures": False,
-                        "FilterExpression": "\"topic\" = '{}' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{}'".format(
-                            referencing_layer.model_topic_name, CATALOGUE_DATASETNAME
+                        "FilterExpression": "\"topic\" = '{}' and attribute(get_feature('{}', 't_id', \"dataset\"), 'datasetname') != '{}'".format(
+                            referencing_layer.model_topic_name,
+                            "T_ILI2DB_DATASET"
+                            if referenced_layer.provider == "ogr"
+                            else "t_ili2db_dataset",
+                            CATALOGUE_DATASETNAME,
                         )
                         if referencing_layer.model_topic_name
                         else "",
