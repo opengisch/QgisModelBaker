@@ -1,0 +1,26 @@
+# Project information
+site_name: QgisModelBaker
+site_description: >-
+  This site contains documentation about QGIS Model Baker
+
+# Repository
+repo_name: signedav/mkdocstest
+repo_url: https://github.com/signedav/mkdocstest
+edit_uri: https://github.com/signedav/mkdocstest/tree/master/docs/
+
+# Theme configuration
+theme:
+  name: material
+  features:
+    - navigation.tabs
+
+# Page tree
+nav:
+  - Home: index.md
+  - Installation & maintenance (en): installation.md
+  - Development (en): development.md
+
+markdown_extensions:
+  - attr_list
+  - def_list
+  - admonition
