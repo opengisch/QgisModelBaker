@@ -1,12 +1,12 @@
-> To a metaelement metaattributes could be compositional assigned (class "MetaAttribut"). The metaattributes are neither defined by the language INTERLIS nor by the meta model. They exist that the information that exceed INTERLIS could still be a component of the model data. The metaattributes has a name (attribute "Name"), that have to be unique among the the metaattributes of this metaelement, and it has a value (attribute: "Value").
+> A meta element can be assigned compositional meta attributes (class "MetaAttribute"). Metaattributes are not defined more precisely by the INTERLIS language or by the metamodel. Their main purpose is to allow information that goes beyond INTERLIS to be attached as part of the model data. Metaattributes have a name (attribute "Name"), which must be unique within the metaattributes of the same meta element, and the descriptive value (attribute "Value").
 
-Translated from source: [STAN_d_DEF_2011-06-22_eCH-0117 Meta-Attribute für INTERLIS-Modelle.pdf](https://www.ech.ch/alfresco/s/ech/download?nodeid=788eb38a-bf2b-4f3d-96a8-addc37bba41f) (German) from eCH www.interlis.ch
+*The original source of this quote is in [KOGIS (2008): INTERLIS 2-Metamodell](https://www.interlis.ch/download/interlis2/ili23-metamodel_2008-08-29_d.pdf)*
 
-## Meta Attributes in Interlis Files
+## Meta Attributes in INTERLIS Files
 
 ### Comment vs. Meta Attribute
 
-An Interlis comment starts with `!!` and ends with a line end. A meta attribute starts with `!!` as well but followed by an `@`:
+An INTERLIS comment starts with `!!` and ends with a line end. A meta attribute starts with `!!` as well but followed by an `@`:
 
 ### Syntax
 
@@ -40,7 +40,7 @@ For more complex usage see the [specification of the Verein eCH](https://www.ech
 
 ### Meta Attributes in the Database
 
-When importing the data from the Interlis file to the DB, with ili2db integrated in the Model Baker, the meta attributes are stored in the table **t_ili2db_meta_attrs**:
+When importing the data from the INTERLIS file to the DB, with ili2db integrated in the Model Baker, the meta attributes are stored in the table **t_ili2db_meta_attrs**:
 
 | ilielement                                                     | attr_name          | attr_value                  |
 |----------------------------------------------------------------|--------------------|-----------------------------|
@@ -60,7 +60,7 @@ Used as the display expression for a layer. The display expression is the *name*
 
 ## Extra Model Information File
 
-In these external files the meta attributes can be stored instead of having them directly in the Interlis files.
+In these external files the meta attributes can be stored instead of having them directly in the INTERLIS files.
 
 These files are written in TOML and have the filename extension `.toml`
 
@@ -83,11 +83,11 @@ Or using a more complex expression:
 dispExpression="CONCAT(type, ' sometext')"
 ```
 
-The keys that need to be used for the TOML sections are the *fully qualified Interlis names* of the objects. In the example above this is `["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]`. A list of all available names can be found in the database table `t_ili2db_classname` after doing a schema import.
+The keys that need to be used for the TOML sections are the *fully qualified INTERLIS names* of the objects. In the example above this is `["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]`. A list of all available names can be found in the database table `t_ili2db_classname` after doing a schema import.
 
-### Interlis Example
+### INTERLIS Example
 
-The above example would be written as follows directly in an Interlis file (ExceptionalLoadsRoute.ili). If the above configuration is in the ini file, the ili meta attribute is no longer required, this is only here for reference.
+The above example would be written as follows directly in an INTERLIS file (ExceptionalLoadsRoute.ili). If the above configuration is in the ini file, the ili meta attribute is no longer required, this is only here for reference.
 ```
   !!@dispExpression="type"
   CLASS TypeOfRoute=

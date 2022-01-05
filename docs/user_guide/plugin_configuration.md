@@ -7,12 +7,12 @@ In keeping with aristotle, unnecessary settings are avoided. Still there are som
 
 In the *Database Login* you can set username and password to use it as superuser login to excecute data management tasks. The *checkbox* is to avoid / enforce opening a popup when dropping XTF/ITF or ILI files in QGIS main window to ask if you want to handle them in the Model Baker or not.
 
-## Interlis Settings
+## INTERLIS Settings
 
 ![interlis settings](../assets/settings_interlis.png)
 ### Custom Model Directories
 
-In this window you can set one or several paths to let ili2db where to find your Interlis models (ili files). Paths can be both local directories or URLs to remote model repositories. Several paths should be separated by semicolons.
+In this window you can set one or several paths to let ili2db where to find your INTERLIS models (ili files). Paths can be both local directories or URLs to remote model repositories. Several paths should be separated by semicolons.
 
 By default, ili2db uses `%ILI_FROM_DB;%XTF_DIR;http://models.interlis.ch/;%JAR_DIR`, where:
 
