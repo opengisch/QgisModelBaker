@@ -125,7 +125,9 @@ If the data to import is a catalogue, please select the checkbox for *catalogue*
 Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png). And find more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/#catalogues).
 ## Generate the QGIS Project
 
-With a simple click you generate your project. All the toppings received from the *UsabILIty Hub* are considered here.
+In case you want to generate your project from an existing database, you will need to [set the connection parameters](#database-selection) first.
+
+Then, with a simple click you generate your project. All the toppings received from the *UsabILIty Hub* are considered here.
 
 ![baked project](../assets/generated_project.png)
 

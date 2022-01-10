@@ -11,7 +11,7 @@ After the installation you can find all the Features in the *Database > Model Ba
 ![menu](../assets/menu.png)
 
 ### Import / Export Wizard
-The wizard contains all the functionalities to create database schemas from INTERLIS models, import / export transferdata and generate QGIS projects from the database. It leads you through the process with all the possiblities you have with the single dialogs. Find a guide through the [import and generate process with the wizard](../user_guide/import_workflow.md) and through the [export process with the wizard](../user_guide/export_workflow.md) in this documentation.
+The wizard contains all the functionalities to create database schemas from INTERLIS models, import / export transferdata and generate QGIS projects from the database. It leads you through the process with all the possiblities you have with the single dialogs. Find a guide through the [import and generate process with the wizard](../import_workflow/) and through the [export process with the wizard](../export_workflow/) in this documentation.
 
 ### Generate and Import/Export Data Dialogs
 The former dialogs to create a database / generate a project or import / export transfer files are still available. They are applied very similar in the wizard, so you can find the information about them you need in the sections concerning the wizard workflows.
