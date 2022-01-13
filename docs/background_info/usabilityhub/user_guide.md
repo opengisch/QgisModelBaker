@@ -64,7 +64,7 @@ Besteht schon eine Umsetzung dieses Projekts, können diese Informationen aber a
 
 ### 2. Toppingfiles erstellen
 
-#### 2. a. Layereigenschaften (QML Files)
+#### Layereigenschaften (QML Files)
 Vom QGIS Projekt, mit bereits definierten Layereigenschaften werden zuerst die QML-Dateien gespeichert
 
 "Layereigenschaften" > "Stil" > "Layerstil speichern"
@@ -80,7 +80,7 @@ Bei den Formularkonfigurationen wurde so auf Layers referenziert, die nicht mehr
 
 Um dem Vorzubeugen ist empfohlen, die QML Files testweise in das lokal generierte (neue) Projekt zu laden. Falls dieses (oder auch andere) Problem auftaucht, können nur einzelne Kategorien vom Originalprojekt verwendet werden. Im Falle Nutzungsplanung_V310, wurde so für gewisse Layer die Kategorie "Formulare" nicht aus dem Originalprojekt genommen, sondern im Layer des lokal generierten Projekts (der dem Originallayer bis auf die Formularkonfiguration enspricht), die Formulare manuell konfiguriert, und der Style erneut als QML abgespeichert.
 
-#### 2. b. Layerreihenfolge und Legendenanordnung (YAML File)
+#### Layerreihenfolge und Legendenanordnung (YAML File)
 
 In einem YAML File wird die Layerreihenfolge bzw. Legendenanordnung definiert.
 
@@ -142,7 +142,7 @@ Jeder Eintrag kann weitere “Childs” haben, so kann der “Layertree” belie
             expanded: true
 ```
 
-#### 2. c. Metaattributfile für ili2db (TOML)
+#### Metaattributfile für ili2db (TOML)
 
 Auch das TOML File kann als Topping verwendet werden. Dies ist im INI Format geschrieben und besteht bereits für das Nutzungsplanung_V310 Projekt:
 
@@ -155,7 +155,7 @@ ili2db.mapping=MultiPoint
 ili2db.mapping=MultiSurface
 ```
 
-#### 2. d. Transferdateien (zBs. Kataloge) (XTF/ITF/XML)
+#### Transferdateien (zBs. Kataloge) (XTF/ITF/XML)
 
 Transferdateien wie zBs. Kataloge können ebenfalls als Topping verwendet werden. Im Projekt Nutzungsplanung_V310 wurden aber keine vorgegeben.
 Für Infos über die Referenzierung der Transferdateien kann die Technische Dokumentation der Umsetzung im QGIS Model Baker eingesehen werden.

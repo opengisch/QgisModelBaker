@@ -40,7 +40,7 @@ nav:
       - Model Baker Integration (German): background_info/usabilityhub/modelbaker_integration.md
       - Technical Concept (German): background_info/usabilityhub/technical_concept.md
       - User Guide (German): background_info/usabilityhub/user_guide.md
-    - Basket and Dataset Handling: background_info/basket_handling.md
+    - Basket and Dataset Handling: background_info/working_with_datasets.md
     - Relations in QGIS: background_info/relations.md
     - Upgrade ili2db 3 to 4: background_info/upgrade_3_to_4.md
   #- Library: Info about the upcoming python package
