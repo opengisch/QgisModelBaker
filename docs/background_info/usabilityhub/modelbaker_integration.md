@@ -1,25 +1,8 @@
-
-The idea of the UsabILIty Hub is to receive additional information for implemented INTERLIS models automatically via the web. Just as we can get models by linking the ilimodels.xml file from http://models.interlis.ch and the linked repositories, we can get the additional information with the ilidata.xml file on the UsabILIty Hub (currently https://models.opengis.ch) and the linked repositories. Settings for tools are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
-
-
-## Catalogues
-
-Tell about the catalogues linked in the ilidata.xml - this is linked in the user guide at the data import page.
-
----
-title: Technische Umsetzung
-date: '2018-11-28T15:14:39+10:00'
-layout: default_5
-intro_image: null
-intro_image_absolute: false
-intro_image_hide_on_mobile: true
----
-
 Anhand eines Modellnamens werden im *ilidata.xml* Pfade zu *Metakonfigurationsfiles* gefunden. Diese *Metakonfigurationsfiles* enthalten, neben Konfigurationsparameter, *DatasetMetadata-Ids*. Anhand dieser *DatasetMetadata-Ids* werden im *ilidata.xml* die Pfade zu den *Toppingfiles* gefunden.
 
 > Andere Tools verwenden einen anderen Workflow. So wird beispielsweise dem *ili2db* das *Metakonfigurationsfile* übergeben. Dort ist in der *Metakonfiguration* dann auch das Modell definert.
 
-![uml](../images/uml_modelbaker.png)
+![uml](../../assets/usabilityhub_uml_modelbaker.png)
 
 #### Ablauf
 1. User gibt Modellname in der Maske ein
@@ -85,7 +68,7 @@ Vom *QGIS Model Baker* unterstützte *Toppingfiles*:
 ### QML
 Für Layereigenschaften wie Formularkonfigurationen, Symbologie etc. werden QML Files als *Toppingfiles* geladen.
 
-![style](../images/style.png)
+![style](../../assets/usabilityhub_style.png)
 
 Die *QML Toppingfiles* werden im *Metakonfigurationsfile* den Layern zugewiesen.
 
@@ -173,7 +156,7 @@ Zusätzlich haben die Gruppen noch die "Mutually-Exclusive" Eigenschaft. Dies be
 
 Das oben abgebildete `YAML` File resultiert in eine Legendenstruktur in *QGIS*
 
-![uml](../images/qgis_legend.png)
+![uml](../../assets/usabilityhub_qgis_legend.png)
 
 #### Darstellungsreihenfolge
 Die Darstellungsreihenfolge wird als einfache Liste definiert.
@@ -194,7 +177,7 @@ Diese Datenfiles werden anschliessend an den Schemaimport mittels einzelner `ili
 
 ## Import mehrerer Models und ihre Toppings
 Momentan werden bei einer Liste von "LegendeEintrag_PlanGewaesserschutz_V1_1;KbS_LV95_V1_4;KbS_Basis_V1_4" die *Metakonfigurationsfiles* für all diese Modelle aufgelistet.
-![multimodels](../images/multimodels.png)
+![multimodels](../../assets/usabilityhub_multimodels.png)
 Es kann dann aber nur eines ausgewählt werden. Möchte man mehrere *Metakonfigurationsfiles* auswählen, muss man die Models nacheinander importieren.
 
 ### Best Practice
@@ -208,4 +191,56 @@ Somit wird das *Metakonfigurationen* anhand beider Modellnamen gefunden und beim
 
 ## Lokales Repo verwenden
 Es kann für Testzwecken nützlich sein, wenn man ein lokales Repository verwenden kann. Dies wird genauso wie immer konfiguriert. `ilidata.xml` und `ilimodels.xml` werden darin gesucht und geparst.
-![localrepo](../images/localrepo.png)
+![localrepo](../../assets/usabilityhub_localrepo.png)
+
+## Directly Referenced Catalogues
+
+Catalogues can be linked directly in the ilidata.xml to the model names (without using a meta configuration file). Just add them as `referenceData` and add the model names in the `categories`.
+
+```
+  <categories>
+    <DatasetIdx16.Code_>
+      <value>http://codes.interlis.ch/type/referenceData</value>
+    </DatasetIdx16.Code_>
+    <DatasetIdx16.Code_>
+      <value>http://codes.interlis.ch/model/Wildruhezonen_LV95_V2_1</value>
+    </DatasetIdx16.Code_>
+    <DatasetIdx16.Code_>
+      <value>http://codes.interlis.ch/model/Wildruhezonen_LV03_V2_1</value>
+    </DatasetIdx16.Code_>
+  </categories>
+```
+
+Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds a referenced catalogue data it provides them in the autocomplete widget on [Data Import](../../../user_guide/import_workflow/#import-of-interlis-data).
+
+```
+  <files>
+    <DatasetIdx16.DataFile>
+      <fileFormat>application/interlis+xml;version=2.3</fileFormat>
+      <file>
+        <DatasetIdx16.File>
+          <path>BAFU/Wildruhezonen_Catalogues_V2_1.xml</path>
+          <md5>1b76026907fc814bfaa12e2a4f53afa5</md5>
+        </DatasetIdx16.File>
+      </file>
+    </DatasetIdx16.DataFile>
+  </files>
+```
+
+But already before the data import, the Model Baker checks the UsabILIty Hub for those referenced data. In the [Import of the INTERLIS Models](../../../user_guide/import_workflow/#import-of-interlis-model) it provides all the models found in the `modelLink` property.
+
+```
+  <baskets>
+    <DatasetIdx16.DataIndex.BasketMetadata>
+      <id>ch.admin.bafu.wildruhezonen_catalogues_V2_1</id>
+      <version>2020-02-24</version>
+      <model>
+        <DatasetIdx16.ModelLink>
+          <name>Wildruhezonen_Codelisten_V2_1.Codelisten</name>
+        </DatasetIdx16.ModelLink>
+      </model>
+      <owner>mailto:models@geo.admin.ch</owner>
+    </DatasetIdx16.DataIndex.BasketMetadata>
+  </baskets>
+</DatasetIdx16.DataIndex.DatasetMetadata>
+```

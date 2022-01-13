@@ -1,12 +1,15 @@
-**Informationen über die technische Konzeption des UsabILIty Hubs.**
-
 ## Abstract
 Die Idee des UsabILIty Hub ist es, für Implementierte INTERLIS Modelle Zusatzinformationen automatisch übers Web zu empfangen.
 So wie wir jetzt Modelle durch die Anbindung der Datei *ilimodels.xml* von [http://models.interlis.ch](http://models.interlis.ch) - und mit der Datei *ilisite.xml* die Modelle vieler anderen Repositories - erhalten können, können wir die Zusatzinformationen mit der Datei *ilidata.xml* auf dem UsabILIty Hub (derzeit [https://models.opengis.ch](https://models.opengis.ch))  - und mit der Datei *ilisite.xml* die Modelle vieler anderen Repositories - erhalten.
 
 Einstellungens für Tools werden in einer *Metakonfigurationsfiles (INI-Datei)* konfiguriert, ebenso wie Links (Ids oder Pfade) zu *Toppingfiles*, die Informationen zu GIS Projektes enthalten (wie zBs. Symbologien oder Legendensturkturen). Somit bestehen *Zusatzinformationen* meistens aus einer *Metakonfiguration* und beliebig vielen *Toppings*.
 
-![uml](/images/uml_usabilityhub.png)
+>The idea of the UsabILIty Hub is to receive additional information for implemented INTERLIS models automatically via the web.
+Just as we can get models by linking the ilimodels.xml file from http://models.interlis.ch and the linked repositories, we can get the additional information with the ilidata.xml file on the UsabILIty Hub (currently https://models.opengis.ch) and the linked repositories.
+>
+>Settings for tools are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
+
+![uml](../../assets/usabilityhub_uml.png)
 
 ## Das ilidata.xml
 Ein *ilidata.xml* dient als Index für alle benötigten Zusatzinformationen. Das File basiert auf dem Modell [`DatasetIdx16`](http://models.interlis.ch/core/DatasetIdx16.ili).

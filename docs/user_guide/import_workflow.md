@@ -57,7 +57,7 @@ When you only got a model name (like in all cases except the one of the local `i
 
 You can check or uncheck the models you want to import to a physical schema.
 
-### Metaconfiguratoin / Topping
+### Metaconfiguration / Topping
 
 Choose a metaconfiguration file found on the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
 
@@ -122,7 +122,10 @@ If the data to import is a catalogue, please select the checkbox for *catalogue*
 
 ### Topping Transfer Data
 
-Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png). And find more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/modelbaker_integration/#catalogues).
+Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png) (the needed models have been suggested in the [INTERLIS model import](#import-of-interlis-model) already).
+
+Check more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/modelbaker_integration/#directly-referenced-catalogues).
+
 ## Generate the QGIS Project
 
 In case you want to generate your project from an existing database, you will need to [set the connection parameters](#database-selection) first.
