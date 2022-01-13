@@ -13,6 +13,7 @@ theme:
   name: material
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
   palette:
     - scheme: default
       toggle:
@@ -33,8 +34,12 @@ nav:
     - Validate Data: user_guide/validation.md
     - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
+    - Repositories: background_info/repositories.md
     - Meta Attributes: background_info/meta_attributes.md
-    - UsabILIty Hub: background_info/usabilityhub.md
+    - UsabILIty Hub:
+      - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
+      - Technical Concept: background_info/usabilityhub/technical_concept.md
+      - User Guide: background_info/usabilityhub/user_guide.md
     - Basket and Dataset Handling: background_info/basket_handling.md
     - Relations in QGIS: background_info/relations.md
     - Upgrade ili2db 3 to 4: background_info/upgrade_3_to_4.md

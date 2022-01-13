@@ -1,6 +1,6 @@
 You can validate your physical data against the INTERLIS models directly in QGIS. Open the Model Baker Validator Panel by the menu *Database > Model Baker > Data Validator* or *View > Panels > Model Baker Data Validator*
 
-![valid4](https://user-images.githubusercontent.com/28384354/145194688-ae9b3211-0d48-4ddf-93ca-ad1b61be55de.gif)
+![validation](../assets/validation.gif)
 
 ## Database
 The database connection parameter are emitted from the currently selected layer. Mostly this is representative for the whole project, since mostly a project bases on one single database schema/file. In case of multiple used database sources, it's possible to *switch* between the validation results when switching the layers.

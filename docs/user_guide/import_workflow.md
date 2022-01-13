@@ -49,7 +49,7 @@ There are several ways the Model Baker wizard detects INTERLIS models to import.
 - Selected from the repositories.
 - Parsed from the selected transfer or catalogue files.
 - Depending model of a catalogue referenced in the ilidata.xml of the repositories.
-- Defined as ili2db attribute in the metaconfiguration received from the [UsabILIty Hub](../../background_info/usabilityhub).
+- Defined as ili2db attribute in the metaconfiguration received from the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration).
 
 When you only got a model name (like in all cases except the one of the local `ini` files) the models are searched in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories). It's possible that the models are listed multiple times coming from different sources. It's up to you what source you choose.
 
@@ -59,7 +59,7 @@ You can check or uncheck the models you want to import to a physical schema.
 
 ### Metaconfiguratoin / Topping
 
-Choose a metaconfiguration file found on the [UsabILIty Hub](../../background_info/usabilityhub) to load ili2db settings and styling properties to your QGIS project.
+Choose a metaconfiguration file found on the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
 
 ### Ili2db settings
 Since Model Baker uses ili2db, you can set advanced options that determine how your conceptual object-oriented model is mapped into a physical model.
@@ -114,7 +114,7 @@ The [Dataset and Basket Handling](../../background_info/basket_handling/) is onl
 
 If so, the data are imported with the ili2db parameter `--update`. This means that all the existing data in the same basket are updated (and removed if not existent in the transfer file).
 
-Select the dataset you want to import your data to by double-click the dataset field. If you want to create a new dataset, use the dataset manager. The baskets are created during the import of the data.
+Select the dataset you want to import your data to by double-click the dataset field. If you want to create a new dataset, use the [dataset manager](../../background_info/basket_handling/#dataset-manager). The baskets are created during the import of the data.
 
 ![dataset manager](../assets/dataset_manager.png)
 
@@ -122,7 +122,7 @@ If the data to import is a catalogue, please select the checkbox for *catalogue*
 
 ### Topping Transfer Data
 
-Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png). And find more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/#catalogues).
+Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png). And find more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/modelbaker_integration/#catalogues).
 ## Generate the QGIS Project
 
 In case you want to generate your project from an existing database, you will need to [set the connection parameters](#database-selection) first.
