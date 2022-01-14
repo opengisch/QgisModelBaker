@@ -250,7 +250,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
         self.filter_data_panel = FilterDataPanel(self)
-        self.filter_data_panel.setMaximumHeight(int(self.height() / 4))
+        self.filter_data_panel.setMaximumHeight(150)
         self.filter_layout.addWidget(self.filter_data_panel)
         self._reset_gui()
 
