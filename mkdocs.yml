@@ -35,15 +35,16 @@ nav:
     - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
     - Repositories: background_info/repositories.md
-    - Meta Attributes: background_info/meta_attributes.md
+    - Basket and Dataset Handling: background_info/working_with_datasets.md
     - UsabILIty Hub:
       - Model Baker Integration (German): background_info/usabilityhub/modelbaker_integration.md
       - Technical Concept (German): background_info/usabilityhub/technical_concept.md
       - User Guide (German): background_info/usabilityhub/user_guide.md
-    - Basket and Dataset Handling: background_info/working_with_datasets.md
-    - Relations in QGIS: background_info/relations.md
+    - Meta Attributes: background_info/meta_attributes.md
     - Upgrade ili2db 3 to 4: background_info/upgrade_3_to_4.md
-  #- Library: Info about the upcoming python package
+    #- Relations in QGIS: maybe stuff from here https://github.com/signedav/interlis_relations_in_qgis
+    #- INTERLIS Syntax in 10 Minutes: maybe stuff from here https://github.com/signedav/talk_iliuniverse
+ #- Library: Info about the upcoming python package
   - Development: development.md
 
 markdown_extensions:

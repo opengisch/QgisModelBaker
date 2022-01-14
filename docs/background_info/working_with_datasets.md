@@ -4,11 +4,12 @@ A dataset contains data of a certain spatial or thematic area, which does not af
 
 Datasets and baskets allow you to seperate your data thematically without affecting the INTERLIS model. They do only concern the data. You can import, export and validate them seperately by the provided filter methods of ili2db and Model Baker.
 
-## An example
+## Import Data of a Dataset
 
-Let's say we have two melted twin cities "Beźel" and "Ul Qoma" and we want to import into the same physical data model but handle them always seperately.
+### Example Use Case
+Let's say we have two melted twin cities "Beźel" and "Ul Qoma". We want to import into the same physical data model but handle them always seperately.
 
-### Model `City_V1`
+### INTERLIS Model
 
 Here we have a simple model representing a city with constructions (buildings and streets) and nature (parks).
 
@@ -64,9 +65,9 @@ VERSION "2020-06-22" =
 END City_V1.
 ```
 
-The model defines `BASKET OID` this means ... and `OID` what means ...
+The model defines `BASKET OID` this means it requires stable basket ids and here in the format of an UUID. Samer for the `OID`, where it requires stable UUIDs for every object (`t_ili_tid`). This column is created per default in Model Baker even when the Model does not require it.
 
-We need to create the physical model the ili2db parameter `--createBasketCol`. This we can activate by setting with *Create Basket Column* in the Model Baker Wizard. Ili2db creates a new column `T_basket` in class tables which references entries in the additional table `t_ili2db_baskets`. The `T_basket` column needs to be filled with the basket to which an object belongs. But no worry, it's supereasy with [dataset selector](#dataset-selector).
+We need to create the physical model the ili2db parameter `--createBasketCol`. This we can activate by setting with *Create Basket Column* in the [Model Baker Wizard](../../user_guide/import_workflow/#ili2db-settings). Ili2db creates a new column `t_basket` in class tables which references entries in the additional table `t_ili2db_baskets`. The `t_basket` column needs to be filled with the basket to which an object belongs. But no worry, it's supereasy with [dataset selector](#dataset-selector).
 
 ### Data of Ul Qoma
 
@@ -94,39 +95,46 @@ And here are the data from one of the cities (Ul Qoma):
 
 These are basicly the data in a dataset. You might already notice the `BID` fields. These identify the baskets for each topic. It would be technically possible to have multiple baskets per topic in the same dataset but it's usually not used.
 
-## Data Update
+### Data Update instead of Import
 
 We need to import the data of Ul Qoma now into our physical model with the ili2db parameter `--dataset "Ul Qoma"`. When the dataset already exists in the physical database we do not make an `--import`, but an `--update` instead. This means all the data in this dataset are updated with the data from the `xtf` file (and removed if not existent there).
 
-## Dataset Manager
+With the Model Baker we do make generally an `--update`, because we import only into exiting datasets.
 
-With the Model Baker we do make generally an `--update`, because we import only into exiting datasets. To have a dataset called "Ul Qoma" selectable, we need to create it in the Dataset Manager.
+### Dataset Manager
+
+To have a dataset called "Ul Qoma" selectable, we need to create it in the Dataset Manager.
 
 ![dataset manager](../assets/baskets_dataset_manager.png)
 
+#### Creation of Baskets
+With the `--update` of the data to a dataset, the needed baskets are created by `ili2db`. In case you create a new dataset and you want to collect fresh data in QGIS (no import of existing data), the baskets have to be created as well by *Create baskets for selected dataset*.
+
+***Be aware:*** *When baskets are created by the Model Baker, the IDs are UUIDs. To change the IDs, edit the t_ili2db_basket table manually.*
+
+### Update command
 After that you can double-click the dataset field and choose "Ul Qoma". This command will be excecuted in the background:
 ```
 java -jar /home/freddy/ili2pg-4.6.1.jar --update --dbhost localhost --dbport 5432 --dbusr postgres --dbpwd ****** --dbdatabase freds_bakery --dbschema thecityandthecity --importTid --importBid --dataset "Ul Qoma" /home/freddy/referencedata/TheCity_V1-ulqoma.xtf
 ```
 
-As you can see `--importTid` and `--importBid` are automatically adde to the command. This because ...
+As you can see `--importTid` and `--importBid` are automatically added to the command. The `--update` command requires stable TIDs and BIDs. In our use case the model defines stable TIDs and BIDs so they won't be required. But in case your model has not defined them, we need to tell ili2db to "assume" that the IDs we import are stable. Because otherwise a proper dataset / basket handling won't be possible.
 
 ## Structure in the Database
 
-You don't need to know that but you might be interested in it.
-
-### Dataset "Ul Qoma"
+An end user does not need to know that. But it might be interessting to know how it looks like in the database.
+### Dataset and Data of "Ul Qoma"
 
 After importing your data of the city "Ul Qoma", there are now these two tables in the database. They look like this:
 
-**t_ili2db_dataset**
+*t_ili2db_dataset:*
 ```
  t_id | datasetname
 ------+-------------
     4 | Ul Qoma
 ```
 
-**t_ili2db_basket**
+*t_ili2db_basket:*
 ```
  t_id | dataset |         topic         |              t_ili_tid               |      attachmentkey      | domains
 ------+---------+-----------------------+--------------------------------------+-------------------------+---------
@@ -136,10 +144,9 @@ After importing your data of the city "Ul Qoma", there are now these two tables 
 
 As you can see the two baskets have been created and connected to the dataset you created before. In fact they do not exactly look like this on your system. There will be the default dataset called `Baseset` created by Model Baker on the creation of the physical database and the corresponding baskets per topic.
 
-### Data of "Ul Qoma"
 When we check out the data now, we see that they are referencing the baskets (which further references the dataset).
 
-**parks**
+*parks:*
 ```
  t_id | t_basket |              t_ili_tid               |       aname       |      ageometry
 ------+----------+--------------------------------------+-------------------+--------------------
@@ -149,7 +156,7 @@ When we check out the data now, we see that they are referencing the baskets (wh
    22 |        5 | d954d3c4-ec24-44cd-af2d-d7f3af781a18 | Mullholland Drive | 01020000200808[...]
 ```
 
-**street**
+*street:*
 ```
  t_id | t_basket |              t_ili_tid               |   aname     |      ageometry
 ------+----------+--------------------------------------+-------------+--------------------------
@@ -158,9 +165,9 @@ When we check out the data now, we see that they are referencing the baskets (wh
    26 |       23 | d92d5cde-7ef3-48e8-b6cc-e370a5cba64d | Selmas Park | 01030000200080033330[...]
 ```
 
-### Data after import of "Besźel"
+### Datasets and Data of "Ul Qoma" and "Besźel"
 
-Well that does not look that interesting with only one dataset. So let's import the data of "Besźel" as well.
+It looks more interesting when we import the data of "Besźel" as well.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
@@ -188,41 +195,73 @@ We create the dataset "Besźel" with the Dataset Manager and update the data wit
 java -jar /home/freddy/ili2pg-4.6.1.jar --update --dbhost localhost --dbport 5432 --dbusr postgres --dbpwd ****** --dbdatabase freds_bakery --dbschema thecityandthecity --importTid --importBid --dataset Besźel /home/dave/dev/gh_signedav/usabilitydave/referencedata/TheCity_V1-beszel.xtf
 ```
 
+*t_ili2db_dataset:*
 ```
  t_id | datasetname
 ------+-------------
-    1 | Baseset
     4 | Ul Qoma
    28 | Besźel
+```
 
+*t_ili2db_basket:*
+```
  t_id | dataset |         topic         |              t_ili_tid               |      attachmentkey       | domains
 ------+---------+-----------------------+--------------------------------------+--------------------------+---------
-    2 |       1 | City_V1.Constructions | b99939c9-8567-4eef-9ff7-451f5ed38f8d | Qgis Model Baker         |
-    3 |       1 | City_V1.Nature        | d310e3c0-db59-43f6-9982-7b49923d2a96 | Qgis Model Baker         |
     5 |       4 | City_V1.Constructions | d861b84f-7068-43d0-b8c1-f0d2f200b075 | TheCity_V1-ulqoma.xtf-5  |
    23 |       4 | City_V1.Nature        | 8d4b122c-3582-447c-b933-3175674151e0 | TheCity_V1-ulqoma.xtf-5  |
    29 |      28 | City_V1.Constructions | 7dc3c035-b281-412f-9ba3-c69481054974 | TheCity_V1-beszel.xtf-29 |
    40 |      28 | City_V1.Nature        | 6cc059e9-0182-4c9f-9208-28be3c172471 | TheCity_V1-beszel.xtf-29 |
-
- t_id | t_basket |              t_ili_tid               |        aname        |                                                                                                                         ageometry
-------+----------+--------------------------------------+---------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   19 |        5 | 7bcc0efd-1d81-400a-8dfb-1f17f4e72287 | Main Route          | 01020000200808000006000000AAF1D26D579744410AD7A350A9433341931804265897444177BE9FDA9C4333417368911D5A974441D9CEF7D397433341894160355B974441EC51B89E684333413BDF4F6D5B9744411F85EB315A43334114AE47C15B97444108AC1C3A37433341
-   20 |        5 | 3eab5bd9-3dc8-4e73-81f1-b8d8cfaba748 | Tiny Route          | 010200002008080000070000003BDF4F6D5B9744411F85EB315A4333417B14AE87629744419A9999995C433341F853E3656A974441BC74931860433341931804F6699744417D3F355E6A43334146B6F3BD69974441DD2406C1814333418B6CE77B739744416ABC74B386433341986E12A3769744415A643BBF88433341
-   21 |        5 | b5c3d22c-974f-49c9-b361-d85dbdc4000b | Park Way            | 01020000200808000003000000F853E3656A974441BC749318604333415C8FC2F56C974441448B6CC74143334152B81E756D9744414260E5D03B433341
-   22 |        5 | d954d3c4-ec24-44cd-af2d-d7f3af781a18 | Mullholland Drive   | 01020000200808000003000000AE47E12A43974441D9CEF73374433341B6F3FD944B974441BE9F1A4F674333413BDF4F6D5B9744411F85EB315A433341
-   37 |       29 | 451cfaee-299f-4b72-bcc2-6b6a097ee0d2 | Rue des Fleurs      | 01020000200808000004000000C74B3739399744410E2DB23D4A433341AE47E12A43974441D9CEF73374433341F6285C3F529744415839B408A643334146B6F3CD589744412DB29D2FAA433341
-   38 |       29 | d6ed2502-7161-4e04-8589-3cd6c84a51e0 | Rue de la Musique   | 0102000020080800000600000046B6F3CD589744412DB29D2FAA4333415EBA49CC5F974441D578E906AD4333413108AC0C5E974441B81E85EB98433341DBF97EAA67974441B81E85CB994333412731087C72974441250681D590433341B4C876EE78974441FA7E6A7C4F433341
-   39 |       29 | 1f47c793-326a-47ba-b076-8ae9f25b2990 | Rue de neuf Soleils | 01020000200808000007000000C74B3739399744410E2DB23D4A43334152B81EB54A9744415C8FC2754A4333412B8716094B974441A4703DCA364333410AD7A3004D974441DBF97E0A3543334114AE47C15B97444108AC1C3A37433341DF4F8D5774974441508D974E46433341B4C876EE78974441FA7E6A7C4F433341
-
- t_id | t_basket |              t_ili_tid               |        aname         |                                                                                                                                                                                             ageometry
-------+----------+--------------------------------------+----------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   24 |       23 | dbe968d7-e41d-4c14-9560-c2161bea76db | UlQoma Park          | 01030000200808000001000000060000003BDF4F6D5B9744411F85EB315A4333417B14AE87629744419A9999995C433341F853E3656A974441BC749318604333415C8FC2F56C974441448B6CC74143334114AE47C15B97444108AC1C3A374333413BDF4F6D5B9744411F85EB315A433341
-   25 |       23 | 574eed9f-4cef-4747-8cbb-5e8519898626 | Big Green            | 010300002008080000010000000A000000273108BC4F9744415C8FC2F58F433341508D97BE55974441986E12C39B433341931804265897444177BE9FDA9C4333417368911D5A974441D9CEF7D39743334179E926E15A9744416ABC74D3764333416666666656974441B81E852B76433341E7FBA92156974441D9CEF7935E433341B6F3FD944B974441BE9F1A4F67433341AC1C5AA447974441BC7493586D433341273108BC4F9744415C8FC2F58F433341
-   26 |       23 | d92d5cde-7ef3-48e8-b6cc-e370a5cba64d | Selmas Park          | 010300002008080000010000000B0000005839B4885B974441D34D62D04E4333413BDF4F6D5B9744411F85EB315A433341B6F3FD944B974441BE9F1A4F6743334152B81EB54A9744415C8FC2754A4333412B8716094B974441A4703DCA364333410AD7A3004D974441DBF97E0A3543334114AE47C15B97444108AC1C3A374333416F1283B05B97444139B4C8363E433341D34D62E04D9744415839B4E83C433341D34D62E04D974441CDCCCC2C4E4333415839B4885B974441D34D62D04E433341
-   41 |       40 | 3445b04b-a4ed-4a03-bb09-c9e52134cad6 | Parque de la Musique | 01030000200808000001000000090000003108AC0C5E974441B81E85EB984333417368911D5A974441D9CEF7D397433341894160355B974441EC51B89E68433341931804F6699744417D3F355E6A43334146B6F3BD69974441DD2406C1814333418B6CE77B739744416ABC74B3864333412731087C72974441250681D590433341DBF97EAA67974441B81E85CB994333413108AC0C5E974441B81E85EB98433341
-   42 |       40 | d7e73464-f27e-4d2d-848c-66735f3fe5af | Parque des Fleurs    | 0103000020080800000100000005000000C74B3739399744410E2DB23D4A43334152B81EB54A9744415C8FC2754A433341B6F3FD944B974441BE9F1A4F67433341AE47E12A43974441D9CEF73374433341C74B3739399744410E2DB23D4A433341
-(5 rows)
-
 ```
 
-## Dataset Selector
+When we check out the data now, we see that they are referencing the baskets (which further references the dataset).
+
+*parks:*
+```
+ t_id | t_basket |              t_ili_tid               |         aname        |      ageometry
+------+----------+--------------------------------------+----------------------+--------------------
+   24 |       23 | dbe968d7-e41d-4c14-9560-c2161bea76db | UlQoma Park          | 01030000200800[...]
+   25 |       23 | 574eed9f-4cef-4747-8cbb-5e8519898626 | Big Green            | 01030000200000[...]
+   26 |       23 | d92d5cde-7ef3-48e8-b6cc-e370a5cba64d | Selmas Park          | 01030000200800[...]
+   41 |       40 | 3445b04b-a4ed-4a03-bb09-c9e52134cad6 | Parque de la Musique | 01030000200800[...]
+   42 |       40 | d7e73464-f27e-4d2d-848c-66735f3fe5af | Parque des Fleurs    | 01030000200000[...]
+```
+
+
+*street:*
+```
+ t_id | t_basket |              t_ili_tid               |        aname        |      ageometry
+------+----------+--------------------------------------+---------------------+--------------------
+   20 |        5 | 3eab5bd9-3dc8-4e73-81f1-b8d8cfaba748 | Tiny Route          | 01020000200800[...]
+   21 |        5 | b5c3d22c-974f-49c9-b361-d85dbdc4000b | Park Way            | 01020000200800[...]
+   22 |        5 | d954d3c4-ec24-44cd-af2d-d7f3af781a18 | Mullholland Drive   | 01020000200000[...]
+   37 |       29 | 451cfaee-299f-4b72-bcc2-6b6a097ee0d2 | Rue des Fleurs      | 01020000200800[...]
+   38 |       29 | d6ed2502-7161-4e04-8589-3cd6c84a51e0 | Rue de la Musique   | 01020000200800[...]
+   39 |       29 | 1f47c793-326a-47ba-b076-8ae9f25b2990 | Rue de neuf Soleils | 01020000200800[...]
+```
+
+## Working with Datasets
+
+Every layer has now a field `t_basket` that needs to be filled up, because every feature needs to be in a basket.
+
+Since the baskets are usually an intersection of topic and dataset and the topic is given by the model (every table is usually in one topic) it's mostly the dataset and the topic describing the basket in the GUI.
+
+### Selecting Dataset
+Model Baker creates a Relation Reference Widget for it with only the relevant baskets (described by it's dataset name and it's topic name). This usually leads to a list of all available datasets.
+
+When adding a building the datasets are "Baseset", "Besźel", "Orciny" and "Ul Qoma" and the topic is "Constructions".
+
+![dataset relationreference](../assets/dataset_relation_reference.png)
+
+### Dataset Selector
+
+Because it is always an additional step to select the correct basket and since you work at one dataset at the time mostly, you can choose in the *Dataset Selector* of the Model Baker Toolbar what basket should be used as default value in the relation reference widget.
+
+![dataset selector](../assets/dataset_selector.png)
+
+The available baskets in the dataset selector depends on the layers datasource and topic. They change when another layer is selected. The chosen basket is stored in the project variables (`<host>_<db>_<schema>_<topic>` or `<filepath>_<topic>`).
+
+### Special case of domain tables
+
+As mentioned before, a table is usually in one topic. This is not true for the domain tables used by several topics. When you add for example a "Building" and for this "Building" you add an "Address", you have to choose the correct basket for the "Address" feature you create as well. In this case you get a list in the Relation Reference with all available baskets.
+
+![dataset relationreference domain](../assets/dataset_relation_reference_domain.png)
