@@ -65,9 +65,11 @@ VERSION "2020-06-22" =
 END City_V1.
 ```
 
-The model defines `BASKET OID` this means it requires stable basket ids and here in the format of an UUID. Samer for the `OID`, where it requires stable UUIDs for every object (`t_ili_tid`). This column is created per default in Model Baker even when the Model does not require it.
+The model defines `BASKET OID` this means it requires stable basket ids and here in the format of an UUID. Same for the `OID`, where it requires stable UUIDs for every object (`t_ili_tid`). This column is created per default in Model Baker even when the Model does not require it.
 
-We need to create the physical model the ili2db parameter `--createBasketCol`. This we can activate by setting with *Create Basket Column* in the [Model Baker Wizard](../../user_guide/import_workflow/#ili2db-settings). Ili2db creates a new column `t_basket` in class tables which references entries in the additional table `t_ili2db_baskets`. The `t_basket` column needs to be filled with the basket to which an object belongs. But no worry, it's supereasy with [dataset selector](#dataset-selector).
+
+!!! Note
+    We need to create the physical model the ili2db parameter `--createBasketCol`. This we can activate by setting with *Create Basket Column* in the [Model Baker Wizard](../../user_guide/import_workflow/#ili2db-settings). Ili2db creates a new column `t_basket` in class tables which references entries in the additional table `t_ili2db_baskets`. The `t_basket` column needs to be filled with the basket to which an object belongs. But no worry, it's supereasy with [dataset selector](#dataset-selector).
 
 ### Data of Ul Qoma
 
@@ -110,7 +112,9 @@ To have a dataset called "Ul Qoma" selectable, we need to create it in the Datas
 #### Creation of Baskets
 With the `--update` of the data to a dataset, the needed baskets are created by `ili2db`. In case you create a new dataset and you want to collect fresh data in QGIS (no import of existing data), the baskets have to be created as well by *Create baskets for selected dataset*.
 
-***Be aware:*** *When baskets are created by the Model Baker, the IDs are UUIDs. To change the IDs, edit the t_ili2db_basket table manually.*
+
+!!! Note
+    When baskets are created by the Model Baker, the IDs are UUIDs. To change the IDs, edit the t_ili2db_basket table manually.
 
 ### Update command
 After that you can double-click the dataset field and choose "Ul Qoma". This command will be excecuted in the background:

@@ -4,12 +4,10 @@ The wizard is started over the toolbar icon or *Database > Model Baker > Import/
 
 To [choose data files and models to import or generate a new database](#source-selection) follow the description below. To [generate a QGIS project from an existing database](#generate-the-qgis-project) jump to the bottom of this guide. To [export data from an existing database](../export_workflow/) see the guide for that.
 
----
-**File drop**
 
-As well the Wizard opens when you drop a file to QGIS with the extension `xtf`, `ili` or `xml` (`xml` only when it's dropped with a file having one of the other extensions).
+!!! Note
+    As well the Wizard opens when you drop a file to QGIS with the extension `xtf`, `ili` or `xml` (`xml` only when it's dropped with a file having one of the other extensions).
 
----
 
 ## Source Selection
 First page offers you to select the sources to import.

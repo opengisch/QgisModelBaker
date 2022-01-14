@@ -36,7 +36,7 @@ VERSION "2017-02-08"  =
 
 `furtherInformation` is referenced to `ExceptionalLoadsCatalogues_V1`, `topicInformation` to `TypeOfRouteCatalogue` and `dispExpression` to `TypeOfRoute`.
 
-For more complex usage see the [specification of the Verein eCH](https://www.ech.ch/alfresco/s/ech/download?nodeid=788eb38a-bf2b-4f3d-96a8-addc37bba41f).
+For more complex usage see the [INTERLIS 2-Metamodell](https://www.interlis.ch/download/interlis2/ili23-metamodel_2008-08-29_d.pdf)
 
 ### Meta Attributes in the Database
 

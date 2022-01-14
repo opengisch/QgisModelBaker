@@ -14,6 +14,9 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+    - search.suggest
+    - search.highlight
+  logo: assets/modelbaker_icon.svg
   palette:
     - scheme: default
       toggle:
@@ -35,7 +38,7 @@ nav:
     - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
     - Repositories: background_info/repositories.md
-    - Basket and Dataset Handling: background_info/working_with_datasets.md
+    - Basket and Dataset Handling: background_info/basket_handling.md
     - UsabILIty Hub:
       - Model Baker Integration (German): background_info/usabilityhub/modelbaker_integration.md
       - Technical Concept (German): background_info/usabilityhub/technical_concept.md
@@ -51,3 +54,10 @@ markdown_extensions:
   - attr_list
   - def_list
   - admonition
+
+plugins:
+  - i18n:
+      default_language: en
+      languages:
+        en: English
+        de: Deutsch
