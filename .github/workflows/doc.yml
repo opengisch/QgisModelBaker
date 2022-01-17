@@ -45,4 +45,4 @@ jobs:
           fi
 
       - name: Build docs
-      - run: mkdocs gh-deploy --force
+        run: mkdocs gh-deploy --force
