@@ -5,14 +5,44 @@ on:
       - master
     paths:
       - 'docs/**'
-
+  pull_request:
+    branches:
+      - '**'
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Checkout Python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - run: pip install mkdocs-material mkdocs-static-i18n==0.31
+
+      - name: Install Requirements
+        run: |
+            sudo apt-get update && sudo apt-get install -y transifex-client
+            sudo pip install mkdocs-material mkdocs-static-i18n==0.31
+
+      - name: Push translations
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          set -e
+          if [[ -z "${TX_TOKEN}" ]]; then
+            echo "TX_TOKEN not set, skip tx push"
+          else
+            tx push -s
+          fi
+
+      - name: Pull translations
+        run: |
+          set -e
+          if [[ -z "${TX_TOKEN}" ]]; then
+            echo "TX_TOKEN not set, skip tx pull"
+          else
+            tx pull -a
+          fi
+
+      - name: Build docs
       - run: mkdocs gh-deploy --force
