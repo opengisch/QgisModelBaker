@@ -527,8 +527,8 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.Widget)
-        self.workflow_wizard.setFixedHeight(600)
-        self.workflow_wizard.setMinimumWidth(800)
+        self.workflow_wizard.setFixedHeight(self.fontMetrics().lineSpacing() * 36)
+        self.workflow_wizard.setMinimumWidth(self.fontMetrics().lineSpacing() * 48)
         self.workflow_wizard.show()
 
         self.workflow_wizard.finished.connect(self.done)
