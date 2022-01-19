@@ -44,7 +44,7 @@ nav:
       - Technical Concept (German): background_info/usabilityhub/technical_concept.md
       - User Guide (German): background_info/usabilityhub/user_guide.md
     - Meta Attributes: background_info/meta_attributes.md
-    - Upgrade ili2db 3 to 4: background_info/upgrade_3_to_4.md
+    - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
     #- Relations in QGIS: maybe from here https://github.com/signedav/interlis_relations_in_qgis
     #- INTERLIS Syntax in 10 Minutes: maybe stuff from here https://github.com/signedav/talk_iliuniverse
  #- Library: Info about the upcoming python package
