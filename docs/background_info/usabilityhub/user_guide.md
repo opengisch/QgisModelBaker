@@ -1,17 +1,17 @@
-**Um eigene Toppings zu publizieren, muss man sie lokal erstellen und testen. Zukünftig sollen auch Tools einige Arbeitsschritte (wie zum Beispiel Layertree Export) übernehmen. Bis dahin sollen die folgenden Punkte ausgeführt werden, wie am Beispiel des Models Nutzungsplan Luzern**
+In order to publish your own toppings, you have to create and test them locally. In the future, tools should also take over some work steps (such as the export of the layertree and layer configurations). Until then, the following points are to be carried out, as in the example of the INTERLIS model Nutzungsplan of Lucerne.
 
-## Realisierung Toppings für Nutzungsplanung_v310
-Folgende Toppingfiles werden erstellt bzw. angepasst
+## Realization of toppings for *Nutzungsplanung_V310*
+The following topping files will be created or adapted:
 
-- ilidata.xml (wird manuell angepasst)
-- Metakonfigurationsfile (wird manuell erstellt)
-- Layerkonfigurationen QML-Files (werden mit QGIS generiert)
-- Layerreihenfolge und Legende YAML-File (wird manuell erstellt)
-- Zur Projketerstellung benötigtes ili2db Metaattributfile TOML-File (wird manuell erstellt)
+- ilidata.xml (will be adjusted manually)
+- Metaconfiguration file (will be created manually)
+- Layer configurations `qml` files (will be generated with QGIS)
+- Layer display order and legend `yaml` file (will be created manually)
+- ili2db meta attribute file required for project creation `toml` file (created manually)
 
 
-### 1. Vorbreitung
-Es ist empfehlenswert, die Dateien in einem Verzeichnis abzulegen und folgende Unterverzeichnisse zu benennen:
+### 1. Preparation
+It is recommended to place the files in one directory and name the following subdirectories:
 
 ```
 .
@@ -24,12 +24,12 @@ Es ist empfehlenswert, die Dateien in einem Verzeichnis abzulegen und folgende U
 └── toml
 ```
 
-#### Lokale Projektgenerierung
-Dieser Ordner kann dann lokal im QGIS Model Baker getestet werden. `ilidata.xml` und `ilimodels.xml` werden darin gesucht und geparst.
+#### Local project generation
+Configure your folder as a [custom model directory](../../../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
 
 ![localrepo](../../assets/usabilityhub_localrepo.png)
 
-Um auch die ILI Models lokal zu testen, soll man diese ebenfalls in den lokalen Ordner ablegen:
+In order to test the INTERLIS models locally, they should also be placed in the local folder:
 ```
 .
 ├── additional_local_ini_files
@@ -42,51 +42,53 @@ Um auch die ILI Models lokal zu testen, soll man diese ebenfalls in den lokalen 
 │   └── Units-20120220.ili
 ```
 
-Nun kann man das Projekt bereits lokal generieren:
-
+Now you can already generate the project locally:
 ![raw_import](../../assets/usabilityhub_raw_import.png)
 
-Oder mit dem Metaattributfile für's *ili2db*:
+Or with a ili2db metaattribute `toml` file.
 
 ![raw_import_toml](../../assets/usabilityhub_raw_import_toml.png)
 
-Das Metaatributfile (TOML) wurde für das Projekt Nutzungsplan Luzern bereitserstellt. Dieses File wird im QGIS Model Baker unter “Advanced Options” und “Extra Model Information File” angegeben und wird zukünftig auch über den UsabILIty Hub eingebunden:
+The metaatribute `toml` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Model Information File" and will also be included via the UsabILIty Hub in the following steps:
 
 ![toml_config](../../assets/usabilityhub_toml_config.png)
 
-#### Projektkonfiguration
+#### Project Configuration in QGIS
 
-Im erstellten Projekt können nun Styles, Formulare, Layerstrukturen etc. konfiguriert werden, um diese Daten als Quelle für die Erstellung der Toppingfiles zu verwenden.
+In the created project, styles, forms, layer structures, etc. can now be configured in order to use this data as a source for the creation of the topping files.
 
-Besteht schon eine Umsetzung dieses Projekts, können diese Informationen aber auch daraus genommen werden.
+If an implementation of this project already exists, this information can also be taken from it.
 
 ![original_project](../../assets/usabilityhub_original_project.png)
 
-### 2. Toppingfiles erstellen
+### 2. Creating Toppingfiles
 
-#### Layereigenschaften (QML Files)
-Vom QGIS Projekt, mit bereits definierten Layereigenschaften werden zuerst die QML-Dateien gespeichert
+#### Layer Properties (`qml` Files)
+From the QGIS project, with already defined layer properties, first the `qml` files are saved.
 
-"Layereigenschaften" > "Stil" > "Layerstil speichern"
+"Layer properties" > "Style" > "Save layer style".
 
 ![save_qml](../../assets/usabilityhub_save_qml.png)
 
-In diesem Beispiel wurden die qml-Files so benannt, wie die Layers heissen mit prefix "lu_".
+In this example the `qml` files were named as the layers are called with prefix "lu_".
 
-##### Problem mit Formularen im Falle Nutzungsplanung_V310 Originalprojekt
+---
+**Problem with forms in case of the original *Nutzungsplanung_V310* project**
 
-Das Originalprojekt beinhaltet nicht diesselbe Layernamen, wie das neu generierte Projekt. Dies kann einerseits der Fall sein, da es mit einer alten Model Baker Version erstellt worden ist oder weil die Layer später umbenannt worden sind.
-Bei den Formularkonfigurationen wurde so auf Layers referenziert, die nicht mehr existieren. Wenn diese Konfiguration nun über ein QML-File geladen wird, merkt das QGIS und lädt den benötigten Layer anhand dieser Information. Und dies führt dazu, dass Layer mehrfach ins Projekt geladen werden.
+The original project does not contain the same layer names as the newly generated project. This may be the case because it was created with an old Model Baker version or because the layers were renamed later.
+In the case of the form configurations, references were thus made to layers that no longer exist. If this configuration is now loaded via a `qml` file, QGIS notices and loads the required layer based on this information. And this leads to multiple layers being loaded into the project.
 
-Um dem Vorzubeugen ist empfohlen, die QML Files testweise in das lokal generierte (neue) Projekt zu laden. Falls dieses (oder auch andere) Problem auftaucht, können nur einzelne Kategorien vom Originalprojekt verwendet werden. Im Falle Nutzungsplanung_V310, wurde so für gewisse Layer die Kategorie "Formulare" nicht aus dem Originalprojekt genommen, sondern im Layer des lokal generierten Projekts (der dem Originallayer bis auf die Formularkonfiguration enspricht), die Formulare manuell konfiguriert, und der Style erneut als QML abgespeichert.
+To prevent this, it is recommended to load the `qml` files into the locally generated (new) project as a test. If this (or other) problem occurs, only single categories from the original project can be used. In the case of *Nutzungsplanung_V310* the category "Forms" for certain layers was not taken from the original project, but in the layer of the locally generated project (which corresponds to the original layer except for the form configuration), the forms were configured manually, and the style was saved again as `qml` file.
 
-#### Layerreihenfolge und Legendenanordnung (YAML File)
+---
 
-In einem YAML File wird die Layerreihenfolge bzw. Legendenanordnung definiert.
+#### Legend Tree and Layer Order(`yaml` File)
 
-Unter Haupteintrag `legend` wird die Legendenanordnung definiert und unter `layer-order` die Reihenfolge.
+In a `yaml` file the layer display order and the legend tree structure is defined.
 
-So sieht kann der Inhalt eines YAML-Files so aussehen:
+Under main entry `legend` the legend tree structure is defined and under `layer-order` the display order.
+
+So the content of a `yaml` file can look like this:
 ```
 legend:
   - "Geometrie-Layer":
@@ -110,17 +112,17 @@ layer-order:
   - "Linie"
   - "Fläche"
 ```
-Hierzu muss die korrekte Einrückugn und Struktur von [YAML](https://de.wikipedia.org/wiki/YAML) beachtet werden.
+For this, the correct indentation and structure of [YAML](https://de.wikipedia.org/wiki/YAML) must be observed.
 
-Definitionsmöglichkeiten sind:
-- Layer/Gruppe sichtbar oder nicht: `checked: true`, wenn nicht: `checked: fals`.
-- Legendeneintrag gilt als eine Gruppe, d.h. er hat weitere Einträge (child-nodes): `group: true`.
-- Die Legendeneinträge in der Gruppe sind unter `child-nodes` aufgelistet.
-- Untere Legendeneinträge (Children oder Symbolisierungskategorien) sichtbar/aufgeklappt sind: `expanded: true`.
-- Die Sichtbarkeit der Layer in einer Gruppe schliessen sich gegenseitig aus `mutually-exclusive: true` (das heisst, nur ein Child ist sichtbar auf einmal)
-- Die Anzahl der Features innerhalb eines Layers kann mit:`featurecount: true` angezeigt werden.
+Definition possibilities are:
+- Layer/group visible or not: `checked: true`, if not: `checked: false`.
+- Legend entry is considered as a group, i.e. it has other entries (child-nodes): `group: true`.
+- Legend entries in the group are listed under `child-nodes`.
+- Lower legend entries (children or symbolization categories) visible/expanded are: `expanded: true`.
+- Visibility of layers in a group are mutually exclusive `mutually-exclusive: true` (that means only one child is visible at a time)
+- The number of features within a layer can be displayed with:`featurecount: true`.
 
-Jeder Eintrag kann weitere “Childs” haben, so kann der “Layertree” beliebig viele Ebenen haben.
+Each entry can have additional `child-nodes`, so the `layertree` can have any number of layers.
 
 ![legend_entry](../../assets/usabilityhub_legend_entry.png)
 
@@ -142,11 +144,10 @@ Jeder Eintrag kann weitere “Childs” haben, so kann der “Layertree” belie
             expanded: true
 ```
 
-#### Metaattributfile für ili2db (TOML)
+#### Metaattribute File for ili2db (`toml` File)
+Also the `toml` file can be used as topping. This is written in INI format and already exists for the *Nutzungsplanung_V310*:
 
-Auch das TOML File kann als Topping verwendet werden. Dies ist im INI Format geschrieben und besteht bereits für das Nutzungsplanung_V310 Projekt:
-
-Inhalt von `Nutzungsplanung_V310.toml`:
+Content of `Nutzungsplanung_V310.toml`:
 ```
 ["Nutzungsplanung_V310.MultiPoint"]
 ili2db.mapping=MultiPoint
@@ -155,15 +156,15 @@ ili2db.mapping=MultiPoint
 ili2db.mapping=MultiSurface
 ```
 
-#### Transferdateien (zBs. Kataloge) (XTF/ITF/XML)
+#### Transfer files (e.g. Catalogs) (`xtf`/`xml`/`itf` Files)
+Transfer files such as catalogs can also be used as toppings. In the project *Nutzungsplanung_V310*, however, none were specified.
 
-Transferdateien wie zBs. Kataloge können ebenfalls als Topping verwendet werden. Im Projekt Nutzungsplanung_V310 wurden aber keine vorgegeben.
-Für Infos über die Referenzierung der Transferdateien kann die Technische Dokumentation der Umsetzung im QGIS Model Baker eingesehen werden.
+For information and examples about the referencing of those files see in the [Model Baker Integration](../modelbaker_integration/#catalogs-and-transfer-files)
 
-### 3. Ablage und Eintragen der Toppings im ilidata.xml
+### 3. Storage and Indexing of the Toppings
 
-#### Ablage
-Die Toppingfiles können nun in die für sie vorgesehenen Ordner abgelegt werden:
+#### Storage
+The topping files can now be stored in the folders intended for them:
 ```
 .
 ├── layertree
@@ -187,15 +188,15 @@ Die Toppingfiles können nun in die für sie vorgesehenen Ordner abgelegt werden
 
 ```
 
-#### Eintragen ins ilidata.xml
+#### Indexing in the ilidata.xml
 
-Das *ilidata.xml* ist das "Register" über das die Toppingfiles gefunden werden.
+The `ilidata.xml` is the "register" over which the topping files are found.
 
-Zur Struktur des auf dem [`DatasetIdx16`](http://models.interlis.ch/core/DatasetIdx16.ili) basierenden File, können die "Informationen über die technische Konzeption des UsabILIty Hubs" eingesehen werden.
+For the structure of the file based on the [`DatasetIdx16`](http://models.interlis.ch/core/DatasetIdx16.ili) see the [Technical Concept](../technical_concept/#the-ilidataxml).
 
-Grundsätzlich muss eine Repository-übergreiffend eindeutige `id` vergeben werden. Sie muss nicht zwingend beschreibend für den Inhalt sein. Weiter muss der Typ des Toppings in den `categories` eingetragen werden, sowie der relative `path` zum betreffenden File.
+Basically, a repository-wide unique id must be assigned. It does not have to be descriptive for the content. Further the type of the topping must be entered in the `categories`, as well as the relative `path` to the file concerned.
 
-Also wär der Eintrag für das Toppingfile "qml/lu_grundnutzung.qml" des Typs "qml" mit der Id "ch.lu.topping.Nutzungsplanung_V310_grundnutzung" der folgende:
+So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" with the id "ch.lu.topping.Nutzungsplanung_V310_grundnutzung" would be the following:
 ```
       <DatasetIdx16.DataIndex.DatasetMetadata TID="3dcc47e5-1dd5-4f05-9fc8-756125705a2c">
         <id>ch.lu.topping.Nutzungsplanung_V310_grundnutzung</id>
@@ -218,12 +219,11 @@ Also wär der Eintrag für das Toppingfile "qml/lu_grundnutzung.qml" des Typs "q
         </files>
       </DatasetIdx16.DataIndex.DatasetMetadata>
 ```
+### 4. The metaconfiguration (`ini` file)
 
-### 4. Die Metakonfiguration (INI)
+The metaconfiguration is the file that holds everything together. Find more information in the [Technical Concept](../technical_concept/#the-metaconfiguration-file-ini).
 
-Die Metakonfiguration ist das File, das alles zusammenhält. Mehr Informationen dazu gibt es ebenfalls im Dokument "Umsetzung im QGIS Model Baker".
-
-Für die Implementierung von Nutzungsplanung_V310 müssen nun die in den vorgängingen Steps erstellten Toppingfiles über ihre in *ilidata.xml* vergebene Id im Metakonfigurationsfile verlinkt sein. Die QML Toppigns, die Layerkonfigurationen enthalten, müssen den korrekten Namen der entsprechenden Layer zugewiesen werden.
+For the implementation of *Nutzungsplanung_V310*, the topping files created in the previous steps must now be linked in the metaconfiguration file via their Id assigned in `ilidata.xml`. The `qml` toppings containing layer configurations must be assigned to the correct names of the corresponding layers.
 
 ```
 [CONFIGURATION]
@@ -246,11 +246,11 @@ iliMetaAttrs=ilidata:ch.lu.topping.npluzern_toml
 "Beschriftung_Text"=ilidata:ch.lu.topping.Nutzungsplanung_V310_beschriftung_text
 ```
 
-#### Eintragen ins ilidata.xml
+#### Indexing in the ilidata.xml
 
-Auch die Metakonfigurationsdatei muss ins *ilidata.xml* eingetragen werden. Nur so kann sie von Tools wie dem Model Baker gefunden werden.
+Also the metaconfiguration file must be entered in `ilidata.xml`. Only then it can be found by tools like Model Baker.
 
-Grundsätzlich genau gleich wie ein Toppingfile. Eine Repository-übergreiffend eindeutige `id`, der Typ in den `categories` sowie der relative `path` zum betreffenden File.
+Basically exactly the same as a topping file. A repository-spanning unique Id, the type in the `categories` as well as the relative `path` to the file.
 ```
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a2acb2f5-38bd-4d1a-8af0-c2463dcb5b66">
         <id>ch.opengis.ili.config.Nutzungsplanung_V310</id>
@@ -274,8 +274,9 @@ Grundsätzlich genau gleich wie ein Toppingfile. Eine Repository-übergreiffend 
       </DatasetIdx16.DataIndex.DatasetMetadata>
 ```
 
-Damit das Metakonfigurationsfile aber aufgrund eines Modellnamens (hier "Nutzungsplanung_V310") gefunden wird, muss dieser ebenfalls in den `categories` eingetragen werden. Zusätzlich braucht es einen `title`, damit es im GUI des Model Bakers zu erkennen ist. Die `shortDescription` ist optional und dient zur weiteren Beschreibung des Inhalts der Metaknofiguration. So sieht der Eintrag schlussendlich so aus:
+To find this metaconfiguration file according to the model name (here *Nutzungsplanung_V310*) this must also be entered in the `categories`. Additionally, it needs a `title` so that it can be recognized in the [GUI of the Model Baker](../../../user_guide/import_workflow/#import-of-interlis-data). The `shortDescription` is optional and serves to further describe the content of the metaconfiguration.
 
+This is how the entry finally looks like:
 ```
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a2acb2f5-38bd-4d1a-8af0-c2463dcb5b66">
         <id>ch.opengis.ili.config.Nutzungsplanung_V310</id>
