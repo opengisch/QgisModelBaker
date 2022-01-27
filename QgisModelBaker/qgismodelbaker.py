@@ -400,14 +400,10 @@ class QgisModelBakerPlugin(QObject):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
         if os_language in ["es", "de"]:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/{}/".format(
-                    os_language
-                )
+                "https://opengisch.github.io/QgisModelBaker/{}/".format(os_language)
             )
         else:
-            webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/index.html"
-            )
+            webbrowser.open("https://opengisch.github.io/QgisModelBaker/index.html")
 
     def show_about_dialog(self):
         self.msg = QMessageBox()
