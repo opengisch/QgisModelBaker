@@ -9,6 +9,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      TX_TOKEN: ${{ secrets.TX_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
