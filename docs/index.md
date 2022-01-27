@@ -1,0 +1,5 @@
+The Model Baker is a QGIS plugin that allows to quickly create a QGIS project from a physical data model. The Model Baker analyzes the existing structure and configures a QGIS project with all available information. This automation can massively reduce the configuration effort.
+
+Models defined in INTERLIS provide additional meta information like domains, units of attributes or object oriented definitions of tables. This can be used to further optimize the project configuration. The Model Baker uses [ili2db](https://github.com/claeis/ili2db/blob/master/docs/ili2db.rst) to import an INTERLIS model into a physical database and the meta information to configure layer tree, field widgets with conditions, form layouts, relations and much more.
+
+Furthermore, the Model Baker can be used as a framework for other projects. The plugin [Asistente LADM-COL](https://github.com/SwissTierrasColombia/Asistente-LADM-COL), created for the [Colombian implementation of the Land Administration Domain Model (LADM)](https://www.proadmintierra.info/), uses the Model Baker as a library to implement as much of the specific solution as possible as QGIS core functionality.

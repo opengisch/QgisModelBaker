@@ -1,0 +1,63 @@
+# Project information
+site_name: QGIS Model Baker
+site_description: >-
+  This site contains documentation about QGIS Model Baker
+
+# Repository
+repo_name: opengisch/QgisModelBaker
+repo_url: https://github.com/opengisch/QgisModelBaker
+edit_uri: https://github.com/opengisch/QgisModelBaker/tree/master/docs/
+
+# Theme configuration
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - search.suggest
+    - search.highlight
+  logo: assets/modelbaker_icon.svg
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+# Page tree
+nav:
+  - Home: index.md
+  - User Guide:
+    - Get Started: user_guide/get_started.md
+    - Model and Data Import Workflow: user_guide/import_workflow.md
+    - Export Data Workflow: user_guide/export_workflow.md
+    - Validate Data: user_guide/validation.md
+    - Plugin Configuration: user_guide/plugin_configuration.md
+  - Tipps & Tricks:
+    - Repositories: background_info/repositories.md
+    - Basket and Dataset Handling: background_info/basket_handling.md
+    - UsabILIty Hub:
+      - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
+      - Technical Concept: background_info/usabilityhub/technical_concept.md
+      - User Guide: background_info/usabilityhub/user_guide.md
+    - Meta Attributes: background_info/meta_attributes.md
+    - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
+    #- Relations in QGIS: maybe from here https://github.com/signedav/interlis_relations_in_qgis
+    #- INTERLIS Syntax in 10 Minutes: maybe stuff from here https://github.com/signedav/talk_iliuniverse
+  - Development: development.md
+    #- Library: Info about the upcoming python package
+
+markdown_extensions:
+  - attr_list
+  - def_list
+  - admonition
+
+plugins:
+  - i18n:
+      default_language: en
+      languages:
+        en: English
+        de: Deutsch
