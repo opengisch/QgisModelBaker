@@ -33,7 +33,7 @@ jobs:
             echo "TX_TOKEN not set, skip tx push"
           else
             echo "Create .tx/config mapping."
-            tx config mapping-bulk -p qgismodelbaker-docs --source-language en --type MD -f '.md' --source-file-dir docs --expression "docs/{filepath}/{filename}.<lang>{extension}" --execute
+            tx config mapping-bulk -p qgis-model-baker-docs --source-language en --type MD -f '.md' --source-file-dir docs --expression "docs/{filepath}/{filename}.<lang>{extension}" --execute
             echo "Push source files."
             tx push -s -d
           fi
