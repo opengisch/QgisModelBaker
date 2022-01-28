@@ -27,4 +27,5 @@ It's imported with ili2db 4. Your database is now on the current state of versio
 Import your data back again.
 
 ![upgrade_import_data](../assets/upgrade_import_data.png)
+
 And it's done.
