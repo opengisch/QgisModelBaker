@@ -12,6 +12,7 @@ edit_uri: https://github.com/opengisch/QgisModelBaker/tree/master/docs/
 # Theme configuration
 theme:
   name: material
+  custom_dir: docs/theme_overrides/
   features:
     - navigation.tabs
     - navigation.tabs.sticky
