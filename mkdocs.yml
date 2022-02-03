@@ -2,7 +2,7 @@
 site_name: QGIS Model Baker
 site_description: >-
   This site contains documentation about QGIS Model Baker
-site_url: http://127.0.0.1:8000/
+site_url: https://opengisch.github.io/QgisModelBaker/
 
 # Repository
 repo_name: opengisch/QgisModelBaker
