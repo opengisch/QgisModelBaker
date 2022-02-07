@@ -150,7 +150,7 @@ As you can see the two baskets have been created and connected to the dataset yo
 
 When we check out the data now, we see that they are referencing the baskets (which further references the dataset).
 
-*parks:*
+*street:*
 ```
  t_id | t_basket |              t_ili_tid               |       aname       |      ageometry
 ------+----------+--------------------------------------+-------------------+--------------------
@@ -160,7 +160,7 @@ When we check out the data now, we see that they are referencing the baskets (wh
    22 |        5 | d954d3c4-ec24-44cd-af2d-d7f3af781a18 | Mullholland Drive | 01020000200808[...]
 ```
 
-*street:*
+*parks:*
 ```
  t_id | t_basket |              t_ili_tid               |   aname     |      ageometry
 ------+----------+--------------------------------------+-------------+--------------------------
@@ -269,3 +269,100 @@ The available baskets in the dataset selector depends on the layers datasource a
 As mentioned before, a table is usually in one topic. This is not true for the domain tables used by several topics. When you add for example a "Building" and for this "Building" you add an "Address", you have to choose the correct basket for the "Address" feature you create as well. In this case you get a list in the Relation Reference with all available baskets.
 
 ![dataset relationreference domain](../assets/dataset_relation_reference_domain.png)
+
+
+## `BASKET OID` or not
+
+It's up to the modeller if the `BASKET OID` should be defined or not. Here it's described how it's handled in the context of the Model Baker.
+
+### Using `BASKET OID`
+You can have `BASKET OID` defined in the model.
+```
+INTERLIS 2.3;
+
+MODEL Maps_V1 (en)
+AT "https://signedav.github.io/usabilitydave/models"
+VERSION "2021-12-15"  =
+
+  TOPIC Maps =
+    BASKET OID AS INTERLIS.UUIDOID;
+    OID AS INTERLIS.UUIDOID;
+	CLASS Map =
+	  Map_Name : TEXT;
+	END Map;
+  END Maps;
+
+END Maps_V1.
+```
+
+This ensures that the data can be validated for the proper format of the `BID` and ili2db considers baskets on import/update/export. If this is defined in the model, it's required to use the basket handling in QGIS (we need to create the physical model the ili2db parameter `--createBasketCol`). This is currently not automatically detected by the Model Baker and needs to be assured by the user.
+
+On using basket handling the `BID` is validated and exported:
+
+```
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+<Maps_V1.Maps BID="074eab94-8c7a-452f-b686-1c5ba250e705">
+<Maps_V1.Maps.Map TID="b5ca7dbc-8fde-4d06-a830-538d8069a3cf"><Map_Name>test</Map_Name></Maps_V1.Maps.Map>
+</Maps_V1.Maps>
+</DATASECTION>
+</TRANSFER>
+```
+
+When the user decides to use no basket handling, the collected data would not be considered by ili2db (because they are in no basket) and the export will be empty:
+
+```
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+</DATASECTION>
+</TRANSFER>
+```
+### Not using `BASKET OID`
+
+You can still use the basket handling without having `BASKET OID` defined the model. As [mentioned](../../background_info/basket_handling/#update-command) `--importBid` are automatically added to the command, when the basket handling active. So ili2db assumes that the `BID`s we import are stable. This is not ensured by the model definition, it has to be ensured by the user providing the data.
+
+```
+INTERLIS 2.3;
+
+MODEL Maps_V1 (en)
+AT "https://signedav.github.io/usabilitydave/models"
+VERSION "2021-12-15"  =
+
+  TOPIC Maps =
+    OID AS INTERLIS.UUIDOID;
+	CLASS Map =
+	  Map_Name : TEXT;
+	END Map;
+  END Maps;
+
+END Maps_V1.
+```
+
+On the export the `BID`s are considered:
+```
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+<Maps_V1.Maps BID="072988b6-cc0a-422f-984a-574d5458b840">
+<Maps_V1.Maps.Map TID="2ae2bcad-d011-4880-8ff9-23dde282911b"><Map_Name>test with baskets</Map_Name></Maps_V1.Maps.Map>
+</Maps_V1.Maps>
+</DATASECTION>
+</TRANSFER>
+```
+
+When not having `BASKET OID` defined, it's possible not to use the basket handling as well. When exporting the data then, it will succeed.
+
+But be aware: The `BID`s are not stable.
+
+```
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+<Maps_V1.Maps BID="Maps_V1.Maps">
+<Maps_V1.Maps.Map TID="3779cdf4-e075-4471-aa51-f44d0af1e2b0"><Map_Name>daves no bask test</Map_Name></Maps_V1.Maps.Map>
+</Maps_V1.Maps>
+</DATASECTION>
+</TRANSFER>
+```

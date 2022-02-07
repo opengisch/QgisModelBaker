@@ -2,6 +2,7 @@
 site_name: QGIS Model Baker
 site_description: >-
   This site contains documentation about QGIS Model Baker
+site_url: https://opengisch.github.io/QgisModelBaker/
 
 # Repository
 repo_name: opengisch/QgisModelBaker
@@ -11,6 +12,7 @@ edit_uri: https://github.com/opengisch/QgisModelBaker/tree/master/docs/
 # Theme configuration
 theme:
   name: material
+  custom_dir: docs/theme_overrides/
   features:
     - navigation.tabs
     - navigation.tabs.sticky

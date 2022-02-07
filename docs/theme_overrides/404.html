@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block tabs %}
+  {{ super() }}
+<style>
+  @media screen and (min-width:60em){
+      .md-sidebar--secondary{display:none}
+  }@media screen and (min-width:76.25em){
+      .md-sidebar--primary{display:none}
+  }</style>
+  <section>
+    <div class="md-grid md-typeset">
+      <div>
+        <div>
+            <p/>
+            <h1>404 - Not found</h1>
+            <p>
+            Maybe you landed here because you used a link to the old documentation.
+        </p>
+        <p>
+            <a href="{{ '/' | url }}">Check out the new one!</a>
+        </p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
