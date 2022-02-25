@@ -55,6 +55,7 @@ class Generator(QObject):
         Creates a new Generator objects.
         :param uri: The uri that should be used in the resulting project. If authcfg is used, make sure the mgmt_uri is set as well.
         :param mgmt_uri: The uri that should be used to create schemas, tables and query meta information. Does not support authcfg.
+        :consider_basket_handling: Makes the specific handling of basket tables depending if schema is created with createBasketCol.
         """
         QObject.__init__(self, parent)
         self.tool = tool

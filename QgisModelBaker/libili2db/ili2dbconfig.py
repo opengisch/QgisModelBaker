@@ -202,7 +202,7 @@ class SchemaImportConfiguration(Ili2DbCommandConfiguration):
     def __init__(self):
         super().__init__()
         self.inheritance = "smart1"
-        self.create_basket_col = True
+        self.create_basket_col = False
         self.create_import_tid = True
         self.srs_auth = "EPSG"  # Default SRS auth in ili2db
         self.srs_code = 2056  # Default SRS code in ili2db
