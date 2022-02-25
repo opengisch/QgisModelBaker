@@ -544,12 +544,10 @@ class Generator(QObject):
                     legend.append(node)
         else:
             tables = LegendGroup(QCoreApplication.translate("LegendGroup", "tables"))
-            domains = LegendGroup(
-                QCoreApplication.translate("LegendGroup", "domains"), False
-            )
-            system = LegendGroup(
-                QCoreApplication.translate("LegendGroup", "system"), False
-            )
+            domains = LegendGroup(QCoreApplication.translate("LegendGroup", "domains"))
+            domains.expanded = False
+            system = LegendGroup(QCoreApplication.translate("LegendGroup", "system"))
+            system.expanded = False
 
             point_layers = []
             line_layers = []

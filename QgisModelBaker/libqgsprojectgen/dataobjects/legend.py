@@ -24,12 +24,10 @@ from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
 
 
 class LegendGroup(object):
-    def __init__(
-        self, name=None, expanded=True, ignore_node_names=None, static_sorting=False
-    ):
+    def __init__(self, name=None, ignore_node_names=None, static_sorting=False):
         self.name = name
         self.items = list()
-        self.expanded = expanded
+        self.expanded = True
         self.checked = True
         self.mutually_exclusive = False
         self.mutually_exclusive_child = -1
