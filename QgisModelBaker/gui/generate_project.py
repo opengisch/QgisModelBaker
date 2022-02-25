@@ -689,7 +689,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         :return: Configuration
         """
         configuration = SchemaImportConfiguration()
-        self.import_schema_configuration.create_basket_col = True
+        self.configuration.create_basket_col = True
 
         mode = self.type_combo_box.currentData()
         db_id = mode & ~DbIliMode.ili
@@ -772,7 +772,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             configuration = SchemaImportConfiguration()
-            self.import_schema_configuration.create_basket_col = True
+            self.configuration.create_basket_col = True
             db_factory = self.db_simple_factory.create_factory(db_id)
             config_manager = db_factory.get_db_command_config_manager(configuration)
             config_manager.load_config_from_qsettings()

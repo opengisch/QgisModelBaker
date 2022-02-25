@@ -145,7 +145,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
         if self.ili2db_action_combobox.currentData() == "schemaimport":
             config = SchemaImportConfiguration()
-            self.import_schema_configuration.create_basket_col = True
+            self.config.create_basket_col = True
         elif self.ili2db_action_combobox.currentData() == "import":
             config = ImportDataConfiguration()
         elif self.ili2db_action_combobox.currentData() == "export":
