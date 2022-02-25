@@ -70,6 +70,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.configuration.inheritance,
                 self.configuration.dbschema,
                 mgmt_uri=mgmt_uri,
+                consider_basket_handling=True,
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
