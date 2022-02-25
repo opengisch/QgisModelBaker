@@ -57,6 +57,7 @@ class TestExport(unittest.TestCase):
             ),
         )
         importer.configuration.srs_code = 2056
+        importer.configuration.create_basket_col = True
         importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
