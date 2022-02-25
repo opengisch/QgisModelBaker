@@ -45,6 +45,10 @@ IGNORED_TABLES = [
     "gpkg_metadata",
     "gpkg_metadata_reference",
     "sqlite_sequence",
+    "t_ili2db_basket",
+    "T_ILI2DB_BASKET",
+    "t_ili2db_dataset",
+    "T_ILI2DB_DATASET",
 ]
 
 BASKET_TABLES = [

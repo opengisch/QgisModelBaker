@@ -90,8 +90,8 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
-        tables_info = self.get_tables_info_without_ignored_tables()
-        basket_handling = self.get_basket_handling()
+        ignore_basket_tables = not self.get_basket_handling()
+        tables_info = self.get_tables_info_without_ignored_tables(ignore_basket_tables)
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -598,8 +598,11 @@ class Generator(QObject):
     def set_additional_ignored_layers(self, layer_list):
         self._additional_ignored_layers = layer_list
 
-    def get_ignored_layers(self):
-        return self._db_connector.get_ignored_layers() + self._additional_ignored_layers
+    def get_ignored_layers(self, ignore_basket_tables=True):
+        return (
+            self._db_connector.get_ignored_layers(ignore_basket_tables)
+            + self._additional_ignored_layers
+        )
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
@@ -613,9 +616,9 @@ class Generator(QObject):
     def get_fields_info(self, table_name):
         return self._db_connector.get_fields_info(table_name)
 
-    def get_tables_info_without_ignored_tables(self):
+    def get_tables_info_without_ignored_tables(self, ignore_basket_tables=True):
         tables_info = self.get_tables_info()
-        ignored_layers = self.get_ignored_layers()
+        ignored_layers = self.get_ignored_layers(ignore_basket_tables)
         new_tables_info = []
         for record in tables_info:
             if self.schema:
