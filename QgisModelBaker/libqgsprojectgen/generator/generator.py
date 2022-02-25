@@ -49,6 +49,7 @@ class Generator(QObject):
         pg_estimated_metadata=False,
         parent=None,
         mgmt_uri=None,
+        consider_basket_handling=False,
     ):
         """
         Creates a new Generator objects.
@@ -68,6 +69,7 @@ class Generator(QObject):
         self._db_connector = db_factory.get_db_connector(mgmt_uri or uri, schema)
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
+        self.basket_handling = consider_basket_handling and self.get_basket_handling()
 
         self._additional_ignored_layers = (
             []
@@ -90,7 +92,7 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
-        ignore_basket_tables = not self.get_basket_handling()
+        ignore_basket_tables = not self.basket_handling
         tables_info = self.get_tables_info_without_ignored_tables(ignore_basket_tables)
         layers = list()
 
@@ -129,10 +131,11 @@ class Generator(QObject):
             is_attribute = bool(record.get("attribute_name"))
             is_structure = record.get("kind_settings") == "STRUCTURE"
             is_nmrel = record.get("kind_settings") == "ASSOCIATION"
-            is_basket_table = (
+            # when the basket handling is not considered we do not consider tables named as basket tables consider as basket tables
+            is_basket_table = self.basket_handling and (
                 record.get("tablename") == self._db_connector.basket_table_name
             )
-            is_dataset_table = (
+            is_dataset_table = self.basket_handling and (
                 record.get("tablename") == self._db_connector.dataset_table_name
             )
 
@@ -275,7 +278,7 @@ class Generator(QObject):
                 if column_name in IGNORED_FIELDNAMES:
                     hide_attribute = True
 
-                if not basket_handling and column_name in BASKET_FIELDNAMES:
+                if not self.basket_handling and column_name in BASKET_FIELDNAMES:
                     hide_attribute = True
 
                 field.hidden = hide_attribute
@@ -339,7 +342,7 @@ class Generator(QObject):
                         "default_value_expression"
                     ]
 
-                if basket_handling and column_name in BASKET_FIELDNAMES:
+                if self.basket_handling and column_name in BASKET_FIELDNAMES:
                     if self.tool in [
                         DbIliMode.pg,
                         DbIliMode.ili2pg,
