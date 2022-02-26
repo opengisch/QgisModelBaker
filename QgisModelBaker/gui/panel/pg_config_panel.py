@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import pgserviceparser
 from qgis.PyQt.QtCore import pyqtSignal
 
 from QgisModelBaker.libili2db.globals import DbActionType
@@ -40,6 +41,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
+
+        self._configuration = None
 
         from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
@@ -86,6 +89,15 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_database_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_schema_line_edit.textChanged.connect(self.notify_fields_modified)
 
+        # Fill pg_services combo box
+        self.pg_service_combo_box.addItem(self.tr("None"), None)
+        for service in pgserviceparser.service_names():
+            self.pg_service_combo_box.addItem(service, service)
+
+        self.pg_service_combo_box.currentIndexChanged.connect(
+            self._pg_service_combo_box_changed
+        )
+
     def _show_panel(self):
         if self.interlis_mode:
             self.pg_schema_line_edit.setPlaceholderText(
@@ -102,6 +114,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 )
 
     def get_fields(self, configuration):
+        configuration.dbservice = self.pg_service_combo_box.currentData()
         configuration.dbhost = self.pg_host_line_edit.text().strip()
         configuration.dbport = self.pg_port_line_edit.text().strip()
         configuration.dbusr = self.pg_auth_settings.username()
@@ -113,15 +126,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
 
     def set_fields(self, configuration):
-        self.pg_host_line_edit.setText(configuration.dbhost)
-        self.pg_port_line_edit.setText(configuration.dbport)
-        self.pg_auth_settings.setUsername(configuration.dbusr)
-        self.pg_database_line_edit.setText(configuration.database)
-        self.pg_schema_line_edit.setText(configuration.dbschema)
-        self.pg_auth_settings.setPassword(configuration.dbpwd)
-        self.pg_auth_settings.setConfigId(configuration.dbauthid)
 
-        self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+        self._configuration = configuration
+        self._update_gui()
 
     def is_valid(self):
         result = False
@@ -152,3 +159,46 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             result = True
 
         return result, message
+
+    def _pg_service_combo_box_changed(self):
+        self._configuration.dbservice = self.pg_service_combo_box.currentData()
+        self._update_gui()
+        print("_pg_service_combo_box_changed")
+
+    def _update_gui(self):
+
+        index = self.pg_service_combo_box.findData(self._configuration.dbservice)
+        self.pg_service_combo_box.setCurrentIndex(index)
+
+        self.pg_host_line_edit.setEnabled(self._configuration.dbservice is None)
+        self.pg_port_line_edit.setEnabled(self._configuration.dbservice is None)
+        self.pg_database_line_edit.setEnabled(self._configuration.dbservice is None)
+        self.pg_schema_line_edit.setEnabled(self._configuration.dbservice is None)
+
+        self.pg_host_label.setEnabled(self._configuration.dbservice is None)
+        self.pg_port_label.setEnabled(self._configuration.dbservice is None)
+        self.pg_database_label.setEnabled(self._configuration.dbservice is None)
+        self.pg_schema_label.setEnabled(self._configuration.dbservice is None)
+
+        if self._configuration.dbservice is None:
+            self.pg_host_line_edit.setText(self._configuration.dbhost)
+            self.pg_port_line_edit.setText(self._configuration.dbport)
+            self.pg_auth_settings.setUsername(self._configuration.dbusr)
+            self.pg_database_line_edit.setText(self._configuration.database)
+            self.pg_schema_line_edit.setText(self._configuration.dbschema)
+            self.pg_auth_settings.setPassword(self._configuration.dbpwd)
+            self.pg_auth_settings.setConfigId(self._configuration.dbauthid)
+        else:
+            service_config = pgserviceparser.service_config(
+                self._configuration.dbservice
+            )
+
+            self.pg_host_line_edit.setText(service_config["host"])
+            self.pg_port_line_edit.setText(service_config["port"])
+            self.pg_auth_settings.setUsername(service_config["user"])
+            self.pg_database_line_edit.setText(service_config["dbname"])
+            self.pg_schema_line_edit.setText(self._configuration.dbschema)
+            self.pg_auth_settings.setPassword(service_config["password"])
+            self.pg_auth_settings.setConfigId(self._configuration.dbauthid)
+
+        self.pg_use_super_login.setChecked(self._configuration.db_use_super_login)
