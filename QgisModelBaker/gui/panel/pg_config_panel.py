@@ -16,8 +16,11 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+from enum import IntEnum
+
 import pgserviceparser
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import Qt, pyqtSignal
 
 from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
@@ -36,13 +39,23 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     :type notify_field_modified: pyqtSignal(str)
     """
 
+    class _SERVICE_COMBOBOX_ROLE(IntEnum):
+        DBSERVICE = Qt.UserRole
+        DBHOST = Qt.UserRole + 1
+        DBPORT = Qt.UserRole + 2
+        DBUSR = Qt.UserRole + 3
+        DATABASE = Qt.UserRole + 4
+        DBSCHEMA = Qt.UserRole + 5
+        DBPWD = Qt.UserRole + 6
+        DBAUTHID = Qt.UserRole + 7
+
     notify_fields_modified = pyqtSignal(str)
 
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
 
-        self._configuration = None
+        self._current_service = None
 
         from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
 
@@ -114,6 +127,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 )
 
     def get_fields(self, configuration):
+
         configuration.dbservice = self.pg_service_combo_box.currentData()
         configuration.dbhost = self.pg_host_line_edit.text().strip()
         configuration.dbport = self.pg_port_line_edit.text().strip()
@@ -127,8 +141,59 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def set_fields(self, configuration):
 
-        self._configuration = configuration
-        self._update_gui()
+        if configuration.dbservice is None:
+
+            indexNoService = self.pg_service_combo_box.findData(
+                None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbhost,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBHOST,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbport,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPORT,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbusr,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBUSR,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.database,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbschema,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbpwd,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPWD,
+            )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.dbauthid,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
+            )
+
+        self.pg_host_line_edit.setText(configuration.dbhost)
+        self.pg_port_line_edit.setText(configuration.dbport)
+        self.pg_auth_settings.setUsername(configuration.dbusr)
+        self.pg_database_line_edit.setText(configuration.database)
+        self.pg_schema_line_edit.setText(configuration.dbschema)
+        self.pg_auth_settings.setPassword(configuration.dbpwd)
+        self.pg_auth_settings.setConfigId(configuration.dbauthid)
+
+        self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+
+        index = self.pg_service_combo_box.findData(configuration.dbservice)
+        self.pg_service_combo_box.setCurrentIndex(index)
 
     def is_valid(self):
         result = False
@@ -161,44 +226,112 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         return result, message
 
     def _pg_service_combo_box_changed(self):
-        self._configuration.dbservice = self.pg_service_combo_box.currentData()
-        self._update_gui()
-        print("_pg_service_combo_box_changed")
 
-    def _update_gui(self):
+        service = self.pg_service_combo_box.currentData()
 
-        index = self.pg_service_combo_box.findData(self._configuration.dbservice)
-        self.pg_service_combo_box.setCurrentIndex(index)
+        self.pg_host_line_edit.setEnabled(service is None)
+        self.pg_port_line_edit.setEnabled(service is None)
+        self.pg_database_line_edit.setEnabled(service is None)
+        self.pg_schema_line_edit.setEnabled(service is None)
 
-        self.pg_host_line_edit.setEnabled(self._configuration.dbservice is None)
-        self.pg_port_line_edit.setEnabled(self._configuration.dbservice is None)
-        self.pg_database_line_edit.setEnabled(self._configuration.dbservice is None)
-        self.pg_schema_line_edit.setEnabled(self._configuration.dbservice is None)
+        self.pg_host_label.setEnabled(service is None)
+        self.pg_port_label.setEnabled(service is None)
+        self.pg_database_label.setEnabled(service is None)
+        self.pg_schema_label.setEnabled(service is None)
 
-        self.pg_host_label.setEnabled(self._configuration.dbservice is None)
-        self.pg_port_label.setEnabled(self._configuration.dbservice is None)
-        self.pg_database_label.setEnabled(self._configuration.dbservice is None)
-        self.pg_schema_label.setEnabled(self._configuration.dbservice is None)
+        self.pg_auth_settings.setEnabled(service is None)
 
-        if self._configuration.dbservice is None:
-            self.pg_host_line_edit.setText(self._configuration.dbhost)
-            self.pg_port_line_edit.setText(self._configuration.dbport)
-            self.pg_auth_settings.setUsername(self._configuration.dbusr)
-            self.pg_database_line_edit.setText(self._configuration.database)
-            self.pg_schema_line_edit.setText(self._configuration.dbschema)
-            self.pg_auth_settings.setPassword(self._configuration.dbpwd)
-            self.pg_auth_settings.setConfigId(self._configuration.dbauthid)
-        else:
-            service_config = pgserviceparser.service_config(
-                self._configuration.dbservice
+        if self._current_service is None:
+
+            index = self.pg_service_combo_box.findData(
+                None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_host_line_edit.text().strip(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBHOST,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_port_line_edit.text().strip(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPORT,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_auth_settings.username(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBUSR,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_database_line_edit.text().strip(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_schema_line_edit.text().strip().lower(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_auth_settings.password(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPWD,
+            )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_auth_settings.configId(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
             )
 
-            self.pg_host_line_edit.setText(service_config["host"])
-            self.pg_port_line_edit.setText(service_config["port"])
-            self.pg_auth_settings.setUsername(service_config["user"])
-            self.pg_database_line_edit.setText(service_config["dbname"])
-            self.pg_schema_line_edit.setText(self._configuration.dbschema)
-            self.pg_auth_settings.setPassword(service_config["password"])
-            self.pg_auth_settings.setConfigId(self._configuration.dbauthid)
+        if service:
 
-        self.pg_use_super_login.setChecked(self._configuration.db_use_super_login)
+            service_config = pgserviceparser.service_config(service)
+
+            self.pg_host_line_edit.setText(service_config.get("host", ""))
+            self.pg_port_line_edit.setText(service_config.get("port", ""))
+            self.pg_auth_settings.setUsername(service_config.get("user", ""))
+            self.pg_database_line_edit.setText(service_config.get("dbname", ""))
+            self.pg_schema_line_edit.setText("")
+            self.pg_auth_settings.setPassword(service_config.get("password", ""))
+            self.pg_auth_settings.setConfigId("")
+
+        else:
+            index = self.pg_service_combo_box.findData(
+                None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
+            )
+            self.pg_host_line_edit.setText(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBHOST
+                )
+            )
+            self.pg_port_line_edit.setText(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPORT
+                )
+            )
+            self.pg_auth_settings.setUsername(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBUSR
+                )
+            )
+            self.pg_database_line_edit.setText(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE
+                )
+            )
+            self.pg_schema_line_edit.setText(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA
+                )
+            )
+            self.pg_auth_settings.setPassword(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPWD
+                )
+            )
+            self.pg_auth_settings.setConfigId(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID
+                )
+            )
+
+        self._current_service = service
