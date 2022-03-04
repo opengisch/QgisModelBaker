@@ -111,6 +111,57 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self._pg_service_combo_box_changed
         )
 
+        # Fill sslmode combo box
+        self.pg_ssl_mode_combo_box.addItem("none", None)
+        self.pg_ssl_mode_combo_box.addItem("disable", "disable")
+        self.pg_ssl_mode_combo_box.addItem("allow", "allow")
+        self.pg_ssl_mode_combo_box.addItem("prefer", "prefer")
+        self.pg_ssl_mode_combo_box.addItem("require", "require")
+        self.pg_ssl_mode_combo_box.addItem("verify-ca", "verify-ca")
+        self.pg_ssl_mode_combo_box.addItem("verify-full", "verify-full")
+
+        self.pg_ssl_mode_combo_box.setItemData(
+            0, self.tr("Do not set the sslmode parameter"), Qt.ToolTipRole
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            1, self.tr("Only try a non-SSL connection"), Qt.ToolTipRole
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            2,
+            self.tr(
+                "First try a non-SSL connection; if that fails, try an SSL connection"
+            ),
+            Qt.ToolTipRole,
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            3,
+            self.tr(
+                "First try an SSL connection; if that fails, try a non-SSL connection"
+            ),
+            Qt.ToolTipRole,
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            4,
+            self.tr(
+                "Only try an SSL connection. If a root CA file is present, verify the certificate in the same way as if verify-ca was specified"
+            ),
+            Qt.ToolTipRole,
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            5,
+            self.tr(
+                "Only try an SSL connection, and verify that the server certificate is issued by a trusted certificate authority (CA)"
+            ),
+            Qt.ToolTipRole,
+        )
+        self.pg_ssl_mode_combo_box.setItemData(
+            6,
+            self.tr(
+                "Only try an SSL connection, verify that the server certificate is issued by a trusted CA and that the requested server host name matches that in the certificate"
+            ),
+            Qt.ToolTipRole,
+        )
+
     def _show_panel(self):
         if self.interlis_mode:
             self.pg_schema_line_edit.setPlaceholderText(
@@ -136,6 +187,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
         configuration.dbpwd = self.pg_auth_settings.password()
         configuration.dbauthid = self.pg_auth_settings.configId()
+
+        configuration.sslmode = self.pg_ssl_mode_combo_box.currentData()
 
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
 
@@ -189,6 +242,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_schema_line_edit.setText(configuration.dbschema)
         self.pg_auth_settings.setPassword(configuration.dbpwd)
         self.pg_auth_settings.setConfigId(configuration.dbauthid)
+
+        index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+        self.pg_ssl_mode_combo_box.setCurrentIndex(index)
 
         self.pg_use_super_login.setChecked(configuration.db_use_super_login)
 

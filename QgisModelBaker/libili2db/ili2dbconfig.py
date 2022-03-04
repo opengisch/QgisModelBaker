@@ -117,6 +117,7 @@ class Ili2DbCommandConfiguration(object):
         self.dbschema = ""
         self.dbfile = ""
         self.dbservice = None
+        self.sslmode = None
         self.tool = None
         self.ilifile = ""
         self.ilimodels = ""
