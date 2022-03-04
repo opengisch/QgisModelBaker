@@ -27,7 +27,10 @@ you would like to help translating this plugin into an existing or a new languag
 please create a Transifex account and request access to the team.
 
 ## Infos for Devs
-Code style is enforced with pre-commit. To use, make:
+
+### Code style
+
+Is enforced with pre-commit. To use, make:
 ```
 pip install pre-commit
 pre-commit install
@@ -35,4 +38,21 @@ pre-commit install
 And to run it over all the files (with infile changes):
 ```
 pre-commit run --color=always --all-file
+```
+
+### Needed packages from PyPI
+
+Needed packages from PyPI are downloaded and packaged on deployment to the plugin's libs folder.
+
+Run the script to download and unpack them or install them to your system.
+
+Script:
+```
+./scripts/package_pip_packages.sh
+```
+
+Installation:
+```
+pip install packaging==21.3
+pip install pgserviceparser==1.0.1
 ```
