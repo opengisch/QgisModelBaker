@@ -28,8 +28,12 @@ import zipfile
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
-from QgisModelBaker.libs.packaging import version
 from QgisModelBaker.utils.qt_utils import NetworkError, download_file
+
+try:
+    from QgisModelBaker.libs.packaging import version
+except:
+    from packaging import version
 
 from .globals import DbIliMode
 
