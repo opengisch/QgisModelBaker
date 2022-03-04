@@ -44,7 +44,7 @@ pre-commit run --color=always --all-file
 
 Needed packages from PyPI are downloaded and packaged on deployment to the plugin's libs folder.
 
-Run the script to download and unpack them or install them to your sytem.
+Run the script to download and unpack them or install them to your system.
 
 Script:
 ```
