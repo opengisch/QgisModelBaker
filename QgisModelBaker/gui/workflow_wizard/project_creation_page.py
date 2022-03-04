@@ -74,10 +74,22 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
             self.progress_bar.setValue(30)
-        except (DBConnectorError, FileNotFoundError):
+        except DBConnectorError as dB_connector_error:
             self.workflow_wizard.log_panel.txtStdout.setText(
                 self.tr(
-                    "There was an error connecting to the database. Check connection parameters."
+                    "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                        dB_connector_error
+                    )
+                )
+            )
+            self.progress_bar.setValue(0)
+            return
+        except FileNotFoundError as file_not_found_error:
+            self.workflow_wizard.log_panel.txtStdout.setText(
+                self.tr(
+                    "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                        file_not_found_error
+                    )
                 )
             )
             self.progress_bar.setValue(0)

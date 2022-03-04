@@ -38,6 +38,9 @@ class PgCommandConfigManager(DbCommandConfigManager):
     def get_uri(self, su=False):
         uri = []
 
+        if not su and self.configuration.dbservice:
+            return "service='{}'".format(self.configuration.dbservice)
+
         uri += ["dbname='{}'".format(self.configuration.database)]
 
         if su:

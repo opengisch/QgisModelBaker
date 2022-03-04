@@ -232,12 +232,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_host_line_edit.setEnabled(service is None)
         self.pg_port_line_edit.setEnabled(service is None)
         self.pg_database_line_edit.setEnabled(service is None)
-        self.pg_schema_line_edit.setEnabled(service is None)
 
         self.pg_host_label.setEnabled(service is None)
         self.pg_port_label.setEnabled(service is None)
         self.pg_database_label.setEnabled(service is None)
-        self.pg_schema_label.setEnabled(service is None)
 
         self.pg_auth_settings.setEnabled(service is None)
 
