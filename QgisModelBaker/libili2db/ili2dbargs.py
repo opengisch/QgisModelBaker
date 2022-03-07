@@ -41,9 +41,9 @@ def _get_db_args(configuration, hide_password=False):
     su = configuration.db_use_super_login  # Boolean
     db_args = list()
 
-    if configuration.tool == DbIliMode.ili2gpkg:
+    if configuration.tool in DbIliMode.gpkg:
         db_args = ["--dbfile", configuration.dbfile]
-    elif configuration.tool == DbIliMode.ili2pg:
+    elif configuration.tool in DbIliMode.ili2pg:
         db_args += ["--dbhost", configuration.dbhost]
         if configuration.dbport:
             db_args += ["--dbport", configuration.dbport]
@@ -69,7 +69,7 @@ def _get_db_args(configuration, hide_password=False):
                     db_args += ["--dbpwd", configuration.dbpwd]
         db_args += ["--dbdatabase", configuration.database]
         db_args += ["--dbschema", configuration.dbschema or configuration.database]
-    elif configuration.tool == DbIliMode.ili2mssql:
+    elif configuration.tool in DbIliMode.ili2mssql:
         db_args += ["--dbhost", configuration.dbhost]
         if configuration.dbport:
             db_args += ["--dbport", configuration.dbport]
