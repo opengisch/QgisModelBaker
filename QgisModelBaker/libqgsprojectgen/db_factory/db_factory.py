@@ -20,9 +20,9 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 from QgisModelBaker.gui.panel.db_config_panel import DbConfigPanel
-from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libqgsprojectgen.dataobjects.fields import Field
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 
 from ..dbconnector.db_connector import DBConnector
 from .db_command_config_manager import DbCommandConfigManager
