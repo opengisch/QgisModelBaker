@@ -82,6 +82,7 @@ from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ..libqgsprojectgen.generator.generator import Generator
 from ..utils import gui_utils
+from ..utils.globals import CATALOGUE_DATASETNAME
 from ..utils.gui_utils import LogColor
 
 DIALOG_UI = gui_utils.get_ui_class("generate_project.ui")
@@ -506,7 +507,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # on geopackages we don't use the transaction mode on default, since this leaded to troubles
             auto_transaction = not bool(configuration.tool & DbIliMode.gpkg)
-            project = Project(auto_transaction)
+            project = Project(
+                auto_transaction,
+                context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
+            )
             project.layers = available_layers
             project.relations = relations
             project.bags_of_enum = bags_of_enum
