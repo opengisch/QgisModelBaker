@@ -20,7 +20,9 @@
 
 from qgis.core import QgsLayerTreeLayer, QgsProject
 
-from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
+from QgisModelBaker.libqgsprojectgen.utils.qgis_utils import (
+    get_suggested_index_for_layer,
+)
 
 
 class LegendGroup(object):
