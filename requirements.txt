@@ -4,4 +4,3 @@ pyodbc
 pyyaml
 future
 transifex-client
-packaging
