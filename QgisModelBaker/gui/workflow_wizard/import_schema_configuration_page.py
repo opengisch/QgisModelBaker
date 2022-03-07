@@ -28,12 +28,12 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.libili2db.globals import CRS_PATTERNS
 from QgisModelBaker.libili2db.ilicache import (
     IliDataCache,
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
+from QgisModelBaker.utils.globals import CRS_PATTERNS
 
 from ...utils import gui_utils
 from ...utils.gui_utils import LogColor

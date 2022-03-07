@@ -19,7 +19,7 @@
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QValidator
 
-from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     Validators,

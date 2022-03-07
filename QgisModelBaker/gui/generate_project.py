@@ -48,11 +48,6 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
-from QgisModelBaker.libili2db.globals import (
-    CRS_PATTERNS,
-    DbActionType,
-    displayDbIliMode,
-)
 from QgisModelBaker.libili2db.ili2dbconfig import (
     ImportDataConfiguration,
     SchemaImportConfiguration,
@@ -67,6 +62,8 @@ from QgisModelBaker.libili2db.ilicache import (
     MetaConfigCompleterDelegate,
     ModelCompleterDelegate,
 )
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.utils.globals import CRS_PATTERNS, displayDbIliMode
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     NonEmptyStringValidator,

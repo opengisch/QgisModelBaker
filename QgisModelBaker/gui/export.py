@@ -45,8 +45,10 @@ from qgis.PyQt.QtWidgets import (
 
 from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.options import OptionsDialog
-from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.utils.globals import displayDbIliMode
 from QgisModelBaker.utils.gui_utils import LogColor
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,

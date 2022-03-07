@@ -31,7 +31,7 @@ from qgis.PyQt.QtWidgets import (
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
-from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 
 from ...utils import gui_utils
 from ...utils.gui_utils import LogColor
