@@ -97,20 +97,6 @@ class DbFactory(ABC):
         :return: *True* and an empty message if the called method was succeeded, *False* and a warning message otherwise.
         """
 
-    @abstractmethod
-    def get_tool_version(self, db_ili_version):
-        """Returns the version of ili2db implementation, regarding to the given version of the used database
-
-        :return: str ili2db version.
-        """
-
-    @abstractmethod
-    def get_tool_url(self, db_ili_version):
-        """Returns download url of ili2db implementation.
-
-        :return str A download url.
-        """
-
     def get_specific_messages(self):
         """Returns specific words that will be use in warning and error messages.
 

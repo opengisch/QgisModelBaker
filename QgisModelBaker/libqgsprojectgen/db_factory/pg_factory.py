@@ -85,22 +85,3 @@ class PgFactory(DbFactory):
             result = True
 
         return result, message
-
-    def get_tool_version(self, db_ili_version):
-        """Returns ili2pg version, regarding to the given version of the used database
-
-        :return: str ili2pg version.
-        """
-        if db_ili_version == 3:
-            return "3.11.2"
-        else:
-            return "4.6.1"
-
-    def get_tool_url(self, db_ili_version):
-        """Returns download url of ili2pg.
-
-        :return str A download url.
-        """
-        return "https://downloads.interlis.ch/ili2pg/ili2pg-{version}.zip".format(
-            version=self.get_tool_version(db_ili_version)
-        )

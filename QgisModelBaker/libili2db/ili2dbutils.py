@@ -31,6 +31,7 @@ from qgis.PyQt.QtGui import QColor
 from QgisModelBaker.utils.qt_utils import NetworkError, download_file
 
 from .globals import DbIliMode
+from .ili2dbtools import get_tool_url, get_tool_version
 
 
 def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
@@ -47,10 +48,10 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
     tool_name = tool.name  # in fact, we need the name of the ili tool
 
     db_simple_factory = DbSimpleFactory()
-    db_factory = db_simple_factory.create_factory(tool)
+    db_simple_factory.create_factory(tool)
 
-    ili_tool_version = db_factory.get_tool_version(db_ili_version)
-    ili_tool_url = db_factory.get_tool_url(db_ili_version)
+    ili_tool_version = get_tool_version(db_ili_version)
+    ili_tool_url = get_tool_url(db_ili_version)
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     ili2db_dir = "{}-{}".format(tool_name, ili_tool_version)
