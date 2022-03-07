@@ -28,7 +28,6 @@ import zipfile
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
-from QgisModelBaker.libs.packaging import version
 from QgisModelBaker.utils.qt_utils import NetworkError, download_file
 
 from .globals import DbIliMode
@@ -57,7 +56,12 @@ def get_ili2db_bin(tool, db_ili_version, stdout, stderr):
     ili2db_dir = "{}-{}".format(tool_name, ili_tool_version)
 
     # the structure changed since 3.12.2
-    if version.Version(ili_tool_version) < version.Version("3.12.2"):
+    if is_version_valid(
+        ili_tool_version,
+        "3.12.2",
+        exact_required_version=False,
+        module_tested=tool_name,
+    ):
         ili2db_file = os.path.join(
             dir_path,
             "bin",
@@ -253,13 +257,69 @@ def get_java_path(base_configuration):
                 output, err = p.communicate()
                 version_output = err.decode("utf-8")
                 java_version = java_version_re.match(version_output)
-                java_version_parsed = version.parse(java_version.group(1))
-                if java_version_parsed >= version.parse("1.8.0"):
+                if is_version_valid(
+                    java_version.group(1),
+                    "1.8.0",
+                    exact_required_version=False,
+                    module_tested="Java",
+                ):
                     return java_path
             except FileNotFoundError:
                 pass
 
         raise JavaNotFoundError(version_output)
+
+
+def is_version_valid(
+    current_version,
+    min_required_version,
+    exact_required_version=False,
+    module_tested="",
+):
+    """
+    Generic one, it helps us to validate whether a current version is greater or equal to a min_required_version or,
+    if exact_required_version, if a current version is exactly the required one.
+
+    :param current_version: String, in the form 2.9.5
+    :param min_required_version: String, in the form 2.9.5
+    :param exact_required_version: Boolean, if true, only the exact version is valid. If False, the min_required_version
+                                   or any greater version will be accepted.
+    :param module_tested: String, only for displaying a log with context
+    :return: Whether the current version is valid or not
+    """
+    if current_version is None:
+        return False
+
+    current_version_splitted = current_version.split(".")
+    if (
+        len(current_version_splitted) < 4
+    ):  # We could need 4 places for our custom plugin versions
+        current_version_splitted = current_version_splitted + ["0", "0", "0", "0"]
+        current_version_splitted = current_version_splitted[:4]
+
+    min_required_version_splitted = min_required_version.split(".")
+    if len(min_required_version_splitted) < 4:
+        min_required_version_splitted = min_required_version_splitted + [
+            "0",
+            "0",
+            "0",
+            "0",
+        ]
+        min_required_version_splitted = min_required_version_splitted[:4]
+
+    if exact_required_version:
+        return min_required_version_splitted == current_version_splitted
+
+    else:  # Min version and subsequent versions should work
+        for i in range(len(current_version_splitted)):
+            if int(current_version_splitted[i]) < int(min_required_version_splitted[i]):
+                return False
+            elif int(current_version_splitted[i]) > int(
+                min_required_version_splitted[i]
+            ):
+                return True
+
+    return True
 
 
 class JavaNotFoundError(FileNotFoundError):
