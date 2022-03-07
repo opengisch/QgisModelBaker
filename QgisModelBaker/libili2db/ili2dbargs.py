@@ -1,7 +1,25 @@
-# Adapted from Model Baker's DbCommandConfigManager
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+                              -------------------
+        begin                : 07.03.2022
+        git sha              : :%H$
+        copyright            : (C) 2022 by Dave Signer / Germán Carrillo
+        email                : david at opengis ch
+ ***************************************************************************/
 
-from asistente_ladm_col.lib.ili.enums import DbIliMode
-from asistente_ladm_col.lib.ili.ili2dbconfig import SchemaImportConfiguration
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+from .globals import DbIliMode
+from .ili2dbconfig import SchemaImportConfiguration
 
 
 def get_ili2db_args(configuration, hide_password=False):
