@@ -50,6 +50,7 @@ from QgisModelBaker.tests.utils import (
     iliimporter_config,
     testdata_path,
 )
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
 start_app()
 
@@ -2497,7 +2498,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
-        project = Project()
+        project = Project(context={"catalogue_datasetname": CATALOGUE_DATASETNAME})
         project.layers = available_layers
         project.relations = relations
         project.legend = legend
@@ -2546,7 +2547,7 @@ class TestProjectGen(unittest.TestCase):
                 assert map["Relation"] == "belasteter_standort_t_basket_fkey"
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
+                    == f"\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{CATALOGUE_DATASETNAME}'"
                 )
 
             # check the display expression of the basket table
@@ -2589,7 +2590,7 @@ class TestProjectGen(unittest.TestCase):
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
-        project = Project()
+        project = Project(context={"catalogue_datasetname": CATALOGUE_DATASETNAME})
         project.layers = available_layers
         project.relations = relations
         project.legend = legend
@@ -2639,7 +2640,7 @@ class TestProjectGen(unittest.TestCase):
                 )
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('T_ILI2DB_DATASET', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
+                    == f"\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('T_ILI2DB_DATASET', 't_id', \"dataset\"), 'datasetname') != '{CATALOGUE_DATASETNAME}'"
                 )
 
             # check the display expression of the basket table
