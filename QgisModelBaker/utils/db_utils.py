@@ -114,10 +114,10 @@ def get_db_connector(configuration):
 
     try:
         return db_factory.get_db_connector(uri_string, schema)
-    except DBConnectorError as dB_connector_error:
+    except DBConnectorError as db_connector_error:
         QgsMessageLog.logMessage(
             "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
-                dB_connector_error
+                db_connector_error
             ),
             "QGIS Model Baker",
         )
