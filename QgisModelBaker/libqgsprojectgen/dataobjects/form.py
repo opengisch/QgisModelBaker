@@ -126,4 +126,7 @@ class FormRelationWidget(object):
             )
         if self.nm_relation:
             widget.setNmRelationId(self.nm_relation.id)
+
+        widget.setRelationWidgetTypeId("linking_relation_editor")
+
         return widget
