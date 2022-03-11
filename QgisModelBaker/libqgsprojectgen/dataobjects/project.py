@@ -86,7 +86,9 @@ class Project(QObject):
             layer.load(layer_definition)
             self.layers.append(layer)
 
-    def create(self, path: str, qgis_project: QgsProject, group: QgsLayerTreeGroup):
+    def create(
+        self, path: str, qgis_project: QgsProject, group: QgsLayerTreeGroup = None
+    ):
         qgis_project.setAutoTransaction(self.auto_transaction)
         qgis_project.setEvaluateDefaultValues(self.evaluate_default_values)
         qgis_layers = list()
