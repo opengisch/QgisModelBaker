@@ -21,6 +21,7 @@
 from qgis.core import QgsLayerTreeLayer, QgsProject
 
 from QgisModelBaker.libqgsprojectgen.utils.qgis_utils import (
+    get_group_non_recursive,
     get_suggested_index_for_layer,
 )
 
@@ -77,7 +78,7 @@ class LegendGroup(object):
         static_index = 0
         for item in self.items:
             if isinstance(item, LegendGroup):
-                subgroup = group.findGroup(item.name)
+                subgroup = get_group_non_recursive(group, item.name)
                 if subgroup is None:
                     subgroup = group.addGroup(item.name)
                 item.create(qgis_project, subgroup)

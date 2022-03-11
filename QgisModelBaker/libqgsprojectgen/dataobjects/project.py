@@ -19,7 +19,12 @@
 """
 from typing import List
 
-from qgis.core import QgsCoordinateReferenceSystem, QgsEditorWidgetSetup, QgsProject
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsEditorWidgetSetup,
+    QgsLayerTreeGroup,
+    QgsProject,
+)
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
@@ -81,7 +86,7 @@ class Project(QObject):
             layer.load(layer_definition)
             self.layers.append(layer)
 
-    def create(self, path: str, qgis_project: QgsProject):
+    def create(self, path: str, qgis_project: QgsProject, group: QgsLayerTreeGroup):
         qgis_project.setAutoTransaction(self.auto_transaction)
         qgis_project.setEvaluateDefaultValues(self.evaluate_default_values)
         qgis_layers = list()
@@ -213,7 +218,7 @@ class Project(QObject):
             layer.create_form(self)
 
         if self.legend:
-            self.legend.create(qgis_project)
+            self.legend.create(qgis_project, group)
 
         custom_layer_order = list()
         for custom_layer_name in self.custom_layer_order_structure:

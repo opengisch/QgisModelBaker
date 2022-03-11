@@ -478,6 +478,7 @@ class QgisModelBakerPlugin(QObject):
         legend,
         auto_transaction=True,
         evaluate_default_values=True,
+        group=None,
     ):
         """
         Expose the main functionality from Model Baker to other plugins,
@@ -501,7 +502,7 @@ class QgisModelBakerPlugin(QObject):
         project.legend = legend
         project.post_generate()
         qgis_project = QgsProject.instance()
-        project.create(None, qgis_project)
+        project.create(None, qgis_project, group)
 
     def handle_dropped_files(self, dropped_files):
         if not self.workflow_wizard_dlg:
