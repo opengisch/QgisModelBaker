@@ -132,7 +132,7 @@ class Generator(QObject):
             is_attribute = bool(record.get("attribute_name"))
             is_structure = record.get("kind_settings") == "STRUCTURE"
             is_nmrel = record.get("kind_settings") == "ASSOCIATION"
-            # when the basket handling is not considered we do not consider tables named as basket tables consider as basket tables
+            # only when the basked_handling is active we will consider the table as basket table (according to it's name)
             is_basket_table = self.basket_handling and (
                 record.get("tablename") == self._db_connector.basket_table_name
             )

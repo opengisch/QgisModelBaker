@@ -274,6 +274,8 @@ def is_version_valid(
     Generic one, it helps us to validate whether a current version is greater or equal to a min_required_version or,
     if exact_required_version, if a current version is exactly the required one.
 
+    Borrowed from 'Asistente LADM-COL'.
+
     :param current_version: String, in the form 2.9.5
     :param min_required_version: String, in the form 2.9.5
     :param exact_required_version: Boolean, if true, only the exact version is valid. If False, the min_required_version

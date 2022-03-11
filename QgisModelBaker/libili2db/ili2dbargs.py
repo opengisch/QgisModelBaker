@@ -4,7 +4,7 @@
                               -------------------
         begin                : 07.03.2022
         git sha              : :%H$
-        copyright            : (C) 2022 by Dave Signer / Germán Carrillo
+        copyright            : (C) 2022 by Dave Signer / (C) 2021 Germán Carrillo
         email                : david at opengis ch
  ***************************************************************************/
 
