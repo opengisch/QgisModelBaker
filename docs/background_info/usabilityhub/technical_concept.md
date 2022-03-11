@@ -198,10 +198,10 @@ legend:
                         child-nodes:
                           - 'another layer':
                               group: false
-                              visbile: false
+                              checked: false
                     - 'layer in the subgroup':
                         group: false
-                        visbile: false
+                        checked: false
 layer-order:
   - 'geom punkt'
   - 'geom polygon'
