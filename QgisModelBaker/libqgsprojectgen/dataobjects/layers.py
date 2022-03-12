@@ -24,6 +24,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsDataSourceUri,
     QgsExpressionContextUtils,
+    QgsLayerDefinition,
     QgsRectangle,
     QgsVectorLayer,
     QgsWkbTypes,
@@ -38,11 +39,11 @@ from .form import Form, FormFieldWidget, FormRelationWidget, FormTab
 class Layer(object):
     def __init__(
         self,
-        provider,
-        uri,
-        name,
-        srid,
-        extent,
+        provider=None,
+        uri=None,
+        name=None,
+        srid=None,
+        extent=None,
         geometry_column=None,
         wkb_type=QgsWkbTypes.Unknown,
         alias=None,
@@ -54,6 +55,7 @@ class Layer(object):
         is_basket_table=False,
         is_dataset_table=False,
         ili_name=None,
+        definitionfile=None,
     ):
         self.provider = provider
         self.uri = uri
@@ -96,6 +98,8 @@ class Layer(object):
                     f"{self.ili_name.split('.')[0]}.{self.ili_name.split('.')[1]}"
                 )
 
+        self.definitionfile = definitionfile
+
         self.__form = Form()
 
         # legend settings
@@ -132,6 +136,15 @@ class Layer(object):
         self.__form.load(definition["form"])
 
     def create(self):
+        if self.__layer is None and self.definitionfile:
+            print(self.definitionfile)
+            layers = QgsLayerDefinition.loadLayerDefinitionLayers(self.definitionfile)
+            print(layers)
+            if layers:
+                print("getfirst")
+                self.__layer = layers[0]
+                print(self.__layer.name())
+                return self.__layer
         if self.__layer is None:
             layer_name = self.alias or self.name
 

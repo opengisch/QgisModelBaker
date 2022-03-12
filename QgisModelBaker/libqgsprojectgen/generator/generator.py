@@ -462,6 +462,15 @@ class Generator(QObject):
                             }
         return (relations, bags_of_enum)
 
+    def generate_layer_node(self, layers, node_name, item_properties):
+        layer = Layer(alias=node_name)  # create dummy
+        if item_properties and "definitionfile" in item_properties:
+            layer.definitionfile = item_properties["definitionfile"]
+        else:
+            print("can only create with definition file at the moment")
+        layers.append(layer)
+        return layer
+
     def full_node(self, layers, item):
         current_node = None
         if item and isinstance(item, dict):
@@ -499,6 +508,10 @@ class Generator(QObject):
                                 "featurecount", False
                             )
                         break
+                if not current_node:
+                    current_node = self.generate_layer_node(
+                        layers, current_node_name, item_properties
+                    )
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
