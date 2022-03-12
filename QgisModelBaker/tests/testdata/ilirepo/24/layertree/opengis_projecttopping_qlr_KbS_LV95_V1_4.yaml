@@ -1,0 +1,27 @@
+legend:
+  - "KbS_LV95_V1_4 Layers":
+      group: true
+      child-nodes:
+        - "Belasteter_Standort (Geo_Lage_Punkt)": # qml source direct
+            stylefile: testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml
+        - "Belasteter_Standort (Geo_Lage_Polygon)":
+  - "Other Layers":
+       group: true
+       child-nodes:
+        - "Roads from QLR": # qlr direct - will be renamed to "The Road Signs"
+            identificator: "directqlr_rdsgns"
+            definitionfile: "testdata/ilirepo/24/qlr/the_road_signs.qlr"
+            #definitionfile: "/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/ilirepo/24/qlr/the_road_signs.qlr"
+        #- "Ro Ro Ro": # could create kind of a dummy layer to fix manually later
+#        - "Roads from QLR": # qlr meta config - will be renamed to "The Road Signs"
+#            identificator: "metaqlr_rdsgns"
+#        - "Local Landcover": #direct source definition
+#            identificator: "directsrc_lndcvr"
+#            featurecount: true
+#            source: "testdata/geopackage/test_simple_export.gpkg|layername=landcover"
+        - "QLR-Group": # qlr group direct - will be renamed to "Simple Roads"
+            group: true
+            definitionfile: "testdata/ilirepo/24/qlr/simple_roads_complete.qlr"
+#        - "QLR-Group": # qlr group meta config - will be renamed to "Simple Roads"
+#            group: true
+#            identificator: "metaqlr_group"

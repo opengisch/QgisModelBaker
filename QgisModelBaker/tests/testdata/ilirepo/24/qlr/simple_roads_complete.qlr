@@ -1,0 +1,1950 @@
+<!DOCTYPE qgis-layer-definition>
+<qlr>
+  <layer-tree-group name="" checked="Qt::Checked" expanded="1">
+    <customproperties/>
+    <layer-tree-group name="Simple Roads" checked="Qt::Checked" expanded="0">
+      <customproperties/>
+      <layer-tree-layer id="StreetNamePosition_1b9d4fd4_7c2a_4d26_b628_7b1a29b2f82f" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=streetnameposition" legend_exp="" name="StreetNamePosition" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+        <customproperties>
+          <property value="false" key="showFeatureCount"/>
+        </customproperties>
+      </layer-tree-layer>
+      <layer-tree-layer id="RoadSign_bee70645_b679_42cf_86d4_f958a9ab1417" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign" legend_exp="" name="The Road Signs" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+        <customproperties>
+          <property value="false" key="showFeatureCount"/>
+        </customproperties>
+      </layer-tree-layer>
+      <layer-tree-layer id="StreetAxis_cfb36d61_0c24_4f26_a909_9da206986639" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=streetaxis" legend_exp="" name="StreetAxis" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+        <customproperties>
+          <property value="false" key="showFeatureCount"/>
+        </customproperties>
+      </layer-tree-layer>
+      <layer-tree-layer id="LandCover_5e1c311f_9a53_4237_bf85_3bdb651f969d" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=landcover" legend_exp="" name="LandCover" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+        <customproperties>
+          <property value="false" key="showFeatureCount"/>
+        </customproperties>
+      </layer-tree-layer>
+      <layer-tree-group name="tables" checked="Qt::Checked" expanded="0">
+        <customproperties/>
+        <layer-tree-layer id="Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=street" legend_exp="" name="Street" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+          <customproperties>
+            <property value="false" key="showFeatureCount"/>
+          </customproperties>
+        </layer-tree-layer>
+      </layer-tree-group>
+      <layer-tree-group name="domains" checked="Qt::Checked" expanded="0">
+        <customproperties/>
+        <layer-tree-layer id="LandCover_Type_495922a4_f495_41d3_9cc2_dbafa5f10efb" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=landcover_type" legend_exp="" name="LandCover_Type" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+          <customproperties>
+            <property value="false" key="showFeatureCount"/>
+          </customproperties>
+        </layer-tree-layer>
+        <layer-tree-layer id="RoadSign_Type_d24ae36f_602b_4080_a898_b6e4e311ab76" providerKey="ogr" source="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign_type" legend_exp="" name="RoadSign_Type" checked="Qt::Checked" legend_split_behavior="0" expanded="1" patch_size="-1,-1">
+          <customproperties>
+            <property value="false" key="showFeatureCount"/>
+          </customproperties>
+        </layer-tree-layer>
+      </layer-tree-group>
+    </layer-tree-group>
+  </layer-tree-group>
+  <maplayers>
+    <maplayer refreshOnNotifyEnabled="0" maxScale="0" geometry="Point" simplifyDrawingHints="0" minScale="100000000" refreshOnNotifyMessage="" labelsEnabled="1" readOnly="0" simplifyLocal="1" simplifyAlgorithm="0" type="vector" autoRefreshTime="0" styleCategories="AllStyleCategories" wkbType="Point" simplifyMaxScale="1" autoRefreshEnabled="0" simplifyDrawingTol="1" hasScaleBasedVisibilityFlag="0">
+      <extent>
+        <xmin>0</xmin>
+        <ymin>0</ymin>
+        <xmax>200</xmax>
+        <ymax>200</ymax>
+      </extent>
+      <id>StreetNamePosition_1b9d4fd4_7c2a_4d26_b628_7b1a29b2f82f</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=streetnameposition</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>StreetNamePosition</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt>PROJCRS["CH1903+ / LV95",BASEGEOGCRS["CH1903+",DATUM["CH1903+",ELLIPSOID["Bessel 1841",6377397.155,299.1528128,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4150]],CONVERSION["Swiss Oblique Mercator 1995",METHOD["Hotine Oblique Mercator (variant B)",ID["EPSG",9815]],PARAMETER["Latitude of projection centre",46.9524055555556,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8811]],PARAMETER["Longitude of projection centre",7.43958333333333,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8812]],PARAMETER["Azimuth of initial line",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8813]],PARAMETER["Angle from Rectified to Skew Grid",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8814]],PARAMETER["Scale factor on initial line",1,SCALEUNIT["unity",1],ID["EPSG",8815]],PARAMETER["Easting at projection centre",2600000,LENGTHUNIT["metre",1],ID["EPSG",8816]],PARAMETER["Northing at projection centre",1200000,LENGTHUNIT["metre",1],ID["EPSG",8817]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Europe - Liechtenstein and Switzerland"],BBOX[45.82,5.96,47.81,10.49]],ID["EPSG",2056]]</wkt>
+          <proj4>+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>47</srsid>
+          <srid>2056</srid>
+          <authid>EPSG:2056</authid>
+          <description>CH1903+ / LV95</description>
+          <projectionacronym>somerc</projectionacronym>
+          <ellipsoidacronym>EPSG:7004</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract>@iliname RoadsSimple.Roads.StreetNamePosition</abstract>
+        <contact>
+          <name></name>
+          <organization></organization>
+          <position></position>
+          <voice></voice>
+          <fax></fax>
+          <email></email>
+          <role></role>
+        </contact>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial minz="0" minx="0" crs="" maxy="0" miny="0" dimensions="2" maxz="0" maxx="0"/>
+          <temporal>
+            <period>
+              <start></start>
+              <end></end>
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <renderer-v2 type="nullSymbol"/>
+      <labeling type="simple">
+        <settings calloutType="simple">
+          <text-style fontSize="14" fontWordSpacing="0" textOrientation="horizontal" fontSizeUnit="Point" multilineHeight="1" useSubstitutions="0" fontUnderline="0" previewBkgrdColor="255,255,255,255" fontLetterSpacing="0" isExpression="0" namedStyle="Regular" fontWeight="50" fontFamily="Ubuntu" fontSizeMapUnitScale="3x:0,0,0,0,0,0" fontKerning="1" allowHtml="0" blendMode="0" textColor="0,0,0,255" fontStrikeout="0" capitalization="0" fieldName="street" textOpacity="1" fontItalic="0">
+            <text-buffer bufferBlendMode="0" bufferSizeUnits="MM" bufferNoFill="1" bufferColor="255,255,255,255" bufferJoinStyle="128" bufferDraw="1" bufferOpacity="1" bufferSize="0.9999999999999997" bufferSizeMapUnitScale="3x:0,0,0,0,0,0"/>
+            <text-mask maskEnabled="0" maskOpacity="1" maskSizeMapUnitScale="3x:0,0,0,0,0,0" maskSizeUnits="MM" maskType="0" maskSize="1.5" maskedSymbolLayers="" maskJoinStyle="128"/>
+            <background shapeBorderWidthUnit="MM" shapeFillColor="255,255,255,255" shapeRadiiX="0" shapeSizeUnit="MM" shapeOffsetUnit="MM" shapeType="0" shapeSizeX="0" shapeSizeY="0" shapeRotation="0" shapeBlendMode="0" shapeOffsetX="0" shapeOpacity="1" shapeJoinStyle="64" shapeRotationType="0" shapeBorderWidthMapUnitScale="3x:0,0,0,0,0,0" shapeOffsetY="0" shapeBorderWidth="0" shapeRadiiMapUnitScale="3x:0,0,0,0,0,0" shapeSVGFile="" shapeDraw="0" shapeSizeType="0" shapeRadiiUnit="MM" shapeRadiiY="0" shapeBorderColor="128,128,128,255" shapeSizeMapUnitScale="3x:0,0,0,0,0,0" shapeOffsetMapUnitScale="3x:0,0,0,0,0,0">
+              <symbol type="marker" name="markerSymbol" clip_to_extent="1" force_rhr="0" alpha="1">
+                <layer class="SimpleMarker" pass="0" enabled="1" locked="0">
+                  <prop v="0" k="angle"/>
+                  <prop v="133,182,111,255" k="color"/>
+                  <prop v="1" k="horizontal_anchor_point"/>
+                  <prop v="bevel" k="joinstyle"/>
+                  <prop v="circle" k="name"/>
+                  <prop v="0,0" k="offset"/>
+                  <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+                  <prop v="MM" k="offset_unit"/>
+                  <prop v="35,35,35,255" k="outline_color"/>
+                  <prop v="solid" k="outline_style"/>
+                  <prop v="0" k="outline_width"/>
+                  <prop v="3x:0,0,0,0,0,0" k="outline_width_map_unit_scale"/>
+                  <prop v="MM" k="outline_width_unit"/>
+                  <prop v="diameter" k="scale_method"/>
+                  <prop v="2" k="size"/>
+                  <prop v="3x:0,0,0,0,0,0" k="size_map_unit_scale"/>
+                  <prop v="MM" k="size_unit"/>
+                  <prop v="1" k="vertical_anchor_point"/>
+                  <data_defined_properties>
+                    <Option type="Map">
+                      <Option value="" type="QString" name="name"/>
+                      <Option name="properties"/>
+                      <Option value="collection" type="QString" name="type"/>
+                    </Option>
+                  </data_defined_properties>
+                </layer>
+              </symbol>
+            </background>
+            <shadow shadowOffsetUnit="MM" shadowUnder="0" shadowDraw="0" shadowOffsetMapUnitScale="3x:0,0,0,0,0,0" shadowRadiusAlphaOnly="0" shadowOffsetAngle="135" shadowScale="100" shadowRadiusUnit="MM" shadowOffsetGlobal="1" shadowBlendMode="6" shadowColor="0,0,0,255" shadowRadiusMapUnitScale="3x:0,0,0,0,0,0" shadowOpacity="0.7" shadowOffsetDist="1" shadowRadius="1.5"/>
+            <dd_properties>
+              <Option type="Map">
+                <Option value="" type="QString" name="name"/>
+                <Option name="properties"/>
+                <Option value="collection" type="QString" name="type"/>
+              </Option>
+            </dd_properties>
+            <substitutions/>
+          </text-style>
+          <text-format useMaxLineLengthForAutoWrap="1" placeDirectionSymbol="0" wrapChar="" multilineAlign="3" reverseDirectionSymbol="0" formatNumbers="0" addDirectionSymbol="0" leftDirectionSymbol="&lt;" autoWrapLength="0" plussign="0" decimals="3" rightDirectionSymbol=">"/>
+          <placement labelOffsetMapUnitScale="3x:0,0,0,0,0,0" placement="0" geometryGenerator="" preserveRotation="1" maxCurvedCharAngleIn="25" lineAnchorPercent="0.5" predefinedPositionOrder="TR,TL,BR,BL,R,L,TSR,BSR" offsetType="0" quadOffset="4" repeatDistanceMapUnitScale="3x:0,0,0,0,0,0" rotationAngle="0" polygonPlacementFlags="2" geometryGeneratorType="PointGeometry" dist="0" maxCurvedCharAngleOut="-25" yOffset="0" repeatDistance="0" centroidInside="0" distMapUnitScale="3x:0,0,0,0,0,0" xOffset="0" repeatDistanceUnits="MM" overrunDistanceUnit="MM" lineAnchorType="0" centroidWhole="0" distUnits="MM" layerType="PointGeometry" overrunDistance="0" overrunDistanceMapUnitScale="3x:0,0,0,0,0,0" fitInPolygonOnly="0" offsetUnits="MM" geometryGeneratorEnabled="0" placementFlags="10" priority="5"/>
+          <rendering zIndex="0" labelPerPart="0" limitNumLabels="0" fontLimitPixelSize="0" upsidedownLabels="0" obstacleType="1" mergeLines="0" minFeatureSize="0" fontMaxPixelSize="10000" obstacleFactor="1" fontMinPixelSize="3" displayAll="0" scaleMax="0" obstacle="1" scaleVisibility="0" scaleMin="0" maxNumLabels="2000" drawLabels="1"/>
+          <dd_properties>
+            <Option type="Map">
+              <Option value="" type="QString" name="name"/>
+              <Option name="properties"/>
+              <Option value="collection" type="QString" name="type"/>
+            </Option>
+          </dd_properties>
+          <callout type="simple">
+            <Option type="Map">
+              <Option value="pole_of_inaccessibility" type="QString" name="anchorPoint"/>
+              <Option type="Map" name="ddProperties">
+                <Option value="" type="QString" name="name"/>
+                <Option name="properties"/>
+                <Option value="collection" type="QString" name="type"/>
+              </Option>
+              <Option value="false" type="bool" name="drawToAllParts"/>
+              <Option value="0" type="QString" name="enabled"/>
+              <Option value="point_on_exterior" type="QString" name="labelAnchorPoint"/>
+              <Option value="&lt;symbol type=&quot;line&quot; name=&quot;symbol&quot; clip_to_extent=&quot;1&quot; force_rhr=&quot;0&quot; alpha=&quot;1&quot;>&lt;layer class=&quot;SimpleLine&quot; pass=&quot;0&quot; enabled=&quot;1&quot; locked=&quot;0&quot;>&lt;prop v=&quot;0&quot; k=&quot;align_dash_pattern&quot;/>&lt;prop v=&quot;square&quot; k=&quot;capstyle&quot;/>&lt;prop v=&quot;5;2&quot; k=&quot;customdash&quot;/>&lt;prop v=&quot;3x:0,0,0,0,0,0&quot; k=&quot;customdash_map_unit_scale&quot;/>&lt;prop v=&quot;MM&quot; k=&quot;customdash_unit&quot;/>&lt;prop v=&quot;0&quot; k=&quot;dash_pattern_offset&quot;/>&lt;prop v=&quot;3x:0,0,0,0,0,0&quot; k=&quot;dash_pattern_offset_map_unit_scale&quot;/>&lt;prop v=&quot;MM&quot; k=&quot;dash_pattern_offset_unit&quot;/>&lt;prop v=&quot;0&quot; k=&quot;draw_inside_polygon&quot;/>&lt;prop v=&quot;bevel&quot; k=&quot;joinstyle&quot;/>&lt;prop v=&quot;60,60,60,255&quot; k=&quot;line_color&quot;/>&lt;prop v=&quot;solid&quot; k=&quot;line_style&quot;/>&lt;prop v=&quot;0.3&quot; k=&quot;line_width&quot;/>&lt;prop v=&quot;MM&quot; k=&quot;line_width_unit&quot;/>&lt;prop v=&quot;0&quot; k=&quot;offset&quot;/>&lt;prop v=&quot;3x:0,0,0,0,0,0&quot; k=&quot;offset_map_unit_scale&quot;/>&lt;prop v=&quot;MM&quot; k=&quot;offset_unit&quot;/>&lt;prop v=&quot;0&quot; k=&quot;ring_filter&quot;/>&lt;prop v=&quot;0&quot; k=&quot;tweak_dash_pattern_on_corners&quot;/>&lt;prop v=&quot;0&quot; k=&quot;use_custom_dash&quot;/>&lt;prop v=&quot;3x:0,0,0,0,0,0&quot; k=&quot;width_map_unit_scale&quot;/>&lt;data_defined_properties>&lt;Option type=&quot;Map&quot;>&lt;Option value=&quot;&quot; type=&quot;QString&quot; name=&quot;name&quot;/>&lt;Option name=&quot;properties&quot;/>&lt;Option value=&quot;collection&quot; type=&quot;QString&quot; name=&quot;type&quot;/>&lt;/Option>&lt;/data_defined_properties>&lt;/layer>&lt;/symbol>" type="QString" name="lineSymbol"/>
+              <Option value="0" type="double" name="minLength"/>
+              <Option value="3x:0,0,0,0,0,0" type="QString" name="minLengthMapUnitScale"/>
+              <Option value="MM" type="QString" name="minLengthUnit"/>
+              <Option value="0" type="double" name="offsetFromAnchor"/>
+              <Option value="3x:0,0,0,0,0,0" type="QString" name="offsetFromAnchorMapUnitScale"/>
+              <Option value="MM" type="QString" name="offsetFromAnchorUnit"/>
+              <Option value="0" type="double" name="offsetFromLabel"/>
+              <Option value="3x:0,0,0,0,0,0" type="QString" name="offsetFromLabelMapUnitScale"/>
+              <Option value="MM" type="QString" name="offsetFromLabelUnit"/>
+            </Option>
+          </callout>
+        </settings>
+      </labeling>
+      <customproperties>
+        <property value="0" key="embeddedWidgets/count"/>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerOpacity>1</layerOpacity>
+      <SingleCategoryDiagramRenderer diagramType="Histogram" attributeLegend="1">
+        <DiagramCategory backgroundColor="#ffffff" direction="0" maxScaleDenominator="1e+08" width="15" sizeScale="3x:0,0,0,0,0,0" showAxis="1" spacingUnitScale="3x:0,0,0,0,0,0" backgroundAlpha="255" scaleBasedVisibility="0" scaleDependency="Area" enabled="0" rotationOffset="270" lineSizeType="MM" opacity="1" barWidth="5" penColor="#000000" sizeType="MM" penAlpha="255" penWidth="0" labelPlacementMethod="XHeight" spacing="5" height="15" minimumSize="0" diagramOrientation="Up" spacingUnit="MM" minScaleDenominator="0" lineSizeScale="3x:0,0,0,0,0,0">
+          <fontProperties style="" description="Ubuntu,11,-1,5,50,0,0,0,0,0"/>
+          <axisSymbol>
+            <symbol type="line" name="" clip_to_extent="1" force_rhr="0" alpha="1">
+              <layer class="SimpleLine" pass="0" enabled="1" locked="0">
+                <prop v="0" k="align_dash_pattern"/>
+                <prop v="square" k="capstyle"/>
+                <prop v="5;2" k="customdash"/>
+                <prop v="3x:0,0,0,0,0,0" k="customdash_map_unit_scale"/>
+                <prop v="MM" k="customdash_unit"/>
+                <prop v="0" k="dash_pattern_offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="dash_pattern_offset_map_unit_scale"/>
+                <prop v="MM" k="dash_pattern_offset_unit"/>
+                <prop v="0" k="draw_inside_polygon"/>
+                <prop v="bevel" k="joinstyle"/>
+                <prop v="35,35,35,255" k="line_color"/>
+                <prop v="solid" k="line_style"/>
+                <prop v="0.26" k="line_width"/>
+                <prop v="MM" k="line_width_unit"/>
+                <prop v="0" k="offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+                <prop v="MM" k="offset_unit"/>
+                <prop v="0" k="ring_filter"/>
+                <prop v="0" k="tweak_dash_pattern_on_corners"/>
+                <prop v="0" k="use_custom_dash"/>
+                <prop v="3x:0,0,0,0,0,0" k="width_map_unit_scale"/>
+                <data_defined_properties>
+                  <Option type="Map">
+                    <Option value="" type="QString" name="name"/>
+                    <Option name="properties"/>
+                    <Option value="collection" type="QString" name="type"/>
+                  </Option>
+                </data_defined_properties>
+              </layer>
+            </symbol>
+          </axisSymbol>
+        </DiagramCategory>
+      </SingleCategoryDiagramRenderer>
+      <DiagramLayerSettings linePlacementFlags="18" zIndex="0" dist="0" priority="0" obstacle="0" placement="0" showAll="1">
+        <properties>
+          <Option type="Map">
+            <Option value="" type="QString" name="name"/>
+            <Option name="properties"/>
+            <Option value="collection" type="QString" name="type"/>
+          </Option>
+        </properties>
+      </DiagramLayerSettings>
+      <geometryOptions geometryPrecision="0.1" removeDuplicateNodes="1">
+        <activeChecks/>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers>
+        <relation id="streetnameposition_street_street_T_Id" referencedLayer="Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5" providerKey="ogr" strength="Association" layerId="Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5" name="streetnameposition_street_street_T_Id" referencingLayer="StreetNamePosition_1b9d4fd4_7c2a_4d26_b628_7b1a29b2f82f" dataSource="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=street" layerName="Street">
+          <fieldRef referencedField="T_Id" referencingField="street"/>
+        </relation>
+      </referencedLayers>
+      <fieldConfiguration>
+        <field name="T_Id" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="T_Ili_Tid" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="namori" configurationFlags="None">
+          <editWidget type="Range">
+            <config>
+              <Option type="Map">
+                <Option value="359.9" type="QString" name="Max"/>
+                <Option value="0.0" type="QString" name="Min"/>
+              </Option>
+            </config>
+          </editWidget>
+        </field>
+        <field name="street" configurationFlags="None">
+          <editWidget type="RelationReference">
+            <config>
+              <Option type="Map">
+                <Option value="true" type="bool" name="AllowAddFeatures"/>
+                <Option value="true" type="bool" name="AllowNULL"/>
+                <Option value="true" type="bool" name="OrderByValue"/>
+                <Option value="streetnameposition_street_street_T_Id" type="QString" name="Relation"/>
+                <Option value="false" type="bool" name="ShowForm"/>
+                <Option value="false" type="bool" name="ShowOpenFormButton"/>
+              </Option>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="T_Id" name="" index="0"/>
+        <alias field="T_Ili_Tid" name="" index="1"/>
+        <alias field="namori" name="NamOri [Angle_Degree]" index="2"/>
+        <alias field="street" name="Street" index="3"/>
+      </aliases>
+      <defaults>
+        <default expression="sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))" field="T_Id" applyOnUpdate="0"/>
+        <default expression="" field="T_Ili_Tid" applyOnUpdate="0"/>
+        <default expression="" field="namori" applyOnUpdate="0"/>
+        <default expression="" field="street" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="T_Id" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="T_Ili_Tid" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="namori" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="street" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="T_Id" desc="" exp=""/>
+        <constraint field="T_Ili_Tid" desc="" exp=""/>
+        <constraint field="namori" desc="" exp=""/>
+        <constraint field="street" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions>
+        <defaultAction value="{00000000-0000-0000-0000-000000000000}" key="Canvas"/>
+      </attributeactions>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns>
+          <column type="field" name="T_Id" hidden="0" width="-1"/>
+          <column type="field" name="T_Ili_Tid" hidden="0" width="-1"/>
+          <column type="field" name="namori" hidden="0" width="-1"/>
+          <column type="field" name="street" hidden="0" width="-1"/>
+          <column type="actions" hidden="1" width="-1"/>
+        </columns>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+	geom = feature.geometry()
+	control = dialog.findChild(QWidget, "MyLineEdit")
+]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorField showLabel="1" name="nampos" index="-1"/>
+        <attributeEditorField showLabel="1" name="namori" index="2"/>
+        <attributeEditorField showLabel="1" name="street" index="3"/>
+      </attributeEditorForm>
+      <editable>
+        <field name="T_Id" editable="1"/>
+        <field name="T_Ili_Tid" editable="1"/>
+        <field name="namori" editable="1"/>
+        <field name="street" editable="1"/>
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="T_Id"/>
+        <field labelOnTop="0" name="T_Ili_Tid"/>
+        <field labelOnTop="0" name="namori"/>
+        <field labelOnTop="0" name="street"/>
+      </labelOnTop>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression>"street"</previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer refreshOnNotifyEnabled="0" maxScale="0" geometry="Point" simplifyDrawingHints="0" minScale="100000000" refreshOnNotifyMessage="" labelsEnabled="0" readOnly="0" simplifyLocal="1" simplifyAlgorithm="0" type="vector" autoRefreshTime="0" styleCategories="AllStyleCategories" wkbType="Point" simplifyMaxScale="1" autoRefreshEnabled="0" simplifyDrawingTol="1" hasScaleBasedVisibilityFlag="0">
+      <extent>
+        <xmin>0</xmin>
+        <ymin>0</ymin>
+        <xmax>200</xmax>
+        <ymax>200</ymax>
+      </extent>
+      <id>RoadSign_bee70645_b679_42cf_86d4_f958a9ab1417</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>The Road Signs</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt>PROJCRS["CH1903+ / LV95",BASEGEOGCRS["CH1903+",DATUM["CH1903+",ELLIPSOID["Bessel 1841",6377397.155,299.1528128,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4150]],CONVERSION["Swiss Oblique Mercator 1995",METHOD["Hotine Oblique Mercator (variant B)",ID["EPSG",9815]],PARAMETER["Latitude of projection centre",46.9524055555556,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8811]],PARAMETER["Longitude of projection centre",7.43958333333333,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8812]],PARAMETER["Azimuth of initial line",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8813]],PARAMETER["Angle from Rectified to Skew Grid",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8814]],PARAMETER["Scale factor on initial line",1,SCALEUNIT["unity",1],ID["EPSG",8815]],PARAMETER["Easting at projection centre",2600000,LENGTHUNIT["metre",1],ID["EPSG",8816]],PARAMETER["Northing at projection centre",1200000,LENGTHUNIT["metre",1],ID["EPSG",8817]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Europe - Liechtenstein and Switzerland"],BBOX[45.82,5.96,47.81,10.49]],ID["EPSG",2056]]</wkt>
+          <proj4>+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>47</srsid>
+          <srid>2056</srid>
+          <authid>EPSG:2056</authid>
+          <description>CH1903+ / LV95</description>
+          <projectionacronym>somerc</projectionacronym>
+          <ellipsoidacronym>EPSG:7004</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract>@iliname RoadsSimple.Roads.RoadSign</abstract>
+        <contact>
+          <name></name>
+          <organization></organization>
+          <position></position>
+          <voice></voice>
+          <fax></fax>
+          <email></email>
+          <role></role>
+        </contact>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial minz="0" minx="0" crs="" maxy="0" miny="0" dimensions="2" maxz="0" maxx="0"/>
+          <temporal>
+            <period>
+              <start></start>
+              <end></end>
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <renderer-v2 enableorderby="0" forceraster="0" type="categorizedSymbol" symbollevels="0" attr="atype">
+        <categories>
+          <category label="Danger" value="danger" symbol="0" render="true"/>
+          <category label="Prohibition" value="prohibition" symbol="1" render="true"/>
+          <category label="Other" value="" symbol="2" render="true"/>
+        </categories>
+        <symbols>
+          <symbol type="marker" name="0" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleMarker" pass="0" enabled="1" locked="0">
+              <prop v="0" k="angle"/>
+              <prop v="218,129,145,255" k="color"/>
+              <prop v="1" k="horizontal_anchor_point"/>
+              <prop v="bevel" k="joinstyle"/>
+              <prop v="circle" k="name"/>
+              <prop v="0,0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="50,87,128,255" k="outline_color"/>
+              <prop v="solid" k="outline_style"/>
+              <prop v="0.4" k="outline_width"/>
+              <prop v="3x:0,0,0,0,0,0" k="outline_width_map_unit_scale"/>
+              <prop v="MM" k="outline_width_unit"/>
+              <prop v="diameter" k="scale_method"/>
+              <prop v="4" k="size"/>
+              <prop v="3x:0,0,0,0,0,0" k="size_map_unit_scale"/>
+              <prop v="MM" k="size_unit"/>
+              <prop v="1" k="vertical_anchor_point"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+          <symbol type="marker" name="1" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleMarker" pass="0" enabled="1" locked="0">
+              <prop v="0" k="angle"/>
+              <prop v="233,240,180,255" k="color"/>
+              <prop v="1" k="horizontal_anchor_point"/>
+              <prop v="bevel" k="joinstyle"/>
+              <prop v="circle" k="name"/>
+              <prop v="0,0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="50,87,128,255" k="outline_color"/>
+              <prop v="solid" k="outline_style"/>
+              <prop v="0.4" k="outline_width"/>
+              <prop v="3x:0,0,0,0,0,0" k="outline_width_map_unit_scale"/>
+              <prop v="MM" k="outline_width_unit"/>
+              <prop v="diameter" k="scale_method"/>
+              <prop v="4" k="size"/>
+              <prop v="3x:0,0,0,0,0,0" k="size_map_unit_scale"/>
+              <prop v="MM" k="size_unit"/>
+              <prop v="1" k="vertical_anchor_point"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+          <symbol type="marker" name="2" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleMarker" pass="0" enabled="1" locked="0">
+              <prop v="0" k="angle"/>
+              <prop v="182,222,178,255" k="color"/>
+              <prop v="1" k="horizontal_anchor_point"/>
+              <prop v="bevel" k="joinstyle"/>
+              <prop v="circle" k="name"/>
+              <prop v="0,0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="50,87,128,255" k="outline_color"/>
+              <prop v="solid" k="outline_style"/>
+              <prop v="0.4" k="outline_width"/>
+              <prop v="3x:0,0,0,0,0,0" k="outline_width_map_unit_scale"/>
+              <prop v="MM" k="outline_width_unit"/>
+              <prop v="diameter" k="scale_method"/>
+              <prop v="4" k="size"/>
+              <prop v="3x:0,0,0,0,0,0" k="size_map_unit_scale"/>
+              <prop v="MM" k="size_unit"/>
+              <prop v="1" k="vertical_anchor_point"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </symbols>
+        <source-symbol>
+          <symbol type="marker" name="0" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleMarker" pass="0" enabled="1" locked="0">
+              <prop v="0" k="angle"/>
+              <prop v="72,123,182,255" k="color"/>
+              <prop v="1" k="horizontal_anchor_point"/>
+              <prop v="bevel" k="joinstyle"/>
+              <prop v="circle" k="name"/>
+              <prop v="0,0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="50,87,128,255" k="outline_color"/>
+              <prop v="solid" k="outline_style"/>
+              <prop v="0.4" k="outline_width"/>
+              <prop v="3x:0,0,0,0,0,0" k="outline_width_map_unit_scale"/>
+              <prop v="MM" k="outline_width_unit"/>
+              <prop v="diameter" k="scale_method"/>
+              <prop v="4" k="size"/>
+              <prop v="3x:0,0,0,0,0,0" k="size_map_unit_scale"/>
+              <prop v="MM" k="size_unit"/>
+              <prop v="1" k="vertical_anchor_point"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </source-symbol>
+        <rotation/>
+        <sizescale/>
+      </renderer-v2>
+      <customproperties>
+        <property value="0" key="embeddedWidgets/count"/>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerOpacity>1</layerOpacity>
+      <SingleCategoryDiagramRenderer diagramType="Histogram" attributeLegend="1">
+        <DiagramCategory backgroundColor="#ffffff" direction="0" maxScaleDenominator="1e+08" width="15" sizeScale="3x:0,0,0,0,0,0" showAxis="1" spacingUnitScale="3x:0,0,0,0,0,0" backgroundAlpha="255" scaleBasedVisibility="0" scaleDependency="Area" enabled="0" rotationOffset="270" lineSizeType="MM" opacity="1" barWidth="5" penColor="#000000" sizeType="MM" penAlpha="255" penWidth="0" labelPlacementMethod="XHeight" spacing="5" height="15" minimumSize="0" diagramOrientation="Up" spacingUnit="MM" minScaleDenominator="0" lineSizeScale="3x:0,0,0,0,0,0">
+          <fontProperties style="" description="Ubuntu,11,-1,5,50,0,0,0,0,0"/>
+          <attribute label="" field="" color="#000000"/>
+          <axisSymbol>
+            <symbol type="line" name="" clip_to_extent="1" force_rhr="0" alpha="1">
+              <layer class="SimpleLine" pass="0" enabled="1" locked="0">
+                <prop v="0" k="align_dash_pattern"/>
+                <prop v="square" k="capstyle"/>
+                <prop v="5;2" k="customdash"/>
+                <prop v="3x:0,0,0,0,0,0" k="customdash_map_unit_scale"/>
+                <prop v="MM" k="customdash_unit"/>
+                <prop v="0" k="dash_pattern_offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="dash_pattern_offset_map_unit_scale"/>
+                <prop v="MM" k="dash_pattern_offset_unit"/>
+                <prop v="0" k="draw_inside_polygon"/>
+                <prop v="bevel" k="joinstyle"/>
+                <prop v="35,35,35,255" k="line_color"/>
+                <prop v="solid" k="line_style"/>
+                <prop v="0.26" k="line_width"/>
+                <prop v="MM" k="line_width_unit"/>
+                <prop v="0" k="offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+                <prop v="MM" k="offset_unit"/>
+                <prop v="0" k="ring_filter"/>
+                <prop v="0" k="tweak_dash_pattern_on_corners"/>
+                <prop v="0" k="use_custom_dash"/>
+                <prop v="3x:0,0,0,0,0,0" k="width_map_unit_scale"/>
+                <data_defined_properties>
+                  <Option type="Map">
+                    <Option value="" type="QString" name="name"/>
+                    <Option name="properties"/>
+                    <Option value="collection" type="QString" name="type"/>
+                  </Option>
+                </data_defined_properties>
+              </layer>
+            </symbol>
+          </axisSymbol>
+        </DiagramCategory>
+      </SingleCategoryDiagramRenderer>
+      <DiagramLayerSettings linePlacementFlags="18" zIndex="0" dist="0" priority="0" obstacle="0" placement="0" showAll="1">
+        <properties>
+          <Option type="Map">
+            <Option value="" type="QString" name="name"/>
+            <Option name="properties"/>
+            <Option value="collection" type="QString" name="type"/>
+          </Option>
+        </properties>
+      </DiagramLayerSettings>
+      <geometryOptions geometryPrecision="0.1" removeDuplicateNodes="1">
+        <activeChecks/>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers>
+        <relation id="roadsign_atype_roadsign_type_iliCode" referencedLayer="RoadSign_Type_d24ae36f_602b_4080_a898_b6e4e311ab76" providerKey="ogr" strength="Association" layerId="RoadSign_Type_d24ae36f_602b_4080_a898_b6e4e311ab76" name="roadsign_atype_roadsign_type_iliCode" referencingLayer="RoadSign_bee70645_b679_42cf_86d4_f958a9ab1417" dataSource="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign_type" layerName="RoadSign_Type">
+          <fieldRef referencedField="iliCode" referencingField="atype"/>
+        </relation>
+      </referencedLayers>
+      <fieldConfiguration>
+        <field name="T_Id" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="T_Ili_Tid" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="atype" configurationFlags="None">
+          <editWidget type="RelationReference">
+            <config>
+              <Option type="Map">
+                <Option value="false" type="bool" name="AllowAddFeatures"/>
+                <Option value="true" type="bool" name="AllowNULL"/>
+                <Option value="false" type="bool" name="ChainFilters"/>
+                <Option value="" type="QString" name="FilterExpression"/>
+                <Option type="invalid" name="FilterFields"/>
+                <Option value="false" type="bool" name="MapIdentification"/>
+                <Option value="true" type="bool" name="OrderByValue"/>
+                <Option value="false" type="bool" name="ReadOnly"/>
+                <Option value="/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign_type" type="QString" name="ReferencedLayerDataSource"/>
+                <Option value="RoadSign_Type_d24ae36f_602b_4080_a898_b6e4e311ab76" type="QString" name="ReferencedLayerId"/>
+                <Option value="RoadSign_Type" type="QString" name="ReferencedLayerName"/>
+                <Option value="ogr" type="QString" name="ReferencedLayerProviderKey"/>
+                <Option value="roadsign_atype_roadsign_type_iliCode" type="QString" name="Relation"/>
+                <Option value="false" type="bool" name="ShowForm"/>
+                <Option value="false" type="bool" name="ShowOpenFormButton"/>
+              </Option>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="T_Id" name="" index="0"/>
+        <alias field="T_Ili_Tid" name="" index="1"/>
+        <alias field="atype" name="The Type" index="2"/>
+      </aliases>
+      <defaults>
+        <default expression="sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))" field="T_Id" applyOnUpdate="0"/>
+        <default expression="" field="T_Ili_Tid" applyOnUpdate="0"/>
+        <default expression="" field="atype" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="T_Id" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="T_Ili_Tid" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="atype" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="T_Id" desc="" exp=""/>
+        <constraint field="T_Ili_Tid" desc="" exp=""/>
+        <constraint field="atype" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions>
+        <defaultAction value="{00000000-0000-0000-0000-000000000000}" key="Canvas"/>
+      </attributeactions>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns>
+          <column type="field" name="T_Id" hidden="0" width="-1"/>
+          <column type="field" name="T_Ili_Tid" hidden="0" width="-1"/>
+          <column type="field" name="atype" hidden="0" width="-1"/>
+          <column type="actions" hidden="1" width="-1"/>
+        </columns>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+	geom = feature.geometry()
+	control = dialog.findChild(QWidget, "MyLineEdit")
+]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorField showLabel="1" name="atype" index="2"/>
+      </attributeEditorForm>
+      <editable>
+        <field name="T_Id" editable="1"/>
+        <field name="T_Ili_Tid" editable="1"/>
+        <field name="atype" editable="1"/>
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="T_Id"/>
+        <field labelOnTop="0" name="T_Ili_Tid"/>
+        <field labelOnTop="0" name="atype"/>
+      </labelOnTop>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression>"T_Id"</previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer refreshOnNotifyEnabled="0" maxScale="0" geometry="Line" simplifyDrawingHints="1" minScale="100000000" refreshOnNotifyMessage="" labelsEnabled="0" readOnly="0" simplifyLocal="1" simplifyAlgorithm="0" type="vector" autoRefreshTime="0" styleCategories="AllStyleCategories" wkbType="LineString" simplifyMaxScale="1" autoRefreshEnabled="0" simplifyDrawingTol="1" hasScaleBasedVisibilityFlag="0">
+      <extent>
+        <xmin>0</xmin>
+        <ymin>0</ymin>
+        <xmax>200</xmax>
+        <ymax>200</ymax>
+      </extent>
+      <id>StreetAxis_cfb36d61_0c24_4f26_a909_9da206986639</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=streetaxis</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>StreetAxis</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt>PROJCRS["CH1903+ / LV95",BASEGEOGCRS["CH1903+",DATUM["CH1903+",ELLIPSOID["Bessel 1841",6377397.155,299.1528128,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4150]],CONVERSION["Swiss Oblique Mercator 1995",METHOD["Hotine Oblique Mercator (variant B)",ID["EPSG",9815]],PARAMETER["Latitude of projection centre",46.9524055555556,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8811]],PARAMETER["Longitude of projection centre",7.43958333333333,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8812]],PARAMETER["Azimuth of initial line",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8813]],PARAMETER["Angle from Rectified to Skew Grid",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8814]],PARAMETER["Scale factor on initial line",1,SCALEUNIT["unity",1],ID["EPSG",8815]],PARAMETER["Easting at projection centre",2600000,LENGTHUNIT["metre",1],ID["EPSG",8816]],PARAMETER["Northing at projection centre",1200000,LENGTHUNIT["metre",1],ID["EPSG",8817]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Europe - Liechtenstein and Switzerland"],BBOX[45.82,5.96,47.81,10.49]],ID["EPSG",2056]]</wkt>
+          <proj4>+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>47</srsid>
+          <srid>2056</srid>
+          <authid>EPSG:2056</authid>
+          <description>CH1903+ / LV95</description>
+          <projectionacronym>somerc</projectionacronym>
+          <ellipsoidacronym>EPSG:7004</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract>@iliname RoadsSimple.Roads.StreetAxis</abstract>
+        <contact>
+          <name></name>
+          <organization></organization>
+          <position></position>
+          <voice></voice>
+          <fax></fax>
+          <email></email>
+          <role></role>
+        </contact>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial minz="0" minx="0" crs="" maxy="0" miny="0" dimensions="2" maxz="0" maxx="0"/>
+          <temporal>
+            <period>
+              <start></start>
+              <end></end>
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <renderer-v2 enableorderby="0" forceraster="0" type="singleSymbol" symbollevels="0">
+        <symbols>
+          <symbol type="line" name="0" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleLine" pass="0" enabled="1" locked="0">
+              <prop v="0" k="align_dash_pattern"/>
+              <prop v="round" k="capstyle"/>
+              <prop v="0.66;2" k="customdash"/>
+              <prop v="3x:0,0,0,0,0,0" k="customdash_map_unit_scale"/>
+              <prop v="MM" k="customdash_unit"/>
+              <prop v="0" k="dash_pattern_offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="dash_pattern_offset_map_unit_scale"/>
+              <prop v="MM" k="dash_pattern_offset_unit"/>
+              <prop v="0" k="draw_inside_polygon"/>
+              <prop v="round" k="joinstyle"/>
+              <prop v="0,0,0,255" k="line_color"/>
+              <prop v="solid" k="line_style"/>
+              <prop v="0.66" k="line_width"/>
+              <prop v="MM" k="line_width_unit"/>
+              <prop v="0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="0" k="ring_filter"/>
+              <prop v="0" k="tweak_dash_pattern_on_corners"/>
+              <prop v="1" k="use_custom_dash"/>
+              <prop v="3x:0,0,0,0,0,0" k="width_map_unit_scale"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale/>
+      </renderer-v2>
+      <customproperties>
+        <property value="0" key="embeddedWidgets/count"/>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerOpacity>1</layerOpacity>
+      <SingleCategoryDiagramRenderer diagramType="Histogram" attributeLegend="1">
+        <DiagramCategory backgroundColor="#ffffff" direction="0" maxScaleDenominator="1e+08" width="15" sizeScale="3x:0,0,0,0,0,0" showAxis="1" spacingUnitScale="3x:0,0,0,0,0,0" backgroundAlpha="255" scaleBasedVisibility="0" scaleDependency="Area" enabled="0" rotationOffset="270" lineSizeType="MM" opacity="1" barWidth="5" penColor="#000000" sizeType="MM" penAlpha="255" penWidth="0" labelPlacementMethod="XHeight" spacing="5" height="15" minimumSize="0" diagramOrientation="Up" spacingUnit="MM" minScaleDenominator="0" lineSizeScale="3x:0,0,0,0,0,0">
+          <fontProperties style="" description="Ubuntu,11,-1,5,50,0,0,0,0,0"/>
+          <axisSymbol>
+            <symbol type="line" name="" clip_to_extent="1" force_rhr="0" alpha="1">
+              <layer class="SimpleLine" pass="0" enabled="1" locked="0">
+                <prop v="0" k="align_dash_pattern"/>
+                <prop v="square" k="capstyle"/>
+                <prop v="5;2" k="customdash"/>
+                <prop v="3x:0,0,0,0,0,0" k="customdash_map_unit_scale"/>
+                <prop v="MM" k="customdash_unit"/>
+                <prop v="0" k="dash_pattern_offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="dash_pattern_offset_map_unit_scale"/>
+                <prop v="MM" k="dash_pattern_offset_unit"/>
+                <prop v="0" k="draw_inside_polygon"/>
+                <prop v="bevel" k="joinstyle"/>
+                <prop v="35,35,35,255" k="line_color"/>
+                <prop v="solid" k="line_style"/>
+                <prop v="0.26" k="line_width"/>
+                <prop v="MM" k="line_width_unit"/>
+                <prop v="0" k="offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+                <prop v="MM" k="offset_unit"/>
+                <prop v="0" k="ring_filter"/>
+                <prop v="0" k="tweak_dash_pattern_on_corners"/>
+                <prop v="0" k="use_custom_dash"/>
+                <prop v="3x:0,0,0,0,0,0" k="width_map_unit_scale"/>
+                <data_defined_properties>
+                  <Option type="Map">
+                    <Option value="" type="QString" name="name"/>
+                    <Option name="properties"/>
+                    <Option value="collection" type="QString" name="type"/>
+                  </Option>
+                </data_defined_properties>
+              </layer>
+            </symbol>
+          </axisSymbol>
+        </DiagramCategory>
+      </SingleCategoryDiagramRenderer>
+      <DiagramLayerSettings linePlacementFlags="18" zIndex="0" dist="0" priority="0" obstacle="0" placement="2" showAll="1">
+        <properties>
+          <Option type="Map">
+            <Option value="" type="QString" name="name"/>
+            <Option name="properties"/>
+            <Option value="collection" type="QString" name="type"/>
+          </Option>
+        </properties>
+      </DiagramLayerSettings>
+      <geometryOptions geometryPrecision="0.1" removeDuplicateNodes="1">
+        <activeChecks/>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers>
+        <relation id="streetaxis_street_street_T_Id" referencedLayer="Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5" providerKey="ogr" strength="Association" layerId="Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5" name="streetaxis_street_street_T_Id" referencingLayer="StreetAxis_cfb36d61_0c24_4f26_a909_9da206986639" dataSource="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=street" layerName="Street">
+          <fieldRef referencedField="T_Id" referencingField="street"/>
+        </relation>
+      </referencedLayers>
+      <fieldConfiguration>
+        <field name="T_Id" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="T_Ili_Tid" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="street" configurationFlags="None">
+          <editWidget type="RelationReference">
+            <config>
+              <Option type="Map">
+                <Option value="true" type="bool" name="AllowAddFeatures"/>
+                <Option value="true" type="bool" name="AllowNULL"/>
+                <Option value="true" type="bool" name="OrderByValue"/>
+                <Option value="streetaxis_street_street_T_Id" type="QString" name="Relation"/>
+                <Option value="false" type="bool" name="ShowForm"/>
+                <Option value="false" type="bool" name="ShowOpenFormButton"/>
+              </Option>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="T_Id" name="" index="0"/>
+        <alias field="T_Ili_Tid" name="" index="1"/>
+        <alias field="street" name="Street" index="2"/>
+      </aliases>
+      <defaults>
+        <default expression="sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))" field="T_Id" applyOnUpdate="0"/>
+        <default expression="" field="T_Ili_Tid" applyOnUpdate="0"/>
+        <default expression="" field="street" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="T_Id" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="T_Ili_Tid" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="street" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="T_Id" desc="" exp=""/>
+        <constraint field="T_Ili_Tid" desc="" exp=""/>
+        <constraint field="street" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions>
+        <defaultAction value="{00000000-0000-0000-0000-000000000000}" key="Canvas"/>
+      </attributeactions>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns>
+          <column type="field" name="T_Id" hidden="0" width="-1"/>
+          <column type="field" name="T_Ili_Tid" hidden="0" width="-1"/>
+          <column type="field" name="street" hidden="0" width="-1"/>
+          <column type="actions" hidden="1" width="-1"/>
+        </columns>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+	geom = feature.geometry()
+	control = dialog.findChild(QWidget, "MyLineEdit")
+]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorField showLabel="1" name="geometry" index="-1"/>
+        <attributeEditorField showLabel="1" name="street" index="2"/>
+      </attributeEditorForm>
+      <editable>
+        <field name="T_Id" editable="1"/>
+        <field name="T_Ili_Tid" editable="1"/>
+        <field name="street" editable="1"/>
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="T_Id"/>
+        <field labelOnTop="0" name="T_Ili_Tid"/>
+        <field labelOnTop="0" name="street"/>
+      </labelOnTop>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression>"street"</previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer refreshOnNotifyEnabled="0" maxScale="0" geometry="Polygon" simplifyDrawingHints="1" minScale="100000000" refreshOnNotifyMessage="" labelsEnabled="0" readOnly="0" simplifyLocal="1" simplifyAlgorithm="0" type="vector" autoRefreshTime="0" styleCategories="AllStyleCategories" wkbType="Polygon" simplifyMaxScale="1" autoRefreshEnabled="0" simplifyDrawingTol="1" hasScaleBasedVisibilityFlag="0">
+      <extent>
+        <xmin>0</xmin>
+        <ymin>0</ymin>
+        <xmax>200</xmax>
+        <ymax>200</ymax>
+      </extent>
+      <id>LandCover_5e1c311f_9a53_4237_bf85_3bdb651f969d</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=landcover</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>LandCover</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt>PROJCRS["CH1903+ / LV95",BASEGEOGCRS["CH1903+",DATUM["CH1903+",ELLIPSOID["Bessel 1841",6377397.155,299.1528128,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4150]],CONVERSION["Swiss Oblique Mercator 1995",METHOD["Hotine Oblique Mercator (variant B)",ID["EPSG",9815]],PARAMETER["Latitude of projection centre",46.9524055555556,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8811]],PARAMETER["Longitude of projection centre",7.43958333333333,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8812]],PARAMETER["Azimuth of initial line",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8813]],PARAMETER["Angle from Rectified to Skew Grid",90,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8814]],PARAMETER["Scale factor on initial line",1,SCALEUNIT["unity",1],ID["EPSG",8815]],PARAMETER["Easting at projection centre",2600000,LENGTHUNIT["metre",1],ID["EPSG",8816]],PARAMETER["Northing at projection centre",1200000,LENGTHUNIT["metre",1],ID["EPSG",8817]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["unknown"],AREA["Europe - Liechtenstein and Switzerland"],BBOX[45.82,5.96,47.81,10.49]],ID["EPSG",2056]]</wkt>
+          <proj4>+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>47</srsid>
+          <srid>2056</srid>
+          <authid>EPSG:2056</authid>
+          <description>CH1903+ / LV95</description>
+          <projectionacronym>somerc</projectionacronym>
+          <ellipsoidacronym>EPSG:7004</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract>@iliname RoadsSimple.Roads.LandCover</abstract>
+        <contact>
+          <name></name>
+          <organization></organization>
+          <position></position>
+          <voice></voice>
+          <fax></fax>
+          <email></email>
+          <role></role>
+        </contact>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial minz="0" minx="0" crs="" maxy="0" miny="0" dimensions="2" maxz="0" maxx="0"/>
+          <temporal>
+            <period>
+              <start></start>
+              <end></end>
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <renderer-v2 enableorderby="0" forceraster="0" type="singleSymbol" symbollevels="0">
+        <symbols>
+          <symbol type="fill" name="0" clip_to_extent="1" force_rhr="0" alpha="1">
+            <layer class="SimpleFill" pass="0" enabled="1" locked="0">
+              <prop v="3x:0,0,0,0,0,0" k="border_width_map_unit_scale"/>
+              <prop v="150,150,150,255" k="color"/>
+              <prop v="bevel" k="joinstyle"/>
+              <prop v="0,0" k="offset"/>
+              <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+              <prop v="MM" k="offset_unit"/>
+              <prop v="247,247,247,255" k="outline_color"/>
+              <prop v="solid" k="outline_style"/>
+              <prop v="0.26" k="outline_width"/>
+              <prop v="MM" k="outline_width_unit"/>
+              <prop v="solid" k="style"/>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option value="" type="QString" name="name"/>
+                  <Option name="properties"/>
+                  <Option value="collection" type="QString" name="type"/>
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale/>
+      </renderer-v2>
+      <customproperties>
+        <property value="0" key="embeddedWidgets/count"/>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerOpacity>1</layerOpacity>
+      <SingleCategoryDiagramRenderer diagramType="Histogram" attributeLegend="1">
+        <DiagramCategory backgroundColor="#ffffff" direction="0" maxScaleDenominator="1e+08" width="15" sizeScale="3x:0,0,0,0,0,0" showAxis="1" spacingUnitScale="3x:0,0,0,0,0,0" backgroundAlpha="255" scaleBasedVisibility="0" scaleDependency="Area" enabled="0" rotationOffset="270" lineSizeType="MM" opacity="1" barWidth="5" penColor="#000000" sizeType="MM" penAlpha="255" penWidth="0" labelPlacementMethod="XHeight" spacing="5" height="15" minimumSize="0" diagramOrientation="Up" spacingUnit="MM" minScaleDenominator="0" lineSizeScale="3x:0,0,0,0,0,0">
+          <fontProperties style="" description="Ubuntu,11,-1,5,50,0,0,0,0,0"/>
+          <axisSymbol>
+            <symbol type="line" name="" clip_to_extent="1" force_rhr="0" alpha="1">
+              <layer class="SimpleLine" pass="0" enabled="1" locked="0">
+                <prop v="0" k="align_dash_pattern"/>
+                <prop v="square" k="capstyle"/>
+                <prop v="5;2" k="customdash"/>
+                <prop v="3x:0,0,0,0,0,0" k="customdash_map_unit_scale"/>
+                <prop v="MM" k="customdash_unit"/>
+                <prop v="0" k="dash_pattern_offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="dash_pattern_offset_map_unit_scale"/>
+                <prop v="MM" k="dash_pattern_offset_unit"/>
+                <prop v="0" k="draw_inside_polygon"/>
+                <prop v="bevel" k="joinstyle"/>
+                <prop v="35,35,35,255" k="line_color"/>
+                <prop v="solid" k="line_style"/>
+                <prop v="0.26" k="line_width"/>
+                <prop v="MM" k="line_width_unit"/>
+                <prop v="0" k="offset"/>
+                <prop v="3x:0,0,0,0,0,0" k="offset_map_unit_scale"/>
+                <prop v="MM" k="offset_unit"/>
+                <prop v="0" k="ring_filter"/>
+                <prop v="0" k="tweak_dash_pattern_on_corners"/>
+                <prop v="0" k="use_custom_dash"/>
+                <prop v="3x:0,0,0,0,0,0" k="width_map_unit_scale"/>
+                <data_defined_properties>
+                  <Option type="Map">
+                    <Option value="" type="QString" name="name"/>
+                    <Option name="properties"/>
+                    <Option value="collection" type="QString" name="type"/>
+                  </Option>
+                </data_defined_properties>
+              </layer>
+            </symbol>
+          </axisSymbol>
+        </DiagramCategory>
+      </SingleCategoryDiagramRenderer>
+      <DiagramLayerSettings linePlacementFlags="18" zIndex="0" dist="0" priority="0" obstacle="0" placement="1" showAll="1">
+        <properties>
+          <Option type="Map">
+            <Option value="" type="QString" name="name"/>
+            <Option name="properties"/>
+            <Option value="collection" type="QString" name="type"/>
+          </Option>
+        </properties>
+      </DiagramLayerSettings>
+      <geometryOptions geometryPrecision="0.1" removeDuplicateNodes="1">
+        <activeChecks/>
+        <checkConfiguration type="Map">
+          <Option type="Map" name="QgsGeometryGapCheck">
+            <Option value="0" type="double" name="allowedGapsBuffer"/>
+            <Option value="false" type="bool" name="allowedGapsEnabled"/>
+            <Option value="" type="QString" name="allowedGapsLayer"/>
+          </Option>
+        </checkConfiguration>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers>
+        <relation id="landcover_atype_landcover_type_iliCode" referencedLayer="LandCover_Type_495922a4_f495_41d3_9cc2_dbafa5f10efb" providerKey="ogr" strength="Association" layerId="LandCover_Type_495922a4_f495_41d3_9cc2_dbafa5f10efb" name="landcover_atype_landcover_type_iliCode" referencingLayer="LandCover_5e1c311f_9a53_4237_bf85_3bdb651f969d" dataSource="../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=landcover_type" layerName="LandCover_Type">
+          <fieldRef referencedField="iliCode" referencingField="atype"/>
+        </relation>
+      </referencedLayers>
+      <fieldConfiguration>
+        <field name="T_Id" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="T_Ili_Tid" configurationFlags="None">
+          <editWidget type="TextEdit">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="atype" configurationFlags="None">
+          <editWidget type="RelationReference">
+            <config>
+              <Option type="Map">
+                <Option value="true" type="bool" name="AllowNULL"/>
+                <Option value="" type="QString" name="FilterExpression"/>
+                <Option type="invalid" name="FilterFields"/>
+                <Option value="true" type="bool" name="OrderByValue"/>
+                <Option value="landcover_atype_landcover_type_iliCode" type="QString" name="Relation"/>
+                <Option value="false" type="bool" name="ShowForm"/>
+                <Option value="false" type="bool" name="ShowOpenFormButton"/>
+              </Option>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="T_Id" name="" index="0"/>
+        <alias field="T_Ili_Tid" name="" index="1"/>
+        <alias field="atype" name="Type" index="2"/>
+      </aliases>
+      <defaults>
+        <default expression="sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))" field="T_Id" applyOnUpdate="0"/>
+        <default expression="" field="T_Ili_Tid" applyOnUpdate="0"/>
+        <default expression="" field="atype" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="T_Id" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="T_Ili_Tid" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="atype" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="T_Id" desc="" exp=""/>
+        <constraint field="T_Ili_Tid" desc="" exp=""/>
+        <constraint field="atype" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions>
+        <defaultAction value="{00000000-0000-0000-0000-000000000000}" key="Canvas"/>
+      </attributeactions>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns>
+          <column type="field" name="T_Id" hidden="0" width="-1"/>
+          <column type="field" name="T_Ili_Tid" hidden="0" width="-1"/>
+          <column type="field" name="atype" hidden="0" width="-1"/>
+          <column type="actions" hidden="1" width="-1"/>
+        </columns>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+	geom = feature.geometry()
+	control = dialog.findChild(QWidget, "MyLineEdit")
+]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorField showLabel="1" name="atype" index="2"/>
+        <attributeEditorField showLabel="1" name="geometry" index="-1"/>
+      </attributeEditorForm>
+      <editable>
+        <field name="T_Id" editable="1"/>
+        <field name="T_Ili_Tid" editable="1"/>
+        <field name="atype" editable="1"/>
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="T_Id"/>
+        <field labelOnTop="0" name="T_Ili_Tid"/>
+        <field labelOnTop="0" name="atype"/>
+      </labelOnTop>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression>"T_Id"</previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer geometry="No geometry" refreshOnNotifyMessage="" type="vector" styleCategories="AllStyleCategories" wkbType="NoGeometry" readOnly="0" hasScaleBasedVisibilityFlag="0" autoRefreshEnabled="0" refreshOnNotifyEnabled="0" minScale="1e+08" autoRefreshTime="0" maxScale="0">
+      <id>Street_6c72dc3b_52ce_477f_885c_1b17bf319cb5</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=street</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>Street</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt></wkt>
+          <proj4></proj4>
+          <srsid>0</srsid>
+          <srid>0</srid>
+          <authid></authid>
+          <description></description>
+          <projectionacronym></projectionacronym>
+          <ellipsoidacronym></ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract></abstract>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent/>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <customproperties>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <geometryOptions geometryPrecision="0" removeDuplicateNodes="0">
+        <activeChecks type="StringList">
+          <Option value="" type="QString"/>
+        </activeChecks>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers/>
+      <fieldConfiguration>
+        <field name="T_Id" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="T_Ili_Tid" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="aname" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="T_Id" name="" index="0"/>
+        <alias field="T_Ili_Tid" name="" index="1"/>
+        <alias field="aname" name="Name" index="2"/>
+      </aliases>
+      <defaults>
+        <default expression="sqlite_fetch_and_increment(@layer, 'T_KEY_OBJECT', 'T_LastUniqueId', 'T_Key', 'T_Id', map('T_LastChange','date(''now'')','T_CreateDate','date(''now'')','T_User','''' || @user_account_name || ''''))" field="T_Id" applyOnUpdate="0"/>
+        <default expression="" field="T_Ili_Tid" applyOnUpdate="0"/>
+        <default expression="" field="aname" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="T_Id" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="T_Ili_Tid" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="aname" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="T_Id" desc="" exp=""/>
+        <constraint field="T_Ili_Tid" desc="" exp=""/>
+        <constraint field="aname" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns/>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorContainer showLabel="1" name="General" columnCount="1" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorField showLabel="1" name="aname" index="2"/>
+        </attributeEditorContainer>
+        <attributeEditorContainer showLabel="1" name="streetaxis" columnCount="1" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorRelation label="" showLabel="1" name="streetaxis_street_street_T_Id" relation="streetaxis_street_street_T_Id" buttons="AllButtons" forceSuppressFormPopup="0" nmRelationId=""/>
+        </attributeEditorContainer>
+        <attributeEditorContainer showLabel="1" name="streetnameposition" columnCount="1" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorRelation label="" showLabel="1" name="streetnameposition_street_street_T_Id" relation="streetnameposition_street_street_T_Id" buttons="AllButtons" forceSuppressFormPopup="0" nmRelationId=""/>
+        </attributeEditorContainer>
+      </attributeEditorForm>
+      <editable/>
+      <labelOnTop/>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression></previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer geometry="No geometry" refreshOnNotifyMessage="" type="vector" styleCategories="AllStyleCategories" wkbType="NoGeometry" readOnly="1" hasScaleBasedVisibilityFlag="0" autoRefreshEnabled="0" refreshOnNotifyEnabled="0" minScale="1e+08" autoRefreshTime="0" maxScale="0">
+      <id>LandCover_Type_495922a4_f495_41d3_9cc2_dbafa5f10efb</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=landcover_type</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>LandCover_Type</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt></wkt>
+          <proj4></proj4>
+          <srsid>0</srsid>
+          <srid>0</srid>
+          <authid></authid>
+          <description></description>
+          <projectionacronym></projectionacronym>
+          <ellipsoidacronym></ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract></abstract>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent/>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <customproperties>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <geometryOptions geometryPrecision="0" removeDuplicateNodes="0">
+        <activeChecks type="StringList">
+          <Option value="" type="QString"/>
+        </activeChecks>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers/>
+      <fieldConfiguration>
+        <field name="itfCode" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="iliCode" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="seq" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="inactive" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="dispName" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="description" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="itfCode" name="" index="0"/>
+        <alias field="iliCode" name="" index="1"/>
+        <alias field="seq" name="" index="2"/>
+        <alias field="inactive" name="" index="3"/>
+        <alias field="dispName" name="" index="4"/>
+        <alias field="description" name="" index="5"/>
+      </aliases>
+      <defaults>
+        <default expression="" field="itfCode" applyOnUpdate="0"/>
+        <default expression="" field="iliCode" applyOnUpdate="0"/>
+        <default expression="" field="seq" applyOnUpdate="0"/>
+        <default expression="" field="inactive" applyOnUpdate="0"/>
+        <default expression="" field="dispName" applyOnUpdate="0"/>
+        <default expression="" field="description" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="itfCode" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="iliCode" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="seq" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="inactive" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="dispName" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="description" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="itfCode" desc="" exp=""/>
+        <constraint field="iliCode" desc="" exp=""/>
+        <constraint field="seq" desc="" exp=""/>
+        <constraint field="inactive" desc="" exp=""/>
+        <constraint field="dispName" desc="" exp=""/>
+        <constraint field="description" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns/>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorContainer showLabel="1" name="General" columnCount="2" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorField showLabel="1" name="itfCode" index="0"/>
+          <attributeEditorField showLabel="1" name="iliCode" index="1"/>
+          <attributeEditorField showLabel="1" name="seq" index="2"/>
+          <attributeEditorField showLabel="1" name="inactive" index="3"/>
+          <attributeEditorField showLabel="1" name="dispName" index="4"/>
+          <attributeEditorField showLabel="1" name="description" index="5"/>
+        </attributeEditorContainer>
+        <attributeEditorContainer showLabel="1" name="landcover" columnCount="1" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorRelation label="" showLabel="1" name="landcover_atype_landcover_type_iliCode" relation="landcover_atype_landcover_type_iliCode" buttons="AllButtons" forceSuppressFormPopup="0" nmRelationId=""/>
+        </attributeEditorContainer>
+      </attributeEditorForm>
+      <editable/>
+      <labelOnTop/>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression></previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+    <maplayer geometry="No geometry" refreshOnNotifyMessage="" type="vector" styleCategories="AllStyleCategories" wkbType="NoGeometry" readOnly="1" hasScaleBasedVisibilityFlag="0" autoRefreshEnabled="0" refreshOnNotifyEnabled="0" minScale="1e+08" autoRefreshTime="0" maxScale="0">
+      <id>RoadSign_Type_d24ae36f_602b_4080_a898_b6e4e311ab76</id>
+      <datasource>../../dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/geopackage/test_simple_export.gpkg|layername=roadsign_type</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>RoadSign_Type</layername>
+      <srs>
+        <spatialrefsys>
+          <wkt></wkt>
+          <proj4></proj4>
+          <srsid>0</srsid>
+          <srid>0</srid>
+          <authid></authid>
+          <description></description>
+          <projectionacronym></projectionacronym>
+          <ellipsoidacronym></ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier></identifier>
+        <parentidentifier></parentidentifier>
+        <language></language>
+        <type>dataset</type>
+        <title></title>
+        <abstract></abstract>
+        <links/>
+        <fees></fees>
+        <encoding></encoding>
+        <crs>
+          <spatialrefsys>
+            <wkt></wkt>
+            <proj4></proj4>
+            <srsid>0</srsid>
+            <srid>0</srid>
+            <authid></authid>
+            <description></description>
+            <projectionacronym></projectionacronym>
+            <ellipsoidacronym></ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent/>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <dataDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default"/>
+      </map-layer-style-manager>
+      <auxiliaryLayer/>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+      </flags>
+      <temporal endField="" fixedDuration="0" accumulate="0" durationField="" mode="0" startExpression="" endExpression="" durationUnit="min" enabled="0" startField="">
+        <fixedRange>
+          <start></start>
+          <end></end>
+        </fixedRange>
+      </temporal>
+      <customproperties>
+        <property value="interlis_topic" key="variableNames"/>
+        <property value="RoadsSimple.Roads" key="variableValues"/>
+      </customproperties>
+      <geometryOptions geometryPrecision="0" removeDuplicateNodes="0">
+        <activeChecks type="StringList">
+          <Option value="" type="QString"/>
+        </activeChecks>
+        <checkConfiguration/>
+      </geometryOptions>
+      <legend type="default-vector"/>
+      <referencedLayers/>
+      <fieldConfiguration>
+        <field name="itfCode" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="iliCode" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="seq" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="inactive" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="dispName" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+        <field name="description" configurationFlags="None">
+          <editWidget type="">
+            <config>
+              <Option/>
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias field="itfCode" name="" index="0"/>
+        <alias field="iliCode" name="" index="1"/>
+        <alias field="seq" name="" index="2"/>
+        <alias field="inactive" name="" index="3"/>
+        <alias field="dispName" name="" index="4"/>
+        <alias field="description" name="" index="5"/>
+      </aliases>
+      <defaults>
+        <default expression="" field="itfCode" applyOnUpdate="0"/>
+        <default expression="" field="iliCode" applyOnUpdate="0"/>
+        <default expression="" field="seq" applyOnUpdate="0"/>
+        <default expression="" field="inactive" applyOnUpdate="0"/>
+        <default expression="" field="dispName" applyOnUpdate="0"/>
+        <default expression="" field="description" applyOnUpdate="0"/>
+      </defaults>
+      <constraints>
+        <constraint field="itfCode" notnull_strength="1" exp_strength="0" unique_strength="1" constraints="3"/>
+        <constraint field="iliCode" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="seq" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+        <constraint field="inactive" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="dispName" notnull_strength="1" exp_strength="0" unique_strength="0" constraints="1"/>
+        <constraint field="description" notnull_strength="0" exp_strength="0" unique_strength="0" constraints="0"/>
+      </constraints>
+      <constraintExpressions>
+        <constraint field="itfCode" desc="" exp=""/>
+        <constraint field="iliCode" desc="" exp=""/>
+        <constraint field="seq" desc="" exp=""/>
+        <constraint field="inactive" desc="" exp=""/>
+        <constraint field="dispName" desc="" exp=""/>
+        <constraint field="description" desc="" exp=""/>
+      </constraintExpressions>
+      <expressionfields/>
+      <attributeactions/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+        <columns/>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <storedexpressions/>
+      <editform tolerant="1"></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>tablayout</editorlayout>
+      <attributeEditorForm>
+        <attributeEditorContainer showLabel="1" name="General" columnCount="2" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorField showLabel="1" name="itfCode" index="0"/>
+          <attributeEditorField showLabel="1" name="iliCode" index="1"/>
+          <attributeEditorField showLabel="1" name="seq" index="2"/>
+          <attributeEditorField showLabel="1" name="inactive" index="3"/>
+          <attributeEditorField showLabel="1" name="dispName" index="4"/>
+          <attributeEditorField showLabel="1" name="description" index="5"/>
+        </attributeEditorContainer>
+        <attributeEditorContainer showLabel="1" name="roadsign" columnCount="1" visibilityExpressionEnabled="0" groupBox="0" visibilityExpression="">
+          <attributeEditorRelation label="" showLabel="1" name="roadsign_atype_roadsign_type_iliCode" relation="roadsign_atype_roadsign_type_iliCode" buttons="AllButtons" forceSuppressFormPopup="0" nmRelationId=""/>
+        </attributeEditorContainer>
+      </attributeEditorForm>
+      <editable/>
+      <labelOnTop/>
+      <dataDefinedFieldProperties/>
+      <widgets/>
+      <previewExpression>dispName</previewExpression>
+      <mapTip></mapTip>
+    </maplayer>
+  </maplayers>
+</qlr>
