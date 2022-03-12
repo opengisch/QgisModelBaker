@@ -53,7 +53,7 @@ class Layer(object):
         coordinate_precision=None,
         is_basket_table=False,
         is_dataset_table=False,
-        model_topic_name=None,
+        ili_name=None,
     ):
         self.provider = provider
         self.uri = uri
@@ -86,7 +86,15 @@ class Layer(object):
 
         self.is_basket_table = is_basket_table
         self.is_dataset_table = is_dataset_table
-        self.model_topic_name = model_topic_name
+
+        self.ili_name = ili_name
+
+        self.model_topic_name = ""
+        if self.ili_name:
+            if self.ili_name.count(".") > 1:
+                self.model_topic_name = (
+                    f"{self.ili_name.split('.')[0]}.{self.ili_name.split('.')[1]}"
+                )
 
         self.__form = Form()
 

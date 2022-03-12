@@ -190,11 +190,6 @@ class Generator(QObject):
                             )
                 alias = short_name
 
-            model_topic_name = ""
-            if "ili_name" in record and record["ili_name"]:
-                if record["ili_name"].count(".") > 1:
-                    model_topic_name = f"{record['ili_name'].split('.')[0]}.{record['ili_name'].split('.')[1]}"
-
             display_expression = ""
             if is_basket_table:
                 display_expression = "coalesce(attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname') || ' (' || topic || ') ', coalesce( attribute(get_feature('{dataset_layer_name}', '{tid}', dataset), 'datasetname'), {tilitid}))".format(
@@ -218,10 +213,10 @@ class Generator(QObject):
             layer = Layer(
                 layer_uri.provider,
                 layer_uri.get_data_source_uri(record),
-                record["tablename"],
-                record["srid"],
-                record["extent"] if "extent" in record else None,
-                record["geometry_column"],
+                record.get("tablename"),
+                record.get("srid"),
+                record.get("extent"),
+                record.get("geometry_column"),
                 QgsWkbTypes.parseType(record["type"]) or QgsWkbTypes.Unknown,
                 alias,
                 is_domain,
@@ -231,7 +226,7 @@ class Generator(QObject):
                 coordinate_precision,
                 is_basket_table,
                 is_dataset_table,
-                model_topic_name,
+                record.get("ili_name", None),
             )
 
             # Configure fields for current table
@@ -351,14 +346,14 @@ class Generator(QObject):
                         DbIliMode.ili2mssql,
                     ]:
                         schema_topic_identificator = slugify(
-                            f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{model_topic_name}"
+                            f"{layer.source().host()}_{layer.source().database()}_{layer.source().schema()}_{layer.model_topic_name}"
                         )
                         field.default_value_expression = (
                             f"@{schema_topic_identificator}"
                         )
                     elif self.tool in [DbIliMode.ili2gpkg, DbIliMode.gpkg]:
                         schema_topic_identificator = slugify(
-                            f"@{layer.source().uri().split('|')[0].strip()}_{model_topic_name}"
+                            f"@{layer.source().uri().split('|')[0].strip()}_{layer.model_topic_name}"
                         )
                         field.default_value_expression = (
                             f"@{schema_topic_identificator}"
@@ -472,37 +467,19 @@ class Generator(QObject):
         if item and isinstance(item, dict):
             current_node_name = next(iter(item))
             item_properties = item[current_node_name]
-            if (
-                item_properties
-                and "group" in item_properties
-                and item_properties["group"]
-            ):
+            if item_properties and item_properties.get("group"):
                 current_node = LegendGroup(
                     QCoreApplication.translate("LegendGroup", current_node_name),
                     static_sorting=True,
                 )
-                current_node.expanded = (
-                    False
-                    if "expanded" in item_properties and not item_properties["expanded"]
-                    else True
+                current_node.expanded = item_properties.get("expanded", True)
+                current_node.checked = item_properties.get("checked", True)
+                current_node.mutually_exclusive = item_properties.get(
+                    "mutually-exclusive", False
                 )
-                current_node.checked = (
-                    False
-                    if "checked" in item_properties and not item_properties["checked"]
-                    else True
+                current_node.mutually_exclusive_child = item_properties.get(
+                    "mutually-exclusive-child", -1
                 )
-                current_node.mutually_exclusive = (
-                    True
-                    if "mutually-exclusive" in item_properties
-                    and item_properties["mutually-exclusive"]
-                    else False
-                )
-                if current_node.mutually_exclusive:
-                    current_node.mutually_exclusive_child = (
-                        item_properties["mutually-exclusive-child"]
-                        if "mutually-exclusive-child" in item_properties
-                        else -1
-                    )
 
                 if "child-nodes" in item_properties:
                     for child_item in item_properties["child-nodes"]:
@@ -514,23 +491,12 @@ class Generator(QObject):
                     if layer.alias == current_node_name:
                         current_node = layer
                         if item_properties:
-                            current_node.expanded = (
-                                False
-                                if "expanded" in item_properties
-                                and not item_properties["expanded"]
-                                else True
+                            current_node.expanded = item_properties.get(
+                                "expanded", True
                             )
-                            current_node.checked = (
-                                False
-                                if "checked" in item_properties
-                                and not item_properties["checked"]
-                                else True
-                            )
-                            current_node.featurecount = (
-                                True
-                                if "featurecount" in item_properties
-                                and item_properties["featurecount"]
-                                else False
+                            current_node.checked = item_properties.get("checked", True)
+                            current_node.featurecount = item_properties.get(
+                                "featurecount", False
                             )
                         break
         return current_node
