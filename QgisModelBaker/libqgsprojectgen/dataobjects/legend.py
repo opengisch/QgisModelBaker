@@ -73,6 +73,7 @@ class LegendGroup(object):
         existing_layer_source_uris = [
             found_layer.layer().dataProvider().dataSourceUri()
             for found_layer in qgis_project.layerTreeRoot().findLayers()
+            if found_layer.layer().dataProvider()
         ]
 
         static_index = 0
@@ -90,7 +91,8 @@ class LegendGroup(object):
             else:
                 layer = item.layer
                 if (
-                    layer.dataProvider().dataSourceUri()
+                    not layer.dataProvider()
+                    or layer.dataProvider().dataSourceUri()
                     not in existing_layer_source_uris
                 ):
                     if self.static_sorting:
