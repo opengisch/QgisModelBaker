@@ -16,6 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
+
 from QgisModelBaker.libili2db.globals import DbIliMode
 
 from .db_factory import DbFactory
@@ -61,6 +63,9 @@ class DbSimpleFactory:
             result = available_database_factories[
                 DbIliMode(index)
             ]()  # instantiate factory
+        else:
+            logger = logging.getLogger(__name__)
+            logger.warning("Database factory not found for '{}'".format(index.name))
 
         return result
 
