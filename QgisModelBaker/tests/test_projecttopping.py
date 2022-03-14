@@ -72,6 +72,8 @@ class TestProjectTopping(unittest.TestCase):
     def test_kbs_postgis_qlr_layers(self):
         """
         Checks if layers can be added with a qlr defintion file by the layertree structure.
+        Checks if groups can be added (containing layers itself) with a qlr definition file by the layertree structure.
+        Checks if layers can be added with no source info as invalid layers.
         """
 
         importer, result = self.importer()
@@ -100,8 +102,10 @@ class TestProjectTopping(unittest.TestCase):
                 available_layers, layertree_structure=layertree_data["legend"]
             )
 
-        # "Roads from QLR" layer is appended
-        assert len(available_layers) == 17
+        # QLR defined layer ("Roads from QLR") is appended
+        # layers from QLR defined group are not
+        # invalid layers ("An invalid layer" and "Another invalid layer") are appended
+        assert len(available_layers) == 19
 
         relations, _ = generator.relations(available_layers)
 
@@ -125,21 +129,36 @@ class TestProjectTopping(unittest.TestCase):
             "Belasteter_Standort (Geo_Lage_Polygon)",
         ]
 
-        # check if the qlr layers are properly loaded
         qlr_layers_group = qgis_project.layerTreeRoot().findGroup("Other Layers")
         assert qlr_layers_group is not None
-        qlr_layers_group.findLayers()
-        # assert [layer.name() for layer in qlr_layers_group_layers] == [
-        #    "The Road Signs",
-        # ]
+        qlr_layers_group_layers = qlr_layers_group.findLayers()
 
-        qlr_group = qlr_layers_group.findGroup("QLR-Group")  # should be "Simple Roads"
+        # qlr layer ("Roads from QLR") is properly loaded
+        assert "The Road Signs" in [layer.name() for layer in qlr_layers_group_layers]
+
+        # qlr group ("QLR-Group") is properly loaded
+        qlr_group = qlr_layers_group.findGroup("Simple Roads")
         assert qlr_group is not None
-        qlr_group.findLayers()
-        # assert [layer.name() for layer in qlr_layers_group_layers] == [
-        #    "The Road Signs",
-        #    etc.
-        # ]
+
+        # layers from the qlr group are properly loaded
+        qlr_group_layers = qlr_group.findLayers()
+        expected_qlr_group_layers = [
+            "StreetNamePosition",
+            "StreetAxis",
+            "LandCover",
+            "Street",
+            "LandCover_Type",
+            "RoadSign_Type",
+        ]
+        assert set(expected_qlr_group_layers).issubset(
+            [layer.name() for layer in qlr_group_layers]
+        )
+
+        # invalid layers are loaded as well
+        expected_invalid_layers = ["An invalid layer", "Another invalid layer"]
+        assert set(expected_invalid_layers).issubset(
+            [layer.name() for layer in qlr_layers_group_layers]
+        )
 
     '''
     def test_kbs_postgis_ili_layers(self):
