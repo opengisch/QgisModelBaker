@@ -121,6 +121,7 @@ def get_db_connector(configuration):
             ),
             "QGIS Model Baker",
         )
+        return None
     except FileNotFoundError as file_not_found_error:
         QgsMessageLog.logMessage(
             "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
@@ -128,7 +129,6 @@ def get_db_connector(configuration):
             ),
             "QGIS Model Baker",
         )
-    finally:
         return None
 
 
