@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeLayer, QgsProject
+from qgis.core import QgsLayerDefinition, QgsLayerTreeLayer, QgsProject
 
 from QgisModelBaker.libqgsprojectgen.utils.qgis_utils import (
     get_group_non_recursive,
@@ -36,6 +36,7 @@ class LegendGroup(object):
         self.checked = True
         self.mutually_exclusive = False
         self.mutually_exclusive_child = -1
+        self.definitionfile = None
 
         self.static_sorting = static_sorting
 
@@ -79,6 +80,12 @@ class LegendGroup(object):
         static_index = 0
         for item in self.items:
             if isinstance(item, LegendGroup):
+                if item.definitionfile:
+                    QgsLayerDefinition.loadLayerDefinition(
+                        item.definitionfile, qgis_project, group
+                    )
+                    continue
+
                 subgroup = get_group_non_recursive(group, item.name)
                 if subgroup is None:
                     subgroup = group.addGroup(item.name)

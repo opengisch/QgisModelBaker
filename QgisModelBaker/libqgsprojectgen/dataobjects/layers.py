@@ -136,15 +136,15 @@ class Layer(object):
         self.__form.load(definition["form"])
 
     def create(self):
-        if self.__layer is None and self.definitionfile:
-            print(self.definitionfile)
-            layers = QgsLayerDefinition.loadLayerDefinitionLayers(self.definitionfile)
-            print(layers)
-            if layers:
-                print("getfirst")
-                self.__layer = layers[0]
-                print(self.__layer.name())
-                return self.__layer
+        if self.definitionfile:
+            if self.__layer is None:
+                layers = QgsLayerDefinition.loadLayerDefinitionLayers(
+                    self.definitionfile
+                )
+                if layers:
+                    self.__layer = layers[0]
+            return self.__layer
+
         if self.__layer is None:
             layer_name = self.alias or self.name
 
