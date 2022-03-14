@@ -19,7 +19,11 @@
 
 from enum import IntEnum
 
-import pgserviceparser
+try:
+    import QgisModelBaker.libs.pgserviceparser
+except:
+    import pgserviceparser
+
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
 from QgisModelBaker.libili2db.globals import DbActionType
