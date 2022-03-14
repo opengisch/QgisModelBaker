@@ -50,6 +50,7 @@ class Generator(QObject):
         parent=None,
         mgmt_uri=None,
         consider_basket_handling=False,
+        path_resolver=lambda path: path,
     ):
         """
         Creates a new Generator objects.
@@ -64,6 +65,7 @@ class Generator(QObject):
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = pg_estimated_metadata
+        self.path_resolver = path_resolver
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -475,10 +477,10 @@ class Generator(QObject):
 
     def full_node(self, layers, item):
         current_node = None
-        item_properties = {}
         if item and isinstance(item, dict):
             current_node_name = next(iter(item))
-            item_properties = item.get(current_node_name)
+            # when the node exists, but there is no content we proceed with an empty dict
+            item_properties = item.get(current_node_name, None) or {}
             if item_properties.get("group"):
                 # get group
                 current_node = self.generate_node(
@@ -494,7 +496,9 @@ class Generator(QObject):
                 current_node.mutually_exclusive_child = item_properties.get(
                     "mutually-exclusive-child", -1
                 )
-                current_node.definitionfile = item_properties.get("definitionfile")
+                current_node.definitionfile = self.path_resolver(
+                    item_properties.get("definitionfile")
+                )
 
                 # append child-nodes
                 if "child-nodes" in item_properties:
@@ -517,7 +521,9 @@ class Generator(QObject):
                 current_node.expanded = item_properties.get("expanded", True)
                 current_node.checked = item_properties.get("checked", True)
                 current_node.featurecount = item_properties.get("featurecount", False)
-                current_node.definitionfile = item_properties.get("definitionfile")
+                current_node.definitionfile = self.path_resolver(
+                    item_properties.get("definitionfile")
+                )
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
