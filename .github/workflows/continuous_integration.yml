@@ -25,6 +25,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: Test on QGIS
         run: docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
       - name: Test on QGIS with PG

@@ -32,9 +32,6 @@ do
 done
 echo ""
 
-# Install needed packages
-/usr/src/scripts/package_pip_packages.sh
-
 pushd /usr/src
 DEFAULT_PARAMS='-v'
 xvfb-run pytest ${@:-`echo $DEFAULT_PARAMS`}
