@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsApplication, QgsAuthMethodConfig
+from qgis.core import QgsApplication, QgsAuthMethodConfig, QgsMessageLog
 
 from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.utils.qt_utils import slugify
@@ -114,7 +114,21 @@ def get_db_connector(configuration):
 
     try:
         return db_factory.get_db_connector(uri_string, schema)
-    except (DBConnectorError, FileNotFoundError):
+    except DBConnectorError as db_connector_error:
+        QgsMessageLog.logMessage(
+            "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                db_connector_error
+            ),
+            "QGIS Model Baker",
+        )
+        return None
+    except FileNotFoundError as file_not_found_error:
+        QgsMessageLog.logMessage(
+            "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                file_not_found_error
+            ),
+            "QGIS Model Baker",
+        )
         return None
 
 

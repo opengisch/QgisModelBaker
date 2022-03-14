@@ -405,14 +405,25 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
                 self.progress_bar.setValue(30)
-            except (DBConnectorError, FileNotFoundError):
+            except DBConnectorError as db_connector_error:
                 self.txtStdout.setText(
                     self.tr(
-                        "There was an error connecting to the database. Check connection parameters."
+                        "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                            db_connector_error
+                        )
                     )
                 )
-                self.enable()
-                self.progress_bar.hide()
+                self.progress_bar.setValue(0)
+                return
+            except FileNotFoundError as file_not_found_error:
+                self.txtStdout.setText(
+                    self.tr(
+                        "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                            file_not_found_error
+                        )
+                    )
+                )
+                self.progress_bar.setValue(0)
                 return
 
             if not interlis_mode:
