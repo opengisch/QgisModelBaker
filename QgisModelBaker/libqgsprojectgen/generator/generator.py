@@ -462,25 +462,30 @@ class Generator(QObject):
                             }
         return (relations, bags_of_enum)
 
-    def generate_layer_node(self, layers, node_name, item_properties):
-        layer = Layer(alias=node_name)  # create dummy
-        if item_properties and "definitionfile" in item_properties:
-            layer.definitionfile = item_properties["definitionfile"]
+    def generate_node(self, layers, node_name, item_properties):
+        if item_properties.get("group"):
+            node = LegendGroup(
+                QCoreApplication.translate("LegendGroup", node_name),
+                static_sorting=True,
+            )
         else:
-            print("can only create with definition file at the moment")
-        layers.append(layer)
-        return layer
+            node = Layer(alias=node_name)  # create dummy
+            layers.append(node)
+        return node
 
     def full_node(self, layers, item):
         current_node = None
+        item_properties = {}
         if item and isinstance(item, dict):
             current_node_name = next(iter(item))
-            item_properties = item[current_node_name]
-            if item_properties and item_properties.get("group"):
-                current_node = LegendGroup(
-                    QCoreApplication.translate("LegendGroup", current_node_name),
-                    static_sorting=True,
+            item_properties = item.get(current_node_name)
+            if item_properties.get("group"):
+                # get group
+                current_node = self.generate_node(
+                    layers, current_node_name, item_properties
                 )
+
+                # append properties
                 current_node.expanded = item_properties.get("expanded", True)
                 current_node.checked = item_properties.get("checked", True)
                 current_node.mutually_exclusive = item_properties.get(
@@ -489,29 +494,30 @@ class Generator(QObject):
                 current_node.mutually_exclusive_child = item_properties.get(
                     "mutually-exclusive-child", -1
                 )
+                current_node.definitionfile = item_properties.get("definitionfile")
 
+                # append child-nodes
                 if "child-nodes" in item_properties:
                     for child_item in item_properties["child-nodes"]:
                         node = self.full_node(layers, child_item)
                         if node:
                             current_node.append(node)
             else:
+                # get layer
                 for layer in layers:
                     if layer.alias == current_node_name:
                         current_node = layer
-                        if item_properties:
-                            current_node.expanded = item_properties.get(
-                                "expanded", True
-                            )
-                            current_node.checked = item_properties.get("checked", True)
-                            current_node.featurecount = item_properties.get(
-                                "featurecount", False
-                            )
                         break
                 if not current_node:
-                    current_node = self.generate_layer_node(
+                    current_node = self.generate_node(
                         layers, current_node_name, item_properties
                     )
+
+                # append properties
+                current_node.expanded = item_properties.get("expanded", True)
+                current_node.checked = item_properties.get("checked", True)
+                current_node.featurecount = item_properties.get("featurecount", False)
+                current_node.definitionfile = item_properties.get("definitionfile")
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):
