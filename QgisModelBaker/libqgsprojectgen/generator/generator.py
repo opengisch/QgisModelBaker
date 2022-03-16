@@ -528,6 +528,9 @@ class Generator(QObject):
                 current_node.definitionfile = self.path_resolver(
                     item_properties.get("definitionfile")
                 )
+                current_node.qmlstylefile = self.path_resolver(
+                    item_properties.get("qmlstylefile")
+                )
         return current_node
 
     def legend(self, layers, ignore_node_names=None, layertree_structure=None):

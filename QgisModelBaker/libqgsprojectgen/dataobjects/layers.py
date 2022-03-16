@@ -57,6 +57,7 @@ class Layer(object):
         is_dataset_table=False,
         ili_name=None,
         definitionfile=None,
+        qmlstylefile=None,
     ):
         self.provider = provider
         self.uri = uri
@@ -100,6 +101,7 @@ class Layer(object):
                 )
 
         self.definitionfile = definitionfile
+        self.qmlstylefile = qmlstylefile
 
         self.__form = Form()
 
@@ -122,6 +124,7 @@ class Layer(object):
         definition["modeltopicname"] = self.model_topic_name
         definition["ili_name"] = self.ili_name
         definition["definitionfile"] = self.definitionfile
+        definition["qmlstylefile"] = self.qmlstylefile
         definition["form"] = self.__form.dump()
         return definition
 
@@ -138,6 +141,7 @@ class Layer(object):
         self.model_topic_name = definition["modeltopicname"]
         self.ili_name = definition["ili_name"]
         self.definitionfile = definition["definitionfile"]
+        self.qmlstylefile = definition["qmlstylefile"]
         self.__form.load(definition["form"])
 
     def create(self):
@@ -193,6 +197,10 @@ class Layer(object):
     def create_form(self, project):
         edit_form = self.__form.create(self, self.__layer, project)
         self.__layer.setEditFormConfig(edit_form)
+
+    def load_style(self):
+        if self.qmlstylefile:
+            self.__layer.loadNamedStyle(self.qmlstylefile)
 
     def _create_layer(self, uri, layer_name, provider):
         if provider and provider.lower() == "wms":

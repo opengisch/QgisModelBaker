@@ -26,7 +26,7 @@ import shutil
 import tempfile
 
 import yaml
-from qgis.core import QgsProject
+from qgis.core import QgsEditFormConfig, QgsProject
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db import iliimporter
@@ -279,6 +279,117 @@ class TestProjectTopping(unittest.TestCase):
                 assert qgis_layer.isValid()
             if layer.name() == "Local Landcover":
                 assert qgis_layer.dataProvider().name() == "ogr"
+
+    def test_kbs_postgis_qml_styles(self):
+        """
+        Checks if qml style files can be applied by the layer tree.
+        """
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(
+            importer.tool, self.toppings_test_path
+        )
+        importer.configuration.ilimodels = "KbS_LV95_V1_4"
+        importer.configuration.dbschema = "toppings_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+        importer.configuration.srs_code = "2056"
+        importer.configuration.tomlfile = os.path.join(
+            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+        )
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2pg,
+            get_pg_connection_string(),
+            "smart2",
+            importer.configuration.dbschema,
+            path_resolver=lambda path: os.path.join(self.toppings_test_path, path)
+            if path
+            else None,
+        )
+        available_layers = generator.layers()
+
+        assert len(available_layers) == 16
+
+        # load the projecttopping file
+        layertree_data_file_path = os.path.join(
+            self.toppings_test_path,
+            "layertree/opengis_projecttopping_qml_KbS_LV95_V1_4.yaml",
+        )
+
+        with open(layertree_data_file_path, "r") as yamlfile:
+            layertree_data = yaml.safe_load(yamlfile)
+            assert "legend" in layertree_data
+            legend = generator.legend(
+                available_layers, layertree_structure=layertree_data["legend"]
+            )
+
+        # No layers added now - stays 16
+        assert len(available_layers) == 16
+
+        relations, _ = generator.relations(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.legend = legend
+        project.relations = relations
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+        count = 0
+
+        for layer in available_layers:
+            if (
+                layer.name == "belasteter_standort"
+                and layer.geometry_column == "geo_lage_punkt"
+            ):
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
+                tabs = edit_form_config.tabs()
+                assert len(tabs) == 5
+                assert tabs[0].name() == "Allgemein"
+                field_names = set([field.name() for field in tabs[0].children()])
+                assert field_names == {
+                    "geo_lage_polygon",
+                    "bemerkung_de",
+                    "letzteanpassung",
+                    "zustaendigkeitkataster",
+                    "url_standort",
+                    "bemerkung_rm",
+                    "standorttyp",
+                    "bemerkung_en",
+                    "inbetrieb",
+                    "geo_lage_punkt",
+                    "bemerkung_it",
+                    "url_kbs_auszug",
+                    "bemerkung",
+                    "nachsorge",
+                    "ersteintrag",
+                    "bemerkung_fr",
+                    "katasternummer",
+                    "statusaltlv",
+                }
+
+                for field in layer.layer.fields():
+                    if field.name() == "bemerkung_rm":
+                        assert field.alias() == "Bemerkung Romanisch"
+                    if field.name() == "bemerkung_it":
+                        assert field.alias() == "Bemerkung Italienisch"
+            if layer.name == "parzellenidentifikation":
+                count += 1
+                assert (
+                    layer.layer.displayExpression()
+                    == "nbident || ' - '  || \"parzellennummer\" "
+                )
+
+        # check if the layers have been considered
+        assert count == 2
 
     def print_info(self, text):
         logging.info(text)
