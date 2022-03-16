@@ -521,6 +521,10 @@ class Generator(QObject):
                 current_node.expanded = item_properties.get("expanded", True)
                 current_node.checked = item_properties.get("checked", True)
                 current_node.featurecount = item_properties.get("featurecount", False)
+                if "uri" in item_properties:
+                    current_node.uri = item_properties.get("uri")
+                if "provider" in item_properties:
+                    current_node.provider = item_properties.get("provider")
                 current_node.definitionfile = self.path_resolver(
                     item_properties.get("definitionfile")
                 )

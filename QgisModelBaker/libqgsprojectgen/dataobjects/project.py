@@ -23,6 +23,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsEditorWidgetSetup,
     QgsLayerTreeGroup,
+    QgsMapLayer,
     QgsProject,
 )
 from qgis.PyQt.QtCore import QObject, pyqtSignal
@@ -217,7 +218,8 @@ class Project(QObject):
                     )
 
         for layer in self.layers:
-            layer.create_form(self)
+            if layer.layer.type() == QgsMapLayer.VectorLayer:
+                layer.create_form(self)
 
         if self.legend:
             self.legend.create(qgis_project, group)

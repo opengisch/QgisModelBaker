@@ -25,6 +25,7 @@ from qgis.core import (
     QgsDataSourceUri,
     QgsExpressionContextUtils,
     QgsLayerDefinition,
+    QgsRasterLayer,
     QgsRectangle,
     QgsVectorLayer,
     QgsWkbTypes,
@@ -119,6 +120,8 @@ class Layer(object):
         definition["displayexpression"] = self.display_expression
         definition["coordinateprecision"] = self.coordinate_precision
         definition["modeltopicname"] = self.model_topic_name
+        definition["ili_name"] = self.ili_name
+        definition["definitionfile"] = self.definitionfile
         definition["form"] = self.__form.dump()
         return definition
 
@@ -133,6 +136,8 @@ class Layer(object):
         self.display_expression = definition["displayexpression"]
         self.coordinate_precision = definition["coordinateprecision"]
         self.model_topic_name = definition["modeltopicname"]
+        self.ili_name = definition["ili_name"]
+        self.definitionfile = definition["definitionfile"]
         self.__form.load(definition["form"])
 
     def create(self):
@@ -154,7 +159,7 @@ class Layer(object):
                 "/Projections/defaultBehaviour", "prompt", type=str
             )
             settings.setValue("/Projections/defaultBehaviour", "useProject")
-            self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+            self.__layer = self._create_layer(self.uri, layer_name, self.provider)
             settings.setValue("/Projections/defaultBehavior", old_proj_value)
 
             if (
@@ -188,6 +193,12 @@ class Layer(object):
     def create_form(self, project):
         edit_form = self.__form.create(self, self.__layer, project)
         self.__layer.setEditFormConfig(edit_form)
+
+    def _create_layer(self, uri, layer_name, provider):
+        if provider and provider.lower() == "wms":
+            return QgsRasterLayer(uri, layer_name, provider)
+        # return QgsVectorLayer even when it's an invalid layer with no provider
+        return QgsVectorLayer(uri, layer_name, provider)
 
     def post_generate(self, project):
         """
