@@ -47,7 +47,13 @@ class TestProjectTopping(unittest.TestCase):
         cls.basetestpath = tempfile.mkdtemp()
         cls.toppings_test_path = os.path.join(test_path, "testdata", "ilirepo", "24")
 
-    def importer(self):
+    def test_kbs_postgis_qlr_layers(self):
+        """
+        Checks if layers can be added with a qlr defintion file by the layertree structure.
+        Checks if groups can be added (containing layers itself) with a qlr definition file by the layertree structure.
+        Checks if layers can be added with no source info as invalid layers.
+        """
+
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
@@ -63,18 +69,7 @@ class TestProjectTopping(unittest.TestCase):
         )
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-        result = importer.run()
-        return importer, result
-
-    def test_kbs_postgis_qlr_layers(self):
-        """
-        Checks if layers can be added with a qlr defintion file by the layertree structure.
-        Checks if groups can be added (containing layers itself) with a qlr definition file by the layertree structure.
-        Checks if layers can be added with no source info as invalid layers.
-        """
-
-        importer, result = self.importer()
-        assert result == iliimporter.Importer.SUCCESS
+        assert importer.run() == iliimporter.Importer.SUCCESS
 
         generator = Generator(
             DbIliMode.ili2pg,
@@ -140,24 +135,150 @@ class TestProjectTopping(unittest.TestCase):
         qlr_group = qlr_layers_group.findGroup("Simple Roads")
         assert qlr_group is not None
 
-        # layers from the qlr group are properly loaded
         qlr_group_layers = qlr_group.findLayers()
-
-        expected_qlr_group_layers = [
+        expected_qlr_layers = {
             "StreetNamePosition",
             "StreetAxis",
             "LandCover",
             "Street",
             "LandCover_Type",
             "RoadSign_Type",
-        ]
-        assert (expected_qlr_group_layers) == len(qlr_group_layers)
+            "The Road Signs",
+        }
+        assert set([layer.name() for layer in qlr_group_layers]) == expected_qlr_layers
 
-        # invalid layers are loaded as well
-        assert "An invalid layer" in [layer.name() for layer in qlr_layers_group_layers]
-        assert "Another invalid layer" in [
-            layer.name() for layer in qlr_layers_group_layers
+    def test_kbs_postgis_source_layers(self):
+        """
+        Checks if layers can be added with "ogr" provider and uri defined in the layertree structure.
+        Checks if layers can be added with "postgres" provider and uri defined in the layertree structure.
+        Checks if layers can be added with "wms" provider and uri defined in the layertree structure.
+        Checks if layers can be added with no source info as invalid layers.
+        """
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(
+            importer.tool, self.toppings_test_path
+        )
+        importer.configuration.ilimodels = "KbS_LV95_V1_4"
+        importer.configuration.dbschema = "toppings_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+        importer.configuration.srs_code = "2056"
+        importer.configuration.tomlfile = os.path.join(
+            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+        )
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2pg,
+            get_pg_connection_string(),
+            "smart2",
+            importer.configuration.dbschema,
+            path_resolver=lambda path: os.path.join(self.toppings_test_path, path)
+            if path
+            else None,
+        )
+        available_layers = generator.layers()
+
+        assert len(available_layers) == 16
+
+        # load the projecttopping file
+        layertree_data_file_path = os.path.join(
+            self.toppings_test_path,
+            "layertree/opengis_projecttopping_source_KbS_LV95_V1_4.yaml",
+        )
+
+        # write dynamic parameters in the new file
+        test_layertree_data_file_path = os.path.join(
+            test_path, "testtree_{:%Y%m%d%H%M%S%f}.yaml".format(datetime.datetime.now())
+        )
+        with open(layertree_data_file_path, "r") as file:
+            filedata = file.read()
+
+            filedata = filedata.replace("{test_path}", os.path.join(test_path))
+            filedata = filedata.replace("{PGHOST}", importer.configuration.dbhost)
+            filedata = filedata.replace(
+                "{test_schema}", importer.configuration.dbschema
+            )
+
+            with open(test_layertree_data_file_path, "w") as file:
+                file.write(filedata)
+
+        with open(test_layertree_data_file_path, "r") as yamlfile:
+            layertree_data = yaml.safe_load(yamlfile)
+            assert "legend" in layertree_data
+            legend = generator.legend(
+                available_layers, layertree_structure=layertree_data["legend"]
+            )
+
+        # ogr layer is added ("Local Landcover")
+        # postgres layer is added ("Local Belasteter Standort")
+        # wms layer is added ("Local WMS")
+        # invalid layers ("An invalid layer" and "Another invalid layer") are appended
+        assert len(available_layers) == 21
+
+        relations, _ = generator.relations(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.legend = legend
+        project.relations = relations
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        # check if the ili layers are properly loaded
+        ili_layers_group = qgis_project.layerTreeRoot().findGroup(
+            "KbS_LV95_V1_4 Layers"
+        )
+        assert ili_layers_group is not None
+        ili_layers_group_layers = ili_layers_group.findLayers()
+        assert [layer.name() for layer in ili_layers_group_layers] == [
+            "Belasteter_Standort (Geo_Lage_Punkt)",
+            "Belasteter_Standort (Geo_Lage_Polygon)",
         ]
+
+        source_layers_group = qgis_project.layerTreeRoot().findGroup("Other Layers")
+        assert source_layers_group is not None
+
+        # ogr layer ("Local Landcover") is properly loaded
+        source_layers_group_layers = source_layers_group.findLayers()
+        expected_source_layers = {
+            "Local Landcover",
+            "Local Zuständigkeit Kataster",
+            "Local WMS",
+            "An invalid layer",
+            "Another invalid layer",
+        }
+        assert (
+            set([layer.name() for layer in source_layers_group_layers])
+            == expected_source_layers
+        )
+
+        for layer in source_layers_group_layers:
+            qgis_layer = layer.layer()
+            if layer.name() == "Local WMS":
+                assert qgis_layer.dataProvider().name() == "wms"
+                print(qgis_layer.dataProvider().dataSourceUri())
+                assert (
+                    qgis_layer.dataProvider().dataSourceUri()
+                    == "contextualWMSLegend=0&crs=EPSG:2056&dpiMode=7&featureCount=10&format=image/jpeg&layers=ch.bav.kataster-belasteter-standorte-oev_lines&styles=default&url=https://wms.geo.admin.ch/?%0ASERVICE%3DWMS%0A%26VERSION%3D1.3.0%0A%26REQUEST%3DGetCapabilities"
+                )
+                assert qgis_layer.isValid()
+            if layer.name() == "Local Zuständigkeit Kataster":
+                assert qgis_layer.dataProvider().name() == "postgres"
+                print(qgis_layer.dataProvider().dataSourceUri())
+                assert (
+                    qgis_layer.dataProvider().dataSourceUri()
+                    == f"dbname='gis' host={importer.configuration.dbhost} user='docker' password='docker' key='t_id' checkPrimaryKeyUnicity='1' table=\"{importer.configuration.dbschema}\".\"zustaendigkeitkataster\""
+                )
+                assert qgis_layer.isValid()
+            if layer.name() == "Local Landcover":
+                assert qgis_layer.dataProvider().name() == "ogr"
 
     def print_info(self, text):
         logging.info(text)
