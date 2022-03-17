@@ -76,9 +76,6 @@ class TestProjectTopping(unittest.TestCase):
             get_pg_connection_string(),
             "smart2",
             importer.configuration.dbschema,
-            path_resolver=lambda path: os.path.join(self.toppings_test_path, path)
-            if path
-            else None,
         )
         available_layers = generator.layers()
 
@@ -94,7 +91,13 @@ class TestProjectTopping(unittest.TestCase):
             layertree_data = yaml.safe_load(yamlfile)
             assert "legend" in layertree_data
             legend = generator.legend(
-                available_layers, layertree_structure=layertree_data["legend"]
+                available_layers,
+                layertree_structure=layertree_data["legend"],
+                path_resolver=lambda path: os.path.join(
+                    os.path.dirname(layertree_data_file_path), path
+                )
+                if path
+                else None,
             )
 
         # QLR defined layer ("Roads from QLR") is appended
@@ -177,9 +180,6 @@ class TestProjectTopping(unittest.TestCase):
             get_pg_connection_string(),
             "smart2",
             importer.configuration.dbschema,
-            path_resolver=lambda path: os.path.join(self.toppings_test_path, path)
-            if path
-            else None,
         )
         available_layers = generator.layers()
 
@@ -211,7 +211,13 @@ class TestProjectTopping(unittest.TestCase):
             layertree_data = yaml.safe_load(yamlfile)
             assert "legend" in layertree_data
             legend = generator.legend(
-                available_layers, layertree_structure=layertree_data["legend"]
+                available_layers,
+                layertree_structure=layertree_data["legend"],
+                path_resolver=lambda path: os.path.join(
+                    os.path.dirname(layertree_data_file_path), path
+                )
+                if path
+                else None,
             )
 
         # ogr layer is added ("Local Landcover")
@@ -307,9 +313,6 @@ class TestProjectTopping(unittest.TestCase):
             get_pg_connection_string(),
             "smart2",
             importer.configuration.dbschema,
-            path_resolver=lambda path: os.path.join(self.toppings_test_path, path)
-            if path
-            else None,
         )
         available_layers = generator.layers()
 
@@ -325,7 +328,13 @@ class TestProjectTopping(unittest.TestCase):
             layertree_data = yaml.safe_load(yamlfile)
             assert "legend" in layertree_data
             legend = generator.legend(
-                available_layers, layertree_structure=layertree_data["legend"]
+                available_layers,
+                layertree_structure=layertree_data["legend"],
+                path_resolver=lambda path: os.path.join(
+                    os.path.dirname(layertree_data_file_path), path
+                )
+                if path
+                else None,
             )
 
         # No layers added now - stays 16

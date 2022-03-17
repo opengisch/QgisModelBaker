@@ -8,7 +8,7 @@ legend:
         group: true
         child-nodes:
             - "Roads from QLR": # layer called "The Road Signs" with qlr source
-                definitionfile: "qlr/the_road_signs.qlr"
+                definitionfile: "../qlr/the_road_signs.qlr"
                 #definitionfile: "/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/ilirepo/24/qlr/the_road_signs.qlr"
             - "QLR-Group":
                 # group called "Simple Roads" with qlr source
@@ -22,6 +22,6 @@ legend:
                 #   - "LandCover_Type"
                 #   - "RoadSign_Type"
                 group: true
-                definitionfile: "qlr/simple_roads_complete.qlr"
+                definitionfile: "../qlr/simple_roads_complete.qlr"
             - "An invalid layer": # no qlr, no layer from ili, no source
             - "Another invalid layer": # no qlr, no layer from ili, no source

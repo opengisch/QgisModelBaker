@@ -50,7 +50,6 @@ class Generator(QObject):
         parent=None,
         mgmt_uri=None,
         consider_basket_handling=False,
-        path_resolver=lambda path: path,
     ):
         """
         Creates a new Generator objects.
@@ -65,7 +64,6 @@ class Generator(QObject):
         self.inheritance = inheritance
         self.schema = schema or None
         self.pg_estimated_metadata = pg_estimated_metadata
-        self.path_resolver = path_resolver
 
         self.db_simple_factory = DbSimpleFactory()
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -475,7 +473,7 @@ class Generator(QObject):
             layers.append(node)
         return node
 
-    def full_node(self, layers, item):
+    def full_node(self, layers, item, path_resolver=lambda path: path):
         current_node = None
         if item and isinstance(item, dict):
             current_node_name = next(iter(item))
@@ -496,14 +494,14 @@ class Generator(QObject):
                 current_node.mutually_exclusive_child = item_properties.get(
                     "mutually-exclusive-child", -1
                 )
-                current_node.definitionfile = self.path_resolver(
+                current_node.definitionfile = path_resolver(
                     item_properties.get("definitionfile")
                 )
 
                 # append child-nodes
                 if "child-nodes" in item_properties:
                     for child_item in item_properties["child-nodes"]:
-                        node = self.full_node(layers, child_item)
+                        node = self.full_node(layers, child_item, path_resolver)
                         if node:
                             current_node.append(node)
             else:
@@ -525,15 +523,21 @@ class Generator(QObject):
                     current_node.uri = item_properties.get("uri")
                 if "provider" in item_properties:
                     current_node.provider = item_properties.get("provider")
-                current_node.definitionfile = self.path_resolver(
+                current_node.definitionfile = path_resolver(
                     item_properties.get("definitionfile")
                 )
-                current_node.qmlstylefile = self.path_resolver(
+                current_node.qmlstylefile = path_resolver(
                     item_properties.get("qmlstylefile")
                 )
         return current_node
 
-    def legend(self, layers, ignore_node_names=None, layertree_structure=None):
+    def legend(
+        self,
+        layers,
+        ignore_node_names=None,
+        layertree_structure=None,
+        path_resolver=lambda path: path,
+    ):
         legend = LegendGroup(
             QCoreApplication.translate("LegendGroup", "root"),
             ignore_node_names=ignore_node_names,
@@ -541,7 +545,7 @@ class Generator(QObject):
         )
         if layertree_structure:
             for item in layertree_structure:
-                node = self.full_node(layers, item)
+                node = self.full_node(layers, item, path_resolver)
                 if node:
                     legend.append(node)
         else:
