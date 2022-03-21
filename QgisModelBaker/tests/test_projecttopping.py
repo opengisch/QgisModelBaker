@@ -27,10 +27,12 @@ import tempfile
 
 import yaml
 from qgis.core import QgsEditFormConfig, QgsProject
+from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.libili2db import iliimporter
 from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
 from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
 from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
 from QgisModelBaker.tests.utils import get_pg_connection_string, iliimporter_config
@@ -82,19 +84,19 @@ class TestProjectTopping(unittest.TestCase):
         assert len(available_layers) == 16
 
         # load the projecttopping file
-        layertree_data_file_path = os.path.join(
+        projecttopping_file_path = os.path.join(
             self.toppings_test_path,
             "layertree/opengis_projecttopping_qlr_KbS_LV95_V1_4.yaml",
         )
 
-        with open(layertree_data_file_path, "r") as yamlfile:
-            layertree_data = yaml.safe_load(yamlfile)
-            assert "legend" in layertree_data
+        with open(projecttopping_file_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "legend" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=layertree_data["legend"],
+                layertree_structure=projecttopping_data["legend"],
                 path_resolver=lambda path: os.path.join(
-                    os.path.dirname(layertree_data_file_path), path
+                    os.path.dirname(projecttopping_file_path), path
                 )
                 if path
                 else None,
@@ -186,16 +188,16 @@ class TestProjectTopping(unittest.TestCase):
         assert len(available_layers) == 16
 
         # load the projecttopping file
-        layertree_data_file_path = os.path.join(
+        projecttopping_file_path = os.path.join(
             self.toppings_test_path,
             "layertree/opengis_projecttopping_source_KbS_LV95_V1_4.yaml",
         )
 
         # write dynamic parameters in the new file
-        test_layertree_data_file_path = os.path.join(
+        test_projecttopping_file_path = os.path.join(
             test_path, "testtree_{:%Y%m%d%H%M%S%f}.yaml".format(datetime.datetime.now())
         )
-        with open(layertree_data_file_path, "r") as file:
+        with open(projecttopping_file_path, "r") as file:
             filedata = file.read()
 
             filedata = filedata.replace("{test_path}", os.path.join(test_path))
@@ -204,17 +206,17 @@ class TestProjectTopping(unittest.TestCase):
                 "{test_schema}", importer.configuration.dbschema
             )
 
-            with open(test_layertree_data_file_path, "w") as file:
+            with open(test_projecttopping_file_path, "w") as file:
                 file.write(filedata)
 
-        with open(test_layertree_data_file_path, "r") as yamlfile:
-            layertree_data = yaml.safe_load(yamlfile)
-            assert "legend" in layertree_data
+        with open(test_projecttopping_file_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "legend" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=layertree_data["legend"],
+                layertree_structure=projecttopping_data["legend"],
                 path_resolver=lambda path: os.path.join(
-                    os.path.dirname(layertree_data_file_path), path
+                    os.path.dirname(projecttopping_file_path), path
                 )
                 if path
                 else None,
@@ -319,19 +321,19 @@ class TestProjectTopping(unittest.TestCase):
         assert len(available_layers) == 16
 
         # load the projecttopping file
-        layertree_data_file_path = os.path.join(
+        projecttopping_file_path = os.path.join(
             self.toppings_test_path,
             "layertree/opengis_projecttopping_qml_KbS_LV95_V1_4.yaml",
         )
 
-        with open(layertree_data_file_path, "r") as yamlfile:
-            layertree_data = yaml.safe_load(yamlfile)
-            assert "legend" in layertree_data
+        with open(projecttopping_file_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "legend" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=layertree_data["legend"],
+                layertree_structure=projecttopping_data["legend"],
                 path_resolver=lambda path: os.path.join(
-                    os.path.dirname(layertree_data_file_path), path
+                    os.path.dirname(projecttopping_file_path), path
                 )
                 if path
                 else None,
@@ -399,6 +401,191 @@ class TestProjectTopping(unittest.TestCase):
 
         # check if the layers have been considered
         assert count == 2
+
+    def test_kbs_postgis_ilidata(self):
+        """
+        Checks if qml style files can be got over ilidata.xml and applied by the layer tree.
+        Checks if qlr style files can be got over ilidata.xml and applied by the layer tree.
+        """
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2pg
+        importer.configuration = iliimporter_config(
+            importer.tool, self.toppings_test_path
+        )
+        importer.configuration.ilimodels = "KbS_LV95_V1_4"
+        importer.configuration.dbschema = "toppings_{:%Y%m%d%H%M%S%f}".format(
+            datetime.datetime.now()
+        )
+        importer.configuration.srs_code = "2056"
+        importer.configuration.tomlfile = os.path.join(
+            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+        )
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        generator = Generator(
+            DbIliMode.ili2pg,
+            get_pg_connection_string(),
+            "smart2",
+            importer.configuration.dbschema,
+        )
+        available_layers = generator.layers()
+
+        assert len(available_layers) == 16
+
+        # load the projecttopping file
+        projecttopping_file_path = os.path.join(
+            self.toppings_test_path,
+            "layertree/opengis_projecttopping_ilidata_KbS_LV95_V1_4.yaml",
+        )
+
+        with open(projecttopping_file_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "legend" in projecttopping_data
+            legend = generator.legend(
+                available_layers,
+                layertree_structure=projecttopping_data["legend"],
+                path_resolver=lambda path: self.ilidata_path_resolver(
+                    importer.configuration.base_configuration,
+                    os.path.dirname(projecttopping_file_path),
+                    path,
+                )
+                if path
+                else None,
+            )
+
+        # QLR defined layer ("Roads from QLR") is appended
+        # layers from QLR defined group are not
+        # invalid layers ("An invalid layer" and "Another invalid layer") are appended
+        assert len(available_layers) == 19
+
+        relations, _ = generator.relations(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.legend = legend
+        project.relations = relations
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        belasteter_standort_geo_lage_punkt = None
+        parzellenidentifikation = None
+        for layer in available_layers:
+            if (
+                layer.name == "belasteter_standort"
+                and layer.geometry_column == "geo_lage_punkt"
+            ):
+                belasteter_standort_geo_lage_punkt = layer
+            if layer.name == "parzellenidentifikation":
+                parzellenidentifikation = layer
+
+        # check qml from file
+        assert belasteter_standort_geo_lage_punkt
+        edit_form_config = belasteter_standort_geo_lage_punkt.layer.editFormConfig()
+        assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
+        tabs = edit_form_config.tabs()
+        assert len(tabs) == 5
+        assert tabs[0].name() == "Allgemein"
+        field_names = set([field.name() for field in tabs[0].children()])
+        assert field_names == {
+            "geo_lage_polygon",
+            "bemerkung_de",
+            "letzteanpassung",
+            "zustaendigkeitkataster",
+            "url_standort",
+            "bemerkung_rm",
+            "standorttyp",
+            "bemerkung_en",
+            "inbetrieb",
+            "geo_lage_punkt",
+            "bemerkung_it",
+            "url_kbs_auszug",
+            "bemerkung",
+            "nachsorge",
+            "ersteintrag",
+            "bemerkung_fr",
+            "katasternummer",
+            "statusaltlv",
+        }
+        for field in belasteter_standort_geo_lage_punkt.layer.fields():
+            if field.name() == "bemerkung_rm":
+                assert field.alias() == "Bemerkung Romanisch"
+            if field.name() == "bemerkung_it":
+                assert field.alias() == "Bemerkung Italienisch"
+
+        # check qml from ilidata
+        assert parzellenidentifikation
+        assert (
+            parzellenidentifikation.layer.displayExpression()
+            == "nbident || ' - '  || \"parzellennummer\" "
+        )
+
+        qlr_layers_group = qgis_project.layerTreeRoot().findGroup("Other Layers")
+        assert qlr_layers_group is not None
+
+        # check qlr from ilidata ("Roads from QLR") is properly loaded
+        qlr_layers_group_layers = qlr_layers_group.findLayers()
+        assert "The Road Signs" in [layer.name() for layer in qlr_layers_group_layers]
+
+        # check qlr group from ifle ("QLR-Group") is properly loaded
+        qlr_group = qlr_layers_group.findGroup("Simple Roads")
+        assert qlr_group is not None
+
+        qlr_group_layers = qlr_group.findLayers()
+        expected_qlr_layers = {
+            "StreetNamePosition",
+            "StreetAxis",
+            "LandCover",
+            "Street",
+            "LandCover_Type",
+            "RoadSign_Type",
+            "The Road Signs",
+        }
+        assert set([layer.name() for layer in qlr_group_layers]) == expected_qlr_layers
+
+    # that's the same like in generate_project.py and workflow_wizard.py
+    def get_topping_file_list(self, base_config, id_list):
+        topping_file_model = self.get_topping_file_model(base_config, id_list)
+        file_path_list = []
+
+        for file_id in id_list:
+            matches = topping_file_model.match(
+                topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1
+            )
+            if matches:
+                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                file_path_list.append(file_path)
+        return file_path_list
+
+    def get_topping_file_model(self, base_config, id_list):
+        topping_file_cache = IliToppingFileCache(base_config, id_list)
+
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        topping_file_cache.refresh()
+
+        if len(topping_file_cache.downloaded_files) != len(id_list):
+            loop.exec()
+
+        return topping_file_cache.model
+
+    # that's the same (more or less) like in project_creation_page.py
+
+    def ilidata_path_resolver(self, base_config, base_path, path):
+        if "ilidata:" in path or "file:" in path:
+            data_file_path_list = self.get_topping_file_list(base_config, [path])
+            return data_file_path_list[0] if data_file_path_list else None
+        return os.path.join(base_path, path)
 
     def print_info(self, text):
         logging.info(text)
