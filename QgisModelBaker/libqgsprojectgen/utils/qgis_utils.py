@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsMapLayer, QgsWkbTypes
+from qgis.core import Qgis, QgsLayerTreeNode, QgsMapLayer, QgsWkbTypes
 
 layer_order = [
     "point",  # QgsWkbTypes.PointGeometry
