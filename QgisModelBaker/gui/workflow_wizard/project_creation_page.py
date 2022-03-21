@@ -141,13 +141,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         ):
             configuration_section = self.configuration.metaconfig["CONFIGURATION"]
             # get topping referenced in qgis.modelbaker.projecttopping
-            key = None
-            if "qgis.modelbaker.projecttopping" in configuration_section:
-                key = "qgis.modelbaker.projecttopping"
-            if "qgis.modelbaker.layertree" in configuration_section:
+            key = "qgis.modelbaker.projecttopping"
+            if key not in configuration_section:
                 key = "qgis.modelbaker.layertree"
-
-            if key:
+            if key in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("Metaconfig contains a project topping."),
                     LogColor.COLOR_TOPPING,
@@ -156,11 +153,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 projecttopping_file_path_list = (
                     self.workflow_wizard.get_topping_file_list(projecttopping_data_list)
                 )
-
-        # override for test - to remove @dave
-        projecttopping_file_path_list = [
-            "/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/ilirepo/24/layertree/opengis_projecttopping_ilidata_KbS_LV95_V1_4.yaml"
-        ]
 
         if len(projecttopping_file_path_list) > 1:
             self.workflow_wizard.log_panel.print_info(
