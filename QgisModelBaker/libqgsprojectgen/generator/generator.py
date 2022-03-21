@@ -226,7 +226,7 @@ class Generator(QObject):
                 coordinate_precision,
                 is_basket_table,
                 is_dataset_table,
-                record.get("ili_name", None),
+                record.get("ili_name"),
             )
 
             # Configure fields for current table
