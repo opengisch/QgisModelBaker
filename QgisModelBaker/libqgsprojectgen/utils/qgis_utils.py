@@ -106,3 +106,12 @@ def get_layer_type(layer):
         return "raster"
     else:
         return "unknown"
+
+
+def get_group_non_recursive(group, group_name):
+    groups = group.findGroups(False)
+    for group in groups:
+        if group.name() == group_name:
+            return group
+
+    return None

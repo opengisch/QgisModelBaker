@@ -20,9 +20,9 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 from QgisModelBaker.gui.panel.db_config_panel import DbConfigPanel
-from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libqgsprojectgen.dataobjects.fields import Field
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 
 from ..dbconnector.db_connector import DBConnector
 from .db_command_config_manager import DbCommandConfigManager
@@ -95,20 +95,6 @@ class DbFactory(ABC):
         :param configuration: Configuration parameters with which were executed the operation of generate project.
         :type configuration: :class:`Ili2DbCommandConfiguration`
         :return: *True* and an empty message if the called method was succeeded, *False* and a warning message otherwise.
-        """
-
-    @abstractmethod
-    def get_tool_version(self, db_ili_version):
-        """Returns the version of ili2db implementation, regarding to the given version of the used database
-
-        :return: str ili2db version.
-        """
-
-    @abstractmethod
-    def get_tool_url(self, db_ili_version):
-        """Returns download url of ili2db implementation.
-
-        :return str A download url.
         """
 
     def get_specific_messages(self):

@@ -19,13 +19,17 @@
 """
 from typing import List
 
-from qgis.core import QgsCoordinateReferenceSystem, QgsEditorWidgetSetup, QgsProject
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsEditorWidgetSetup,
+    QgsLayerTreeGroup,
+    QgsProject,
+)
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from QgisModelBaker.libqgsprojectgen.dataobjects.layers import Layer
 from QgisModelBaker.libqgsprojectgen.dataobjects.legend import LegendGroup
 from QgisModelBaker.libqgsprojectgen.dataobjects.relations import Relation
-from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
 ENUM_THIS_CLASS_COLUMN = "thisclass"
 
@@ -33,7 +37,7 @@ ENUM_THIS_CLASS_COLUMN = "thisclass"
 class Project(QObject):
     layer_added = pyqtSignal(str)
 
-    def __init__(self, auto_transaction=True, evaluate_default_values=True):
+    def __init__(self, auto_transaction=True, evaluate_default_values=True, context={}):
         QObject.__init__(self)
         self.crs = None
         self.name = "Not set"
@@ -43,6 +47,7 @@ class Project(QObject):
         self.auto_transaction = auto_transaction
         self.evaluate_default_values = evaluate_default_values
         self.relations = List[Relation]
+        self.context = context
 
         # {Layer_class_name: {dbattribute: {Layer_class, cardinality, Layer_domain, key_field, value_field]}
         self.bags_of_enum = dict()
@@ -81,7 +86,9 @@ class Project(QObject):
             layer.load(layer_definition)
             self.layers.append(layer)
 
-    def create(self, path: str, qgis_project: QgsProject):
+    def create(
+        self, path: str, qgis_project: QgsProject, group: QgsLayerTreeGroup = None
+    ):
         qgis_project.setAutoTransaction(self.auto_transaction)
         qgis_project.setEvaluateDefaultValues(self.evaluate_default_values)
         qgis_layers = list()
@@ -146,7 +153,7 @@ class Project(QObject):
                             "T_ILI2DB_DATASET"
                             if referenced_layer.provider == "ogr"
                             else "t_ili2db_dataset",
-                            CATALOGUE_DATASETNAME,
+                            self.context.get("catalogue_datasetname", ""),
                         )
                         if referencing_layer.model_topic_name
                         else "",
@@ -213,7 +220,7 @@ class Project(QObject):
             layer.create_form(self)
 
         if self.legend:
-            self.legend.create(qgis_project)
+            self.legend.create(qgis_project, group)
 
         custom_layer_order = list()
         for custom_layer_name in self.custom_layer_order_structure:

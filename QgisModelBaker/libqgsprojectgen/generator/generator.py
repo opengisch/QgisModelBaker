@@ -49,11 +49,13 @@ class Generator(QObject):
         pg_estimated_metadata=False,
         parent=None,
         mgmt_uri=None,
+        consider_basket_handling=False,
     ):
         """
         Creates a new Generator objects.
         :param uri: The uri that should be used in the resulting project. If authcfg is used, make sure the mgmt_uri is set as well.
         :param mgmt_uri: The uri that should be used to create schemas, tables and query meta information. Does not support authcfg.
+        :consider_basket_handling: Makes the specific handling of basket tables depending if schema is created with createBasketCol.
         """
         QObject.__init__(self, parent)
         self.tool = tool
@@ -68,6 +70,7 @@ class Generator(QObject):
         self._db_connector = db_factory.get_db_connector(mgmt_uri or uri, schema)
         self._db_connector.stdout.connect(self.print_info)
         self._db_connector.new_message.connect(self.append_print_message)
+        self.basket_handling = consider_basket_handling and self.get_basket_handling()
 
         self._additional_ignored_layers = (
             []
@@ -90,8 +93,8 @@ class Generator(QObject):
             self.collected_print_messages.append(message)
 
     def layers(self, filter_layer_list=[]):
-        tables_info = self.get_tables_info_without_ignored_tables()
-        basket_handling = self.get_basket_handling()
+        ignore_basket_tables = not self.basket_handling
+        tables_info = self.get_tables_info_without_ignored_tables(ignore_basket_tables)
         layers = list()
 
         db_factory = self.db_simple_factory.create_factory(self.tool)
@@ -129,10 +132,11 @@ class Generator(QObject):
             is_attribute = bool(record.get("attribute_name"))
             is_structure = record.get("kind_settings") == "STRUCTURE"
             is_nmrel = record.get("kind_settings") == "ASSOCIATION"
-            is_basket_table = (
+            # only when the basked_handling is active we will consider the table as basket table (according to it's name)
+            is_basket_table = self.basket_handling and (
                 record.get("tablename") == self._db_connector.basket_table_name
             )
-            is_dataset_table = (
+            is_dataset_table = self.basket_handling and (
                 record.get("tablename") == self._db_connector.dataset_table_name
             )
 
@@ -275,7 +279,7 @@ class Generator(QObject):
                 if column_name in IGNORED_FIELDNAMES:
                     hide_attribute = True
 
-                if not basket_handling and column_name in BASKET_FIELDNAMES:
+                if not self.basket_handling and column_name in BASKET_FIELDNAMES:
                     hide_attribute = True
 
                 field.hidden = hide_attribute
@@ -339,7 +343,7 @@ class Generator(QObject):
                         "default_value_expression"
                     ]
 
-                if basket_handling and column_name in BASKET_FIELDNAMES:
+                if self.basket_handling and column_name in BASKET_FIELDNAMES:
                     if self.tool in [
                         DbIliMode.pg,
                         DbIliMode.ili2pg,
@@ -544,12 +548,10 @@ class Generator(QObject):
                     legend.append(node)
         else:
             tables = LegendGroup(QCoreApplication.translate("LegendGroup", "tables"))
-            domains = LegendGroup(
-                QCoreApplication.translate("LegendGroup", "domains"), False
-            )
-            system = LegendGroup(
-                QCoreApplication.translate("LegendGroup", "system"), False
-            )
+            domains = LegendGroup(QCoreApplication.translate("LegendGroup", "domains"))
+            domains.expanded = False
+            system = LegendGroup(QCoreApplication.translate("LegendGroup", "system"))
+            system.expanded = False
 
             point_layers = []
             line_layers = []
@@ -600,8 +602,11 @@ class Generator(QObject):
     def set_additional_ignored_layers(self, layer_list):
         self._additional_ignored_layers = layer_list
 
-    def get_ignored_layers(self):
-        return self._db_connector.get_ignored_layers() + self._additional_ignored_layers
+    def get_ignored_layers(self, ignore_basket_tables=True):
+        return (
+            self._db_connector.get_ignored_layers(ignore_basket_tables)
+            + self._additional_ignored_layers
+        )
 
     def get_tables_info(self):
         return self._db_connector.get_tables_info()
@@ -615,9 +620,9 @@ class Generator(QObject):
     def get_fields_info(self, table_name):
         return self._db_connector.get_fields_info(table_name)
 
-    def get_tables_info_without_ignored_tables(self):
+    def get_tables_info_without_ignored_tables(self, ignore_basket_tables=True):
         tables_info = self.get_tables_info()
-        ignored_layers = self.get_ignored_layers()
+        ignored_layers = self.get_ignored_layers(ignore_basket_tables)
         new_tables_info = []
         for record in tables_info:
             if self.schema:

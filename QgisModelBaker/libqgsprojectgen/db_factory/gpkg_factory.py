@@ -45,25 +45,6 @@ class GpkgFactory(DbFactory):
     def post_generate_project_validations(self, configuration):
         return True, ""
 
-    def get_tool_version(self, db_ili_version):
-        """Returns ili2gpkg version, regarding to the given version of the used database
-
-        :return: str ili2gpkg version.
-        """
-        if db_ili_version == 3:
-            return "3.11.3"
-        else:
-            return "4.6.1"
-
-    def get_tool_url(self, db_ili_version):
-        """Returns download url of ili2gpkg.
-
-        :return str A download url.
-        """
-        return "https://downloads.interlis.ch/ili2gpkg/ili2gpkg-{version}.zip".format(
-            version=self.get_tool_version(db_ili_version)
-        )
-
     def get_specific_messages(self):
         messages = {"db_or_schema": "database", "layers_source": "GeoPackage"}
 

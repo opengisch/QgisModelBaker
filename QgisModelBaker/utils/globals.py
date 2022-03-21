@@ -18,5 +18,27 @@
  ***************************************************************************/
 """
 
+from qgis.PyQt.QtCore import QCoreApplication
+
+from QgisModelBaker.libili2db.globals import DbIliMode
+
+CRS_PATTERNS = {"LV95": 2056, "LV03": 21781}
+
 DEFAULT_DATASETNAME = "Baseset"
 CATALOGUE_DATASETNAME = "Catalogueset"
+
+displayDbIliMode = {
+    DbIliMode.pg: QCoreApplication.translate("QgisModelBaker", "PostGIS"),
+    DbIliMode.gpkg: QCoreApplication.translate("QgisModelBaker", "GeoPackage"),
+    DbIliMode.mssql: QCoreApplication.translate("QgisModelBaker", "SQL Server"),
+    DbIliMode.ili: QCoreApplication.translate("QgisModelBaker", "Interlis"),
+    DbIliMode.ili2pg: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use PostGIS)"
+    ),
+    DbIliMode.ili2gpkg: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use GeoPackage)"
+    ),
+    DbIliMode.ili2mssql: QCoreApplication.translate(
+        "QgisModelBaker", "Interlis (use SQL Server)"
+    ),
+}

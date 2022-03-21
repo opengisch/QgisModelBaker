@@ -20,14 +20,19 @@
 
 from qgis.core import QgsLayerTreeLayer, QgsProject
 
-from QgisModelBaker.utils.qgis_utils import get_suggested_index_for_layer
+from QgisModelBaker.libqgsprojectgen.utils.qgis_utils import (
+    get_group_non_recursive,
+    get_suggested_index_for_layer,
+)
 
 
 class LegendGroup(object):
-    def __init__(self, name=None, ignore_node_names=None, static_sorting=False):
+    def __init__(
+        self, name=None, expanded=True, ignore_node_names=None, static_sorting=False
+    ):
         self.name = name
         self.items = list()
-        self.expanded = True
+        self.expanded = expanded
         self.checked = True
         self.mutually_exclusive = False
         self.mutually_exclusive_child = -1
@@ -73,7 +78,7 @@ class LegendGroup(object):
         static_index = 0
         for item in self.items:
             if isinstance(item, LegendGroup):
-                subgroup = group.findGroup(item.name)
+                subgroup = get_group_non_recursive(group, item.name)
                 if subgroup is None:
                     subgroup = group.addGroup(item.name)
                 item.create(qgis_project, subgroup)

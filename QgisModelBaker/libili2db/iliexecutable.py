@@ -23,13 +23,13 @@ from abc import abstractmethod
 
 from qgis.PyQt.QtCore import QEventLoop, QObject, QProcess, pyqtSignal
 
+from QgisModelBaker.libili2db.ili2dbargs import get_ili2db_args
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
 from QgisModelBaker.libili2db.ili2dbutils import (
     JavaNotFoundError,
     get_ili2db_bin,
     get_java_path,
 )
-from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.utils.qt_utils import AbstractQObjectMeta
 
 
@@ -80,12 +80,8 @@ class IliExecutable(QObject, metaclass=AbstractQObjectMeta):
         :rtype: list
         """
         self.configuration.tool = self.tool
-        db_simple_factory = DbSimpleFactory()
-        db_factory = db_simple_factory.create_factory(self.tool)
 
-        config_manager = db_factory.get_db_command_config_manager(self.configuration)
-
-        return config_manager.get_ili2db_args(hide_password)
+        return get_ili2db_args(self.configuration, hide_password)
 
     def _ili2db_jar_arg(self):
         ili2db_bin = get_ili2db_bin(

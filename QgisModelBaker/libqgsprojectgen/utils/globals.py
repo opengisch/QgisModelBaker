@@ -2,10 +2,10 @@
 """
 /***************************************************************************
                               -------------------
-        begin                : 3.10.2017
+        begin                : 07.03.2022
         git sha              : :%H$
-        copyright            : (C) 2017 by Matthias Kuhn
-        email                : matthias@opengis.ch
+        copyright            : (C) 2022 by Matthias Kuhn
+        email                : david@opengis.ch
  ***************************************************************************/
 
 /***************************************************************************
@@ -17,16 +17,12 @@
  *                                                                         *
  ***************************************************************************/
 """
-from enum import IntFlag
+from enum import Enum
 
 
-class DbIliMode(IntFlag):
-    pg = 1
-    gpkg = 2
-    mssql = 4
+class DbActionType(Enum):
+    """Defines constants for generate, import data, or export actions of QgisModelBaker."""
 
-    ili = 1024
-
-    ili2pg = ili | pg
-    ili2gpkg = ili | gpkg
-    ili2mssql = ili | mssql
+    GENERATE = 1
+    IMPORT_DATA = 2
+    EXPORT = 3
