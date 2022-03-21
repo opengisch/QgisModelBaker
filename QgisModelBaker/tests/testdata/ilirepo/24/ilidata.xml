@@ -839,6 +839,29 @@
           </DatasetIdx16.DataIndex.BasketMetadata>
         </baskets>
     </DatasetIdx16.DataIndex.DatasetMetadata>
+
+    <!-- qlr -->
+    <DatasetIdx16.DataIndex.DatasetMetadata TID="da8a3c67-7edd-4383-b7c1-44dd5f5dfac5">
+      <id>ch.opengis.topping.opengisch_roadsigns_layer_101</id>
+      <version>2021-01-20</version>
+      <owner>mailto:david@opengis.ch</owner>
+      <categories>
+        <DatasetIdx16.Code_>
+          <value>http://codes.interlis.ch/type/qlr</value>
+        </DatasetIdx16.Code_>
+      </categories>
+      <files>
+        <DatasetIdx16.DataFile>
+          <fileFormat>text/plain;version=2.3</fileFormat>
+          <file>
+            <DatasetIdx16.File>
+              <path>qlr/the_road_signs.qlr</path>
+            </DatasetIdx16.File>
+          </file>
+        </DatasetIdx16.DataFile>
+      </files>
+    </DatasetIdx16.DataIndex.DatasetMetadata>
+
    </DatasetIdx16.DataIndex>
   </DATASECTION>
 </TRANSFER>

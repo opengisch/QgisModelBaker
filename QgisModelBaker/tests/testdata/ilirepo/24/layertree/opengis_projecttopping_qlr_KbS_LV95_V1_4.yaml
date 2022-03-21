@@ -9,7 +9,6 @@ legend:
         child-nodes:
             - "Roads from QLR": # layer called "The Road Signs" with qlr source
                 definitionfile: "../qlr/the_road_signs.qlr"
-                #definitionfile: "/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/ilirepo/24/qlr/the_road_signs.qlr"
             - "QLR-Group":
                 # group called "Simple Roads" with qlr source
                 # contains tree itself:
