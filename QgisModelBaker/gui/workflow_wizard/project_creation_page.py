@@ -18,6 +18,8 @@
  ***************************************************************************/
 """
 
+import os
+
 import yaml
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import Qt
@@ -131,50 +133,73 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         custom_layer_order_structure = list()
 
-        # Toppings legend and layers: collect, download and apply
+        # Project topping file for legend and layers: collect and download
+        projecttopping_file_path_list = []
         if (
             self.configuration.metaconfig
             and "CONFIGURATION" in self.configuration.metaconfig.sections()
         ):
             configuration_section = self.configuration.metaconfig["CONFIGURATION"]
+            # get topping referenced in qgis.modelbaker.projecttopping
+            key = None
+            if "qgis.modelbaker.projecttopping" in configuration_section:
+                key = "qgis.modelbaker.projecttopping"
             if "qgis.modelbaker.layertree" in configuration_section:
+                key = "qgis.modelbaker.layertree"
+
+            if key:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("Metaconfig contains a layertree structure topping."),
+                    self.tr("Metaconfig contains a project topping."),
                     LogColor.COLOR_TOPPING,
                 )
-                layertree_data_list = configuration_section[
-                    "qgis.modelbaker.layertree"
-                ].split(";")
-                layertree_data_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(layertree_data_list)
+                projecttopping_data_list = configuration_section[key].split(";")
+                projecttopping_file_path_list = (
+                    self.workflow_wizard.get_topping_file_list(projecttopping_data_list)
                 )
-                for layertree_file_path in layertree_data_file_path_list:
+
+        # override for test - to remove @dave
+        projecttopping_file_path_list = [
+            "/home/dave/dev/opengisch/QgisModelBaker/QgisModelBaker/tests/testdata/ilirepo/24/layertree/opengis_projecttopping_ilidata_KbS_LV95_V1_4.yaml"
+        ]
+
+        if len(projecttopping_file_path_list) > 1:
+            self.workflow_wizard.log_panel.print_info(
+                self.tr(
+                    "Multiple project toppings can lead to unexpected behavior, when the sections are not clearly separated."
+                ),
+                LogColor.COLOR_TOPPING,
+            )
+
+        for projecttopping_file_path in projecttopping_file_path_list:
+            self.workflow_wizard.log_panel.print_info(
+                self.tr("Parse project topping file {}…").format(
+                    projecttopping_file_path
+                ),
+                LogColor.COLOR_TOPPING,
+            )
+            with open(projecttopping_file_path, "r") as stream:
+                try:
+                    projecttopping_data = yaml.safe_load(stream)
+                    if "legend" in projecttopping_data:
+                        legend = generator.legend(
+                            available_layers,
+                            layertree_structure=projecttopping_data["legend"],
+                            path_resolver=lambda path: self.ilidata_path_resolver(
+                                os.path.dirname(projecttopping_file_path), path
+                            )
+                            if path
+                            else None,
+                        )
+                    if "layer-order" in projecttopping_data:
+                        custom_layer_order_structure = projecttopping_data[
+                            "layer-order"
+                        ]
+                except yaml.YAMLError as exc:
                     self.workflow_wizard.log_panel.print_info(
-                        self.tr("Parse layertree structure {}…").format(
-                            layertree_file_path
-                        ),
+                        self.tr("Unable to parse project topping: {}").format(exc),
                         LogColor.COLOR_TOPPING,
                     )
 
-                    with open(layertree_file_path, "r") as stream:
-                        try:
-                            layertree_data = yaml.safe_load(stream)
-                            if "legend" in layertree_data:
-                                legend = generator.legend(
-                                    available_layers,
-                                    layertree_structure=layertree_data["legend"],
-                                )
-                            if "layer-order" in layertree_data:
-                                custom_layer_order_structure = layertree_data[
-                                    "layer-order"
-                                ]
-                        except yaml.YAMLError as exc:
-                            self.workflow_wizard.log_panel.print_info(
-                                self.tr(
-                                    "Unable to parse layertree structure: {}"
-                                ).format(exc),
-                                LogColor.COLOR_TOPPING,
-                            )
         self.progress_bar.setValue(55)
 
         # on geopackages we don't use the transaction mode on default, since this leaded to troubles
@@ -207,7 +232,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(60)
 
-        # Toppings QMLs: collect, download and apply
+        # QML Toppings in the metadata: collect, download and apply
+        # This configuration is legacy (should be in project topping instead), but it's still supported
         if (
             self.configuration.metaconfig
             and "qgis.modelbaker.qml" in self.configuration.metaconfig.sections()
@@ -247,3 +273,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(100)
         self.workflow_wizard.log_panel.print_info(self.tr("It's served!"))
+
+    def ilidata_path_resolver(self, base_path, path):
+        if "ilidata:" in path or "file:" in path:
+            data_file_path_list = self.workflow_wizard.get_topping_file_list([path])
+            return data_file_path_list[0] if data_file_path_list else None
+        return os.path.join(base_path, path)
