@@ -19,6 +19,7 @@
 """
 
 from qgis.core import (
+    Qgis,
     QgsAttributeEditorContainer,
     QgsAttributeEditorField,
     QgsAttributeEditorRelation,
