@@ -44,7 +44,6 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
-from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import (
     ExportConfiguration,
     ImportDataConfiguration,
@@ -52,6 +51,7 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     UpdateDataConfiguration,
 )
 from QgisModelBaker.libili2db.ilicache import IliDataCache, IliToppingFileCache
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 from QgisModelBaker.utils.gui_utils import (
     ImportDataModel,
     ImportModelsModel,
@@ -83,6 +83,7 @@ class WorkflowWizard(QWizard):
         # configuration objects are keeped on top level to be able to access them from individual pages
         self.base_config = base_config
         self.import_schema_configuration = SchemaImportConfiguration()
+        self.import_schema_configuration.create_basket_col = True
         self.import_data_configuration = ImportDataConfiguration()
         self.update_data_configuration = UpdateDataConfiguration()
         self.export_data_configuration = ExportConfiguration()

@@ -23,8 +23,10 @@ from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
 import QgisModelBaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.utils.globals import displayDbIliMode
 from QgisModelBaker.utils.gui_utils import DatasetModel
 
 from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory

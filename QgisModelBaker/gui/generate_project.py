@@ -48,11 +48,6 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
-from QgisModelBaker.libili2db.globals import (
-    CRS_PATTERNS,
-    DbActionType,
-    displayDbIliMode,
-)
 from QgisModelBaker.libili2db.ili2dbconfig import (
     ImportDataConfiguration,
     SchemaImportConfiguration,
@@ -67,6 +62,8 @@ from QgisModelBaker.libili2db.ilicache import (
     MetaConfigCompleterDelegate,
     ModelCompleterDelegate,
 )
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.utils.globals import CRS_PATTERNS, displayDbIliMode
 from QgisModelBaker.utils.qt_utils import (
     FileValidator,
     NonEmptyStringValidator,
@@ -82,6 +79,7 @@ from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ..libqgsprojectgen.generator.generator import Generator
 from ..utils import gui_utils
+from ..utils.globals import CATALOGUE_DATASETNAME
 from ..utils.gui_utils import LogColor
 
 DIALOG_UI = gui_utils.get_ui_class("generate_project.ui")
@@ -401,6 +399,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     configuration.inheritance,
                     configuration.dbschema,
                     mgmt_uri=mgmt_uri,
+                    consider_basket_handling=True,
                 )
                 generator.stdout.connect(self.print_info)
                 generator.new_message.connect(self.show_message)
@@ -516,7 +515,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             # on geopackages we don't use the transaction mode on default, since this leaded to troubles
             auto_transaction = not bool(configuration.tool & DbIliMode.gpkg)
-            project = Project(auto_transaction)
+            project = Project(
+                auto_transaction,
+                context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
+            )
             project.layers = available_layers
             project.relations = relations
             project.bags_of_enum = bags_of_enum
@@ -699,6 +701,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         :return: Configuration
         """
         configuration = SchemaImportConfiguration()
+        configuration.create_basket_col = True
 
         mode = self.type_combo_box.currentData()
         db_id = mode & ~DbIliMode.ili
@@ -781,6 +784,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             configuration = SchemaImportConfiguration()
+            configuration.create_basket_col = True
             db_factory = self.db_simple_factory.create_factory(db_id)
             config_manager = db_factory.get_db_command_config_manager(configuration)
             config_manager.load_config_from_qsettings()

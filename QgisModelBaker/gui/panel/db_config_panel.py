@@ -22,8 +22,8 @@ from typing import Tuple
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import QWidget
 
-from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 
 
 class AbstractQWidgetMeta(ABCMeta, type(QWidget)):

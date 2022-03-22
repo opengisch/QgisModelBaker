@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeNode, QgsMapLayer, QgsWkbTypes
+from qgis.core import Qgis, QgsLayerTreeNode, QgsMapLayer, QgsWkbTypes
 
 layer_order = [
     "point",  # QgsWkbTypes.PointGeometry
@@ -109,7 +109,11 @@ def get_layer_type(layer):
 
 
 def get_group_non_recursive(group, group_name):
-    groups = group.findGroups(False)
+    groups = (
+        group.findGroups(False)
+        if Qgis.QGIS_VERSION_INT >= 31800
+        else group.findGroups()
+    )
     for group in groups:
         if group.name() == group_name:
             return group

@@ -26,7 +26,7 @@ except:
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
-from QgisModelBaker.libili2db.globals import DbActionType
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
 
 from ...utils import gui_utils

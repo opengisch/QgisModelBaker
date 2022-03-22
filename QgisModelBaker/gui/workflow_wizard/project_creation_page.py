@@ -23,6 +23,7 @@ from qgis.core import QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
+from QgisModelBaker.libili2db.globals import DbIliMode
 from QgisModelBaker.libili2db.ilicache import IliToppingFileItemModel
 
 from ...libqgsprojectgen.dataobjects.project import Project
@@ -30,6 +31,7 @@ from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
 from ...libqgsprojectgen.generator.generator import Generator
 from ...utils import gui_utils
+from ...utils.globals import CATALOGUE_DATASETNAME
 from ...utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
@@ -70,6 +72,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.configuration.inheritance,
                 self.configuration.dbschema,
                 mgmt_uri=mgmt_uri,
+                consider_basket_handling=True,
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
@@ -186,7 +189,11 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             )
         self.progress_bar.setValue(55)
 
-        project = Project()
+        # on geopackages we don't use the transaction mode on default, since this leaded to troubles
+        project = Project(
+            auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg),
+            context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
+        )
         project.layers = available_layers
         project.relations = relations
         project.bags_of_enum = bags_of_enum

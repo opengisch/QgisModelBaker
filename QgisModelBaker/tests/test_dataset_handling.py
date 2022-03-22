@@ -54,8 +54,8 @@ class TestDatasetHandling(unittest.TestCase):
         importer.configuration.dbschema = "any_{:%Y%m%d%H%M%S%f}".format(
             datetime.datetime.now()
         )
-        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = "smart2"
+        importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -119,8 +119,8 @@ class TestDatasetHandling(unittest.TestCase):
         importer.configuration.dbfile = os.path.join(
             self.basetestpath, "tmp_basket_gpkg.gpkg"
         )
-        importer.configuration.srs_code = 21781
         importer.configuration.inheritance = "smart2"
+        importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -185,7 +185,7 @@ class TestDatasetHandling(unittest.TestCase):
         importer.configuration.dbschema = "baskets_{:%Y%m%d%H%M%S%f}".format(
             datetime.datetime.now()
         )
-        importer.configuration.srs_code = 21781
+        importer.configuration.create_basket_col = True
         importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)

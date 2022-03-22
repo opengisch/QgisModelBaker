@@ -21,8 +21,10 @@
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.libili2db.globals import DbActionType, DbIliMode, displayDbIliMode
+from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 from QgisModelBaker.utils import db_utils
+from QgisModelBaker.utils.globals import displayDbIliMode
 
 from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 from ...utils import gui_utils

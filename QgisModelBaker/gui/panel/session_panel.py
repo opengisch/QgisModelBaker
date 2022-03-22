@@ -26,8 +26,8 @@ from qgis.PyQt.QtWidgets import QAction, QWidget
 import QgisModelBaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.edit_command import EditCommandDialog
-from QgisModelBaker.libili2db.globals import DbActionType
 from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
 from QgisModelBaker.utils.gui_utils import LogColor
 from QgisModelBaker.utils.qt_utils import OverrideCursor

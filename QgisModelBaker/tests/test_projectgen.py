@@ -50,6 +50,7 @@ from QgisModelBaker.tests.utils import (
     iliimporter_config,
     testdata_path,
 )
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
 start_app()
 
@@ -127,7 +128,6 @@ class TestProjectGen(unittest.TestCase):
                         "bemerkung",
                         "geo_lage_punkt",
                         "bemerkung_de",
-                        "t_basket",
                     ]
                 )
 
@@ -150,7 +150,7 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_polygon_layer = layer
 
         assert count == 1
-        assert len(available_layers) == 18
+        assert len(available_layers) == 16
 
         assert (
             len(
@@ -158,7 +158,7 @@ class TestProjectGen(unittest.TestCase):
                     belasteter_standort_polygon_layer.layer
                 )
             )
-            > 3
+            > 2
         )
         assert (
             len(
@@ -174,7 +174,7 @@ class TestProjectGen(unittest.TestCase):
                     belasteter_standort_punkt_layer.layer
                 )
             )
-            > 3
+            > 2
         )
         assert (
             len(
@@ -249,7 +249,6 @@ class TestProjectGen(unittest.TestCase):
                         "bemerkung_it",
                         "bemerkung_en",
                         "geo_lage_punkt",
-                        "t_basket",
                     ]
                 )
 
@@ -272,7 +271,7 @@ class TestProjectGen(unittest.TestCase):
                 belasteter_standort_polygon_layer = layer
 
         assert count == 1
-        assert len(available_layers) == 18
+        assert len(available_layers) == 16
 
         assert (
             len(
@@ -280,7 +279,7 @@ class TestProjectGen(unittest.TestCase):
                     belasteter_standort_polygon_layer.layer
                 )
             )
-            > 3
+            > 2
         )
         assert (
             len(
@@ -296,7 +295,7 @@ class TestProjectGen(unittest.TestCase):
                     belasteter_standort_punkt_layer.layer
                 )
             )
-            > 3
+            > 2
         )
         assert (
             len(
@@ -369,7 +368,6 @@ class TestProjectGen(unittest.TestCase):
                         "standorttyp",
                         "bemerkung",
                         "bemerkung_de",
-                        "T_basket",
                     ]
                 )
 
@@ -412,8 +410,6 @@ class TestProjectGen(unittest.TestCase):
                     "untersmassn_",
                     "parzellenidentifikation",
                     "belasteter_standort_geo_lage_punkt",
-                    "T_ILI2DB_BASKET",
-                    "T_ILI2DB_DATASET",
                 ]
             )
             == set([layer.name for layer in available_layers])
@@ -480,7 +476,6 @@ class TestProjectGen(unittest.TestCase):
                         "bemerkung_rm",
                         "bemerkung_it",
                         "bemerkung_en",
-                        "T_basket",
                     ]
                 )
 
@@ -523,8 +518,6 @@ class TestProjectGen(unittest.TestCase):
                     "untersmassn_",
                     "parzellenidentifikation",
                     "belasteter_standort_geo_lage_punkt",
-                    "T_ILI2DB_BASKET",
-                    "T_ILI2DB_DATASET",
                 ]
             )
             == set([layer.name for layer in available_layers])
@@ -555,9 +548,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 13
-        assert len(available_layers) == 25
-        assert len(relations) == 29
+        assert len(ignored_layers) == 15
+        assert len(available_layers) == 23
+        assert len(relations) == 13
 
     def test_naturschutz_geopackage(self):
         importer = iliimporter.Importer()
@@ -586,9 +579,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 22
-        assert len(available_layers) == 25
-        assert len(relations) == 29
+        assert len(ignored_layers) == 24
+        assert len(available_layers) == 23
+        assert len(relations) == 13
 
     def test_naturschutz_mssql(self):
         importer = iliimporter.Importer()
@@ -621,9 +614,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 17
-        assert len(available_layers) == 25
-        assert len(relations) == 38
+        assert len(ignored_layers) == 19
+        assert len(available_layers) == 23
+        assert len(relations) == 22
 
     def test_naturschutz_set_ignored_layers_postgis(self):
         importer = iliimporter.Importer()
@@ -651,9 +644,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 15
-        assert len(available_layers) == 23
-        assert len(relations) == 26
+        assert len(ignored_layers) == 17
+        assert len(available_layers) == 21
+        assert len(relations) == 12
 
     def test_naturschutz_set_ignored_layers_geopackage(self):
         importer = iliimporter.Importer()
@@ -684,9 +677,9 @@ class TestProjectGen(unittest.TestCase):
         legend = generator.legend(available_layers)
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 24
-        assert len(available_layers) == 23
-        assert len(relations) == 26
+        assert len(ignored_layers) == 26
+        assert len(available_layers) == 21
+        assert len(relations) == 12
 
         project = Project()
         project.layers = available_layers
@@ -734,9 +727,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 19
-        assert len(available_layers) == 23
-        assert len(relations) == 35
+        assert len(ignored_layers) == 21
+        assert len(available_layers) == 21
+        assert len(relations) == 21
 
     def test_naturschutz_nometa_postgis(self):
         # model with missing meta attributes for multigeometry - no layers should be ignored
@@ -764,9 +757,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 7
-        assert len(available_layers) == 31
-        assert len(relations) == 45
+        assert len(ignored_layers) == 9
+        assert len(available_layers) == 29
+        assert len(relations) == 23
 
     def test_naturschutz_nometa_geopackage(self):
         # model with missing meta attributes for multigeometry - no layers should be ignored
@@ -796,9 +789,9 @@ class TestProjectGen(unittest.TestCase):
         available_layers = generator.layers([])
         relations, _ = generator.relations(available_layers)
 
-        assert len(ignored_layers) == 16
-        assert len(available_layers) == 31
-        assert len(relations) == 45
+        assert len(ignored_layers) == 18
+        assert len(available_layers) == 29
+        assert len(relations) == 23
 
     def test_ranges_postgis(self):
         importer = iliimporter.Importer()
@@ -1751,7 +1744,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == "General":
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        assert len(attribute_names) == 19
+                        assert len(attribute_names) == 18
                         assert "tipo" not in attribute_names
                         assert "avaluo" not in attribute_names
 
@@ -1805,7 +1798,7 @@ class TestProjectGen(unittest.TestCase):
                     if tab.name() == "General":
                         count = 1
                         attribute_names = [child.name() for child in tab.children()]
-                        assert len(attribute_names) == 19
+                        assert len(attribute_names) == 18
                         assert "tipo" not in attribute_names
                         assert "avaluo" not in attribute_names
 
@@ -2488,6 +2481,7 @@ class TestProjectGen(unittest.TestCase):
         importer.configuration.dbschema = "kbs_lv95_v1_3_{:%Y%m%d%H%M%S%f}".format(
             datetime.datetime.now()
         )
+        importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -2497,13 +2491,14 @@ class TestProjectGen(unittest.TestCase):
             get_pg_connection_string(),
             "smart1",
             importer.configuration.dbschema,
+            consider_basket_handling=True,
         )
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
-        project = Project()
+        project = Project(context={"catalogue_datasetname": CATALOGUE_DATASETNAME})
         project.layers = available_layers
         project.relations = relations
         project.legend = legend
@@ -2552,7 +2547,7 @@ class TestProjectGen(unittest.TestCase):
                 assert map["Relation"] == "belasteter_standort_t_basket_fkey"
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
+                    == f"\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('t_ili2db_dataset', 't_id', \"dataset\"), 'datasetname') != '{CATALOGUE_DATASETNAME}'"
                 )
 
             # check the display expression of the basket table
@@ -2579,6 +2574,7 @@ class TestProjectGen(unittest.TestCase):
             ),
         )
         importer.configuration.inheritance = "smart1"
+        importer.configuration.create_basket_col = True
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
         assert importer.run() == iliimporter.Importer.SUCCESS
@@ -2586,13 +2582,15 @@ class TestProjectGen(unittest.TestCase):
         config_manager = GpkgCommandConfigManager(importer.configuration)
         uri = config_manager.get_uri()
 
-        generator = Generator(DbIliMode.ili2gpkg, uri, "smart1")
+        generator = Generator(
+            DbIliMode.ili2gpkg, uri, "smart1", consider_basket_handling=True
+        )
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
         legend = generator.legend(available_layers)
 
-        project = Project()
+        project = Project(context={"catalogue_datasetname": CATALOGUE_DATASETNAME})
         project.layers = available_layers
         project.relations = relations
         project.legend = legend
@@ -2642,7 +2640,7 @@ class TestProjectGen(unittest.TestCase):
                 )
                 assert (
                     map["FilterExpression"]
-                    == "\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('T_ILI2DB_DATASET', 't_id', \"dataset\"), 'datasetname') != 'Catalogueset'"
+                    == f"\"topic\" = 'KbS_LV95_V1_3.Belastete_Standorte' and attribute(get_feature('T_ILI2DB_DATASET', 't_id', \"dataset\"), 'datasetname') != '{CATALOGUE_DATASETNAME}'"
                 )
 
             # check the display expression of the basket table
@@ -2987,8 +2985,6 @@ class TestProjectGen(unittest.TestCase):
             "standorttyp_definition",
             "egrid_",
             "deponietyp",
-            "t_ili2db_basket",
-            "t_ili2db_dataset",
         }
 
         count = 0
@@ -3372,8 +3368,6 @@ class TestProjectGen(unittest.TestCase):
             "egrid_",
             "deponietyp",
             "belasteter_standort_geo_lage_punkt",
-            "T_ILI2DB_BASKET",
-            "T_ILI2DB_DATASET",
         }
 
         count = 0
