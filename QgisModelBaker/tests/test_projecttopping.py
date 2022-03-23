@@ -91,10 +91,10 @@ class TestProjectTopping(unittest.TestCase):
 
         with open(projecttopping_file_path, "r") as yamlfile:
             projecttopping_data = yaml.safe_load(yamlfile)
-            assert "legend" in projecttopping_data
+            assert "layertree" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=projecttopping_data["legend"],
+                layertree_structure=projecttopping_data["layertree"],
                 path_resolver=lambda path: os.path.join(
                     os.path.dirname(projecttopping_file_path), path
                 )
@@ -211,10 +211,10 @@ class TestProjectTopping(unittest.TestCase):
 
         with open(test_projecttopping_file_path, "r") as yamlfile:
             projecttopping_data = yaml.safe_load(yamlfile)
-            assert "legend" in projecttopping_data
+            assert "layertree" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=projecttopping_data["legend"],
+                layertree_structure=projecttopping_data["layertree"],
                 path_resolver=lambda path: os.path.join(
                     os.path.dirname(projecttopping_file_path), path
                 )
@@ -330,10 +330,10 @@ class TestProjectTopping(unittest.TestCase):
 
         with open(projecttopping_file_path, "r") as yamlfile:
             projecttopping_data = yaml.safe_load(yamlfile)
-            assert "legend" in projecttopping_data
+            assert "layertree" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=projecttopping_data["legend"],
+                layertree_structure=projecttopping_data["layertree"],
                 path_resolver=lambda path: os.path.join(
                     os.path.dirname(projecttopping_file_path), path
                 )
@@ -445,10 +445,10 @@ class TestProjectTopping(unittest.TestCase):
 
         with open(projecttopping_file_path, "r") as yamlfile:
             projecttopping_data = yaml.safe_load(yamlfile)
-            assert "legend" in projecttopping_data
+            assert "layertree" in projecttopping_data
             legend = generator.legend(
                 available_layers,
-                layertree_structure=projecttopping_data["legend"],
+                layertree_structure=projecttopping_data["layertree"],
                 path_resolver=lambda path: self.ilidata_path_resolver(
                     importer.configuration.base_configuration,
                     os.path.dirname(projecttopping_file_path),

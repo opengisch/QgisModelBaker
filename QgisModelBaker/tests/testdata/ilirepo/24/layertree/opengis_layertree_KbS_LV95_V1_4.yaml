@@ -1,4 +1,4 @@
-legend:
+legend: #best practice is layertree here, but test the backwards compatibility
   - "Belasteter Standort":
       group: true
       checked: true

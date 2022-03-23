@@ -172,10 +172,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             with open(projecttopping_file_path, "r") as stream:
                 try:
                     projecttopping_data = yaml.safe_load(stream)
-                    if "legend" in projecttopping_data:
+                    layertree_key = "layertree"
+                    if layertree_key not in projecttopping_data:
+                        layertree_key = "legend"
+                    if layertree_key in projecttopping_data:
                         legend = generator.legend(
                             available_layers,
-                            layertree_structure=projecttopping_data["legend"],
+                            layertree_structure=projecttopping_data[layertree_key],
                             path_resolver=lambda path: self.ilidata_path_resolver(
                                 os.path.dirname(projecttopping_file_path), path
                             )

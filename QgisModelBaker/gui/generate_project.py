@@ -495,10 +495,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 with open(projecttopping_file_path, "r") as stream:
                     try:
                         projecttopping_data = yaml.safe_load(stream)
-                        if "legend" in projecttopping_data:
+                        layertree_key = "layertree"
+                        if layertree_key not in projecttopping_data:
+                            layertree_key = "legend"
+                        if layertree_key in projecttopping_data:
                             legend = generator.legend(
                                 available_layers,
-                                layertree_structure=projecttopping_data["legend"],
+                                layertree_structure=projecttopping_data[layertree_key],
                                 path_resolver=lambda path: self.ilidata_path_resolver(
                                     os.path.dirname(projecttopping_file_path), path
                                 )
@@ -545,7 +548,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             self.progress_bar.setValue(60)
-            # Toppings QMLs: collect, download and apply
+
+            # QML Toppings in the metadata: collect, download and apply
+            # This configuration is legacy (should be in project topping instead), but it's still supported
             if "qgis.modelbaker.qml" in self.metaconfig.sections():
                 self.print_info(
                     self.tr("Metaconfig contains QML toppings."), LogColor.COLOR_TOPPING
