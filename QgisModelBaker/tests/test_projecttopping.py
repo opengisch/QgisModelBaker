@@ -533,7 +533,7 @@ class TestProjectTopping(unittest.TestCase):
         qlr_layers_group_layers = qlr_layers_group.findLayers()
         assert "The Road Signs" in [layer.name() for layer in qlr_layers_group_layers]
 
-        # check qlr group from ifle ("QLR-Group") is properly loaded
+        # check qlr group from file ("QLR-Group") is properly loaded
         qlr_group = qlr_layers_group.findGroup("Simple Roads")
         assert qlr_group is not None
 
@@ -596,7 +596,7 @@ class TestProjectTopping(unittest.TestCase):
         logging.error(text)
 
     def tearDown(self):
-        QgsProject.instance().removeAllMapLayers()
+        QgsProject.instance().clear()
 
     @classmethod
     def tearDownClass(cls):
