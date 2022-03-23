@@ -33,6 +33,7 @@ class TestPgservice(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
+        cls.pgservicefile = os.environ.get("PGSERVICEFILE", None)
         os.environ["PGSERVICEFILE"] = testdata_path("pgservice/pg_service.conf")
 
     def test_pgservice_pg_config_panel(self):
@@ -54,8 +55,10 @@ class TestPgservice(unittest.TestCase):
         self.assertEqual(configuration.dbport, "5433")
         self.assertEqual(configuration.dbusr, "postgres")
         self.assertEqual(configuration.dbpwd, "secret")
+        self.assertEqual(configuration.sslmode, "verify-ca")
 
     @classmethod
     def tearDownClass(cls):
         """Run after all tests."""
-        pass
+        if cls.pgservicefile:
+            os.environ["PGSERVICEFILE"] = cls.pgservicefile

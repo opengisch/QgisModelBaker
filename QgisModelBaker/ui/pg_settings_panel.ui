@@ -94,7 +94,7 @@
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="pg_ssl_mode_label">
      <property name="toolTip">
       <string>This option determines whether or with what priority a secure SSL TCP/IP connection will be negotiated with the server.</string>
      </property>
