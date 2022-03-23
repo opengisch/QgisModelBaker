@@ -20,7 +20,7 @@ According to a model name, paths to *metaconfiguration files* are found in *ilid
 
 ### General Handling
 ili2db configurations are defined in the *metaconfiguration file*.
-```
+```ini
 [ch.ehi.ili2db]
 defaultSrsCode = 2056
 smart2Inheritance = true
@@ -54,37 +54,24 @@ The parameters set by the Model Baker in the background (like `--createFkIdx`, `
 Exception is a (future) setting like `onlyUseMetaConfigParams` in the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others.
 
 ### Refrencing other INTERLIS models
-Using the ili2db settings, it is possible to reference other models from a *metaconfiguration file*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
+Using the ili2db settings, it is possible to reference other models from a *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
 
 ## Toppings and their Configuration
-*Topping files* are files that are referenced in the *metaconfiguration* and contain the configuration information of the GIS project. So they can be form configurations, style attributes, legend tree structures as well as data files. Individual topping files can be used for each tool.
+*Topping files* are files that are referenced in the *metaconfiguration* or in other *topping files* like e.g. the *project topping file* and contain the configuration information of the GIS project or parts of it. So they can be form configurations, style attributes, legend tree structures as well as data files. Individual topping files can be used for each tool.
 
 The Model Baker supports these kinds of *topping files*:
 
-- `qml` Files for layer configurations
-- `yaml` files for legend display and layer order
-- `xtf`/`xml`/`itf` files for data import
-### `qml` Topping
-For layer properties like form configurations, symbology etc. `qml` files are loaded as *topping files*.
-
-![style](../../assets/usabilityhub_style.png)
-
-The `qml` topping files are assigned to the layers in the *metaconfiguration file*.
-
-```
-[qgis.modelbaker.ch]
-"Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
-"Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
-ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
-```
-
-### `yaml` Topping
-Information about legend and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.layertree`.
+- Project topping files: `yaml` files for project settings like legend display, linking to layer configuration files and layer order
+- QML layer properties: `qml` files for layer configurations
+- Layer definition: `qlr` files for layer definitions
+- Data files: `xtf`/`xml`/`itf` files for data import
+### Project Topping (`yaml`)
+Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the outdated `qgis.modelbaker.projecttopping`).
 
 The file is written in `yaml`:
 
-```
-legend:
+```yaml
+layertree:
   - "Belasteter Standort":
       group: true
       checked: true
@@ -94,8 +81,10 @@ legend:
       child-nodes:
         - "Belasteter_Standort (Geo_Lage_Punkt)":
             featurecount: true
+            qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001"
         - "Belasteter_Standort (Geo_Lage_Polygon)":
             expanded: true
+            qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_023"
   - "Informationen":
       group: true
       checked: true
@@ -131,22 +120,28 @@ legend:
               - "UntersMassn":
               - "Deponietyp":
               - "LanguageCode_ISO639_1":
+              - "Another interesting layer":
+                definitionfile: "ilidata:ch.opengis.topping.opengisch_roadsigns_layer_101"
+              - "WMS Map":
+                provider: "wms"
+                uri: "contextualWMSLegend=0&crs=EPSG:2056&dpiMode=7&featureCount=10&format=image/jpeg&layers=ch.bav.kataster-belasteter-standorte-oev_lines&styles=default&url=https://wms.geo.admin.ch/?%0ASERVICE%3DWMS%0A%26VERSION%3D1.3.0%0A%26REQUEST%3DGetCapabilities"
 
 layer-order:
   - "Belasteter_Standort (Geo_Lage_Polygon)"
   - "Belasteter_Standort (Geo_Lage_Punkt)"
 ```
 
-#### Legend
-The legend is described using a tree structure in the `yaml` format.
+#### Layertree
+The layertree is described using a tree structure in the `yaml` format.
 
-Top level entry is `legend`. This entry is not shown in the legend.
+Top level entry is `layertree` (or outdated: `legend`). This entry is not shown in the legend.
 
 It can be followed by groups or layers. The following parameters are valid for both types:
 
-- `checked = true/false` defines if the node is visible or not
-- `expanded = true/false` defines if the node is expanded or not
+- `checked: true/false` defines if the node is visible or not
+- `expanded: true/false` defines if the node is expanded or not
 - `featurecount: true` defines if the number of features should be displayed or not
+- `definitionfile: "ilidata..."` defines the path/link to a layer/group definition QLR file.
 
 Groups must be defined as such with the parameter `group: true`. Otherwise it is assumed to be a layer. The groups should contain the parameter `child-nodes` where subgroups and layers can be defined.
 
@@ -154,6 +149,13 @@ Additionally the groups have the `mutually-exclusive` property. This means if th
 
 - `mutually-exclusive: true` if only one child element should be visible at a time.
 - `mutually-exclusive-child: 0` the child element to be displayed.
+
+Layers can additionally have the path/link defined to QML files containing layer properties like form configuration, symbology etc.
+- `qmlstylefiles: "ilidata..."` if only one child element should be visible at a time.
+
+And one can define the source directly in the layers as well:
+- `provider: "wms"` defines the provider type (supported is `ogr`, `postgres` and `wms`)
+- `uri: "contextualWMSLegend=0&crs=EPSG...` defines the layer's source uri.
 
 The `yaml` file shown above results in a legend structure in *QGIS*.
 
@@ -167,11 +169,49 @@ layer-order:
   - "Belasteter_Standort (Geo_Lage_Punkt)"
 ```
 
-#### Multiple Models with multiple `yaml` Toppings
+#### Multiple Models with multiple Project Toppings
 Layers with the same data source will not be added twice when the project is regenerated. New layers and subgroups are - if possible - loaded into already existing groups. Otherwise geometry layers are added above and the groups "tables" and "domains" below.
 
-Thus legend structures from several *topping files* are merged.
+Thus legend structures from several *project topping files* are merged.
 
+### Layer Properties Topping (`qml`)
+For layer properties like form configurations, symbology etc. `qml` files are loaded as *topping files*.
+
+*Right-click on the layer > Export > Save as QGIS Layer Style File...*
+
+![style](../../assets/usabilityhub_style.png)
+
+The `qml` topping files are assigned directly in the layertree of the *project topping file*.
+```yaml
+- "Belasteter_Standort (Geo_Lage_Punkt)":
+    featurecount: true
+    qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001"
+```
+
+The "outdated" way to do the mapping in the *metaconfiguration file* is still supported.
+
+```ini
+[qgis.modelbaker.qml]
+"Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
+"Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
+ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
+```
+
+### Layer Definition Topping (`qlr`)
+
+Complete layer definitions (or groups as well) can be exported as *topping files*.
+
+*Right-click on the layer > Export > Save as Layer Definition File...*
+
+The `qlr` topping files are assigned directly in the layertree of the *project topping file*.
+
+```yaml
+- "Roads from QLR":
+    definitionfile: "ilidata:ch.opengis.topping.opengisch_roadsigns_layer_101"
+```
+
+!!! Note
+    The datasource in the QLR file is relative. This means you have to be carefull with QLR files providing file based datasources.
 ### Catalogs and transfer files
 Catalogs and transferfiles (and other `itf`/`xtf`/`xml` files) can also be loaded as *toppingfiles*. The `DatasetMetadata-Ids` are defined in the *Metaconfigurationfile* via the global parameter `ch.interlis.referenceData`. Multiple ids and file paths can be specified (separated by `;`).
 
@@ -185,7 +225,7 @@ But then only one can be selected. If you want to select multiple *metaconfigura
 ### Best Practice
 It is best to make a *metaconfiguration file* that applies to the import of all models you usually choose. And to make the whole thing even more convenient, you can also configure the additional model in the *metaconfiguration file*.
 If a *metaconfiguration file* is valid for the import of both models "KbS_LV95_V1_4;KbS_Basis_V1_4", you can also configure both models in it:
-```
+```ini
 [ch.ehi.ili2db]
 models = KbS_Basis_V1_4;KbS_Basis_V1_4
 ```
@@ -199,7 +239,7 @@ It can be useful for testing purposes to be able to use a local repository. This
 
 Catalogues can be linked directly in the ilidata.xml to the model names (without using a meta configuration file). Just add them as `referenceData` and add the model names in the `categories`.
 
-```
+```xml
   <categories>
     <DatasetIdx16.Code_>
       <value>http://codes.interlis.ch/type/referenceData</value>
@@ -215,7 +255,7 @@ Catalogues can be linked directly in the ilidata.xml to the model names (without
 
 Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds a referenced catalogue data it provides them in the autocomplete widget on [Data Import](../../../user_guide/import_workflow/#import-of-interlis-data).
 
-```
+```xml
   <files>
     <DatasetIdx16.DataFile>
       <fileFormat>application/interlis+xml;version=2.3</fileFormat>
@@ -231,7 +271,7 @@ Model Baker checks the UsabILIty Hub repositories for all the models contained i
 
 But already before the data import, the Model Baker checks the UsabILIty Hub for those referenced data. In the [Import of the INTERLIS Models](../../../user_guide/import_workflow/#import-of-interlis-model) it provides all the models found in the `modelLink` property.
 
-```
+```xml
   <baskets>
     <DatasetIdx16.DataIndex.BasketMetadata>
       <id>ch.admin.bafu.wildruhezonen_catalogues_V2_1</id>

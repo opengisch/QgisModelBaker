@@ -19,6 +19,7 @@ It is recommended to place the files in one directory and name the following sub
 ├── layertree
 ├── metaconfig
 ├── qml
+├── qlr
 ├── referencedata
 ├── sql
 └── toml
@@ -66,9 +67,11 @@ If an implementation of this project already exists, this information can also b
 #### Layer Properties (`qml` Files)
 From the QGIS project, with already defined layer properties, first the `qml` files are saved.
 
-"Layer properties" > "Style" > "Save layer style".
+*Layer properties > Style > Save layer style*
 
 ![save_qml](../../assets/usabilityhub_save_qml.png)
+
+(or *Right-click on the layer > Export > Save as QGIS Layer Style File...*)
 
 In this example the `qml` files were named as the layers are called with prefix "lu_".
 
@@ -82,15 +85,16 @@ To prevent this, it is recommended to load the `qml` files into the locally gene
 
 ---
 
-#### Legend Tree and Layer Order(`yaml` File)
+#### Project topping (`yaml` File)
 
-In a `yaml` file the layer display order and the legend tree structure is defined.
+In a `yaml` file the project information like the layer display order and the legend tree structure is defined.
+As well the QML files can be linked here.
 
-Under main entry `legend` the legend tree structure is defined and under `layer-order` the display order.
+Under main entry `layertree` the legend tree structure is defined and under `layer-order` the display order.
 
 So the content of a `yaml` file can look like this:
-```
-legend:
+```yaml
+layertree:
   - "Geometrie-Layer":
       group: true
       expanded: true
@@ -126,7 +130,7 @@ Each entry can have additional `child-nodes`, so the `layertree` can have any nu
 
 ![legend_entry](../../assets/usabilityhub_legend_entry.png)
 
-```
+```yaml
   - "SEMP_NP_PUNKTE":
       group: true
       checked: true
@@ -134,16 +138,21 @@ Each entry can have additional `child-nodes`, so the `layertree` can have any nu
       child-nodes:
         - "BZR_Verweis_Pos":
             checked: true
+            qmlstylefile: "ilidata:ch.lu.topping.Nutzungsplanung_V310_bzr_verweis_pos"
         - "Beschriftung_Pos":
             checked: true
+            qmlstylefile: "ilidata:ch.lu.topping.Nutzungsplanung_V310_beschriftung_pos"
         - "Bemassung (BemassungPos)":
             checked: true
             featurecount: true
+            qmlstylefile: "ilidata:ch.lu.topping.Nutzungsplanung_V310_bemassung_pos"
         - "Ueberlagerung_Punkte":
             checked: true
             expanded: true
+            qmlstylefile: "ilidata:ch.lu.topping.Nutzungsplanung_V310_ueberlagerung_punkte"
 ```
 
+The `qml` layer style toppings can be linked with `qmlstylefiles` and the `qlr` with `definitionfile`.
 #### Metaattribute File for ili2db (`toml` File)
 Also the `toml` file can be used as topping. This is written in INI format and already exists for the *Nutzungsplanung_V310*:
 
@@ -196,7 +205,7 @@ For the structure of the file based on the [`DatasetIdx16`](http://models.interl
 Basically, a repository-wide unique id must be assigned. It does not have to be descriptive for the content. Further the type of the topping must be entered in the `categories`, as well as the relative `path` to the file concerned.
 
 So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" with the id "ch.lu.topping.Nutzungsplanung_V310_grundnutzung" would be the following:
-```
+```xml
       <DatasetIdx16.DataIndex.DatasetMetadata TID="3dcc47e5-1dd5-4f05-9fc8-756125705a2c">
         <id>ch.lu.topping.Nutzungsplanung_V310_grundnutzung</id>
         <version>2021-01-20</version>
@@ -222,15 +231,19 @@ So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" wi
 
 The metaconfiguration is the file that holds everything together. Find more information in the [Technical Concept](../technical_concept/#the-metaconfiguration-file-ini).
 
-For the implementation of *Nutzungsplanung_V310*, the topping files created in the previous steps must now be linked in the metaconfiguration file via their Id assigned in `ilidata.xml`. The `qml` toppings containing layer configurations must be assigned to the correct names of the corresponding layers.
+For the implementation of *Nutzungsplanung_V310*, the topping files created in the previous steps must now be linked in the metaconfiguration file via their Id assigned in `ilidata.xml`.
 
-```
+```ini
 [CONFIGURATION]
-qgis.modelbaker.layertree=ilidata:ch.lu.topping.layertree_Nutzungsplanung_V310
+qgis.modelbaker.projecttopping=ilidata:ch.lu.topping.layertree_Nutzungsplanung_V310
 
 [ch.ehi.ili2db]
 iliMetaAttrs=ilidata:ch.lu.topping.npluzern_toml
+```
 
+There is an outdated way of assigning the `qml` layer style toppings to the correct names of the corresponding layers. Better practice is to add them in the layertree of the project topping file (`yaml`).
+
+```ini
 [qgis.modelbaker.qml]
 "BZR_Verweis_Pos"=ilidata:ch.lu.topping.Nutzungsplanung_V310_bzr_verweis_pos
 "Beschriftung_Pos"=ilidata:ch.lu.topping.Nutzungsplanung_V310_beschriftung_pos
@@ -250,7 +263,7 @@ iliMetaAttrs=ilidata:ch.lu.topping.npluzern_toml
 Also the metaconfiguration file must be entered in `ilidata.xml`. Only then it can be found by tools like Model Baker.
 
 Basically exactly the same as a topping file. A repository-spanning unique Id, the type in the `categories` as well as the relative `path` to the file.
-```
+```xml
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a2acb2f5-38bd-4d1a-8af0-c2463dcb5b66">
         <id>ch.opengis.ili.config.Nutzungsplanung_V310</id>
         <version>2021-03-12</version>
@@ -276,7 +289,7 @@ Basically exactly the same as a topping file. A repository-spanning unique Id, t
 To find this metaconfiguration file according to the model name (here *Nutzungsplanung_V310*) this must also be entered in the `categories`. Additionally, it needs a `title` so that it can be recognized in the [GUI of the Model Baker](../../../user_guide/import_workflow/#import-of-interlis-data). The `shortDescription` is optional and serves to further describe the content of the metaconfiguration.
 
 This is how the entry finally looks like:
-```
+```xml
       <DatasetIdx16.DataIndex.DatasetMetadata TID="a2acb2f5-38bd-4d1a-8af0-c2463dcb5b66">
         <id>ch.opengis.ili.config.Nutzungsplanung_V310</id>
         <version>2021-03-12</version>

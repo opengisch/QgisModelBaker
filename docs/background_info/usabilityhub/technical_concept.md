@@ -13,7 +13,7 @@ It contains the class (elements) `DatasetMetadata`. There  are files referenced 
 Additional servers/repositories can be linked via the `ilisite.xml`. The `DatasetMetadata` are identified by a cross-system (cross-repository) *DatasetMetadata-Id*. It is up to the user what this id is.
 
 ### Example of a `DatasetMetadata` element
-```
+```xml
 <DatasetIdx16.DataIndex.DatasetMetadata TID="be6623c1-aa64-4a07-931e-fc4f0745f025">
   <id>ch.opengis.ili.config.KbS_LV95_V1_4_config_V1_0</id>
   <version>2021-01-06</version>
@@ -64,7 +64,7 @@ The `categories` element in the `DatasetMetadata` contains a list of `Code_` ele
 
 #### Model
 The category for the model is identified with the prefix http://codes.interlis.ch/model/ and contains the model name.
-```
+```xml
 <DatasetIdx16.Code_>
   <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
 </DatasetIdx16.Code_>
@@ -72,7 +72,7 @@ The category for the model is identified with the prefix http://codes.interlis.c
 
 #### Type
 The category for the file type is identified with the prefix http://codes.interlis.ch/type/ and contains the type in question.
-```
+```xml
 <DatasetIdx16.Code_>
   <value>http://codes.interlis.ch/type/metaconfig</value>
 </DatasetIdx16.Code_>
@@ -82,8 +82,10 @@ In the UsabILIty Hub implementation of the Model Baker, the following types are 
 - `metaconfig` to describe that it is a *metaconfiguration file*.
 - `toml` to describe that it is a meta attribute file written in TOML
 - `sql` to describe that it is a SQL query file that can be used when creating the database
-- `layertree` to describe that it is a *toppingfile* that defines the legend representation
+- `layertree` to describe that it is a *toppingfile* that defines the legend representation (outdated: see `projecttopping`)
+- `projecttopping` to describe that it is a *toppingfile* that defines a qgis project setting (includes the full layertree implementation and replaces that)
 - `qml` to describe that it is a *toppingfile* that can contain styling and form configurations for a QGIS layer
+- `qlr` to describe that it is a *toppingfile* that can contain the definition of a QGIS layer
 - `referenceData` to describe that it is a data file (e.g. a transfer file or a catalog)
 
 #### Generic
@@ -98,7 +100,7 @@ Thus, models can be found across multiple repositories and so can *metaconfigura
 
 
 ### Example of a `IliSite09` element
-```
+```xml
 <IliSite09.SiteMetadata.Site TID="1">
   <Name>usability.opengis.ch</Name>
   <Title>Allgemeine metadaten für ili-modelle</Title>
@@ -130,11 +132,11 @@ Static file path links referenced with `file:` can be both absolute and relative
 > The Model Baker handles relative paths relative to itself. ili2db on the other hand relative to the directory where *ili2db* is started.
 
 
-```
+```ini
 [CONFIGURATION]
 baseConfig=ilidata:remoteBaseConfigBasketId;ilidata:otherRemoteBaseConfigBasketId;path/otherBaseConfigLocalFile
 org.interlis2.validator.config=ilidata:ilivalidatorConfigBasketId
-qgis.modelbaker.layertree=ilidata:ch.opengis.config.KbS_LV95_V1_4_layertree
+qgis.modelbaker.projecttopping=ilidata:ch.opengis.config.KbS_LV95_V1_4_projecttopping
 ch.interlis.referenceData=ilidata:ch.opengis.config.KbS_Codetexte_V1_4
 
 [ch.ehi.ili2db]
@@ -153,9 +155,9 @@ iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
 ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
 ```
 
-For example, the id `ch.opengis.configs.KbS_LV95_V1_4_layertree` references a `DatasetMetadata` that contains a link to a `yaml` file where the legend structure is defined. The id `ch.opengis.configs.KbS_LV95_V1_4_001` points to a `DatasetMetadata` element which contains a link to an `qml` file for QGIS style and form configurations.
+For example, the id `ch.opengis.configs.KbS_LV95_V1_4_projecttopping` references a `DatasetMetadata` that contains a link to a `yaml` file where the project settings like the legend structure is defined. The id `ch.opengis.configs.KbS_LV95_V1_4_001` points to a `DatasetMetadata` element which contains a link to an `qml` file for QGIS style and form configurations.
 
-Whole sections can also be defined. The section `qgis.modelbaker.qml` contains besides the link also the mapping of layer names to `qml` files.
+Whole sections can also be defined. The section `qgis.modelbaker.qml` contains besides the link also the mapping of layer names to `qml` files. The mapping in the metaconfigurationfile is outdated. This should be done in the project topping file.
 
 ### Tool Prefix
 In the *metaconfiguration file* entries can be marked with a tool prefix. ili2db for example uses the prefix `ch.ehi.ili2db` and the Model Baker uses the prefix `qgis.modelbaker`. However, it is up to the tool which configurations it uses. The prefix `ch.interlis`, which is used with `ch.interlis.referenceData` for example for the reference to *data files* like catalogs or transfer data files, is used by ili2db as well as the Model Baker.
@@ -166,9 +168,9 @@ It is also conceptually possible (although not yet implemented by tools like the
 ## Topping Files
 *Topping files* are files that are referenced by the *metaconfiguration* and contain the configuration information of a GIS project. They can be form configurations, style attributes, legend display and order, as well as catalogs, transfer files and other data files. Individual topping files can be used for each tool. From a simple zip file containing the whole project to a careful mapping of layer names to `qml` style files.
 
-### Example of a `yaml` File of the Layertree in QGIS
-```
-legend:
+### Example of a Projecttopping File (`yaml`) of the Layertree in QGIS
+```yaml
+layertree:
   - 'top-group':
       group: true
       checked: true
@@ -178,10 +180,11 @@ legend:
       child-nodes:
         - 'geom punkt':
             group: false
-            checked: true
+            definitionfile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005"
         - 'geom polygon':
             group: false
             checked: true
+            qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005"
         - 'subgroup':
             group: true
             child-nodes:
@@ -202,6 +205,10 @@ legend:
                     - 'layer in the subgroup':
                         group: false
                         checked: false
+  - "Map":
+        provider: "wms"
+        uri: "contextualWMSLegend=0&crs=EPSG:2056&dpiMode=7&featureCount=10&format=image/jpeg&layers=ch.bav.kataster-belasteter-standorte-oev_lines&styles=default&url=https://wms.geo.admin.ch/?%0ASERVICE%3DWMS%0A%26VERSION%3D1.3.0%0A%26REQUEST%3DGetCapabilities"
+
 layer-order:
   - 'geom punkt'
   - 'geom polygon'
