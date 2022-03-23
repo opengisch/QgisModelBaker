@@ -288,6 +288,8 @@ class TestProjectTopping(unittest.TestCase):
             if layer.name() == "Local Landcover":
                 assert qgis_layer.dataProvider().name() == "ogr"
 
+        os.remove(test_projecttopping_file_path)
+
     def test_kbs_postgis_qml_styles(self):
         """
         Checks if qml style files can be applied by the layer tree.
