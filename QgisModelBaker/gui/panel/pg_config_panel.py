@@ -20,7 +20,7 @@
 from enum import IntEnum
 
 try:
-    import QgisModelBaker.libs.pgserviceparser
+    import QgisModelBaker.libs.pgserviceparser as pgserviceparser
 except:
     import pgserviceparser
 
