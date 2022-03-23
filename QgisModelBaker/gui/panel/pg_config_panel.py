@@ -20,7 +20,7 @@
 from enum import IntEnum
 
 try:
-    import QgisModelBaker.libs.pgserviceparser
+    import QgisModelBaker.libs.pgserviceparser as pgserviceparser
 except:
     import pgserviceparser
 
@@ -52,6 +52,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         DBSCHEMA = Qt.UserRole + 5
         DBPWD = Qt.UserRole + 6
         DBAUTHID = Qt.UserRole + 7
+        SSLMODE = Qt.UserRole + 8
 
     notify_fields_modified = pyqtSignal(str)
 
@@ -238,6 +239,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 configuration.dbauthid,
                 PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
             )
+            self.pg_service_combo_box.setItemData(
+                indexNoService,
+                configuration.sslmode,
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
+            )
 
         self.pg_host_line_edit.setText(configuration.dbhost)
         self.pg_port_line_edit.setText(configuration.dbport)
@@ -299,6 +305,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_auth_settings.setEnabled(service is None)
 
+        self.pg_ssl_mode_combo_box.setEnabled(service is None)
+        self.pg_ssl_mode_label.setEnabled(service is None)
+
         if self._current_service is None:
 
             index = self.pg_service_combo_box.findData(
@@ -339,6 +348,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 self.pg_auth_settings.configId(),
                 PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
             )
+            self.pg_service_combo_box.setItemData(
+                index,
+                self.pg_ssl_mode_combo_box.currentData(),
+                PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
+            )
 
         if service:
 
@@ -351,6 +365,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_schema_line_edit.setText("")
             self.pg_auth_settings.setPassword(service_config.get("password", ""))
             self.pg_auth_settings.setConfigId("")
+
+            ssl_mode_index = self.pg_ssl_mode_combo_box.findData(
+                service_config.get("sslmode", None)
+            )
+            self.pg_ssl_mode_combo_box.setCurrentIndex(ssl_mode_index)
 
         else:
             index = self.pg_service_combo_box.findData(
@@ -391,5 +410,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                     index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID
                 )
             )
+            ssl_mode_index = self.pg_ssl_mode_combo_box.findData(
+                self.pg_service_combo_box.itemData(
+                    index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE
+                )
+            )
+            self.pg_ssl_mode_combo_box.setCurrentIndex(ssl_mode_index)
 
         self._current_service = service
