@@ -81,10 +81,8 @@ class IliCache(QObject):
     def file_url(self, url, file):
         if url is None:
             return file
-        elif os.path.isdir(url):
-            return os.path.join(url, file)
         else:
-            return urllib.parse.urljoin(url, file)
+            return os.path.join(url, file)
 
     def file_path(self, netloc, url, file):
         if url is None:
