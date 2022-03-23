@@ -84,17 +84,16 @@ class LegendGroup(object):
                     QgsLayerDefinition.loadLayerDefinition(
                         item.definitionfile, qgis_project, group
                     )
-                    continue
-
-                subgroup = get_group_non_recursive(group, item.name)
-                if subgroup is None:
-                    subgroup = group.addGroup(item.name)
-                item.create(qgis_project, subgroup)
-                subgroup.setExpanded(item.expanded)
-                subgroup.setItemVisibilityChecked(item.checked)
-                subgroup.setIsMutuallyExclusive(
-                    item.mutually_exclusive, item.mutually_exclusive_child
-                )
+                else:
+                    subgroup = get_group_non_recursive(group, item.name)
+                    if subgroup is None:
+                        subgroup = group.addGroup(item.name)
+                    item.create(qgis_project, subgroup)
+                    subgroup.setExpanded(item.expanded)
+                    subgroup.setItemVisibilityChecked(item.checked)
+                    subgroup.setIsMutuallyExclusive(
+                        item.mutually_exclusive, item.mutually_exclusive_child
+                    )
             else:
                 layer = item.layer
                 if (
