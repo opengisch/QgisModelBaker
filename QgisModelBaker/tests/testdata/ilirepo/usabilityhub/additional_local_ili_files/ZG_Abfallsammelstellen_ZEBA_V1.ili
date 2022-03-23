@@ -1,0 +1,292 @@
+/* ###################################################################################
+
+   Geodatenmodell nach kantonalem Recht
+
+   Abfallsammelstellen (ZEBA)  (ID XX-ZG, GeoIV-ZG, Anhang 2)
+
+   Zuständige Stelle (Kanton): Amt für Umweltschutz
+   Zuständige Stelle(n) (Datenherr): Gemeinden (Verband ZEBA, Seestrasse 1, Postfach 963, 6330 Cham)
+   Zugangsberechtigungsstufe: A
+
+   furtherInformation=http://www.zg.ch/behoerden/baudirektion/amt-fuer-umweltschutz
+   technicalContact=info.gva@zg.ch
+
+   ################################################################################### */
+
+/* ###################################################################################
+
+   History:
+
+
+
+   18.12.2015
+	 - Genehmigung Version V1 durch ZEBA (Geozug)
+
+   03.09.2015 GIS-Fachstelle des Kantons Zug (kanu)
+	 - Übernahme/Transformation INTERLIS 1-Modell (Version 2.0, Geozug, 06.01.2015)
+
+   ################################################################################### */
+
+
+INTERLIS 2.3;
+
+MODEL Abfallsammelstellen_ZEBA_LV03_V1 (de)
+AT "http://models.geo.zg.ch"
+VERSION "2015-12-18"  =
+
+  IMPORTS GeometryCHLV03_V1,CatalogueObjects_V1,LocalisationCH_V1, Units;
+  IMPORTS UNQUALIFIED INTERLIS;
+
+  DOMAIN
+		MeeresHoehe = 300.000 .. 2000.000 [m];
+		Orientierung = 0.0 .. 399.9 [Units.Gon];
+
+		Lagegenauigkeit = (
+			genau (
+				eingemessen,
+				terrestrisch,
+				GPS),
+			ungenau (
+				digitalisiert,
+				geschaetzt));
+
+		Abfallart = (
+			Hauskehricht,
+			Gruengut,
+			Glas,
+			Textilien,
+			Aluminium,
+			Weissblech,
+			Diverse_Abfaelle);
+
+
+	TOPIC Abfallsammelstellen =
+
+		CLASS Abfallsammelstelle =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Bezeichnung: MANDATORY TEXT*80;
+			Geometrie: MANDATORY GeometryCHLV03_V1.Coord2;
+			Orientierung: MANDATORY Orientierung;
+			Eigentum: MANDATORY (
+				Privat,
+				Gemeinde,
+				ZEBA);
+			Grundeigentum: MANDATORY (
+				Privat,
+				Oeffentlich);
+			Weblink: TEXT*200;
+			Bemerkung: TEXT*80;
+			Bild: TEXT*80;  !! nur Dateiname erfassen, kein Pfad; Dateiname entspricht wenn möglich der Bezeichnung!
+			OeffentlicheSammelstelle: MANDATORY (
+				ja,
+				nein);
+		UNIQUE Bezeichnung;
+		UNIQUE Geometrie;
+		END Abfallsammelstelle;
+
+		CLASS Sammelstelle_Beschriftung =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			TextPos: MANDATORY GeometryCHLV03_V1.Coord2;
+			Textinhalt: MANDATORY TEXT*80;
+			TextOri: MANDATORY Orientierung;
+			TextHAli: MANDATORY HALIGNMENT;
+			TextVAli: MANDATORY VALIGNMENT;
+		END Sammelstelle_Beschriftung;
+
+		ASSOCIATION Abfallsammelstelle_Sammelstelle_Beschriftung =
+			/* Beschriftung_von Abfallsammelstelle; Beziehung 1-mc; beschriftet Textinhalt */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Beschriftung -- {0..*} Sammelstelle_Beschriftung;
+		END Abfallsammelstelle_Sammelstelle_Beschriftung;
+
+
+		CLASS Container (ABSTRACT) =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Abfallart: MANDATORY Abfallart;
+		END Container;
+
+		CLASS Oberirdische_Sammelstelle EXTENDS Container =
+		END Oberirdische_Sammelstelle;
+
+		ASSOCIATION Abfallsammelstelle_Oberirdische_Sammelstelle =
+			/* Oberirdische Sammelstelle_von Abfallsammelstelle; Beziehung 1-c */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Oberirdische_Sammelstelle -- {0..1} Oberirdische_Sammelstelle;
+		END Abfallsammelstelle_Oberirdische_Sammelstelle;
+
+
+		CLASS Unterflurcontainer EXTENDS Container =
+			Geometrie: MANDATORY GeometryCHLV03_V1.Surface;
+			Hoehe: MeeresHoehe;
+			Baujahr: 1900 .. 2100 [Y];
+			Seriennummer: TEXT*20;
+			Volumen: 0 .. 50000 [Units.L];  !! in Litern
+			Lagegenauigkeit: MANDATORY Lagegenauigkeit;
+		UNIQUE Seriennummer;
+		END Unterflurcontainer;
+
+		CLASS Firma (ABSTRACT) =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Bezeichnung: TEXT*80;
+		UNIQUE Bezeichnung;
+		END Firma;
+
+		CLASS Unternehmer EXTENDS Firma =
+		END Unternehmer;
+
+		ASSOCIATION Unterflurcontainer_Unternehmer =
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+			Unternehmer -- {0..1} Unternehmer;
+		END Unterflurcontainer_Unternehmer;
+
+		CLASS Hersteller EXTENDS Firma =
+		END Hersteller;
+
+		ASSOCIATION Unterflurcontainer_Hersteller =
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+			Hersteller -- {0..1} Hersteller;
+		END Unterflurcontainer_Hersteller;
+
+		ASSOCIATION Abfallsammelstelle_Unterflurcontainer =
+			/* Unterflurcontainer_von Abfallsammelstelle; Beziehung 1-mc */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+		END Abfallsammelstelle_Unterflurcontainer;
+
+	END Abfallsammelstellen;
+END Abfallsammelstellen_ZEBA_LV03_V1.
+
+
+MODEL Abfallsammelstellen_ZEBA_LV95_V1 (de)
+AT "http://models.geo.zg.ch"
+VERSION "2015-12-18"  =
+
+  IMPORTS GeometryCHLV95_V1,CatalogueObjects_V1,LocalisationCH_V1, Units;
+  IMPORTS UNQUALIFIED INTERLIS;
+
+  DOMAIN
+		MeeresHoehe = 300.000 .. 2000.000 [m];
+		Orientierung = 0.0 .. 399.9 [Units.Gon];
+
+		Lagegenauigkeit = (
+			genau (
+				eingemessen,
+				terrestrisch,
+				GPS),
+			ungenau (
+				digitalisiert,
+				geschaetzt));
+
+		Abfallart = (
+			Hauskehricht,
+			Gruengut,
+			Glas,
+			Textilien,
+			Aluminium,
+			Weissblech,
+			Diverse_Abfaelle);
+
+
+	TOPIC Abfallsammelstellen =
+
+		CLASS Abfallsammelstelle =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Bezeichnung: MANDATORY TEXT*80;
+			Geometrie: MANDATORY GeometryCHLV95_V1.Coord2;
+			Orientierung: MANDATORY Orientierung;
+			Eigentum: MANDATORY (
+				Privat,
+				Gemeinde,
+				ZEBA);
+			Grundeigentum: MANDATORY (
+				Privat,
+				Oeffentlich);
+			Weblink: TEXT*200;
+			Bemerkung: TEXT*80;
+			Bild: TEXT*80;  !! nur Dateiname erfassen, kein Pfad; Dateiname entspricht wenn möglich der Bezeichnung!
+			OeffentlicheSammelstelle: MANDATORY (
+				ja,
+				nein);
+		UNIQUE Bezeichnung;
+		UNIQUE Geometrie;
+		END Abfallsammelstelle;
+
+		CLASS Sammelstelle_Beschriftung =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			TextPos: MANDATORY GeometryCHLV95_V1.Coord2;
+			Textinhalt: MANDATORY TEXT*80;
+			TextOri: MANDATORY Orientierung;
+			TextHAli: MANDATORY HALIGNMENT;
+			TextVAli: MANDATORY VALIGNMENT;
+		END Sammelstelle_Beschriftung;
+
+		ASSOCIATION Abfallsammelstelle_Sammelstelle_Beschriftung =
+			/* Beschriftung_von Abfallsammelstelle; Beziehung 1-mc; beschriftet Textinhalt */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Beschriftung -- {0..*} Sammelstelle_Beschriftung;
+		END Abfallsammelstelle_Sammelstelle_Beschriftung;
+
+
+		CLASS Container (ABSTRACT) =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Abfallart: MANDATORY Abfallart;
+		END Container;
+
+		CLASS Oberirdische_Sammelstelle EXTENDS Container =
+		END Oberirdische_Sammelstelle;
+
+		ASSOCIATION Abfallsammelstelle_Oberirdische_Sammelstelle =
+			/* Oberirdische Sammelstelle_von Abfallsammelstelle; Beziehung 1-c */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Oberirdische_Sammelstelle -- {0..1} Oberirdische_Sammelstelle;
+		END Abfallsammelstelle_Oberirdische_Sammelstelle;
+
+
+		CLASS Unterflurcontainer EXTENDS Container =
+			Geometrie: MANDATORY GeometryCHLV95_V1.Surface;
+			Hoehe: MeeresHoehe;
+			Baujahr: 1900 .. 2100 [Y];
+			Seriennummer: TEXT*20;
+			Volumen: 0 .. 50000 [Units.L];  !! in Litern
+			Lagegenauigkeit: MANDATORY Lagegenauigkeit;
+		UNIQUE Seriennummer;
+		END Unterflurcontainer;
+
+		CLASS Firma (ABSTRACT) =
+			OID AS STANDARDOID;
+			OBJ_ID: MANDATORY TEXT*16;
+			Bezeichnung: TEXT*80;
+		UNIQUE Bezeichnung;
+		END Firma;
+
+		CLASS Unternehmer EXTENDS Firma =
+		END Unternehmer;
+
+		ASSOCIATION Unterflurcontainer_Unternehmer =
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+			Unternehmer -- {0..1} Unternehmer;
+		END Unterflurcontainer_Unternehmer;
+
+		CLASS Hersteller EXTENDS Firma =
+		END Hersteller;
+
+		ASSOCIATION Unterflurcontainer_Hersteller =
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+			Hersteller -- {0..1} Hersteller;
+		END Unterflurcontainer_Hersteller;
+
+		ASSOCIATION Abfallsammelstelle_Unterflurcontainer =
+			/* Unterflurcontainer_von Abfallsammelstelle; Beziehung 1-mc */
+			Abfallsammelstelle -<#> {1} Abfallsammelstelle;
+			Unterflurcontainer -- {0..*} Unterflurcontainer;
+		END Abfallsammelstelle_Unterflurcontainer;
+
+	END Abfallsammelstellen;
+END Abfallsammelstellen_ZEBA_LV95_V1.

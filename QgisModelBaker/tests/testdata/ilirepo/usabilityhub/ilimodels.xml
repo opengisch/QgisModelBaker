@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="KOGIS-20200115" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="IliRepository09" VERSION="2009-12-01" URI="mailto:ce@eisenhutinformatik.ch"/>
+      <MODEL NAME="IliRepository20" VERSION="2020-01-15" URI="http://models.interlis.ch/core"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <!-- ====================================================================  -->
+    <!-- INTERLIS REFERENCE MODELS OF THE SWISS CONFEDERATION (ili2_4)         -->
+
+    <IliRepository20.RepositoryIndex BID="ch.interlis.ilimodels.b2">
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1001">
+        <Name>AbstractSymbology</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/AbstractSymbology.ili</File>
+        <Version>2020-02-20</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>1da81c8764c7fce8e896e7aa36e2d499</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1002">
+        <Name>CoordSys</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/CoordSys.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>17fef0e7bbf5645ff63ab563eadebb63</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1003">
+        <Name>RoadsExdm2ben</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/RoadsExdm2ben.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>97808718c84b90d6ff7536bcea0cc4ea</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1004">
+        <Name>RoadsExdm2ien</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/RoadsExdm2ien.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <dependsOnModel>
+          <IliRepository20.ModelName_>
+            <value>RoadsExdm2ben</value>
+          </IliRepository20.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>7104f7d0cd39b99f2718756e05b205be</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1005">
+        <Name>RoadsExgm2ien</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/RoadsExgm2ien.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <dependsOnModel>
+          <IliRepository20.ModelName_>
+            <value>RoadsExdm2ben</value>
+          </IliRepository20.ModelName_>
+          <IliRepository20.ModelName_>
+            <value>RoadsExdm2ien</value>
+          </IliRepository20.ModelName_>
+          <IliRepository20.ModelName_>
+            <value>StandardSymbology</value>
+          </IliRepository20.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>7f521116d0291fdf280da0482a380cce</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1006">
+        <Name>StandardSymbology</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/StandardSymbology.ili</File>
+        <Version>2016-01-21</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <dependsOnModel>
+          <IliRepository20.ModelName_>
+            <value>AbstractSymbology</value>
+          </IliRepository20.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>ae386646d46d5eba1b931ef9047a10ab</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1007">
+        <Name>Time</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/Time.ili</File>
+        <Version>2020-02-20</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <dependsOnModel>
+          <IliRepository20.ModelName_>
+            <value>Units</value>
+          </IliRepository20.ModelName_>
+        </dependsOnModel>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>3fa23c502fab9f7461921975180e2082</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+      <IliRepository20.RepositoryIndex.ModelMetadata TID="1008">
+        <Name>Units</Name>
+        <SchemaLanguage>ili2_4</SchemaLanguage>
+        <File>refhb24/Units.ili</File>
+        <Version>2014-07-09</Version>
+        <publishingDate>2020-02-20</publishingDate>
+        <Issuer>http://www.interlis.ch/models/refhb24</Issuer>
+        <technicalContact>mailto:info@interlis.ch</technicalContact>
+        <furtherInformation>https://www.interlis.ch</furtherInformation>
+        <md5>822579b7bd802a6718cebf0cc1f5d85c</md5>
+      </IliRepository20.RepositoryIndex.ModelMetadata>
+
+    </IliRepository20.RepositoryIndex>
+  </DATASECTION>
+</TRANSFER>

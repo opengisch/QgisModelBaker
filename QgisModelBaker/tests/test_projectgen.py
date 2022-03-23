@@ -2660,27 +2660,30 @@ class TestProjectGen(unittest.TestCase):
         Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
 
         [CONFIGURATION]
-        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4.yaml
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/layertree/opengis_layertree_KbS_LV95_V1_4.yaml
         ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
 
         [ch.ehi.ili2db]
         defaultSrsCode=3857
         models=KbS_Basis_V1_4
-        preScript=file:tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql
+        preScript=file:tests/testdata/ilirepo/usabilityhub/sql/opengisch_KbS_LV95_V1_4_test.sql
         iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
 
         [qgis.modelbaker.qml]
         "Belasteter_Standort (Geo_Lage_Polygon)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
-        "Belasteter_Standort (Geo_Lage_Punkt)"=file:tests/testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml
+        "Belasteter_Standort (Geo_Lage_Punkt)"=file:tests/testdata/ilirepo/usabilityhub/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml
         Parzellenidentifikation=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
         """
 
-        toppings_test_path = os.path.join(test_path, "testdata", "ilirepo", "24")
+        toppings_test_path = os.path.join(
+            test_path, "testdata", "ilirepo", "usabilityhub"
+        )
 
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2pg
         importer.configuration = iliimporter_config(
-            importer.tool, os.path.join(test_path, "testdata", "ilirepo", "24")
+            importer.tool,
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub"),
         )
         importer.configuration.ilimodels = "KbS_LV95_V1_4"
         importer.configuration.dbschema = "toppings_{:%Y%m%d%H%M%S%f}".format(
@@ -2938,7 +2941,7 @@ class TestProjectGen(unittest.TestCase):
         qml_section = dict(metaconfig["qgis.modelbaker.qml"])
         assert list(qml_section.values()) == [
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001",
-            "file:tests/testdata/ilirepo/24/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "file:tests/testdata/ilirepo/usabilityhub/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005",
         ]
         qml_file_model = self.get_topping_file_model(
@@ -3041,13 +3044,13 @@ class TestProjectGen(unittest.TestCase):
         Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
 
         [CONFIGURATION]
-        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/24/layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml
         ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
 
         [ch.ehi.ili2db]
         models = KbS_Basis_V1_4
         iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
-        preScript=file:tests/testdata/ilirepo/24/sql/opengisch_KbS_LV95_V1_4_test.sql
+        preScript=file:tests/testdata/ilirepo/usabilityhub/sql/opengisch_KbS_LV95_V1_4_test.sql
         defaultSrsCode=3857
 
         [qgis.modelbaker.qml]
@@ -3056,12 +3059,15 @@ class TestProjectGen(unittest.TestCase):
         Parzellenidentifikation=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
         """
 
-        toppings_test_path = os.path.join(test_path, "testdata", "ilirepo", "24")
+        toppings_test_path = os.path.join(
+            test_path, "testdata", "ilirepo", "usabilityhub"
+        )
 
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(
-            importer.tool, os.path.join(test_path, "testdata", "ilirepo", "24")
+            importer.tool,
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub"),
         )
         importer.configuration.ilimodels = "KbS_LV95_V1_4"
         importer.configuration.dbfile = os.path.join(

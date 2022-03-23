@@ -1,0 +1,171 @@
+/* ########################################################################
+   CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
+   ======
+   BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
+   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+
+   PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
+   PUBLISHED: 2011-08-30
+   ########################################################################
+*/
+
+INTERLIS 2.3;
+
+/* ########################################################################
+   ########################################################################
+   PART II -- LOCALISATION
+   - Package InternationalCodes
+   - Packages Localisation, LocalisationCH
+   - Packages Dictionaries, DictionariesCH
+*/
+
+!! ########################################################################
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+TYPE MODEL InternationalCodes_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+
+  DOMAIN
+    LanguageCode_ISO639_1 = (de,fr,it,rm,en,
+      aa,ab,af,am,ar,as,ay,az,ba,be,bg,bh,bi,bn,bo,br,ca,co,cs,cy,da,dz,el,
+      eo,es,et,eu,fa,fi,fj,fo,fy,ga,gd,gl,gn,gu,ha,he,hi,hr,hu,hy,ia,id,ie,
+      ik,is,iu,ja,jw,ka,kk,kl,km,kn,ko,ks,ku,ky,la,ln,lo,lt,lv,mg,mi,mk,ml,
+      mn,mo,mr,ms,mt,my,na,ne,nl,no,oc,om,or,pa,pl,ps,pt,qu,rn,ro,ru,rw,sa,
+      sd,sg,sh,si,sk,sl,sm,sn,so,sq,sr,ss,st,su,sv,sw,ta,te,tg,th,ti,tk,tl,
+      tn,to,tr,ts,tt,tw,ug,uk,ur,uz,vi,vo,wo,xh,yi,yo,za,zh,zu);
+
+    CountryCode_ISO3166_1 = (CHE,
+      ABW,AFG,AGO,AIA,ALA,ALB,AND_,ANT,ARE,ARG,ARM,ASM,ATA,ATF,ATG,AUS,
+      AUT,AZE,BDI,BEL,BEN,BFA,BGD,BGR,BHR,BHS,BIH,BLR,BLZ,BMU,BOL,BRA,
+      BRB,BRN,BTN,BVT,BWA,CAF,CAN,CCK,CHL,CHN,CIV,CMR,COD,COG,COK,COL,
+      COM,CPV,CRI,CUB,CXR,CYM,CYP,CZE,DEU,DJI,DMA,DNK,DOM,DZA,ECU,EGY,
+      ERI,ESH,ESP,EST,ETH,FIN,FJI,FLK,FRA,FRO,FSM,GAB,GBR,GEO,GGY,GHA,
+      GIB,GIN,GLP,GMB,GNB,GNQ,GRC,GRD,GRL,GTM,GUF,GUM,GUY,HKG,HMD,HND,
+      HRV,HTI,HUN,IDN,IMN,IND,IOT,IRL,IRN,IRQ,ISL,ISR,ITA,JAM,JEY,JOR,
+      JPN,KAZ,KEN,KGZ,KHM,KIR,KNA,KOR,KWT,LAO,LBN,LBR,LBY,LCA,LIE,LKA,
+      LSO,LTU,LUX,LVA,MAC,MAR,MCO,MDA,MDG,MDV,MEX,MHL,MKD,MLI,MLT,MMR,
+      MNE,MNG,MNP,MOZ,MRT,MSR,MTQ,MUS,MWI,MYS,MYT,NAM,NCL,NER,NFK,NGA,
+      NIC,NIU,NLD,NOR,NPL,NRU,NZL,OMN,PAK,PAN,PCN,PER,PHL,PLW,PNG,POL,
+      PRI,PRK,PRT,PRY,PSE,PYF,QAT,REU,ROU,RUS,RWA,SAU,SDN,SEN,SGP,SGS,
+      SHN,SJM,SLB,SLE,SLV,SMR,SOM,SPM,SRB,STP,SUR,SVK,SVN,SWE,SWZ,SYC,
+      SYR,TCA,TCD,TGO,THA,TJK,TKL,TKM,TLS,TON,TTO,TUN,TUR,TUV,TWN,TZA,
+      UGA,UKR,UMI,URY,USA,UZB,VAT,VCT,VEN,VGB,VIR,VNM,VUT,WLF,WSM,YEM,
+      ZAF,ZMB,ZWE);
+
+END InternationalCodes_V1.
+
+!! ########################################################################
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+TYPE MODEL Localisation_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+
+  IMPORTS UNQUALIFIED InternationalCodes_V1;
+
+  STRUCTURE LocalisedText =
+    Language: LanguageCode_ISO639_1;
+    Text: MANDATORY TEXT;
+  END LocalisedText;
+
+  STRUCTURE LocalisedMText =
+    Language: LanguageCode_ISO639_1;
+    Text: MANDATORY MTEXT;
+  END LocalisedMText;
+
+  STRUCTURE MultilingualText =
+    LocalisedText : BAG {1..*} OF LocalisedText;
+    UNIQUE (LOCAL) LocalisedText:Language;
+  END MultilingualText;
+
+  STRUCTURE MultilingualMText =
+    LocalisedText : BAG {1..*} OF LocalisedMText;
+    UNIQUE (LOCAL) LocalisedText:Language;
+  END MultilingualMText;
+
+END Localisation_V1.
+
+!! ########################################################################
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+TYPE MODEL LocalisationCH_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+
+  IMPORTS UNQUALIFIED InternationalCodes_V1;
+  IMPORTS Localisation_V1;
+
+  STRUCTURE LocalisedText EXTENDS Localisation_V1.LocalisedText =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedText;
+
+  STRUCTURE LocalisedMText EXTENDS Localisation_V1.LocalisedMText =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedMText;
+
+  STRUCTURE MultilingualText EXTENDS Localisation_V1.MultilingualText =
+    LocalisedText(EXTENDED) : BAG {1..*} OF LocalisedText;
+  END MultilingualText;
+
+  STRUCTURE MultilingualMText EXTENDS Localisation_V1.MultilingualMText =
+    LocalisedText(EXTENDED) : BAG {1..*} OF LocalisedMText;
+  END MultilingualMText;
+
+END LocalisationCH_V1.
+
+!! ########################################################################
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+MODEL Dictionaries_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+
+  IMPORTS UNQUALIFIED InternationalCodes_V1;
+
+  TOPIC Dictionaries (ABSTRACT) =
+
+    STRUCTURE Entry (ABSTRACT) =
+      Text: MANDATORY TEXT;
+    END Entry;
+
+    CLASS Dictionary =
+      Language: MANDATORY LanguageCode_ISO639_1;
+      Entries: LIST OF Entry;
+    END Dictionary;
+
+  END Dictionaries;
+
+END Dictionaries_V1.
+
+!! ########################################################################
+!!@technicalContact=models@geo.admin.ch
+!!@furtherInformation=http://www.geo.admin.ch/internet/geoportal/de/home/topics/geobasedata/models.html
+MODEL DictionariesCH_V1 (en)
+  AT "http://www.geo.admin.ch" VERSION "2011-08-30" =
+
+  IMPORTS UNQUALIFIED InternationalCodes_V1;
+  IMPORTS Dictionaries_V1;
+
+  TOPIC Dictionaries (ABSTRACT) EXTENDS Dictionaries_V1.Dictionaries =
+
+    CLASS Dictionary (EXTENDED) =
+    MANDATORY CONSTRAINT
+      Language == #de OR
+      Language == #fr OR
+      Language == #it OR
+      Language == #rm OR
+      Language == #en;
+    END Dictionary;
+
+  END Dictionaries;
+
+END DictionariesCH_V1.
+
+!! ########################################################################

@@ -14,8 +14,11 @@ class TestILI2DBUtils(unittest.TestCase):
         cls.empty = testdata_path("ilimodels/subparent_dir/empty")
         cls.hidden = testdata_path("ilimodels/subparent_dir/.hidden")
         cls.not_hidden = testdata_path("ilimodels/subparent_dir/not_hidden")
-        cls.ilirepo_additional_local_ili_files = testdata_path(
+        cls.ilirepo_24_additional_local_ili_files = testdata_path(
             "ilirepo/24/additional_local_ili_files"
+        )
+        cls.ilirepo_usabilityhub_additional_local_ili_files = testdata_path(
+            "ilirepo/usabilityhub/additional_local_ili_files"
         )
         cls.not_modeldir = testdata_path("xtf")
 
@@ -27,7 +30,8 @@ class TestILI2DBUtils(unittest.TestCase):
             self.ciaf_ladm,
             self.hidden,
             self.not_hidden,
-            self.ilirepo_additional_local_ili_files,
+            self.ilirepo_24_additional_local_ili_files,
+            self.ilirepo_usabilityhub_additional_local_ili_files,
         ]
         assert sorted(expected_dirs) == sorted(modeldirs.split(";"))
 

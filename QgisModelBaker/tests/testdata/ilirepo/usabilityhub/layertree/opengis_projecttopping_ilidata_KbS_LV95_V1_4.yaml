@@ -3,9 +3,9 @@ layertree:
         group: true
         child-nodes:
             - "Belasteter_Standort (Geo_Lage_Punkt)":
-                qmlstylefile: "../qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml"
+                qmlstylefile: ../qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml
             - "Parzellenidentifikation":
-                qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005"
+                qmlstylefile: ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
     - "Other Layers":
         group: true
         child-nodes:

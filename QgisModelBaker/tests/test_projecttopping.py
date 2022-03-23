@@ -47,7 +47,9 @@ class TestProjectTopping(unittest.TestCase):
     def setUpClass(cls):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
-        cls.toppings_test_path = os.path.join(test_path, "testdata", "ilirepo", "24")
+        cls.toppings_test_path = os.path.join(
+            test_path, "testdata", "ilirepo", "usabilityhub"
+        )
 
     def test_kbs_postgis_qlr_layers(self):
         """

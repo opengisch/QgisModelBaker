@@ -1,0 +1,208 @@
+INTERLIS 2.3;
+
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ IDGeoIV="114.2, 116.1, 117.1, 118.1, 119.1"
+MODEL KbS_Basis_V1_4 (de)
+AT "https://models.geo.admin.ch/BAFU/"
+VERSION "2018-06-13"  =
+  IMPORTS LocalisationCH_V1;
+
+  DOMAIN
+
+    Deponietyp = (
+      DepTypB,
+      DepTypC,
+      DepTypD,
+      DepTypE
+    );
+
+    EGRID = TEXT;
+
+    Standorttyp = (
+      StaoTyp1,
+      StaoTyp2,
+      StaoTyp3,
+      StaoTyp4
+    );
+
+    StatusAltlV = (
+      StatusAltlV1,
+      StatusAltlV2,
+      StatusAltlV3,
+      StatusAltlV4,
+      StatusAltlV5,
+      StatusAltlV6
+    );
+
+    UntersMassn = (
+      UntMassn1,
+      UntMassn2,
+      UntMassn3,
+      UntMassn4,
+      UntMassn5,
+      UntMassn6
+    );
+
+  STRUCTURE Deponietyp_ = value : MANDATORY Deponietyp; END Deponietyp_;
+  STRUCTURE EGRID_ = value : MANDATORY EGRID; END EGRID_;
+  STRUCTURE UntersMassn_ = value : MANDATORY UntersMassn; END UntersMassn_;
+
+  STRUCTURE Parzellenidentifikation =
+    NBIdent : MANDATORY TEXT;
+    Parzellennummer : MANDATORY TEXT;
+  END Parzellenidentifikation;
+
+  !!@ limitedTo = "ch.admin.bafu.kbs_codetexte_V1_4"
+  TOPIC Codelisten =
+
+    CLASS Deponietyp_Definition =
+      Code : MANDATORY KbS_Basis_V1_4.Deponietyp;
+      Definition : MANDATORY LocalisationCH_V1.MultilingualText;
+    END Deponietyp_Definition;
+
+    CLASS Standorttyp_Definition =
+      Code : MANDATORY KbS_Basis_V1_4.Standorttyp;
+      Definition : MANDATORY LocalisationCH_V1.MultilingualText;
+    END Standorttyp_Definition;
+
+    CLASS StatusAltlV_Definition =
+      Code : MANDATORY KbS_Basis_V1_4.StatusAltlV;
+      Definition : MANDATORY LocalisationCH_V1.MultilingualText;
+      Symbol : MANDATORY BLACKBOX BINARY;
+    END StatusAltlV_Definition;
+
+    CLASS Untersuchungsmassnahmen_Definition =
+      Code : MANDATORY KbS_Basis_V1_4.UntersMassn;
+      Definition : MANDATORY LocalisationCH_V1.MultilingualText;
+    END Untersuchungsmassnahmen_Definition;
+
+  END Codelisten;
+
+END KbS_Basis_V1_4.
+
+
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ IDGeoIV="114.2, 116.1, 117.1, 118.1, 119.1"
+MODEL KbS_LV03_V1_4 (de)
+AT "https://models.geo.admin.ch/BAFU/"
+VERSION "2018-06-13"  =
+  IMPORTS LocalisationCH_V1,GeometryCHLV03_V1,KbS_Basis_V1_4;
+
+  TOPIC Belastete_Standorte =
+
+    DOMAIN
+
+      Polygon = SURFACE WITH (STRAIGHTS) VERTEX GeometryCHLV03_V1.Coord2 WITHOUT OVERLAPS > 0.001;
+
+    STRUCTURE PolygonStructure =
+      Polygon: Polygon;
+    END PolygonStructure;
+
+    STRUCTURE MultiPolygon =
+      Polygones: BAG {1..*} OF PolygonStructure;
+    END MultiPolygon;
+
+    CLASS ZustaendigkeitKataster =
+      Zustaendige_Behoerde : MANDATORY LocalisationCH_V1.MultilingualText;
+      URL_Behoerde : MANDATORY INTERLIS.URI;
+      UID : TEXT*12;
+      Katastername : MANDATORY LocalisationCH_V1.MultilingualText;
+      URL_Kataster : MANDATORY INTERLIS.URI;
+    END ZustaendigkeitKataster;
+
+    CLASS Belasteter_Standort =
+      Katasternummer : MANDATORY TEXT;
+      URL_Standort : INTERLIS.URI;
+      Geo_Lage_Polygon : MultiPolygon;
+      Geo_Lage_Punkt : GeometryCHLV03_V1.Coord2;
+      Parzellenverweis : BAG {0..*} OF KbS_Basis_V1_4.Parzellenidentifikation;
+      EGRID : BAG {0..*} OF KbS_Basis_V1_4.EGRID_;
+      Standorttyp : MANDATORY KbS_Basis_V1_4.Standorttyp;
+      InBetrieb : BOOLEAN;
+      Deponietyp : BAG {0..*} OF KbS_Basis_V1_4.Deponietyp_;
+      Nachsorge : BOOLEAN;
+      Untersuchungsmassnahmen : BAG {1..*} OF KbS_Basis_V1_4.UntersMassn_;
+      StatusAltlV : MANDATORY KbS_Basis_V1_4.StatusAltlV;
+      Ersteintrag : MANDATORY INTERLIS.XMLDate;
+      LetzteAnpassung : MANDATORY INTERLIS.XMLDate;
+      URL_KbS_Auszug : INTERLIS.URI;
+      Bemerkung : LocalisationCH_V1.MultilingualMText;
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND NOT (DEFINED (InBetrieb)));
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND (InBetrieb) AND NOT (DEFINED (Deponietyp)));
+      MANDATORY CONSTRAINT DEFINED (Geo_Lage_Punkt) OR DEFINED (Geo_Lage_Polygon);
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND (NOT (InBetrieb)) AND NOT (DEFINED (Nachsorge)));
+    END Belasteter_Standort;
+
+    ASSOCIATION ZustaendigkeitKatasterBelasteter_Standort =
+      ZustaendigkeitKataster -- {1} ZustaendigkeitKataster;
+      Belasteter_Standort -<> {0..*} Belasteter_Standort;
+    END ZustaendigkeitKatasterBelasteter_Standort;
+
+  END Belastete_Standorte;
+
+END KbS_LV03_V1_4.
+
+
+!!@ furtherInformation=https://www.bafu.admin.ch/geodatenmodelle
+!!@ technicalContact=mailto:gis@bafu.admin.ch
+!!@ IDGeoIV="114.2, 116.1, 117.1, 118.1, 119.1"
+MODEL KbS_LV95_V1_4 (de)
+AT "https://models.geo.admin.ch/BAFU/"
+VERSION "2018-06-13"  =
+  IMPORTS LocalisationCH_V1,GeometryCHLV95_V1,KbS_Basis_V1_4;
+
+  TOPIC Belastete_Standorte =
+
+    DOMAIN
+
+      Polygon = SURFACE WITH (STRAIGHTS) VERTEX GeometryCHLV95_V1.Coord2 WITHOUT OVERLAPS > 0.001;
+
+    STRUCTURE PolygonStructure =
+      Polygon: Polygon;
+    END PolygonStructure;
+
+    STRUCTURE MultiPolygon =
+      Polygones: BAG {1..*} OF PolygonStructure;
+    END MultiPolygon;
+
+    CLASS ZustaendigkeitKataster =
+      Zustaendige_Behoerde : MANDATORY LocalisationCH_V1.MultilingualText;
+      URL_Behoerde : MANDATORY INTERLIS.URI;
+      UID : TEXT*12;
+      Katastername : MANDATORY LocalisationCH_V1.MultilingualText;
+      URL_Kataster : MANDATORY INTERLIS.URI;
+    END ZustaendigkeitKataster;
+
+    CLASS Belasteter_Standort =
+      Katasternummer : MANDATORY TEXT;
+      URL_Standort : INTERLIS.URI;
+      Geo_Lage_Polygon : MultiPolygon;
+      Geo_Lage_Punkt : GeometryCHLV95_V1.Coord2;
+      Parzellenverweis : BAG {0..*} OF KbS_Basis_V1_4.Parzellenidentifikation;
+      EGRID : BAG {0..*} OF KbS_Basis_V1_4.EGRID_;
+      Standorttyp : MANDATORY KbS_Basis_V1_4.Standorttyp;
+      InBetrieb : BOOLEAN;
+      Deponietyp : BAG {0..*} OF KbS_Basis_V1_4.Deponietyp_;
+      Nachsorge : BOOLEAN;
+      Untersuchungsmassnahmen : BAG {1..*} OF KbS_Basis_V1_4.UntersMassn_;
+      StatusAltlV : MANDATORY KbS_Basis_V1_4.StatusAltlV;
+      Ersteintrag : MANDATORY INTERLIS.XMLDate;
+      LetzteAnpassung : MANDATORY INTERLIS.XMLDate;
+      URL_KbS_Auszug : INTERLIS.URI;
+      Bemerkung : LocalisationCH_V1.MultilingualMText;
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND NOT (DEFINED (InBetrieb)));
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND (InBetrieb) AND NOT (DEFINED (Deponietyp)));
+      MANDATORY CONSTRAINT DEFINED (Geo_Lage_Punkt) OR DEFINED (Geo_Lage_Polygon);
+      MANDATORY CONSTRAINT NOT ((Standorttyp == #StaoTyp1) AND (NOT (InBetrieb)) AND NOT (DEFINED (Nachsorge)));
+    END Belasteter_Standort;
+
+    ASSOCIATION ZustaendigkeitKatasterBelasteter_Standort =
+      ZustaendigkeitKataster -- {1} ZustaendigkeitKataster;
+      Belasteter_Standort -<> {0..*} Belasteter_Standort;
+    END ZustaendigkeitKatasterBelasteter_Standort;
+
+  END Belastete_Standorte;
+
+END KbS_LV95_V1_4.
