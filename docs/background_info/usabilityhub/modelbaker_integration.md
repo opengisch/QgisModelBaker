@@ -54,7 +54,7 @@ The parameters set by the Model Baker in the background (like `--createFkIdx`, `
 Exception is a (future) setting like `onlyUseMetaConfigParams` in the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others.
 
 ### Refrencing other INTERLIS models
-Using the ili2db settings, it is possible to reference other models from a *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
+Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
 
 ## Toppings and their Configuration
 *Topping files* are files that are referenced in the *metaconfiguration* or in other *topping files* like e.g. the *project topping file* and contain the configuration information of the GIS project or parts of it. So they can be form configurations, style attributes, legend tree structures as well as data files. Individual topping files can be used for each tool.
