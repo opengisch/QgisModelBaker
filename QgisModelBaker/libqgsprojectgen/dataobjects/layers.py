@@ -198,7 +198,7 @@ class Layer(object):
             for relation in project.relations:
                 if relation.referenced_layer == self:
 
-                    # 1:m relation will be added only if does not point to a pure link table
+                    # 1:n relation will be added only if does not point to a pure link table
                     if (
                         not relation.referencing_layer.isPureLinkTable(project)
                         or Qgis.QGIS_VERSION_INT < 31600
@@ -214,7 +214,10 @@ class Layer(object):
                                 continue
 
                             # relations to the same table with different geometries should not be added
-                            if nm_relation.referenced_layer.srid == self.srid:
+                            if (
+                                self.srid
+                                and nm_relation.referenced_layer.srid == self.srid
+                            ):
                                 continue
 
                             if nm_relation.referenced_layer.is_basket_table:
