@@ -770,8 +770,13 @@ class SchemaModelsModel(CheckEntriesModel):
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
                     for modelname in regex.split(db_model["modelname"]):
-                        if modelname and modelname not in TRANSFERFILE_MODELS_BLACKLIST:
-                            modelnames.append(modelname.strip())
+                        name = modelname.strip()
+                        if (
+                            name
+                            and name not in TRANSFERFILE_MODELS_BLACKLIST
+                            and name not in modelnames
+                        ):
+                            modelnames.append(name)
 
         self.setStringList(modelnames)
 
