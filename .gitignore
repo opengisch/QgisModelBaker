@@ -1,6 +1,7 @@
 .idea
 __pycache__
 /QgisModelBaker/libili2db/bin
+/QgisModelBaker/libs/
 *.orig
 i18n
 .DS_Store
