@@ -140,7 +140,7 @@ It can be followed by groups or layers. The following parameters are valid for b
 
 - `checked: true/false` defines if the node is visible or not
 - `expanded: true/false` defines if the node is expanded or not
-- `featurecount: true` defines if the number of features should be displayed or not
+- `featurecount: true/false` defines if the number of features should be displayed or not
 - `definitionfile: "ilidata..."` defines the path/link to a layer/group definition QLR file.
 
 Groups must be defined as such with the parameter `group: true`. Otherwise it is assumed to be a layer. The groups should contain the parameter `child-nodes` where subgroups and layers can be defined.
