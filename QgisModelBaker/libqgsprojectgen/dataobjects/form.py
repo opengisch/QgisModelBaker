@@ -19,6 +19,7 @@
 """
 
 from qgis.core import (
+    Qgis,
     QgsAttributeEditorContainer,
     QgsAttributeEditorField,
     QgsAttributeEditorRelation,
@@ -126,4 +127,8 @@ class FormRelationWidget(object):
             )
         if self.nm_relation:
             widget.setNmRelationId(self.nm_relation.id)
+
+        if Qgis.QGIS_VERSION_INT >= 31800:
+            widget.setRelationWidgetTypeId("linking_relation_editor")
+
         return widget
