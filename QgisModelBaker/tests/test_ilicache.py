@@ -588,9 +588,9 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
         }
 
         assert files == expected_files
@@ -619,7 +619,7 @@ class IliCacheTest(unittest.TestCase):
                 int(IliToppingFileItemModel.Roles.VERSION)
             )
             assert (
-                "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
+                "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
                 == matches_on_id[0].data(
                     int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH)
                 )
@@ -630,7 +630,7 @@ class IliCacheTest(unittest.TestCase):
                     "testdata",
                     "ilirepo",
                     "usabilityhub",
-                    "qml",
+                    "layerstyle",
                     "opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
                 )
                 == matches_on_id[0].data(
@@ -674,9 +674,9 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
         }
         assert files == expected_files
 
@@ -686,7 +686,7 @@ class IliCacheTest(unittest.TestCase):
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005",
-            "file:qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "file:layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
         ]
 
         configuration = BaseConfiguration()
@@ -714,10 +714,10 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
         }
         assert files == expected_files
 

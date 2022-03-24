@@ -192,7 +192,7 @@ The "outdated" way to do the mapping in the *metaconfiguration file* is still su
 
 ```ini
 [qgis.modelbaker.qml]
-"Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
+"Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
 "Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
 ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
 ```

@@ -2660,7 +2660,7 @@ class TestProjectGen(unittest.TestCase):
         Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
 
         [CONFIGURATION]
-        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/layertree/opengis_layertree_KbS_LV95_V1_4.yaml
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/projecttopping/opengis_layertree_KbS_LV95_V1_4.yaml
         ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
 
         [ch.ehi.ili2db]
@@ -2671,7 +2671,7 @@ class TestProjectGen(unittest.TestCase):
 
         [qgis.modelbaker.qml]
         "Belasteter_Standort (Geo_Lage_Polygon)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
-        "Belasteter_Standort (Geo_Lage_Punkt)"=file:tests/testdata/ilirepo/usabilityhub/qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml
+        "Belasteter_Standort (Geo_Lage_Punkt)"=file:tests/testdata/ilirepo/usabilityhub/layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_punkt.qml
         Parzellenidentifikation=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
         """
 
@@ -2747,7 +2747,7 @@ class TestProjectGen(unittest.TestCase):
         )
         # absolute path since it's defined as ilidata:...
         expected_ili_meta_attrs_file_path_list = [
-            os.path.join(toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml")
+            os.path.join(toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml")
         ]
         assert expected_ili_meta_attrs_file_path_list == ili_meta_attrs_file_path_list
         importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
@@ -2798,7 +2798,8 @@ class TestProjectGen(unittest.TestCase):
         # relative path made absolute to modelbaker since it's defined as file:...
         expected_layertree_data_file_path_list = [
             os.path.join(
-                toppings_test_path, "layertree/opengis_layertree_KbS_LV95_V1_4.yaml"
+                toppings_test_path,
+                "projecttopping/opengis_layertree_KbS_LV95_V1_4.yaml",
             )
         ]
         assert layertree_data_file_path_list == expected_layertree_data_file_path_list
@@ -2941,7 +2942,7 @@ class TestProjectGen(unittest.TestCase):
         qml_section = dict(metaconfig["qgis.modelbaker.qml"])
         assert list(qml_section.values()) == [
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001",
-            "file:tests/testdata/ilirepo/usabilityhub/qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "file:tests/testdata/ilirepo/usabilityhub/layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005",
         ]
         qml_file_model = self.get_topping_file_model(
@@ -3044,7 +3045,7 @@ class TestProjectGen(unittest.TestCase):
         Reads this metaconfig found in ilidata.xml according to the modelname KbS_LV95_V1_4
 
         [CONFIGURATION]
-        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml
+        qgis.modelbaker.layertree=file:tests/testdata/ilirepo/usabilityhub/projecttopping/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml
         ch.interlis.referenceData=ilidata:ch.sh.ili.catalogue.KbS_Codetexte_V1_4
 
         [ch.ehi.ili2db]
@@ -3134,7 +3135,7 @@ class TestProjectGen(unittest.TestCase):
         )
         # absolute path since it's defined as ilidata:...
         expected_ili_meta_attrs_file_path_list = [
-            os.path.join(toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml")
+            os.path.join(toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml")
         ]
         assert expected_ili_meta_attrs_file_path_list == ili_meta_attrs_file_path_list
         importer.configuration.tomlfile = ili_meta_attrs_file_path_list[0]
@@ -3182,7 +3183,7 @@ class TestProjectGen(unittest.TestCase):
         expected_layertree_data_file_path_list = [
             os.path.join(
                 toppings_test_path,
-                "layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml",
+                "projecttopping/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml",
             )
         ]
         assert layertree_data_file_path_list == expected_layertree_data_file_path_list

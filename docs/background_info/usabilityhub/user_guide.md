@@ -176,11 +176,11 @@ For information and examples about the referencing of those files see in the [Mo
 The topping files can now be stored in the folders intended for them:
 ```
 .
-├── layertree
+├── projecttopping
 │   ├── layertree_Nutzungsplanung_V310.yaml
 ├── metaconfig
 │   ├── lu_nutzungsplanung_v310.ini
-├── qml
+├── layerstyle
 │   ├── lu_baulinien.qml
 │   ├── lu_bemassung_geometrie.qml
 │   ├── lu_bemassung_hlinie.qml
@@ -192,7 +192,7 @@ The topping files can now be stored in the folders intended for them:
 │   ├── lu_ueberlagerung_flaechen.qml
 │   ├── lu_ueberlagerung_linien.qml
 │   ├── lu_ueberlagerung_punkte.qml
-└── toml
+└── metaattributes
     ├── Nutzungsplanung_V310.toml
 
 ```
@@ -204,7 +204,7 @@ For the structure of the file based on the [`DatasetIdx16`](http://models.interl
 
 Basically, a repository-wide unique id must be assigned. It does not have to be descriptive for the content. Further the type of the topping must be entered in the `categories`, as well as the relative `path` to the file concerned.
 
-So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" with the id "ch.lu.topping.Nutzungsplanung_V310_grundnutzung" would be the following:
+So the entry for the topping file "layerstyle/lu_grundnutzung.qml" of the type "layerstyle" with the id "ch.lu.topping.Nutzungsplanung_V310_grundnutzung" would be the following:
 ```xml
       <DatasetIdx16.DataIndex.DatasetMetadata TID="3dcc47e5-1dd5-4f05-9fc8-756125705a2c">
         <id>ch.lu.topping.Nutzungsplanung_V310_grundnutzung</id>
@@ -212,7 +212,7 @@ So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" wi
         <owner>mailto:zsanett@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -220,7 +220,7 @@ So the entry for the topping file "qml/lu_grundnutzung.qml" of the type "qml" wi
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/lu_grundnutzung.qml</path>
+                <path>layerstyle/lu_grundnutzung.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>

@@ -69,7 +69,7 @@ class TestProjectTopping(unittest.TestCase):
         )
         importer.configuration.srs_code = "2056"
         importer.configuration.tomlfile = os.path.join(
-            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+            self.toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml"
         )
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -88,7 +88,7 @@ class TestProjectTopping(unittest.TestCase):
         # load the projecttopping file
         projecttopping_file_path = os.path.join(
             self.toppings_test_path,
-            "layertree/opengis_projecttopping_qlr_KbS_LV95_V1_4.yaml",
+            "projecttopping/opengis_projecttopping_qlr_KbS_LV95_V1_4.yaml",
         )
 
         with open(projecttopping_file_path, "r") as yamlfile:
@@ -173,7 +173,7 @@ class TestProjectTopping(unittest.TestCase):
         )
         importer.configuration.srs_code = "2056"
         importer.configuration.tomlfile = os.path.join(
-            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+            self.toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml"
         )
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -192,7 +192,7 @@ class TestProjectTopping(unittest.TestCase):
         # load the projecttopping file
         projecttopping_file_path = os.path.join(
             self.toppings_test_path,
-            "layertree/opengis_projecttopping_source_KbS_LV95_V1_4.yaml",
+            "projecttopping/opengis_projecttopping_source_KbS_LV95_V1_4.yaml",
         )
 
         # write dynamic parameters in the new file
@@ -308,7 +308,7 @@ class TestProjectTopping(unittest.TestCase):
         )
         importer.configuration.srs_code = "2056"
         importer.configuration.tomlfile = os.path.join(
-            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+            self.toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml"
         )
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -327,7 +327,7 @@ class TestProjectTopping(unittest.TestCase):
         # load the projecttopping file
         projecttopping_file_path = os.path.join(
             self.toppings_test_path,
-            "layertree/opengis_projecttopping_qml_KbS_LV95_V1_4.yaml",
+            "projecttopping/opengis_projecttopping_qml_KbS_LV95_V1_4.yaml",
         )
 
         with open(projecttopping_file_path, "r") as yamlfile:
@@ -423,7 +423,7 @@ class TestProjectTopping(unittest.TestCase):
         )
         importer.configuration.srs_code = "2056"
         importer.configuration.tomlfile = os.path.join(
-            self.toppings_test_path, "toml/sh_KbS_LV95_V1_4.toml"
+            self.toppings_test_path, "metaattributes/sh_KbS_LV95_V1_4.toml"
         )
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -442,7 +442,7 @@ class TestProjectTopping(unittest.TestCase):
         # load the projecttopping file
         projecttopping_file_path = os.path.join(
             self.toppings_test_path,
-            "layertree/opengis_projecttopping_ilidata_KbS_LV95_V1_4.yaml",
+            "projecttopping/opengis_projecttopping_ilidata_KbS_LV95_V1_4.yaml",
         )
 
         with open(projecttopping_file_path, "r") as yamlfile:

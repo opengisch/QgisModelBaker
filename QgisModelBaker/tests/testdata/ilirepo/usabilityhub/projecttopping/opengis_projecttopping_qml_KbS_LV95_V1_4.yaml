@@ -1,0 +1,10 @@
+layertree:
+    - "KbS_LV95_V1_4 Layers":
+        group: true
+        child-nodes:
+            - "Belasteter_Standort (Geo_Lage_Punkt)":
+                qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml"
+            - "Belasteter_Standort (Geo_Lage_Polygon)":
+                qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
+    - "Parzellenidentifikation":
+        qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml"

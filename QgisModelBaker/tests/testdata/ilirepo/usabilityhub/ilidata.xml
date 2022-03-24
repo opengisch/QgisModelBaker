@@ -272,7 +272,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -280,7 +280,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -293,7 +293,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -301,7 +301,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -314,7 +314,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -322,7 +322,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt_GPKG.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt_GPKG.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -335,7 +335,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -343,7 +343,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -356,7 +356,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -364,7 +364,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_001_polygonstructure_technical.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_001_polygonstructure_technical.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -377,7 +377,7 @@
         <owner>mailto:david@opengis.ch</owner>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/qml</value>
+            <value>http://codes.interlis.ch/type/layerstyle</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -385,7 +385,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_technical.qml</path>
+                <path>layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_technical.qml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -412,7 +412,7 @@
             <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/layertree</value>
+            <value>http://codes.interlis.ch/type/projecttopping</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
             <value>http://codes.opengis.ch/modelbaker</value>
@@ -423,7 +423,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>layertree/opengis_layertree_KbS_LV95_V1_4.yaml</path>
+                <path>projecttopping/opengis_layertree_KbS_LV95_V1_4.yaml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -450,7 +450,7 @@
             <value>http://codes.interlis.ch/model/KbS_LV95_V1_4</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/layertree</value>
+            <value>http://codes.interlis.ch/type/projecttopping</value>
           </DatasetIdx16.Code_>
           <DatasetIdx16.Code_>
             <value>http://codes.opengis.ch/modelbaker</value>
@@ -461,7 +461,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>layertree/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml</path>
+                <path>projecttopping/opengis_layertree_KbS_LV95_V1_4_GPKG.yaml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -485,7 +485,7 @@
         </shortDescription>
         <categories>
           <DatasetIdx16.Code_>
-            <value>http://codes.interlis.ch/type/toml</value>
+            <value>http://codes.interlis.ch/type/metaattributes</value>
           </DatasetIdx16.Code_>
         </categories>
         <files>
@@ -493,7 +493,7 @@
             <fileFormat>text/plain;version=2.3</fileFormat>
             <file>
               <DatasetIdx16.File>
-                <path>toml/sh_KbS_LV95_V1_4.toml</path>
+                <path>metaattributes/sh_KbS_LV95_V1_4.toml</path>
               </DatasetIdx16.File>
             </file>
           </DatasetIdx16.DataFile>
@@ -847,7 +847,7 @@
       <owner>mailto:david@opengis.ch</owner>
       <categories>
         <DatasetIdx16.Code_>
-          <value>http://codes.interlis.ch/type/qlr</value>
+          <value>http://codes.interlis.ch/type/layerdefinition</value>
         </DatasetIdx16.Code_>
       </categories>
       <files>
@@ -855,7 +855,7 @@
           <fileFormat>text/plain;version=2.3</fileFormat>
           <file>
             <DatasetIdx16.File>
-              <path>qlr/the_road_signs.qlr</path>
+              <path>layerdefinition/the_road_signs.qlr</path>
             </DatasetIdx16.File>
           </file>
         </DatasetIdx16.DataFile>
