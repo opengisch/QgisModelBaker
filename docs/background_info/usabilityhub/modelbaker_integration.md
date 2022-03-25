@@ -62,11 +62,11 @@ Using the ili2db settings, it is possible to reference other models from *metaco
 The Model Baker supports these kinds of *topping files*:
 
 - Project topping files: `yaml` files for project settings like legend display, linking to layer configuration files and layer order
-- QML layer properties: `qml` files for layer configurations
+- QML layer style: `qml` files for layer configurations
 - Layer definition: `qlr` files for layer definitions
 - Data files: `xtf`/`xml`/`itf` files for data import
 ### Project Topping (`yaml`)
-Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the outdated `qgis.modelbaker.layertree`).
+Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the deprecated `qgis.modelbaker.layertree`).
 
 The file is written in `yaml`:
 
@@ -188,7 +188,7 @@ The `qml` topping files are assigned directly in the layertree of the *project t
     qmlstylefile: "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001"
 ```
 
-The "outdated" way to do the mapping in the *metaconfiguration file* is still supported.
+The "deprecated" way to do the mapping in the *metaconfiguration file* is still supported.
 
 ```ini
 [qgis.modelbaker.qml]

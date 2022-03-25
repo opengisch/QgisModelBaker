@@ -80,12 +80,11 @@ The category for the file type is identified with the prefix http://codes.interl
 
 In the UsabILIty Hub implementation of the Model Baker, the following types are used:
 - `metaconfig` to describe that it is a *metaconfiguration file*.
-- `toml` to describe that it is a meta attribute file written in TOML
+- `metaattributes` to describe that it is a meta attribute file written in TOML
 - `sql` to describe that it is a SQL query file that can be used when creating the database
-- `layertree` to describe that it is a *toppingfile* that defines the legend representation (outdated: see `projecttopping`)
 - `projecttopping` to describe that it is a *toppingfile* that defines a qgis project setting (includes the full layertree implementation and replaces that)
-- `qml` to describe that it is a *toppingfile* that can contain styling and form configurations for a QGIS layer
-- `qlr` to describe that it is a *toppingfile* that can contain the definition of a QGIS layer
+- `layerstyle` to describe that it is a *toppingfile* that can contain styling and form configurations for a QGIS layer written in QML
+- `layerdefinition` to describe that it is a *toppingfile* that can contain the definition of a QGIS layer written in QLR
 - `referenceData` to describe that it is a data file (e.g. a transfer file or a catalog)
 
 #### Generic
@@ -157,7 +156,7 @@ ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
 
 For example, the id `ch.opengis.configs.KbS_LV95_V1_4_projecttopping` references a `DatasetMetadata` that contains a link to a `yaml` file where the project settings like the legend structure is defined. The id `ch.opengis.configs.KbS_LV95_V1_4_001` points to a `DatasetMetadata` element which contains a link to an `qml` file for QGIS style and form configurations.
 
-Whole sections can also be defined. The section `qgis.modelbaker.qml` contains besides the link also the mapping of layer names to `qml` files. The mapping in the metaconfigurationfile is outdated. This should be done in the project topping file.
+Whole sections can also be defined. The section `qgis.modelbaker.qml` contains besides the link also the mapping of layer names to `qml` files. The mapping in the metaconfigurationfile is deprecated. This should be done in the project topping file.
 
 ### Tool Prefix
 In the *metaconfiguration file* entries can be marked with a tool prefix. ili2db for example uses the prefix `ch.ehi.ili2db` and the Model Baker uses the prefix `qgis.modelbaker`. However, it is up to the tool which configurations it uses. The prefix `ch.interlis`, which is used with `ch.interlis.referenceData` for example for the reference to *data files* like catalogs or transfer data files, is used by ili2db as well as the Model Baker.

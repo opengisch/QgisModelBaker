@@ -16,13 +16,13 @@ It is recommended to place the files in one directory and name the following sub
 ```
 .
 ├── ilidata.xml
-├── layertree
+├── projecttopping
 ├── metaconfig
-├── qml
-├── qlr
+├── layerstyle
+├── layerdefinition
 ├── referencedata
 ├── sql
-└── toml
+└── metaattributes
 ```
 
 #### Local project generation
@@ -64,7 +64,7 @@ If an implementation of this project already exists, this information can also b
 
 ### 2. Creating Toppingfiles
 
-#### Layer Properties (`qml` Files)
+#### Layer style (`qml` Files)
 From the QGIS project, with already defined layer properties, first the `qml` files are saved.
 
 *Layer properties > Style > Save layer style*
@@ -241,7 +241,7 @@ qgis.modelbaker.projecttopping=ilidata:ch.lu.topping.layertree_Nutzungsplanung_V
 iliMetaAttrs=ilidata:ch.lu.topping.npluzern_toml
 ```
 
-There is an outdated way of assigning the `qml` layer style toppings to the correct names of the corresponding layers. Better practice is to add them in the layertree of the project topping file (`yaml`).
+There is an deprecated way of assigning the `qml` layer style toppings to the correct names of the corresponding layers. Better practice is to add them in the layertree of the project topping file (`yaml`).
 
 ```ini
 [qgis.modelbaker.qml]
