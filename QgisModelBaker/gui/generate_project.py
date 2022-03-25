@@ -565,7 +565,10 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             # This configuration is legacy (should be in project topping instead), but it's still supported
             if "qgis.modelbaker.qml" in self.metaconfig.sections():
                 self.print_info(
-                    self.tr("Metaconfig contains QML toppings."), LogColor.COLOR_TOPPING
+                    self.tr(
+                        "Metaconfig contains QML toppings. Better practice would be to define QML toppings in the project topping file."
+                    ),
+                    LogColor.COLOR_TOPPING,
                 )
                 qml_section = dict(self.metaconfig["qgis.modelbaker.qml"])
                 qml_file_model = self.get_topping_file_model(list(qml_section.values()))

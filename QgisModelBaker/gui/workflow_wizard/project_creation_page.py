@@ -247,7 +247,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             and "qgis.modelbaker.qml" in self.configuration.metaconfig.sections()
         ):
             self.workflow_wizard.log_panel.print_info(
-                self.tr("Metaconfig contains QML toppings."), LogColor.COLOR_TOPPING
+                self.tr(
+                    "Metaconfig contains QML toppings. Better practice would be to define QML toppings in the project topping file."
+                ),
+                LogColor.COLOR_TOPPING,
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
