@@ -523,7 +523,7 @@ class WorkflowWizardDialog(QDialog):
         self.iface = iface
         self.base_config = base_config
 
-        self.setWindowTitle(self.tr("QGIS Model Baker - Workflow Wizard"))
+        self.setWindowTitle(self.tr("Model Baker - Workflow Wizard"))
         self.log_panel = LogPanel()
         self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)

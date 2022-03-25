@@ -123,7 +123,7 @@ class QgisModelBakerPlugin(QObject):
         self.__generate_action = QAction(
             QIcon(
                 os.path.join(
-                    os.path.dirname(__file__), "images/QgisModelBaker-icon.svg"
+                    os.path.dirname(__file__), "images/QgisModelBaker-generate-icon.svg"
                 )
             ),
             self.tr("Generate"),

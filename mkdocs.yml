@@ -1,5 +1,5 @@
 # Project information
-site_name: QGIS Model Baker
+site_name: QGIS Model Baker Documenation
 site_description: >-
   This site contains documentation about QGIS Model Baker
 site_url: https://opengisch.github.io/QgisModelBaker/
@@ -21,13 +21,17 @@ theme:
   logo: assets/modelbaker_icon.svg
   palette:
     - scheme: default
+      primary: blue grey
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - scheme: slate
+      primary: blue grey
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+        primary: white
+
 
 # Page tree
 nav:

@@ -131,13 +131,13 @@ class OptionsDialog(QDialog, DIALOG_UI):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
         if os_language in ["es", "de"]:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/{}/user-guide.html#plugin-configuration".format(
+                "https://opengisch.github.io/QgisModelBaker/{}/user_guide/plugin_configuration".format(
                     os_language
                 )
             )
         else:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/docs/user-guide.html#plugin-configuration"
+                "https://opengisch.github.io/QgisModelBaker/user_guide/plugin_configuration"
             )
 
     def ili2db_command_reload(self):
