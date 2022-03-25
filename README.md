@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/release/opengisch/QgisModelBaker.svg)](https://github.com/opengisch/QgisModelBaker/releases)
 [![Build Status](https://travis-ci.org/opengisch/QgisModelBaker.svg?branch=master)](https://travis-ci.com/opengisch/QgisModelBaker)
 
-# QGIS Model Baker
+![logo](branding/logo/SVG/Logo_Green_Modelbaker_RGB_QGIS_white.svg)
 
 This is a QGIS plugin to quickly generate [QGIS](https://www.qgis.org) projects
 from an existing model with a few mouseclicks.
