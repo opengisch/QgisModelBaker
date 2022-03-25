@@ -1,0 +1,29 @@
+INTERLIS 2.3;
+
+MODEL Maps_V1 (en)
+AT "mailto:U80863546@localhost"
+VERSION "2021-12-15"  =
+IMPORTS CatalogueObjectTrees_V1,CatalogueObjects_V1;
+
+  TOPIC Catalogues =
+
+	CLASS MapHierItem
+    EXTENDS CatalogueObjects_V1.Catalogues.Item =
+      IdName : MANDATORY TEXT;
+    END MapHierItem;
+
+    STRUCTURE MapHierRef
+    EXTENDS CatalogueObjects_V1.Catalogues.CatalogueReference =
+      Reference (EXTENDED) : REFERENCE TO (EXTERNAL) MapHierItem;
+    END MapHierRef;
+  END Catalogues;
+
+  TOPIC Maps =
+  DEPENDS ON Catalogues;
+	CLASS Map =
+	  Map_Name : TEXT;
+	  Hierarchy : BAG {1..*} OF Maps_V1.Catalogues.MapHierRef;
+	END Map;
+  END Maps;
+
+END Maps_V1.

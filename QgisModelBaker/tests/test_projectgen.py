@@ -3688,6 +3688,60 @@ class TestProjectGen(unittest.TestCase):
 
         assert count == 1
 
+    def test_relation_editor_widget_for_no_geometry_layers(self):
+
+        importer = iliimporter.Importer()
+        importer.tool = DbIliMode.ili2gpkg
+        importer.configuration = iliimporter_config(importer.tool)
+        importer.configuration.ilifile = testdata_path("ilimodels/Maps_V1.ili")
+        importer.configuration.ilimodels = "Maps_V1"
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath,
+            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
+        )
+        importer.configuration.srs_code = 3116
+        importer.configuration.inheritance = "smart2"
+        importer.stdout.connect(self.print_info)
+        importer.stderr.connect(self.print_error)
+        assert importer.run() == iliimporter.Importer.SUCCESS
+
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, "smart2")
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
+        count = 0
+        for layer in available_layers:
+            if layer.name == "amap":
+                count += 1
+                edit_form_config = layer.layer.editFormConfig()
+                assert edit_form_config.layout() == QgsEditFormConfig.TabLayout
+                tabs = edit_form_config.tabs()
+
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    tab_list = [tab.name() for tab in tabs]
+                    expected_tab_list = [
+                        "General",
+                        "maphieritem",
+                    ]
+                    assert set(tab_list) == set(expected_tab_list)
+                    assert len(tab_list) == len(expected_tab_list)
+
+        assert count == 1
+
     def print_info(self, text):
         logging.info(text)
 
