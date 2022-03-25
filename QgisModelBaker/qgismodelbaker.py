@@ -178,12 +178,14 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Import/Export Wizard"),
             None,
         )
+        self.__configseparator = QAction(None)
+        self.__configseparator.setSeparator(True)
+        self.__dataset_selector_action = QAction(self.tr("Dataset Selector"))
         self.__configure_action = QAction(self.tr("Settings"), None)
+        self.__infoseparator = QAction(None)
+        self.__infoseparator.setSeparator(True)
         self.__help_action = QAction(self.tr("Help"), None)
         self.__about_action = QAction(self.tr("About"), None)
-        self.__separator = QAction(None)
-        self.__separator.setSeparator(True)
-        self.__dataset_selector_action = QAction(self.tr("Dataset Selector"))
 
         # set these actions checkable to visualize that the dialog is open
         self.__generate_action.setCheckable(True)
@@ -209,22 +211,18 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__workflow_wizard_action
         )
         self.iface.addPluginToDatabaseMenu(
-            self.tr("Model Baker"), self.__generate_action
+            self.tr("Model Baker"), self.__validate_action
         )
         self.iface.addPluginToDatabaseMenu(
-            self.tr("Model Baker"), self.__importdata_action
+            self.tr("Model Baker"), self.__configseparator
         )
-        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__export_action)
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.addPluginToDatabaseMenu(
-            self.tr("Model Baker"), self.__validate_action
-        )
-        self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
         )
-        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__separator)
+        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__infoseparator)
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__help_action)
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__about_action)
 
@@ -232,9 +230,6 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.setObjectName("ModelBakerToolbar")
         self.toolbar.setToolTip(self.tr("Model Baker Toolbar"))
         self.toolbar.addAction(self.__workflow_wizard_action)
-        self.toolbar.addAction(self.__generate_action)
-        self.toolbar.addAction(self.__importdata_action)
-        self.toolbar.addAction(self.__export_action)
         self.__dataset_selector = DatasetSelector()
         self.__dataset_selector_action = self.toolbar.addWidget(self.__dataset_selector)
         # connect trigger to refresh model of dataset combobox when layer changed
@@ -247,15 +242,6 @@ class QgisModelBakerPlugin(QObject):
 
     def unload(self):
         self.unregister_event_filter()
-        self.iface.removePluginDatabaseMenu(
-            self.tr("Model Baker"), self.__generate_action
-        )
-        self.iface.removePluginDatabaseMenu(
-            self.tr("Model Baker"), self.__importdata_action
-        )
-        self.iface.removePluginDatabaseMenu(
-            self.tr("Model Baker"), self.__export_action
-        )
         self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__datasetmanager_action
         )
