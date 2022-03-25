@@ -144,6 +144,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             key = "qgis.modelbaker.projecttopping"
             if key not in configuration_section:
                 key = "qgis.modelbaker.layertree"
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
+                    ),
+                    LogColor.COLOR_TOPPING,
+                )
+
             if key in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("Metaconfig contains a project topping."),
@@ -175,6 +182,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     layertree_key = "layertree"
                     if layertree_key not in projecttopping_data:
                         layertree_key = "legend"
+                        self.workflow_wizard.log_panel.print_info(
+                            self.tr(
+                                'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
+                            ),
+                            LogColor.COLOR_TOPPING,
+                        )
                     if layertree_key in projecttopping_data:
                         legend = generator.legend(
                             available_layers,

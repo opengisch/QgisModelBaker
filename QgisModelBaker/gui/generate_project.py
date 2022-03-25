@@ -467,6 +467,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 key = "qgis.modelbaker.projecttopping"
                 if key not in configuration_section:
                     key = "qgis.modelbaker.layertree"
+                    self.print_info(
+                        self.tr(
+                            'Keyword "qgis.modelbaker.layertree" is deprecated (but still working).. Use "qgis.modelbaker.projecttopping" instead.'
+                        ),
+                        LogColor.COLOR_TOPPING,
+                    )
                 if key in configuration_section:
                     self.print_info(
                         self.tr("Metaconfig contains a project topping."),
@@ -498,6 +504,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                         layertree_key = "layertree"
                         if layertree_key not in projecttopping_data:
                             layertree_key = "legend"
+                            self.print_info(
+                                self.tr(
+                                    'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
+                                ),
+                                LogColor.COLOR_TOPPING,
+                            )
                         if layertree_key in projecttopping_data:
                             legend = generator.legend(
                                 available_layers,

@@ -66,7 +66,7 @@ The Model Baker supports these kinds of *topping files*:
 - Layer definition: `qlr` files for layer definitions
 - Data files: `xtf`/`xml`/`itf` files for data import
 ### Project Topping (`yaml`)
-Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the outdated `qgis.modelbaker.projecttopping`).
+Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the outdated `qgis.modelbaker.layertree`).
 
 The file is written in `yaml`:
 
