@@ -3681,34 +3681,27 @@ class TestProjectGen(unittest.TestCase):
 
         assert count == 1
 
-    def test_relation_editor_widget_bug637(self):
+    def test_relation_editor_widget_for_no_geometry_layers(self):
 
         importer = iliimporter.Importer()
-        importer.tool = DbIliMode.ili2mssql
+        importer.tool = DbIliMode.ili2gpkg
         importer.configuration = iliimporter_config(importer.tool)
         importer.configuration.ilifile = testdata_path("ilimodels/Maps_V1.ili")
         importer.configuration.ilimodels = "Maps_V1"
-        importer.configuration.dbschema = "maps_v1_{:%Y%m%d%H%M%S%f}".format(
-            datetime.datetime.now()
+        importer.configuration.dbfile = os.path.join(
+            self.basetestpath,
+            "tmp_array_mapping_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
         )
-
+        importer.configuration.srs_code = 3116
         importer.configuration.inheritance = "smart2"
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
-
-        uri = "DRIVER={drv};SERVER={server};DATABASE={db};UID={uid};PWD={pwd}".format(
-            drv="{ODBC Driver 17 for SQL Server}",
-            server=importer.configuration.dbhost,
-            db=importer.configuration.database,
-            uid=importer.configuration.dbusr,
-            pwd=importer.configuration.dbpwd,
-        )
-
         assert importer.run() == iliimporter.Importer.SUCCESS
 
-        generator = Generator(
-            DbIliMode.ili2mssql, uri, "smart2", importer.configuration.dbschema
-        )
+        config_manager = GpkgCommandConfigManager(importer.configuration)
+        uri = config_manager.get_uri()
+
+        generator = Generator(DbIliMode.ili2gpkg, uri, "smart2")
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
