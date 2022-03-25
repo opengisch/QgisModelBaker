@@ -151,7 +151,7 @@ Additionally the groups have the `mutually-exclusive` property. This means if th
 - `mutually-exclusive-child: 0` the child element to be displayed.
 
 Layers can additionally have the path/link defined to QML files containing layer properties like form configuration, symbology etc.
-- `qmlstylefiles: "ilidata..."` if only one child element should be visible at a time.
+- `qmlstylefiles: "ilidata..."`
 
 And one can define the source directly in the layers as well:
 - `provider: "wms"` defines the provider type (supported is `ogr`, `postgres` and `wms`)
