@@ -24,6 +24,8 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsDataSourceUri,
     QgsExpressionContextUtils,
+    QgsLayerDefinition,
+    QgsRasterLayer,
     QgsRectangle,
     QgsVectorLayer,
     QgsWkbTypes,
@@ -38,11 +40,11 @@ from .form import Form, FormFieldWidget, FormRelationWidget, FormTab
 class Layer(object):
     def __init__(
         self,
-        provider,
-        uri,
-        name,
-        srid,
-        extent,
+        provider=None,
+        uri=None,
+        name=None,
+        srid=None,
+        extent=None,
         geometry_column=None,
         wkb_type=QgsWkbTypes.Unknown,
         alias=None,
@@ -53,7 +55,9 @@ class Layer(object):
         coordinate_precision=None,
         is_basket_table=False,
         is_dataset_table=False,
-        model_topic_name=None,
+        ili_name=None,
+        definitionfile=None,
+        qmlstylefile=None,
     ):
         self.provider = provider
         self.uri = uri
@@ -86,7 +90,18 @@ class Layer(object):
 
         self.is_basket_table = is_basket_table
         self.is_dataset_table = is_dataset_table
-        self.model_topic_name = model_topic_name
+
+        self.ili_name = ili_name
+
+        self.model_topic_name = ""
+        if self.ili_name:
+            if self.ili_name.count(".") > 1:
+                self.model_topic_name = (
+                    f"{self.ili_name.split('.')[0]}.{self.ili_name.split('.')[1]}"
+                )
+
+        self.definitionfile = definitionfile
+        self.qmlstylefile = qmlstylefile
 
         self.__form = Form()
 
@@ -107,6 +122,9 @@ class Layer(object):
         definition["displayexpression"] = self.display_expression
         definition["coordinateprecision"] = self.coordinate_precision
         definition["modeltopicname"] = self.model_topic_name
+        definition["ili_name"] = self.ili_name
+        definition["definitionfile"] = self.definitionfile
+        definition["qmlstylefile"] = self.qmlstylefile
         definition["form"] = self.__form.dump()
         return definition
 
@@ -121,9 +139,21 @@ class Layer(object):
         self.display_expression = definition["displayexpression"]
         self.coordinate_precision = definition["coordinateprecision"]
         self.model_topic_name = definition["modeltopicname"]
+        self.ili_name = definition["ili_name"]
+        self.definitionfile = definition["definitionfile"]
+        self.qmlstylefile = definition["qmlstylefile"]
         self.__form.load(definition["form"])
 
     def create(self):
+        if self.definitionfile:
+            if self.__layer is None:
+                layers = QgsLayerDefinition.loadLayerDefinitionLayers(
+                    self.definitionfile
+                )
+                if layers:
+                    self.__layer = layers[0]
+            return self.__layer
+
         if self.__layer is None:
             layer_name = self.alias or self.name
 
@@ -133,7 +163,7 @@ class Layer(object):
                 "/Projections/defaultBehaviour", "prompt", type=str
             )
             settings.setValue("/Projections/defaultBehaviour", "useProject")
-            self.__layer = QgsVectorLayer(self.uri, layer_name, self.provider)
+            self.__layer = self._create_layer(self.uri, layer_name, self.provider)
             settings.setValue("/Projections/defaultBehavior", old_proj_value)
 
             if (
@@ -167,6 +197,16 @@ class Layer(object):
     def create_form(self, project):
         edit_form = self.__form.create(self, self.__layer, project)
         self.__layer.setEditFormConfig(edit_form)
+
+    def load_style(self):
+        if self.qmlstylefile:
+            self.__layer.loadNamedStyle(self.qmlstylefile)
+
+    def _create_layer(self, uri, layer_name, provider):
+        if provider and provider.lower() == "wms":
+            return QgsRasterLayer(uri, layer_name, provider)
+        # return QgsVectorLayer even when it's an invalid layer with no provider
+        return QgsVectorLayer(uri, layer_name, provider)
 
     def post_generate(self, project):
         """

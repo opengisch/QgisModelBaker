@@ -297,13 +297,15 @@ class IliCacheTest(unittest.TestCase):
             expected_models_of_ilimodels_xml, expected_models_of_local_ili_files
         )
 
-    def test_ilidata_xml_parser_24_metaconfig_kbs(self):
+    def test_ilidata_xml_parser_metaconfig_kbs(self):
         # find kbs metaconfig file according to the model(s) with direct ilidata.xml scan
         ilimetaconfigcache = IliDataCache(configuration=None, models="KbS_LV95_V1_4")
         ilimetaconfigcache._process_informationfile(
-            os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
+            os.path.join(
+                test_path, "testdata", "ilirepo", "usabilityhub", "ilidata.xml"
+            ),
             "test_repo",
-            os.path.join(test_path, "testdata", "ilirepo", "24"),
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub"),
         )
         assert "test_repo" in ilimetaconfigcache.repositories.keys()
         metaconfigs = set(
@@ -369,15 +371,15 @@ class IliCacheTest(unittest.TestCase):
                 0
             ].data(int(IliDataItemModel.Roles.ID))
             assert os.path.join(
-                test_path, "testdata", "ilirepo", "24"
+                test_path, "testdata", "ilirepo", "usabilityhub"
             ) == matches_on_id[0].data(int(IliDataItemModel.Roles.URL))
 
-    def test_ilidata_xml_parser_24_local_repo_metaconfig(self):
+    def test_ilidata_xml_parser_local_repo_metaconfig(self):
         # find planerischerGewaesserschutz metaconfig file according to the model(s) with local repo scan
         configuration = BaseConfiguration()
         configuration.custom_model_directories_enabled = True
         configuration.custom_model_directories = os.path.join(
-            test_path, "testdata", "ilirepo", "24"
+            test_path, "testdata", "ilirepo", "usabilityhub"
         )
 
         ilimetaconfigcache = IliDataCache(
@@ -387,7 +389,7 @@ class IliCacheTest(unittest.TestCase):
         ilimetaconfigcache.refresh()
         # local repo repository
         assert (
-            os.path.join(test_path, "testdata", "ilirepo", "24")
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub")
             in ilimetaconfigcache.repositories.keys()
         )
 
@@ -420,7 +422,7 @@ class IliCacheTest(unittest.TestCase):
                 Qt.DisplayRole
             )
             assert os.path.join(
-                test_path, "testdata", "ilirepo", "24"
+                test_path, "testdata", "ilirepo", "usabilityhub"
             ) == matches_on_id[0].data(int(IliDataItemModel.Roles.ILIREPO))
             assert "2021-03-12" == matches_on_id[0].data(
                 int(IliDataItemModel.Roles.VERSION)
@@ -444,10 +446,10 @@ class IliCacheTest(unittest.TestCase):
                 == matches_on_id[0].data(int(IliDataItemModel.Roles.ID))
             )
             assert os.path.join(
-                test_path, "testdata", "ilirepo", "24"
+                test_path, "testdata", "ilirepo", "usabilityhub"
             ) == matches_on_id[0].data(int(IliDataItemModel.Roles.URL))
 
-    def test_ilidata_xml_parser_24_linkedmodels(self):
+    def test_ilidata_xml_parser_linkedmodels(self):
         # find the linked models of PlanerischerGewaesserschutz_LV95_V1_1 (finding it's catalogue opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1 and with it the ModelLink to LegendeEintrag_PlanGewaesserschutz_V1_1)
         # and for GL_Forstreviere_V1 (what is in fact GL_Forstreviere_V1 as well because the catalogue is defined there as well but it's fine for tests.)
         ilireferencedatacache = IliDataCache(
@@ -456,9 +458,11 @@ class IliCacheTest(unittest.TestCase):
             models="PlanerischerGewaesserschutz_LV95_V1_1;GL_Forstreviere_V1",
         )
         ilireferencedatacache._process_informationfile(
-            os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
+            os.path.join(
+                test_path, "testdata", "ilirepo", "usabilityhub", "ilidata.xml"
+            ),
             "test_repo",
-            os.path.join(test_path, "testdata", "ilirepo", "24"),
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub"),
         )
         assert "test_repo" in ilireferencedatacache.repositories.keys()
         referencedata = set(
@@ -497,13 +501,13 @@ class IliCacheTest(unittest.TestCase):
         }
         assert linked_model_set == expected_linked_models
 
-    def test_ilidata_xml_parser_24_local_repo_linkedmodels(self):
+    def test_ilidata_xml_parser_local_repo_linkedmodels(self):
         # find the linked models of PlanerischerGewaesserschutz_LV95_V1_1 (finding it's catalogue opengisch_PlanerischerGewaesserschutz_Codetexte_V1_1 and with it the ModelLink to LegendeEintrag_PlanGewaesserschutz_V1_1)
         # and for GL_Forstreviere_V1 (what is in fact GL_Forstreviere_V1 as well because the catalogue is defined there as well but it's fine for tests.)
         configuration = BaseConfiguration()
         configuration.custom_model_directories_enabled = True
         configuration.custom_model_directories = os.path.join(
-            test_path, "testdata", "ilirepo", "24"
+            test_path, "testdata", "ilirepo", "usabilityhub"
         )
 
         ilireferencedatacache = IliDataCache(
@@ -514,7 +518,7 @@ class IliCacheTest(unittest.TestCase):
         ilireferencedatacache.refresh()
         # local repo repository
         assert (
-            os.path.join(test_path, "testdata", "ilirepo", "24")
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub")
             in ilireferencedatacache.repositories.keys()
         )
 
@@ -555,7 +559,7 @@ class IliCacheTest(unittest.TestCase):
         }
         assert linked_model_set == expected_linked_models
 
-    def test_ilidata_xml_parser_24_toppingfiles(self):
+    def test_ilidata_xml_parser_toppingfiles(self):
         # find qml files according to the ids(s) with direct ilidata.xml scan
         qml_file_ids = [
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001",
@@ -568,9 +572,11 @@ class IliCacheTest(unittest.TestCase):
         )
 
         ilitoppingfilecache._process_informationfile(
-            os.path.join(test_path, "testdata", "ilirepo", "24", "ilidata.xml"),
+            os.path.join(
+                test_path, "testdata", "ilirepo", "usabilityhub", "ilidata.xml"
+            ),
             "test_repo",
-            os.path.join(test_path, "testdata", "ilirepo", "24"),
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub"),
         )
         assert "test_repo" in ilitoppingfilecache.repositories.keys()
         files = set(
@@ -582,9 +588,9 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
         }
 
         assert files == expected_files
@@ -613,7 +619,7 @@ class IliCacheTest(unittest.TestCase):
                 int(IliToppingFileItemModel.Roles.VERSION)
             )
             assert (
-                "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
+                "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
                 == matches_on_id[0].data(
                     int(IliToppingFileItemModel.Roles.RELATIVEFILEPATH)
                 )
@@ -623,8 +629,8 @@ class IliCacheTest(unittest.TestCase):
                     test_path,
                     "testdata",
                     "ilirepo",
-                    "24",
-                    "qml",
+                    "usabilityhub",
+                    "layerstyle",
                     "opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
                 )
                 == matches_on_id[0].data(
@@ -646,14 +652,14 @@ class IliCacheTest(unittest.TestCase):
         configuration = BaseConfiguration()
         configuration.custom_model_directories_enabled = True
         configuration.custom_model_directories = os.path.join(
-            test_path, "testdata", "ilirepo", "24"
+            test_path, "testdata", "ilirepo", "usabilityhub"
         )
         ilitoppingfilecache = IliToppingFileCache(configuration, file_ids=qml_file_ids)
         ilitoppingfilecache.refresh()
 
         # local repo repository
         assert (
-            os.path.join(test_path, "testdata", "ilirepo", "24")
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub")
             in ilitoppingfilecache.repositories.keys()
         )
         # local files repository
@@ -668,32 +674,32 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
         }
         assert files == expected_files
 
-    def test_ilidata_xml_parser_24_local_repo_local_toppingfiles(self):
+    def test_ilidata_xml_parser_local_repo_local_toppingfiles(self):
         # find qml files according to the ids(s) and according to local paths with local repo scan
         qml_file_ids = [
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_004",
             "ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005",
-            "file:qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "file:layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
         ]
 
         configuration = BaseConfiguration()
         configuration.custom_model_directories_enabled = True
         configuration.custom_model_directories = os.path.join(
-            test_path, "testdata", "ilirepo", "24"
+            test_path, "testdata", "ilirepo", "usabilityhub"
         )
         ilitoppingfilecache = IliToppingFileCache(configuration, file_ids=qml_file_ids)
         ilitoppingfilecache.refresh()
 
         # local repo repository
         assert (
-            os.path.join(test_path, "testdata", "ilirepo", "24")
+            os.path.join(test_path, "testdata", "ilirepo", "usabilityhub")
             in ilitoppingfilecache.repositories.keys()
         )
         # local files repository
@@ -708,10 +714,10 @@ class IliCacheTest(unittest.TestCase):
             ]
         )
         expected_files = {
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
-            "qml/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
-            "qml/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
-            "qml/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml",
+            "layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml",
         }
         assert files == expected_files
 

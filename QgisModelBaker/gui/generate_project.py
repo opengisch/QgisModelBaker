@@ -17,8 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-
 import configparser
+import os
 import re
 import webbrowser
 
@@ -469,47 +469,77 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             legend = generator.legend(available_layers)
 
             custom_layer_order_structure = list()
-            # Toppings legend and layers: collect, download and apply
+
+            # Project topping file for legend and layers: collect and download
+            projecttopping_file_path_list = []
             if "CONFIGURATION" in self.metaconfig.sections():
                 configuration_section = self.metaconfig["CONFIGURATION"]
-                if "qgis.modelbaker.layertree" in configuration_section:
+                # get topping referenced in qgis.modelbaker.projecttopping
+                key = "qgis.modelbaker.projecttopping"
+                if key not in configuration_section:
+                    key = "qgis.modelbaker.layertree"
                     self.print_info(
-                        self.tr("Metaconfig contains a layertree structure topping."),
+                        self.tr(
+                            'Keyword "qgis.modelbaker.layertree" is deprecated (but still working).. Use "qgis.modelbaker.projecttopping" instead.'
+                        ),
                         LogColor.COLOR_TOPPING,
                     )
-                    layertree_data_list = configuration_section[
-                        "qgis.modelbaker.layertree"
-                    ].split(";")
-                    layertree_data_file_path_list = self.get_topping_file_list(
-                        layertree_data_list
+                if key in configuration_section:
+                    self.print_info(
+                        self.tr("Metaconfig contains a project topping."),
+                        LogColor.COLOR_TOPPING,
                     )
-                    for layertree_file_path in layertree_data_file_path_list:
+                    projecttopping_data_list = configuration_section[key].split(";")
+                    projecttopping_file_path_list = self.get_topping_file_list(
+                        projecttopping_data_list
+                    )
+
+            if len(projecttopping_file_path_list) > 1:
+                self.print_info(
+                    self.tr(
+                        "Multiple project toppings can lead to unexpected behavior, when the sections are not clearly separated."
+                    ),
+                    LogColor.COLOR_TOPPING,
+                )
+
+            for projecttopping_file_path in projecttopping_file_path_list:
+                self.print_info(
+                    self.tr("Parse project topping file {}…").format(
+                        projecttopping_file_path
+                    ),
+                    LogColor.COLOR_TOPPING,
+                )
+                with open(projecttopping_file_path, "r") as stream:
+                    try:
+                        projecttopping_data = yaml.safe_load(stream)
+                        layertree_key = "layertree"
+                        if layertree_key not in projecttopping_data:
+                            layertree_key = "legend"
+                            self.print_info(
+                                self.tr(
+                                    'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
+                                ),
+                                LogColor.COLOR_TOPPING,
+                            )
+                        if layertree_key in projecttopping_data:
+                            legend = generator.legend(
+                                available_layers,
+                                layertree_structure=projecttopping_data[layertree_key],
+                                path_resolver=lambda path: self.ilidata_path_resolver(
+                                    os.path.dirname(projecttopping_file_path), path
+                                )
+                                if path
+                                else None,
+                            )
+                        if "layer-order" in projecttopping_data:
+                            custom_layer_order_structure = projecttopping_data[
+                                "layer-order"
+                            ]
+                    except yaml.YAMLError as exc:
                         self.print_info(
-                            self.tr("Parse layertree structure {}…").format(
-                                layertree_file_path
-                            ),
+                            self.tr("Unable to parse project topping: {}").format(exc),
                             LogColor.COLOR_TOPPING,
                         )
-
-                        with open(layertree_file_path, "r") as stream:
-                            try:
-                                layertree_data = yaml.safe_load(stream)
-                                if "legend" in layertree_data:
-                                    legend = generator.legend(
-                                        available_layers,
-                                        layertree_structure=layertree_data["legend"],
-                                    )
-                                if "layer-order" in layertree_data:
-                                    custom_layer_order_structure = layertree_data[
-                                        "layer-order"
-                                    ]
-                            except yaml.YAMLError as exc:
-                                self.print_info(
-                                    self.tr(
-                                        "Unable to parse layertree structure: {}"
-                                    ).format(exc),
-                                    LogColor.COLOR_TOPPING,
-                                )
 
             self.progress_bar.setValue(55)
 
@@ -541,10 +571,15 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                     break
 
             self.progress_bar.setValue(60)
-            # Toppings QMLs: collect, download and apply
+
+            # QML Toppings in the metadata: collect, download and apply
+            # This configuration is legacy (should be in project topping instead), but it's still supported
             if "qgis.modelbaker.qml" in self.metaconfig.sections():
                 self.print_info(
-                    self.tr("Metaconfig contains QML toppings."), LogColor.COLOR_TOPPING
+                    self.tr(
+                        "Metaconfig contains QML toppings. Better practice would be to define QML toppings in the project topping file."
+                    ),
+                    LogColor.COLOR_TOPPING,
                 )
                 qml_section = dict(self.metaconfig["qgis.modelbaker.qml"])
                 qml_file_model = self.get_topping_file_model(list(qml_section.values()))
@@ -1292,3 +1327,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             )
 
         return topping_file_cache.model
+
+    def ilidata_path_resolver(self, base_path, path):
+        if "ilidata:" in path or "file:" in path:
+            data_file_path_list = self.get_topping_file_list([path])
+            return data_file_path_list[0] if data_file_path_list else None
+        return os.path.join(base_path, path)

@@ -1,0 +1,26 @@
+layertree:
+    - "KbS_LV95_V1_4 Layers":
+        group: true
+        child-nodes:
+            - "Belasteter_Standort (Geo_Lage_Punkt)":
+            - "Belasteter_Standort (Geo_Lage_Polygon)":
+    - "Other Layers":
+        group: true
+        child-nodes:
+            - "Roads from QLR": # layer called "The Road Signs" with qlr source
+                definitionfile: "../layerdefinition/the_road_signs.qlr"
+            - "QLR-Group":
+                # group called "Simple Roads" with qlr source
+                # contains tree itself:
+                # - "StreetNamePosition"
+                # - "StreetAxis"
+                # - "LandCover"
+                # - "tables"
+                #   - "Street"
+                # - "domains"
+                #   - "LandCover_Type"
+                #   - "RoadSign_Type"
+                group: true
+                definitionfile: "../layerdefinition/simple_roads_complete.qlr"
+            - "An invalid layer": # no qlr, no layer from ili, no source
+            - "Another invalid layer": # no qlr, no layer from ili, no source

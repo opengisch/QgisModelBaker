@@ -23,6 +23,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsEditorWidgetSetup,
     QgsLayerTreeGroup,
+    QgsMapLayer,
     QgsProject,
 )
 from qgis.PyQt.QtCore import QObject, pyqtSignal
@@ -217,7 +218,10 @@ class Project(QObject):
                     )
 
         for layer in self.layers:
-            layer.create_form(self)
+            if layer.layer.type() == QgsMapLayer.VectorLayer:
+                # even when a style will be loaded we create the form because not sure if the style contains form settngs
+                layer.create_form(self)
+                layer.load_style()
 
         if self.legend:
             self.legend.create(qgis_project, group)

@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTreeLayer, QgsProject
+from qgis.core import QgsLayerDefinition, QgsLayerTreeLayer, QgsProject
 
 from QgisModelBaker.libqgsprojectgen.utils.qgis_utils import (
     get_group_non_recursive,
@@ -36,6 +36,7 @@ class LegendGroup(object):
         self.checked = True
         self.mutually_exclusive = False
         self.mutually_exclusive_child = -1
+        self.definitionfile = None
 
         self.static_sorting = static_sorting
 
@@ -73,24 +74,31 @@ class LegendGroup(object):
         existing_layer_source_uris = [
             found_layer.layer().dataProvider().dataSourceUri()
             for found_layer in qgis_project.layerTreeRoot().findLayers()
+            if found_layer.layer().dataProvider()
         ]
 
         static_index = 0
         for item in self.items:
             if isinstance(item, LegendGroup):
-                subgroup = get_group_non_recursive(group, item.name)
-                if subgroup is None:
-                    subgroup = group.addGroup(item.name)
-                item.create(qgis_project, subgroup)
-                subgroup.setExpanded(item.expanded)
-                subgroup.setItemVisibilityChecked(item.checked)
-                subgroup.setIsMutuallyExclusive(
-                    item.mutually_exclusive, item.mutually_exclusive_child
-                )
+                if item.definitionfile:
+                    QgsLayerDefinition.loadLayerDefinition(
+                        item.definitionfile, qgis_project, group
+                    )
+                else:
+                    subgroup = get_group_non_recursive(group, item.name)
+                    if subgroup is None:
+                        subgroup = group.addGroup(item.name)
+                    item.create(qgis_project, subgroup)
+                    subgroup.setExpanded(item.expanded)
+                    subgroup.setItemVisibilityChecked(item.checked)
+                    subgroup.setIsMutuallyExclusive(
+                        item.mutually_exclusive, item.mutually_exclusive_child
+                    )
             else:
                 layer = item.layer
                 if (
-                    layer.dataProvider().dataSourceUri()
+                    not layer.dataProvider()
+                    or layer.dataProvider().dataSourceUri()
                     not in existing_layer_source_uris
                 ):
                     if self.static_sorting:

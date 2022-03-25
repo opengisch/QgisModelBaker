@@ -1,0 +1,28 @@
+layertree:
+    - "KbS_LV95_V1_4 Layers":
+        group: true
+        child-nodes:
+            - "Belasteter_Standort (Geo_Lage_Punkt)":
+                qmlstylefile: ../layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml
+            - "Parzellenidentifikation":
+                qmlstylefile: ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_005
+    - "Other Layers":
+        group: true
+        child-nodes:
+            - "Roads from QLR": # layer called "The Road Signs" with qlr source
+                definitionfile: "ilidata:ch.opengis.topping.opengisch_roadsigns_layer_101"
+            - "QLR-Group":
+                # group called "Simple Roads" with qlr source
+                # contains tree itself:
+                # - "StreetNamePosition"
+                # - "StreetAxis"
+                # - "LandCover"
+                # - "tables"
+                #   - "Street"
+                # - "domains"
+                #   - "LandCover_Type"
+                #   - "RoadSign_Type"
+                group: true
+                definitionfile: "../layerdefinition/simple_roads_complete.qlr"
+            - "An invalid layer": # no qlr, no layer from ili, no source
+            - "Another invalid layer": # no qlr, no layer from ili, no source

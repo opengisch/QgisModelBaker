@@ -876,7 +876,7 @@ class IliToppingFileCache(IliDataCache):
                                     )
 
                                     toppingfile["repository"] = netloc
-                                    # relative_file_path like qml/something.qml
+                                    # relative_file_path like layerstyle/something.qml
                                     toppingfile["relative_file_path"] = path
                                     # url like http://models.opengis.ch or /home/nyuki/folder
                                     toppingfile["url"] = url
