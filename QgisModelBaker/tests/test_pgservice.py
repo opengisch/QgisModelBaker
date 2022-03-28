@@ -22,8 +22,10 @@ import os
 from qgis.testing import start_app, unittest
 
 from QgisModelBaker.gui.panel.pg_config_panel import PgConfigPanel
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.tests.utils import testdata_path
 
 start_app()

@@ -26,10 +26,13 @@ except:
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    NonEmptyStringValidator,
+    Validators,
+)
+from QgisModelBaker.utils import gui_utils
 
-from ...utils import gui_utils
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = gui_utils.get_ui_class("pg_settings_panel.ui")
@@ -62,7 +65,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self._current_service = None
 
-        from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+        from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+            BaseConfiguration,
+        )
 
         self.pg_use_super_login.setText(
             self.tr(

@@ -26,8 +26,8 @@ import xml.etree.ElementTree as ET
 
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db import iliexporter, iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliexporter, iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import (
     ilidataimporter_config,
     iliexporter_config,

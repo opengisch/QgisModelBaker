@@ -1,6 +1,8 @@
 from qgis.testing import unittest
 
-from QgisModelBaker.libili2db.ili2dbutils import get_all_modeldir_in_path
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
+    get_all_modeldir_in_path,
+)
 from QgisModelBaker.tests.utils import testdata_path
 
 

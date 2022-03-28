@@ -19,15 +19,15 @@
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QValidator
 
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils.qt_utils import (
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
     Validators,
     make_file_selector,
     make_save_file_selector,
 )
+from QgisModelBaker.utils import gui_utils
 
-from ...utils import gui_utils
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = gui_utils.get_ui_class("gpkg_settings_panel.ui")

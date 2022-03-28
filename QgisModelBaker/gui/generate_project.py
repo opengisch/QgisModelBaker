@@ -48,12 +48,21 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
-from QgisModelBaker.libili2db.ili2dbconfig import (
+from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
     SchemaImportConfiguration,
 )
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
-from QgisModelBaker.libili2db.ilicache import (
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
+    JavaNotFoundError,
+    color_log_text,
+)
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliCache,
     IliDataCache,
     IliDataItemModel,
@@ -62,25 +71,21 @@ from QgisModelBaker.libili2db.ilicache import (
     MetaConfigCompleterDelegate,
     ModelCompleterDelegate,
 )
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils.globals import CRS_PATTERNS, displayDbIliMode
-from QgisModelBaker.utils.qt_utils import (
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
     NonEmptyStringValidator,
     OverrideCursor,
     Validators,
     make_file_selector,
 )
-
-from ..libili2db import iliimporter
-from ..libili2db.globals import DbIliMode
-from ..libqgsprojectgen.dataobjects.project import Project
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..libqgsprojectgen.generator.generator import Generator
-from ..utils import gui_utils
-from ..utils.globals import CATALOGUE_DATASETNAME
-from ..utils.gui_utils import LogColor
+from QgisModelBaker.utils import db_handling_utils, gui_utils
+from QgisModelBaker.utils.globals import (
+    CATALOGUE_DATASETNAME,
+    CRS_PATTERNS,
+    displayDbIliMode,
+)
+from QgisModelBaker.utils.gui_utils import LogColor
 
 DIALOG_UI = gui_utils.get_ui_class("generate_project.ui")
 
@@ -150,8 +155,9 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
 
         for db_id in self.db_simple_factory.get_db_list(False):
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self, DbActionType.GENERATE)
+            item_panel = db_handling_utils.get_config_panel(
+                db_id, self, DbActionType.GENERATE
+            )
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

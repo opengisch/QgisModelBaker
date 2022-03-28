@@ -21,16 +21,17 @@ from qgis.core import QgsApplication, QgsMapLayer, QgsProject
 from qgis.PyQt.QtCore import QSettings, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
-import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.utils import db_handling_utils, gui_utils
 from QgisModelBaker.utils.globals import displayDbIliMode
 from QgisModelBaker.utils.gui_utils import DatasetModel
-
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..utils import gui_utils
 
 DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
@@ -52,8 +53,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self, DbActionType.EXPORT)
+            item_panel = db_handling_utils.get_config_panel(
+                db_id, self, DbActionType.EXPORT
+            )
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

@@ -21,15 +21,16 @@ from qgis.core import QgsDataSourceUri, QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
-from QgisModelBaker.libili2db.ili2dbconfig import Ili2DbCommandConfiguration
-from QgisModelBaker.utils.db_utils import (
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
+from QgisModelBaker.libs.modelbaker.utils.db_utils import (
     get_configuration_from_layersource,
     get_schema_identificator_from_layersource,
 )
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.gui_utils import BasketSourceModel
-from QgisModelBaker.utils.qt_utils import slugify
-
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 
 class DatasetSelector(QComboBox):

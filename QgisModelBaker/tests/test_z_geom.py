@@ -22,9 +22,9 @@ import logging
 from qgis.core import QgsWkbTypes
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db import iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import get_pg_connection_string, iliimporter_config
 
 start_app()

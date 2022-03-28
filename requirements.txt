@@ -1,6 +1,8 @@
 psycopg2>=2.7.4
 pytest
 pyodbc
+packaging==21.3
+pgserviceparser==1.0.1
 pyyaml
 future
 transifex-client

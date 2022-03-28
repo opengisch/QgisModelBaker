@@ -28,15 +28,14 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
-from QgisModelBaker.libili2db.ilicache import (
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataCache,
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )
+from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-
-from ...utils import gui_utils
-from ...utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
 

@@ -23,16 +23,19 @@ import os
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtWidgets import QAction, QWidget
 
-import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.edit_command import EditCommandDialog
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.iliwrapper import (
+    iliexecutable,
+    iliexporter,
+    iliimporter,
+)
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
 from QgisModelBaker.utils.gui_utils import LogColor
-from QgisModelBaker.utils.qt_utils import OverrideCursor
-
-from ...libili2db import iliexecutable, iliexporter, iliimporter
 
 WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
 

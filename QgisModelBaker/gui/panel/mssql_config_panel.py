@@ -18,11 +18,14 @@
 """
 from qgis.PyQt.QtCore import pyqtSignal
 
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
-from QgisModelBaker.utils.qt_utils import NonEmptyStringValidator, Validators
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    NonEmptyStringValidator,
+    Validators,
+)
+from QgisModelBaker.utils import gui_utils
+from QgisModelBaker.utils.db_handling_utils import get_odbc_drivers
 
-from ...utils import gui_utils
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = gui_utils.get_ui_class("mssql_settings_panel.ui")

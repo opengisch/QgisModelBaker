@@ -25,16 +25,15 @@ from qgis.core import QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ilicache import IliToppingFileItemModel
-
-from ...libqgsprojectgen.dataobjects.project import Project
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ...libqgsprojectgen.generator.generator import Generator
-from ...utils import gui_utils
-from ...utils.globals import CATALOGUE_DATASETNAME
-from ...utils.gui_utils import LogColor
+from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliToppingFileItemModel
+from QgisModelBaker.utils import gui_utils
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
+from QgisModelBaker.utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 

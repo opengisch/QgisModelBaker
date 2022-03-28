@@ -27,22 +27,21 @@ from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
 
-import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import ValidateConfiguration
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
+from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import (
     SchemaBasketsModel,
     SchemaDataFilterMode,
     SchemaDatasetsModel,
     SchemaModelsModel,
 )
-from QgisModelBaker.utils.qt_utils import OverrideCursor
-
-from ..libili2db import ilivalidator
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..utils import gui_utils
 
 DIALOG_UI = gui_utils.get_ui_class("validator.ui")
 

@@ -22,8 +22,8 @@ from subprocess import call
 
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import get_pg_connection_string, testdata_path
 
 start_app()

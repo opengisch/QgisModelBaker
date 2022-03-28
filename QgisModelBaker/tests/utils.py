@@ -22,9 +22,10 @@ from subprocess import call
 
 import pytest
 
-from QgisModelBaker.libili2db import ili2dbconfig
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbconfig import (
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.iliwrapper import ili2dbconfig
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     BaseConfiguration,
     ExportConfiguration,
     ImportDataConfiguration,
@@ -32,7 +33,6 @@ from QgisModelBaker.libili2db.ili2dbconfig import (
     UpdateDataConfiguration,
     ValidateConfiguration,
 )
-from QgisModelBaker.libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
 
 
 def iliimporter_config(tool=DbIliMode.ili2pg, modeldir=None):

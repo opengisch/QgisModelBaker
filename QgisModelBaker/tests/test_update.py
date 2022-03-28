@@ -10,14 +10,14 @@ import pyodbc
 from qgis import utils
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db import iliimporter, iliupdater
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.db_factory.mssql_command_config_manager import (
+from QgisModelBaker.libs.modelbaker.db_factory.mssql_command_config_manager import (
     MssqlCommandConfigManager,
 )
-from QgisModelBaker.libqgsprojectgen.db_factory.pg_command_config_manager import (
+from QgisModelBaker.libs.modelbaker.db_factory.pg_command_config_manager import (
     PgCommandConfigManager,
 )
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter, iliupdater
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import (
     iliimporter_config,
     iliupdater_config,

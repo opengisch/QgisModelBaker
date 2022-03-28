@@ -21,13 +21,12 @@
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils import db_utils
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.utils import db_utils
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.utils import db_handling_utils, gui_utils
 from QgisModelBaker.utils.globals import displayDbIliMode
-
-from ...libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ...utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/database_selection.ui")
 
@@ -64,8 +63,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self, db_action_type)
+            item_panel = db_handling_utils.get_config_panel(db_id, self, db_action_type)
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

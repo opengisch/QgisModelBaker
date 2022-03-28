@@ -26,9 +26,9 @@ import tempfile
 
 from qgis.testing import start_app, unittest
 
-import QgisModelBaker.utils.db_utils as db_utils
-from QgisModelBaker.libili2db import iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import (
     ilidataimporter_config,
     iliimporter_config,

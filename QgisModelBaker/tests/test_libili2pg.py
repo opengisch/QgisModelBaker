@@ -4,8 +4,8 @@ start_app()
 import os
 import tempfile
 
-from QgisModelBaker.libili2db import ilicache
-from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper import ilicache
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 
 
 class IliCacheTest(unittest.TestCase):

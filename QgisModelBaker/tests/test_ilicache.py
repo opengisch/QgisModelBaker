@@ -4,8 +4,8 @@ import pathlib
 from qgis.PyQt.QtCore import Qt
 from qgis.testing import unittest
 
-from QgisModelBaker.libili2db.ili2dbconfig import BaseConfiguration
-from QgisModelBaker.libili2db.ilicache import (
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliCache,
     IliDataCache,
     IliDataItemModel,

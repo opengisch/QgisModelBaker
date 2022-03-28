@@ -26,13 +26,13 @@ import tempfile
 from qgis.core import QgsProject
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db import iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
-from QgisModelBaker.libqgsprojectgen.db_factory.gpkg_command_config_manager import (
+from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
+from QgisModelBaker.libs.modelbaker.db_factory.gpkg_command_config_manager import (
     GpkgCommandConfigManager,
 )
-from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.tests.utils import (
     get_pg_connection_string,
     iliimporter_config,

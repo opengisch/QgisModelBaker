@@ -35,10 +35,10 @@ from qgis.PyQt.QtWidgets import (
     QWizardPage,
 )
 
-import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
-from QgisModelBaker.libili2db.ilicache import (
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataItemModel,
     MetaConfigCompleterDelegate,
 )

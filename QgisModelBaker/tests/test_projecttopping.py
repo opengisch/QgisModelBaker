@@ -30,11 +30,11 @@ from qgis.core import QgsEditFormConfig, QgsProject
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.libili2db import iliimporter
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ilicache import IliToppingFileCache
-from QgisModelBaker.libqgsprojectgen.dataobjects.project import Project
-from QgisModelBaker.libqgsprojectgen.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
+from QgisModelBaker.libs.modelbaker.generator.generator import Generator
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliToppingFileCache
 from QgisModelBaker.tests.utils import get_pg_connection_string, iliimporter_config
 
 start_app()

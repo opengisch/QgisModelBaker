@@ -21,8 +21,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWidget
 
 import QgisModelBaker.utils.gui_utils as gui_utils
-
-from ...utils import gui_utils
+from QgisModelBaker.utils import gui_utils
 
 WIDGET_UI = gui_utils.get_ui_class("filter_data_panel.ui")
 
