@@ -38,6 +38,7 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
+from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libs.modelbaker.iliwrapper import ili2dbconfig, iliimporter
@@ -57,7 +58,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     Validators,
     make_file_selector,
 )
-from QgisModelBaker.utils import db_handling_utils, gui_utils
+from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import displayDbIliMode
 from QgisModelBaker.utils.gui_utils import LogColor
 
@@ -133,7 +134,7 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            item_panel = db_handling_utils.get_config_panel(
+            item_panel = db_panel_utils.get_config_panel(
                 db_id, self, DbActionType.IMPORT_DATA
             )
             self._lst_panel[db_id] = item_panel

@@ -24,7 +24,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     Validators,
 )
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.db_handling_utils import get_odbc_drivers
+from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 
 from .db_config_panel import DbConfigPanel
 

@@ -48,6 +48,7 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
+from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
@@ -79,7 +80,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     Validators,
     make_file_selector,
 )
-from QgisModelBaker.utils import db_handling_utils, gui_utils
+from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import (
     CATALOGUE_DATASETNAME,
     CRS_PATTERNS,
@@ -155,7 +156,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
 
         for db_id in self.db_simple_factory.get_db_list(False):
-            item_panel = db_handling_utils.get_config_panel(
+            item_panel = db_panel_utils.get_config_panel(
                 db_id, self, DbActionType.GENERATE
             )
             self._lst_panel[db_id] = item_panel
