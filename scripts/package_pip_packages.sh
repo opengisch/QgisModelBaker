@@ -2,12 +2,10 @@
 LIBS_DIR="QgisModelBaker/libs"
 PGSERVICEPARSER=("pgserviceparser" "1.0.1")
 PACKAGING=("packaging" "21.3")
-PYODBC=("pyodbc" "4.0.32")
 
 PACKAGES=(
   PGSERVICEPARSER[@]
   PACKAGING[@]
-  PYODBC[@]
 )
 
 #create lib folder
