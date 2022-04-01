@@ -55,5 +55,4 @@ Installation:
 ```
 pip install packaging==21.3
 pip install pgserviceparser==1.0.1
-pip install pyodbc
 ```
