@@ -19,13 +19,9 @@
 
 from enum import IntEnum
 
-try:
-    import QgisModelBaker.libs.pgserviceparser as pgserviceparser
-except:
-    import pgserviceparser
-
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
+import QgisModelBaker.libs.pgserviceparser as pgserviceparser
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     NonEmptyStringValidator,

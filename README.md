@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/release/opengisch/QgisModelBaker.svg)](https://github.com/opengisch/QgisModelBaker/releases)
 [![Build Status](https://travis-ci.org/opengisch/QgisModelBaker.svg?branch=master)](https://travis-ci.com/opengisch/QgisModelBaker)
 
-![logo](branding/logo/long_logo/Long-Logo_Green_Modelbaker_RGB_QGIS.svg)
+![logo](branding/logo/long_logo/Long-Logo_Green_Modelbaker_RGB_QGIS.png)
 
 This is a QGIS plugin to quickly generate [QGIS](https://www.qgis.org) projects
 from an existing model with a few mouseclicks.
@@ -49,10 +49,4 @@ Run the script to download and unpack them or install them to your system.
 Script:
 ```
 ./scripts/package_pip_packages.sh
-```
-
-Installation:
-```
-pip install packaging==21.3
-pip install pgserviceparser==1.0.1
 ```
