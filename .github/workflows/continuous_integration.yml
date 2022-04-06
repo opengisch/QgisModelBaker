@@ -70,6 +70,9 @@ jobs:
           submodules: recursive
       - name: Install dependencies
         run: sudo pip install qgis-plugin-ci
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: 🌍 Push translations
         run: |
           qgis-plugin-ci push-translation ${TX_TOKEN}
