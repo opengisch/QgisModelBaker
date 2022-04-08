@@ -23,8 +23,9 @@ import importlib
 import sys
 
 import yaml
-from libqgsprojectgen.dataobjects.project import Project
 from qgis.core import QgsApplication, QgsProject
+
+from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 
 
 def main(argv):

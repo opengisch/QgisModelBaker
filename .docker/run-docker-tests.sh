@@ -18,20 +18,6 @@
 
 set -e
 
-/usr/src/QgisModelBaker/tests/testdata/mssql/setup-mssql.sh
-
-# Default to postgres12 unless another host has been defined (i.e. postgres11 from travis test matrix / docker-compose)
-export PGHOST=${PGHOST-postgres12}
-
-# rationale: Wait for postgres container to become available
-echo "Wait a moment while loading the database."
-while ! PGPASSWORD='docker' psql -h $PGHOST -U docker -p 5432 -l &> /dev/null
-do
-  printf "."
-  sleep 2
-done
-echo ""
-
 pushd /usr/src
 DEFAULT_PARAMS='-v'
 xvfb-run pytest ${@:-`echo $DEFAULT_PARAMS`} $1

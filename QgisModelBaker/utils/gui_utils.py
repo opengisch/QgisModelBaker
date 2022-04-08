@@ -16,13 +16,12 @@ from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
 from qgis.PyQt.uic import loadUiType
 
-from QgisModelBaker.libili2db.ilicache import IliCache
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliCache
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
-from QgisModelBaker.utils.qt_utils import slugify
+
 
 # globals
-
-
 class DropMode(Enum):
     YES = 1
     NO = 2

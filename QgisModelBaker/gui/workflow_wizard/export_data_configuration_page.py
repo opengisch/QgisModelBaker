@@ -24,7 +24,7 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.utils.qt_utils import (
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
     Validators,
     make_save_file_selector,

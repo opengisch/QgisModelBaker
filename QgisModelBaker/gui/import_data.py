@@ -38,23 +38,29 @@ from QgisModelBaker.gui.edit_command import EditCommandDialog
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.gui.multiple_models import MultipleModelsDialog
 from QgisModelBaker.gui.options import OptionsDialog
-from QgisModelBaker.libili2db.globals import DbIliMode
-from QgisModelBaker.libili2db.ili2dbutils import JavaNotFoundError, color_log_text
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
-from QgisModelBaker.utils.globals import displayDbIliMode
-from QgisModelBaker.utils.gui_utils import LogColor
-from QgisModelBaker.utils.qt_utils import (
+from QgisModelBaker.gui.panel import db_panel_utils
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libs.modelbaker.iliwrapper import ili2dbconfig, iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
+    JavaNotFoundError,
+    color_log_text,
+)
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliCache,
+    ModelCompleterDelegate,
+)
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
     OverrideCursor,
     Validators,
     make_file_selector,
 )
-
-from ..libili2db import ili2dbconfig, iliimporter
-from ..libqgsprojectgen.db_factory.db_simple_factory import DbSimpleFactory
-from ..libqgsprojectgen.dbconnector.db_connector import DBConnectorError
-from ..utils import gui_utils
+from QgisModelBaker.utils import gui_utils
+from QgisModelBaker.utils.globals import displayDbIliMode
+from QgisModelBaker.utils.gui_utils import LogColor
 
 DIALOG_UI = gui_utils.get_ui_class("import_data.ui")
 
@@ -128,8 +134,9 @@ class ImportDataDialog(QDialog, DIALOG_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            item_panel = db_factory.get_config_panel(self, DbActionType.IMPORT_DATA)
+            item_panel = db_panel_utils.get_config_panel(
+                db_id, self, DbActionType.IMPORT_DATA
+            )
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 

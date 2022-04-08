@@ -24,7 +24,7 @@ import re
 from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
-import QgisModelBaker.utils.db_utils as db_utils
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.workflow_wizard.database_selection_page import (
     DatabaseSelectionPage,
@@ -44,17 +44,21 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
-from QgisModelBaker.libili2db.ili2dbconfig import (
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ExportConfiguration,
     ImportDataConfiguration,
     SchemaImportConfiguration,
     UpdateDataConfiguration,
 )
-from QgisModelBaker.libili2db.ilicache import IliDataCache, IliToppingFileCache
-from QgisModelBaker.libqgsprojectgen.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliDataCache,
+    IliToppingFileCache,
+)
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils.gui_utils import (
     ImportDataModel,
     ImportModelsModel,
+    LogColor,
     PageIds,
     SchemaBasketsModel,
     SchemaDataFilterMode,
@@ -63,8 +67,6 @@ from QgisModelBaker.utils.gui_utils import (
     SourceModel,
     TransferExtensions,
 )
-
-from ...utils.gui_utils import LogColor
 
 
 class WorkflowWizard(QWizard):

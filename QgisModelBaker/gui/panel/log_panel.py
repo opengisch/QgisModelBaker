@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
 
-from QgisModelBaker.libili2db.ili2dbutils import color_log_text
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import color_log_text
 from QgisModelBaker.utils.gui_utils import LogColor
 
 

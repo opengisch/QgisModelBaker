@@ -22,8 +22,7 @@
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
-
-from ...utils import gui_utils
+from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/intro.ui")
 

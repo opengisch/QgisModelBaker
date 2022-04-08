@@ -1,23 +1,5 @@
 version: '3'
 services:
-  postgres11:
-    image: kartoza/postgis:11.0-2.5
-    environment:
-      - ALLOW_IP_RANGE="172.0.0.0/8"
-
-  postgres12:
-    image: kartoza/postgis:12.1
-    environment:
-      - ALLOW_IP_RANGE="172.0.0.0/8"
-
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2019-CU11-ubuntu-20.04
-    environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: <YourStrong!Passw0rd>
-    ports:
-      - "1433:1433"
-
   qgis:
     build:
       context: ..
@@ -27,7 +9,3 @@ services:
     tty: true
     volumes:
       - ${GITHUB_WORKSPACE}:/usr/src
-    links:
-      - postgres11
-      - postgres12
-      - mssql

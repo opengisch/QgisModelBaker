@@ -1,9 +1,12 @@
 #!/bin/bash
 LIBS_DIR="QgisModelBaker/libs"
+
+MODELBAKER_LIBRARY=("modelbaker" "1.0.3")
 PGSERVICEPARSER=("pgserviceparser" "1.0.1")
 PACKAGING=("packaging" "21.3")
 
 PACKAGES=(
+  MODELBAKER_LIBRARY[@]
   PGSERVICEPARSER[@]
   PACKAGING[@]
 )

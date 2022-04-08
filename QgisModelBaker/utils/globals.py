@@ -20,7 +20,7 @@
 
 from qgis.PyQt.QtCore import QCoreApplication
 
-from QgisModelBaker.libili2db.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 
 CRS_PATTERNS = {"LV95": 2056, "LV03": 21781}
 

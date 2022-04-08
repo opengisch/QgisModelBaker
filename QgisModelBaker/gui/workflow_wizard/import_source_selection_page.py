@@ -24,10 +24,16 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
-from QgisModelBaker.libili2db.ilicache import IliCache, ModelCompleterDelegate
-from QgisModelBaker.utils.qt_utils import FileValidator, QValidator, make_file_selector
-
-from ...utils import gui_utils
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliCache,
+    ModelCompleterDelegate,
+)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    FileValidator,
+    QValidator,
+    make_file_selector,
+)
+from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_source_selection.ui")
 

@@ -22,8 +22,12 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    FileValidator,
+    Validators,
+    make_file_selector,
+)
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.qt_utils import FileValidator, Validators, make_file_selector
 
 DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
 

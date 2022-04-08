@@ -30,8 +30,6 @@ jobs:
           sudo ./scripts/package_pip_packages.sh
       - name: Test on QGIS
         run: docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
-      - name: Test on QGIS with PG
-        run: docker-compose -f .docker/docker-compose.gh.yml run -e "PGHOST=postgres11" qgis /usr/src/.docker/run-docker-tests.sh
 
   release:
     runs-on: ubuntu-20.04
