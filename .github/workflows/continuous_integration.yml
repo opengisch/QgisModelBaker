@@ -21,13 +21,13 @@ jobs:
     env:
       QGIS_TEST_VERSION: ${{ matrix.qgis_version }}
     steps:
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Package PyPI Packages
-        run: |
-          sudo ./scripts/package_pip_packages.sh
       - name: Test on QGIS
         run: docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
@@ -41,6 +41,9 @@ jobs:
       GITHUB_REF: ${{ github.ref }}
     if: ${{ github.event_name == 'release' }}
     steps:
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -49,9 +52,6 @@ jobs:
         run: |
           sudo apt update && sudo apt install qttools5-dev-tools qt5-default
           sudo pip install qgis-plugin-ci
-      - name: Package PyPI Packages
-        run: |
-          sudo ./scripts/package_pip_packages.sh
       - name: Release
         run: |
           qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
@@ -62,6 +62,9 @@ jobs:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
     steps:
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: Checkout
         uses: actions/checkout@v2
         with:
