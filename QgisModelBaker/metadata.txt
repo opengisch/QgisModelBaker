@@ -14,4 +14,4 @@ repository=https://github.com/opengisch/QgisModelBaker
 homepage=https://github.com/opengisch/QgisModelBaker
 experimental=False
 deprecated=False
-plugin_dependencies=LinkingRelationEditor
+plugin_dependencies=Linking Relation Editor
