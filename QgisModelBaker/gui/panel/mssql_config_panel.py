@@ -85,7 +85,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
                 )
             else:
                 self.mssql_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to load all schemas in the database]")
+                    self.tr("[Enter a valid schema]")
                 )
 
     def get_fields(self, configuration):
