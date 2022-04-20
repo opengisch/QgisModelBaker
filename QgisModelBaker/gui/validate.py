@@ -192,11 +192,14 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.setDisabled(True)
             return
 
-        source_name = layer.dataProvider().name()
+        source_provider = layer.dataProvider()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = db_utils.get_schema_identificator_from_layersource(
-            source_name, source
+            source_provider, source
         )
+        if not schema_identificator:
+            self.setDisabled(True)
+            return
         if schema_identificator == self.current_schema_identificator:
             self.setEnabled(True)
             return
@@ -205,7 +208,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         self.current_schema_identificator = schema_identificator
         valid, mode = db_utils.get_configuration_from_layersource(
-            source_name, source, self.current_configuration
+            source_provider, source, self.current_configuration
         )
         if valid and mode:
             output_file_name = "{}.xtf".format(self.current_schema_identificator)
