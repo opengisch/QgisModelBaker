@@ -58,11 +58,13 @@ class DatasetSelector(QComboBox):
         if not layer or not layer.dataProvider().isValid():
             return
 
-        source_name = layer.dataProvider().name()
+        source_provider = layer.dataProvider()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = get_schema_identificator_from_layersource(
-            source_name, source
+            source_provider, source
         )
+        if not schema_identificator:
+            return
         layer_model_topic_name = (
             QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
         )
@@ -79,7 +81,7 @@ class DatasetSelector(QComboBox):
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
             configuration = Ili2DbCommandConfiguration()
             valid, mode = get_configuration_from_layersource(
-                source_name, source, configuration
+                source_provider, source, configuration
             )
             if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)

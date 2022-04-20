@@ -86,7 +86,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             )
         elif self._db_action_type == DbActionType.EXPORT:
             self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to load all schemas in the database]")
+                self.tr("[Enter a valid schema]")
             )
 
         # define validators
@@ -180,7 +180,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 )
             else:
                 self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to load all schemas in the database]")
+                    self.tr("[Enter a valid schema]")
                 )
 
     def get_fields(self, configuration):
