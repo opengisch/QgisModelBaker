@@ -161,6 +161,31 @@ The `yaml` file shown above results in a legend structure in *QGIS*.
 
 ![uml](../../assets/usabilityhub_qgis_legend.png)
 
+##### Renaming of layers
+Usually the existing layers are recognized by the names. This works fine for the most cases. But sometimes (e.g. when having an extended model with layers having the same name like the base model) the layers need to be recognized by other parameters. This gives the possiblity to name the layer as you want.
+
+It recognizes layers from the database optionally by `tablename` and `geometrycolumn`. INTERLIS based layers can be identified by the `iliname` as well. It takes the first match of `tablename` or `iliname` and otherwise it looks for the layername.
+
+See the example:
+
+```yaml
+    - "KbS_LV95_V1_4 Layers":
+        group: true
+        child-nodes:
+            - "Punkt Standort":
+                tablename: "belasteter_standort"
+                geometrycolumn: "geo_lage_punkt"
+                qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_004_belasteterstandort_punkt.qml"
+            - "Polygon Standort":
+                iliname: "KbS_LV95_V1_4.Belastete_Standorte.Belasteter_Standort"
+                geometrycolumn: "geo_lage_polygon"
+                qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml"
+            - "Parzellen":
+                tablename: "parzellenidentifikation"
+                iliname: "KbS_Basis_V1_4.Parzellenidentifikation"
+                qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml"
+```
+
 #### Display Order
 The display order of the layers is defined as simple list:
 ```
