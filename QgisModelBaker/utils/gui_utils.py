@@ -1,3 +1,4 @@
+import mmap
 import os
 import pathlib
 import re
@@ -490,9 +491,10 @@ class ImportModelsModel(SourceModel):
 
     def _transfer_file_models(self, xtf_file_path):
         """
+        Get model names from an ITF file does a regex parse with mmap (to avoid long parsing time).
         Get model names from an XTF file. Since XTF can be very large, we follow this strategy:
         1. Parse line by line.
-            1.a. Compare parsed line with the regular expression to get the Header Section.
+            1.a. Compare parsed line with the regular expression to get the Header Section. (escape after 100 lines)
             1.b. If found, stop parsing the XTF file and go to 2. If not found, append the new line to parsed lines and go
                 to next line.
         2. Give the Header Section to an XML parser and extract models. Note that we don't give the full XTF file to the XML
@@ -501,17 +503,32 @@ class ImportModelsModel(SourceModel):
         :return: List of model names from the XTF
         """
         models = []
+
+        # parse models from ITF
+        with open(xtf_file_path) as f:
+            s = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+            matches = re.findall(rb"MODL (.*)", s)
+            if matches:
+                for match in matches:
+                    model = {}
+                    model["name"] = match.rstrip().decode()
+                    models.append(model)
+                return models
+
+        # parse models from XTF
         start_string = "<HEADERSECTION"
         end_string = "</HEADERSECTION>"
         text_found = ""
         with open(xtf_file_path, "r") as f:
             lines = ""
-            for line in f:
+            for line_number, line in enumerate(f):
                 lines += line
                 start_pos = lines.find(start_string)
                 end_pos = lines.find(end_string)
                 if end_pos > start_pos:
                     text_found = lines[start_pos : end_pos + len(end_string)]
+                    break
+                if line_number > 100:
                     break
 
         if text_found:
