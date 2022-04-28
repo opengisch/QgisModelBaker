@@ -449,10 +449,10 @@ class ImportModelsModel(SourceModel):
             filtered_source_model_index = filtered_source_model.index(
                 r, SourceModel.Columns.SOURCE
             )
-            xtf_file_path = filtered_source_model_index.data(
+            data_file_path = filtered_source_model_index.data(
                 int(SourceModel.Roles.PATH)
             )
-            models = self._transfer_file_models(xtf_file_path)
+            models = self._transfer_file_models(data_file_path)
             for model in models:
                 if model["name"]:
                     enabled = model["name"] not in db_modelnames
@@ -483,13 +483,13 @@ class ImportModelsModel(SourceModel):
                                 " (inactive because it already exists in the database)"
                                 if not enabled
                                 else "",
-                                xtf_file_path,
+                                data_file_path,
                             )
                         )
 
         return self.rowCount()
 
-    def _transfer_file_models(self, xtf_file_path):
+    def _transfer_file_models(self, data_file_path):
         """
         Get model names from an ITF file does a regex parse with mmap (to avoid long parsing time).
         Get model names from an XTF file. Since XTF can be very large, we follow this strategy:
@@ -500,12 +500,12 @@ class ImportModelsModel(SourceModel):
         2. Give the Header Section to an XML parser and extract models. Note that we don't give the full XTF file to the XML
         parser because it will read it completely, which may be not optimal.
         :param xtf_path: Path to an XTF file
-        :return: List of model names from the XTF
+        :return: List of model names from the datafile
         """
         models = []
 
         # parse models from ITF
-        with open(xtf_file_path) as f:
+        with open(data_file_path) as f:
             s = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
             matches = re.findall(rb"MODL (.*)", s)
             if matches:
@@ -519,7 +519,7 @@ class ImportModelsModel(SourceModel):
         start_string = "<HEADERSECTION"
         end_string = "</HEADERSECTION>"
         text_found = ""
-        with open(xtf_file_path, "r") as f:
+        with open(data_file_path, "r") as f:
             lines = ""
             for line_number, line in enumerate(f):
                 lines += line
@@ -549,7 +549,7 @@ class ImportModelsModel(SourceModel):
                 self.print_info.emit(
                     self.tr(
                         "Could not parse transferfile file `{file}` ({exception})".format(
-                            file=xtf_file_path, exception=str(e)
+                            file=data_file_path, exception=str(e)
                         )
                     )
                 )
