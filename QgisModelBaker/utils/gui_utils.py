@@ -323,7 +323,7 @@ class SourceModel(QStandardItemModel):
 
     def _source_in_model(self, name, type, path):
         match_existing = self.match(
-            self.index(0, 0), SourceModel.Roles.NAME, name, -1, Qt.MatchExactly
+            self.index(0, 0), int(SourceModel.Roles.NAME), name, -1, Qt.MatchExactly
         )
         if (
             match_existing
