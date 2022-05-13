@@ -953,8 +953,7 @@ class BasketSourceModel(QStandardItemModel):
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
-            if item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split(".")[1]:
-                return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC)).split('.')[1]})"
+            return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC))}) ({item.data(int(BasketSourceModel.Roles.BASKET_TID))})"
         return item.data(int(role))
 
     def clear_schema_baskets(self):
@@ -962,3 +961,10 @@ class BasketSourceModel(QStandardItemModel):
 
     def schema_baskets_loaded(self, schema_identificator):
         return schema_identificator in self.schema_baskets
+
+    def model_topics(self, schema_identificator):
+        model_topics = {""}
+        for basket in self.schema_baskets[schema_identificator]:
+            model_topics.add(basket.get('topic',''))
+        return list(model_topics)
+
