@@ -953,7 +953,7 @@ class BasketSourceModel(QStandardItemModel):
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if role == Qt.DisplayRole:
-            return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC))}) ({item.data(int(BasketSourceModel.Roles.BASKET_TID))})"
+            return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC))})"
         return item.data(int(role))
 
     def clear_schema_baskets(self):
