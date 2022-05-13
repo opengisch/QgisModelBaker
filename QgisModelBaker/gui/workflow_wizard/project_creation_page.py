@@ -143,6 +143,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         legend = generator.legend(available_layers)
 
         custom_layer_order_structure = list()
+        custom_project_properties = {}
 
         # Project topping file for legend and layers: collect and download
         projecttopping_file_path_list = []
@@ -213,6 +214,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         custom_layer_order_structure = projecttopping_data[
                             "layer-order"
                         ]
+                    if "properties" in projecttopping_data:
+                        custom_project_properties = projecttopping_data[
+                            "properties"
+                        ]
                 except yaml.YAMLError as exc:
                     self.workflow_wizard.log_panel.print_info(
                         self.tr("Unable to parse project topping: {}").format(exc),
@@ -221,9 +226,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
-        # on geopackages we don't use the transaction mode on default, since this leaded to troubles
+        # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
         project = Project(
-            auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg),
+            auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg) or
+            custom_project_properties.get("transaction_mode","") == "AutomaticGroups",
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
         )
         project.layers = available_layers
