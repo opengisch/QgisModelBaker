@@ -43,9 +43,9 @@ class DatasetSelector(QComboBox):
         self.basket_model = BasketSourceModel()
         self.filtered_model = QSortFilterProxyModel()
         self.filtered_model.setSourceModel(self.basket_model)
-        self.filtered_model.setFilterRole(int(
-            BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR
-        ))
+        self.filtered_model.setFilterRole(
+            int(BasketSourceModel.Roles.SCHEMA_TOPIC_IDENTIFICATOR)
+        )
         self.setModel(self.filtered_model)
         self.setEnabled(False)
 
@@ -141,14 +141,16 @@ class DatasetSelector(QComboBox):
             self._store_default_basket_tid(schema_identificator, model_topic)
 
     def _store_default_basket_tid(self, schema_identificator, model_topic):
-        default_basket_topic = slugify( f"default_basket{'_' if model_topic else ''}{model_topic}")
-        if not QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(default_basket_topic):
+        default_basket_topic = slugify(
+            f"default_basket{'_' if model_topic else ''}{model_topic}"
+        )
+        if not QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(
+            default_basket_topic
+        ):
             schema_topic_identificator = slugify(
                 f"{schema_identificator}_{model_topic}"
             )
-            self.filtered_model.setFilterRegExp(
-                f"{schema_topic_identificator}"
-            )
+            self.filtered_model.setFilterRegExp(f"{schema_topic_identificator}")
             first_index = self.model().index(0, 0)
             basket_tid = first_index.data(int(BasketSourceModel.Roles.BASKET_TID))
             QgsExpressionContextUtils.setProjectVariable(
