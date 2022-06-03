@@ -965,6 +965,5 @@ class BasketSourceModel(QStandardItemModel):
     def model_topics(self, schema_identificator):
         model_topics = {""}
         for basket in self.schema_baskets[schema_identificator]:
-            model_topics.add(basket.get('topic',''))
+            model_topics.add(basket.get("topic", ""))
         return list(model_topics)
-

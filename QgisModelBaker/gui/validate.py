@@ -232,7 +232,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         self.current_configuration.dbschema,
                     )
                 )
-            
+
             self.current_configuration.with_exporttid = self._get_tid_handling()
 
             if self.schema_validations.get(self.current_schema_identificator):
