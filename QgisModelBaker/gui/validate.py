@@ -232,6 +232,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         self.current_configuration.dbschema,
                     )
                 )
+            
+            self.current_configuration.with_exporttid = self._get_tid_handling()
 
             if self.schema_validations.get(self.current_schema_identificator):
                 # don't set result if never got a validation (empty ValidateDock.SchemaValidation)
@@ -282,6 +284,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         if db_connector:
             return db_connector.get_basket_handling()
+        return False
+
+    def _get_tid_handling(self):
+        db_connector = db_utils.get_db_connector(self.current_configuration)
+        if db_connector:
+            return db_connector.get_tid_handling()
         return False
 
     def _run(self, edited_command=None):
