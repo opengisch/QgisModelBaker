@@ -76,14 +76,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             )
         )
 
-        if self._db_action_type == DbActionType.GENERATE:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]")
-            )
-        elif self._db_action_type == DbActionType.IMPORT_DATA:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to import data into a default schema]")
-            )
+        if (
+            self._db_action_type == DbActionType.GENERATE
+            or self._db_action_type == DbActionType.IMPORT_DATA
+        ):
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
         elif self._db_action_type == DbActionType.EXPORT:
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Enter a valid schema]")
@@ -95,6 +92,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
+        self.pg_schema_line_edit.setValidator(nonEmptyValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -102,6 +100,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.validators.validate_line_edits
         )
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_schema_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.pg_schema_line_edit.textChanged.emit(self.pg_host_line_edit.text())
 
         self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
@@ -169,19 +171,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _show_panel(self):
-        if self.interlis_mode:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]")
-            )
+        if self.interlis_mode or self._db_action_type == DbActionType.IMPORT_DATA:
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
         else:
-            if self._db_action_type == DbActionType.IMPORT_DATA:
-                self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to import data into a default schema]")
-                )
-            else:
-                self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Enter a valid schema]")
-                )
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Enter a valid schema]")
+            )
 
     def get_fields(self, configuration):
 
@@ -200,6 +195,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def set_fields(self, configuration):
 
+        # is this needed, dave? shouldn't it store it anyway when there is a change of service and current_service is none?
         if configuration.dbservice is None:
 
             indexNoService = self.pg_service_combo_box.findData(
