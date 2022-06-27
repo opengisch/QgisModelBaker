@@ -297,7 +297,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if service:
             service_config = pgserviceparser.service_config(service)
 
-            self.pg_host_line_edit.setText(service_config.get("host", ""))
+            # QGIS cannot handle manually set hosts with service
+            # So it needs to has a host defined in service conf or it takes localhost
+            self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
+
             self.pg_port_line_edit.setText(service_config.get("port", ""))
             self.pg_auth_settings.setUsername(service_config.get("user", ""))
             self.pg_database_line_edit.setText(service_config.get("dbname", ""))
