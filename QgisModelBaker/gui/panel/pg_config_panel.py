@@ -195,7 +195,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def set_fields(self, configuration):
 
-        # is this needed, dave? shouldn't it store it anyway when there is a change of service and current_service is none?
         if configuration.dbservice is None:
 
             indexNoService = self.pg_service_combo_box.findData(
