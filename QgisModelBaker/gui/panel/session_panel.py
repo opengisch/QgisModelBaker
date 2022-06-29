@@ -234,6 +234,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
                     self.setDisabled(False)
+                    self.set_button_to_create_without_constraints()
                     return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
