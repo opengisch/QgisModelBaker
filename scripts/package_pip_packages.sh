@@ -1,13 +1,11 @@
 #!/bin/bash
 LIBS_DIR="QgisModelBaker/libs"
 
-MODELBAKER_LIBRARY=("modelbaker" "1.2.0")
-PGSERVICEPARSER=("pgserviceparser" "1.0.1")
+MODELBAKER_LIBRARY=("modelbaker" "1.2.3")
 PACKAGING=("packaging" "21.3")
 
 PACKAGES=(
   MODELBAKER_LIBRARY[@]
-  PGSERVICEPARSER[@]
   PACKAGING[@]
 )
 
@@ -27,3 +25,7 @@ for PACKAGE in ${PACKAGES[@]}; do
   #set write rights to group (because qgis-plugin-ci needs it)
   chmod -R g+w $LIBS_DIR
 done
+
+#create the __init__.py in libs folder
+cd $LIBS_DIR
+touch __init__.py

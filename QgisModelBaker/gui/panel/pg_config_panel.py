@@ -21,7 +21,7 @@ from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
-import QgisModelBaker.libs.pgserviceparser as pgserviceparser
+import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     NonEmptyStringValidator,
@@ -76,14 +76,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             )
         )
 
-        if self._db_action_type == DbActionType.GENERATE:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]")
-            )
-        elif self._db_action_type == DbActionType.IMPORT_DATA:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to import data into a default schema]")
-            )
+        if (
+            self._db_action_type == DbActionType.GENERATE
+            or self._db_action_type == DbActionType.IMPORT_DATA
+        ):
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
         elif self._db_action_type == DbActionType.EXPORT:
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Enter a valid schema]")
@@ -95,6 +92,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
+        self.pg_schema_line_edit.setValidator(nonEmptyValidator)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -102,6 +100,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.validators.validate_line_edits
         )
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_schema_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.pg_schema_line_edit.textChanged.emit(self.pg_host_line_edit.text())
 
         self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
@@ -169,19 +171,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _show_panel(self):
-        if self.interlis_mode:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Leave empty to create a default schema]")
-            )
+        if self.interlis_mode or self._db_action_type == DbActionType.IMPORT_DATA:
+            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
         else:
-            if self._db_action_type == DbActionType.IMPORT_DATA:
-                self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to import data into a default schema]")
-                )
-            else:
-                self.pg_schema_line_edit.setPlaceholderText(
-                    self.tr("[Enter a valid schema]")
-                )
+            self.pg_schema_line_edit.setPlaceholderText(
+                self.tr("[Enter a valid schema]")
+            )
 
     def get_fields(self, configuration):
 
@@ -296,70 +291,16 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         service = self.pg_service_combo_box.currentData()
 
-        self.pg_host_line_edit.setEnabled(service is None)
-        self.pg_port_line_edit.setEnabled(service is None)
-        self.pg_database_line_edit.setEnabled(service is None)
-
-        self.pg_host_label.setEnabled(service is None)
-        self.pg_port_label.setEnabled(service is None)
-        self.pg_database_label.setEnabled(service is None)
-
-        self.pg_auth_settings.setEnabled(service is None)
-
-        self.pg_ssl_mode_combo_box.setEnabled(service is None)
-        self.pg_ssl_mode_label.setEnabled(service is None)
-
         if self._current_service is None:
-
-            index = self.pg_service_combo_box.findData(
-                None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_host_line_edit.text().strip(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBHOST,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_port_line_edit.text().strip(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPORT,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_auth_settings.username(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBUSR,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_database_line_edit.text().strip(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_schema_line_edit.text().strip().lower(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_auth_settings.password(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPWD,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_auth_settings.configId(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
-            )
-            self.pg_service_combo_box.setItemData(
-                index,
-                self.pg_ssl_mode_combo_box.currentData(),
-                PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
-            )
+            self._keep_custom_settings()
 
         if service:
-
             service_config = pgserviceparser.service_config(service)
 
-            self.pg_host_line_edit.setText(service_config.get("host", ""))
+            # QGIS cannot handle manually set hosts with service
+            # So it needs to has a host defined in service conf or it takes localhost
+            self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
+
             self.pg_port_line_edit.setText(service_config.get("port", ""))
             self.pg_auth_settings.setUsername(service_config.get("user", ""))
             self.pg_database_line_edit.setText(service_config.get("dbname", ""))
@@ -419,3 +360,87 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_ssl_mode_combo_box.setCurrentIndex(ssl_mode_index)
 
         self._current_service = service
+
+        self.pg_host_line_edit.setEnabled(
+            service is None or not self.pg_host_line_edit.text()
+        )
+        self.pg_port_line_edit.setEnabled(
+            service is None or not self.pg_port_line_edit.text()
+        )
+        self.pg_database_line_edit.setEnabled(
+            service is None or not self.pg_database_line_edit.text()
+        )
+
+        self.pg_host_label.setEnabled(
+            service is None or not self.pg_host_line_edit.text()
+        )
+        self.pg_port_label.setEnabled(
+            service is None or not self.pg_port_line_edit.text()
+        )
+        self.pg_database_label.setEnabled(
+            service is None or not self.pg_database_line_edit.text()
+        )
+
+        self.pg_auth_settings.setEnabled(
+            service is None
+            or not (
+                self.pg_auth_settings.password() and self.pg_auth_settings.username()
+            )
+        )
+
+        self.pg_ssl_mode_combo_box.setEnabled(
+            service is None
+            or self.pg_ssl_mode_combo_box.currentIndex()
+            == self.pg_ssl_mode_combo_box.findData(None)
+        )
+        self.pg_ssl_mode_label.setEnabled(
+            service is None
+            or self.pg_ssl_mode_combo_box.currentIndex()
+            == self.pg_ssl_mode_combo_box.findData(None)
+        )
+
+    def _keep_custom_settings(self):
+
+        index = self.pg_service_combo_box.findData(
+            None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_host_line_edit.text().strip(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBHOST,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_port_line_edit.text().strip(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPORT,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_auth_settings.username(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBUSR,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_database_line_edit.text().strip(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_schema_line_edit.text().strip().lower(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_auth_settings.password(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBPWD,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_auth_settings.configId(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBAUTHID,
+        )
+        self.pg_service_combo_box.setItemData(
+            index,
+            self.pg_ssl_mode_combo_box.currentData(),
+            PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
+        )

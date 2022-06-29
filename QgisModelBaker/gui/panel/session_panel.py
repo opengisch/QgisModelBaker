@@ -26,6 +26,7 @@ from qgis.PyQt.QtWidgets import QAction, QWidget
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.edit_command import EditCommandDialog
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper import (
     iliexecutable,
     iliexporter,
@@ -60,6 +61,7 @@ class SessionPanel(QWidget, WIDGET_UI):
     ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.db_simple_factory = DbSimpleFactory()
 
         self.file = file
         self.models = models
@@ -186,6 +188,16 @@ class SessionPanel(QWidget, WIDGET_UI):
             porter.configuration = self.configuration
         return porter
 
+    def _pre_generate_project(self):
+        # create schema with superuser
+        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
+        res, message = db_factory.pre_generate_project(self.configuration)
+        if not res:
+            self.print_info.emit(
+                message,
+                LogColor.COLOR_FAIL,
+            )
+
     def edit_command(self):
         """
         A dialog opens giving the user the possibility to edit the ili2db command used for the creation
@@ -201,6 +213,9 @@ class SessionPanel(QWidget, WIDGET_UI):
     def run(self, edited_command=None):
         if self.is_skipped_or_done:
             return True
+
+        if self.db_action_type == DbActionType.GENERATE:
+            self._pre_generate_project()
 
         porter = self._get_porter()
 
@@ -227,11 +242,13 @@ class SessionPanel(QWidget, WIDGET_UI):
                 return False
 
             self.progress_bar.setValue(90)
+
             if (
                 self.db_action_type == DbActionType.GENERATE
                 and self.configuration.create_basket_col
             ):
                 self._create_default_dataset()
+
             self.progress_bar.setValue(100)
             self.print_info.emit(f'{self.tr("Done!")}\n', LogColor.COLOR_SUCCESS)
             self.on_done_or_skipped.emit(self.id)

@@ -228,8 +228,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     self.tr(
                         "<html><head/><body><p>Datasource is the schema <i>{}</i> at database <i>{}</i></p></body></html>"
                     ).format(
-                        self.current_configuration.database,
                         self.current_configuration.dbschema,
+                        self.current_configuration.database,
                     )
                 )
 
