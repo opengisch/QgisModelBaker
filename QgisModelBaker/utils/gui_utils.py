@@ -382,7 +382,10 @@ class ImportModelsModel(SourceModel):
                         ),
                         Qt.Checked,
                     )
-                    if enabled and modelname not in self.checked_models()
+                    if enabled
+                    and modelname not in self.checked_models()
+                    and self._LV95_equivalent_name(modelname)
+                    not in self.checked_models()
                     else Qt.Unchecked,
                     enabled,
                 )
@@ -428,6 +431,8 @@ class ImportModelsModel(SourceModel):
                             if model is models[-1]
                             and enabled
                             and model["name"] not in self.checked_models()
+                            and self._LV95_equivalent_name(model["name"])
+                            not in self.checked_models()
                             else Qt.Unchecked,
                         ),
                         enabled,
@@ -471,7 +476,10 @@ class ImportModelsModel(SourceModel):
                                 ),
                             ),
                             Qt.Checked
-                            if enabled and model["name"] not in self.checked_models()
+                            if enabled
+                            and model["name"] not in self.checked_models()
+                            and self._LV95_equivalent_name(model["name"])
+                            not in self.checked_models()
                             else Qt.Unchecked,
                         ),
                         enabled,
@@ -565,6 +573,12 @@ class ImportModelsModel(SourceModel):
                     for modelname in regex.split(db_model["modelname"]):
                         modelnames.append(modelname.strip())
         return modelnames
+
+    def _LV95_equivalent_name(self, model):
+        if "lv03" in model:
+            return model.replace("lv03", "lv95")
+        if "LV03" in model:
+            return model.replace("LV03", "LV95")
 
     def add_source(self, name, type, path, origin_info, checked, enabled):
         item = QStandardItem()
