@@ -73,7 +73,11 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.set_button_to_create_action = QAction(self.create_text, None)
         self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
 
-        self.create_without_constraints_text = self.tr("Run without constraints")
+        self.db_action_type = db_action_type
+        if self.db_action_type == DbActionType.GENERATE:
+            self.create_without_constraints_text = self.tr("Run without constraints")
+        else:
+            self.create_without_constraints_text = self.tr("Run without validation")
         self.set_button_to_create_without_constraints_action = QAction(
             self.create_without_constraints_text, None
         )
@@ -97,7 +101,6 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
-        self.db_action_type = db_action_type
         if self.db_action_type == DbActionType.GENERATE:
             self.configuration.ilifile = ""
             if os.path.isfile(self.file):
@@ -234,6 +237,8 @@ class SessionPanel(QWidget, WIDGET_UI):
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
                     self.setDisabled(False)
+                    if not self.db_action_type == DbActionType.GENERATE:
+                        self.set_button_to_create_without_constraints()
                     return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
