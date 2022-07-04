@@ -28,6 +28,10 @@ please create a Transifex account and request access to the team.
 
 ## Infos for Devs
 
+### The modelbaker library
+
+The whole backend library used by this plugin here can be found [here](https://github.com/opengisch/QgisModelBakerLibrary). It's distributed on [PYPI as a package](https://pypi.org/project/modelbaker/) as well.
+
 ### Code style
 
 Is enforced with pre-commit. To use, make:
