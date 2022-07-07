@@ -65,7 +65,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             config_manager = db_factory.get_db_command_config_manager(
                 self.configuration
             )
-            uri = config_manager.get_uri()
+            uri = config_manager.get_uri(qgis=True)
             mgmt_uri = config_manager.get_uri(self.configuration.db_use_super_login)
             generator = Generator(
                 self.configuration.tool,

@@ -398,7 +398,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
             try:
                 config_manager = db_factory.get_db_command_config_manager(configuration)
-                uri = config_manager.get_uri()
+                uri = config_manager.get_uri(qgis=True)
                 mgmt_uri = config_manager.get_uri(configuration.db_use_super_login)
                 generator = Generator(
                     configuration.tool,
