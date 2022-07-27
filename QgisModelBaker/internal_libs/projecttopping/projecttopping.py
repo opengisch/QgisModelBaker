@@ -21,6 +21,7 @@
 import os
 from typing import Union
 
+import yaml
 from qgis.core import (
     QgsLayerDefinition,
     QgsLayerTreeGroup,
@@ -78,7 +79,9 @@ class Target(object):
 
     def create_dirs(self):
         for file_dir in self.file_dirs:
-            os.makedirs(self.full_file_dir(file_dir))
+            absolute_path, _ = self.filedir_path(file_dir)
+            if not os.path.exists(absolute_path):
+                os.makedirs(absolute_path)
 
     def filedir_path(self, file_dir):
         relative_path = os.path.join(self.sub_dir, file_dir)
@@ -133,18 +136,20 @@ class ProjectTopping(object):
             self.items = []
             self.node = None
             self.name = None
-            self.properties = None
+            self.properties = ProjectTopping.TreeItemProperties()
 
         def make_item(self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]):
             # properties for every kind of nodes
             self.node = node
+            self.name = node.name()
             self.properties.checked = node.itemVisibilityChecked()
             self.properties.expanded = node.isExpanded()
 
             if isinstance(node, QgsLayerTreeLayer):
                 self.properties.featurecount = node.customProperty("showFeatureCount")
-                self.properties.provider = node.layer().dataProvider().name()
-                self.properties.uri = node.layer().dataProvider().dataSourceUri()
+                if node.layer().dataProvider():
+                    self.properties.provider = node.layer().dataProvider().name()
+                    self.properties.uri = node.layer().dataProvider().dataSourceUri()
             elif isinstance(node, QgsLayerTreeGroup):
                 # it's a group
                 self.properties.group = True
@@ -160,21 +165,25 @@ class ProjectTopping(object):
                         self.properties.mutually_exclusive
                         and self.properties.mutually_exclusive_child == -1
                     ):
-                        if child.properties.checked:
+                        if item.properties.checked:
                             self.properties.mutually_exclusive_child = index
                     self.items.append(item)
                     index += 1
             else:
                 print(
-                    "here we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
+                    f"here with {node.name()} we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
                 )
 
     def __init__(self):
         self.layertree = self.LayerTreeItem()
         self.layerorder = []
-        self.current_target = Target()
 
-    def load_project(self, project: QgsProject):
+    def parse_project(self, project: QgsProject):
+        """
+        Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and the CustomLayerOrder into the layerorder. The project is not keeped as member variable.
+
+        :param QgsProject project: the project to parse.
+        """
         root = project.layerTreeRoot()
         if root:
             self.layertree.make_item(project.layerTreeRoot())
@@ -186,20 +195,43 @@ class ProjectTopping(object):
 
     def generate_files(self, target: Target) -> str:
         # set the current target here and append project topping specific file directories and create them
-        self.current_target = target
-        self.current_target.file_dirs.extend(
+        """
+        Creates a projecttopping file (yaml) and the linked toppigfiles (qml, qlr) into the given main and sub directories.
+
+        :param Target target: the target defining the directories to write the files into.
+        :return: projecttopping file (yaml) path
+        """
+
+        # creating the directories
+        target.file_dirs.extend(
             [
                 ProjectTopping.PROJECTTOPPING_DIRNAME,
                 ProjectTopping.LAYERSTYLE_DIRNAME,
                 ProjectTopping.LAYERDEFINITION_DIRNAME,
             ]
         )
-        self.current_target.create_dirs()
+        target.create_dirs()
 
-        # create the layertree as dict (with the needed info only)
-        self._projecttopping_dict()
+        # generate projecttopping as a dict
+        projecttopping_dict = self._projecttopping_dict(target)
 
-        return None
+        # write the yaml
+        projecttopping_slug = f"{slugify(target.projectname)}.yaml"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
+            ProjectTopping.PROJECTTOPPING_DIRNAME
+        )
+        with open(
+            os.path.join(absolute_filedir_path, projecttopping_slug), "w"
+        ) as projecttopping_yamlfile:
+            output = yaml.dump(projecttopping_dict, projecttopping_yamlfile)
+            print(output)
+
+        return os.path.join(absolute_filedir_path, projecttopping_slug)
+
+    def load_files(self, target: Target):
+        """
+        Not yet implemented.
+        """
 
     def generate_project(self, target: Target) -> QgsProject:
         """
@@ -207,25 +239,28 @@ class ProjectTopping(object):
         """
         return QgsProject()
 
-    def _projecttopping_dict(self):
+    def _projecttopping_dict(self, target: Target):
+        """
+        Creates the layertree as a dict.
+        Creates the layerorder as a list.
+        And it generates and stores the toppingfiles.
+        """
         projecttopping_dict = {}
-
-        projecttopping_dict["layertree"] = self._item_dict_list(self.layertree.items())
-
-        projecttopping_dict["layerorder"] = self._layer_order_list()
-
+        projecttopping_dict["layertree"] = self._item_dict_list(
+            target, self.layertree.items
+        )
+        projecttopping_dict["layerorder"] = [layer.name() for layer in self.layerorder]
         return projecttopping_dict
 
-    def _item_dict_list(self, items):
+    def _item_dict_list(self, target: Target, items):
         item_dict_list = []
         for item in items:
-            item_dict = self._create_item_dict(item)
+            item_dict = self._create_item_dict(target, item)
             item_dict_list.append(item_dict)
         return item_dict_list
 
-    def _create_item_dict(self, item: LayerTreeItem):
+    def _create_item_dict(self, target: Target, item: LayerTreeItem):
         item_dict = {}
-
         item_properties_dict = {}
 
         if item.properties.group:
@@ -239,27 +274,31 @@ class ProjectTopping(object):
             if item.properties.featurecount:
                 item_properties_dict["featurecount"] = True
             if item.properties.use_qmlstylefile:
-                item_properties_dict["qmlstylefile"] = self._qmlstylefile_link(item)
+                item_properties_dict["qmlstylefile"] = self._qmlstylefile_link(
+                    target, item
+                )
             if item.properties.use_source:
                 item_properties_dict["provider"] = item.properties.provider
                 item_properties_dict["uri"] = item.properties.uri
 
+        item_properties_dict["checked"] = item.properties.checked
+        item_properties_dict["expanded"] = item.properties.expanded
+
         if item.properties.use_definitionfile:
-            item_properties_dict["definitionfile"] = self._definitionfile_link(item)
+            item_properties_dict["definitionfile"] = self._definitionfile_link(
+                target, item
+            )
 
         if item.items:
-            child_item_dict_list = []
-            for child_item in item.item:
-                item_dict = self._create_item_dict(child_item)
-                child_item_dict_list.append(item_dict)
+            child_item_dict_list = self._item_dict_list(target, item.items)
             item_properties_dict["child-nodes"] = child_item_dict_list
 
         item_dict[item.name] = item_properties_dict
         return item_dict
 
-    def _definitionfile_link(self, item: LayerTreeItem):
-        nodename_slug = f"{slugify(self.current_target.projectname)}_{slugify(item.node.name())}.qlr"
-        absolute_filedir_path, relative_filedir_path = self.current_target.filedir_path(
+    def _definitionfile_link(self, target: Target, item: LayerTreeItem):
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qlr"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERDEFINITION_DIRNAME
         )
         QgsLayerDefinition.exportLayerDefinition(
@@ -267,11 +306,13 @@ class ProjectTopping(object):
         )
         return os.path.join(relative_filedir_path, nodename_slug)
 
-    def _qmlstylefile_link(self, item: LayerTreeItem):
-        nodename_slug = f"{slugify(self.current_target.projectname)}_{slugify(item.node.name())}.qml"
-        absolute_filedir_path, relative_filedir_path = self.current_target.filedir_path(
+    def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qml"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERSTYLE_DIRNAME
         )
         # to do categories
-        item.node.layer().saveDefaultStyle(absolute_filedir_path)
+        item.node.layer().saveNamedStyle(
+            os.path.join(absolute_filedir_path, nodename_slug)
+        )
         return os.path.join(relative_filedir_path, nodename_slug)
