@@ -150,12 +150,20 @@ class ProjectTopping(object):
                 self.properties.group = True
                 self.properties.mutually_exclusive = node.isMutuallyExclusive()
 
+                index = 0
                 for child in node.children():
                     item = ProjectTopping.LayerTreeItem()
-                    item.make_item(node)
+                    item.make_item(child)
                     # set the first checked item as mutually exclusive child
-                    self.properties.mutually_exclusive_child = item.properties.checked
+
+                    if (
+                        self.properties.mutually_exclusive
+                        and self.properties.mutually_exclusive_child == -1
+                    ):
+                        if child.properties.checked:
+                            self.properties.mutually_exclusive_child = index
                     self.items.append(item)
+                    index += 1
             else:
                 print(
                     "here we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
