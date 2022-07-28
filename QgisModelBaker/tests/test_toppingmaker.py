@@ -2,6 +2,7 @@ import os
 import pathlib
 import tempfile
 
+import yaml
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
@@ -55,7 +56,7 @@ class ToppingMakerTest(unittest.TestCase):
                 - "Layer Four":
                 - "Layer Five":
         """
-        project = self.make_project()
+        project = self._make_project()
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
@@ -78,23 +79,61 @@ class ToppingMakerTest(unittest.TestCase):
         assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
 
     def test_generate_files(self):
-        project = self.make_project()
+        project = self._make_project()
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
         projecttopping = toppingmaker.ProjectTopping()
         projecttopping.parse_project(project)
 
+        checked_groups = []
+        for item in projecttopping.layertree.items:
+            if item.name == "Big Group":
+                assert len(item.items) == 2
+                checked_groups.append("Big Group")
+                for item in item.items:
+                    if item.name == "Medium Group":
+                        assert len(item.items) == 3
+                        checked_groups.append("Medium Group")
+                        for item in item.items:
+                            if item.name == "Small Group":
+                                assert len(item.items) == 2
+                                checked_groups.append("Small Group")
+        assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
+
         maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
 
         target = toppingmaker.Target("freddys", maindir, subdir)
 
-        projecttopping.generate_files(target)
+        projecttopping_path = projecttopping.generate_files(target)
 
-        # to do check projecttopping_file
+        foundAllofEm = False
+        foundLayerOne = False
+        foundLayerTwo = False
 
-    def make_project():
+        with open(projecttopping_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "layertree" in projecttopping_data
+            assert projecttopping_data["layertree"]
+            for node in projecttopping_data["layertree"]:
+                if "All of em" in node:
+                    foundAllofEm = True
+                    assert "child-nodes" in node["All of em"]
+                    for childnode in node["All of em"]["child-nodes"]:
+                        if "Layer One" in childnode:
+                            foundLayerOne = True
+                            assert "checked" in childnode["Layer One"]
+                            assert childnode["Layer One"]["checked"]
+                        if "Layer Two" in childnode:
+                            foundLayerTwo = True
+                            assert "checked" in childnode["Layer Two"]
+                            assert not childnode["Layer Two"]["checked"]
+        assert foundAllofEm
+        assert foundLayerOne
+        assert foundLayerTwo
+
+    def _make_project(self):
         project = QgsProject()
         project.removeAllMapLayers()
 
