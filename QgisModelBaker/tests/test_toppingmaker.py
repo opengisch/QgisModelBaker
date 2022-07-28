@@ -1,5 +1,4 @@
 import os
-import pathlib
 import tempfile
 
 import yaml
@@ -8,25 +7,24 @@ from qgis.testing import unittest
 
 import QgisModelBaker.internal_libs.projecttopping.projecttopping as toppingmaker
 
-test_path = pathlib.Path(__file__).parent.absolute()
-
 
 class ToppingMakerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
-        cls.toppingmaker_test_path = os.path.join(test_path, "toppingmaker")
+        cls.toppingmaker_test_path = os.path.join(cls.basetestpath, "toppingmaker")
 
     def test_target(self):
         maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
         filedirs = ["projecttopping", "layerstyle", "layerdefinition", "andanotherone"]
         target = toppingmaker.Target("freddys", maindir, subdir, filedirs)
-        target.makedirs()
+        target.create_dirs()
         count = 0
         for filedir in filedirs:
-            assert os.path.isdir(filedir)
+            path, _ = target.filedir_path(filedir)
+            assert os.path.isdir(path)
             count += 1
         assert count == 4
 
@@ -124,11 +122,11 @@ class ToppingMakerTest(unittest.TestCase):
                         if "Layer One" in childnode:
                             foundLayerOne = True
                             assert "checked" in childnode["Layer One"]
-                            assert childnode["Layer One"]["checked"]
+                            assert not childnode["Layer One"]["checked"]
                         if "Layer Two" in childnode:
                             foundLayerTwo = True
                             assert "checked" in childnode["Layer Two"]
-                            assert not childnode["Layer Two"]["checked"]
+                            assert childnode["Layer Two"]["checked"]
         assert foundAllofEm
         assert foundLayerOne
         assert foundLayerTwo
