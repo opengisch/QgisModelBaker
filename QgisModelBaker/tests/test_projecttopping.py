@@ -5,21 +5,21 @@ import yaml
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
-import QgisModelBaker.internal_libs.projecttopping.projecttopping as toppingmaker
+import QgisModelBaker.internal_libs.projecttopping.projecttopping as projecttopping
 
 
-class ToppingMakerTest(unittest.TestCase):
+class ProjectToppingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
-        cls.toppingmaker_test_path = os.path.join(cls.basetestpath, "toppingmaker")
+        cls.projecttopping_test_path = os.path.join(cls.basetestpath, "projecttopping")
 
     def test_target(self):
-        maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
         filedirs = ["projecttopping", "layerstyle", "layerdefinition", "andanotherone"]
-        target = toppingmaker.Target("freddys", maindir, subdir, filedirs)
+        target = projecttopping.Target("freddys", maindir, subdir, filedirs)
         target.create_dirs()
         count = 0
         for filedir in filedirs:
@@ -58,7 +58,7 @@ class ToppingMakerTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = toppingmaker.ProjectTopping()
+        projecttopping = projecttopping.ProjectTopping()
         projecttopping.parse_project(project)
 
         checked_groups = []
@@ -81,7 +81,7 @@ class ToppingMakerTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = toppingmaker.ProjectTopping()
+        projecttopping = projecttopping.ProjectTopping()
         projecttopping.parse_project(project)
 
         checked_groups = []
@@ -99,18 +99,18 @@ class ToppingMakerTest(unittest.TestCase):
                                 checked_groups.append("Small Group")
         assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
 
-        maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
 
-        target = toppingmaker.Target("freddys", maindir, subdir)
+        target = projecttopping.Target("freddys", maindir, subdir)
 
-        projecttopping_path = projecttopping.generate_files(target)
+        projecttopping_file_path = projecttopping.generate_files(target)
 
         foundAllofEm = False
         foundLayerOne = False
         foundLayerTwo = False
 
-        with open(projecttopping_path, "r") as yamlfile:
+        with open(projecttopping_file_path, "r") as yamlfile:
             projecttopping_data = yaml.safe_load(yamlfile)
             assert "layertree" in projecttopping_data
             assert projecttopping_data["layertree"]
@@ -180,15 +180,3 @@ class ToppingMakerTest(unittest.TestCase):
         allofemgroup.addLayer(l5)
 
         return project
-
-
-"""
-from QgisModelBaker.internal_libs.projecttopping.projecttopping import ProjectTopping, Target
-
-projtop = ProjectTopping()
-projtop.load_project(QgsProject.instance())
-
-target = Target("daves_test_topping", "/home/cheapdave/dev/", "topping_test")
-
-projtop.generate_files(target)
-"""
