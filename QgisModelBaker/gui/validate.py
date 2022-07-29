@@ -19,8 +19,14 @@
 """
 import os
 
-from PyQt5.QtGui import QColor
-from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject, QgsRectangle
+from PyQt5.QtGui import QColor, QGuiApplication
+from qgis.core import (
+    QgsApplication,
+    QgsDataSourceUri,
+    QgsMapLayer,
+    QgsProject,
+    QgsRectangle,
+)
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
@@ -389,16 +395,25 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
         id = index.data(int(ValidationResultModel.Roles.ID))
+        text = index.data(Qt.DisplayRole)
 
         menu = QMenu()
         if coord_x and coord_y:
-            action_zoom_to = QAction(self.tr("Zoom to Coordinates"), self)
+            action_zoom_to = QAction(
+                QgsApplication.getThemeIcon("/mActionZoomToSelected.svg"),
+                self.tr("Zoom to Coordinates"),
+                self,
+            )
             action_zoom_to.triggered.connect(
                 lambda: self._zoom_to_coordinate(coord_x, coord_y)
             )
             menu.addAction(action_zoom_to)
         if t_ili_tid:
-            action_open_form = QAction(self.tr("Open Feature Form"), self)
+            action_open_form = QAction(
+                QgsApplication.getThemeIcon("/mActionFormView.svg"),
+                self.tr("Open Feature Form"),
+                self,
+            )
             action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
             menu.addAction(action_open_form)
         if id:
@@ -412,6 +427,16 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 lambda: self.result_table_view.model().setFixed(index)
             )
             menu.addAction(action_fix)
+
+            action_copy = QAction(
+                QgsApplication.getThemeIcon("/mActionEditCopy.svg"),
+                self.tr("Copy"),
+                self,
+            )
+            action_copy.triggered.connect(
+                lambda: QGuiApplication.clipboard().setText(text)
+            )
+            menu.addAction(action_copy)
         menu.exec_(self.result_table_view.mapToGlobal(pos))
 
     def _zoom_to_coordinate(self, x, y):
