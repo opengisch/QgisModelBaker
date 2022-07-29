@@ -81,7 +81,8 @@ class Target(object):
 
         if not path_resolver:
             self.path_resolver = default_path_resolver
-        self.toppingfile_list = []
+
+        self.toppingfileinfo_list = []
 
     def create_dirs(self):
         for file_dir in self.file_dirs:
@@ -102,7 +103,7 @@ def default_path_resolver(target: Target, name, type):
     _, relative_filedir_path = target.filedir_path(type)
 
     toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
-    target.toppingfile_list.append(toppingfile)
+    target.toppingfileinfo_list.append(toppingfile)
 
     return os.path.join(relative_filedir_path, name)
 
