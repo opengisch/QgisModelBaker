@@ -80,16 +80,8 @@ class Target(object):
         self.path_resolver = path_resolver
 
         if not path_resolver:
-            self.path_resolver = self.default_path_resolver
+            self.path_resolver = default_path_resolver
         self.toppingfile_list = []
-
-    def default_path_resolver(self, name, type):
-        _, relative_filedir_path = self.filedir_path(type)
-
-        toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
-        self.toppingfile_list.append(toppingfile)
-
-        return os.path.join(relative_filedir_path, name)
 
     def create_dirs(self):
         for file_dir in self.file_dirs:
@@ -104,6 +96,15 @@ class Target(object):
 
     def relative_file_dir(self, file_dir):
         return os.path.join(self.sub_dir, file_dir)
+
+
+def default_path_resolver(target: Target, name, type):
+    _, relative_filedir_path = target.filedir_path(type)
+
+    toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
+    target.toppingfile_list.append(toppingfile)
+
+    return os.path.join(relative_filedir_path, name)
 
 
 class ProjectTopping(object):
@@ -318,7 +319,9 @@ class ProjectTopping(object):
         QgsLayerDefinition.exportLayerDefinition(
             os.path.join(absolute_filedir_path, nodename_slug), item.node
         )
-        return target.path_resolver(relative_filedir_path, nodename_slug)
+        return target.path_resolver(
+            target, nodename_slug, ProjectTopping.LAYERDEFINITION_TYPE
+        )
 
     def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
         nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qml"
@@ -329,4 +332,6 @@ class ProjectTopping(object):
         item.node.layer().saveNamedStyle(
             os.path.join(absolute_filedir_path, nodename_slug)
         )
-        return target.path_resolver(relative_filedir_path, nodename_slug)
+        return target.path_resolver(
+            target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
+        )
