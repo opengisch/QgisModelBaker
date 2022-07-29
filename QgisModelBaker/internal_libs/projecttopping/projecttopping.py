@@ -71,11 +71,25 @@ class Target(object):
         main_dir: str = None,
         sub_dir: str = None,
         file_dirs: list() = [],
+        path_resolver=None,
     ):
         self.projectname = projectname
         self.main_dir = main_dir
         self.sub_dir = sub_dir
         self.file_dirs = file_dirs
+        self.path_resolver = path_resolver
+
+        if not path_resolver:
+            self.path_resolver = self.default_path_resolver
+        self.toppingfile_list = []
+
+    def default_path_resolver(self, name, type):
+        _, relative_filedir_path = self.filedir_path(type)
+
+        toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
+        self.toppingfile_list.append(toppingfile)
+
+        return os.path.join(relative_filedir_path, name)
 
     def create_dirs(self):
         for file_dir in self.file_dirs:
@@ -102,9 +116,9 @@ class ProjectTopping(object):
     - map themes (future)
     """
 
-    PROJECTTOPPING_DIRNAME = "projecttopping"
-    LAYERDEFINITION_DIRNAME = "layerdefinition"
-    LAYERSTYLE_DIRNAME = "layerstyle"
+    PROJECTTOPPING_TYPE = "projecttopping"
+    LAYERDEFINITION_TYPE = "layerdefinition"
+    LAYERSTYLE_TYPE = "layerstyle"
 
     class TreeItemProperties(object):
         def __init__(self):
@@ -205,9 +219,9 @@ class ProjectTopping(object):
         # creating the directories
         target.file_dirs.extend(
             [
-                ProjectTopping.PROJECTTOPPING_DIRNAME,
-                ProjectTopping.LAYERSTYLE_DIRNAME,
-                ProjectTopping.LAYERDEFINITION_DIRNAME,
+                ProjectTopping.PROJECTTOPPING_TYPE,
+                ProjectTopping.LAYERSTYLE_TYPE,
+                ProjectTopping.LAYERDEFINITION_TYPE,
             ]
         )
         target.create_dirs()
@@ -218,7 +232,7 @@ class ProjectTopping(object):
         # write the yaml
         projecttopping_slug = f"{slugify(target.projectname)}.yaml"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
-            ProjectTopping.PROJECTTOPPING_DIRNAME
+            ProjectTopping.PROJECTTOPPING_TYPE
         )
         with open(
             os.path.join(absolute_filedir_path, projecttopping_slug), "w"
@@ -299,20 +313,20 @@ class ProjectTopping(object):
     def _definitionfile_link(self, target: Target, item: LayerTreeItem):
         nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qlr"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
-            ProjectTopping.LAYERDEFINITION_DIRNAME
+            ProjectTopping.LAYERDEFINITION_TYPE
         )
         QgsLayerDefinition.exportLayerDefinition(
             os.path.join(absolute_filedir_path, nodename_slug), item.node
         )
-        return os.path.join(relative_filedir_path, nodename_slug)
+        return target.path_resolver(relative_filedir_path, nodename_slug)
 
     def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
         nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qml"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
-            ProjectTopping.LAYERSTYLE_DIRNAME
+            ProjectTopping.LAYERSTYLE_TYPE
         )
         # to do categories
         item.node.layer().saveNamedStyle(
             os.path.join(absolute_filedir_path, nodename_slug)
         )
-        return os.path.join(relative_filedir_path, nodename_slug)
+        return target.path_resolver(relative_filedir_path, nodename_slug)

@@ -5,7 +5,10 @@ import yaml
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
-import QgisModelBaker.internal_libs.projecttopping.projecttopping as projecttopping
+from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
+    ProjectTopping,
+    Target,
+)
 
 
 class ProjectToppingTest(unittest.TestCase):
@@ -19,7 +22,7 @@ class ProjectToppingTest(unittest.TestCase):
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
         filedirs = ["projecttopping", "layerstyle", "layerdefinition", "andanotherone"]
-        target = projecttopping.Target("freddys", maindir, subdir, filedirs)
+        target = Target("freddys", maindir, subdir, filedirs)
         target.create_dirs()
         count = 0
         for filedir in filedirs:
@@ -58,7 +61,7 @@ class ProjectToppingTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = projecttopping.ProjectTopping()
+        projecttopping = ProjectTopping()
         projecttopping.parse_project(project)
 
         checked_groups = []
@@ -81,7 +84,7 @@ class ProjectToppingTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = projecttopping.ProjectTopping()
+        projecttopping = ProjectTopping()
         projecttopping.parse_project(project)
 
         checked_groups = []
@@ -102,7 +105,7 @@ class ProjectToppingTest(unittest.TestCase):
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
 
-        target = projecttopping.Target("freddys", maindir, subdir)
+        target = Target("freddys", maindir, subdir)
 
         projecttopping_file_path = projecttopping.generate_files(target)
 
