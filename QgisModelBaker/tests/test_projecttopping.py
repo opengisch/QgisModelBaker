@@ -9,6 +9,7 @@ from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
     ProjectTopping,
     Target,
 )
+from QgisModelBaker.tests.utils import ilidata_path_resolver
 
 
 class ProjectToppingTest(unittest.TestCase):
@@ -133,6 +134,59 @@ class ProjectToppingTest(unittest.TestCase):
         assert foundAllofEm
         assert foundLayerOne
         assert foundLayerTwo
+
+    def test_custom_path_resolver(self):
+
+        # load QGIS project into structure
+        projecttopping = ProjectTopping()
+        project = self._make_project()
+        projecttopping.parse_project(project)
+
+        # create target with path resolver
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
+        subdir = "freddys_projects/this_specific_project"
+
+        target = Target("freddys", maindir, subdir, [], ilidata_path_resolver)
+
+        projecttopping.generate_files(target)
+
+        # there should be exported 10 layerstyle files
+        # check the values of two of em
+        countchecked = 0
+        for toppingfileinfo in target.toppingfileinfo_list:
+            assert "id" in toppingfileinfo
+            assert "path" in toppingfileinfo
+            assert "type" in toppingfileinfo
+            assert "version" in toppingfileinfo
+
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_one.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_two.qml_001":
+                countchecked += 1
+            if (
+                toppingfileinfo["id"]
+                == "freddys.layerstyle_freddys_layer_three.qml_001"
+            ):
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_four.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_five.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_one.qml_002":
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_two.qml_002":
+                countchecked += 1
+            if (
+                toppingfileinfo["id"]
+                == "freddys.layerstyle_freddys_layer_three.qml_002"
+            ):
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_four.qml_002":
+                countchecked += 1
+            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_five.qml_002":
+                countchecked += 1
+
+        assert countchecked == 10
 
     def _make_project(self):
         project = QgsProject()

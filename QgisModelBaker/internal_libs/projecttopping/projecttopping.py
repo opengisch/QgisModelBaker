@@ -252,7 +252,9 @@ class ProjectTopping(object):
             output = yaml.dump(projecttopping_dict, projecttopping_yamlfile)
             print(output)
 
-        return os.path.join(absolute_filedir_path, projecttopping_slug)
+        return target.path_resolver(
+            target, projecttopping_slug, ProjectTopping.PROJECTTOPPING_TYPE
+        )
 
     def load_files(self, target: Target):
         """
