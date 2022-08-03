@@ -154,6 +154,16 @@ class ProjectTopping(object):
             self.name = None
             self.properties = ProjectTopping.TreeItemProperties()
 
+            @property
+            def node(self):
+                if node:
+                    return node
+                else:
+                    print(
+                        f"The layer tree node is not available anymore. This might be because the referenced project is removed meanwhile."
+                    )
+                    return QgsLayerTreeLayer()
+
         def make_item(self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]):
             # properties for every kind of nodes
             self.node = node
@@ -313,7 +323,7 @@ class ProjectTopping(object):
         return item_dict
 
     def _definitionfile_link(self, target: Target, item: LayerTreeItem):
-        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qlr"
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qlr"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERDEFINITION_TYPE
         )
@@ -325,7 +335,7 @@ class ProjectTopping(object):
         )
 
     def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
-        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.node.name())}.qml"
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qml"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERSTYLE_TYPE
         )

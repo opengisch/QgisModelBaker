@@ -22,7 +22,8 @@ class ProjectToppingTest(unittest.TestCase):
 
         # load QGIS project into structure
         projecttopping = ProjectTopping()
-        projecttopping.parse_project(self._make_project())
+        project = self._make_project()
+        projecttopping.parse_project(project)
 
         # create target with path resolver
         maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
