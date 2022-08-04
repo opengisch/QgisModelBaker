@@ -1,0 +1,4 @@
+[KbS_V1_5.Belastete_Standorte.MultiPolygon]
+ili2db.mapping = "MultiSurface"
+[KbS_V1_5.Belastete_Standorte.MultilingualUri]
+ili2db.mapping = "Multilingual"
