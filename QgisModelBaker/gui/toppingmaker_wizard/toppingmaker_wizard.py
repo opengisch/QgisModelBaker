@@ -31,6 +31,7 @@ from QgisModelBaker.gui.toppingmaker_wizard.layers_page import LayersPage
 from QgisModelBaker.gui.toppingmaker_wizard.models_page import ModelsPage
 from QgisModelBaker.gui.toppingmaker_wizard.referencedata_page import ReferencedataPage
 from QgisModelBaker.gui.toppingmaker_wizard.target_page import TargetPage
+from QgisModelBaker.internal_libs.toppingmaker.toppingmaker import ToppingMaker
 from QgisModelBaker.utils.gui_utils import ToppingMakerPageIds
 
 
@@ -48,6 +49,7 @@ class ToppingMakerWizard(QWizard):
 
         self.iface = iface
         self.log_panel = parent.log_panel
+        self.topping_maker = ToppingMaker()
 
         # pages setup
         self.target_page = TargetPage(

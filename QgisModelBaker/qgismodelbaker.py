@@ -289,6 +289,7 @@ class QgisModelBakerPlugin(QObject):
         del self.__about_action
         del self.__dataset_selector_action
         del self.__dataset_selector
+        del self.__toppingmaker_wizard_action
         # remove the toolbar
         del self.toolbar
 

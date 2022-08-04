@@ -293,7 +293,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         self.schema_validations[
             self.current_schema_identificator
-        ].models_model.refresh_model(db_connector)
+        ].models_model.refresh_model([db_connector])
         self.schema_validations[
             self.current_schema_identificator
         ].datasets_model.refresh_model(db_connector)

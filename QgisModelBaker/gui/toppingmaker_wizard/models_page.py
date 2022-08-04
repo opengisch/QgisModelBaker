@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
@@ -36,29 +37,27 @@ class ModelsPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
 
+        self.items_view.setModel(self.toppingmaker_wizard.topping_maker.models_model)
+        self.items_view.clicked.connect(self.items_view.model().check)
+        self.items_view.space_pressed.connect(self.items_view.model().check)
 
-"""
-# on this page we get the current project
-# we go through the project and load all the models
-# for that we might need to extend the SchemaModelsModel of gui utils
-    def load_available_models(self, project: QgsProject):
-        root = project.layerTreeRoot()
-        checked_identificators = []
-        for layer_node in root.findLayers():
-            source_provider = layer_node.layer().dataProvider()
-            source = QgsDataSourceUri(layer_node.layer().dataProvider().dataSourceUri())
-            schema_identificator = db_utils.get_schema_identificator_from_layersource(source_provider, source)
-            if schema_identificator in checked_identificators:
-                continue
-            else:
-                checked_identificators.append(schema_identificator)
-                current_configuration = Ili2DbCommandConfiguration
-                valid, mode = db_utils.get_configuration_from_layersource(
-                    source_provider, source, current_configuration
-                )
-                if valid and mode:
-                     db_connector = db_utils.get_db_connector(self.current_configuration)
-                    self.schema_validations[
-                        self.current_schema_identificator
-                    ].models_model.refresh_model(db_connector)
-"""
+        """
+        - [ ] maybe having check all possibility
+        - [ ] maybe having a refresh button when beside the layertree is changed
+        - [ ] maybe the reload should not be done on initializePage because then on going back and next then it's relaoded and checked are lost.
+        """
+
+    def initializePage(self) -> None:
+        self.toppingmaker_wizard.topping_maker.load_available_models(
+            QgsProject.instance()
+        )
+        return super().initializePage()
+
+    def validatePage(self) -> bool:
+        if not self.toppingmaker_wizard.topping_maker.models_model.checked_entries:
+            self.toppingmaker_wizard.log_panel.print_info(
+                self.tr("At least one model should be selected."),
+                gui_utils.LogColor.COLOR_FAIL,
+            )
+            return False
+        return super().validatePage()
