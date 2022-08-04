@@ -124,6 +124,15 @@ class PageIds:
     ProjectCreation = 12
 
 
+class ToppingMakerPageIds:
+    Target = 1
+    Models = 2
+    Layers = 3
+    ReferenceData = 4
+    Ili2dbSettings = 5
+    Generation = 6
+
+
 # Util functions
 def get_ui_class(ui_file):
     """Get UI Python class from .ui file.
