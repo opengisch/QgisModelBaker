@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 
@@ -108,7 +109,9 @@ class ProjectToppingTest(unittest.TestCase):
 
         target = Target("freddys", maindir, subdir)
 
-        projecttopping_file_path = projecttopping.generate_files(target)
+        projecttopping_file_path = os.path.join(
+            target.main_dir, projecttopping.generate_files(target)
+        )
 
         foundAllofEm = False
         foundLayerOne = False
@@ -237,3 +240,9 @@ class ProjectToppingTest(unittest.TestCase):
         allofemgroup.addLayer(l5)
 
         return project
+
+    def print_info(self, text):
+        logging.info(text)
+
+    def print_error(self, text):
+        logging.error(text)
