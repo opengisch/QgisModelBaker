@@ -22,8 +22,9 @@ import configparser
 import datetime
 import os
 
-from qgis.core import QgsProject
+from qgis.core import QgsDataSourceUri, QgsProject
 
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
     ProjectTopping,
     Target,
@@ -31,6 +32,7 @@ from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
+from QgisModelBaker.utils.gui_utils import SchemaModelsModel
 
 
 class MetaConfig(object):
@@ -81,7 +83,6 @@ class ToppingMaker(object):
     def __init__(self):
         # the information set by the external party (e.g. GUI)
         self.target = Target()
-        self.models = []
         self.referencedata_paths = []
         self.ili2dbsettings = {}
         self.metaattr_filepath = None
@@ -90,10 +91,36 @@ class ToppingMaker(object):
 
         # received by topping maker
         self.metaconfig = MetaConfig()
-        self.projecttopping = ProjectTopping()
+        self.project_topping = ProjectTopping()
+        self.models_model = SchemaModelsModel()
+
+    def load_available_models(self, project: QgsProject):
+        root = project.layerTreeRoot()
+        checked_identificators = []
+        db_connectors = []
+        for layer_node in root.findLayers():
+            source_provider = layer_node.layer().dataProvider()
+            source = QgsDataSourceUri(layer_node.layer().dataProvider().dataSourceUri())
+            schema_identificator = db_utils.get_schema_identificator_from_layersource(
+                source_provider, source
+            )
+            if schema_identificator in checked_identificators:
+                continue
+            else:
+                checked_identificators.append(schema_identificator)
+                current_configuration = Ili2DbCommandConfiguration()
+                valid, mode = db_utils.get_configuration_from_layersource(
+                    source_provider, source, current_configuration
+                )
+                if valid and mode:
+                    current_configuration.tool = mode
+                    db_connector = db_utils.get_db_connector(current_configuration)
+                    db_connectors.append(db_connector)
+        self.models_model.refresh_model(db_connectors)
 
     def create_target(self, projectname, maindir, subdir):
         self.target = Target(projectname, maindir, subdir, [], ilidata_path_resolver)
+        return True
 
     def create_projecttopping(self, project: QgsProject):
         self.projecttopping.parse_project(project)
@@ -112,7 +139,7 @@ class ToppingMaker(object):
 
     def generate(self):
         # generate layer topping files (including projecttopping (tree, order) file)
-        projecttopping_id = self.projecttopping.generate_files(self.target)
+        projecttopping_id = self.project_topping.generate_files(self.target)
 
         # generate referencedata toppingfiles
         referencedata_ids = ",".join(
