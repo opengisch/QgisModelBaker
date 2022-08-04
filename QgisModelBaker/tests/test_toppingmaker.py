@@ -57,7 +57,8 @@ class ToppingMakerTest(unittest.TestCase):
 
         # page 2:
         # let's pretend that we received the models from the parsed schemas of the project and selected RoadsSimple and something else
-        topping_maker.models = ["RoadsSimple", "SomethingElse"]
+        # that's done over the model - all of em are checked per default
+        topping_maker.load_available_models(project)
 
         # page 3:
         # load QGIS project into structure

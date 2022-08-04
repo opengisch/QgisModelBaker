@@ -63,11 +63,11 @@ class ProjectToppingTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = ProjectTopping()
-        projecttopping.parse_project(project)
+        project_topping = ProjectTopping()
+        project_topping.parse_project(project)
 
         checked_groups = []
-        for item in projecttopping.layertree.items:
+        for item in project_topping.layertree.items:
             if item.name == "Big Group":
                 assert len(item.items) == 2
                 checked_groups.append("Big Group")
@@ -86,11 +86,11 @@ class ProjectToppingTest(unittest.TestCase):
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
-        projecttopping = ProjectTopping()
-        projecttopping.parse_project(project)
+        project_topping = ProjectTopping()
+        project_topping.parse_project(project)
 
         checked_groups = []
-        for item in projecttopping.layertree.items:
+        for item in project_topping.layertree.items:
             if item.name == "Big Group":
                 assert len(item.items) == 2
                 checked_groups.append("Big Group")
@@ -110,7 +110,7 @@ class ProjectToppingTest(unittest.TestCase):
         target = Target("freddys", maindir, subdir)
 
         projecttopping_file_path = os.path.join(
-            target.main_dir, projecttopping.generate_files(target)
+            target.main_dir, project_topping.generate_files(target)
         )
 
         foundAllofEm = False
@@ -141,9 +141,9 @@ class ProjectToppingTest(unittest.TestCase):
     def test_custom_path_resolver(self):
 
         # load QGIS project into structure
-        projecttopping = ProjectTopping()
+        project_topping = ProjectTopping()
         project = self._make_project()
-        projecttopping.parse_project(project)
+        project_topping.parse_project(project)
 
         # create target with path resolver
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
@@ -151,7 +151,7 @@ class ProjectToppingTest(unittest.TestCase):
 
         target = Target("freddys", maindir, subdir, [], ilidata_path_resolver)
 
-        projecttopping.generate_files(target)
+        project_topping.generate_files(target)
 
         # there should be exported 10 layerstyle files
         # check the values of two of em
