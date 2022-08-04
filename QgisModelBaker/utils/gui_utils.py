@@ -795,15 +795,16 @@ class CheckEntriesModel(QStringListModel):
 class SchemaModelsModel(CheckEntriesModel):
     """
     Model providing all the models from the database (except the blacklisted ones) and it's checked state used to filter data according to models
+    Multiple db_connectors can be passed to scan multiple sources.
     """
 
     def __init__(self):
         super().__init__()
 
-    def refresh_model(self, db_connector=None):
+    def refresh_model(self, db_connectors=[]):
         modelnames = []
 
-        if db_connector:
+        for db_connector in db_connectors:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
