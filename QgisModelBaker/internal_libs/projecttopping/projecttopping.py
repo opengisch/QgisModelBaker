@@ -348,3 +348,190 @@ class ProjectTopping(object):
         return target.path_resolver(
             target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
         )
+
+
+class AlternativeProjectTopping(object):
+
+    PROJECTTOPPING_TYPE = "projecttopping"
+    LAYERDEFINITION_TYPE = "layerdefinition"
+    LAYERSTYLE_TYPE = "layerstyle"
+
+    class NodeSettings(object):
+        def __init__(self):
+            self.use_source = True
+            self.use_qmlstylefile = True
+            self.use_definitionfile = False
+
+    class LayerTree(object):
+        def __init__(self):
+            self.layersettings = {}
+            self.root = None
+
+        def make_item(self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]):
+            # settings mapping object for every node
+            self.layersettings[node] = AlternativeProjectTopping.NodeSettings()
+
+            if isinstance(node, QgsLayerTreeGroup):
+                for child in node.children():
+                    self.make_item(child)
+
+    def __init__(self):
+        self.layertree = self.LayerTree()
+        self.layerorder = []
+
+    def parse_project(self, project: QgsProject):
+        """
+        Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and the CustomLayerOrder into the layerorder. The project is not keeped as member variable.
+
+        :param QgsProject project: the project to parse.
+        """
+        root = project.layerTreeRoot()
+        if root:
+            self.layertree.root = project.layerTreeRoot()
+            self.layertree.make_item(self.layertree.root)
+            self.layerorder = (
+                root.customLayerOrder() if root.hasCustomLayerOrder() else []
+            )
+        else:
+            print("could not load the project...")
+
+    def generate_files(self, target: Target) -> str:
+        # set the current target here and append project topping specific file directories and create them
+        """
+        Creates a projecttopping file (yaml) and the linked toppigfiles (qml, qlr) into the given main and sub directories.
+
+        :param Target target: the target defining the directories to write the files into.
+        :return: projecttopping file (yaml) path
+        """
+
+        # creating the directories
+        target.file_dirs.extend(
+            [
+                ProjectTopping.PROJECTTOPPING_TYPE,
+                ProjectTopping.LAYERSTYLE_TYPE,
+                ProjectTopping.LAYERDEFINITION_TYPE,
+            ]
+        )
+        target.create_dirs()
+
+        # generate projecttopping as a dict
+        projecttopping_dict = self._projecttopping_dict(target)
+
+        # write the yaml
+        projecttopping_slug = f"{slugify(target.projectname)}.yaml"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
+            ProjectTopping.PROJECTTOPPING_TYPE
+        )
+        with open(
+            os.path.join(absolute_filedir_path, projecttopping_slug), "w"
+        ) as projecttopping_yamlfile:
+            output = yaml.dump(projecttopping_dict, projecttopping_yamlfile)
+            print(output)
+
+        return target.path_resolver(
+            target, projecttopping_slug, ProjectTopping.PROJECTTOPPING_TYPE
+        )
+
+    def load_files(self, target: Target):
+        """
+        Not yet implemented.
+        """
+
+    def generate_project(self, target: Target) -> QgsProject:
+        """
+        Not yet implemented.
+        """
+        return QgsProject()
+
+    def _projecttopping_dict(self, target: Target):
+        """
+        Creates the layertree as a dict.
+        Creates the layerorder as a list.
+        And it generates and stores the toppingfiles.
+        """
+        projecttopping_dict = {}
+        projecttopping_dict["layertree"] = self._item_dict_list(
+            target, self.layertree.root.children()
+        )
+        projecttopping_dict["layerorder"] = [layer.name() for layer in self.layerorder]
+        return projecttopping_dict
+
+    def _item_dict_list(self, target: Target, nodes):
+        item_dict_list = []
+        for node in nodes:
+            item_dict = self._create_item_dict(target, node)
+            item_dict_list.append(item_dict)
+        return item_dict_list
+
+    def _create_item_dict(
+        self, target: Target, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
+    ):
+        item_dict = {}
+        item_properties_dict = {}
+
+        item_properties_dict["checked"] = node.itemVisibilityChecked()
+        item_properties_dict["expanded"] = node.isExpanded()
+
+        if isinstance(node, QgsLayerTreeLayer):
+            item_properties_dict["featurecount"] = node.customProperty(
+                "showFeatureCount"
+            )
+            if self.layertree.layersettings[node].use_qmlstylefile:
+                item_properties_dict["qmlstylefile"] = self._qmlstylefile_link(
+                    target, node
+                )
+            if self.layertree.layersettings[node].use_source:
+                if node.layer().dataProvider():
+                    item_properties_dict["provider"] = (
+                        node.layer().dataProvider().name()
+                    )
+                    item_properties_dict["uri"] = (
+                        node.layer().dataProvider().dataSourceUri()
+                    )
+        elif isinstance(node, QgsLayerTreeGroup):
+            # it's a group
+            item_properties_dict["group"] = True
+            item_properties_dict["mutually-exclusive"] = node.isMutuallyExclusive()
+
+            if self.layertree.layersettings[node].use_definitionfile:
+                item_properties_dict["definitionfile"] = self._definitionfile_link(
+                    target, node
+                )
+            else:
+                child_item_dict_list = self._item_dict_list(target, node.children())
+                item_properties_dict["child-nodes"] = child_item_dict_list
+            # to do mutually exclusive child
+        else:
+            print(
+                f"here with {node.name()} we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
+            )
+
+        item_dict[node.name()] = item_properties_dict
+        return item_dict
+
+    def _definitionfile_link(
+        self, target: Target, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
+    ):
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(node.name())}.qlr"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
+            ProjectTopping.LAYERDEFINITION_TYPE
+        )
+        QgsLayerDefinition.exportLayerDefinition(
+            os.path.join(absolute_filedir_path, nodename_slug), node
+        )
+        return target.path_resolver(
+            target, nodename_slug, ProjectTopping.LAYERDEFINITION_TYPE
+        )
+
+    def _qmlstylefile_link(
+        self, target: Target, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
+    ):
+        nodename_slug = f"{slugify(target.projectname)}_{slugify(node.name())}.qml"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
+            ProjectTopping.LAYERSTYLE_TYPE
+        )
+        # to do categories
+        node.layer().saveNamedStyle(os.path.join(absolute_filedir_path, nodename_slug))
+        return target.path_resolver(
+            target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
+        )
