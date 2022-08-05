@@ -123,7 +123,7 @@ class ToppingMaker(object):
         return True
 
     def create_projecttopping(self, project: QgsProject):
-        self.projecttopping.parse_project(project)
+        self.project_topping.parse_project(project)
 
     def create_ili2dbsettings(
         self,
@@ -143,7 +143,7 @@ class ToppingMaker(object):
 
         # generate referencedata toppingfiles
         referencedata_ids = ",".join(
-            [self.generate_toppingfile(path) for path in self.reference_data_path]
+            [self.generate_toppingfile(path) for path in self.referencedata_paths]
         )
 
         # generate toppingfiles used for ili2db

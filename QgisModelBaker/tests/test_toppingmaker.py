@@ -64,7 +64,7 @@ class ToppingMakerTest(unittest.TestCase):
         # load QGIS project into structure
         topping_maker.create_projecttopping(project)
         # let's pretend that the user made some mutations on the project
-        self._make_mutations_on_projecttopping(topping_maker.projecttopping)
+        self._make_mutations_on_projecttopping(topping_maker.project_topping)
 
         # page 4:
         # let's pretend that the user selected some referencedata via filebrowser and maybe repos

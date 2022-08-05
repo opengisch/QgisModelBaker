@@ -14,14 +14,11 @@ def testdata_path(path):
 
 def ilidata_path_resolver(target: Target, name, type):
     _, relative_filedir_path = target.filedir_path(type)
-
-    # can I access here self (member) variables from the Target?
     id = unique_id_in_target_scope(target, f"{target.projectname}.{type}_{name}_001")
     path = os.path.join(relative_filedir_path, name)
     type = type
     version = datetime.datetime.now().strftime("%Y-%m-%d")
     toppingfile = {"id": id, "path": path, "type": type, "version": version}
-    # can I access here self (member) variables from the Target?
     target.toppingfileinfo_list.append(toppingfile)
     return path
 

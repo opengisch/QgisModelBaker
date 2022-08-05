@@ -19,6 +19,7 @@
 """
 
 import os
+import shutil
 from typing import Union
 
 import yaml
@@ -108,6 +109,13 @@ def default_path_resolver(target: Target, name, type):
     return os.path.join(relative_filedir_path, name)
 
 
+class ExportSettings(object):
+    def __init__(self):
+        self.nodes_using_style = []
+        self.nodes_using_definition = []
+        self.nodes_using_source = []
+
+
 class ProjectTopping(object):
     """
     What needs to go to the project topping yaml file.
@@ -136,46 +144,41 @@ class ProjectTopping(object):
             self.mutually_exclusive = False
             # if the (group) node handles mutually-exclusive, the index of the checked child
             self.mutually_exclusive_child = -1
-
-            # not sure when they should be loaded from the layer
+            # the layers provider to create it from source
             self.provider = None
+            # the layers uri to create it from source
             self.uri = None
+            # the style file - if None then not requested
             self.qmlstylefile = None
+            # the definition file - if None then not requested
             self.definitionfile = None
-
-            self.use_source = True
-            self.use_qmlstylefile = True
-            self.use_definitionfile = False
 
     class LayerTreeItem(object):
         def __init__(self):
             self.items = []
-            self.node = None
             self.name = None
             self.properties = ProjectTopping.TreeItemProperties()
 
-            @property
-            def node(self):
-                if node:
-                    return node
-                else:
-                    print(
-                        f"The layer tree node is not available anymore. This might be because the referenced project is removed meanwhile."
-                    )
-                    return QgsLayerTreeLayer()
-
-        def make_item(self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]):
+        def make_item(
+            self,
+            node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup],
+            settings: ExportSettings,
+        ):
             # properties for every kind of nodes
-            self.node = node
             self.name = node.name()
             self.properties.checked = node.itemVisibilityChecked()
             self.properties.expanded = node.isExpanded()
 
             if isinstance(node, QgsLayerTreeLayer):
                 self.properties.featurecount = node.customProperty("showFeatureCount")
-                if node.layer().dataProvider():
-                    self.properties.provider = node.layer().dataProvider().name()
-                    self.properties.uri = node.layer().dataProvider().dataSourceUri()
+                if node in settings.nodes_using_source:
+                    if node.layer().dataProvider():
+                        self.properties.provider = node.layer().dataProvider().name()
+                        self.properties.uri = (
+                            node.layer().dataProvider().dataSourceUri()
+                        )
+                if node in settings.nodes_using_style:
+                    self.properties.qmlstylefile = self._temporary_qmlstylefile(node)
             elif isinstance(node, QgsLayerTreeGroup):
                 # it's a group
                 self.properties.group = True
@@ -184,9 +187,8 @@ class ProjectTopping(object):
                 index = 0
                 for child in node.children():
                     item = ProjectTopping.LayerTreeItem()
-                    item.make_item(child)
+                    item.make_item(child, settings)
                     # set the first checked item as mutually exclusive child
-
                     if (
                         self.properties.mutually_exclusive
                         and self.properties.mutually_exclusive_child == -1
@@ -199,20 +201,45 @@ class ProjectTopping(object):
                 print(
                     f"here with {node.name()} we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
                 )
+                return
+
+            if node in settings.nodes_using_definition:
+                self.properties.definitionfile = self._temporary_definitionfile(node)
+
+        def _temporary_definitionfile(
+            self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
+        ):
+            nodename_slug = f"temp_definitionfile_{slugify(self.name)}.qlr"
+            temporary_toppingfile_path = os.path.join(
+                os.path.expanduser("~/.temp_topping_files"), nodename_slug
+            )
+            QgsLayerDefinition.exportLayerDefinition(temporary_toppingfile_path, node)
+            return temporary_toppingfile_path
+
+        def _temporary_qmlstylefile(self, node: QgsLayerTreeLayer):
+            nodename_slug = f"temp_qmlstylefile_{slugify(self.name)}.qml"
+            temporary_toppingfile_path = os.path.join(
+                os.path.expanduser("~/.temp_topping_files"), nodename_slug
+            )
+            node.layer().saveNamedStyle(temporary_toppingfile_path)
+            return temporary_toppingfile_path
 
     def __init__(self):
         self.layertree = self.LayerTreeItem()
         self.layerorder = []
 
-    def parse_project(self, project: QgsProject):
+    def parse_project(
+        self, project: QgsProject, settings: ExportSettings = ExportSettings()
+    ):
         """
         Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and the CustomLayerOrder into the layerorder. The project is not keeped as member variable.
 
         :param QgsProject project: the project to parse.
+        :param ExportSettings settings: defining if the node needs a source or style / definitionfiles.
         """
         root = project.layerTreeRoot()
         if root:
-            self.layertree.make_item(project.layerTreeRoot())
+            self.layertree.make_item(project.layerTreeRoot(), settings)
             self.layerorder = (
                 root.customLayerOrder() if root.hasCustomLayerOrder() else []
             )
@@ -301,18 +328,18 @@ class ProjectTopping(object):
         else:
             if item.properties.featurecount:
                 item_properties_dict["featurecount"] = True
-            if item.properties.use_qmlstylefile:
+            if item.properties.qmlstylefile:
                 item_properties_dict["qmlstylefile"] = self._qmlstylefile_link(
                     target, item
                 )
-            if item.properties.use_source:
+            if item.properties.provider and item.properties.uri:
                 item_properties_dict["provider"] = item.properties.provider
                 item_properties_dict["uri"] = item.properties.uri
 
         item_properties_dict["checked"] = item.properties.checked
         item_properties_dict["expanded"] = item.properties.expanded
 
-        if item.properties.use_definitionfile:
+        if item.properties.definitionfile:
             item_properties_dict["definitionfile"] = self._definitionfile_link(
                 target, item
             )
@@ -329,8 +356,9 @@ class ProjectTopping(object):
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERDEFINITION_TYPE
         )
-        QgsLayerDefinition.exportLayerDefinition(
-            os.path.join(absolute_filedir_path, nodename_slug), item.node
+        shutil.copy(
+            item.properties.definitionfile,
+            os.path.join(absolute_filedir_path, nodename_slug),
         )
         return target.path_resolver(
             target, nodename_slug, ProjectTopping.LAYERDEFINITION_TYPE
@@ -341,9 +369,9 @@ class ProjectTopping(object):
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERSTYLE_TYPE
         )
-        # to do categories
-        item.node.layer().saveNamedStyle(
-            os.path.join(absolute_filedir_path, nodename_slug)
+        shutil.copy(
+            item.properties.qmlstylefile,
+            os.path.join(absolute_filedir_path, nodename_slug),
         )
         return target.path_resolver(
             target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
