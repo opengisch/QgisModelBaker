@@ -141,17 +141,14 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.layer_table_view.expandAll()
         self.layer_table_view.clicked.connect(self.layer_table_view.model().check)
 
+        """
+        - [ ] maybe the model should be in topping_maker or the values should go there on validatePage
+        - [ ] could be finetuned a lot
+        - [ ] colors to define what kind of layer it is
+        """
+
     def initializePage(self) -> None:
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        if not self.toppingmaker_wizard.topping_maker.models_model.checked_entries:
-            self.toppingmaker_wizard.log_panel.print_info(
-                self.tr("At least one model should be selected."),
-                gui_utils.LogColor.COLOR_FAIL,
-            )
-            return False
         return super().validatePage()
-
-
-# we need a model and we load here the topingmaker.projecttopping as a pointer and with this it's edited
