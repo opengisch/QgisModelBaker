@@ -26,6 +26,7 @@ from qgis.core import QgsDataSourceUri, QgsProject
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
+    ExportSettings,
     ProjectTopping,
     Target,
 )
@@ -83,6 +84,7 @@ class ToppingMaker(object):
     def __init__(self):
         # the information set by the external party (e.g. GUI)
         self.target = Target()
+        self.exportsettings = ExportSettings()
         self.referencedata_paths = []
         self.ili2dbsettings = {}
         self.metaattr_filepath = None

@@ -22,6 +22,7 @@ from qgis.core import QgsLayerTree, QgsLayerTreeModel, QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
+from QgisModelBaker.internal_libs.projecttopping.projecttopping import ExportSettings
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/layers.ui")
@@ -44,8 +45,9 @@ class LayerModel(QgsLayerTreeModel):
         USE_DEFINITION = 2
         USE_SOURCE = 3
 
-    def __init__(self, layertree: QgsLayerTree):
+    def __init__(self, layertree: QgsLayerTree, export_settings=ExportSettings()):
         super().__init__(layertree)
+        self.export_settings = export_settings
         self.use_style_nodes = {}
         self.use_source_nodes = {}
         self.use_definition_nodes = {}
@@ -81,17 +83,20 @@ class LayerModel(QgsLayerTreeModel):
         if role == Qt.CheckStateRole:
             if self.index2node(index):
                 if index.column() == LayerModel.Columns.USE_STYLE:
-                    return self.use_style_nodes.get(
-                        self.index2node(index), Qt.Unchecked
+                    settings = self.export_settings.get_setting(
+                        ExportSettings.ToppingType.QMLSTYLE, self.index2node(index)
                     )
+                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
-                    return self.use_definition_nodes.get(
-                        self.index2node(index), Qt.Unchecked
+                    settings = self.export_settings.get_setting(
+                        ExportSettings.ToppingType.DEFINITION, self.index2node(index)
                     )
+                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
                 if index.column() == LayerModel.Columns.USE_SOURCE:
-                    return self.use_source_nodes.get(
-                        self.index2node(index), Qt.Unchecked
+                    settings = self.export_settings.get_setting(
+                        ExportSettings.ToppingType.SOURCE, self.index2node(index)
                     )
+                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
         if index.column() == LayerModel.Columns.NAME:
             return QgsLayerTreeModel.data(self, index, role)
 
@@ -99,11 +104,26 @@ class LayerModel(QgsLayerTreeModel):
         if role == Qt.CheckStateRole:
             if self.index2node(index):
                 if index.column() == LayerModel.Columns.USE_STYLE:
-                    self.use_style_nodes[self.index2node(index)] = data
+                    self.export_settings.set_setting_values(
+                        ExportSettings.ToppingType.QMLSTYLE,
+                        self.index2node(index),
+                        None,
+                        bool(data),
+                    )
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
-                    self.use_definition_nodes[self.index2node(index)] = data
+                    self.export_settings.set_setting_values(
+                        ExportSettings.ToppingType.DEFINITION,
+                        self.index2node(index),
+                        None,
+                        bool(data),
+                    )
                 if index.column() == LayerModel.Columns.USE_SOURCE:
-                    self.use_source_nodes[self.index2node(index)] = data
+                    self.export_settings.set_setting_values(
+                        ExportSettings.ToppingType.SOURCE,
+                        self.index2node(index),
+                        None,
+                        bool(data),
+                    )
                 self.dataChanged.emit(
                     self.index(0, 0),
                     self.index(self.rowCount(), self.columnCount(self.parent)),
@@ -134,7 +154,10 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
 
-        self.layermodel = LayerModel(QgsProject.instance().layerTreeRoot())
+        self.layermodel = LayerModel(
+            QgsProject.instance().layerTreeRoot(),
+            self.toppingmaker_wizard.topping_maker.exportsettings,
+        )
         self.layermodel.setFlags(QgsLayerTreeModel.Flags())
         self.layer_table_view.setModel(self.layermodel)
         self.layer_table_view.resizeColumnToContents(LayerModel.Columns.NAME)
@@ -142,7 +165,10 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.layer_table_view.clicked.connect(self.layer_table_view.model().check)
 
         """
+        - [ ] categories!
         - [ ] maybe the model should be in topping_maker or the values should go there on validatePage
+        - [ ] ot the model should be in the topping_maker_wizard...
+        - [ ] default values on raster -> source on vector -> qml etc.
         - [ ] could be finetuned a lot
         - [ ] colors to define what kind of layer it is
         """
