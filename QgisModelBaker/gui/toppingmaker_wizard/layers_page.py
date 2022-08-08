@@ -18,8 +18,16 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsLayerTree, QgsLayerTreeModel, QgsProject
-from qgis.PyQt.QtWidgets import QWizardPage
+from qgis.core import QgsApplication, QgsLayerTree, QgsLayerTreeModel, QgsProject
+from qgis.PyQt.QtWidgets import (
+    QCheckBox,
+    QHBoxLayout,
+    QSizePolicy,
+    QStyledItemDelegate,
+    QToolButton,
+    QWidget,
+    QWizardPage,
+)
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import ExportSettings
@@ -31,6 +39,55 @@ PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/layers.ui")
 from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt
+
+
+class LayerStyleWidget(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+
+        self.checkbox = QCheckBox()
+        self.settings_button = QToolButton()
+        self.settings_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
+        self.settings_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        layout = QHBoxLayout()
+        layout.addWidget(self.checkbox)
+        layout.addWidget(self.settings_button)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(1)
+        self.setLayout(layout)
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+
+class StyleCatDelegate(QStyledItemDelegate):
+    # buttonClicked = pyqtSignal(QtCore.QModelIndex, int)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        self.editor = LayerStyleWidget(parent)
+        self.editor.setAutoFillBackground(True)
+        return self.editor
+
+    def setEditorData(self, editor, index):
+        check_state = index.data(Qt.CheckStateRole)
+        if check_state is not None:
+            self.editor.checkbox.setVisible(True)
+            self.editor.settings_button.setVisible(True)
+            self.editor.checkbox.setCheckState(check_state)
+        else:
+            self.editor.checkbox.setVisible(False)
+            self.editor.settings_button.setVisible(False)
+        # get current categories
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, self.editor.checkbox.checkState, Qt.CheckStateRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        editor.setGeometry(option.rect)
+
+    def paint(self, painter, option, index):
+        self.parent().openPersistentEditor(index)
 
 
 # maybe this model should be in ProjectTopping or at least ToppingMaker
@@ -81,46 +138,63 @@ class LayerModel(QgsLayerTreeModel):
 
     def data(self, index, role):
         if role == Qt.CheckStateRole:
-            if self.index2node(index):
-                if index.column() == LayerModel.Columns.USE_STYLE:
+            node = self.index2node(index)
+            if node:
+                if (
+                    index.column() == LayerModel.Columns.USE_STYLE
+                    and not QgsLayerTree.isGroup(node)
+                ):
                     settings = self.export_settings.get_setting(
-                        ExportSettings.ToppingType.QMLSTYLE, self.index2node(index)
+                        ExportSettings.ToppingType.QMLSTYLE, node
                     )
                     return Qt.Checked if settings.get("export", False) else Qt.Unchecked
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
                     settings = self.export_settings.get_setting(
-                        ExportSettings.ToppingType.DEFINITION, self.index2node(index)
+                        ExportSettings.ToppingType.DEFINITION, node
                     )
                     return Qt.Checked if settings.get("export", False) else Qt.Unchecked
-                if index.column() == LayerModel.Columns.USE_SOURCE:
+                if (
+                    index.column() == LayerModel.Columns.USE_SOURCE
+                    and not QgsLayerTree.isGroup(node)
+                ):
                     settings = self.export_settings.get_setting(
-                        ExportSettings.ToppingType.SOURCE, self.index2node(index)
+                        ExportSettings.ToppingType.SOURCE, node
                     )
                     return Qt.Checked if settings.get("export", False) else Qt.Unchecked
+
         if index.column() == LayerModel.Columns.NAME:
             return QgsLayerTreeModel.data(self, index, role)
 
+        return None
+
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
-            if self.index2node(index):
-                if index.column() == LayerModel.Columns.USE_STYLE:
+            node = self.index2node(index)
+            if node:
+                if (
+                    index.column() == LayerModel.Columns.USE_STYLE
+                    and not QgsLayerTree.isGroup(node)
+                ):
                     self.export_settings.set_setting_values(
                         ExportSettings.ToppingType.QMLSTYLE,
-                        self.index2node(index),
+                        node,
                         None,
                         bool(data),
                     )
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
                     self.export_settings.set_setting_values(
                         ExportSettings.ToppingType.DEFINITION,
-                        self.index2node(index),
+                        node,
                         None,
                         bool(data),
                     )
-                if index.column() == LayerModel.Columns.USE_SOURCE:
+                if (
+                    index.column() == LayerModel.Columns.USE_SOURCE
+                    and not QgsLayerTree.isGroup(node)
+                ):
                     self.export_settings.set_setting_values(
                         ExportSettings.ToppingType.SOURCE,
-                        self.index2node(index),
+                        node,
                         None,
                         bool(data),
                     )
@@ -163,6 +237,11 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.layer_table_view.resizeColumnToContents(LayerModel.Columns.NAME)
         self.layer_table_view.expandAll()
         self.layer_table_view.clicked.connect(self.layer_table_view.model().check)
+
+        self.stylecat_delegate_button = StyleCatDelegate(self.layer_table_view)
+        self.layer_table_view.setItemDelegateForColumn(
+            LayerModel.Columns.USE_STYLE, self.stylecat_delegate_button
+        )
 
         """
         - [ ] categories!
