@@ -28,6 +28,7 @@ from qgis.core import (
     QgsLayerDefinition,
     QgsLayerTreeGroup,
     QgsLayerTreeLayer,
+    QgsMapLayer,
     QgsProject,
 )
 
@@ -219,11 +220,12 @@ class ExportSettings(object):
             return self.source_setting_nodes
 
     def _get_setting(self, setting_nodes, node=None, name=None) -> dict():
+        setting = {}
         if node:
-            return setting_nodes.get(node, {})
-        if name:
-            return setting_nodes.get(name, {})
-        return {}
+            setting = setting_nodes.get(node, {})
+        if not setting:
+            setting = setting_nodes.get(name, {})
+        return setting
 
     def _set_setting(self, setting_nodes, setting, node=None, name=None) -> bool:
         if node:
@@ -282,7 +284,7 @@ class ProjectTopping(object):
         def make_item(
             self,
             node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup],
-            settings: ExportSettings,
+            export_settings: ExportSettings,
         ):
             # properties for every kind of nodes
             self.name = node.name()
@@ -291,14 +293,25 @@ class ProjectTopping(object):
 
             if isinstance(node, QgsLayerTreeLayer):
                 self.properties.featurecount = node.customProperty("showFeatureCount")
-                if node in settings.nodes_using_source:
+                source_setting = export_settings.get_setting(
+                    ExportSettings.ToppingType.SOURCE, node, node.name()
+                )
+                if source_setting.get("export", False):
                     if node.layer().dataProvider():
                         self.properties.provider = node.layer().dataProvider().name()
                         self.properties.uri = (
                             node.layer().dataProvider().dataSourceUri()
                         )
-                if node in settings.nodes_using_style:
-                    self.properties.qmlstylefile = self._temporary_qmlstylefile(node)
+                qml_setting = export_settings.get_setting(
+                    ExportSettings.ToppingType.QMLSTYLE, node, node.name()
+                )
+                if qml_setting.get("export", False):
+                    self.properties.qmlstylefile = self._temporary_qmlstylefile(
+                        node,
+                        qml_setting.get(
+                            "categories", QgsMapLayer.StyleCategory.AllStyleCategories
+                        ),
+                    )
             elif isinstance(node, QgsLayerTreeGroup):
                 # it's a group
                 self.properties.group = True
@@ -307,7 +320,7 @@ class ProjectTopping(object):
                 index = 0
                 for child in node.children():
                     item = ProjectTopping.LayerTreeItem()
-                    item.make_item(child, settings)
+                    item.make_item(child, export_settings)
                     # set the first checked item as mutually exclusive child
                     if (
                         self.properties.mutually_exclusive
@@ -323,7 +336,10 @@ class ProjectTopping(object):
                 )
                 return
 
-            if node in settings.nodes_using_definition:
+            definition_setting = export_settings.get_setting(
+                ExportSettings.ToppingType.DEFINITION, node, node.name()
+            )
+            if definition_setting.get("export", False):
                 self.properties.definitionfile = self._temporary_definitionfile(node)
 
         def _temporary_definitionfile(
@@ -334,16 +350,20 @@ class ProjectTopping(object):
             temporary_toppingfile_path = os.path.join(
                 self.temporary_toppingfile_dir, nodename_slug
             )
-            QgsLayerDefinition.exportLayerDefinition(temporary_toppingfile_path, node)
+            QgsLayerDefinition.exportLayerDefinition(temporary_toppingfile_path, [node])
             return temporary_toppingfile_path
 
-        def _temporary_qmlstylefile(self, node: QgsLayerTreeLayer):
+        def _temporary_qmlstylefile(
+            self,
+            node: QgsLayerTreeLayer,
+            categories: QgsMapLayer.StyleCategories = QgsMapLayer.StyleCategory.AllStyleCategories,
+        ):
             nodename_slug = f"temp_qmlstylefile_{slugify(self.name)}.qml"
             os.makedirs(self.temporary_toppingfile_dir, exist_ok=True)
             temporary_toppingfile_path = os.path.join(
                 self.temporary_toppingfile_dir, nodename_slug
             )
-            node.layer().saveNamedStyle(temporary_toppingfile_path)
+            node.layer().saveNamedStyle(temporary_toppingfile_path, categories)
             return temporary_toppingfile_path
 
     def __init__(self):
@@ -351,7 +371,7 @@ class ProjectTopping(object):
         self.layerorder = []
 
     def parse_project(
-        self, project: QgsProject, settings: ExportSettings = ExportSettings()
+        self, project: QgsProject, export_settings: ExportSettings = ExportSettings()
     ):
         """
         Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and the CustomLayerOrder into the layerorder. The project is not keeped as member variable.
@@ -361,7 +381,7 @@ class ProjectTopping(object):
         """
         root = project.layerTreeRoot()
         if root:
-            self.layertree.make_item(project.layerTreeRoot(), settings)
+            self.layertree.make_item(project.layerTreeRoot(), export_settings)
             self.layerorder = (
                 root.customLayerOrder() if root.hasCustomLayerOrder() else []
             )

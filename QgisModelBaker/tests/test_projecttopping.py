@@ -7,6 +7,7 @@ from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
+    ExportSettings,
     ProjectTopping,
     Target,
 )
@@ -59,7 +60,7 @@ class ProjectToppingTest(unittest.TestCase):
                 - "Layer Four":
                 - "Layer Five":
         """
-        project = self._make_project()
+        project, _ = self._make_project_and_export_settings()
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
@@ -81,13 +82,13 @@ class ProjectToppingTest(unittest.TestCase):
                                 checked_groups.append("Small Group")
         assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
 
-    def test_generate_projecttopping_file(self):
-        project = self._make_project()
+    def test_generate_files(self):
+        project, export_settings = self._make_project_and_export_settings()
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
 
         project_topping = ProjectTopping()
-        project_topping.parse_project(project)
+        project_topping.parse_project(project, export_settings)
 
         checked_groups = []
         for item in project_topping.layertree.items:
@@ -113,6 +114,7 @@ class ProjectToppingTest(unittest.TestCase):
             target.main_dir, project_topping.generate_files(target)
         )
 
+        # check projecttopping_file
         foundAllofEm = False
         foundLayerOne = False
         foundLayerTwo = False
@@ -138,12 +140,62 @@ class ProjectToppingTest(unittest.TestCase):
         assert foundLayerOne
         assert foundLayerTwo
 
-    def test_custom_path_resolver(self):
+        # check toppingfiles
 
+        # there should be exported 6 files (see _make_project_and_export_settings)
+        # stylefiles:
+        # "Layer One"
+        # "Layer Three"
+        # "Layer Five"
+        #
+        # definitionfiles:
+        # "Layer Three"
+        # "Layer Four"
+        # "Layer Five"
+
+        countchecked = 0
+        for toppingfileinfo in target.toppingfileinfo_list:
+            assert "path" in toppingfileinfo
+            assert "type" in toppingfileinfo
+
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_one.qml"
+            ):
+                countchecked += 1
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_three.qml"
+            ):
+                countchecked += 1
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/layerstyle/layerdefinition/freddys_layer_five.qml"
+            ):
+                countchecked += 1
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_three.qlr"
+            ):
+                countchecked += 1
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_four.qlr"
+            ):
+                countchecked += 1
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_five.qlr"
+            ):
+                countchecked += 1
+
+        assert countchecked == 6
+
+    def test_custom_path_resolver(self):
         # load QGIS project into structure
         project_topping = ProjectTopping()
-        project = self._make_project()
-        project_topping.parse_project(project)
+        project, export_settings = self._make_project_and_export_settings()
+        project_topping.parse_project(project, export_settings)
 
         # create target with path resolver
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
@@ -153,8 +205,17 @@ class ProjectToppingTest(unittest.TestCase):
 
         project_topping.generate_files(target)
 
-        # there should be exported 10 layerstyle files
-        # check the values of two of em
+        # there should be exported 6 files (see _make_project_and_export_settings)
+        # stylefiles:
+        # "Layer One"
+        # "Layer Three"
+        # "Layer Five"
+        #
+        # definitionfiles:
+        # "Layer Three"
+        # "Layer Four"
+        # "Layer Five"
+
         countchecked = 0
         for toppingfileinfo in target.toppingfileinfo_list:
             assert "id" in toppingfileinfo
@@ -164,34 +225,32 @@ class ProjectToppingTest(unittest.TestCase):
 
             if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_one.qml_001":
                 countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_two.qml_001":
-                countchecked += 1
             if (
                 toppingfileinfo["id"]
                 == "freddys.layerstyle_freddys_layer_three.qml_001"
             ):
                 countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_four.qml_001":
-                countchecked += 1
             if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_five.qml_001":
-                countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_one.qml_002":
-                countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_two.qml_002":
                 countchecked += 1
             if (
                 toppingfileinfo["id"]
-                == "freddys.layerstyle_freddys_layer_three.qml_002"
+                == "freddys.layerdefinition_freddys_layer_three.qlr_001"
             ):
                 countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_four.qml_002":
+            if (
+                toppingfileinfo["id"]
+                == "freddys.layerdefinition_freddys_layer_four.qlr_001"
+            ):
                 countchecked += 1
-            if toppingfileinfo["id"] == "freddys.layerstyle_freddys_layer_five.qml_002":
+            if (
+                toppingfileinfo["id"]
+                == "freddys.layerdefinition_freddys_layer_five.qlr_001"
+            ):
                 countchecked += 1
 
-        assert countchecked == 10
+        assert countchecked == 6
 
-    def _make_project(self):
+    def _make_project_and_export_settings(self):
         project = QgsProject()
         project.removeAllMapLayers()
 
@@ -239,7 +298,41 @@ class ProjectToppingTest(unittest.TestCase):
         allofemgroup.addLayer(l4)
         allofemgroup.addLayer(l5)
 
-        return project
+        export_settings = ExportSettings()
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer One", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer Three", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer Five", True
+        )
+
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Three", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Four", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Five", True
+        )
+
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Layer One", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Layer Two", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Layer Three", True
+        )
+
+        print(export_settings.qmlstyle_setting_nodes)
+        print(export_settings.definition_setting_nodes)
+        print(export_settings.source_setting_nodes)
+        return project, export_settings
 
     def print_info(self, text):
         logging.info(text)
