@@ -68,8 +68,9 @@ class ToppingMakerTest(unittest.TestCase):
 
         # page 4:
         # let's pretend that the user selected some referencedata via filebrowser and maybe repos
+        codetexte_xtf = testdata_path("xtf/KbS_Codetexte_V1_5_20211015.xtf")
         topping_maker.referencedata_paths = [
-            testdata_path("xtf/KbS_Codetexte_V1_5_20211015.xtf"),
+            codetexte_xtf,
             "ilidata:data_from_another_repo",
         ]
 

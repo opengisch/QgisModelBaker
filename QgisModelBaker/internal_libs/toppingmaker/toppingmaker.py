@@ -175,7 +175,7 @@ class ToppingMaker(object):
         # copy file from path to our target, and return the ilidata_pathresolved id
         return id
 
-    def generate_ilidataxml(self):
+    def generate_ilidataxml(self, target: Target):
         return True
 
 

@@ -158,6 +158,7 @@ class ProjectTopping(object):
             self.items = []
             self.name = None
             self.properties = ProjectTopping.TreeItemProperties()
+            self.temporary_toppingfile_dir = os.path.expanduser("~/.temp_topping_files")
 
         def make_item(
             self,
@@ -210,16 +211,18 @@ class ProjectTopping(object):
             self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
         ):
             nodename_slug = f"temp_definitionfile_{slugify(self.name)}.qlr"
+            os.makedirs(self.temporary_toppingfile_dir, exist_ok=True)
             temporary_toppingfile_path = os.path.join(
-                os.path.expanduser("~/.temp_topping_files"), nodename_slug
+                self.temporary_toppingfile_dir, nodename_slug
             )
             QgsLayerDefinition.exportLayerDefinition(temporary_toppingfile_path, node)
             return temporary_toppingfile_path
 
         def _temporary_qmlstylefile(self, node: QgsLayerTreeLayer):
             nodename_slug = f"temp_qmlstylefile_{slugify(self.name)}.qml"
+            os.makedirs(self.temporary_toppingfile_dir, exist_ok=True)
             temporary_toppingfile_path = os.path.join(
-                os.path.expanduser("~/.temp_topping_files"), nodename_slug
+                self.temporary_toppingfile_dir, nodename_slug
             )
             node.layer().saveNamedStyle(temporary_toppingfile_path)
             return temporary_toppingfile_path

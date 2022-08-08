@@ -81,7 +81,7 @@ class ProjectToppingTest(unittest.TestCase):
                                 checked_groups.append("Small Group")
         assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
 
-    def test_generate_files(self):
+    def test_generate_projecttopping_file(self):
         project = self._make_project()
         layers = project.layerTreeRoot().findLayers()
         self.assertEqual(len(layers), 10)
