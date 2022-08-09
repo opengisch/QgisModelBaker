@@ -18,7 +18,13 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsApplication, QgsLayerTree, QgsLayerTreeModel, QgsProject
+from qgis.core import (
+    QgsApplication,
+    QgsLayerTree,
+    QgsLayerTreeModel,
+    QgsMapLayer,
+    QgsProject,
+)
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QHBoxLayout,
@@ -30,6 +36,9 @@ from qgis.PyQt.QtWidgets import (
 )
 
 import QgisModelBaker.utils.gui_utils as gui_utils
+from QgisModelBaker.gui.toppingmaker_wizard.layer_style_categories import (
+    LayerStyleCategoriesDialog,
+)
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import ExportSettings
 from QgisModelBaker.utils import gui_utils
 
@@ -78,7 +87,16 @@ class StyleCatDelegate(QStyledItemDelegate):
         else:
             self.editor.checkbox.setVisible(False)
             self.editor.settings_button.setVisible(False)
-        # get current categories
+
+        # pass testwise all cats instead of categories = index.data(StyleCats)
+        self.editor.settings_button.clicked.connect(
+            lambda index: self.open_categories(index)
+        )
+
+    def open_categories(self, index):
+        categories = QgsMapLayer.StyleCategory.AllStyleCategories
+        categories_dialog = LayerStyleCategoriesDialog(categories)
+        categories_dialog.exec_()
 
     def setModelData(self, editor, model, index):
         model.setData(index, self.editor.checkbox.checkState, Qt.CheckStateRole)
@@ -248,7 +266,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         - [ ] maybe the model should be in topping_maker or the values should go there on validatePage
         - [ ] ot the model should be in the topping_maker_wizard...
         - [ ] default values on raster -> source on vector -> qml etc.
-        - [ ] could be finetuned a lot
+        - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
         - [ ] colors to define what kind of layer it is
         """
 
