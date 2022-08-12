@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
@@ -39,7 +40,9 @@ class GenerationPage(QWizardPage, PAGE_UI):
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
-        ilidata_file = self.toppingmaker_wizard.topping_maker.bakedycakedy()
+        ilidata_file = self.toppingmaker_wizard.topping_maker.bakedycakedy(
+            QgsProject.instance()
+        )
         if ilidata_file:
             self.progress_bar.setValue(100)
             self.progress_bar.setFormat(self.tr("Topping generated 🧁"))

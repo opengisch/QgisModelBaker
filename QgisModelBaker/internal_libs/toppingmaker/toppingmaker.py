@@ -23,6 +23,7 @@ import datetime
 import mimetypes
 import os
 import uuid
+import xml.dom.minidom as minidom
 import xml.etree.cElementTree as ET
 
 from qgis.core import QgsDataSourceUri, QgsProject
@@ -157,9 +158,13 @@ class IliData(object):
             dataset.make_xml_element(dataset_metadata_element)
 
         tree = ET.ElementTree(transfer)
+        xmlstr = minidom.parseString(ET.tostring(tree.getroot())).toprettyxml(
+            indent="   "
+        )
         ilidata_path = os.path.join(target.main_dir, "ilidata.xml")
-        tree.write(ilidata_path, encoding="utf-8")
-        print(f"Created {ilidata_path}")
+        with open(ilidata_path, "w") as f:
+            f.write(xmlstr)
+            return ilidata_path
 
 
 class MetaConfig(object):
@@ -364,7 +369,7 @@ class ToppingMaker(object):
         self.metaconfig.generate_file(self.target)
 
         # generate ilidata
-        self.generate_ilidataxml(self.target)
+        return self.generate_ilidataxml(self.target)
 
     """
     Providing info
@@ -409,7 +414,9 @@ def ilidata_path_resolver(target: Target, name, type):
 
     # - [ ] toppingfileinfo_list wird irgendwie doppelt am ende (jeder eintrag des toppings 2 mal)
     # can I access here self (member) variables from the Target?
-    id = unique_id_in_target_scope(target, f"{target.projectname}.{type}_{name}_001")
+    id = unique_id_in_target_scope(
+        target, slugify(f"{target.projectname}.{type}_{name}_001")
+    )
     path = os.path.join(relative_filedir_path, name)
     type = type
     version = datetime.datetime.now().strftime("%Y-%m-%d")

@@ -40,7 +40,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
 
         self.projectname_line_edit.setPlaceholderText(
-            slugify(QgsProject.instance().title()) or "dummy_project"
+            slugify(QgsProject.instance().title()) or "Topping Project"
         )
         self.main_folder_browse_button.clicked.connect(
             make_folder_selector(
@@ -72,7 +72,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         projectname = (
             self.projectname_line_edit.text()
             or slugify(QgsProject.instance().title())
-            or "dummy_project"
+            or "Topping Project"
         )
         mainfolder = self.main_folder_line_edit.text()
         subfolder = self.sub_folder_line_edit.text()
