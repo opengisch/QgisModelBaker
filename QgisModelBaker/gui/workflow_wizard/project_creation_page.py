@@ -47,6 +47,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setFinalPage(True)
         self.setTitle(title)
+        self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
         self.db_simple_factory = DbSimpleFactory()
         self.configuration = None

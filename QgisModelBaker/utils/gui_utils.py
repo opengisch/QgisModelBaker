@@ -94,6 +94,41 @@ TRANSFERFILE_MODELS_BLACKLIST = [
     "Units",
 ]
 
+# style
+VALID_COLOR = "#adde9b"
+
+VALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #adde9b; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+INVALID_COLOR = "#de9b9b"
+
+INVALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #de9b9b; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+DEFAULT_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #9bcade; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
 
 class LogColor:
     COLOR_INFO = "#000000"

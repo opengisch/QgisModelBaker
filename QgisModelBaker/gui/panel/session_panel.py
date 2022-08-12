@@ -61,6 +61,7 @@ class SessionPanel(QWidget, WIDGET_UI):
     ):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.db_simple_factory = DbSimpleFactory()
 
         self.file = file
