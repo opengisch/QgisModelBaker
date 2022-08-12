@@ -60,10 +60,12 @@ class ToppingMakerTest(unittest.TestCase):
         # that's done over the model - all of em are checked per default
         topping_maker.load_available_models(project)
 
+        # make exportSettings
+
         # page 3:
         # load QGIS project into structure
         topping_maker.create_projecttopping(project)
-        # let's pretend that the user made some mutations on the project
+        # let's pretend that the user made some mutations on the project - this is not a real
         self._make_mutations_on_projecttopping(topping_maker.project_topping)
 
         # page 4:
@@ -80,19 +82,18 @@ class ToppingMakerTest(unittest.TestCase):
 
         configuration = Ili2DbCommandConfiguration()
         configuration.dbfile = dbfile
-        metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
-        prescript_filepath = ""
-        postscript_filepath = "ilidata:postscript_from_another_repo"
-        topping_maker.create_ili2dbsettings(
-            configuration, metaattr_filepath, prescript_filepath, postscript_filepath
-        )
+        topping_maker.create_ili2dbsettings(configuration)
+
+        topping_maker.metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
+        topping_maker.prescript_filepath = ""
+        topping_maker.postscript_filepath = "ilidata:postscript_from_another_repo"
 
         # page 6:
         # generate everything
         # - toppingfiles and projecttopping
         # - metaconfig file
         # - ilidata.xml
-        topping_maker.generate()
+        topping_maker.bakedycakedy()
 
     def _make_mutations_on_projecttopping(self, projecttopping: ProjectTopping):
         for item in projecttopping.layertree.items:

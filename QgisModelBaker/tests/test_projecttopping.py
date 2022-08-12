@@ -25,10 +25,10 @@ class ProjectToppingTest(unittest.TestCase):
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
         filedirs = ["projecttopping", "layerstyle", "layerdefinition", "andanotherone"]
-        target = Target("freddys", maindir, subdir, filedirs)
-        target.create_dirs()
+        target = Target("freddys", maindir, subdir)
         count = 0
         for filedir in filedirs:
+            # filedir_path should create the dir
             path, _ = target.filedir_path(filedir)
             assert os.path.isdir(path)
             count += 1
@@ -170,7 +170,7 @@ class ProjectToppingTest(unittest.TestCase):
                 countchecked += 1
             if (
                 toppingfileinfo["path"]
-                == "freddys_projects/layerstyle/layerdefinition/freddys_layer_five.qml"
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_five.qml"
             ):
                 countchecked += 1
             if (
@@ -201,7 +201,7 @@ class ProjectToppingTest(unittest.TestCase):
         maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
 
-        target = Target("freddys", maindir, subdir, [], ilidata_path_resolver)
+        target = Target("freddys", maindir, subdir, ilidata_path_resolver)
 
         project_topping.generate_files(target)
 
