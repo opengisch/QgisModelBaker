@@ -272,7 +272,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.layermodel = LayerModel(
             QgsProject.instance().layerTreeRoot(),
-            self.toppingmaker_wizard.topping_maker.exportsettings,
+            self.toppingmaker_wizard.topping_maker.export_settings,
         )
         self.layermodel.setFlags(QgsLayerTreeModel.Flags())
         self.layer_table_view.setModel(self.layermodel)

@@ -158,7 +158,6 @@ class IliData(object):
 
         tree = ET.ElementTree(transfer)
         ilidata_path = os.path.join(target.main_dir, "ilidata.xml")
-        ET.indent(tree, space="\t", level=0)
         tree.write(ilidata_path, encoding="utf-8")
         print(f"Created {ilidata_path}")
 
@@ -244,12 +243,12 @@ class ToppingMaker(object):
         projectname: str = None,
         maindir: str = None,
         subdir: str = None,
-        exportsettings: ExportSettings = ExportSettings(),
+        export_settings: ExportSettings = ExportSettings(),
         referencedata_paths: list = [],
     ):
         # ProjectTopping objects for the basic topping creation
         self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
-        self.exportsettings = exportsettings
+        self.export_settings = export_settings
         self.project_topping = ProjectTopping()
 
         # ToppingMaker objects used for the ili specific topping creation / maybe the path can be moved to MetaConfig
@@ -261,6 +260,10 @@ class ToppingMaker(object):
 
         # - [ ] should the model be in the toppingmaker or should it preferly only act as library used without gui
         self.models_model = SchemaModelsModel()
+
+    @property
+    def models(self):
+        return self.models_model.checked_entries()
 
     def create_target(self, projectname, maindir, subdir):
         """
@@ -274,7 +277,7 @@ class ToppingMaker(object):
         """
         Creates and sets the project_topping considering the passed QgsProject and the existing ExportSettings set in the constructor or directly.
         """
-        return self.project_topping.parse_project(project, self.exportsettings)
+        return self.project_topping.parse_project(project, self.export_settings)
 
     def create_ili2dbsettings(
         self, configuration: Ili2DbCommandConfiguration = Ili2DbCommandConfiguration()
@@ -299,7 +302,9 @@ class ToppingMaker(object):
         return self.project_topping.toppingfile_link(target, type, path)
 
     def generate_ilidataxml(self, target: Target):
-        return True
+        # generate ilidata.xml
+        ilidata = IliData()
+        return ilidata.generate_file(target, self.models)
 
     def bakedycakedy(self, project: QgsProject = None, configuration=None):
         # - [ ] Provide possiblity to pass here all the data
@@ -324,17 +329,6 @@ class ToppingMaker(object):
         )
 
         # - [ ] maybe the whole metaconfig part can go to metaconfig. So there is no big logic in this function. But let's see.
-        # generate toppingfiles used for ili2db
-        metaattr_id = self.generate_toppingfile_link(
-            self.target, ToppingMaker.METAATTR_TYPE, self.metaattr_filepath
-        )
-        prescript_id = self.generate_toppingfile_link(
-            self.target, ToppingMaker.SQLSCRIPT_TYPE, self.prescript_filepath
-        )
-        postscript_id = self.generate_toppingfile_link(
-            self.target, ToppingMaker.SQLSCRIPT_TYPE, self.postscript_filepath
-        )
-
         # update MetaConfig with toppingfile ids
         self.metaconfig.update_configuration_settings(
             "qgis.modelbaker.projecttopping", projecttopping_id
@@ -342,15 +336,35 @@ class ToppingMaker(object):
         self.metaconfig.update_configuration_settings(
             "ch.interlis.referenceData", referencedata_ids
         )
-        self.metaconfig.update_ili2db_settings("iliMetaAttrs", metaattr_id)
-        self.metaconfig.update_ili2db_settings("preScript", prescript_id)
-        self.metaconfig.update_ili2db_settings("postScript", postscript_id)
+
+        # generate toppingfiles used for ili2db
+        if self.metaattr_filepath:
+            self.metaconfig.update_ili2db_settings(
+                "iliMetaAttrs",
+                self.generate_toppingfile_link(
+                    self.target, ToppingMaker.METAATTR_TYPE, self.metaattr_filepath
+                ),
+            )
+        if self.prescript_filepath:
+            self.metaconfig.update_ili2db_settings(
+                "preScript",
+                self.generate_toppingfile_link(
+                    self.target, ToppingMaker.SQLSCRIPT_TYPE, self.prescript_filepath
+                ),
+            )
+        if self.postscript_filepath:
+            self.metaconfig.update_ili2db_settings(
+                "postScript",
+                self.generate_toppingfile_link(
+                    self.target, ToppingMaker.SQLSCRIPT_TYPE, self.postscript_filepath
+                ),
+            )
 
         # generate metaconfig (topping) file
         self.metaconfig.generate_file(self.target)
 
-        # generate ilidata.xml
-        IliData.generate_file(self.target)
+        # generate ilidata
+        self.generate_ilidataxml(self.target)
 
     """
     Providing info

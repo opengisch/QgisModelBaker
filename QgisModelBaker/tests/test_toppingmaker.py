@@ -7,7 +7,7 @@ from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
 from QgisModelBaker.internal_libs.toppingmaker.toppingmaker import (
-    ProjectTopping,
+    ExportSettings,
     ToppingMaker,
 )
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
@@ -30,45 +30,69 @@ class ToppingMakerTest(unittest.TestCase):
         cls.basetestpath = tempfile.mkdtemp()
         cls.toppingmaker_test_path = os.path.join(cls.basetestpath, "toppingmaker")
 
+        # create a project of KbS_V1_5 with some additional layers
+        (
+            cls.project,
+            cls.dbfile,
+            cls.export_settings,
+        ) = cls.make_project_and_export_settings(cls)
+
     def test_workflow_with_library(self):
-        """
-        To remove:
-            set folders (Target)
-            set [models] ➝ set models
-            load project into projecttopping
-            provide projecttopping (settings over model)
-            edit projecttopping (settings over model)
-            append [referencefiles] and [paths (with ilidata) and contextinfo] (list somewhere)
-            load ili2db settings from db (MetaConfig settings somewhere)
-            write [projecttoppingfile] and [toppingfiles] and [paths (with ilidata) and contextinfo]
-            create ilidata.xml (from pathmapping)
-        """
-        # create a project of RoadsSimple with some additional layers
-        project, dbfile = self._make_project()
+        # create topping maker and with it topping_maker.export_settings
+        topping_maker = ToppingMaker(export_settings=self.export_settings)
 
-        # start
-        topping_maker = ToppingMaker()
-
-        # page 1:
-        # create target
+        # define folders and make target
         maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
         topping_maker.create_target("freddys", maindir, subdir)
 
-        # page 2:
-        # let's pretend that we received the models from the parsed schemas of the project and selected RoadsSimple and something else
-        # that's done over the model - all of em are checked per default
-        topping_maker.load_available_models(project)
+        # Check if models are loaded.
+        # let's pretend that we received the models from the parsed schemas of the project and selected Kbs_V1_5
+        topping_maker.load_available_models(self.project)
+        assert topping_maker.models == ["KbS_V1_5"]
 
-        # make exportSettings
-
-        # page 3:
+        # Check if the export_settings are applied properly when created the projecttopping
         # load QGIS project into structure
-        topping_maker.create_projecttopping(project)
-        # let's pretend that the user made some mutations on the project - this is not a real
-        self._make_mutations_on_projecttopping(topping_maker.project_topping)
+        countchecked = 0
+        topping_maker.create_projecttopping(self.project)
+        for item in topping_maker.project_topping.layertree.items:
+            if item.name == "Layer One":
+                assert item.properties.qmlstylefile
+                assert not item.properties.definitionfile
+                assert not (item.properties.provider or item.properties.uri)
+                countchecked += 1
+            if item.name == "Layer Two":
+                assert not item.properties.qmlstylefile
+                assert not item.properties.definitionfile
+                assert item.properties.provider and item.properties.uri
+                countchecked += 1
+            if item.name == "Layer Three":
+                assert item.properties.qmlstylefile
+                assert item.properties.definitionfile
+                assert item.properties.provider and item.properties.uri
+                countchecked += 1
+            if item.name == "Layer Four":
+                assert not item.properties.qmlstylefile
+                assert item.properties.definitionfile
+                assert not (item.properties.provider or item.properties.uri)
+                countchecked += 1
+            if item.name == "Layer Five":
+                assert not item.properties.qmlstylefile
+                assert item.properties.definitionfile
+                assert not (item.properties.provider or item.properties.uri)
+                countchecked += 1
+            if item.name == "Belasteter_Standort (Geo_Lage_Punkt)":
+                assert item.properties.qmlstylefile
+                assert not item.properties.definitionfile
+                assert not (item.properties.provider or item.properties.uri)
+                countchecked += 1
+            if item.name == "Belasteter_Standort":
+                assert not item.properties.qmlstylefile
+                assert not item.properties.definitionfile
+                assert item.properties.provider and item.propertiestem.uri
+                countchecked += 1
+        assert countchecked == 7
 
-        # page 4:
         # let's pretend that the user selected some referencedata via filebrowser and maybe repos
         codetexte_xtf = testdata_path("xtf/KbS_Codetexte_V1_5_20211015.xtf")
         topping_maker.referencedata_paths = [
@@ -76,36 +100,110 @@ class ToppingMakerTest(unittest.TestCase):
             "ilidata:data_from_another_repo",
         ]
 
-        # page 5:
         # let's pretend that we received the parsed schemas of the project and selected one specific. So we got the configuration.
         # we append a metaattr file (toml), and a postscript we select from a repo
-
         configuration = Ili2DbCommandConfiguration()
-        configuration.dbfile = dbfile
-        topping_maker.create_ili2dbsettings(configuration)
+        configuration.dbfile = self.dbfile
 
         topping_maker.metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
         topping_maker.prescript_filepath = ""
         topping_maker.postscript_filepath = "ilidata:postscript_from_another_repo"
+        topping_maker.create_ili2dbsettings(configuration)
 
-        # page 6:
-        # generate everything
-        # - toppingfiles and projecttopping
-        # - metaconfig file
-        # - ilidata.xml
-        topping_maker.bakedycakedy()
+        # Check if the settings are loaded from the database
+        assert topping_maker.metaconig.ili2dbsection["defaultSrsCode"] == 2056
+        assert topping_maker.metaconig.ili2dbsection["smart2Inheritance"] == True
+        assert topping_maker.metaconig.ili2dbsection["strokeArcs"] == False
+        assert topping_maker.metaconig.ili2dbsection["importTid"] == True
+        assert topping_maker.metaconig.ili2dbsection["createBasketCol"] == True
 
-    def _make_mutations_on_projecttopping(self, projecttopping: ProjectTopping):
-        for item in projecttopping.layertree.items:
-            if item.name == "Belasteter_Standort (Geo_Lage_Punkt)":
-                item.properties.checked = False
-                item.properties.use_source = False
-            if item.name == "Belasteter_Standort":
-                item.properties.use_definitionfile = True
-            if item.name == "tables":
-                item.properties.expanded = False
+        # ... and finally create the cake
+        # generate toppingfiles of ProjectTopping
+        projecttopping_id = topping_maker.generate_projecttoppingfiles()
 
-    def _make_project(self):
+        # generate toppingfiles of the reference data
+        referencedata_ids = ",".join(
+            [
+                self.generate_toppingfile_link(
+                    self.topping_maker, ToppingMaker.REFERENCEDATA_TYPE, path
+                )
+                for path in topping_maker.referencedata_paths
+            ]
+        )
+        assert referencedata_ids == []
+
+        # update MetaConfig with toppingfile ids
+        topping_maker.metaconfig.update_configuration_settings(
+            "qgis.modelbaker.projecttopping", projecttopping_id
+        )
+        topping_maker.metaconfig.update_configuration_settings(
+            "ch.interlis.referenceData", referencedata_ids
+        )
+        assert (
+            topping_maker.metaconfig.configuration_section[
+                "qgis.modelbaker.projecttopping"
+            ]
+            == "name"
+        )
+        assert (
+            topping_maker.metaconfig.configuration_section["ch.interlis.referenceData"]
+            == "name"
+        )
+
+        # generate toppingfiles used for ili2db
+        if topping_maker.metaattr_filepath:
+            topping_maker.metaconfig.update_ili2db_settings(
+                "iliMetaAttrs",
+                topping_maker.generate_toppingfile_link(
+                    topping_maker.target,
+                    ToppingMaker.METAATTR_TYPE,
+                    topping_maker.metaattr_filepath,
+                ),
+            )
+        if topping_maker.prescript_filepath:
+            topping_maker.metaconfig.update_ili2db_settings(
+                "preScript",
+                topping_maker.generate_toppingfile_link(
+                    topping_maker.target,
+                    ToppingMaker.SQLSCRIPT_TYPE,
+                    topping_maker.prescript_filepath,
+                ),
+            )
+        if topping_maker.postscript_filepath:
+            topping_maker.metaconfig.update_ili2db_settings(
+                "postScript",
+                topping_maker.generate_toppingfile_link(
+                    topping_maker.target,
+                    ToppingMaker.SQLSCRIPT_TYPE,
+                    topping_maker.postscript_filepath,
+                ),
+            )
+
+        assert topping_maker.metaconfig.ili2db_section["iliMetaAttrs"] == "name"
+        assert topping_maker.metaconfig.ili2db_section["preScript"] == "name"
+        assert topping_maker.metaconfig.ili2db_section["postScript"] == "name"
+
+        # generate metaconfig (topping) file
+        topping_maker.metaconfig.generate_file(topping_maker.target)
+
+        # Check if written
+
+        # generate ilidata.xml
+        topping_maker.generate_ilidataxml(topping_maker.target)
+
+        # Check if written
+
+    def test_workflow_bakedycakedy_way(self):
+        configuration = Ili2DbCommandConfiguration()
+        configuration.dbfile = self.dbfile
+        maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
+        subdir = "freddys_projects/this_specific_project"
+
+        # now do the automatic way
+        topping_maker = ToppingMaker("freddys", maindir, subdir, self.export_settings)
+        topping_maker.bakedycakedy(self.project, configuration)
+
+    def make_project_and_export_settings(self):
         # import schema with modelbaker library
         importer = iliimporter.Importer()
         importer.tool = DbIliMode.ili2gpkg
@@ -119,6 +217,7 @@ class ToppingMakerTest(unittest.TestCase):
         importer.configuration.srs_code = 2056
         importer.configuration.create_basket_col = True
         importer.configuration.inheritance = "smart2"
+        importer.configuration.stroke_arcs = False
         importer.configuration.tomlfile = testdata_path("toml/KbS_V1_5.toml")
         importer.stdout.connect(self.print_info)
         importer.stderr.connect(self.print_error)
@@ -186,7 +285,45 @@ class ToppingMakerTest(unittest.TestCase):
         allofemgroup.addLayer(l4)
         allofemgroup.addLayer(l5)
 
-        return qgis_project, dbfile
+        root = qgis_project.layerTreeRoot()
+        layers = root.findLayers()
+        assert len(layers) == 30
+
+        export_settings = ExportSettings()
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer One", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer Three", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.QMLSTYLE,
+            None,
+            "Belasteter_Standort (Geo_Lage_Punkt)",
+            True,
+        )
+
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Three", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Four", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.DEFINITION, None, "Layer Five", True
+        )
+
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Belasteter_Standort", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Layer Two", True
+        )
+        export_settings.set_setting_values(
+            ExportSettings.ToppingType.SOURCE, None, "Layer Three", True
+        )
+
+        return qgis_project, dbfile, export_settings
 
     def print_info(self, text):
         logging.info(text)

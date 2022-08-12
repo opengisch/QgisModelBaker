@@ -210,7 +210,7 @@ class ExportSettings(object):
         if type == ExportSettings.ToppingType.SOURCE:
             return self.source_setting_nodes
 
-    def _get_setting(self, setting_nodes, node=None, name=None) -> dict():
+    def _get_setting(self, setting_nodes, node=None, name=None):
         setting = {}
         if node:
             setting = setting_nodes.get(node, {})
