@@ -73,13 +73,11 @@ class Target(object):
         projectname: str = "project",
         main_dir: str = None,
         sub_dir: str = None,
-        file_dirs: list() = [],
         path_resolver=None,
     ):
         self.projectname = projectname
         self.main_dir = main_dir
         self.sub_dir = sub_dir
-        self.file_dirs = file_dirs
         self.path_resolver = path_resolver
 
         if not path_resolver:
@@ -87,19 +85,12 @@ class Target(object):
 
         self.toppingfileinfo_list = []
 
-    def create_dirs(self):
-        for file_dir in self.file_dirs:
-            absolute_path, _ = self.filedir_path(file_dir)
-            if not os.path.exists(absolute_path):
-                os.makedirs(absolute_path)
-
     def filedir_path(self, file_dir):
         relative_path = os.path.join(self.sub_dir, file_dir)
         absolute_path = os.path.join(self.main_dir, relative_path)
+        if not os.path.exists(absolute_path):
+            os.makedirs(absolute_path)
         return absolute_path, relative_path
-
-    def relative_file_dir(self, file_dir):
-        return os.path.join(self.sub_dir, file_dir)
 
 
 def default_path_resolver(target: Target, name, type):
@@ -345,10 +336,10 @@ class ProjectTopping(object):
         def _temporary_definitionfile(
             self, node: Union[QgsLayerTreeLayer, QgsLayerTreeGroup]
         ):
-            nodename_slug = f"temp_definitionfile_{slugify(self.name)}.qlr"
+            filename_slug = f"{slugify(self.name)}.qlr"
             os.makedirs(self.temporary_toppingfile_dir, exist_ok=True)
             temporary_toppingfile_path = os.path.join(
-                self.temporary_toppingfile_dir, nodename_slug
+                self.temporary_toppingfile_dir, filename_slug
             )
             QgsLayerDefinition.exportLayerDefinition(temporary_toppingfile_path, [node])
             return temporary_toppingfile_path
@@ -358,10 +349,10 @@ class ProjectTopping(object):
             node: QgsLayerTreeLayer,
             categories: QgsMapLayer.StyleCategories = QgsMapLayer.StyleCategory.AllStyleCategories,
         ):
-            nodename_slug = f"temp_qmlstylefile_{slugify(self.name)}.qml"
+            filename_slug = f"{slugify(self.name)}.qml"
             os.makedirs(self.temporary_toppingfile_dir, exist_ok=True)
             temporary_toppingfile_path = os.path.join(
-                self.temporary_toppingfile_dir, nodename_slug
+                self.temporary_toppingfile_dir, filename_slug
             )
             node.layer().saveNamedStyle(temporary_toppingfile_path, categories)
             return temporary_toppingfile_path
@@ -387,6 +378,8 @@ class ProjectTopping(object):
             )
         else:
             print("could not load the project...")
+            return False
+        return True
 
     def generate_files(self, target: Target) -> str:
         # set the current target here and append project topping specific file directories and create them
@@ -396,17 +389,6 @@ class ProjectTopping(object):
         :param Target target: the target defining the directories to write the files into.
         :return: projecttopping file (yaml) path
         """
-
-        # creating the directories
-        target.file_dirs.extend(
-            [
-                ProjectTopping.PROJECTTOPPING_TYPE,
-                ProjectTopping.LAYERSTYLE_TYPE,
-                ProjectTopping.LAYERDEFINITION_TYPE,
-            ]
-        )
-        target.create_dirs()
-
         # generate projecttopping as a dict
         projecttopping_dict = self._projecttopping_dict(target)
 
@@ -427,12 +409,12 @@ class ProjectTopping(object):
 
     def load_files(self, target: Target):
         """
-        Not yet implemented.
+        - [ ] Not yet implemented.
         """
 
     def generate_project(self, target: Target) -> QgsProject:
         """
-        Not yet implemented.
+        - [ ] Not yet implemented.
         """
         return QgsProject()
 
@@ -471,8 +453,8 @@ class ProjectTopping(object):
             if item.properties.featurecount:
                 item_properties_dict["featurecount"] = True
             if item.properties.qmlstylefile:
-                item_properties_dict["qmlstylefile"] = self._qmlstylefile_link(
-                    target, item
+                item_properties_dict["qmlstylefile"] = self.toppingfile_link(
+                    target, ProjectTopping.LAYERSTYLE_TYPE, item.properties.qmlstylefile
                 )
             if item.properties.provider and item.properties.uri:
                 item_properties_dict["provider"] = item.properties.provider
@@ -482,8 +464,10 @@ class ProjectTopping(object):
         item_properties_dict["expanded"] = item.properties.expanded
 
         if item.properties.definitionfile:
-            item_properties_dict["definitionfile"] = self._definitionfile_link(
-                target, item
+            item_properties_dict["definitionfile"] = self.toppingfile_link(
+                target,
+                ProjectTopping.LAYERDEFINITION_TYPE,
+                item.properties.definitionfile,
             )
 
         if item.items:
@@ -494,6 +478,7 @@ class ProjectTopping(object):
         return item_dict
 
     def _definitionfile_link(self, target: Target, item: LayerTreeItem):
+        # - [ ] to remove because replaced by toppingfile_link
         nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qlr"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERDEFINITION_TYPE
@@ -507,6 +492,7 @@ class ProjectTopping(object):
         )
 
     def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
+        # - [ ] to remove because replaced by toppingfile_link
         nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qml"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             ProjectTopping.LAYERSTYLE_TYPE
@@ -518,3 +504,12 @@ class ProjectTopping(object):
         return target.path_resolver(
             target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
         )
+
+    def toppingfile_link(self, target: Target, type: str, path: str):
+        filename_slug = f"{slugify(target.projectname)}_{os.path.basename(path)}"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(type)
+        shutil.copy(
+            path,
+            os.path.join(absolute_filedir_path, filename_slug),
+        )
+        return target.path_resolver(target, filename_slug, type)
