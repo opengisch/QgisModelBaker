@@ -20,7 +20,10 @@
 
 import configparser
 import datetime
+import mimetypes
 import os
+import uuid
+import xml.etree.cElementTree as ET
 
 from qgis.core import QgsDataSourceUri, QgsProject
 
@@ -35,24 +38,156 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 )
 from QgisModelBaker.utils.gui_utils import SchemaModelsModel
 
+from .utils import slugify
+
+
+class IliData(object):
+    class DatasetMetadata(object):
+        def __init__(
+            self,
+            dataset_version: str = None,
+            publishing_date: str = None,
+            owner: str = None,
+            project_name: str = None,
+            id: str = None,
+            file_type: str = None,
+            file_path: str = None,
+            linking_models: list = [],
+        ):
+            self.id = id
+            self.file_type = file_type
+            self.file_path = file_path
+            self.linking_models = linking_models
+
+            self.version = dataset_version
+            self.publishing_date = publishing_date
+            self.owner = owner
+            self.project_name = project_name
+
+            self.title = f"QGIS {self.file_type} file for {self.project_name} - {os.path.splitext(os.path.basename(self.file_path))}"
+            self.file_mimetype = self._file_mime_type(self.file_path)
+
+        def _file_mime_type(self, file_path: str = None) -> str:
+            mimetype = mimetypes.guess_type(file_path)
+            if mimetype[0] is None:
+                # ugly fallback
+                return "text/plain"
+            return mimetype[0]
+
+        def make_xml_element(self, element):
+
+            ET.SubElement(element, "id").text = self.id
+            ET.SubElement(element, "version").text = self.version
+            ET.SubElement(element, "publishingDate").text = self.publishing_date
+            ET.SubElement(element, "owner").text = self.owner
+
+            title = ET.SubElement(element, "title")
+            datsetidx16_multilingualtext = ET.SubElement(
+                title, "DatasetIdx16.MultilingualText"
+            )
+            localisedtext = ET.SubElement(datsetidx16_multilingualtext, "LocalisedText")
+            datasetidx16_localisedtext = ET.SubElement(
+                localisedtext, "DatasetIdx16.LocalisedText"
+            )
+            ET.SubElement(datasetidx16_localisedtext, "Text").text = self.title
+
+            categories = ET.SubElement(element, "categories")
+            type_datasetidx16_code = ET.SubElement(categories, "DatasetIdx16.Code_")
+            ET.SubElement(
+                type_datasetidx16_code, "value"
+            ).text = f"http://codes.interlis.ch/type/{self.file_type}"
+
+            if self.file_type in ["metaconfig", "referencedata"]:
+                for linking_model in self.linking_models:
+                    linking_model_datasetidx16_code = ET.SubElement(
+                        categories, "DatasetIdx16.Code_"
+                    )
+                    ET.SubElement(
+                        linking_model_datasetidx16_code, "value"
+                    ).text = f"http://codes.interlis.ch/model/{linking_model}"
+
+            files = ET.SubElement(element, "files")
+            datsaetidx16_datafile = ET.SubElement(files, "DatasetIdx16.DataFile")
+            ET.SubElement(datsaetidx16_datafile, "fileFormat").text = self.file_mimetype
+            file = ET.SubElement(datsaetidx16_datafile, "file")
+            datsetidx16_file = ET.SubElement(file, "DatasetIdx16.File")
+            ET.SubElement(datsetidx16_file, "path").text = self.file_path
+
+    def __init__(self):
+        pass
+
+    def generate_file(self, target: Target, linking_models: list = []):
+        # - [ ] publishing_date
+        # - [ ] owner
+        transfer = ET.Element("TRANSFER", xmlns="http://www.interlis.ch/INTERLIS2.3")
+
+        headersection = ET.SubElement(
+            transfer, "HEADERSECTION", SENDER="ModelBaker ToppingMaker", VERSION="2.3"
+        )
+        models = ET.SubElement(headersection, "MODELS")
+        ET.SubElement(
+            models,
+            "MODEL",
+            NAME="DatasetIdx16",
+            VERSION="2018-11-21",
+            URI="mailto:ce@eisenhutinformatik.ch",
+        )
+
+        datasection = ET.SubElement(transfer, "DATASECTION")
+        data_index = ET.SubElement(
+            datasection, "DatasetIdx16.DataIndex", BID=str(uuid.uuid4())
+        )
+
+        for toppingfileinfo in target.toppingfileinfo_list:
+            dataset_metadata_element = ET.SubElement(
+                data_index,
+                "DatasetIdx16.DataIndex.DatasetMetadata",
+                TID=str(uuid.uuid4()),
+            )
+            dataset = IliData.DatasetMetadata(
+                toppingfileinfo["version"],
+                "publishing_date",
+                "owner",
+                target.projectname,
+                toppingfileinfo["id"],
+                toppingfileinfo["type"],
+                toppingfileinfo["path"],
+                linking_models,
+            )
+            dataset.make_xml_element(dataset_metadata_element)
+
+        tree = ET.ElementTree(transfer)
+        ilidata_path = os.path.join(target.main_dir, "ilidata.xml")
+        ET.indent(tree, space="\t", level=0)
+        tree.write(ilidata_path, encoding="utf-8")
+        print(f"Created {ilidata_path}")
+
 
 class MetaConfig(object):
+
+    METACONFIG_TYPE = "metaconfig"
+
     def __init__(self):
-        self.configuration_settings = {}
-        # set configuration_section["ch.interlis.referenceData"] = ...
-        # set configuration_section["qgis.modelbaker.projecttopping"] = ...
-
-        self.ili2db_settings = {}
-        # set ili2db configuration - toml and sql files should be appended as topping
-
-    def parse_ili2db_settings(self, configuration: Ili2DbCommandConfiguration):
+        # generated sections
+        # configuration_section["ch.interlis.referenceData"] = ...
+        # configuration_section["qgis.modelbaker.projecttopping"] = ...
+        self.configuration_section = {}
+        # ili2db configuration - toml and sql files should be appended as topping
         self.ili2db_section = {}
+
+    def parse_ili2db_settings(
+        self, configuration: Ili2DbCommandConfiguration = Ili2DbCommandConfiguration()
+    ):
+        # - [ ] To Do: go into db (according configuration) and read the settings and map them to this section
+        db_settings = {}
+        self.ili2db_section.update(db_settings)
+        return True
 
     def update_ili2db_settings(self, key: str, value: str):
         self.ili2db_section[key] = value
 
     def update_configuration_settings(self, key: str, value: str):
-        self.configuration_settings[key] = value
+        self.configuration_section[key] = value
 
     def generate_file(self, target: Target):
         """
@@ -72,31 +207,159 @@ class MetaConfig(object):
         """
 
         metaconfig = configparser.ConfigParser()
-        metaconfig["CONFIGURATION"] = self.configuration_settings
-        metaconfig["ch.ehi.ili2db"] = self.ili2db_settings
+        metaconfig["CONFIGURATION"] = self.configuration_section
+        metaconfig["ch.ehi.ili2db"] = self.ili2db_section
 
         # write file
-        # self.generate_toppingfile
-        # return id
+        metaconfig_slug = f"{slugify(target.projectname)}.ini"
+        absolute_filedir_path, relative_filedir_path = target.filedir_path(
+            MetaConfig.METACONFIG_TYPE
+        )
+
+        with open(
+            os.path.join(absolute_filedir_path, metaconfig_slug), "w"
+        ) as configfile:
+            output = metaconfig.write(configfile)
+            print(output)
+
+        return target.path_resolver(target, metaconfig_slug, MetaConfig.METACONFIG_TYPE)
 
 
 class ToppingMaker(object):
-    def __init__(self):
-        # the information set by the external party (e.g. GUI)
-        self.target = Target()
-        self.exportsettings = ExportSettings()
-        self.referencedata_paths = []
-        self.ili2dbsettings = {}
+    """
+    To create a "Topping" used for INTERLIS projects having artefacts like ilidata, metaconfigfile (ini) etc.
+
+    - [ ] Maybe rename it to IliToppingMaker to clearify it's purpose
+    - Gateway to backend library ProjectTopping (by passing ili-specific path_resolver etc.)
+    - [ ] MetaConfig generator
+    - [ ] ilidata-File generator
+    """
+
+    REFERENCEDATA_TYPE = "referencedata"
+    METAATTR_TYPE = "metaattributes"
+    SQLSCRIPT_TYPE = "sql"
+
+    def __init__(
+        self,
+        projectname: str = None,
+        maindir: str = None,
+        subdir: str = None,
+        exportsettings: ExportSettings = ExportSettings(),
+        referencedata_paths: list = [],
+    ):
+        # ProjectTopping objects for the basic topping creation
+        self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
+        self.exportsettings = exportsettings
+        self.project_topping = ProjectTopping()
+
+        # ToppingMaker objects used for the ili specific topping creation / maybe the path can be moved to MetaConfig
+        self.metaconfig = MetaConfig()
+        self.referencedata_paths = referencedata_paths
         self.metaattr_filepath = None
         self.prescript_filepath = None
         self.postscript_filepath = None
 
-        # received by topping maker
-        self.metaconfig = MetaConfig()
-        self.project_topping = ProjectTopping()
+        # - [ ] should the model be in the toppingmaker or should it preferly only act as library used without gui
         self.models_model = SchemaModelsModel()
 
+    def create_target(self, projectname, maindir, subdir):
+        """
+        Creates and sets the target of this ToppingMaker with the ili specific path resolver.
+        And overrides target created in constructor.
+        """
+        self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
+        return True
+
+    def create_projecttopping(self, project: QgsProject):
+        """
+        Creates and sets the project_topping considering the passed QgsProject and the existing ExportSettings set in the constructor or directly.
+        """
+        return self.project_topping.parse_project(project, self.exportsettings)
+
+    def create_ili2dbsettings(
+        self, configuration: Ili2DbCommandConfiguration = Ili2DbCommandConfiguration()
+    ):
+        """
+        Parses in the metaconfig the db accordingly the configuration for available ili2db settings.
+        """
+        return self.metaconfig.parse_ili2db_settings(configuration)
+
+    def generate_projecttoppingfiles(self):
+        """
+        Generates topping files (layertree and depending files like style etc) considering existing ProjectTopping and Target.
+        Returns the ilidata id (according to path_resolver of Target) of the projecttopping file.
+        """
+        return self.project_topping.generate_files(self.target)
+
+    def generate_toppingfile_link(self, target: Target, type, path):
+        if "ilidata:" in path or "file:" in path:
+            # it's already an id pointing to somewhere, no toppingfile needs to be created
+            return path
+        # copy file from path to our target, and return the ilidata_pathresolved id
+        return self.project_topping.toppingfile_link(target, type, path)
+
+    def generate_ilidataxml(self, target: Target):
+        return True
+
+    def bakedycakedy(self, project: QgsProject = None, configuration=None):
+        # - [ ] Provide possiblity to pass here all the data
+        if project:
+            # project passed here, so we parse it and override the current ProjectTopping
+            self.create_projecttopping(project)
+        if configuration:
+            # configuration passed here, so we parse it and update the current ili2dbsection of MetaConfig
+            self.create_ili2dbsettings(configuration)
+
+        # generate toppingfiles of ProjectTopping
+        projecttopping_id = self.generate_projecttoppingfiles()
+
+        # generate toppingfiles of the reference data
+        referencedata_ids = ",".join(
+            [
+                self.generate_toppingfile_link(
+                    self.target, ToppingMaker.REFERENCEDATA_TYPE, path
+                )
+                for path in self.referencedata_paths
+            ]
+        )
+
+        # - [ ] maybe the whole metaconfig part can go to metaconfig. So there is no big logic in this function. But let's see.
+        # generate toppingfiles used for ili2db
+        metaattr_id = self.generate_toppingfile_link(
+            self.target, ToppingMaker.METAATTR_TYPE, self.metaattr_filepath
+        )
+        prescript_id = self.generate_toppingfile_link(
+            self.target, ToppingMaker.SQLSCRIPT_TYPE, self.prescript_filepath
+        )
+        postscript_id = self.generate_toppingfile_link(
+            self.target, ToppingMaker.SQLSCRIPT_TYPE, self.postscript_filepath
+        )
+
+        # update MetaConfig with toppingfile ids
+        self.metaconfig.update_configuration_settings(
+            "qgis.modelbaker.projecttopping", projecttopping_id
+        )
+        self.metaconfig.update_configuration_settings(
+            "ch.interlis.referenceData", referencedata_ids
+        )
+        self.metaconfig.update_ili2db_settings("iliMetaAttrs", metaattr_id)
+        self.metaconfig.update_ili2db_settings("preScript", prescript_id)
+        self.metaconfig.update_ili2db_settings("postScript", postscript_id)
+
+        # generate metaconfig (topping) file
+        self.metaconfig.generate_file(self.target)
+
+        # generate ilidata.xml
+        IliData.generate_file(self.target)
+
+    """
+    Providing info
+    """
+
     def load_available_models(self, project: QgsProject):
+        """
+        Collects all the available sources in the project and makes the models_model to refresh accordingly.
+        """
         root = project.layerTreeRoot()
         checked_identificators = []
         db_connectors = []
@@ -120,70 +383,17 @@ class ToppingMaker(object):
                     db_connectors.append(db_connector)
         self.models_model.refresh_model(db_connectors)
 
-    def create_target(self, projectname, maindir, subdir):
-        self.target = Target(projectname, maindir, subdir, [], ilidata_path_resolver)
-        return True
 
-    def create_projecttopping(self, project: QgsProject):
-        self.project_topping.parse_project(project)
-
-    def create_ili2dbsettings(
-        self,
-        configuration: Ili2DbCommandConfiguration,
-        metaattr_filepath: str,
-        prescript_filepath: str,
-        postscript_filepath: str,
-    ):
-        self.metaconfig.parse_ili2db_settings(configuration)
-        self.metaattr_filepath = metaattr_filepath
-        self.prescript_filepath = prescript_filepath
-        self.postscript_filepath = postscript_filepath
-
-    def generate(self):
-        # generate layer topping files (including projecttopping (tree, order) file)
-        projecttopping_id = self.project_topping.generate_files(self.target)
-
-        # generate referencedata toppingfiles
-        referencedata_ids = ",".join(
-            [self.generate_toppingfile(path) for path in self.referencedata_paths]
-        )
-
-        # generate toppingfiles used for ili2db
-        metaattr_id = self.generate_toppingfile(self.metaattr_filepath)
-        prescript_id = self.generate_toppingfile(self.prescript_filepath)
-        postscript_id = self.generate_toppingfile(self.postscript_filepath)
-
-        # update metaconfig with toppingfile ids
-        self.metaconfig.update_configuration_settings(
-            "qgis.modelbaker.projecttopping", projecttopping_id
-        )
-        self.metaconfig.update_configuration_settings(
-            "ch.interlis.referenceData", referencedata_ids
-        )
-        self.metaconfig.update_ili2db_settings("iliMetaAttrs", metaattr_id)
-        self.metaconfig.update_ili2db_settings("preScript", prescript_id)
-        self.metaconfig.update_ili2db_settings("postScript", postscript_id)
-
-        # generate metaconfig file
-        self.metaconfig.generate_file(self.target)
-
-        # generate ilidata.xml
-        self.generate_ilidataxml(self.target)
-
-    def generate_toppingfile(self, path):
-        if "ilidata:" in path or "file:" in path:
-            # it's already an id pointing to somewhere, no toppingfile needs to be created
-            return path
-        # copy file from path to our target, and return the ilidata_pathresolved id
-        return id
-
-    def generate_ilidataxml(self, target: Target):
-        return True
+"""
+Path resolver function
+- [ ] should maybe be part of a class (like ToppingMaker)
+"""
 
 
 def ilidata_path_resolver(target: Target, name, type):
     _, relative_filedir_path = target.filedir_path(type)
 
+    # - [ ] toppingfileinfo_list wird irgendwie doppelt am ende (jeder eintrag des toppings 2 mal)
     # can I access here self (member) variables from the Target?
     id = unique_id_in_target_scope(target, f"{target.projectname}.{type}_{name}_001")
     path = os.path.join(relative_filedir_path, name)
