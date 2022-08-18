@@ -26,7 +26,7 @@ import uuid
 import xml.dom.minidom as minidom
 import xml.etree.cElementTree as ET
 
-from qgis.core import QgsDataSourceUri, QgsProject
+from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
@@ -184,6 +184,7 @@ class MetaConfig(object):
     ):
         # - [ ] To Do: go into db (according configuration) and read the settings and map them to this section
         db_settings = {}
+
         self.ili2db_section.update(db_settings)
         return True
 
@@ -379,27 +380,29 @@ class ToppingMaker(object):
         """
         Collects all the available sources in the project and makes the models_model to refresh accordingly.
         """
-        root = project.layerTreeRoot()
         checked_identificators = []
         db_connectors = []
-        for layer_node in root.findLayers():
-            source_provider = layer_node.layer().dataProvider()
-            source = QgsDataSourceUri(layer_node.layer().dataProvider().dataSourceUri())
-            schema_identificator = db_utils.get_schema_identificator_from_layersource(
-                source_provider, source
-            )
-            if schema_identificator in checked_identificators:
-                continue
-            else:
-                checked_identificators.append(schema_identificator)
-                current_configuration = Ili2DbCommandConfiguration()
-                valid, mode = db_utils.get_configuration_from_layersource(
-                    source_provider, source, current_configuration
+        for layer in project.mapLayers().values():
+            if layer.type() == QgsMapLayer.VectorLayer:
+                source_provider = layer.dataProvider()
+                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
+                schema_identificator = (
+                    db_utils.get_schema_identificator_from_layersource(
+                        source_provider, source
+                    )
                 )
-                if valid and mode:
-                    current_configuration.tool = mode
-                    db_connector = db_utils.get_db_connector(current_configuration)
-                    db_connectors.append(db_connector)
+                if schema_identificator in checked_identificators:
+                    continue
+                else:
+                    checked_identificators.append(schema_identificator)
+                    current_configuration = Ili2DbCommandConfiguration()
+                    valid, mode = db_utils.get_configuration_from_layersource(
+                        source_provider, source, current_configuration
+                    )
+                    if valid and mode:
+                        current_configuration.tool = mode
+                        db_connector = db_utils.get_db_connector(current_configuration)
+                        db_connectors.append(db_connector)
         self.models_model.refresh_model(db_connectors)
 
 
