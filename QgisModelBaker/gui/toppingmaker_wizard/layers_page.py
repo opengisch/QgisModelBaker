@@ -50,20 +50,26 @@ PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/layers.ui")
 
 
 class LayerStyleWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, rect=None):
         QWidget.__init__(self, parent)
 
         self.checkbox = QCheckBox()
         self.settings_button = QToolButton()
+        if rect:
+            self.settings_button.setMaximumHeight(rect.height())
+            self.settings_button.setMaximumWidth(rect.height())
         self.settings_button.setIcon(
-            QgsApplication.getThemeIcon("/porpertyicons/system.svg")
+            QgsApplication.getThemeIcon("/propertyicons/system.svg")
         )
         self.settings_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.settings_button.setVisible(False)
+        self.checkbox.stateChanged.connect(self.settings_button.setVisible)
+
         layout = QHBoxLayout()
         layout.addWidget(self.checkbox)
         layout.addWidget(self.settings_button)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(1)
+        layout.setSpacing(0)
         self.setLayout(layout)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -71,7 +77,7 @@ class LayerStyleWidget(QWidget):
 # maybe this model should be in ProjectTopping or at least ToppingMaker
 class LayerModel(QgsLayerTreeModel):
     """
-    Model providing the layer tree and the settings
+    Model providing the layer tree and the settings.
     """
 
     class Roles(IntEnum):
@@ -98,6 +104,8 @@ class LayerModel(QgsLayerTreeModel):
             return Qt.ItemIsEnabled
         if index.column() == LayerModel.Columns.USE_DEFINITION:
             return Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+        if index.column() == LayerModel.Columns.USE_STYLE:
+            return Qt.ItemIsEnabled
         else:
             node = self.index2node(index)
             if not QgsLayerTree.isGroup(node):
@@ -156,10 +164,7 @@ class LayerModel(QgsLayerTreeModel):
                     "categories", QgsMapLayer.StyleCategory.AllStyleCategories
                 )
 
-        if index.column() == LayerModel.Columns.NAME:
-            return QgsLayerTreeModel.data(self, index, role)
-
-        return None
+        return QgsLayerTreeModel.data(self, index, role)
 
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
@@ -192,10 +197,7 @@ class LayerModel(QgsLayerTreeModel):
                         None,
                         bool(data),
                     )
-                self.dataChanged.emit(
-                    self.index(0, 0),
-                    self.index(self.rowCount(), self.columnCount(self.parent)),
-                )
+                self.dataChanged.emit(index, index)
                 return True
 
         if (
@@ -232,26 +234,22 @@ class StyleCatDelegate(QStyledItemDelegate):
         super().__init__(parent)
 
     def createEditor(self, parent, option, index):
-        self.editor = LayerStyleWidget(parent)
-        self.editor.setAutoFillBackground(True)
-        return self.editor
+        widget = LayerStyleWidget(parent, option.rect)
+        widget.setAutoFillBackground(True)
+        widget.checkbox.stateChanged.connect(
+            lambda state: index.model().setData(index, Qt.CheckStateRole, state)
+        )
+        widget.settings_button.clicked.connect(lambda: self.button_clicked.emit(index))
+        return widget
 
     def setEditorData(self, editor, index):
         check_state = index.data(Qt.CheckStateRole)
         if check_state is not None:
-            self.editor.checkbox.setVisible(True)
-            self.editor.settings_button.setVisible(True)
-            self.editor.checkbox.setCheckState(check_state)
+            editor.checkbox.setVisible(True)
+            editor.checkbox.setCheckState(check_state)
         else:
-            self.editor.checkbox.setVisible(False)
-            self.editor.settings_button.setVisible(False)
-
-        self.editor.settings_button.clicked.connect(
-            lambda: self.button_clicked.emit(index)
-        )
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, self.editor.checkbox.checkState, Qt.CheckStateRole)
+            editor.checkbox.setVisible(False)
+            editor.settings_button.setVisible(False)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -298,6 +296,10 @@ class LayersPage(QWizardPage, PAGE_UI):
         """
 
     def open_categories_dialog(self, index):
+        layername = index.data(int(Qt.DisplayRole))
+        self.categories_dialog.setWindowTitle(
+            self.tr(f"Layer Style Categories of {layername}")
+        )
         categories = index.data(int(LayerModel.Roles.CATEGORIES))
         self.categories_dialog.set_categories(categories)
         if self.categories_dialog.exec_():
@@ -311,4 +313,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
+        self.toppingmaker_wizard.topping_maker.export_settings = (
+            self.layermodel.export_settings
+        )
         return super().validatePage()
