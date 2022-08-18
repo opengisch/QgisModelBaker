@@ -49,6 +49,8 @@ class ToppingMakerWizard(QWizard):
 
         self.iface = iface
         self.log_panel = parent.log_panel
+        self.base_config = base_config
+
         self.topping_maker = ToppingMaker()
 
         # pages setup
