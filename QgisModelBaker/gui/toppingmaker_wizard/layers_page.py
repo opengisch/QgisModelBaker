@@ -313,6 +313,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
+        # - [ ] Ist das was wir wollen, dass es beim abschluss gemacht wird?
         self.toppingmaker_wizard.topping_maker.export_settings = (
             self.layermodel.export_settings
         )

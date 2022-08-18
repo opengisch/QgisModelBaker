@@ -118,6 +118,17 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         )
         return super().initializePage()
 
+    def validatePage(self) -> bool:
+        # - [ ] update here the toppingmaker_wizard.topping_maker.referencedatapaths or maybe it's already done, when we would move the model to the toppingmaker.
+        # - [ ] where to put the model? toppingmaker? topping_maker_wizard? keep it here?
+        if not self.toppingmaker_wizard.topping_maker.models_model.checked_entries:
+            self.toppingmaker_wizard.log_panel.print_info(
+                self.tr("At least one model should be selected."),
+                gui_utils.LogColor.COLOR_FAIL,
+            )
+            return False
+        return super().validatePage()
+
     def update_referecedata_cache_model(self, filter_models, type):
         # updates the model and waits for the end
         loop = QEventLoop()
