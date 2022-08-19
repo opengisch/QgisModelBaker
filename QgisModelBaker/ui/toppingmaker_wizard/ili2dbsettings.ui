@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Select Files</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
@@ -48,86 +48,132 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="5" column="3">
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="1">
+      <item row="0" column="0">
        <widget class="QLabel" name="schema_label">
         <property name="text">
          <string>Schema or File</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="crs_label">
-        <property name="toolTip">
-         <string>Coordinate Reference System</string>
-        </property>
-        <property name="text">
-         <string>CRS</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="ili2db_options_button">
-        <property name="text">
-         <string>Advanced Options</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
+      <item row="0" column="1">
        <widget class="QComboBox" name="schema_combobox"/>
       </item>
-      <item row="3" column="2" colspan="2">
-       <widget class="QgsProjectionSelectionWidget" name="crsSelector">
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
+      <item row="1" column="0" colspan="2">
+       <widget class="QTableView" name="parameters_table_view"/>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string>SQL scripts</string>
         </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="pre_script_file_label">
+           <property name="toolTip">
+            <string>SQL script that runs before the (schema) import.</string>
+           </property>
+           <property name="text">
+            <string>Pre-script</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="pre_script_file_line_edit">
+           <property name="toolTip">
+            <string>Choose optional (pre-script) SQL file</string>
+           </property>
+           <property name="placeholderText">
+            <string>[Optional]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="pre_script_file_browse_button">
+           <property name="toolTip">
+            <string>Browse SQL files</string>
+           </property>
+           <property name="text">
+            <string>…</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="post_script_file_label">
+           <property name="toolTip">
+            <string>SQL script that runs after the (schema) import.</string>
+           </property>
+           <property name="text">
+            <string>Post-script</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="post_script_file_line_edit">
+           <property name="toolTip">
+            <string>Choose optional (post-script) SQL file</string>
+           </property>
+           <property name="placeholderText">
+            <string>[Optional]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QToolButton" name="post_script_file_browse_button">
+           <property name="toolTip">
+            <string>Browse SQL files</string>
+           </property>
+           <property name="text">
+            <string>…</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="QProgressBar" name="progress_bar">
-        <property name="value">
-         <number>0</number>
+      <item row="3" column="0" colspan="2">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="toml_file_label">
+           <property name="text">
+            <string>Extra Model Information File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="toml_file_line_edit">
+           <property name="toolTip">
+            <string>Choose optional TOML file</string>
+           </property>
+           <property name="placeholderText">
+            <string>[Optional]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="toml_file_browse_button">
+           <property name="toolTip">
+            <string>Browse TOML files</string>
+           </property>
+           <property name="text">
+            <string>…</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>563</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QgsProjectionSelectionWidget</class>
-   <extends>QWidget</extends>
-   <header>qgsprojectionselectionwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

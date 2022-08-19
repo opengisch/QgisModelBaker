@@ -17,15 +17,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.core import (
-    QgsCoordinateReferenceSystem,
-    QgsDataSourceUri,
-    QgsMapLayer,
-    QgsProject,
-)
+from enum import IntEnum
+
+from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QStandardItemModel
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
@@ -33,6 +31,62 @@ from QgisModelBaker.libs.modelbaker.utils import db_utils
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/ili2dbsettings.ui")
+
+
+class ParametersModel(QStandardItemModel):
+    """
+    ItemModel providing the ili2db setting properties
+    """
+
+    class Columns(IntEnum):
+        NAME = 0
+        VALUE = 1
+
+    def __init__(self, parameters):
+        super().__init__()
+        self.parameters = parameters
+
+    def columnCount(self, parent):
+        return len(ParametersModel.Columns)
+
+    def rowCount(self, parent):
+        return len(self.parameters)
+
+    def flags(self, index):
+        if index.column() == ParametersModel.Columns.NAME:
+            return Qt.ItemSelectable
+
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            if section == ParametersModel.Columns.NAME:
+                return self.tr("Name")
+            if section == ParametersModel.Columns.VALUE:
+                return self.tr("Value")
+
+    def data(self, index, role):
+        if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
+            if index.column() == ParametersModel.Columns.NAME:
+                return "name"
+                return list(self.parameters.keys())[index.row()]
+            if index.column() == ParametersModel.Columns.VALUE:
+                return "va"
+                return list(self.parameters.values())[index.row()]
+
+        return QStandardItemModel.data(self, index, role)
+
+    def setData(self, index, role, data):
+        if index.column() == ParametersModel.Columns.VALUE:
+            key = list(self.parameters.keys())[index.row()]
+            self.parameters[key] = data
+
+        return QStandardItemModel.setData(self, index, role, data)
+
+    def refresh_model(self, parameters):
+        self.beginResetModel()
+        self.parameters = parameters
+        self.endResetModel()
 
 
 class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
@@ -46,30 +100,20 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.setTitle(title)
 
-        self.type_combo_box.currentIndexChanged.connect(self._schema_changed)
-        # load into a model all the schema names from the layer and the layersource
-        # on next or wherever get teh configuration from layersource utils.get_configuration_from_layersource
-        # to set the config in toppingmaker
+        self.schema_combobox.currentIndexChanged.connect(self._schema_changed)
 
-        self.crs = QgsCoordinateReferenceSystem()
-        self.ili2db_options = Ili2dbOptionsDialog(self)
-        self.ili2db_options_button.clicked.connect(self.ili2db_options.open)
-        # self.crsSelector.crsChanged.connect(self._crs_changed)
+        self.parameters_model = ParametersModel(
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
+        )
+        self.parameters_table_view.setModel(self.parameters_model)
 
     def initializePage(self) -> None:
-        print("now at settings.")
         # - [ ] Ist das der Ort Models etc zu laden? Diese Funktion wird aufgerufen, jedes mal wenn mit "next" auf die Seite kommt.
         self._refresh_combobox()
         return super().initializePage()
 
     def _refresh_combobox(self):
-        """
-        Check all the vector layers if the variable "interlis_topic" is set and
-        """
         self.schema_combobox.clear()
-        self.schema_combobox.addItem(
-            self.tr("Not loading ili2db settings from schema"), None
-        )
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
@@ -99,57 +143,20 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     ):
                         self.schema_combobox.addItem(schema_identificator, db_connector)
 
+        self.schema_combobox.addItem(
+            self.tr("Not loading ili2db settings from schema"), None
+        )
+
     def _schema_changed(self):
         db_connector = self.schema_combobox.currentData()
         if db_connector:
-            self.toppingmaker_wizard.topping_maker.create_ili2dbsettings(db_connector)
-        else:
-            # clean it up or similar
-            pass
-
-    """
-    def _update_crs_info(self):
-        self.crsSelector.setCrs(self.crs)
-
-    def _crs_changed(self):
-        self.srs_auth = "EPSG"  # Default
-        self.srs_code = 2056  # Default
-        srs_auth, srs_code = self.crsSelector.crs().authid().split(":")
-        if srs_auth == "USER":
-            self.crs_label.setStyleSheet("color: orange")
-            self.crs_label.setToolTip(
-                self.tr(
-                    "Please select a valid Coordinate Reference System.\nCRSs from USER are valid for a single computer and therefore, a default EPSG:2056 will be used instead."
-                )
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parse_parameters_from_db(
+                db_connector
             )
         else:
-            self.crs_label.setStyleSheet("")
-            self.crs_label.setToolTip(self.tr("Coordinate Reference System"))
-            try:
-                self.srs_code = int(srs_code)
-                self.srs_auth = srs_auth
-            except ValueError:
-                # Preserve defaults if srs_code is not an integer
-                self.crs_label.setStyleSheet("color: orange")
-                self.crs_label.setToolTip(
-                    self.tr(
-                        "The srs code ('{}') should be an integer.\nA default EPSG:2056 will be used.".format(
-                            srs_code
-                        )
-                    )
-                )
-    def _set_crs_from_d(self, ili2db_metaconfig):
-        srs_auth = self.srs_auth
-        srs_code = self.srs_code
-        if "defaultSrsAuth" in ili2db_metaconfig:
-            srs_auth = ili2db_metaconfig.get("defaultSrsAuth")
-        if "defaultSrsCode" in ili2db_metaconfig:
-            srs_code = ili2db_metaconfig.get("defaultSrsCode")
-
-        crs = QgsCoordinateReferenceSystem("{}:{}".format(srs_auth, srs_code))
-        if not crs.isValid():
-            crs = QgsCoordinateReferenceSystem(srs_code)  # Fallback
-        self.crs = crs
-        self._update_crs_info()
-        self._crs_changed()
-    """
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters = (
+                {}
+            )
+        self.parameters_model.refresh_model(
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
+        )
