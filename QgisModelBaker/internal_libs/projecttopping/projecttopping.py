@@ -453,7 +453,7 @@ class ProjectTopping(object):
             if item.properties.featurecount:
                 item_properties_dict["featurecount"] = True
             if item.properties.qmlstylefile:
-                item_properties_dict["qmlstylefile"] = self.toppingfile_link(
+                item_properties_dict["qmlstylefile"] = toppingfile_link(
                     target, ProjectTopping.LAYERSTYLE_TYPE, item.properties.qmlstylefile
                 )
             if item.properties.provider and item.properties.uri:
@@ -464,7 +464,7 @@ class ProjectTopping(object):
         item_properties_dict["expanded"] = item.properties.expanded
 
         if item.properties.definitionfile:
-            item_properties_dict["definitionfile"] = self.toppingfile_link(
+            item_properties_dict["definitionfile"] = toppingfile_link(
                 target,
                 ProjectTopping.LAYERDEFINITION_TYPE,
                 item.properties.definitionfile,
@@ -477,39 +477,13 @@ class ProjectTopping(object):
         item_dict[item.name] = item_properties_dict
         return item_dict
 
-    def _definitionfile_link(self, target: Target, item: LayerTreeItem):
-        # - [ ] to remove because replaced by toppingfile_link
-        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qlr"
-        absolute_filedir_path, relative_filedir_path = target.filedir_path(
-            ProjectTopping.LAYERDEFINITION_TYPE
-        )
-        shutil.copy(
-            item.properties.definitionfile,
-            os.path.join(absolute_filedir_path, nodename_slug),
-        )
-        return target.path_resolver(
-            target, nodename_slug, ProjectTopping.LAYERDEFINITION_TYPE
-        )
 
-    def _qmlstylefile_link(self, target: Target, item: LayerTreeItem):
-        # - [ ] to remove because replaced by toppingfile_link
-        nodename_slug = f"{slugify(target.projectname)}_{slugify(item.name)}.qml"
-        absolute_filedir_path, relative_filedir_path = target.filedir_path(
-            ProjectTopping.LAYERSTYLE_TYPE
-        )
-        shutil.copy(
-            item.properties.qmlstylefile,
-            os.path.join(absolute_filedir_path, nodename_slug),
-        )
-        return target.path_resolver(
-            target, nodename_slug, ProjectTopping.LAYERSTYLE_TYPE
-        )
-
-    def toppingfile_link(self, target: Target, type: str, path: str):
-        filename_slug = f"{slugify(target.projectname)}_{os.path.basename(path)}"
-        absolute_filedir_path, relative_filedir_path = target.filedir_path(type)
-        shutil.copy(
-            path,
-            os.path.join(absolute_filedir_path, filename_slug),
-        )
-        return target.path_resolver(target, filename_slug, type)
+# - [ ] util function should be moved somewhere maybe
+def toppingfile_link(target: Target, type: str, path: str):
+    filename_slug = f"{slugify(target.projectname)}_{os.path.basename(path)}"
+    absolute_filedir_path, relative_filedir_path = target.filedir_path(type)
+    shutil.copy(
+        path,
+        os.path.join(absolute_filedir_path, filename_slug),
+    )
+    return target.path_resolver(target, filename_slug, type)

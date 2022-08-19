@@ -288,8 +288,6 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         """
         - [ ] categories!
-        - [ ] maybe the model should be in topping_maker or the values should go there on validatePage
-        - [ ] ot the model should be in the topping_maker_wizard...
         - [ ] default values on raster -> source on vector -> qml etc.
         - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
         - [ ] colors to define what kind of layer it is
@@ -310,11 +308,14 @@ class LayersPage(QWizardPage, PAGE_UI):
             )
 
     def initializePage(self) -> None:
+        self.layermodel.export_settings = (
+            self.toppingmaker_wizard.topping_maker.export_settings
+        )
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        # - [ ] Ist das was wir wollen, dass es beim abschluss gemacht wird?
-        self.toppingmaker_wizard.topping_maker.export_settings = (
-            self.layermodel.export_settings
-        )
+        # does it work witout that? because it's a pointer?
+        # self.toppingmaker_wizard.topping_maker.export_settings = (
+        #    self.layermodel.export_settings
+        # )
         return super().validatePage()

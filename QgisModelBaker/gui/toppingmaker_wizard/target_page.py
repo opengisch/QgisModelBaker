@@ -53,16 +53,6 @@ class TargetPage(QWizardPage, PAGE_UI):
         - [ ] sub folder selection with passing main folder. whatever with selection etc.
         - [ ] fill info text edit with layer tree how it will look like...
         - [ ] is complete only when having valid values
-        self.sub_folder_browse_button.clicked.connect(
-            make_subfolder_selector(
-                self.main_folder_line_edit.text(),
-                self.sub_folder_line_edit,
-                title=self.tr(
-                    "Target Folder Selection", "Open Main Target Folder"
-                ),
-                parent=None,
-            )
-        )
         """
 
     def initializePage(self) -> None:

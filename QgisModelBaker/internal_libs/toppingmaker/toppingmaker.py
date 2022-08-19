@@ -25,19 +25,16 @@ import os
 import uuid
 import xml.dom.minidom as minidom
 import xml.etree.cElementTree as ET
+from typing import Union
 
-from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
+from qgis.core import QgsProject
 
-import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
     ExportSettings,
     ProjectTopping,
     Target,
+    toppingfile_link,
 )
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-    Ili2DbCommandConfiguration,
-)
-from QgisModelBaker.utils.gui_utils import SchemaModelsModel
 
 from .utils import slugify
 
@@ -167,6 +164,84 @@ class IliData(object):
             return ilidata_path
 
 
+class Ili2dbSettings(dict):
+    def __init__(self):
+        self.parameters = {}
+        self.metaattr_path = None
+        self.postscript_path = None
+        self.prescript_path = None
+        self.models = []
+
+    def parse_parameters_from_db(self, db_connector):
+        # we do currently only care about the settings "known" by model baker (set by user in GUI or by modelbaker in the background)
+        # and we set them when they are set (and do not unset them when they are not set)
+        setting_records = db_connector.get_ili2db_settings()
+        settings_dict = {}
+        for setting_record in setting_records:
+            settings_dict[setting_record["tag"]] = setting_record["setting"]
+
+        # user settings
+        if settings_dict.get("ch.ehi.ili2db.inheritanceTrafo", None) == "smart1":
+            self.parameters["smart1Inheritance"] = True
+        if settings_dict.get("ch.ehi.ili2db.inheritanceTrafo", None) == "smart2":
+            self.parameters["smart2Inheritance"] = True
+        if settings_dict.get("ch.ehi.ili2db.StrokeArcs", None) == "enable":
+            self.parameters["strokeArcs"] = True
+        if settings_dict.get("ch.ehi.ili2db.BasketHandling", None) == "readWrite":
+            self.parameters["createBasketCol"] = True
+        if settings_dict.get("ch.ehi.ili2db.defaultSrsAuthority", None):
+            self.parameters["defaultSrsAuth"] = settings_dict[
+                "ch.ehi.ili2db.defaultSrsAuthority"
+            ]
+        if settings_dict.get("ch.ehi.ili2db.StrokedefaultSrsCodeArcs", None):
+            self.parameters["defaultSrsCode"] = settings_dict[
+                "ch.ehi.ili2db.defaultSrsCode"
+            ]
+
+        # modelbaker default settings
+        if settings_dict.get("ch.ehi.ili2db.catalogueRefTrafo", None) == "coalesce":
+            self.parameters["coalesceCatalogueRef"] = True
+        if (
+            settings_dict.get("ch.ehi.ili2db.createEnumDefs", None)
+            == "multiTableWithId"
+        ):
+            self.parameters["createEnumTabsWithId"] = True
+        if settings_dict.get("ch.ehi.ili2db.numericCheckConstraints", None) == "create":
+            self.parameters["createNumChecks"] = True
+        if settings_dict.get("ch.ehi.ili2db.uniqueConstraints", None) == "create":
+            self.parameters["createUnique"] = True
+        if settings_dict.get("ch.ehi.ili2db.createForeignKey", None) == "yes":
+            self.parameters["createFk"] = True
+        if settings_dict.get("ch.ehi.ili2db.createForeignKeyIndex", None) == "yes":
+            self.parameters["createFkIdx"] = True
+        if settings_dict.get("ch.ehi.ili2db.multiSurfaceTrafo", None) == "coalesce":
+            self.parameters["coalesceMultiSurface"] = True
+        if settings_dict.get("ch.ehi.ili2db.multiLineTrafo", None) == "coalesce":
+            self.parameters["coalesceMultiLine"] = True
+        if settings_dict.get("ch.ehi.ili2db.multiPointTrafo", None) == "coalesce":
+            self.parameters["coalesceMultiPoint"] = True
+        if settings_dict.get("ch.ehi.ili2db.arrayTrafo", None) == "coalesce":
+            self.parameters["coalesceArray"] = True
+        if (
+            settings_dict.get("ch.ehi.ili2db.beautifyEnumDispName", None)
+            == "underscore"
+        ):
+            self.parameters["beautifyEnumDispName"] = True
+        if settings_dict.get("ch.ehi.sqlgen.createGeomIndex", None) == "underscore":
+            self.parameters["createGeomIdx"] = True
+        if settings_dict.get("ch.ehi.ili2db.createMetaInfo", None):
+            self.parameters["createMetaInfo"] = True
+        if settings_dict.get("ch.ehi.ili2db.multilingualTrafo", None) == "expand":
+            self.parameters["expandMultilingual"] = True
+        if settings_dict.get("ch.ehi.ili2db.createTypeConstraint", None):
+            self.parameters["createTypeConstraint"] = True
+        if settings_dict.get("ch.ehi.ili2db.TidHandling", None) == "property":
+            self.parameters["createTidCol"] = True
+
+            print(self.parameters)
+        return True
+
+
 class MetaConfig(object):
 
     METACONFIG_TYPE = "metaconfig"
@@ -175,26 +250,20 @@ class MetaConfig(object):
         # generated sections
         # configuration_section["ch.interlis.referenceData"] = ...
         # configuration_section["qgis.modelbaker.projecttopping"] = ...
-        self.configuration_section = {}
+        self.referencedata_paths = []
+        self.projecttopping_path = None
         # ili2db configuration - toml and sql files should be appended as topping
-        self.ili2db_section = {}
+        self.ili2db_settings = Ili2dbSettings()
 
-    def parse_ili2db_settings(
-        self, configuration: Ili2DbCommandConfiguration = Ili2DbCommandConfiguration()
-    ):
-        # - [ ] To Do: go into db (according configuration) and read the settings and map them to this section
-        db_settings = {}
+    def update_referencedata_paths(self, value: Union[list, bool]):
+        if isinstance(value, str):
+            value = [value]
+        self.referencedata_paths.extend(value)
 
-        self.ili2db_section.update(db_settings)
-        return True
+    def update_projecttopping_path(self, value: str):
+        self.projecttopping_path = value
 
-    def update_ili2db_settings(self, key: str, value: str):
-        self.ili2db_section[key] = value
-
-    def update_configuration_settings(self, key: str, value: str):
-        self.configuration_section[key] = value
-
-    def generate_file(self, target: Target):
+    def generate_files(self, target: Target):
         """
         [CONFIGURATION]
         qgis.modelbaker.projecttopping=ilidata:ch.opengis.config.KbS_LV95_V1_4_projecttopping
@@ -211,11 +280,54 @@ class MetaConfig(object):
         iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
         """
 
-        metaconfig = configparser.ConfigParser()
-        metaconfig["CONFIGURATION"] = self.configuration_section
-        metaconfig["ch.ehi.ili2db"] = self.ili2db_section
+        configuration_section = {}
 
-        # write file
+        # append project topping and reference data links
+        if self.projecttopping_path:
+            # generate toppingfile of projettopping (most possibly already an id, so no generation needed)
+            projecttopping_link = self._generate_toppingfile_link(
+                target, ProjectTopping.PROJECTTOPPING_TYPE, self.projecttopping_path
+            )
+            configuration_section[
+                "qgis.modelbaker.projecttopping"
+            ] = f"ilidata:{projecttopping_link}"
+
+        if self.referencedata_paths:
+            # generate toppingfiles of the reference data
+            referencedata_links = ",".join(
+                [
+                    f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.REFERENCEDATA_TYPE, path)}"
+                    for path in self.referencedata_paths
+                ]
+            )
+            configuration_section["ch.interlis.referenceData"] = referencedata_links
+
+        ili2db_section = {}
+
+        # append models and the ili2db parameters
+        ili2db_section["models"] = ",".join(self.ili2db_settings.models)
+        ili2db_section.update(self.ili2db_settings.parameters)
+
+        # generate metaattr and prescript / postscript files
+        if self.ili2db_settings.metaattr_path:
+            ili2db_section[
+                "iliMetaAttrs"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
+        if self.ili2db_settings.prescript_path:
+            ili2db_section[
+                "preScript",
+            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
+        if self.ili2db_settings.postscript_path:
+            ili2db_section[
+                "postScript"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
+
+        # make the full conifg
+        metaconfig = configparser.ConfigParser()
+        metaconfig["CONFIGURATION"] = configuration_section
+        metaconfig["ch.ehi.ili2db"] = ili2db_section
+
+        # write INI file
         metaconfig_slug = f"{slugify(target.projectname)}.ini"
         absolute_filedir_path, relative_filedir_path = target.filedir_path(
             MetaConfig.METACONFIG_TYPE
@@ -228,6 +340,13 @@ class MetaConfig(object):
             print(output)
 
         return target.path_resolver(target, metaconfig_slug, MetaConfig.METACONFIG_TYPE)
+
+    def _generate_toppingfile_link(self, target: Target, type, path):
+        if not os.path.isfile(path):
+            # it's already an id pointing to somewhere, no toppingfile needs to be created
+            return path
+        # copy file from path to our target, and return the ilidata_pathresolved id
+        return toppingfile_link(target, type, path)
 
 
 class ToppingMaker(object):
@@ -252,24 +371,21 @@ class ToppingMaker(object):
         export_settings: ExportSettings = ExportSettings(),
         referencedata_paths: list = [],
     ):
-        # ProjectTopping objects for the basic topping creation
+        # setting objects
         self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
         self.export_settings = export_settings
-        self.project_topping = ProjectTopping()
-
-        # ToppingMaker objects used for the ili specific topping creation / maybe the path can be moved to MetaConfig
         self.metaconfig = MetaConfig()
-        self.referencedata_paths = referencedata_paths
-        self.metaattr_filepath = None
-        self.prescript_filepath = None
-        self.postscript_filepath = None
-
-        # - [ ] should the model be in the toppingmaker or should it preferly only act as library used without gui
-        self.models_model = SchemaModelsModel()
+        self.project_topping = ProjectTopping()
 
     @property
     def models(self):
-        return self.models_model.checked_entries()
+        return self.metaconfig.ili2db_settings.models
+
+    def set_models(self, models: list = []):
+        self.metaconfig.ili2db_settings.models = models
+
+    def set_referencedata_paths(self, paths: list = []):
+        self.metaconfig.referencedata_paths = paths
 
     def create_target(self, projectname, maindir, subdir):
         """
@@ -285,13 +401,12 @@ class ToppingMaker(object):
         """
         return self.project_topping.parse_project(project, self.export_settings)
 
-    def create_ili2dbsettings(
-        self, configuration: Ili2DbCommandConfiguration = Ili2DbCommandConfiguration()
-    ):
+    def create_ili2dbsettings(self, configuration):
         """
         Parses in the metaconfig the db accordingly the configuration for available ili2db settings.
         """
-        return self.metaconfig.parse_ili2db_settings(configuration)
+        # needs to get the db:connector and load everything maybe... let's see return self.metaconfig.parse_ili2db_settings_from_db(db_connector)
+        return True
 
     def generate_projecttoppingfiles(self):
         """
@@ -299,13 +414,6 @@ class ToppingMaker(object):
         Returns the ilidata id (according to path_resolver of Target) of the projecttopping file.
         """
         return self.project_topping.generate_files(self.target)
-
-    def generate_toppingfile_link(self, target: Target, type, path):
-        if "ilidata:" in path or "file:" in path:
-            # it's already an id pointing to somewhere, no toppingfile needs to be created
-            return path
-        # copy file from path to our target, and return the ilidata_pathresolved id
-        return self.project_topping.toppingfile_link(target, type, path)
 
     def generate_ilidataxml(self, target: Target):
         # generate ilidata.xml
@@ -318,92 +426,21 @@ class ToppingMaker(object):
             # project passed here, so we parse it and override the current ProjectTopping
             self.create_projecttopping(project)
         if configuration:
-            # configuration passed here, so we parse it and update the current ili2dbsection of MetaConfig
+            # configuration passed here, so we parse it
+            # maybe be able to add here referencedata and metaattr and sql etc.
             self.create_ili2dbsettings(configuration)
 
         # generate toppingfiles of ProjectTopping
         projecttopping_id = self.generate_projecttoppingfiles()
 
-        # generate toppingfiles of the reference data
-        referencedata_ids = ",".join(
-            [
-                self.generate_toppingfile_link(
-                    self.target, ToppingMaker.REFERENCEDATA_TYPE, path
-                )
-                for path in self.referencedata_paths
-            ]
-        )
-
-        # - [ ] maybe the whole metaconfig part can go to metaconfig. So there is no big logic in this function. But let's see.
-        # update MetaConfig with toppingfile ids
-        self.metaconfig.update_configuration_settings(
-            "qgis.modelbaker.projecttopping", projecttopping_id
-        )
-        self.metaconfig.update_configuration_settings(
-            "ch.interlis.referenceData", referencedata_ids
-        )
-
-        # generate toppingfiles used for ili2db
-        if self.metaattr_filepath:
-            self.metaconfig.update_ili2db_settings(
-                "iliMetaAttrs",
-                self.generate_toppingfile_link(
-                    self.target, ToppingMaker.METAATTR_TYPE, self.metaattr_filepath
-                ),
-            )
-        if self.prescript_filepath:
-            self.metaconfig.update_ili2db_settings(
-                "preScript",
-                self.generate_toppingfile_link(
-                    self.target, ToppingMaker.SQLSCRIPT_TYPE, self.prescript_filepath
-                ),
-            )
-        if self.postscript_filepath:
-            self.metaconfig.update_ili2db_settings(
-                "postScript",
-                self.generate_toppingfile_link(
-                    self.target, ToppingMaker.SQLSCRIPT_TYPE, self.postscript_filepath
-                ),
-            )
+        # update metaconfig object
+        self.metaconfig.update_projecttopping_path(projecttopping_id)
 
         # generate metaconfig (topping) file
-        self.metaconfig.generate_file(self.target)
+        self.metaconfig.generate_files(self.target)
 
         # generate ilidata
         return self.generate_ilidataxml(self.target)
-
-    """
-    Providing info
-    """
-
-    def load_available_models(self, project: QgsProject):
-        """
-        Collects all the available sources in the project and makes the models_model to refresh accordingly.
-        """
-        checked_identificators = []
-        db_connectors = []
-        for layer in project.mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
-                source_provider = layer.dataProvider()
-                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-                schema_identificator = (
-                    db_utils.get_schema_identificator_from_layersource(
-                        source_provider, source
-                    )
-                )
-                if schema_identificator in checked_identificators:
-                    continue
-                else:
-                    checked_identificators.append(schema_identificator)
-                    current_configuration = Ili2DbCommandConfiguration()
-                    valid, mode = db_utils.get_configuration_from_layersource(
-                        source_provider, source, current_configuration
-                    )
-                    if valid and mode:
-                        current_configuration.tool = mode
-                        db_connector = db_utils.get_db_connector(current_configuration)
-                        db_connectors.append(db_connector)
-        self.models_model.refresh_model(db_connectors)
 
 
 """

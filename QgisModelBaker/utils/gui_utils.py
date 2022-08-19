@@ -826,6 +826,16 @@ class CheckEntriesModel(QStringListModel):
             if self._checked_entries[name] == Qt.Checked
         ]
 
+    def check_entries(self, entries: list = []):
+        """
+        Checks the passed entries and unchecks all others.
+        """
+        for name in self.stringList():
+            if name in entries:
+                self._checked_entries[name] == Qt.Checked
+            else:
+                self._checked_entries[name] == Qt.Unchecked
+
 
 class SchemaModelsModel(CheckEntriesModel):
     """
