@@ -177,9 +177,9 @@ class Ili2dbSettings(dict):
         # and we set them when they are set (and do not unset them when they are not set)
         setting_records = db_connector.get_ili2db_settings()
         settings_dict = {}
+        self.parameters = {}
         for setting_record in setting_records:
             settings_dict[setting_record["tag"]] = setting_record["setting"]
-
         # user settings
         if settings_dict.get("ch.ehi.ili2db.inheritanceTrafo", None) == "smart1":
             self.parameters["smart1Inheritance"] = True
@@ -238,7 +238,6 @@ class Ili2dbSettings(dict):
         if settings_dict.get("ch.ehi.ili2db.TidHandling", None) == "property":
             self.parameters["createTidCol"] = True
 
-            print(self.parameters)
         return True
 
 

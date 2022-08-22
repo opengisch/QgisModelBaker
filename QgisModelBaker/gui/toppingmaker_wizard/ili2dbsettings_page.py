@@ -20,9 +20,8 @@
 from enum import IntEnum
 
 from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QStandardItemModel
-from qgis.PyQt.QtWidgets import QWizardPage
+from qgis.PyQt.QtCore import QAbstractItemModel, QModelIndex, Qt
+from qgis.PyQt.QtWidgets import QHeaderView, QTableView, QWizardPage
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
@@ -33,7 +32,7 @@ from QgisModelBaker.utils import gui_utils
 PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/ili2dbsettings.ui")
 
 
-class ParametersModel(QStandardItemModel):
+class ParametersModel(QAbstractItemModel):
     """
     ItemModel providing the ili2db setting properties
     """
@@ -53,10 +52,19 @@ class ParametersModel(QStandardItemModel):
         return len(self.parameters)
 
     def flags(self, index):
-        if index.column() == ParametersModel.Columns.NAME:
-            return Qt.ItemSelectable
+        return Qt.ItemIsEnabled
 
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
+        """
+        default override
+        """
+        return super().createIndex(row, column, parent)
+
+    def parent(self, index):
+        """
+        default override
+        """
+        return index
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -68,20 +76,23 @@ class ParametersModel(QStandardItemModel):
     def data(self, index, role):
         if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
             if index.column() == ParametersModel.Columns.NAME:
-                return "name"
                 return list(self.parameters.keys())[index.row()]
             if index.column() == ParametersModel.Columns.VALUE:
-                return "va"
-                return list(self.parameters.values())[index.row()]
-
-        return QStandardItemModel.data(self, index, role)
+                key = list(self.parameters.keys())[index.row()]
+                return self.parameters.get(key, "")
+        return None
 
     def setData(self, index, role, data):
-        if index.column() == ParametersModel.Columns.VALUE:
-            key = list(self.parameters.keys())[index.row()]
-            self.parameters[key] = data
-
-        return QStandardItemModel.setData(self, index, role, data)
+        print(data)
+        if role == int(Qt.EditRole):
+            if index.column() == ParametersModel.Columns.NAME:
+                key = list(self.parameters.keys())[index.row()]
+                self.parameters[key] = self.parameters.pop(key)
+                self.dataChanged.emit(index, index)
+            if index.column() == ParametersModel.Columns.VALUE:
+                key = list(self.parameters.keys())[index.row()]
+                self.parameters[key] = data
+                self.dataChanged.emit(index, index)
 
     def refresh_model(self, parameters):
         self.beginResetModel()
@@ -106,6 +117,10 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
             self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
         )
         self.parameters_table_view.setModel(self.parameters_model)
+        self.parameters_table_view.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
+        self.parameters_table_view.setSelectionMode(QTableView.SingleSelection)
 
     def initializePage(self) -> None:
         # - [ ] Ist das der Ort Models etc zu laden? Diese Funktion wird aufgerufen, jedes mal wenn mit "next" auf die Seite kommt.
@@ -141,22 +156,32 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         db_connector.db_or_schema_exists()
                         or db_connector.metadata_exists()
                     ):
-                        self.schema_combobox.addItem(schema_identificator, db_connector)
+                        self.schema_combobox.addItem(
+                            schema_identificator, configuration
+                        )
 
         self.schema_combobox.addItem(
             self.tr("Not loading ili2db settings from schema"), None
         )
 
     def _schema_changed(self):
-        db_connector = self.schema_combobox.currentData()
-        if db_connector:
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parse_parameters_from_db(
-                db_connector
-            )
+        print("ey")
+        configuration = self.schema_combobox.currentData()
+        if configuration:
+            db_connector = db_utils.get_db_connector(configuration)
+            print("uno")
+            if db_connector:
+                print("sss")
+                self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parse_parameters_from_db(
+                    db_connector
+                )
+                print("due")
         else:
             self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters = (
                 {}
             )
+            print("tre")
+        print("go")
         self.parameters_model.refresh_model(
             self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
         )
