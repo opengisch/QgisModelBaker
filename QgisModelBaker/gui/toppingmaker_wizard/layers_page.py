@@ -291,6 +291,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         - [ ] default values on raster -> source on vector -> qml etc.
         - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
         - [ ] colors to define what kind of layer it is
+        - [ ] soll man source irgendwie absolut setzten können
         """
 
     def open_categories_dialog(self, index):

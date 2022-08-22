@@ -27,6 +27,11 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils import db_utils
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    FileValidator,
+    Validators,
+    make_file_selector,
+)
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/ili2dbsettings.ui")
@@ -101,6 +106,10 @@ class ParametersModel(QAbstractItemModel):
 
 
 class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
+
+    ValidExtensions = ["toml", "TOML", "ini", "INI"]
+    SQLValidExtensions = ["sql", "SQL"]
+
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
@@ -122,10 +131,83 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
         self.parameters_table_view.setSelectionMode(QTableView.SingleSelection)
 
+        self.toml_file_browse_button.clicked.connect(
+            make_file_selector(
+                self.toml_file_line_edit,
+                title=self.tr("Open Extra Model Information File (*.toml)"),
+                file_filter=self.tr("Extra Model Info File (*.toml *.TOML)"),
+            )
+        )
+        self.pre_script_file_browse_button.clicked.connect(
+            make_file_selector(
+                self.pre_script_file_line_edit,
+                title=self.tr("SQL script to run before (*.sql)"),
+                file_filter=self.tr("SQL script to run before (*.sql *.SQL)"),
+            )
+        )
+        self.post_script_file_browse_button.clicked.connect(
+            make_file_selector(
+                self.post_script_file_line_edit,
+                title=self.tr("SQL script to run after (*.sql)"),
+                file_filter=self.tr("SQL script to run after (*.sql *.SQL)"),
+            )
+        )
+        self.validators = Validators()
+        self.file_validator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
+        )
+        self.toml_file_line_edit.setValidator(self.file_validator)
+
+        self.sql_file_validator = FileValidator(
+            pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
+        )
+        self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
+        self.post_script_file_line_edit.setValidator(self.sql_file_validator)
+
+        self.toml_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
+        self.pre_script_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.pre_script_file_line_edit.textChanged.emit(
+            self.pre_script_file_line_edit.text()
+        )
+        self.post_script_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.post_script_file_line_edit.textChanged.emit(
+            self.post_script_file_line_edit.text()
+        )
+        # - [ ] files stuff
+        # - [ ] possibility to add / remove and change
+
     def initializePage(self) -> None:
         # - [ ] Ist das der Ort Models etc zu laden? Diese Funktion wird aufgerufen, jedes mal wenn mit "next" auf die Seite kommt.
         self._refresh_combobox()
+        self.pre_script_file_line_edit.setText(
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.prescript_path
+        )
+        self.post_script_file_line_edit.setText(
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.postscript_path
+        )
+        self.toml_file_line_edit.setText(
+            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.metaattr_path
+        )
         return super().initializePage()
+
+    def validatePage(self) -> bool:
+        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.prescript_path = (
+            self.pre_script_file_line_edit.text()
+        )
+        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.postscript_path = (
+            self.post_script_file_line_edit.text()
+        )
+        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.metaattr_path = (
+            self.toml_file_line_edit.text()
+        )
+        return super().validatePage()
 
     def _refresh_combobox(self):
         self.schema_combobox.clear()

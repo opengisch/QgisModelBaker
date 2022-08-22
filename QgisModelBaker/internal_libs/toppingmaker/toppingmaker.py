@@ -314,7 +314,7 @@ class MetaConfig(object):
             ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
         if self.ili2db_settings.prescript_path:
             ili2db_section[
-                "preScript",
+                "preScript"
             ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
         if self.ili2db_settings.postscript_path:
             ili2db_section[
