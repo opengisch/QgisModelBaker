@@ -39,7 +39,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import SourceModel
 
-PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/referencedata.ui")
+PAGE_UI = gui_utils.get_ui_class("topping_wizard/referencedata.ui")
 
 
 class ReferencedataPage(QWizardPage, PAGE_UI):
@@ -49,7 +49,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
-        self.toppingmaker_wizard = parent
+        self.topping_wizard = parent
 
         self.setupUi(self)
 
@@ -70,11 +70,11 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         )
 
         self.ilireferencedatacache = IliDataCache(
-            self.toppingmaker_wizard.base_config,
+            self.topping_wizard.base_config,
             "referenceData",
         )
         self.ilireferencedatacache.new_message.connect(
-            self.toppingmaker_wizard.log_panel.show_message
+            self.topping_wizard.log_panel.show_message
         )
 
         self.ilireferencedata_delegate = MetaConfigCompleterDelegate()
@@ -114,13 +114,13 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
 
     def initializePage(self) -> None:
         self.update_referecedata_cache_model(
-            self.toppingmaker_wizard.topping_maker.models, "referenceData"
+            self.topping_wizard.topping.models, "referenceData"
         )
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        # - [ ] where to put the model? toppingmaker? topping_maker_wizard? keep it here?
-        self.toppingmaker_wizard.topping_maker.set_referencedata_paths(
+        # - [ ] where to put the model? toppingmaker? topping_wizard? keep it here?
+        self.topping_wizard.topping.set_referencedata_paths(
             self._all_paths_from_model()
         )
         return super().validatePage()
@@ -138,9 +138,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return self.ilireferencedatacache.model
 
     def refresh_referencedata_cache(self, filter_models, type):
-        self.ilireferencedatacache.base_configuration = (
-            self.toppingmaker_wizard.base_config
-        )
+        self.ilireferencedatacache.base_configuration = self.topping_wizard.base_config
         self.ilireferencedatacache.filter_models = filter_models
         self.ilireferencedatacache.type = type
         self.ilireferencedatacache.refresh()

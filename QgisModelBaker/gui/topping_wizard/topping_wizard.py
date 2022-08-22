@@ -23,19 +23,17 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
-from QgisModelBaker.gui.toppingmaker_wizard.generation_page import GenerationPage
-from QgisModelBaker.gui.toppingmaker_wizard.ili2dbsettings_page import (
-    Ili2dbSettingsPage,
-)
-from QgisModelBaker.gui.toppingmaker_wizard.layers_page import LayersPage
-from QgisModelBaker.gui.toppingmaker_wizard.models_page import ModelsPage
-from QgisModelBaker.gui.toppingmaker_wizard.referencedata_page import ReferencedataPage
-from QgisModelBaker.gui.toppingmaker_wizard.target_page import TargetPage
-from QgisModelBaker.internal_libs.toppingmaker.toppingmaker import ToppingMaker
-from QgisModelBaker.utils.gui_utils import ToppingMakerPageIds
+from QgisModelBaker.gui.topping_wizard.generation_page import GenerationPage
+from QgisModelBaker.gui.topping_wizard.ili2dbsettings_page import Ili2dbSettingsPage
+from QgisModelBaker.gui.topping_wizard.layers_page import LayersPage
+from QgisModelBaker.gui.topping_wizard.models_page import ModelsPage
+from QgisModelBaker.gui.topping_wizard.referencedata_page import ReferencedataPage
+from QgisModelBaker.gui.topping_wizard.target_page import TargetPage
+from QgisModelBaker.internal_libs.ilitoppingmaker import IliProjectTopping
+from QgisModelBaker.utils.gui_utils import ToppingWizardPageIds
 
 
-class ToppingMakerWizard(QWizard):
+class ToppingWizard(QWizard):
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self, parent)
 
@@ -51,34 +49,34 @@ class ToppingMakerWizard(QWizard):
         self.log_panel = parent.log_panel
         self.base_config = base_config
 
-        self.topping_maker = ToppingMaker()
+        self.topping = IliProjectTopping()
 
         # pages setup
         self.target_page = TargetPage(
-            self, self._current_page_title(ToppingMakerPageIds.Target)
+            self, self._current_page_title(ToppingWizardPageIds.Target)
         )
         self.models_page = ModelsPage(
-            self, self._current_page_title(ToppingMakerPageIds.Models)
+            self, self._current_page_title(ToppingWizardPageIds.Models)
         )
         self.layers_page = LayersPage(
-            self, self._current_page_title(ToppingMakerPageIds.Layers)
+            self, self._current_page_title(ToppingWizardPageIds.Layers)
         )
         self.referencedata_page = ReferencedataPage(
-            self, self._current_page_title(ToppingMakerPageIds.ReferenceData)
+            self, self._current_page_title(ToppingWizardPageIds.ReferenceData)
         )
         self.ili2dbsettings_page = Ili2dbSettingsPage(
-            self, self._current_page_title(ToppingMakerPageIds.Ili2dbSettings)
+            self, self._current_page_title(ToppingWizardPageIds.Ili2dbSettings)
         )
         self.generation_page = GenerationPage(
-            self, self._current_page_title(ToppingMakerPageIds.Generation)
+            self, self._current_page_title(ToppingWizardPageIds.Generation)
         )
 
-        self.setPage(ToppingMakerPageIds.Target, self.target_page)
-        self.setPage(ToppingMakerPageIds.Models, self.models_page)
-        self.setPage(ToppingMakerPageIds.Layers, self.layers_page)
-        self.setPage(ToppingMakerPageIds.ReferenceData, self.referencedata_page)
-        self.setPage(ToppingMakerPageIds.Ili2dbSettings, self.ili2dbsettings_page)
-        self.setPage(ToppingMakerPageIds.Generation, self.generation_page)
+        self.setPage(ToppingWizardPageIds.Target, self.target_page)
+        self.setPage(ToppingWizardPageIds.Models, self.models_page)
+        self.setPage(ToppingWizardPageIds.Layers, self.layers_page)
+        self.setPage(ToppingWizardPageIds.ReferenceData, self.referencedata_page)
+        self.setPage(ToppingWizardPageIds.Ili2dbSettings, self.ili2dbsettings_page)
+        self.setPage(ToppingWizardPageIds.Generation, self.generation_page)
 
         self.currentIdChanged.connect(self.id_changed)
 
@@ -90,23 +88,23 @@ class ToppingMakerWizard(QWizard):
         )
 
     def _current_page_title(self, id):
-        if id == ToppingMakerPageIds.Target:
+        if id == ToppingWizardPageIds.Target:
             return self.tr("Target Folder Selection")
-        elif id == ToppingMakerPageIds.Models:
+        elif id == ToppingWizardPageIds.Models:
             return self.tr("Model Selection")
-        elif id == ToppingMakerPageIds.Layers:
+        elif id == ToppingWizardPageIds.Layers:
             return self.tr("Layer Configuration")
-        elif id == ToppingMakerPageIds.ReferenceData:
+        elif id == ToppingWizardPageIds.ReferenceData:
             return self.tr("Reference Data Selection")
-        elif id == ToppingMakerPageIds.Ili2dbSettings:
+        elif id == ToppingWizardPageIds.Ili2dbSettings:
             return self.tr("Schema with ili2db Settings Selection")
-        elif id == ToppingMakerPageIds.Generation:
+        elif id == ToppingWizardPageIds.Generation:
             return self.tr("Make the Topping")
         else:
             return self.tr("Model Baker - Workflow Wizard")
 
 
-class ToppingMakerWizardDialog(QDialog):
+class ToppingWizardDialog(QDialog):
     def __init__(self, iface, base_config, parent):
         QDialog.__init__(self, parent)
         self.iface = iface
@@ -114,19 +112,17 @@ class ToppingMakerWizardDialog(QDialog):
 
         self.setWindowTitle(self.tr("Model Baker - UsabILIty Hub Topping Maker Wizard"))
         self.log_panel = LogPanel()
-        self.toppingmaker_wizard = ToppingMakerWizard(
-            self.iface, self.base_config, self
-        )
-        self.toppingmaker_wizard.setStartId(ToppingMakerPageIds.Target)
-        self.toppingmaker_wizard.setWindowFlags(Qt.Widget)
-        self.toppingmaker_wizard.setFixedHeight(self.fontMetrics().lineSpacing() * 48)
-        self.toppingmaker_wizard.setMinimumWidth(self.fontMetrics().lineSpacing() * 48)
-        self.toppingmaker_wizard.show()
+        self.topping_wizard = ToppingWizard(self.iface, self.base_config, self)
+        self.topping_wizard.setStartId(ToppingWizardPageIds.Target)
+        self.topping_wizard.setWindowFlags(Qt.Widget)
+        self.topping_wizard.setFixedHeight(self.fontMetrics().lineSpacing() * 48)
+        self.topping_wizard.setMinimumWidth(self.fontMetrics().lineSpacing() * 48)
+        self.topping_wizard.show()
 
-        self.toppingmaker_wizard.finished.connect(self.done)
+        self.topping_wizard.finished.connect(self.done)
         layout = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
-        splitter.addWidget(self.toppingmaker_wizard)
+        splitter.addWidget(self.topping_wizard)
         splitter.addWidget(self.log_panel)
         layout.addWidget(splitter)
         self.setLayout(layout)

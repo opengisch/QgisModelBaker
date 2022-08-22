@@ -34,7 +34,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
 )
 from QgisModelBaker.utils import gui_utils
 
-PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/ili2dbsettings.ui")
+PAGE_UI = gui_utils.get_ui_class("topping_wizard/ili2dbsettings.ui")
 
 
 class ParametersModel(QAbstractItemModel):
@@ -113,7 +113,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
-        self.toppingmaker_wizard = parent
+        self.topping_wizard = parent
 
         self.setupUi(self)
 
@@ -123,7 +123,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.schema_combobox.currentIndexChanged.connect(self._schema_changed)
 
         self.parameters_model = ParametersModel(
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
+            self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )
         self.parameters_table_view.setModel(self.parameters_model)
         self.parameters_table_view.horizontalHeader().setSectionResizeMode(
@@ -187,24 +187,24 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         # - [ ] Ist das der Ort Models etc zu laden? Diese Funktion wird aufgerufen, jedes mal wenn mit "next" auf die Seite kommt.
         self._refresh_combobox()
         self.pre_script_file_line_edit.setText(
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.prescript_path
+            self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
         )
         self.post_script_file_line_edit.setText(
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.postscript_path
+            self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
         )
         self.toml_file_line_edit.setText(
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.metaattr_path
+            self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
         )
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.prescript_path = (
+        self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path = (
             self.pre_script_file_line_edit.text()
         )
-        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.postscript_path = (
+        self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path = (
             self.post_script_file_line_edit.text()
         )
-        self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.metaattr_path = (
+        self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path = (
             self.toml_file_line_edit.text()
         )
         return super().validatePage()
@@ -254,16 +254,14 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
             print("uno")
             if db_connector:
                 print("sss")
-                self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parse_parameters_from_db(
+                self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_db(
                     db_connector
                 )
                 print("due")
         else:
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters = (
-                {}
-            )
+            self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = {}
             print("tre")
         print("go")
         self.parameters_model.refresh_model(
-            self.toppingmaker_wizard.topping_maker.metaconfig.ili2db_settings.parameters
+            self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )

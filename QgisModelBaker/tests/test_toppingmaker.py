@@ -6,9 +6,9 @@ import tempfile
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
-from QgisModelBaker.internal_libs.toppingmaker.toppingmaker import (
+from QgisModelBaker.internal_libs.ilitoppingmaker import (
     ExportSettings,
-    ToppingMaker,
+    IliProjectTopping,
 )
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.db_factory.gpkg_command_config_manager import (
@@ -23,7 +23,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 from QgisModelBaker.tests.utils import testdata_path
 
 
-class ToppingMakerTest(unittest.TestCase):
+class IliProjectToppingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
@@ -38,24 +38,24 @@ class ToppingMakerTest(unittest.TestCase):
         ) = cls.make_project_and_export_settings(cls)
 
     def test_workflow_with_library(self):
-        # create topping maker and with it topping_maker.export_settings
-        topping_maker = ToppingMaker(export_settings=self.export_settings)
+        # create topping maker and with it topping.export_settings
+        topping = IliProjectTopping(export_settings=self.export_settings)
 
         # define folders and make target
         maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
-        topping_maker.create_target("freddys", maindir, subdir)
+        topping.create_target("freddys", maindir, subdir)
 
         # Check if models are loaded.
         # let's pretend that we received the models from the parsed schemas of the project and selected Kbs_V1_5
-        topping_maker.load_available_models(self.project)
-        assert topping_maker.models == ["KbS_V1_5"]
+        topping.load_available_models(self.project)
+        assert topping.models == ["KbS_V1_5"]
 
         # Check if the export_settings are applied properly when created the projecttopping
         # load QGIS project into structure
         countchecked = 0
-        topping_maker.create_projecttopping(self.project)
-        for item in topping_maker.project_topping.layertree.items:
+        topping.create_projecttopping(self.project)
+        for item in topping.layertree.items:
             if item.name == "Layer One":
                 assert item.properties.qmlstylefile
                 assert not item.properties.definitionfile
@@ -95,7 +95,7 @@ class ToppingMakerTest(unittest.TestCase):
 
         # let's pretend that the user selected some referencedata via filebrowser and maybe repos
         codetexte_xtf = testdata_path("xtf/KbS_Codetexte_V1_5_20211015.xtf")
-        topping_maker.referencedata_paths = [
+        topping.referencedata_paths = [
             codetexte_xtf,
             "ilidata:data_from_another_repo",
         ]
@@ -105,91 +105,89 @@ class ToppingMakerTest(unittest.TestCase):
         configuration = Ili2DbCommandConfiguration()
         configuration.dbfile = self.dbfile
 
-        topping_maker.metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
-        topping_maker.prescript_filepath = ""
-        topping_maker.postscript_filepath = "ilidata:postscript_from_another_repo"
-        topping_maker.create_ili2dbsettings(configuration)
+        topping.metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
+        topping.prescript_filepath = ""
+        topping.postscript_filepath = "ilidata:postscript_from_another_repo"
+        topping.create_ili2dbsettings(configuration)
 
         # Check if the settings are loaded from the database
-        assert topping_maker.metaconig.ili2dbsection["defaultSrsCode"] == 2056
-        assert topping_maker.metaconig.ili2dbsection["smart2Inheritance"] == True
-        assert topping_maker.metaconig.ili2dbsection["strokeArcs"] == False
-        assert topping_maker.metaconig.ili2dbsection["importTid"] == True
-        assert topping_maker.metaconig.ili2dbsection["createBasketCol"] == True
+        assert topping.metaconig.ili2dbsection["defaultSrsCode"] == 2056
+        assert topping.metaconig.ili2dbsection["smart2Inheritance"] == True
+        assert topping.metaconig.ili2dbsection["strokeArcs"] == False
+        assert topping.metaconig.ili2dbsection["importTid"] == True
+        assert topping.metaconig.ili2dbsection["createBasketCol"] == True
 
         # ... and finally create the cake
         # generate toppingfiles of ProjectTopping
-        projecttopping_id = topping_maker.generate_projecttoppingfiles()
+        projecttopping_id = topping.generate_projecttoppingfiles()
 
         # generate toppingfiles of the reference data
         referencedata_ids = ",".join(
             [
                 self.generate_toppingfile_link(
-                    self.topping_maker, ToppingMaker.REFERENCEDATA_TYPE, path
+                    self.topping, IliProjectTopping.REFERENCEDATA_TYPE, path
                 )
-                for path in topping_maker.referencedata_paths
+                for path in topping.referencedata_paths
             ]
         )
         assert referencedata_ids == []
 
         # update MetaConfig with toppingfile ids
-        topping_maker.metaconfig.update_configuration_settings(
+        topping.metaconfig.update_configuration_settings(
             "qgis.modelbaker.projecttopping", projecttopping_id
         )
-        topping_maker.metaconfig.update_configuration_settings(
+        topping.metaconfig.update_configuration_settings(
             "ch.interlis.referenceData", referencedata_ids
         )
         assert (
-            topping_maker.metaconfig.configuration_section[
-                "qgis.modelbaker.projecttopping"
-            ]
+            topping.metaconfig.configuration_section["qgis.modelbaker.projecttopping"]
             == "name"
         )
         assert (
-            topping_maker.metaconfig.configuration_section["ch.interlis.referenceData"]
+            topping.metaconfig.configuration_section["ch.interlis.referenceData"]
             == "name"
         )
 
         # generate toppingfiles used for ili2db
-        if topping_maker.metaattr_filepath:
-            topping_maker.metaconfig.update_ili2db_settings(
+        if topping.metaattr_filepath:
+            topping.metaconfig.update_ili2db_settings(
                 "iliMetaAttrs",
-                topping_maker.generate_toppingfile_link(
-                    topping_maker.target,
-                    ToppingMaker.METAATTR_TYPE,
-                    topping_maker.metaattr_filepath,
+                topping.generate_toppingfile_link(
+                    topping.target,
+                    IliProjectTopping.METAATTR_TYPE,
+                    topping.metaattr_filepath,
                 ),
             )
-        if topping_maker.prescript_filepath:
-            topping_maker.metaconfig.update_ili2db_settings(
+        if topping.prescript_filepath:
+            topping.metaconfig.update_ili2db_settings(
                 "preScript",
-                topping_maker.generate_toppingfile_link(
-                    topping_maker.target,
-                    ToppingMaker.SQLSCRIPT_TYPE,
-                    topping_maker.prescript_filepath,
+                topping.generate_toppingfile_link(
+                    topping.target,
+                    IliProjectTopping.SQLSCRIPT_TYPE,
+                    topping.prescript_filepath,
                 ),
             )
-        if topping_maker.postscript_filepath:
-            topping_maker.metaconfig.update_ili2db_settings(
+        if topping.postscript_filepath:
+            topping.metaconfig.update_ili2db_settings(
                 "postScript",
-                topping_maker.generate_toppingfile_link(
-                    topping_maker.target,
-                    ToppingMaker.SQLSCRIPT_TYPE,
-                    topping_maker.postscript_filepath,
+                topping.generate_toppingfile_link(
+                    topping.target,
+                    IliProjectTopping.SQLSCRIPT_TYPE,
+                    topping.postscript_filepath,
                 ),
             )
 
-        assert topping_maker.metaconfig.ili2db_section["iliMetaAttrs"] == "name"
-        assert topping_maker.metaconfig.ili2db_section["preScript"] == "name"
-        assert topping_maker.metaconfig.ili2db_section["postScript"] == "name"
+        assert topping.metaconfig.ili2db_section["iliMetaAttrs"] == "name"
+        assert topping.metaconfig.ili2db_section["preScript"] == "name"
+        assert topping.metaconfig.ili2db_section["postScript"] == "name"
 
         # generate metaconfig (topping) file
-        topping_maker.metaconfig.generate_file(topping_maker.target)
+        topping.metaconfig.generate_file(topping.target)
 
         # Check if written
 
         # generate ilidata.xml
-        topping_maker.generate_ilidataxml(topping_maker.target)
+        topping.generate_ilidataxml(topping.target)
 
         # Check if written
 
@@ -200,8 +198,8 @@ class ToppingMakerTest(unittest.TestCase):
         subdir = "freddys_projects/this_specific_project"
 
         # now do the automatic way
-        topping_maker = ToppingMaker("freddys", maindir, subdir, self.export_settings)
-        topping_maker.bakedycakedy(self.project, configuration)
+        topping = IliProjectTopping("freddys", maindir, subdir, self.export_settings)
+        topping.bakedycakedy(self.project, configuration)
 
     def make_project_and_export_settings(self):
         # import schema with modelbaker library

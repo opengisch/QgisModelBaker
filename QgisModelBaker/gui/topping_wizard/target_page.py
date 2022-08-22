@@ -26,14 +26,14 @@ import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
 from QgisModelBaker.utils import gui_utils
 
-PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/target.ui")
+PAGE_UI = gui_utils.get_ui_class("topping_wizard/target.ui")
 
 
 class TargetPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
-        self.toppingmaker_wizard = parent
+        self.topping_wizard = parent
 
         self.setupUi(self)
 
@@ -68,15 +68,15 @@ class TargetPage(QWizardPage, PAGE_UI):
         subfolder = self.sub_folder_line_edit.text()
 
         if not mainfolder:
-            self.toppingmaker_wizard.log_panel.print_info(
+            self.topping_wizard.log_panel.print_info(
                 self.tr("Target Folder needs to be set."),
                 gui_utils.LogColor.COLOR_FAIL,
             )
             return False
-        if not self.toppingmaker_wizard.topping_maker.create_target(
+        if not self.topping_wizard.topping.create_target(
             projectname, mainfolder, subfolder
         ):
-            self.toppingmaker_wizard.log_panel.print_info(
+            self.topping_wizard.log_panel.print_info(
                 self.tr("Target cannot be created."),
                 gui_utils.LogColor.COLOR_FAIL,
             )

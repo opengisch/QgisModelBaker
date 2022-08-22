@@ -29,14 +29,13 @@ from typing import Union
 
 from qgis.core import QgsProject
 
-from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
+from QgisModelBaker.internal_libs.toppingmaker import (
     ExportSettings,
     ProjectTopping,
     Target,
+    slugify,
     toppingfile_link,
 )
-
-from .utils import slugify
 
 
 class IliData(object):
@@ -120,7 +119,10 @@ class IliData(object):
         transfer = ET.Element("TRANSFER", xmlns="http://www.interlis.ch/INTERLIS2.3")
 
         headersection = ET.SubElement(
-            transfer, "HEADERSECTION", SENDER="ModelBaker ToppingMaker", VERSION="2.3"
+            transfer,
+            "HEADERSECTION",
+            SENDER="ModelBaker IliProjectTopping",
+            VERSION="2.3",
         )
         models = ET.SubElement(headersection, "MODELS")
         ET.SubElement(
@@ -295,7 +297,7 @@ class MetaConfig(object):
             # generate toppingfiles of the reference data
             referencedata_links = ",".join(
                 [
-                    f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.REFERENCEDATA_TYPE, path)}"
+                    f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.REFERENCEDATA_TYPE, path)}"
                     for path in self.referencedata_paths
                 ]
             )
@@ -311,15 +313,15 @@ class MetaConfig(object):
         if self.ili2db_settings.metaattr_path:
             ili2db_section[
                 "iliMetaAttrs"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
         if self.ili2db_settings.prescript_path:
             ili2db_section[
                 "preScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
         if self.ili2db_settings.postscript_path:
             ili2db_section[
                 "postScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, ToppingMaker.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
 
         # make the full conifg
         metaconfig = configparser.ConfigParser()
@@ -348,11 +350,10 @@ class MetaConfig(object):
         return toppingfile_link(target, type, path)
 
 
-class ToppingMaker(object):
+class IliProjectTopping(ProjectTopping):
     """
     To create a "Topping" used for INTERLIS projects having artefacts like ilidata, metaconfigfile (ini) etc.
 
-    - [ ] Maybe rename it to IliToppingMaker to clearify it's purpose
     - Gateway to backend library ProjectTopping (by passing ili-specific path_resolver etc.)
     - [ ] MetaConfig generator
     - [ ] ilidata-File generator
@@ -370,11 +371,12 @@ class ToppingMaker(object):
         export_settings: ExportSettings = ExportSettings(),
         referencedata_paths: list = [],
     ):
-        # setting objects
+        super().__init__()
+        # should those be set in ProjectTopping?
         self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
         self.export_settings = export_settings
+
         self.metaconfig = MetaConfig()
-        self.project_topping = ProjectTopping()
 
     @property
     def models(self):
@@ -388,7 +390,7 @@ class ToppingMaker(object):
 
     def create_target(self, projectname, maindir, subdir):
         """
-        Creates and sets the target of this ToppingMaker with the ili specific path resolver.
+        Creates and sets the target of this IliProjectTopping with the ili specific path resolver.
         And overrides target created in constructor.
         """
         self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
@@ -398,7 +400,7 @@ class ToppingMaker(object):
         """
         Creates and sets the project_topping considering the passed QgsProject and the existing ExportSettings set in the constructor or directly.
         """
-        return self.project_topping.parse_project(project, self.export_settings)
+        return self.parse_project(project, self.export_settings)
 
     def create_ili2dbsettings(self, configuration):
         """
@@ -412,7 +414,7 @@ class ToppingMaker(object):
         Generates topping files (layertree and depending files like style etc) considering existing ProjectTopping and Target.
         Returns the ilidata id (according to path_resolver of Target) of the projecttopping file.
         """
-        return self.project_topping.generate_files(self.target)
+        return self.generate_files(self.target)
 
     def generate_ilidataxml(self, target: Target):
         # generate ilidata.xml
@@ -444,7 +446,7 @@ class ToppingMaker(object):
 
 """
 Path resolver function
-- [ ] should maybe be part of a class (like ToppingMaker)
+- [ ] should maybe be part of a class (like IliProjectTopping)
 """
 
 

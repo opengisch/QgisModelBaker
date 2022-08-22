@@ -24,7 +24,7 @@ from qgis.PyQt.QtWidgets import QDialog
 
 from QgisModelBaker.utils import gui_utils
 
-DIALOG_UI = gui_utils.get_ui_class("toppingmaker_wizard/layer_style_categories.ui")
+DIALOG_UI = gui_utils.get_ui_class("topping_wizard/layer_style_categories.ui")
 
 
 class LayerStyleCategoriesModel(QAbstractListModel):

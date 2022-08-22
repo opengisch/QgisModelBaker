@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from QgisModelBaker.internal_libs.projecttopping.projecttopping import Target
+from QgisModelBaker.internal_libs.toppingmaker import Target
 
 
 @pytest.mark.skip("This is a utility function, not a test function")

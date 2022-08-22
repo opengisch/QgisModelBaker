@@ -40,13 +40,13 @@ from qgis.PyQt.QtWidgets import (
 )
 
 import QgisModelBaker.utils.gui_utils as gui_utils
-from QgisModelBaker.gui.toppingmaker_wizard.layer_style_categories import (
+from QgisModelBaker.gui.topping_wizard.layer_style_categories import (
     LayerStyleCategoriesDialog,
 )
-from QgisModelBaker.internal_libs.projecttopping.projecttopping import ExportSettings
+from QgisModelBaker.internal_libs.toppingmaker import ExportSettings
 from QgisModelBaker.utils import gui_utils
 
-PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/layers.ui")
+PAGE_UI = gui_utils.get_ui_class("topping_wizard/layers.ui")
 
 
 class LayerStyleWidget(QWidget):
@@ -74,7 +74,7 @@ class LayerStyleWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
 
-# maybe this model should be in ProjectTopping or at least ToppingMaker
+# maybe this model should be in ProjectTopping or at least IliProjectTopping
 class LayerModel(QgsLayerTreeModel):
     """
     Model providing the layer tree and the settings.
@@ -262,7 +262,7 @@ class LayersPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
-        self.toppingmaker_wizard = parent
+        self.topping_wizard = parent
 
         self.setupUi(self)
 
@@ -270,7 +270,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.layermodel = LayerModel(
             QgsProject.instance().layerTreeRoot(),
-            self.toppingmaker_wizard.topping_maker.export_settings,
+            self.topping_wizard.topping.export_settings,
         )
         self.layermodel.setFlags(QgsLayerTreeModel.Flags())
         self.layer_table_view.setModel(self.layermodel)
@@ -309,14 +309,12 @@ class LayersPage(QWizardPage, PAGE_UI):
             )
 
     def initializePage(self) -> None:
-        self.layermodel.export_settings = (
-            self.toppingmaker_wizard.topping_maker.export_settings
-        )
+        self.layermodel.export_settings = self.topping_wizard.topping.export_settings
         return super().initializePage()
 
     def validatePage(self) -> bool:
         # does it work witout that? because it's a pointer?
-        # self.toppingmaker_wizard.topping_maker.export_settings = (
+        # self.topping_wizard.topping.export_settings = (
         #    self.layermodel.export_settings
         # )
         return super().validatePage()

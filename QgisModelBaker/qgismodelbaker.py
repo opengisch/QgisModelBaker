@@ -47,9 +47,7 @@ from QgisModelBaker.gui.generate_project import GenerateProjectDialog
 from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
-from QgisModelBaker.gui.toppingmaker_wizard.toppingmaker_wizard import (
-    ToppingMakerWizardDialog,
-)
+from QgisModelBaker.gui.topping_wizard.topping_wizard import ToppingWizardDialog
 from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
@@ -69,7 +67,7 @@ class QgisModelBakerPlugin(QObject):
         self.importdata_dlg = None
         self.workflow_wizard_dlg = None
         self.datasetmanager_dlg = None
-        self.toppingmaker_wizard_dlg = None
+        self.topping_wizard_dlg = None
 
         self.__generate_action = None
         self.__export_action = None
@@ -77,7 +75,7 @@ class QgisModelBakerPlugin(QObject):
         self.__workflow_wizard_action = None
         self.__datasetmanager_action = None
         self.__validate_action = None
-        self.__toppingmaker_wizard_action = None
+        self.__topping_wizard_action = None
         self.__configure_action = None
         self.__help_action = None
         self.__about_action = None
@@ -182,7 +180,7 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Import/Export Wizard"),
             None,
         )
-        self.__toppingmaker_wizard_action = QAction(
+        self.__topping_wizard_action = QAction(
             QIcon(
                 os.path.join(
                     os.path.dirname(__file__), "images/QgisModelBaker-wizard.svg"
@@ -207,7 +205,7 @@ class QgisModelBakerPlugin(QObject):
         self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
         self.__validate_action.setCheckable(True)
-        self.__toppingmaker_wizard_action.setCheckable(True)
+        self.__topping_wizard_action.setCheckable(True)
 
         self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
@@ -218,9 +216,7 @@ class QgisModelBakerPlugin(QObject):
         self.__workflow_wizard_action.triggered.connect(
             self.show_workflow_wizard_dialog
         )
-        self.__toppingmaker_wizard_action.triggered.connect(
-            self.show_toppingmaker_wizard_dialog
-        )
+        self.__topping_wizard_action.triggered.connect(self.show_topping_wizard_dialog)
         self.__help_action.triggered.connect(self.show_help_documentation)
         self.__about_action.triggered.connect(self.show_about_dialog)
 
@@ -237,7 +233,7 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.addPluginToDatabaseMenu(
-            self.tr("Model Baker"), self.__toppingmaker_wizard_action
+            self.tr("Model Baker"), self.__topping_wizard_action
         )
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
@@ -289,7 +285,7 @@ class QgisModelBakerPlugin(QObject):
         del self.__about_action
         del self.__dataset_selector_action
         del self.__dataset_selector
-        del self.__toppingmaker_wizard_action
+        del self.__topping_wizard_action
         # remove the toolbar
         del self.toolbar
 
@@ -350,26 +346,26 @@ class QgisModelBakerPlugin(QObject):
         self.__workflow_wizard_action.setChecked(False)
         self.workflow_wizard_dlg = None
 
-    def show_toppingmaker_wizard_dialog(self):
-        if self.toppingmaker_wizard_dlg:
-            self.toppingmaker_wizard_dlg.reject()
+    def show_topping_wizard_dialog(self):
+        if self.topping_wizard_dlg:
+            self.topping_wizard_dlg.reject()
         else:
-            self.toppingmaker_wizard_dlg = ToppingMakerWizardDialog(
+            self.topping_wizard_dlg = ToppingWizardDialog(
                 self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
-            self.toppingmaker_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.toppingmaker_wizard_dlg.setWindowFlags(
-                self.toppingmaker_wizard_dlg.windowFlags() | Qt.Tool
+            self.topping_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.topping_wizard_dlg.setWindowFlags(
+                self.topping_wizard_dlg.windowFlags() | Qt.Tool
             )
-            self.toppingmaker_wizard_dlg.show()
-            self.toppingmaker_wizard_dlg.finished.connect(
-                self.toppingmaker_wizard_dialog_finished
+            self.topping_wizard_dlg.show()
+            self.topping_wizard_dlg.finished.connect(
+                self.topping_wizard_dialog_finished
             )
-            self.__toppingmaker_wizard_action.setChecked(True)
+            self.__topping_wizard_action.setChecked(True)
 
-    def toppingmaker_wizard_dialog_finished(self):
-        self.__toppingmaker_wizard_action.setChecked(False)
-        self.toppingmaker_wizard_dlg = None
+    def topping_wizard_dialog_finished(self):
+        self.__topping_wizard_action.setChecked(False)
+        self.topping_wizard_dlg = None
 
     def show_importdata_dialog(self):
         if self.importdata_dlg:

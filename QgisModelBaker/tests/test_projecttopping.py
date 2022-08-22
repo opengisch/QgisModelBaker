@@ -6,7 +6,7 @@ import yaml
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
-from QgisModelBaker.internal_libs.projecttopping.projecttopping import (
+from QgisModelBaker.internal_libs.toppingmaker import (
     ExportSettings,
     ProjectTopping,
     Target,

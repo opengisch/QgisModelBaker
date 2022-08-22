@@ -159,7 +159,7 @@ class PageIds:
     ProjectCreation = 12
 
 
-class ToppingMakerPageIds:
+class ToppingWizardPageIds:
     Target = 1
     Models = 2
     Layers = 3

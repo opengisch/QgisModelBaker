@@ -29,14 +29,14 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import SchemaModelsModel
 
-PAGE_UI = gui_utils.get_ui_class("toppingmaker_wizard/models.ui")
+PAGE_UI = gui_utils.get_ui_class("topping_wizard/models.ui")
 
 
 class ModelsPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
         QWizardPage.__init__(self)
 
-        self.toppingmaker_wizard = parent
+        self.topping_wizard = parent
 
         self.setupUi(self)
 
@@ -57,21 +57,19 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        if not self.toppingmaker_wizard.topping_maker:
-            self.toppingmaker_wizard.log_panel.print_info(
+        if not self.topping_wizard.topping:
+            self.topping_wizard.log_panel.print_info(
                 self.tr("At least one model should be selected."),
                 gui_utils.LogColor.COLOR_FAIL,
             )
             return False
         # update settings
-        self.toppingmaker_wizard.topping_maker.set_models(
-            self.models_model.checked_entries()
-        )
+        self.topping_wizard.topping.set_models(self.models_model.checked_entries())
         return super().validatePage()
 
     def _refresh(self):
         self._load_available_models()
-        self.models_model.check_entries(self.toppingmaker_wizard.topping_maker.models)
+        self.models_model.check_entries(self.topping_wizard.topping.models)
 
     def _load_available_models(self):
         """
