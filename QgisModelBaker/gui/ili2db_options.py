@@ -34,7 +34,7 @@ DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
 
 class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
-    ValidExtensions = ["toml", "TOML"]
+    ValidExtensions = ["toml", "TOML", "ini", "INI"]
     SQLValidExtensions = ["sql", "SQL"]
 
     def __init__(self, parent=None, remove_create_tid_group=True):
@@ -54,8 +54,10 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(
                 self.toml_file_line_edit,
-                title=self.tr("Open Extra Model Information File (*.toml)"),
-                file_filter=self.tr("Extra Model Info File (*.toml *.TOML)"),
+                title=self.tr("Open Extra Model Information File (*.toml *.ini)"),
+                file_filter=self.tr(
+                    "Extra Model Info File (*.toml *.TOML *.ini *.INI)"
+                ),
             )
         )
         self.pre_script_file_browse_button.clicked.connect(
