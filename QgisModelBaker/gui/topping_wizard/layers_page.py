@@ -23,15 +23,18 @@ from enum import IntEnum
 
 from qgis.core import (
     QgsApplication,
+    QgsDataSourceUri,
     QgsLayerTree,
     QgsLayerTreeModel,
     QgsMapLayer,
     QgsProject,
 )
 from qgis.PyQt.QtCore import QModelIndex, Qt, pyqtSignal
+from qgis.PyQt.QtGui import QColor, QPalette
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QHBoxLayout,
+    QHeaderView,
     QSizePolicy,
     QStyledItemDelegate,
     QToolButton,
@@ -44,6 +47,10 @@ from QgisModelBaker.gui.topping_wizard.layer_style_categories import (
     LayerStyleCategoriesDialog,
 )
 from QgisModelBaker.internal_libs.toppingmaker import ExportSettings
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
+from QgisModelBaker.libs.modelbaker.utils import db_utils
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/layers.ui")
@@ -59,7 +66,7 @@ class LayerStyleWidget(QWidget):
             self.settings_button.setMaximumHeight(rect.height())
             self.settings_button.setMaximumWidth(rect.height())
         self.settings_button.setIcon(
-            QgsApplication.getThemeIcon("/propertyicons/system.svg")
+            QgsApplication.getThemeIcon("/propertyicons/symbology.svg")
         )
         self.settings_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.settings_button.setVisible(False)
@@ -95,6 +102,7 @@ class LayerModel(QgsLayerTreeModel):
         self.use_style_nodes = {}
         self.use_source_nodes = {}
         self.use_definition_nodes = {}
+        self.ili_schema_identificators = []
 
     def columnCount(self, parent):
         return len(LayerModel.Columns)
@@ -150,6 +158,18 @@ class LayerModel(QgsLayerTreeModel):
                         ExportSettings.ToppingType.SOURCE, node
                     )
                     return Qt.Checked if settings.get("export", False) else Qt.Unchecked
+
+        if role == Qt.BackgroundRole:
+            node = self.index2node(index)
+            if QgsLayerTree.isGroup(node):
+                return QColor(Qt.gray)
+            else:
+                layer = QgsProject.instance().mapLayersByName(node.name())[0]
+                if layer:
+                    if layer.type() == QgsMapLayer.VectorLayer:
+                        if self._check_ili_schema(layer):
+                            return QColor(gui_utils.BLUE)
+                    return QColor(gui_utils.GREEN)
 
         if (
             role == LayerModel.Roles.CATEGORIES
@@ -220,10 +240,50 @@ class LayerModel(QgsLayerTreeModel):
             else:
                 self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
-    def _emit_data_changed(self):
-        self.dataChanged.emit(
-            self.index(0, 0), self.index(self.rowCount(), self.columnCount(self.parent))
+    def load_ili_schema_identificators(self):
+        """
+        Checks all the layers if it's based on an interlis class.
+        This is not done every time the layertree changes, so not realtime to have better performance.
+        """
+        self.ili_schema_identificators = []
+        checked_schema_identificator = []
+        for layer in QgsProject.instance().mapLayers().values():
+            if layer.type() == QgsMapLayer.VectorLayer:
+                source_provider = layer.dataProvider()
+                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
+                schema_identificator = (
+                    db_utils.get_schema_identificator_from_layersource(
+                        source_provider, source
+                    )
+                )
+                if (
+                    not schema_identificator
+                    or schema_identificator in checked_schema_identificator
+                ):
+                    continue
+
+                checked_schema_identificator.append(schema_identificator)
+                configuration = Ili2DbCommandConfiguration()
+                valid, mode = db_utils.get_configuration_from_layersource(
+                    source_provider, source, configuration
+                )
+                if valid and mode:
+                    configuration.tool = mode
+                    db_connector = db_utils.get_db_connector(configuration)
+
+                    if (
+                        db_connector.db_or_schema_exists()
+                        or db_connector.metadata_exists()
+                    ):
+                        self.ili_schema_identificators.append(schema_identificator)
+
+    def _check_ili_schema(self, layer):
+        source_provider = layer.dataProvider()
+        source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
+        schema_identificator = db_utils.get_schema_identificator_from_layersource(
+            source_provider, source
         )
+        return schema_identificator in self.ili_schema_identificators
 
 
 class StyleCatDelegate(QStyledItemDelegate):
@@ -236,6 +296,9 @@ class StyleCatDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         widget = LayerStyleWidget(parent, option.rect)
         widget.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, QColor(index.data(Qt.BackgroundRole)))
+        widget.setPalette(palette)
         widget.checkbox.stateChanged.connect(
             lambda state: index.model().setData(index, Qt.CheckStateRole, state)
         )
@@ -274,7 +337,11 @@ class LayersPage(QWizardPage, PAGE_UI):
         )
         self.layermodel.setFlags(QgsLayerTreeModel.Flags())
         self.layer_table_view.setModel(self.layermodel)
-        self.layer_table_view.resizeColumnToContents(LayerModel.Columns.NAME)
+        self.layer_table_view.header().setSectionResizeMode(
+            LayerModel.Columns.NAME, QHeaderView.Stretch
+        )
+        self.layer_table_view.header().setStretchLastSection(False)
+
         self.layer_table_view.expandAll()
         self.layer_table_view.clicked.connect(self.layer_table_view.model().check)
 
@@ -290,7 +357,6 @@ class LayersPage(QWizardPage, PAGE_UI):
         - [ ] categories!
         - [ ] default values on raster -> source on vector -> qml etc.
         - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
-        - [ ] colors to define what kind of layer it is
         - [ ] soll man source irgendwie absolut setzten können
         """
 
@@ -310,6 +376,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
     def initializePage(self) -> None:
         self.layermodel.export_settings = self.topping_wizard.topping.export_settings
+        self.layermodel.load_ili_schema_identificators()
         return super().initializePage()
 
     def validatePage(self) -> bool:
