@@ -95,11 +95,17 @@ TRANSFERFILE_MODELS_BLACKLIST = [
 ]
 
 # style
-VALID_COLOR = "#adde9b"
+ORANGE = "#D1C28E"
+GREEN = "#A1DE9B"
+BLUE = "#9BCADE"
+PURPLE = "#B18BC9"
+RED = "#EBB3A4"
+
+VALID_COLOR = GREEN
 
 VALID_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #adde9b; width: 20px;}
+    QProgressBar::chunk {background-color: {#A1DE9B}; width: 20px;}
     QProgressBar {
         border: 2px solid grey;
         border-radius: 5px;
@@ -107,11 +113,11 @@ VALID_STYLE = """
     }
     """
 
-INVALID_COLOR = "#de9b9b"
+INVALID_COLOR = RED
 
 INVALID_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #de9b9b; width: 20px;}
+    QProgressBar::chunk {background-color: #EBB3A4; width: 20px;}
     QProgressBar {
         border: 2px solid grey;
         border-radius: 5px;
@@ -121,7 +127,7 @@ INVALID_STYLE = """
 
 DEFAULT_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #9bcade; width: 20px;}
+    QProgressBar::chunk {background-color: #9BCADE; width: 20px;}
     QProgressBar {
         border: 2px solid grey;
         border-radius: 5px;
@@ -801,6 +807,7 @@ class CheckEntriesModel(QStringListModel):
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self._checked_entries[self.data(index, Qt.DisplayRole)] = data
+            print(f"i do {data}")
         else:
             QStringListModel.setData(self, index, role, data)
 
