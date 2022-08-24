@@ -18,19 +18,14 @@
  ***************************************************************************/
 """
 
-import datetime
 import os
 
 from qgis.core import QgsProject
 
-from QgisModelBaker.internal_libs.toppingmaker import (
-    ExportSettings,
-    ProjectTopping,
-    Target,
-)
+from QgisModelBaker.internal_libs.toppingmaker import ExportSettings, ProjectTopping
 from QgisModelBaker.internal_libs.toppingmaker.utils import slugify
 
-from .ilidata import IliData
+from .ilidata import IliData, IliTarget
 from .metaconfig import MetaConfig
 
 
@@ -57,7 +52,7 @@ class IliProjectTopping(ProjectTopping):
     ):
         super().__init__()
         # should those be set in ProjectTopping?
-        self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
+        self.target = IliTarget(projectname, maindir, subdir, ilidata_path_resolver)
         self.export_settings = export_settings
 
         self.metaconfig = MetaConfig()
@@ -72,12 +67,29 @@ class IliProjectTopping(ProjectTopping):
     def set_referencedata_paths(self, paths: list = []):
         self.metaconfig.referencedata_paths = paths
 
-    def create_target(self, projectname, maindir, subdir):
+    def create_target(
+        self,
+        projectname,
+        maindir,
+        subdir,
+        owner=None,
+        publishing_date=None,
+        version=None,
+    ):
         """
         Creates and sets the target of this IliProjectTopping with the ili specific path resolver.
         And overrides target created in constructor.
+        - [ ] maybe we could create the target directly in the gui, and the ilidata_path_resolver can be part of the IliTarged overriding default_path_resolver from Target
         """
-        self.target = Target(projectname, maindir, subdir, ilidata_path_resolver)
+        self.target = IliTarget(
+            projectname,
+            maindir,
+            subdir,
+            ilidata_path_resolver,
+            owner,
+            publishing_date,
+            version,
+        )
         return True
 
     def create_projecttopping(self, project: QgsProject):
@@ -100,7 +112,7 @@ class IliProjectTopping(ProjectTopping):
         """
         return self.generate_files(self.target)
 
-    def generate_ilidataxml(self, target: Target):
+    def generate_ilidataxml(self, target: IliTarget):
         # generate ilidata.xml
         ilidata = IliData()
         return ilidata.generate_file(target, self.models)
@@ -134,7 +146,7 @@ Path resolver function
 """
 
 
-def ilidata_path_resolver(target: Target, name, type):
+def ilidata_path_resolver(target: IliTarget, name, type):
     _, relative_filedir_path = target.filedir_path(type)
 
     # - [ ] toppingfileinfo_list wird irgendwie doppelt am ende (jeder eintrag des toppings 2 mal)
@@ -144,14 +156,13 @@ def ilidata_path_resolver(target: Target, name, type):
     )
     path = os.path.join(relative_filedir_path, name)
     type = type
-    version = datetime.datetime.now().strftime("%Y-%m-%d")
-    toppingfile = {"id": id, "path": path, "type": type, "version": version}
+    toppingfile = {"id": id, "path": path, "type": type}
     # can I access here self (member) variables from the Target?
     target.toppingfileinfo_list.append(toppingfile)
     return id
 
 
-def unique_id_in_target_scope(target: Target, id):
+def unique_id_in_target_scope(target: IliTarget, id):
     for toppingfileinfo in target.toppingfileinfo_list:
         if "id" in toppingfileinfo and toppingfileinfo["id"] == id:
             iterator = int(id[-3:])

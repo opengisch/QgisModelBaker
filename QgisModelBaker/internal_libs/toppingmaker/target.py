@@ -78,7 +78,6 @@ class Target(object):
         return absolute_path, relative_path
 
 
-# - [ ] can this go to target
 def default_path_resolver(target: Target, name, type):
     _, relative_filedir_path = target.filedir_path(type)
 
@@ -86,3 +85,6 @@ def default_path_resolver(target: Target, name, type):
     target.toppingfileinfo_list.append(toppingfile)
 
     return os.path.join(relative_filedir_path, name)
+
+
+# - [ ] can this go to target

@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+import datetime
 import mimetypes
 import os
 import uuid
@@ -25,6 +26,29 @@ import xml.dom.minidom as minidom
 import xml.etree.cElementTree as ET
 
 from QgisModelBaker.internal_libs.toppingmaker import Target
+
+
+class IliTarget(Target):
+    """
+    Target extension of toppingmaker with additional parameters like owner and creationdate
+    """
+
+    def __init__(
+        self,
+        projectname: str = "project",
+        main_dir: str = None,
+        sub_dir: str = None,
+        path_resolver=None,
+        owner="owner",
+        publishing_date=None,
+        version=None,
+    ):
+        super().__init__(projectname, main_dir, sub_dir, path_resolver)
+        self.default_owner = owner
+        self.default_publishing_date = (
+            publishing_date or datetime.datetime.now().strftime("%Y-%m-%d")
+        )
+        self.default_version = version or datetime.datetime.now().strftime("%Y-%m-%d")
 
 
 class IliData(object):
@@ -102,9 +126,7 @@ class IliData(object):
     def __init__(self):
         pass
 
-    def generate_file(self, target: Target, linking_models: list = []):
-        # - [ ] publishing_date
-        # - [ ] owner
+    def generate_file(self, target: IliTarget, linking_models: list = []):
         transfer = ET.Element("TRANSFER", xmlns="http://www.interlis.ch/INTERLIS2.3")
 
         headersection = ET.SubElement(
@@ -134,9 +156,9 @@ class IliData(object):
                 TID=str(uuid.uuid4()),
             )
             dataset = IliData.DatasetMetadata(
-                toppingfileinfo["version"],
-                "publishing_date",
-                "owner",
+                toppingfileinfo.get("version", target.default_version),
+                toppingfileinfo.get("publishing_date", target.default_publishing_date),
+                toppingfileinfo.get("owner", target.default_owner),
                 target.projectname,
                 toppingfileinfo["id"],
                 toppingfileinfo["type"],
