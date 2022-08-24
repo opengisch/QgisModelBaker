@@ -183,7 +183,7 @@ class QgisModelBakerPlugin(QObject):
         self.__topping_wizard_action = QAction(
             QIcon(
                 os.path.join(
-                    os.path.dirname(__file__), "images/QgisModelBaker-wizard.svg"
+                    os.path.dirname(__file__), "images/QgisModelBaker-topping-icon.svg"
                 )
             ),
             self.tr("UsabILIty Hub Topping Exporter"),
