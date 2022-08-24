@@ -48,9 +48,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
         self.items_view.space_pressed.connect(self.items_view.model().check)
 
         self.refresh_button.clicked.connect(self._refresh)
-        """
-        - [ ] maybe having check all possibility
-        """
 
     def initializePage(self) -> None:
         self._refresh()
