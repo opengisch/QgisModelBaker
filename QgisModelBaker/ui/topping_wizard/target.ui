@@ -104,7 +104,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="owner_label">
         <property name="text">
-         <string>Owner</string>
+         <string>Owner (URI)</string>
         </property>
        </widget>
       </item>
