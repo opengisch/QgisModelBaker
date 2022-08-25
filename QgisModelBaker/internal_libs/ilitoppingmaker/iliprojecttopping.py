@@ -25,17 +25,22 @@ from qgis.core import QgsProject
 from QgisModelBaker.internal_libs.toppingmaker import ExportSettings, ProjectTopping
 from QgisModelBaker.internal_libs.toppingmaker.utils import slugify
 
-from .ilidata import IliData, IliTarget
+from .ilidata import IliData
+from .ilitarget import IliTarget
 from .metaconfig import MetaConfig
 
 
 class IliProjectTopping(ProjectTopping):
     """
-    To create a "Topping" used for INTERLIS projects having artefacts like ilidata, metaconfigfile (ini) etc.
+    A project configuration resulting in a YAML file that contains:
+    - layertree
+    - layerorder
+    - project variables (future)
+    - print layout (future)
+    - map themes (future)
+    QML style files, QLR layer definition files and the source of a layer can be linked in the YAML file and are exported to the specific folders.
 
-    - Gateway to backend library ProjectTopping (by passing ili-specific path_resolver etc.)
-    - [ ] MetaConfig generator
-    - [ ] ilidata-File generator
+    Optimised for INTERLIS projects having artefacts like ilidata, metaconfigfile (ini) etc. with methods to generate them.
     """
 
     def __init__(
@@ -138,7 +143,7 @@ class IliProjectTopping(ProjectTopping):
 
 """
 Path resolver function
-- [ ] should maybe be part of a class (like IliProjectTopping)
+- [ ] should maybe be part of a class (like IliProjectTopping) or in IliTarget itself
 """
 
 

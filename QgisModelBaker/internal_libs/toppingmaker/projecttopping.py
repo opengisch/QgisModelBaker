@@ -37,12 +37,13 @@ from .utils import slugify, toppingfile_link
 
 class ProjectTopping(object):
     """
-    What needs to go to the project topping yaml file.
+    A project configuration resulting in a YAML file that contains:
     - layertree
     - layerorder
     - project variables (future)
     - print layout (future)
     - map themes (future)
+    QML style files, QLR layer definition files and the source of a layer can be linked in the YAML file and are exported to the specific folders.
     """
 
     PROJECTTOPPING_TYPE = "projecttopping"
@@ -50,6 +51,10 @@ class ProjectTopping(object):
     LAYERSTYLE_TYPE = "layerstyle"
 
     class TreeItemProperties(object):
+        """
+        The properties of a node (tree item)
+        """
+
         def __init__(self):
             # if the node is a group
             self.group = False
@@ -73,6 +78,10 @@ class ProjectTopping(object):
             self.definitionfile = None
 
     class LayerTreeItem(object):
+        """
+        A tree item of the layer tree. Every item contains the properties of a layer and according the ExportSettings passed on parsing the QGIS project.
+        """
+
         def __init__(self):
             self.items = []
             self.name = None
@@ -133,7 +142,7 @@ class ProjectTopping(object):
                     index += 1
             else:
                 print(
-                    f"here with {node.name()} we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix..."
+                    f"Here with {node.name()} we have the problem with the LayerTreeNode (it recognizes on QgsLayerTreeLayer QgsLayerTreeNode instead. Similar to https://github.com/opengisch/QgisModelBaker/pull/514 - this needs a fix - maybe in QGIS"
                 )
                 return
 
@@ -175,7 +184,7 @@ class ProjectTopping(object):
         self, project: QgsProject, export_settings: ExportSettings = ExportSettings()
     ):
         """
-        Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and the CustomLayerOrder into the layerorder. The project is not keeped as member variable.
+        Parses a project into the ProjectTopping structure. Means the LayerTreeNodes are loaded into the layertree variable and append the ExportSettings to each node. The CustomLayerOrder is loaded into the layerorder. The project is not keeped as member variable.
 
         :param QgsProject project: the project to parse.
         :param ExportSettings settings: defining if the node needs a source or style / definitionfiles.
@@ -192,12 +201,10 @@ class ProjectTopping(object):
         return True
 
     def generate_files(self, target: Target) -> str:
-        # set the current target here and append project topping specific file directories and create them
         """
-        Creates a projecttopping file (yaml) and the linked toppigfiles (qml, qlr) into the given main and sub directories.
+        Generates all files according to the passed Target.
 
-        :param Target target: the target defining the directories to write the files into.
-        :return: projecttopping file (yaml) path
+        :param Target target: the target object containing the paths where to create the files and the path_resolver defining the structure of the link.
         """
         # generate projecttopping as a dict
         projecttopping_dict = self._projecttopping_dict(target)
@@ -232,7 +239,7 @@ class ProjectTopping(object):
         """
         Creates the layertree as a dict.
         Creates the layerorder as a list.
-        And it generates and stores the toppingfiles.
+        And it generates and stores the toppingfiles according th the Target.
         """
         projecttopping_dict = {}
         projecttopping_dict["layertree"] = self._item_dict_list(

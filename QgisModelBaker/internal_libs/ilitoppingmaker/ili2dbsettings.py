@@ -28,13 +28,17 @@ class Ili2dbSettings(dict):
         self.models = []
 
     def parse_parameters_from_db(self, db_connector):
-        # we do currently only care about the settings "known" by model baker (set by user in GUI or by modelbaker in the background)
-        # and we set them when they are set (and do not unset them when they are not set)
+        """
+        We do only care about the settings "known" by model baker (set by user in GUI or by modelbaker in the background).
+        And we set them when they are set (and do not unset them when they are not set).
+        """
+
         setting_records = db_connector.get_ili2db_settings()
         settings_dict = {}
         self.parameters = {}
         for setting_record in setting_records:
             settings_dict[setting_record["tag"]] = setting_record["setting"]
+
         # user settings
         if settings_dict.get("ch.ehi.ili2db.inheritanceTrafo", None) == "smart1":
             self.parameters["smart1Inheritance"] = True

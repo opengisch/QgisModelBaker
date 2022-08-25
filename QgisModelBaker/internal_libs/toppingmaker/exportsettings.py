@@ -25,61 +25,30 @@ from qgis.core import QgsLayerTreeGroup, QgsLayerTreeLayer
 
 class ExportSettings(object):
     """
-    The requested export settings of each node.
-    The usual structure is using QgsLayerTreeNode as key and then export True/False
+    The requested export settings of each node in the specific dicts:
+    - qmlstyle_setting_nodes
+    - definition_setting_nodes
+    - source_setting_nodes
 
+    The usual structure is using QgsLayerTreeNode as key and then export True/False
     {
-        <QgsLayerTreeNode(Node1)>: {
-                export: False
-            }
-        <QgsLayerTreeNode(Node2)>: {
-                export: True
-            }
-        <QgsLayerTreeNode(Node3)>: {
-                export: False
-            }
-        <QgsLayerTreeNode(Node4)>: {
-                export: True
-            }
+        <QgsLayerTreeNode(Node1)>: { export: False }
+        <QgsLayerTreeNode(Node2)>: { export: True }
     }
 
     But alternatively the layername can be used as key. In ProjectTopping it first looks up the node and if not available looking up the name.
     Using the node is much more consistent, since one can use layers with the same name, but for nodes you need the project already in advance.
-    With name you can use kind of fix settings to pass e.g. in automated workflows.
-
+    With name you can use prepared settings to pass (before the project exists) e.g. in automated workflows.
     {
-        "Node1": {
-                export: False
-            }
-        "Node2":: {
-                export: True
-            }
-        "Node3":: {
-                export: False
-            }
-        "Node4":: {
-                export: True
-            }
+        "Node1": { export: False }
+        "Node2": { export: True }
     }
 
     For some settings we have additional info. Like in qmlstyle_nodes <QgsMapLayer.StyleCategories>. These are Flags, and can be constructed manually as well.
-
     qmlstyle_nodes =
     {
-        <QgsLayerTreeNode(Node1)>: {
-                export: False
-            }
-        <QgsLayerTreeNode(Node2)>: {
-                export: True
-                categories: <QgsMapLayer.StyleCategories>
-            }
-        <QgsLayerTreeNode(Node3)>: {
-                export: False
-            }
-        <QgsLayerTreeNode(Node4)>: {
-                export: True
-                categories: <QgsMapLayer.StyleCategories>
-            }
+        <QgsLayerTreeNode(Node1)>: { export: False }
+        <QgsLayerTreeNode(Node2)>: { export: True, categories: <QgsMapLayer.StyleCategories> }
     }
     """
 

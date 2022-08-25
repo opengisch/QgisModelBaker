@@ -29,6 +29,11 @@ from .ili2dbsettings import Ili2dbSettings
 
 
 class MetaConfig(object):
+    """
+    Contains the data needed to create a metaconfiguration file.
+        # configuration_section["ch.interlis.referenceData"] = ...
+        # configuration_section["qgis.modelbaker.projecttopping"] = ...
+    """
 
     METACONFIG_TYPE = "metaconfig"
     REFERENCEDATA_TYPE = "referencedata"
@@ -36,12 +41,8 @@ class MetaConfig(object):
     SQLSCRIPT_TYPE = "sql"
 
     def __init__(self):
-        # generated sections
-        # configuration_section["ch.interlis.referenceData"] = ...
-        # configuration_section["qgis.modelbaker.projecttopping"] = ...
         self.referencedata_paths = []
         self.projecttopping_path = None
-        # ili2db configuration - toml and sql files should be appended as topping
         self.ili2db_settings = Ili2dbSettings()
 
     def update_referencedata_paths(self, value: Union[list, bool]):

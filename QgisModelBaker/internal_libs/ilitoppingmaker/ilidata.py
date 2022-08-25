@@ -18,37 +18,13 @@
  ***************************************************************************/
 """
 
-import datetime
 import mimetypes
 import os
 import uuid
 import xml.dom.minidom as minidom
 import xml.etree.cElementTree as ET
 
-from QgisModelBaker.internal_libs.toppingmaker import Target
-
-
-class IliTarget(Target):
-    """
-    Target extension of toppingmaker with additional parameters like owner and creationdate
-    """
-
-    def __init__(
-        self,
-        projectname: str = "project",
-        main_dir: str = None,
-        sub_dir: str = None,
-        path_resolver=None,
-        owner="owner",
-        publishing_date=None,
-        version=None,
-    ):
-        super().__init__(projectname, main_dir, sub_dir, path_resolver)
-        self.default_owner = owner
-        self.default_publishing_date = (
-            publishing_date or datetime.datetime.now().strftime("%Y-%m-%d")
-        )
-        self.default_version = version or datetime.datetime.now().strftime("%Y-%m-%d")
+from .ilitarget import IliTarget
 
 
 class IliData(object):

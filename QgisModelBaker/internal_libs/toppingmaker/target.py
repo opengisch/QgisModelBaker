@@ -22,7 +22,7 @@ import os
 
 class Target(object):
     """
-    Where to store topping files and ilidata.xml.
+    The target defines where to store the topping files (YAML, style, definition etc.)
 
     If there is no subdir it will look like:
     <maindir>
@@ -44,13 +44,6 @@ class Target(object):
     │  │  └── <projectname>_<layername>.qml
     │  └── layerdefinition
     │  │  └── <projectname>_<layername>.qlr
-
-    And the usabilityhub specific dirs:
-    .
-    ├── metaconfig
-    ├── referencedata
-    ├── sql
-    └── metaattributes
     """
 
     def __init__(
@@ -85,6 +78,3 @@ def default_path_resolver(target: Target, name, type):
     target.toppingfileinfo_list.append(toppingfile)
 
     return os.path.join(relative_filedir_path, name)
-
-
-# - [ ] can this go to target
