@@ -114,8 +114,10 @@ class MetaConfig(object):
                 target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path
             )
 
-        # make the full conifg
+        # make the full configuration
         metaconfig = configparser.ConfigParser()
+        # write the keys as they are (don't make em lowercase)
+        metaconfig.optionxform = str
         metaconfig["CONFIGURATION"] = configuration_section
         metaconfig["ch.ehi.ili2db"] = ili2db_section
 
