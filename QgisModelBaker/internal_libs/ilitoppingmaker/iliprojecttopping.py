@@ -160,7 +160,7 @@ def ilidata_path_resolver(target: IliTarget, name, type):
     toppingfile = {"id": id, "path": path, "type": type}
     # can I access here self (member) variables from the Target?
     target.toppingfileinfo_list.append(toppingfile)
-    return id
+    return f"ilidata:{id}"
 
 
 def unique_id_in_target_scope(target: IliTarget, id):

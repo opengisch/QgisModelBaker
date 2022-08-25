@@ -200,7 +200,7 @@ class ProjectTopping(object):
             return False
         return True
 
-    def generate_files(self, target: Target) -> str:
+    def generate_files(self, target) -> str:
         """
         Generates all files according to the passed Target.
 

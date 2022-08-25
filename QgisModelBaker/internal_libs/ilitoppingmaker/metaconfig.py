@@ -80,13 +80,15 @@ class MetaConfig(object):
             )
             configuration_section[
                 "qgis.modelbaker.projecttopping"
-            ] = f"ilidata:{projecttopping_link}"
+            ] = projecttopping_link
 
         if self.referencedata_paths:
             # generate toppingfiles of the reference data
             referencedata_links = ",".join(
                 [
-                    f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.REFERENCEDATA_TYPE, path)}"
+                    self._generate_toppingfile_link(
+                        target, MetaConfig.REFERENCEDATA_TYPE, path
+                    )
                     for path in self.referencedata_paths
                 ]
             )
@@ -100,17 +102,17 @@ class MetaConfig(object):
 
         # generate metaattr and prescript / postscript files
         if self.ili2db_settings.metaattr_path:
-            ili2db_section[
-                "iliMetaAttrs"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
+            ili2db_section["iliMetaAttrs"] = self._generate_toppingfile_link(
+                target, MetaConfig.METAATTR_TYPE, self.ili2db_settings.metaattr_path
+            )
         if self.ili2db_settings.prescript_path:
-            ili2db_section[
-                "preScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
+            ili2db_section["preScript"] = self._generate_toppingfile_link(
+                target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path
+            )
         if self.ili2db_settings.postscript_path:
-            ili2db_section[
-                "postScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
+            ili2db_section["postScript"] = self._generate_toppingfile_link(
+                target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path
+            )
 
         # make the full conifg
         metaconfig = configparser.ConfigParser()
