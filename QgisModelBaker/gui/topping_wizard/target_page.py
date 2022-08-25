@@ -43,9 +43,13 @@ class TargetPage(QWizardPage, PAGE_UI):
             slugify(QgsProject.instance().title() or "Topping Project")
         )
         self.owner_line_edit.setPlaceholderText(
-            slugify(
-                QgsExpressionContextUtils.globalScope().variable("user_account_name")
-                or "Model Baker User"
+            "mailto:{}".format(
+                slugify(
+                    QgsExpressionContextUtils.globalScope().variable(
+                        "user_account_name"
+                    )
+                    or "Model Baker User"
+                )
             )
         )
 
@@ -72,9 +76,11 @@ class TargetPage(QWizardPage, PAGE_UI):
         projectname = self.projectname_line_edit.text() or slugify(
             QgsProject.instance().title() or "Topping Project"
         )
-        owner = self.owner_line_edit.text() or slugify(
-            QgsExpressionContextUtils.globalScope().variable("user_account_name")
-            or "Model Baker User"
+        owner = self.owner_line_edit.text() or "mailto:{}".format(
+            slugify(
+                QgsExpressionContextUtils.globalScope().variable("user_account_name")
+                or "Model Baker User"
+            )
         )
         publishing_date = self.publishingdate_date_edit.date().toString(Qt.ISODate)
         version = self.version_date_edit.date().toString(Qt.ISODate)
@@ -110,7 +116,6 @@ class TargetPage(QWizardPage, PAGE_UI):
             text = f"""{mainfolder}/
 ├─ ilidata.xml
 ├─ {subfolder}/
-    ├─ ilidata.xml
     ├─ metaconfig/
     │  ├─ {projectname_slug}.ini
     ├─ qml/
