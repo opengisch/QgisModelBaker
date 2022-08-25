@@ -38,10 +38,6 @@ class IliProjectTopping(ProjectTopping):
     - [ ] ilidata-File generator
     """
 
-    REFERENCEDATA_TYPE = "referencedata"
-    METAATTR_TYPE = "metaattributes"
-    SQLSCRIPT_TYPE = "sql"
-
     def __init__(
         self,
         projectname: str = None,

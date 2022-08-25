@@ -39,7 +39,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
         self.topping_wizard = parent
 
         self.setupUi(self)
-
         self.setTitle(title)
 
         self.models_model = SchemaModelsModel()
@@ -60,7 +59,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
                 gui_utils.LogColor.COLOR_FAIL,
             )
             return False
-        # update settings
         self.topping_wizard.topping.set_models(self.models_model.checked_entries())
         return super().validatePage()
 

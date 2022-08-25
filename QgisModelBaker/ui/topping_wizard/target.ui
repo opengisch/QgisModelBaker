@@ -17,7 +17,7 @@
    <item row="2" column="0">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -29,15 +29,15 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="sub_folder_line_edit"/>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="sub_folder_label">
         <property name="text">
          <string>Target Folder</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="main_folder_line_edit"/>
       </item>
       <item row="0" column="2">
        <widget class="QToolButton" name="main_folder_browse_button">
@@ -56,45 +56,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="sub_folder_line_edit"/>
-      </item>
-      <item row="2" column="0" colspan="3">
-       <widget class="QTextEdit" name="info_textedit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-       </widget>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="main_folder_line_edit"/>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="description">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Select the folder your ilidata.xml should be stored (Target Folder) and your Toppingfiles (exported QML files etc) should be written to (Project Subfolder).</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
    <item row="1" column="0">
@@ -169,6 +134,45 @@
      </layout>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Structure Preview</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QTextBrowser" name="info_text_box">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="description">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Select the folder your ilidata.xml should be stored (Target Folder) and your Toppingfiles (exported QML files etc) should be written to (Project Subfolder).</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -178,6 +182,16 @@
    <header>qgsdatetimeedit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>projectname_line_edit</tabstop>
+  <tabstop>owner_line_edit</tabstop>
+  <tabstop>version_date_edit</tabstop>
+  <tabstop>publishingdate_date_edit</tabstop>
+  <tabstop>main_folder_line_edit</tabstop>
+  <tabstop>main_folder_browse_button</tabstop>
+  <tabstop>sub_folder_line_edit</tabstop>
+  <tabstop>info_text_box</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

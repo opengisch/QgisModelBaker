@@ -56,9 +56,13 @@ class TargetPage(QWizardPage, PAGE_UI):
                 parent=None,
             )
         )
+        self.projectname_line_edit.textChanged.connect(self._update_info_box)
+        self.main_folder_line_edit.textChanged.connect(self._update_info_box)
+        self.sub_folder_line_edit.textChanged.connect(self._update_info_box)
+
+        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
         """
-        - [ ] maybe make a folder validator for target line edit
-        - [ ] fill info text edit with layer tree how it will look like
+        - [ ] nice to have: folder validator for target line edits
         """
 
     def initializePage(self) -> None:
@@ -69,7 +73,8 @@ class TargetPage(QWizardPage, PAGE_UI):
             QgsProject.instance().title() or "Topping Project"
         )
         owner = self.owner_line_edit.text() or slugify(
-            QgsProject.instance().title() or "Model Baker User"
+            QgsExpressionContextUtils.globalScope().variable("user_account_name")
+            or "Model Baker User"
         )
         publishing_date = self.publishingdate_date_edit.date().toString(Qt.ISODate)
         version = self.version_date_edit.date().toString(Qt.ISODate)
@@ -92,3 +97,41 @@ class TargetPage(QWizardPage, PAGE_UI):
             )
             return False
         return super().validatePage()
+
+    def _update_info_box(self):
+        mainfolder = self.main_folder_line_edit.text()
+        subfolder = self.sub_folder_line_edit.text()
+        projectname_slug = slugify(
+            self.projectname_line_edit.text()
+            or slugify(QgsProject.instance().title() or "Topping Project")
+        )
+
+        if mainfolder and subfolder:
+            text = f"""{mainfolder}/
+├─ ilidata.xml
+├─ {subfolder}/
+    ├─ ilidata.xml
+    ├─ metaconfig/
+    │  ├─ {projectname_slug}.ini
+    ├─ qml/
+    │  ├─ {projectname_slug}_name_of_the_layer.qml
+    │  ├─ {projectname_slug}_name_of_another_layer.qml
+    ├─ sql/
+    │  ├─ the_script.sql
+    ├─ etc.
+            """
+        elif mainfolder:
+            text = f"""{self.main_folder_line_edit.text()}/
+├─ ilidata.xml
+├─ metaconfig/
+│  ├─ {projectname_slug}.ini
+├─ qml/
+│  ├─ {projectname_slug}_name_of_the_layer.qml
+│  ├─ {projectname_slug}_name_of_another_layer.qml
+├─ sql/
+│  ├─ the_script.sql
+├─ etc.
+            """
+        else:
+            text = ""
+        self.info_text_box.setText(text)

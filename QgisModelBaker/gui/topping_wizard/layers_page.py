@@ -57,6 +57,10 @@ PAGE_UI = gui_utils.get_ui_class("topping_wizard/layers.ui")
 
 
 class LayerStyleWidget(QWidget):
+    """
+    Widget to have in the layer style column.
+    """
+
     def __init__(self, parent=None, rect=None):
         QWidget.__init__(self, parent)
 
@@ -81,7 +85,6 @@ class LayerStyleWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
 
-# maybe this model should be in ProjectTopping or at least IliProjectTopping
 class LayerModel(QgsLayerTreeModel):
     """
     Model providing the layer tree and the settings.
@@ -167,7 +170,7 @@ class LayerModel(QgsLayerTreeModel):
                 layer = QgsProject.instance().mapLayersByName(node.name())[0]
                 if layer:
                     if layer.type() == QgsMapLayer.VectorLayer:
-                        if self._check_ili_schema(layer):
+                        if self._is_ili_schema(layer):
                             return QColor(gui_utils.BLUE)
                     return QColor(gui_utils.GREEN)
 
@@ -277,7 +280,7 @@ class LayerModel(QgsLayerTreeModel):
                     ):
                         self.ili_schema_identificators.append(schema_identificator)
 
-    def _check_ili_schema(self, layer):
+    def _is_ili_schema(self, layer):
         source_provider = layer.dataProvider()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = db_utils.get_schema_identificator_from_layersource(
@@ -354,8 +357,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.stylecat_delegate.button_clicked.connect(self.open_categories_dialog)
 
         """
-        - [ ] categories!
-        - [ ] default values on raster -> source on vector -> qml etc.
+        - [ ] default values
         - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
         - [ ] soll man source irgendwie absolut setzten können
         """

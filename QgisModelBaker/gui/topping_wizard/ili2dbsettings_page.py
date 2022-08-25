@@ -39,7 +39,7 @@ PAGE_UI = gui_utils.get_ui_class("topping_wizard/ili2dbsettings.ui")
 
 class ParametersModel(QAbstractItemModel):
     """
-    ItemModel providing the ili2db setting properties
+    ItemModel providing the ili2db setting properties.
     """
 
     class Columns(IntEnum):
@@ -247,21 +247,15 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
 
     def _schema_changed(self):
-        print("ey")
         configuration = self.schema_combobox.currentData()
         if configuration:
             db_connector = db_utils.get_db_connector(configuration)
-            print("uno")
             if db_connector:
-                print("sss")
                 self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_db(
                     db_connector
                 )
-                print("due")
         else:
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = {}
-            print("tre")
-        print("go")
         self.parameters_model.refresh_model(
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )

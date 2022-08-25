@@ -31,6 +31,9 @@ from .ili2dbsettings import Ili2dbSettings
 class MetaConfig(object):
 
     METACONFIG_TYPE = "metaconfig"
+    REFERENCEDATA_TYPE = "referencedata"
+    METAATTR_TYPE = "metaattributes"
+    SQLSCRIPT_TYPE = "sql"
 
     def __init__(self):
         # generated sections
@@ -82,7 +85,7 @@ class MetaConfig(object):
             # generate toppingfiles of the reference data
             referencedata_links = ",".join(
                 [
-                    f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.REFERENCEDATA_TYPE, path)}"
+                    f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.REFERENCEDATA_TYPE, path)}"
                     for path in self.referencedata_paths
                 ]
             )
@@ -98,15 +101,15 @@ class MetaConfig(object):
         if self.ili2db_settings.metaattr_path:
             ili2db_section[
                 "iliMetaAttrs"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.METAATTR_TYPE, self.ili2db_settings.metaattr_path)}"
         if self.ili2db_settings.prescript_path:
             ili2db_section[
                 "preScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.prescript_path)}"
         if self.ili2db_settings.postscript_path:
             ili2db_section[
                 "postScript"
-            ] = f"ilidata:{self._generate_toppingfile_link(target, IliProjectTopping.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
+            ] = f"ilidata:{self._generate_toppingfile_link(target, MetaConfig.SQLSCRIPT_TYPE, self.ili2db_settings.postscript_path)}"
 
         # make the full conifg
         metaconfig = configparser.ConfigParser()

@@ -37,6 +37,7 @@ class GenerationPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
+        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
@@ -45,7 +46,7 @@ class GenerationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(100)
             self.progress_bar.setFormat(self.tr("Topping generated 🧁"))
             self.progress_bar.setTextVisible(True)
-            self.info_text_edit.setText(f"Find the ilidata.xml here:\n{ilidata_file}")
+            self.info_text_box.setHtml(f"Find the ilidata.xml here:\n\n{ilidata_file}")
         else:
             self.progress_bar.setValue(0)
             self.progress_bar.setFormat(self.tr("Topping not generated 💩"))
