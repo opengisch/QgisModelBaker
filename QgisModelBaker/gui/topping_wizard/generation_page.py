@@ -41,7 +41,7 @@ class GenerationPage(QWizardPage, PAGE_UI):
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
-        ilidata_file = self.topping_wizard.topping.bakedycakedy(QgsProject.instance())
+        ilidata_file = self.topping_wizard.topping.makeit(QgsProject.instance())
         if ilidata_file:
             self.progress_bar.setValue(100)
             self.progress_bar.setFormat(self.tr("Topping generated 🧁"))

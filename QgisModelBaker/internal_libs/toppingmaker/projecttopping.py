@@ -32,7 +32,7 @@ from qgis.core import (
 
 from .exportsettings import ExportSettings
 from .target import Target
-from .utils import slugify, toppingfile_link
+from .utils import slugify
 
 
 class ProjectTopping(object):
@@ -200,7 +200,7 @@ class ProjectTopping(object):
             return False
         return True
 
-    def generate_files(self, target) -> str:
+    def generate_files(self, target: Target) -> str:
         """
         Generates all files according to the passed Target.
 
@@ -250,6 +250,7 @@ class ProjectTopping(object):
 
     def _item_dict_list(self, target: Target, items):
         item_dict_list = []
+        print([item.name for item in items])
         for item in items:
             item_dict = self._create_item_dict(target, item)
             item_dict_list.append(item_dict)
@@ -270,8 +271,8 @@ class ProjectTopping(object):
             if item.properties.featurecount:
                 item_properties_dict["featurecount"] = True
             if item.properties.qmlstylefile:
-                item_properties_dict["qmlstylefile"] = toppingfile_link(
-                    target, ProjectTopping.LAYERSTYLE_TYPE, item.properties.qmlstylefile
+                item_properties_dict["qmlstylefile"] = target.toppingfile_link(
+                    ProjectTopping.LAYERSTYLE_TYPE, item.properties.qmlstylefile
                 )
             if item.properties.provider and item.properties.uri:
                 item_properties_dict["provider"] = item.properties.provider
@@ -281,8 +282,7 @@ class ProjectTopping(object):
         item_properties_dict["expanded"] = item.properties.expanded
 
         if item.properties.definitionfile:
-            item_properties_dict["definitionfile"] = toppingfile_link(
-                target,
+            item_properties_dict["definitionfile"] = target.toppingfile_link(
                 ProjectTopping.LAYERDEFINITION_TYPE,
                 item.properties.definitionfile,
             )

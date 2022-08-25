@@ -3,241 +3,248 @@ import logging
 import os
 import tempfile
 
+import yaml
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.testing import unittest
 
-from QgisModelBaker.internal_libs.ilitoppingmaker import (
+from QgisModelBaker.internal_libs.toppingmaker import (
     ExportSettings,
-    IliProjectTopping,
+    ProjectTopping,
+    Target,
 )
-from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
-from QgisModelBaker.libs.modelbaker.db_factory.gpkg_command_config_manager import (
-    GpkgCommandConfigManager,
-)
-from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
-from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-    Ili2DbCommandConfiguration,
-)
-from QgisModelBaker.tests.utils import testdata_path
 
 
-class IliProjectToppingTest(unittest.TestCase):
+class ToppingMakerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests."""
         cls.basetestpath = tempfile.mkdtemp()
-        cls.toppingmaker_test_path = os.path.join(cls.basetestpath, "toppingmaker")
+        cls.projecttopping_test_path = os.path.join(cls.basetestpath, "projecttopping")
 
-        # create a project of KbS_V1_5 with some additional layers
-        (
-            cls.project,
-            cls.dbfile,
-            cls.export_settings,
-        ) = cls.make_project_and_export_settings(cls)
-
-    def test_workflow_with_library(self):
-        # create topping maker and with it topping.export_settings
-        topping = IliProjectTopping(export_settings=self.export_settings)
-
-        # define folders and make target
-        maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
+    def test_target(self):
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
-        topping.create_target("freddys", maindir, subdir)
+        filedirs = ["projecttopping", "layerstyle", "layerdefinition", "andanotherone"]
+        target = Target("freddys", maindir, subdir)
+        count = 0
+        for filedir in filedirs:
+            # filedir_path should create the dir
+            path, _ = target.filedir_path(filedir)
+            assert os.path.isdir(path)
+            count += 1
+        assert count == 4
 
-        # Check if models are loaded.
-        # let's pretend that we received the models from the parsed schemas of the project and selected Kbs_V1_5
-        topping.load_available_models(self.project)
-        assert topping.models == ["KbS_V1_5"]
+    def test_parse_project(self):
+        """
+        "Big Group":
+            group: True
+            child-nodes:
+                - "Layer One":
+                    checked: True
+                - "Medium Group":
+                    group: True
+                    child-nodes:
+                        - "Layer Two":
+                        - "Small Group:
+                            - "Layer Three":
+                            - "Layer Four":
+                        - "Layer Five":
+        "All of em":
+            group: True
+            child-nodes:
+                - "Layer One":
+                    checked: False
+                - "Layer Two":
+                - "Layer Three":
+                    checked: False
+                - "Layer Four":
+                - "Layer Five":
+        """
+        project, _ = self._make_project_and_export_settings()
+        layers = project.layerTreeRoot().findLayers()
+        self.assertEqual(len(layers), 10)
 
-        # Check if the export_settings are applied properly when created the projecttopping
-        # load QGIS project into structure
+        project_topping = ProjectTopping()
+        project_topping.parse_project(project)
+
+        checked_groups = []
+        for item in project_topping.layertree.items:
+            if item.name == "Big Group":
+                assert len(item.items) == 2
+                checked_groups.append("Big Group")
+                for item in item.items:
+                    if item.name == "Medium Group":
+                        assert len(item.items) == 3
+                        checked_groups.append("Medium Group")
+                        for item in item.items:
+                            if item.name == "Small Group":
+                                assert len(item.items) == 2
+                                checked_groups.append("Small Group")
+        assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
+
+    def test_generate_files(self):
+        project, export_settings = self._make_project_and_export_settings()
+        layers = project.layerTreeRoot().findLayers()
+        self.assertEqual(len(layers), 10)
+
+        project_topping = ProjectTopping()
+        project_topping.parse_project(project, export_settings)
+
+        checked_groups = []
+        for item in project_topping.layertree.items:
+            if item.name == "Big Group":
+                assert len(item.items) == 2
+                checked_groups.append("Big Group")
+                for item in item.items:
+                    if item.name == "Medium Group":
+                        assert len(item.items) == 3
+                        checked_groups.append("Medium Group")
+                        for item in item.items:
+                            if item.name == "Small Group":
+                                assert len(item.items) == 2
+                                checked_groups.append("Small Group")
+        assert checked_groups == ["Big Group", "Medium Group", "Small Group"]
+
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
+        subdir = "freddys_projects/this_specific_project"
+
+        target = Target("freddys", maindir, subdir)
+
+        projecttopping_file_path = os.path.join(
+            target.main_dir, project_topping.generate_files(target)
+        )
+
+        # check projecttopping_file
+        foundAllofEm = False
+        foundLayerOne = False
+        foundLayerTwo = False
+
+        with open(projecttopping_file_path, "r") as yamlfile:
+            projecttopping_data = yaml.safe_load(yamlfile)
+            assert "layertree" in projecttopping_data
+            assert projecttopping_data["layertree"]
+            for node in projecttopping_data["layertree"]:
+                if "All of em" in node:
+                    foundAllofEm = True
+                    assert "child-nodes" in node["All of em"]
+                    for childnode in node["All of em"]["child-nodes"]:
+                        if "Layer One" in childnode:
+                            foundLayerOne = True
+                            assert "checked" in childnode["Layer One"]
+                            assert not childnode["Layer One"]["checked"]
+                        if "Layer Two" in childnode:
+                            foundLayerTwo = True
+                            assert "checked" in childnode["Layer Two"]
+                            assert childnode["Layer Two"]["checked"]
+        assert foundAllofEm
+        assert foundLayerOne
+        assert foundLayerTwo
+
+        # check toppingfiles
+
+        # there should be exported 6 files (see _make_project_and_export_settings)
+        # stylefiles:
+        # "Layer One"
+        # "Layer Three"
+        # "Layer Five"
+        #
+        # definitionfiles:
+        # "Layer Three"
+        # "Layer Four"
+        # "Layer Five"
+
         countchecked = 0
-        topping.create_projecttopping(self.project)
-        for item in topping.layertree.items:
-            if item.name == "Layer One":
-                assert item.properties.qmlstylefile
-                assert not item.properties.definitionfile
-                assert not (item.properties.provider or item.properties.uri)
+
+        # there should be 13 toppingfiles: one project topping, and 2 x 6 toppingfiles of the layers (since the layers are multiple times in the tree)
+        assert len(target.toppingfileinfo_list) == 13
+
+        for toppingfileinfo in target.toppingfileinfo_list:
+            assert "path" in toppingfileinfo
+            assert "type" in toppingfileinfo
+
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_one.qml"
+            ):
                 countchecked += 1
-            if item.name == "Layer Two":
-                assert not item.properties.qmlstylefile
-                assert not item.properties.definitionfile
-                assert item.properties.provider and item.properties.uri
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_three.qml"
+            ):
                 countchecked += 1
-            if item.name == "Layer Three":
-                assert item.properties.qmlstylefile
-                assert item.properties.definitionfile
-                assert item.properties.provider and item.properties.uri
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerstyle/freddys_layer_five.qml"
+            ):
                 countchecked += 1
-            if item.name == "Layer Four":
-                assert not item.properties.qmlstylefile
-                assert item.properties.definitionfile
-                assert not (item.properties.provider or item.properties.uri)
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_three.qlr"
+            ):
                 countchecked += 1
-            if item.name == "Layer Five":
-                assert not item.properties.qmlstylefile
-                assert item.properties.definitionfile
-                assert not (item.properties.provider or item.properties.uri)
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_four.qlr"
+            ):
                 countchecked += 1
-            if item.name == "Belasteter_Standort (Geo_Lage_Punkt)":
-                assert item.properties.qmlstylefile
-                assert not item.properties.definitionfile
-                assert not (item.properties.provider or item.properties.uri)
+            if (
+                toppingfileinfo["path"]
+                == "freddys_projects/this_specific_project/layerdefinition/freddys_layer_five.qlr"
+            ):
                 countchecked += 1
-            if item.name == "Belasteter_Standort":
-                assert not item.properties.qmlstylefile
-                assert not item.properties.definitionfile
-                assert item.properties.provider and item.propertiestem.uri
-                countchecked += 1
-        assert countchecked == 7
 
-        # let's pretend that the user selected some referencedata via filebrowser and maybe repos
-        codetexte_xtf = testdata_path("xtf/KbS_Codetexte_V1_5_20211015.xtf")
-        topping.referencedata_paths = [
-            codetexte_xtf,
-            "ilidata:data_from_another_repo",
-        ]
+        assert countchecked == 12
 
-        # let's pretend that we received the parsed schemas of the project and selected one specific. So we got the configuration.
-        # we append a metaattr file (toml), and a postscript we select from a repo
-        configuration = Ili2DbCommandConfiguration()
-        configuration.dbfile = self.dbfile
+    def test_custom_path_resolver(self):
+        # load QGIS project into structure
+        project_topping = ProjectTopping()
+        project, export_settings = self._make_project_and_export_settings()
+        project_topping.parse_project(project, export_settings)
 
-        topping.metaattr_filepath = testdata_path("toml/KbS_V1_5.toml")
-        topping.prescript_filepath = ""
-        topping.postscript_filepath = "ilidata:postscript_from_another_repo"
-        topping.create_ili2dbsettings(configuration)
-
-        # Check if the settings are loaded from the database
-        assert topping.metaconig.ili2dbsection["defaultSrsCode"] == 2056
-        assert topping.metaconig.ili2dbsection["smart2Inheritance"] == True
-        assert topping.metaconig.ili2dbsection["strokeArcs"] == False
-        assert topping.metaconig.ili2dbsection["importTid"] == True
-        assert topping.metaconig.ili2dbsection["createBasketCol"] == True
-
-        # ... and finally create the cake
-        # generate toppingfiles of ProjectTopping
-        projecttopping_id = topping.generate_projecttoppingfiles()
-
-        # generate toppingfiles of the reference data
-        referencedata_ids = ",".join(
-            [
-                self.generate_toppingfile_link(
-                    self.topping, IliProjectTopping.REFERENCEDATA_TYPE, path
-                )
-                for path in topping.referencedata_paths
-            ]
-        )
-        assert referencedata_ids == []
-
-        # update MetaConfig with toppingfile ids
-        topping.metaconfig.update_configuration_settings(
-            "qgis.modelbaker.projecttopping", projecttopping_id
-        )
-        topping.metaconfig.update_configuration_settings(
-            "ch.interlis.referenceData", referencedata_ids
-        )
-        assert (
-            topping.metaconfig.configuration_section["qgis.modelbaker.projecttopping"]
-            == "name"
-        )
-        assert (
-            topping.metaconfig.configuration_section["ch.interlis.referenceData"]
-            == "name"
-        )
-
-        # generate toppingfiles used for ili2db
-        if topping.metaattr_filepath:
-            topping.metaconfig.update_ili2db_settings(
-                "iliMetaAttrs",
-                topping.generate_toppingfile_link(
-                    topping.target,
-                    IliProjectTopping.METAATTR_TYPE,
-                    topping.metaattr_filepath,
-                ),
-            )
-        if topping.prescript_filepath:
-            topping.metaconfig.update_ili2db_settings(
-                "preScript",
-                topping.generate_toppingfile_link(
-                    topping.target,
-                    IliProjectTopping.SQLSCRIPT_TYPE,
-                    topping.prescript_filepath,
-                ),
-            )
-        if topping.postscript_filepath:
-            topping.metaconfig.update_ili2db_settings(
-                "postScript",
-                topping.generate_toppingfile_link(
-                    topping.target,
-                    IliProjectTopping.SQLSCRIPT_TYPE,
-                    topping.postscript_filepath,
-                ),
-            )
-
-        assert topping.metaconfig.ili2db_section["iliMetaAttrs"] == "name"
-        assert topping.metaconfig.ili2db_section["preScript"] == "name"
-        assert topping.metaconfig.ili2db_section["postScript"] == "name"
-
-        # generate metaconfig (topping) file
-        topping.metaconfig.generate_file(topping.target)
-
-        # Check if written
-
-        # generate ilidata.xml
-        topping.generate_ilidataxml(topping.target)
-
-        # Check if written
-
-    def test_workflow_bakedycakedy_way(self):
-        configuration = Ili2DbCommandConfiguration()
-        configuration.dbfile = self.dbfile
-        maindir = os.path.join(self.toppingmaker_test_path, "freddys_repository")
+        # create target with path resolver
+        maindir = os.path.join(self.projecttopping_test_path, "freddys_repository")
         subdir = "freddys_projects/this_specific_project"
 
-        # now do the automatic way
-        topping = IliProjectTopping("freddys", maindir, subdir, self.export_settings)
-        topping.bakedycakedy(self.project, configuration)
+        target = Target("freddys", maindir, subdir, custom_path_resolver)
 
-    def make_project_and_export_settings(self):
-        # import schema with modelbaker library
-        importer = iliimporter.Importer()
-        importer.tool = DbIliMode.ili2gpkg
-        importer.configuration.ilifile = testdata_path("ilimodels/KbS_V1_5.ili")
-        importer.configuration.ilimodels = "KbS_V1_5"
-        dbfile = os.path.join(
-            self.basetestpath,
-            "tmp_kbs_v1_5_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
-        )
-        importer.configuration.dbfile = dbfile
-        importer.configuration.srs_code = 2056
-        importer.configuration.create_basket_col = True
-        importer.configuration.inheritance = "smart2"
-        importer.configuration.stroke_arcs = False
-        importer.configuration.tomlfile = testdata_path("toml/KbS_V1_5.toml")
-        importer.stdout.connect(self.print_info)
-        importer.stderr.connect(self.print_error)
-        assert importer.run() == iliimporter.Importer.SUCCESS
+        project_topping.generate_files(target)
 
-        config_manager = GpkgCommandConfigManager(importer.configuration)
-        uri = config_manager.get_uri()
+        # there should be exported 6 files (see _make_project_and_export_settings)
+        # stylefiles:
+        # "Layer One"
+        # "Layer Three"
+        # "Layer Five"
+        #
+        # definitionfiles:
+        # "Layer Three"
+        # "Layer Four"
+        # "Layer Five"
 
-        generator = Generator(DbIliMode.ili2gpkg, uri, "smart2")
+        countchecked = 0
+        for toppingfileinfo in target.toppingfileinfo_list:
+            assert "id" in toppingfileinfo
+            assert "path" in toppingfileinfo
+            assert "type" in toppingfileinfo
+            assert "version" in toppingfileinfo
 
-        available_layers = generator.layers()
-        relations, _ = generator.relations(available_layers)
-        legend = generator.legend(available_layers)
+            if toppingfileinfo["id"] == "layerstyle_freddys_layer_one.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "layerstyle_freddys_layer_three.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "layerstyle_freddys_layer_five.qml_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "layerdefinition_freddys_layer_three.qlr_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "layerdefinition_freddys_layer_four.qlr_001":
+                countchecked += 1
+            if toppingfileinfo["id"] == "layerdefinition_freddys_layer_five.qlr_001":
+                countchecked += 1
 
-        project = Project()
-        project.layers = available_layers
-        project.relations = relations
-        project.legend = legend
-        project.post_generate()
+        assert countchecked == 6
 
-        qgis_project = QgsProject.instance()
-        project.create(None, qgis_project)
+    def _make_project_and_export_settings(self):
+        project = QgsProject()
+        project.removeAllMapLayers()
 
         l1 = QgsVectorLayer(
             "point?crs=epsg:4326&field=id:integer", "Layer One", "memory"
@@ -260,13 +267,13 @@ class IliProjectToppingTest(unittest.TestCase):
         )
         assert l5.isValid()
 
-        qgis_project.addMapLayer(l1, False)
-        qgis_project.addMapLayer(l2, False)
-        qgis_project.addMapLayer(l3, False)
-        qgis_project.addMapLayer(l4, False)
-        qgis_project.addMapLayer(l5, False)
+        project.addMapLayer(l1, False)
+        project.addMapLayer(l2, False)
+        project.addMapLayer(l3, False)
+        project.addMapLayer(l4, False)
+        project.addMapLayer(l5, False)
 
-        biggroup = qgis_project.layerTreeRoot().addGroup("Big Group")
+        biggroup = project.layerTreeRoot().addGroup("Big Group")
         biggroup.addLayer(l1)
         mediumgroup = biggroup.addGroup("Medium Group")
         mediumgroup.addLayer(l2)
@@ -274,7 +281,7 @@ class IliProjectToppingTest(unittest.TestCase):
         smallgroup.addLayer(l3)
         smallgroup.addLayer(l4)
         mediumgroup.addLayer(l5)
-        allofemgroup = qgis_project.layerTreeRoot().addGroup("All of em")
+        allofemgroup = project.layerTreeRoot().addGroup("All of em")
         node1 = allofemgroup.addLayer(l1)
         node1.setItemVisibilityChecked(False)
         allofemgroup.addLayer(l2)
@@ -282,10 +289,6 @@ class IliProjectToppingTest(unittest.TestCase):
         node3.setItemVisibilityChecked(False)
         allofemgroup.addLayer(l4)
         allofemgroup.addLayer(l5)
-
-        root = qgis_project.layerTreeRoot()
-        layers = root.findLayers()
-        assert len(layers) == 30
 
         export_settings = ExportSettings()
         export_settings.set_setting_values(
@@ -295,10 +298,7 @@ class IliProjectToppingTest(unittest.TestCase):
             ExportSettings.ToppingType.QMLSTYLE, None, "Layer Three", True
         )
         export_settings.set_setting_values(
-            ExportSettings.ToppingType.QMLSTYLE,
-            None,
-            "Belasteter_Standort (Geo_Lage_Punkt)",
-            True,
+            ExportSettings.ToppingType.QMLSTYLE, None, "Layer Five", True
         )
 
         export_settings.set_setting_values(
@@ -312,7 +312,7 @@ class IliProjectToppingTest(unittest.TestCase):
         )
 
         export_settings.set_setting_values(
-            ExportSettings.ToppingType.SOURCE, None, "Belasteter_Standort", True
+            ExportSettings.ToppingType.SOURCE, None, "Layer One", True
         )
         export_settings.set_setting_values(
             ExportSettings.ToppingType.SOURCE, None, "Layer Two", True
@@ -321,10 +321,34 @@ class IliProjectToppingTest(unittest.TestCase):
             ExportSettings.ToppingType.SOURCE, None, "Layer Three", True
         )
 
-        return qgis_project, dbfile, export_settings
+        print(export_settings.qmlstyle_setting_nodes)
+        print(export_settings.definition_setting_nodes)
+        print(export_settings.source_setting_nodes)
+        return project, export_settings
 
     def print_info(self, text):
         logging.info(text)
 
     def print_error(self, text):
         logging.error(text)
+
+
+def custom_path_resolver(target: Target, name, type):
+    _, relative_filedir_path = target.filedir_path(type)
+    id = unique_id_in_target_scope(target, f"{type}_{name}_001")
+    path = os.path.join(relative_filedir_path, name)
+    type = type
+    version = datetime.datetime.now().strftime("%Y-%m-%d")
+    toppingfile = {"id": id, "path": path, "type": type, "version": version}
+    target.toppingfileinfo_list.append(toppingfile)
+    return path
+
+
+def unique_id_in_target_scope(target: Target, id):
+    for toppingfileinfo in target.toppingfileinfo_list:
+        if "id" in toppingfileinfo and toppingfileinfo["id"] == id:
+            iterator = int(id[-3:])
+            iterator += 1
+            id = f"{id[:-3]}{iterator:03}"
+            return unique_id_in_target_scope(target, id)
+    return id

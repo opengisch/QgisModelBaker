@@ -23,7 +23,7 @@ import os
 from typing import Union
 
 from QgisModelBaker.internal_libs.toppingmaker import ProjectTopping, Target
-from QgisModelBaker.internal_libs.toppingmaker.utils import slugify, toppingfile_link
+from QgisModelBaker.internal_libs.toppingmaker.utils import slugify
 
 from .ili2dbsettings import Ili2dbSettings
 
@@ -140,4 +140,4 @@ class MetaConfig(object):
             # it's already an id pointing to somewhere, no toppingfile needs to be created
             return path
         # copy file from path to our target, and return the ilidata_pathresolved id
-        return toppingfile_link(target, type, path)
+        return target.toppingfile_link(type, path)

@@ -23,6 +23,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
+from QgisModelBaker.internal_libs.ilitoppingmaker import IliTarget
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
 from QgisModelBaker.utils import gui_utils
 
@@ -94,14 +95,9 @@ class TargetPage(QWizardPage, PAGE_UI):
                 gui_utils.LogColor.COLOR_FAIL,
             )
             return False
-        if not self.topping_wizard.topping.create_target(
-            projectname, mainfolder, subfolder, owner, publishing_date, version
-        ):
-            self.topping_wizard.log_panel.print_info(
-                self.tr("Target cannot be created."),
-                gui_utils.LogColor.COLOR_FAIL,
-            )
-            return False
+        self.topping_wizard.topping.target = IliTarget(
+            projectname, mainfolder, subfolder, None, owner, publishing_date, version
+        )
         return super().validatePage()
 
     def _update_info_box(self):

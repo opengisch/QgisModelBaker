@@ -18,6 +18,9 @@
  ***************************************************************************/
 """
 import os
+import shutil
+
+from .utils import slugify
 
 
 class Target(object):
@@ -59,7 +62,7 @@ class Target(object):
         self.path_resolver = path_resolver
 
         if not path_resolver:
-            self.path_resolver = default_path_resolver
+            self.path_resolver = self.default_path_resolver
 
         self.toppingfileinfo_list = []
 
@@ -70,11 +73,19 @@ class Target(object):
             os.makedirs(absolute_path)
         return absolute_path, relative_path
 
+    def toppingfile_link(self, type: str, path: str):
+        filename_slug = f"{slugify(self.projectname)}_{os.path.basename(path)}"
+        absolute_filedir_path, relative_filedir_path = self.filedir_path(type)
+        shutil.copy(
+            path,
+            os.path.join(absolute_filedir_path, filename_slug),
+        )
+        return self.path_resolver(self, filename_slug, type)
 
-def default_path_resolver(target: Target, name, type):
-    _, relative_filedir_path = target.filedir_path(type)
+    def default_path_resolver(self, target, name, type):
+        _, relative_filedir_path = target.filedir_path(type)
 
-    toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
-    target.toppingfileinfo_list.append(toppingfile)
+        toppingfile = {"path": os.path.join(relative_filedir_path, name), "type": type}
+        target.toppingfileinfo_list.append(toppingfile)
 
-    return os.path.join(relative_filedir_path, name)
+        return os.path.join(relative_filedir_path, name)

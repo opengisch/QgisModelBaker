@@ -18,6 +18,8 @@
  ***************************************************************************/
 """
 
+from QgisModelBaker.internal_libs.toppingmaker import ExportSettings
+
 from .ili2dbsettings import Ili2dbSettings
 from .ilidata import IliData
 from .iliprojecttopping import IliProjectTopping
