@@ -24,7 +24,12 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.internal_libs.ilitoppingmaker import IliTarget
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    FileValidator,
+    Validators,
+    make_folder_selector,
+    slugify,
+)
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/target.ui")
@@ -53,6 +58,14 @@ class TargetPage(QWizardPage, PAGE_UI):
                 )
             )
         )
+        self.main_folder_line_edit.setPlaceholderText(
+            self.tr("Cannot be empty. Folder will be created if not existing.")
+        )
+        self.sub_folder_line_edit.setPlaceholderText(
+            self.tr("Folder will be created if not existing.")
+        )
+
+        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
 
         self.main_folder_browse_button.clicked.connect(
             make_folder_selector(
@@ -61,14 +74,18 @@ class TargetPage(QWizardPage, PAGE_UI):
                 parent=None,
             )
         )
+
+        self.validators = Validators()
+        self.folder_validator = FileValidator(allow_non_existing=True)
+        self.main_folder_line_edit.setValidator(self.folder_validator)
+        self.main_folder_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.main_folder_line_edit.textChanged.emit(self.main_folder_line_edit.text())
+
         self.projectname_line_edit.textChanged.connect(self._update_info_box)
         self.main_folder_line_edit.textChanged.connect(self._update_info_box)
         self.sub_folder_line_edit.textChanged.connect(self._update_info_box)
-
-        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
-        """
-        - [ ] nice to have: folder validator for target line edits
-        """
 
     def initializePage(self) -> None:
         return super().initializePage()

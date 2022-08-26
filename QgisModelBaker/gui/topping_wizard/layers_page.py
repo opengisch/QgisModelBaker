@@ -107,6 +107,8 @@ class LayerModel(QgsLayerTreeModel):
         self.use_definition_nodes = {}
         self.ili_schema_identificators = []
 
+        self.reload()
+
     def columnCount(self, parent):
         return len(LayerModel.Columns)
 
@@ -243,7 +245,11 @@ class LayerModel(QgsLayerTreeModel):
             else:
                 self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
-    def load_ili_schema_identificators(self):
+    def reload(self):
+        self._load_ili_schema_identificators()
+        self._set_default_values()
+
+    def _load_ili_schema_identificators(self):
         """
         Checks all the layers if it's based on an interlis class.
         This is not done every time the layertree changes, so not realtime to have better performance.
@@ -287,6 +293,76 @@ class LayerModel(QgsLayerTreeModel):
             source_provider, source
         )
         return schema_identificator in self.ili_schema_identificators
+
+    def _set_default_values(self):
+        """
+        Sets QMLSTYLE for vector layers from INTERLIS schema and the SOURCE for all the others.
+        Groups are unset on default.
+        """
+        root = self.rootGroup()
+        layernodes = root.findLayers()
+        groupnodes = root.findGroups(True)
+
+        self.beginResetModel()
+        for layernode in layernodes:
+            if self._is_ili_schema(layernode.layer()):
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.QMLSTYLE,
+                    layernode,
+                    None,
+                    bool(True),
+                )
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.DEFINITION,
+                    layernode,
+                    None,
+                    bool(False),
+                )
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.SOURCE,
+                    layernode,
+                    None,
+                    bool(False),
+                )
+            else:
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.QMLSTYLE,
+                    layernode,
+                    None,
+                    bool(False),
+                )
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.DEFINITION,
+                    layernode,
+                    None,
+                    bool(False),
+                )
+                self.export_settings.set_setting_values(
+                    ExportSettings.ToppingType.SOURCE,
+                    layernode,
+                    None,
+                    bool(True),
+                )
+        for groupnode in groupnodes:
+            self.export_settings.set_setting_values(
+                ExportSettings.ToppingType.QMLSTYLE,
+                groupnode,
+                None,
+                bool(False),
+            )
+            self.export_settings.set_setting_values(
+                ExportSettings.ToppingType.DEFINITION,
+                groupnode,
+                None,
+                bool(False),
+            )
+            self.export_settings.set_setting_values(
+                ExportSettings.ToppingType.SOURCE,
+                groupnode,
+                None,
+                bool(False),
+            )
+        self.endResetModel()
 
 
 class StyleCatDelegate(QStyledItemDelegate):
@@ -355,12 +431,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.categories_dialog = LayerStyleCategoriesDialog()
         self.stylecat_delegate.button_clicked.connect(self.open_categories_dialog)
-
-        """
-        - [ ] default values
-        - [ ] could be finetuned a lot - like eg. when definition of group is selected the childs are disabled
-        - [ ] soll man source irgendwie absolut setzten können
-        """
+        self.reset_button.clicked.connect(self.layermodel.reload)
 
     def open_categories_dialog(self, index):
         layername = index.data(int(Qt.DisplayRole))
@@ -378,7 +449,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
     def initializePage(self) -> None:
         self.layermodel.export_settings = self.topping_wizard.topping.export_settings
-        self.layermodel.load_ili_schema_identificators()
+        self.layermodel.reload()
         return super().initializePage()
 
     def validatePage(self) -> bool:

@@ -119,7 +119,6 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        # - [ ] where to put the model? toppingmaker? topping_wizard? keep it here?
         self.topping_wizard.topping.set_referencedata_paths(
             self._all_paths_from_model()
         )

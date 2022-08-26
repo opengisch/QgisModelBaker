@@ -807,7 +807,6 @@ class CheckEntriesModel(QStringListModel):
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self._checked_entries[self.data(index, Qt.DisplayRole)] = data
-            print(f"i do {data}")
         else:
             QStringListModel.setData(self, index, role, data)
 

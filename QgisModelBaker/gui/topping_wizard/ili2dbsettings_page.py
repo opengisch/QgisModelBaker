@@ -180,11 +180,8 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.post_script_file_line_edit.textChanged.emit(
             self.post_script_file_line_edit.text()
         )
-        # - [ ] files stuff
-        # - [ ] possibility to add / remove and change
 
     def initializePage(self) -> None:
-        # - [ ] Ist das der Ort Models etc zu laden? Diese Funktion wird aufgerufen, jedes mal wenn mit "next" auf die Seite kommt.
         self._refresh_combobox()
         self.pre_script_file_line_edit.setText(
             self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
