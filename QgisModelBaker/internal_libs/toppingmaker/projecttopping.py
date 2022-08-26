@@ -105,9 +105,14 @@ class ProjectTopping(object):
                 )
                 if source_setting.get("export", False):
                     if node.layer().dataProvider():
-                        self.properties.provider = node.layer().dataProvider().name()
+                        if node.layer().dataProvider():
+                            self.properties.provider = (
+                                node.layer().dataProvider().name()
+                            )
                         self.properties.uri = (
-                            node.layer().dataProvider().dataSourceUri()
+                            QgsProject.instance()
+                            .pathResolver()
+                            .writePath(node.layer().publicSource())
                         )
                 qml_setting = export_settings.get_setting(
                     ExportSettings.ToppingType.QMLSTYLE, node, node.name()
