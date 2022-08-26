@@ -105,7 +105,7 @@ VALID_COLOR = GREEN
 
 VALID_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: {#A1DE9B}; width: 20px;}
+    QProgressBar::chunk {background-color: #A1DE9B; width: 20px;}
     QProgressBar {
         border: 2px solid grey;
         border-radius: 5px;
