@@ -130,8 +130,7 @@ class MetaConfig(object):
         with open(
             os.path.join(absolute_filedir_path, metaconfig_slug), "w"
         ) as configfile:
-            output = metaconfig.write(configfile)
-            print(output)
+            metaconfig.write(configfile)
 
         return target.path_resolver(target, metaconfig_slug, MetaConfig.METACONFIG_TYPE)
 

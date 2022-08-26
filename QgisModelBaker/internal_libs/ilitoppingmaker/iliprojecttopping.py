@@ -19,7 +19,7 @@
 """
 
 
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 
 from QgisModelBaker.internal_libs.toppingmaker import ExportSettings, ProjectTopping
 
@@ -57,6 +57,10 @@ class IliProjectTopping(ProjectTopping):
     def models(self):
         return self.metaconfig.ili2db_settings.models
 
+    @property
+    def referencedata_paths(self):
+        return self.metaconfig.referencedata_paths
+
     def set_models(self, models: list = []):
         self.metaconfig.ili2db_settings.models = models
 
@@ -68,8 +72,13 @@ class IliProjectTopping(ProjectTopping):
         Creates everything - generates all the files.
         Returns the path to the ilidata.xml file.
         """
+        self.stdout.emit(self.tr("Generate everything."), Qgis.Info)
         ilidata_path = None
         if not project:
+            self.stdout.emit(
+                self.tr("Cannot generate anything without having a QGIS project."),
+                Qgis.Warning,
+            )
             return False
         # Creates and sets the project_topping considering the passed QgsProject and the existing ExportSettings.
         self.parse_project(project, self.export_settings)
@@ -80,10 +89,16 @@ class IliProjectTopping(ProjectTopping):
         self.metaconfig.update_projecttopping_path(projecttopping_id)
 
         # generate metaconfig (topping) file
-        self.metaconfig.generate_files(self.target)
+        if self.metaconfig.generate_files(self.target):
+            self.stdout.emit(self.tr("MetaConfig written to INI file."), Qgis.Info)
 
         # generate ilidata
         ilidata = IliData()
         ilidata_path = ilidata.generate_file(self.target, self.models)
+        if ilidata_path:
+            self.stdout.emit(
+                self.tr("IliData written to XML file: {}").format(ilidata_path),
+                Qgis.Info,
+            )
 
         return ilidata_path

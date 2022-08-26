@@ -115,6 +115,10 @@ class TargetPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.target = IliTarget(
             projectname, mainfolder, subfolder, None, owner, publishing_date, version
         )
+        self.topping_wizard.log_panel.print_info(
+            self.tr("Target Object created."),
+            gui_utils.LogColor.COLOR_SUCCESS,
+        )
         return super().validatePage()
 
     def _update_info_box(self):

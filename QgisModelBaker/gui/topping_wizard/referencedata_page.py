@@ -122,6 +122,22 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.set_referencedata_paths(
             self._all_paths_from_model()
         )
+        if self.topping_wizard.topping.referencedata_paths:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "ReferenceData set: {referencedatapaths}".format(
+                        referencedatapaths=", ".join(
+                            self.topping_wizard.topping.referencedata_paths
+                        )
+                    )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
+        else:
+            self.topping_wizard.log_panel.print_info(
+                self.tr("No referenceData set."),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
         return super().validatePage()
 
     def update_referecedata_cache_model(self, filter_models, type):

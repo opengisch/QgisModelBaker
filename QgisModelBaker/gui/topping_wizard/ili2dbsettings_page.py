@@ -204,6 +204,41 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path = (
             self.toml_file_line_edit.text()
         )
+        self.topping_wizard.log_panel.print_info(
+            self.tr(
+                "Chosen ili2db settings from: {schema}".format(
+                    schema=self.schema_combobox.currentText()
+                )
+            ),
+            gui_utils.LogColor.COLOR_SUCCESS,
+        )
+        if self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "Pre-script: {path}".format(
+                        path=self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
+                    )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
+        if self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "Post-script: {path}".format(
+                        path=self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
+                    )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
+        if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "Extra Model Information File: {path}".format(
+                        path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
+                    )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
         return super().validatePage()
 
     def _refresh_combobox(self):

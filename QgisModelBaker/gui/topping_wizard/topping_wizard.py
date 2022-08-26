@@ -50,6 +50,7 @@ class ToppingWizard(QWizard):
         self.base_config = base_config
 
         self.topping = IliProjectTopping()
+        self.topping.stdout.connect(self.log_panel.print_info)
 
         # pages setup
         self.target_page = TargetPage(

@@ -53,13 +53,21 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        if not self.topping_wizard.topping:
-            self.topping_wizard.log_panel.print_info(
-                self.tr("At least one model should be selected."),
-                gui_utils.LogColor.COLOR_FAIL,
-            )
-            return False
         self.topping_wizard.topping.set_models(self.models_model.checked_entries())
+        if self.topping_wizard.topping.models:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "Models set: {models}".format(
+                        models=", ".join(self.topping_wizard.topping.models)
+                    )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
+        else:
+            self.topping_wizard.log_panel.print_info(
+                self.tr("No models set."),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
         return super().validatePage()
 
     def _refresh(self):

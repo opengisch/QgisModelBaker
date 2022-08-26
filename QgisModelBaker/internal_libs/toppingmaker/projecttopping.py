@@ -23,19 +23,21 @@ from typing import Union
 
 import yaml
 from qgis.core import (
+    Qgis,
     QgsLayerDefinition,
     QgsLayerTreeGroup,
     QgsLayerTreeLayer,
     QgsMapLayer,
     QgsProject,
 )
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from .exportsettings import ExportSettings
 from .target import Target
 from .utils import slugify
 
 
-class ProjectTopping(object):
+class ProjectTopping(QObject):
     """
     A project configuration resulting in a YAML file that contains:
     - layertree
@@ -45,6 +47,8 @@ class ProjectTopping(object):
     - map themes (future)
     QML style files, QLR layer definition files and the source of a layer can be linked in the YAML file and are exported to the specific folders.
     """
+
+    stdout = pyqtSignal(str, int)
 
     PROJECTTOPPING_TYPE = "projecttopping"
     LAYERDEFINITION_TYPE = "layerdefinition"
@@ -182,6 +186,7 @@ class ProjectTopping(object):
             return temporary_toppingfile_path
 
     def __init__(self):
+        QObject.__init__(self)
         self.layertree = self.LayerTreeItem()
         self.layerorder = []
 
@@ -200,8 +205,13 @@ class ProjectTopping(object):
             self.layerorder = (
                 root.customLayerOrder() if root.hasCustomLayerOrder() else []
             )
+            self.stdout.emit(
+                self.tr("QGIS project parsed with export settings."), Qgis.Info
+            )
         else:
-            print("could not load the project...")
+            self.stdout.emit(
+                self.tr("Could not parse the QGIS project..."), Qgis.Warning
+            )
             return False
         return True
 
@@ -222,9 +232,13 @@ class ProjectTopping(object):
         with open(
             os.path.join(absolute_filedir_path, projecttopping_slug), "w"
         ) as projecttopping_yamlfile:
-            output = yaml.dump(projecttopping_dict, projecttopping_yamlfile)
-            print(output)
-
+            yaml.dump(projecttopping_dict, projecttopping_yamlfile)
+            self.stdout.emit(
+                self.tr("Project Topping written to YAML file: {}").format(
+                    projecttopping_yamlfile
+                ),
+                Qgis.Info,
+            )
         return target.path_resolver(
             target, projecttopping_slug, ProjectTopping.PROJECTTOPPING_TYPE
         )

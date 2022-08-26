@@ -41,13 +41,17 @@ class GenerationPage(QWizardPage, PAGE_UI):
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
+        result_message = ""
         ilidata_file = self.topping_wizard.topping.makeit(QgsProject.instance())
         if ilidata_file:
             self.progress_bar.setValue(100)
-            self.progress_bar.setFormat(self.tr("Topping generated 🧁"))
-            self.progress_bar.setTextVisible(True)
+            result_message = self.tr("Topping generated 🧁")
             self.info_text_box.setHtml(f"Find the ilidata.xml here:\n\n{ilidata_file}")
         else:
             self.progress_bar.setValue(0)
-            self.progress_bar.setFormat(self.tr("Topping not generated 💩"))
-            self.progress_bar.setTextVisible(True)
+            result_message = self.tr("Topping not generated 💩")
+        self.progress_bar.setFormat(result_message)
+        self.progress_bar.setTextVisible(True)
+        self.topping_wizard.log_panel.print_info(
+            result_message, gui_utils.LogColor.COLOR_SUCCESS
+        )

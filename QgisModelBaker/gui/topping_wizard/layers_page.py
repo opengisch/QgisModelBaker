@@ -453,8 +453,8 @@ class LayersPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        # does it work witout that? because it's a pointer?
-        # self.topping_wizard.topping.export_settings = (
-        #    self.layermodel.export_settings
-        # )
+        self.topping_wizard.log_panel.print_info(
+            self.tr("Set export settings for layers."),
+            gui_utils.LogColor.COLOR_SUCCESS,
+        )
         return super().validatePage()
