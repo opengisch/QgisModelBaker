@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 
 from qgis.core import QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import Qt
@@ -103,7 +104,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         publishing_date = self.publishingdate_date_edit.date().toString(Qt.ISODate)
         version = self.version_date_edit.date().toString(Qt.ISODate)
 
-        mainfolder = self.main_folder_line_edit.text()
+        mainfolder = os.path.abspath(self.main_folder_line_edit.text())
         subfolder = self.sub_folder_line_edit.text()
 
         if not mainfolder:
@@ -130,7 +131,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         )
 
         if mainfolder and subfolder:
-            text = f"""{mainfolder}/
+            text = f"""{os.path.abspath(mainfolder)}/
 ├─ ilidata.xml
 ├─ {subfolder}/
     ├─ metaconfig/
@@ -143,7 +144,7 @@ class TargetPage(QWizardPage, PAGE_UI):
     ├─ etc.
             """
         elif mainfolder:
-            text = f"""{self.main_folder_line_edit.text()}/
+            text = f"""{os.path.abspath(mainfolder)}/
 ├─ ilidata.xml
 ├─ metaconfig/
 │  ├─ {projectname_slug}.ini
