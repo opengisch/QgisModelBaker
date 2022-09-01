@@ -29,7 +29,7 @@ from qgis.core import (
 )
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QFileDialog, QHeaderView, QMenu
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
@@ -178,6 +178,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         self.auto_pan_button.clicked.connect(self._auto_pan_button_clicked)
         self.auto_zoom_button.clicked.connect(self._auto_zoom_button_clicked)
+
+        self.validator_config_file_tool_button.clicked.connect(
+            self._select_validator_config_file
+        )
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
@@ -341,6 +345,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             validator.configuration.ilimodels = ";".join(
                 self.current_models_model.stringList()
             )
+
+        validator.configuration.skip_geometry_errors = (
+            self.skip_geometry_errors_check_box.isChecked()
+        )
+        validator.configuration.valid_config = (
+            self.validator_config_file_line_edit.text()
+        )
 
         self.progress_bar.setValue(20)
         validation_result_state = False
@@ -516,3 +527,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _auto_zoom_button_clicked(self):
         if self.auto_zoom_button.isChecked:
             self.auto_pan_button.setChecked(False)
+
+    def _select_validator_config_file(self):
+        filename, _ = QFileDialog.getOpenFileName(
+            self, self.tr("Select the validator config file")
+        )
+        if filename:
+            self.validator_config_file_line_edit.setText(filename)
