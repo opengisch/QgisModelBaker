@@ -46,7 +46,7 @@ import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.topping_wizard.layer_style_categories import (
     LayerStyleCategoriesDialog,
 )
-from QgisModelBaker.internal_libs.toppingmaker import ExportSettings
+from QgisModelBaker.libs.modelbaker.ilitoppingmaker import ExportSettings
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )

@@ -24,7 +24,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
-from QgisModelBaker.internal_libs.ilitoppingmaker import IliTarget
+from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliTarget
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
     Validators,

@@ -29,7 +29,7 @@ from QgisModelBaker.gui.topping_wizard.layers_page import LayersPage
 from QgisModelBaker.gui.topping_wizard.models_page import ModelsPage
 from QgisModelBaker.gui.topping_wizard.referencedata_page import ReferencedataPage
 from QgisModelBaker.gui.topping_wizard.target_page import TargetPage
-from QgisModelBaker.internal_libs.ilitoppingmaker import IliProjectTopping
+from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliProjectTopping
 from QgisModelBaker.utils.gui_utils import ToppingWizardPageIds
 
 
