@@ -54,7 +54,7 @@ class DatasetSelector(QComboBox):
             self.currentIndexChanged.disconnect(self._store_basket_tid)
             self.setEnabled(False)
 
-        if not layer or not layer.dataProvider().isValid():
+        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
             return
 
         source_provider = layer.dataProvider()
