@@ -28,7 +28,7 @@ from qgis.core import (
     QgsRectangle,
 )
 from qgis.gui import QgsGui
-from qgis.PyQt.QtCore import QStandardPaths, Qt
+from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QHeaderView, QMenu
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -165,7 +165,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.visibilityChanged.connect(self._visibility_changed)
 
         self.result_table_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.result_table_view.customContextMenuRequested.connect(self._table_clicked)
+        self.result_table_view.customContextMenuRequested.connect(
+            self._table_context_menu_requested
+        )
+        self.result_table_view.clicked.connect(self._table_clicked)
+
+        self.flash_button.setIcon(
+            QgsApplication.getThemeIcon("/mActionHighlightFeature.svg")
+        )
+        self.auto_pan_button.setIcon(QgsApplication.getThemeIcon("/mActionPanTo.svg"))
+        self.auto_zoom_button.setIcon(QgsApplication.getThemeIcon("/mActionZoomTo.svg"))
+
+        self.auto_pan_button.clicked.connect(self._auto_pan_button_clicked)
+        self.auto_zoom_button.clicked.connect(self._auto_zoom_button_clicked)
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
@@ -384,7 +396,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
 
-    def _table_clicked(self, pos):
+    def _table_context_menu_requested(self, pos):
         if not self.result_table_view.indexAt(pos).isValid():
             self.result_table_view.clearSelection()
             return
@@ -439,6 +451,38 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             menu.addAction(action_copy)
         menu.exec_(self.result_table_view.mapToGlobal(pos))
 
+    def _table_clicked(self, index):
+        if not index.isValid():
+            return
+
+        coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
+        coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
+        if not coord_x or not coord_y:
+            return
+
+        t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
+        layer, feature = self._get_feature_in_project(t_ili_tid)
+        if not layer or not feature:
+            return
+
+        if self.auto_pan_button.isChecked():
+            QTimer.singleShot(
+                1,
+                lambda: self.iface.mapCanvas().panToFeatureIds(
+                    layer, [feature.id()], False
+                ),
+            )
+        elif self.auto_zoom_button.isChecked():
+            QTimer.singleShot(
+                1,
+                lambda: self.iface.mapCanvas().zoomToFeatureIds(layer, [feature.id()]),
+            )
+
+        if self.flash_button.isChecked():
+            QTimer.singleShot(
+                1, lambda: self.iface.mapCanvas().flashFeatureIds(layer, [feature.id()])
+            )
+
     def _zoom_to_coordinate(self, x, y):
         if x and y:
             scale = 50
@@ -464,3 +508,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     if feature.attributes()[idx] == t_ili_tid:
                         return layer, feature
         return None, None
+
+    def _auto_pan_button_clicked(self):
+        if self.auto_pan_button.isChecked:
+            self.auto_zoom_button.setChecked(False)
+
+    def _auto_zoom_button_clicked(self):
+        if self.auto_zoom_button.isChecked:
+            self.auto_pan_button.setChecked(False)
