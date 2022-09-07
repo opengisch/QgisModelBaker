@@ -78,6 +78,9 @@ With this option you activate the [Dataset and Basket Handling](../../background
 
 When this option is checked, Model Baker passes `--createBasketCol` to the ili2db command. Ili2db creates a new column `T_basket` in class tables which references entries in the additional table `t_ili2db_baskets`. The `T_basket` column needs to be filled with the basket to which an object belongs.
 
+!!! Note
+    If `BASKET OID` is defined in the model, it's required to use the basket handling in QGIS (we need to create the physical model the ili2db parameter `--createBasketCol`). This is currently not automatically detected by the Model Baker and needs to be assured by the user.
+
 When the dataset and basket handling is enabled, a default Dataset called `Baseset` will be created and one basket per topic in the INTERLIS model.
 ### Stroke Arcs
 
