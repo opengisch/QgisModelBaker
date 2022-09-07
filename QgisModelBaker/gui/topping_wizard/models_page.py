@@ -53,7 +53,7 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        self.topping_wizard.topping.set_models(self.models_model.checked_entries())
+        self.topping_wizard.topping.models = self.models_model.checked_entries()
         if self.topping_wizard.topping.models:
             self.topping_wizard.log_panel.print_info(
                 self.tr(

@@ -119,9 +119,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        self.topping_wizard.topping.set_referencedata_paths(
-            self._all_paths_from_model()
-        )
+        self.topping_wizard.topping.referencedata_paths = self._all_paths_from_model()
         if self.topping_wizard.topping.referencedata_paths:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
