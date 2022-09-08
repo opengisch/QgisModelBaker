@@ -88,7 +88,6 @@ class ParametersModel(QAbstractItemModel):
         return None
 
     def setData(self, index, role, data):
-        print(data)
         if role == int(Qt.EditRole):
             if index.column() == ParametersModel.Columns.NAME:
                 key = list(self.parameters.keys())[index.row()]
