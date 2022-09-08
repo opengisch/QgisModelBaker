@@ -281,8 +281,9 @@ class LayerModel(QgsLayerTreeModel):
                     db_connector = db_utils.get_db_connector(configuration)
 
                     if (
-                        db_connector.db_or_schema_exists()
-                        or db_connector.metadata_exists()
+                        db_connector
+                        and db_connector.db_or_schema_exists()
+                        and db_connector.metadata_exists()
                     ):
                         self.ili_schema_identificators.append(schema_identificator)
 

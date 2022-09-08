@@ -100,5 +100,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
                     if valid and mode:
                         current_configuration.tool = mode
                         db_connector = db_utils.get_db_connector(current_configuration)
-                        db_connectors.append(db_connector)
+                        if db_connector:
+                            db_connectors.append(db_connector)
         self.models_model.refresh_model(db_connectors)

@@ -89,9 +89,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.input_line_edit.setCompleter(completer)
-        self.input_line_edit.textChanged.emit(self.input_line_edit.text())
         self.input_line_edit.textChanged.connect(self._complete_referencedata_completer)
         self.input_line_edit.punched.connect(self._complete_referencedata_completer)
+        self.input_line_edit.textChanged.emit(self.input_line_edit.text())
 
         self.source_model = SourceModel()
         self.source_list_view.setModel(self.source_model)

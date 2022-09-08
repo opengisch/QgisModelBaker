@@ -267,8 +267,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     db_connector = db_utils.get_db_connector(configuration)
                     # only load it when it exists and metadata there (contains interlis data)
                     if (
-                        db_connector.db_or_schema_exists()
-                        or db_connector.metadata_exists()
+                        db_connector
+                        and db_connector.db_or_schema_exists()
+                        and db_connector.metadata_exists()
                     ):
                         self.schema_combobox.addItem(
                             schema_identificator, configuration
