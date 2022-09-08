@@ -405,7 +405,7 @@ class WorkflowWizard(QWizard):
 
     def refresh_export_models(self):
         db_connector = db_utils.get_db_connector(self.export_data_configuration)
-        self.current_models_model.refresh_model(db_connector)
+        self.current_models_model.refresh_model([db_connector])
         self.current_datasets_model.refresh_model(db_connector)
         self.current_baskets_model.refresh_model(db_connector)
         return

@@ -50,39 +50,6 @@ from QgisModelBaker.utils.gui_utils import (
 
 DIALOG_UI = gui_utils.get_ui_class("validator.ui")
 
-VALID_COLOR = "#adde9b"
-
-VALID_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #adde9b; width: 20px;}
-    QProgressBar {
-        border: 2px solid grey;
-        border-radius: 5px;
-        text-align: center;
-    }
-    """
-
-INVALID_COLOR = "#de9b9b"
-
-INVALID_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #de9b9b; width: 20px;}
-    QProgressBar {
-        border: 2px solid grey;
-        border-radius: 5px;
-        text-align: center;
-    }
-    """
-
-NOSTATUS_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #9bcade; width: 20px;}
-    QProgressBar {
-        border: 2px solid grey;
-        border-radius: 5px;
-        text-align: center;
-    }
-    """
 
 # validate tools
 class ValidationResultTableModel(ValidationResultModel):
@@ -106,9 +73,9 @@ class ValidationResultTableModel(ValidationResultModel):
                 return item.data(int(self.roles[index.column()]))
             if role == Qt.DecorationRole:
                 return (
-                    QColor(VALID_COLOR)
+                    QColor(gui_utils.VALID_COLOR)
                     if item.data(int(ValidationResultModel.Roles.FIXED))
-                    else QColor(INVALID_COLOR)
+                    else QColor(gui_utils.INVALID_COLOR)
                 )
             if role == Qt.ToolTipRole:
                 tooltip_text = "{type} at {tid}".format(
@@ -195,7 +162,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self._reset_current_values()
         self.info_label.setText("")
         self.progress_bar.setTextVisible(False)
-        self.setStyleSheet(NOSTATUS_STYLE)
+        self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.result_table_view.setModel(
             ValidationResultTableModel(self.requested_roles)
         )
@@ -293,7 +260,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         db_connector = db_utils.get_db_connector(self.current_configuration)
         self.schema_validations[
             self.current_schema_identificator
-        ].models_model.refresh_model(db_connector)
+        ].models_model.refresh_model([db_connector])
         self.schema_validations[
             self.current_schema_identificator
         ].datasets_model.refresh_model(db_connector)
@@ -317,7 +284,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _run(self, edited_command=None):
         if self.iface.actionToggleEditing().isChecked():
             self.iface.actionToggleEditing().trigger()
-        self.setStyleSheet(NOSTATUS_STYLE)
+        self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
         self._disable_controls(True)
@@ -396,10 +363,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         if valid:
             self.progress_bar.setFormat(self.tr("Schema is valid"))
-            self.setStyleSheet(VALID_STYLE)
+            self.setStyleSheet(gui_utils.VALID_STYLE)
         else:
             self.progress_bar.setFormat(self.tr("Schema is not valid"))
-            self.setStyleSheet(INVALID_STYLE)
+            self.setStyleSheet(gui_utils.INVALID_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
 

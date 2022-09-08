@@ -94,6 +94,47 @@ TRANSFERFILE_MODELS_BLACKLIST = [
     "Units",
 ]
 
+# style
+ORANGE = "#D1C28E"
+GREEN = "#A1DE9B"
+BLUE = "#9BCADE"
+PURPLE = "#B18BC9"
+RED = "#EBB3A4"
+
+VALID_COLOR = GREEN
+
+VALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #A1DE9B; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+INVALID_COLOR = RED
+
+INVALID_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #EBB3A4; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+DEFAULT_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #9BCADE; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
 
 class LogColor:
     COLOR_INFO = "#000000"
@@ -122,6 +163,15 @@ class PageIds:
     ExportDataConfiguration = 10
     ExportDataExecution = 11
     ProjectCreation = 12
+
+
+class ToppingWizardPageIds:
+    Target = 1
+    Models = 2
+    Layers = 3
+    ReferenceData = 4
+    Ili2dbSettings = 5
+    Generation = 6
 
 
 # Util functions
@@ -782,19 +832,30 @@ class CheckEntriesModel(QStringListModel):
             if self._checked_entries[name] == Qt.Checked
         ]
 
+    def check_entries(self, entries: list = []):
+        """
+        Checks the passed entries and unchecks all others.
+        """
+        for name in self.stringList():
+            if name in entries:
+                self._checked_entries[name] == Qt.Checked
+            else:
+                self._checked_entries[name] == Qt.Unchecked
+
 
 class SchemaModelsModel(CheckEntriesModel):
     """
     Model providing all the models from the database (except the blacklisted ones) and it's checked state used to filter data according to models
+    Multiple db_connectors can be passed to scan multiple sources.
     """
 
     def __init__(self):
         super().__init__()
 
-    def refresh_model(self, db_connector=None):
+    def refresh_model(self, db_connectors=[]):
         modelnames = []
 
-        if db_connector:
+        for db_connector in db_connectors:
             if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
                 db_models = db_connector.get_models()
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
