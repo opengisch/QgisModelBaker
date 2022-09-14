@@ -288,6 +288,9 @@ class LayerModel(QgsLayerTreeModel):
                         self.ili_schema_identificators.append(schema_identificator)
 
     def _is_ili_schema(self, layer):
+        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
+            return False
+
         source_provider = layer.dataProvider()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = db_utils.get_schema_identificator_from_layersource(
