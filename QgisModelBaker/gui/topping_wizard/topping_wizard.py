@@ -19,7 +19,7 @@
 """
 
 
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -81,6 +81,11 @@ class ToppingWizard(QWizard):
 
         self.currentIdChanged.connect(self.id_changed)
 
+    def sizeHint(self):
+        return QSize(
+            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 48
+        )
+
     def id_changed(self, new_id):
         self.current_id = new_id
 
@@ -116,8 +121,6 @@ class ToppingWizardDialog(QDialog):
         self.topping_wizard = ToppingWizard(self.iface, self.base_config, self)
         self.topping_wizard.setStartId(ToppingWizardPageIds.Target)
         self.topping_wizard.setWindowFlags(Qt.Widget)
-        self.topping_wizard.setFixedHeight(self.fontMetrics().lineSpacing() * 48)
-        self.topping_wizard.setMinimumWidth(self.fontMetrics().lineSpacing() * 48)
         self.topping_wizard.show()
 
         self.topping_wizard.finished.connect(self.done)
