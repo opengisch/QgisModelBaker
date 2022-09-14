@@ -129,13 +129,30 @@ class LayerModel(QgsLayerTreeModel):
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             if section == LayerModel.Columns.NAME:
-                return self.tr("Node")
+                return self.tr("Layers and Groups")
             if section == LayerModel.Columns.USE_STYLE:
-                return self.tr("Use Style")
+                return self.tr("Style (QML)")
             if section == LayerModel.Columns.USE_DEFINITION:
-                return self.tr("Use Definition")
+                return self.tr("Definition (QLR)")
             if section == LayerModel.Columns.USE_SOURCE:
-                return self.tr("Use Source")
+                return self.tr("Source")
+        if orientation == Qt.Horizontal and role == Qt.ToolTipRole:
+            if section == LayerModel.Columns.NAME:
+                return self.tr(
+                    "The layers/groups listed here will be stored the layertree in the project topping (YAML) file. To remove a layer or a group, remove it in your project."
+                )
+            if section == LayerModel.Columns.USE_STYLE:
+                return self.tr(
+                    "The layer's style (forms, symbology, variables etc.) will be stored into a QML file."
+                )
+            if section == LayerModel.Columns.USE_DEFINITION:
+                return self.tr(
+                    "The layer's/group's definition (complete layer incl. source) will be stored into a QLR file."
+                )
+            if section == LayerModel.Columns.USE_SOURCE:
+                return self.tr(
+                    "The layer's source (provider and uri) will be stored into the project topping (YAML) file directly."
+                )
         return QgsLayerTreeModel.headerData(self, section, orientation, role)
 
     def data(self, index, role):
