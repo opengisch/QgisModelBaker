@@ -21,7 +21,7 @@ import os
 import pathlib
 import re
 
-from qgis.PyQt.QtCore import QEventLoop, Qt, QTimer
+from qgis.PyQt.QtCore import QEventLoop, QSize, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -196,6 +196,11 @@ class WorkflowWizard(QWizard):
         self.setPage(PageIds.ExportDataExecution, self.export_data_execution_page)
 
         self.currentIdChanged.connect(self.id_changed)
+
+    def sizeHint(self):
+        return QSize(
+            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 48
+        )
 
     def next_id(self):
         # this is called on the nextId overrides of the pages - so after the next-button is pressed
@@ -530,8 +535,6 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.Widget)
-        self.workflow_wizard.setFixedHeight(self.fontMetrics().lineSpacing() * 48)
-        self.workflow_wizard.setMinimumWidth(self.fontMetrics().lineSpacing() * 48)
         self.workflow_wizard.show()
 
         self.workflow_wizard.finished.connect(self.done)

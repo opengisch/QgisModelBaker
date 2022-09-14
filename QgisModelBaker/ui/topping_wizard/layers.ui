@@ -29,7 +29,9 @@
       </font>
      </property>
      <property name="text">
-      <string>The layertree and the layerorder are exported as configured in the Model </string>
+      <string>The layertree and the layerorder are exported as configured in the QGIS project.
+Choose if styles should be exported and which style categories (form, symbology, variables etc.) should be used.
+As well as in what way the layer source should be stored (None, if it's loaded from INTERLIS).</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

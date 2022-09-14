@@ -109,7 +109,7 @@ class LayerModel(QgsLayerTreeModel):
 
         self.reload()
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=None):
         return len(LayerModel.Columns)
 
     def flags(self, index):
@@ -129,13 +129,30 @@ class LayerModel(QgsLayerTreeModel):
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             if section == LayerModel.Columns.NAME:
-                return self.tr("Node")
+                return self.tr("Layers and Groups")
             if section == LayerModel.Columns.USE_STYLE:
-                return self.tr("Use Style")
+                return self.tr("Style (QML)")
             if section == LayerModel.Columns.USE_DEFINITION:
-                return self.tr("Use Definition")
+                return self.tr("Definition (QLR)")
             if section == LayerModel.Columns.USE_SOURCE:
-                return self.tr("Use Source")
+                return self.tr("Source")
+        if orientation == Qt.Horizontal and role == Qt.ToolTipRole:
+            if section == LayerModel.Columns.NAME:
+                return self.tr(
+                    "The layers/groups listed here will be stored the layertree in the project topping (YAML) file. To remove a layer or a group, remove it in your project."
+                )
+            if section == LayerModel.Columns.USE_STYLE:
+                return self.tr(
+                    "The layer's style (forms, symbology, variables etc.) will be stored into a QML file."
+                )
+            if section == LayerModel.Columns.USE_DEFINITION:
+                return self.tr(
+                    "The layer's/group's definition (complete layer incl. source) will be stored into a QLR file."
+                )
+            if section == LayerModel.Columns.USE_SOURCE:
+                return self.tr(
+                    "The layer's source (provider and uri) will be stored into the project topping (YAML) file directly."
+                )
         return QgsLayerTreeModel.headerData(self, section, orientation, role)
 
     def data(self, index, role):
@@ -205,6 +222,19 @@ class LayerModel(QgsLayerTreeModel):
                         None,
                         bool(data),
                     )
+
+                    if bool(data):
+                        # when the style or source get's checked, the definition become unchecked
+                        self.export_settings.set_setting_values(
+                            ExportSettings.ToppingType.DEFINITION,
+                            node,
+                            None,
+                            False,
+                        )
+
+                        # when something is checked, the parent's definition become unchecked
+                        self._disable_parent_definition(index)
+
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
                     self.export_settings.set_setting_values(
                         ExportSettings.ToppingType.DEFINITION,
@@ -212,6 +242,27 @@ class LayerModel(QgsLayerTreeModel):
                         None,
                         bool(data),
                     )
+
+                    if bool(data):
+                        # when the definition is checked the others become unchecked
+                        self.export_settings.set_setting_values(
+                            ExportSettings.ToppingType.QMLSTYLE,
+                            node,
+                            None,
+                            False,
+                        )
+                        self.export_settings.set_setting_values(
+                            ExportSettings.ToppingType.SOURCE,
+                            node,
+                            None,
+                            False,
+                        )
+
+                        # when something is checked, the parent's definition become unchecked
+                        self._disable_parent_definition(index)
+
+                        # when definition is checked, che children's columns become all unchecked
+                        self._disable_children(index)
                 if (
                     index.column() == LayerModel.Columns.USE_SOURCE
                     and not QgsLayerTree.isGroup(node)
@@ -222,7 +273,22 @@ class LayerModel(QgsLayerTreeModel):
                         None,
                         bool(data),
                     )
-                self.dataChanged.emit(index, index)
+                    if bool(data):
+                        # when the style or source get's checked, the definition become unchecked
+                        self.export_settings.set_setting_values(
+                            ExportSettings.ToppingType.DEFINITION,
+                            node,
+                            None,
+                            False,
+                        )
+
+                        # when something is checked, the parent's definition become unchecked
+                        self._disable_parent_definition(index)
+
+                self.dataChanged.emit(
+                    self.index(index.row(), 0),
+                    self.index(index.row(), self.columnCount()),
+                )
                 return True
 
         if (
@@ -248,6 +314,40 @@ class LayerModel(QgsLayerTreeModel):
     def reload(self):
         self._load_ili_schema_identificators()
         self._set_default_values()
+
+    def _disable_children(self, parent: QModelIndex):
+        for child_row in range(self.rowCount(parent)):
+            self.setData(
+                self.index(child_row, LayerModel.Columns.USE_STYLE, parent),
+                Qt.CheckStateRole,
+                False,
+            )
+            self.setData(
+                self.index(child_row, LayerModel.Columns.USE_DEFINITION, parent),
+                Qt.CheckStateRole,
+                False,
+            )
+            self.setData(
+                self.index(child_row, LayerModel.Columns.USE_SOURCE, parent),
+                Qt.CheckStateRole,
+                False,
+            )
+            self._disable_children(
+                self.index(child_row, LayerModel.Columns.USE_DEFINITION, parent)
+            )
+
+    def _disable_parent_definition(self, index: QModelIndex):
+        if index.parent() == QModelIndex():
+            # parent of index is root
+            return
+        parent_definition_index = self.index(
+            index.parent().row(),
+            LayerModel.Columns.USE_DEFINITION,
+            index.parent().parent(),
+        )
+        self.setData(parent_definition_index, Qt.CheckStateRole, False)
+        if index.parent() != QModelIndex():
+            self._disable_parent_definition(index.parent())
 
     def _load_ili_schema_identificators(self):
         """
@@ -288,6 +388,9 @@ class LayerModel(QgsLayerTreeModel):
                         self.ili_schema_identificators.append(schema_identificator)
 
     def _is_ili_schema(self, layer):
+        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
+            return False
+
         source_provider = layer.dataProvider()
         source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         schema_identificator = db_utils.get_schema_identificator_from_layersource(

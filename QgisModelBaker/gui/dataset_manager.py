@@ -267,5 +267,4 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.close()
 
     def _rejected(self):
-        self._restore_configuration()
         self.close()

@@ -21,7 +21,7 @@
 from PyQt5.QtWidgets import QGridLayout
 from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
 
@@ -43,6 +43,11 @@ class LogPanel(QWidget):
         layout = QGridLayout()
         layout.addWidget(self.txtStdout)
         self.setLayout(layout)
+
+    def sizeHint(self):
+        return QSize(
+            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 10
+        )
 
     def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
