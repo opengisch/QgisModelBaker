@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsMapLayer
+from qgis.core import Qgis, QgsMapLayer
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog
 
@@ -29,26 +29,47 @@ DIALOG_UI = gui_utils.get_ui_class("topping_wizard/layer_style_categories.ui")
 
 class LayerStyleCategoriesModel(gui_utils.CheckEntriesModel):
 
-    CATEGORY_MAP = {
-        "LayerConfiguration": QgsMapLayer.StyleCategory.LayerConfiguration,
-        "Symbology": QgsMapLayer.StyleCategory.Symbology,
-        "3D Symbology": QgsMapLayer.StyleCategory.Symbology3D,
-        "Labeling": QgsMapLayer.StyleCategory.Labeling,
-        "Fields": QgsMapLayer.StyleCategory.Fields,
-        "Forms": QgsMapLayer.StyleCategory.Forms,
-        "Actions": QgsMapLayer.StyleCategory.Actions,
-        "Map Tips": QgsMapLayer.StyleCategory.MapTips,
-        "Diagrams": QgsMapLayer.StyleCategory.Diagrams,
-        "Attribute Table Settings": QgsMapLayer.StyleCategory.AttributeTable,
-        "Rendering": QgsMapLayer.StyleCategory.Rendering,
-        "Custom Properties": QgsMapLayer.StyleCategory.CustomProperties,
-        "Geometry Options": QgsMapLayer.StyleCategory.GeometryOptions,
-        "Relations": QgsMapLayer.StyleCategory.Relations,
-        "Temporal": QgsMapLayer.StyleCategory.Temporal,
-        "Legend": QgsMapLayer.StyleCategory.Legend,
-        "Elevation": QgsMapLayer.StyleCategory.Elevation,
-        "Notes": QgsMapLayer.StyleCategory.Notes,
-    }
+    CATEGORY_MAP = (
+        {
+            "LayerConfiguration": QgsMapLayer.StyleCategory.LayerConfiguration,
+            "Symbology": QgsMapLayer.StyleCategory.Symbology,
+            "3D Symbology": QgsMapLayer.StyleCategory.Symbology3D,
+            "Labeling": QgsMapLayer.StyleCategory.Labeling,
+            "Fields": QgsMapLayer.StyleCategory.Fields,
+            "Forms": QgsMapLayer.StyleCategory.Forms,
+            "Actions": QgsMapLayer.StyleCategory.Actions,
+            "Map Tips": QgsMapLayer.StyleCategory.MapTips,
+            "Diagrams": QgsMapLayer.StyleCategory.Diagrams,
+            "Attribute Table Settings": QgsMapLayer.StyleCategory.AttributeTable,
+            "Rendering": QgsMapLayer.StyleCategory.Rendering,
+            "Custom Properties": QgsMapLayer.StyleCategory.CustomProperties,
+            "Geometry Options": QgsMapLayer.StyleCategory.GeometryOptions,
+            "Relations": QgsMapLayer.StyleCategory.Relations,
+            "Temporal": QgsMapLayer.StyleCategory.Temporal,
+            "Legend": QgsMapLayer.StyleCategory.Legend,
+            "Elevation": QgsMapLayer.StyleCategory.Elevation,
+            "Notes": QgsMapLayer.StyleCategory.Notes,
+        }
+        if Qgis.QGIS_VERSION_INT > 31800
+        else {
+            "LayerConfiguration": QgsMapLayer.StyleCategory.LayerConfiguration,
+            "Symbology": QgsMapLayer.StyleCategory.Symbology,
+            "3D Symbology": QgsMapLayer.StyleCategory.Symbology3D,
+            "Labeling": QgsMapLayer.StyleCategory.Labeling,
+            "Fields": QgsMapLayer.StyleCategory.Fields,
+            "Forms": QgsMapLayer.StyleCategory.Forms,
+            "Actions": QgsMapLayer.StyleCategory.Actions,
+            "Map Tips": QgsMapLayer.StyleCategory.MapTips,
+            "Diagrams": QgsMapLayer.StyleCategory.Diagrams,
+            "Attribute Table Settings": QgsMapLayer.StyleCategory.AttributeTable,
+            "Rendering": QgsMapLayer.StyleCategory.Rendering,
+            "Custom Properties": QgsMapLayer.StyleCategory.CustomProperties,
+            "Geometry Options": QgsMapLayer.StyleCategory.GeometryOptions,
+            "Relations": QgsMapLayer.StyleCategory.Relations,
+            "Temporal": QgsMapLayer.StyleCategory.Temporal,
+            "Legend": QgsMapLayer.StyleCategory.Legend,
+        }
+    )
 
     def __init__(self):
         super().__init__()
