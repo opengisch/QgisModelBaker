@@ -856,7 +856,11 @@ class SchemaModelsModel(CheckEntriesModel):
         modelnames = []
 
         for db_connector in db_connectors:
-            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
+            if (
+                db_connector
+                and db_connector.db_or_schema_exists()
+                and db_connector.metadata_exists()
+            ):
                 db_models = db_connector.get_models()
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
@@ -887,7 +891,11 @@ class SchemaDatasetsModel(CheckEntriesModel):
     def refresh_model(self, db_connector=None):
         datasetnames = []
 
-        if db_connector and db_connector.db_or_schema_exists():
+        if (
+            db_connector
+            and db_connector.db_or_schema_exists()
+            and db_connector.metadata_exists()
+        ):
             datasets_info = db_connector.get_datasets_info()
             for record in datasets_info:
                 if record["datasetname"] == CATALOGUE_DATASETNAME:
@@ -915,7 +923,11 @@ class SchemaBasketsModel(CheckEntriesModel):
         basketnames = []
         self._basket_ids = {}
 
-        if db_connector and db_connector.db_or_schema_exists():
+        if (
+            db_connector
+            and db_connector.db_or_schema_exists()
+            and db_connector.metadata_exists()
+        ):
             baskets_info = db_connector.get_baskets_info()
             for record in baskets_info:
                 basketname = f"{record['datasetname']}-{record['topic']} ({record['basket_t_ili_tid']})"
