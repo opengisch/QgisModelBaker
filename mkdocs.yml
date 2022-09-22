@@ -49,6 +49,7 @@ nav:
       - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
       - Technical Concept: background_info/usabilityhub/technical_concept.md
       - User Guide: background_info/usabilityhub/user_guide.md
+    - Catalogues and their special cases: background_info/catalogues.md
     - Meta Attributes: background_info/meta_attributes.md
     - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
     #- Relations in QGIS: maybe from here https://github.com/signedav/interlis_relations_in_qgis
