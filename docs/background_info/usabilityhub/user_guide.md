@@ -7,7 +7,7 @@ The following topping files will be created or adapted:
 - Metaconfiguration file (will be created manually)
 - Layer configurations `qml` files (will be generated with QGIS)
 - Layer display order and legend `yaml` file (will be created manually)
-- ili2db meta attribute file required for project creation `toml` file (created manually)
+- ili2db meta attribute file required for project creation `toml` / `ini` file (created manually)
 
 
 ### 1. Preparation
@@ -46,11 +46,11 @@ In order to test the INTERLIS models locally, they should also be placed in the 
 Now you can already generate the project locally:
 ![raw_import](../../assets/usabilityhub_raw_import.png)
 
-Or with a ili2db metaattribute `toml` file.
+Or with a ili2db metaattribute `toml`/`ini` file.
 
 ![raw_import_toml](../../assets/usabilityhub_raw_import_toml.png)
 
-The metaatribute `toml` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Model Information File" and will also be included via the UsabILIty Hub in the following steps:
+The metaatribute `toml` / `ini` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Model Information File" and will also be included via the UsabILIty Hub in the following steps:
 
 ![toml_config](../../assets/usabilityhub_toml_config.png)
 
@@ -153,8 +153,9 @@ Each entry can have additional `child-nodes`, so the `layertree` can have any nu
 ```
 
 The `qml` layer style toppings can be linked with `qmlstylefiles` and the `qlr` with `definitionfile`.
-#### Metaattribute File for ili2db (`toml` File)
-Also the `toml` file can be used as topping. This is written in INI format and already exists for the *Nutzungsplanung_V310*:
+
+#### Metaattribute File for ili2db (`toml` / `ini` File)
+Also the `toml` / `ini` file can be used as topping. This is written in INI format and already exists for the *Nutzungsplanung_V310*:
 
 Content of `Nutzungsplanung_V310.toml`:
 ```

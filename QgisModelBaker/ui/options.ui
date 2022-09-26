@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="3" column="0">
@@ -139,7 +139,7 @@
            </layout>
           </item>
          </layout>
-         <zorder></zorder>
+         <zorder>collapseButton</zorder>
         </widget>
        </item>
        <item row="2" column="0" colspan="2">
@@ -266,7 +266,7 @@
   <customwidget>
    <class>QgsCollapsibleGroupBox</class>
    <extends>QGroupBox</extends>
-   <header>qgis.gui</header>
+   <header>qgscollapsiblegroupbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

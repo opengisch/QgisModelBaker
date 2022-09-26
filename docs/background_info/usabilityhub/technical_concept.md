@@ -80,7 +80,7 @@ The category for the file type is identified with the prefix http://codes.interl
 
 In the UsabILIty Hub implementation of the Model Baker, the following types are used:
 - `metaconfig` to describe that it is a *metaconfiguration file*.
-- `metaattributes` to describe that it is a meta attribute file written in TOML
+- `metaattributes` to describe that it is a meta attribute file written in TOML or INI.
 - `sql` to describe that it is a SQL query file that can be used when creating the database
 - `projecttopping` to describe that it is a *toppingfile* that defines a qgis project setting (includes the full layertree implementation and replaces that)
 - `layerstyle` to describe that it is a *toppingfile* that can contain styling and form configurations for a QGIS layer written in QML
