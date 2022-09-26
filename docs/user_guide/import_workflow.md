@@ -35,7 +35,7 @@ In any case you are requested to set the connection to your database.
 - **Database Host** Set the host of the database server. By default is localhost.
 - **Database Port** Set the port of the database server. By default is 5432.
 - **Database Name** Set the database name. The database should exist already.
-- **Database Schema** The schema acts like a folder, it helps you to organize database objects like tables and relations and isolate them from other schemas. Set the database schema where you want to create the physical model or import the data from the transfer file to. If you don’t specify a database schema, Model Baker will create a schema for you, whose name will correspond to the database name. You can even choose an existing schema where you create a new physical model, but you’d better know what you’re doing, because it will overwrite previous ili2db configurations. If the schema you choose for your data import does not exist, it will request you to create it (with the model of the transfer data found in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories).
+- **Database Schema** The schema acts like a folder, it helps you to organize database objects like tables and relations and isolate them from other schemas. Set the database schema where you want to create the physical model or import the data from the transfer file to. You can even choose an existing schema where you create a new physical model, but you’d better know what you’re doing, because it will overwrite previous ili2db configurations.
 - **Database User** Set the user to access the database.
 - **User Password** Set the password for the database user.
 - **Execute data management tasks with superuser login from settings** If checked, it uses the superuser login (set in the [plugin configurations](../plugin_configuration/) for data management tasks like the creation of the schema etc.
@@ -91,7 +91,7 @@ If this option is activated, circular arcs are stroked when importing the data.
 You can define `sql` scripts that runs before and after the (schema) import.
 ### Extra Model Information File
 
-A `toml` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `dispExpression`) instead of having them directly in the `ili` file.
+A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `dispExpression`) instead of having them directly in the `ili` file.
 
 ## Run ili2db Sessions
 
@@ -107,7 +107,7 @@ After the physial model is generated or you selected an existing database to imp
 ![wizard data import](../assets/workflow_wizard_data_import.png)
 
 ### Import order
-While the order to import the INTERLIS models are not important, the data import often requires the correct order. Transfer data often depends on existing catalogue / codelist data. Drag and drop your files with ![datafile arrow button](../assets/drag_arrows_button.png) to the right order.
+While the order to import the INTERLIS models are not important (usually, see [exceptions](../../background_info/catalogues/Multiple-selection-with-BAG-OF)), the data import often requires the correct order. Transfer data often depends on existing catalogue / codelist data. Drag and drop your files with ![datafile arrow button](../assets/drag_arrows_button.png) to the right order.
 
 ### Dataset Handling
 

@@ -47,7 +47,7 @@ ili2db --metaConfig localfile.ini --import --db....  data.xtf
 
 Some parameters are automatically set in the background when ili2db is called by the Model Baker, and others can be configured by the user in the input mask of the Model Baker. In addition, the relevant *metaconfiguration file* is passed to ili2db. But parameters passed directly to ili2db override the configurations of the passed *metaconfiguration file*.
 
-The Model Baker reads the ili2db parameters from the *metaconfiguration file*. The parameters that can be set via the input mask of the Model Baker (like `--strokeArcs`, `--iliMetaAttrs` (for `toml`) or `--models`) are loaded from the *metaconfiguration file* into the input mask. The user can now customize them. The Model Baker now passes the *metaconfiguration file* and the parameters from the input mask (whether customized or not) to ili2db. So if the parameters were listed in the *metaconfiguration file* but then disabled in the input mask, they will be passed to ili2db as `false`.
+The Model Baker reads the ili2db parameters from the *metaconfiguration file*. The parameters that can be set via the input mask of the Model Baker (like `--strokeArcs`, `--iliMetaAttrs` (for `ini`/`toml`) or `--models`) are loaded from the *metaconfiguration file* into the input mask. The user can now customize them. The Model Baker now passes the *metaconfiguration file* and the parameters from the input mask (whether customized or not) to ili2db. So if the parameters were listed in the *metaconfiguration file* but then disabled in the input mask, they will be passed to ili2db as `false`.
 
 The parameters set by the Model Baker in the background (like `--createFkIdx`, `--coalesceMultiPoint`) are still set. But they can be overridden in the *Metaconfigurationfile*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with`false`.
 
@@ -185,6 +185,9 @@ See the example:
                 iliname: "KbS_Basis_V1_4.Parzellenidentifikation"
                 qmlstylefile: "../layerstyle/opengisch_KbS_LV95_V1_4_005_parzellenidentifikation.qml"
 ```
+
+!!! Note
+    Be aware that relations loaded over qml style files rely on the layer names. This means, that you have to be carefull when the style files have been exported with other layer names than defined in the YAML.
 
 #### Display Order
 The display order of the layers is defined as simple list:

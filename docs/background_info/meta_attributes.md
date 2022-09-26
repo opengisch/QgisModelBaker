@@ -62,16 +62,16 @@ Used as the display expression for a layer. The display expression is the *name*
 
 In these external files the meta attributes can be stored instead of having them directly in the INTERLIS files.
 
-These files are written in TOML and have the filename extension `.toml`
+These so called extra meta attribute files (or The File Formerly Known As TOML-File) are written in INI format (not TOML) but can still have the filename extension `.toml` or `.ini`.
 
 You can select the extra meta attribute files in the **Advanced Options**. This configuration is stored for the model. This means when you reselect the same model later again, the file is still referenced. This information will be displayed on the main dialog of the Project Generator.
 
 In the background ili2pg writes the meta attributes from the external meta attribute file to the PostGIS or GeoPackage storage, where the Project Generator can use them to build the QGIS project.
 
 
-### TOML Examples
+### Meta Attribute File Examples
 
-ExceptionalLoadsRoute.toml:
+ExceptionalLoadsRoute.ini:
 
 ```ini
 ["ExceptionalLoadsRoute.TypeOfRouteCatalogue.TypeOfRoute"]
@@ -83,7 +83,7 @@ Or using a more complex expression:
 dispExpression="CONCAT(type, ' sometext')"
 ```
 
-The keys that need to be used for the TOML sections are the *fully qualified INTERLIS names* of the objects. In the example above this is `["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]`. A list of all available names can be found in the database table `t_ili2db_classname` after doing a schema import.
+The keys that need to be used for the INI sections are the *fully qualified INTERLIS names* of the objects. In the example above this is `["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]`. A list of all available names can be found in the database table `t_ili2db_classname` after doing a schema import.
 
 ### INTERLIS Example
 
