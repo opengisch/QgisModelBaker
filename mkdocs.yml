@@ -32,7 +32,6 @@ theme:
         name: Switch to light mode
         primary: white
 
-
 # Page tree
 nav:
   - Home: index.md
@@ -68,3 +67,19 @@ plugins:
       languages:
         en: English
         de: Deutsch
+      nav_translations:
+        de:
+          User Guide: Benutzerhandbuch
+          Get Started: Loslegen
+          Model and Data Import Workflow: Modell und Daten Import Workflow
+          Export Data Workflow: Daten Export Workflow
+          Validate Data: Daten Validierung
+          Plugin Configuration: Plugin Konfiguration
+          Repositories: Repositories
+          Basket and Dataset Handling: Dataset und Basket Handling
+          Model Baker Integration: Model Baker Integration
+          Technical Concept: Technisches Konzept
+          Catalogues and their special cases: Kataloge und ihre Spezialfälle
+          Meta Attributes: Metaattribute
+          Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
+          Development: Enwicklung
