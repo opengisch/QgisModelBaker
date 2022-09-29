@@ -23,7 +23,9 @@ from PyQt5.QtGui import QColor, QGuiApplication
 from qgis.core import (
     QgsApplication,
     QgsDataSourceUri,
+    QgsGeometry,
     QgsMapLayer,
+    QgsPointXY,
     QgsProject,
     QgsRectangle,
 )
@@ -445,40 +447,80 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
-        if not coord_x or not coord_y:
-            return
+        valid_coords = bool(coord_x and coord_y)
 
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
         layer, feature = self._get_feature_in_project(t_ili_tid)
-        if not layer or not feature:
+        valid_feature = bool(layer and feature)
+
+        if not valid_coords or not valid_feature:
             return
 
-        if self.auto_pan_button.isChecked():
-            QTimer.singleShot(
-                1,
-                lambda: self.iface.mapCanvas().panToFeatureIds(
-                    layer, [feature.id()], False
-                ),
-            )
-        elif self.auto_zoom_button.isChecked():
-            QTimer.singleShot(
-                1,
-                lambda: self.iface.mapCanvas().zoomToFeatureIds(layer, [feature.id()]),
-            )
+        if valid_coords:
+            if self.auto_pan_button.isChecked():
+                if valid_feature:
+                    QTimer.singleShot(
+                        1,
+                        lambda: self.iface.mapCanvas().panToFeatureIds(
+                            layer, [feature.id()], False
+                        ),
+                    )
+            elif self.auto_zoom_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
+                )
 
-        if self.flash_button.isChecked():
-            QTimer.singleShot(
-                1, lambda: self.iface.mapCanvas().flashFeatureIds(layer, [feature.id()])
-            )
+            if self.flash_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().flashGeometries(
+                        [
+                            QgsGeometry.fromPointXY(
+                                QgsPointXY(float(coord_x), float(coord_y))
+                            )
+                        ]
+                    ),
+                )
+
+        else:
+            if self.auto_pan_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().panToFeatureIds(
+                        layer, [feature.id()], False
+                    ),
+                )
+            elif self.auto_zoom_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().zoomToFeatureIds(
+                        layer, [feature.id()]
+                    ),
+                )
+
+            if self.flash_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().flashFeatureIds(
+                        layer, [feature.id()]
+                    ),
+                )
 
     def _zoom_to_coordinate(self, x, y):
         if x and y:
-            scale = 50
-            rect = QgsRectangle(
-                float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+            self._set_extend(x, y)
+            self.iface.mapCanvas().flashGeometries(
+                [QgsGeometry.fromPointXY(QgsPointXY(float(x), float(y)))]
             )
-            self.iface.mapCanvas().setExtent(rect)
-            self.iface.mapCanvas().refresh()
+
+    def _set_extend(self, x, y):
+        scale = 50
+        rect = QgsRectangle(
+            float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+        )
+        self.iface.mapCanvas().setExtent(rect)
+        self.iface.mapCanvas().refresh()
 
     def _open_form(self, t_ili_tid):
         layer, feature = self._get_feature_in_project(t_ili_tid)
