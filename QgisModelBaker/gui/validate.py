@@ -162,6 +162,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self._reset_current_values()
         self.info_label.setText("")
         self.progress_bar.setTextVisible(False)
+        self._set_count_label(0)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.result_table_view.setModel(
             ValidationResultTableModel(self.requested_roles)
@@ -369,10 +370,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.setStyleSheet(gui_utils.INVALID_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
+        self._set_count_label(
+            self.schema_validations[
+                self.current_schema_identificator
+            ].result_model.rowCount()
+        )
 
     def _disable_controls(self, disable):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
+
+    def _set_count_label(self, count):
+        text = self.tr("{} Errors".format(count))
+        self.error_count_label.setText(text)
 
     def _table_context_menu_requested(self, pos):
         if not self.result_table_view.indexAt(pos).isValid():
