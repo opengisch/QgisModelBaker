@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsDataSourceUri, QgsExpressionContextUtils, QgsProject
+from qgis.core import QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
@@ -26,8 +26,8 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.db_utils import (
-    get_configuration_from_layersource,
-    get_schema_identificator_from_layersource,
+    get_configuration_from_sourceprovider,
+    get_schema_identificator_from_sourceprovider,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.gui_utils import BasketSourceModel
@@ -58,9 +58,8 @@ class DatasetSelector(QComboBox):
             return
 
         source_provider = layer.dataProvider()
-        source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = get_schema_identificator_from_layersource(
-            source_provider, source
+        schema_identificator = get_schema_identificator_from_sourceprovider(
+            source_provider
         )
         if not schema_identificator:
             return
@@ -79,8 +78,8 @@ class DatasetSelector(QComboBox):
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
             configuration = Ili2DbCommandConfiguration()
-            valid, mode = get_configuration_from_layersource(
-                source_provider, source, configuration
+            valid, mode = get_configuration_from_sourceprovider(
+                source_provider, configuration
             )
             if valid and mode:
                 db_factory = self.db_simple_factory.create_factory(mode)

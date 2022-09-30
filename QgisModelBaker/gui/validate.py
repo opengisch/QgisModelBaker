@@ -22,7 +22,6 @@ import os
 from PyQt5.QtGui import QColor, QGuiApplication
 from qgis.core import (
     QgsApplication,
-    QgsDataSourceUri,
     QgsGeometry,
     QgsMapLayer,
     QgsPointXY,
@@ -185,9 +184,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             return
 
         source_provider = layer.dataProvider()
-        source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = db_utils.get_schema_identificator_from_layersource(
-            source_provider, source
+        schema_identificator = db_utils.get_schema_identificator_from_sourceprovider(
+            source_provider
         )
         if not schema_identificator:
             self.setDisabled(True)
@@ -199,8 +197,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self._reset_gui()
 
         self.current_schema_identificator = schema_identificator
-        valid, mode = db_utils.get_configuration_from_layersource(
-            source_provider, source, self.current_configuration
+        valid, mode = db_utils.get_configuration_from_sourceprovider(
+            source_provider, self.current_configuration
         )
         if valid and mode:
             output_file_name = "{}.xtf".format(self.current_schema_identificator)

@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
+from qgis.core import QgsMapLayer, QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -83,10 +83,9 @@ class ModelsPage(QWizardPage, PAGE_UI):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
-                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
                 schema_identificator = (
-                    db_utils.get_schema_identificator_from_layersource(
-                        source_provider, source
+                    db_utils.get_schema_identificator_from_sourceprovider(
+                        source_provider
                     )
                 )
                 if schema_identificator in checked_identificators:
@@ -94,8 +93,8 @@ class ModelsPage(QWizardPage, PAGE_UI):
                 else:
                     checked_identificators.append(schema_identificator)
                     current_configuration = Ili2DbCommandConfiguration()
-                    valid, mode = db_utils.get_configuration_from_layersource(
-                        source_provider, source, current_configuration
+                    valid, mode = db_utils.get_configuration_from_sourceprovider(
+                        source_provider, current_configuration
                     )
                     if valid and mode:
                         current_configuration.tool = mode

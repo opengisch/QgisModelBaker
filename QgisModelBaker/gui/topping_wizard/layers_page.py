@@ -23,7 +23,6 @@ from enum import IntEnum
 
 from qgis.core import (
     QgsApplication,
-    QgsDataSourceUri,
     QgsLayerTree,
     QgsLayerTreeModel,
     QgsMapLayer,
@@ -359,10 +358,9 @@ class LayerModel(QgsLayerTreeModel):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
-                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
                 schema_identificator = (
-                    db_utils.get_schema_identificator_from_layersource(
-                        source_provider, source
+                    db_utils.get_schema_identificator_from_sourceprovider(
+                        source_provider
                     )
                 )
                 if (
@@ -373,8 +371,8 @@ class LayerModel(QgsLayerTreeModel):
 
                 checked_schema_identificator.append(schema_identificator)
                 configuration = Ili2DbCommandConfiguration()
-                valid, mode = db_utils.get_configuration_from_layersource(
-                    source_provider, source, configuration
+                valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    source_provider, configuration
                 )
                 if valid and mode:
                     configuration.tool = mode
@@ -392,9 +390,8 @@ class LayerModel(QgsLayerTreeModel):
             return False
 
         source_provider = layer.dataProvider()
-        source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        schema_identificator = db_utils.get_schema_identificator_from_layersource(
-            source_provider, source
+        schema_identificator = db_utils.get_schema_identificator_from_sourceprovider(
+            source_provider
         )
         return schema_identificator in self.ili_schema_identificators
 
