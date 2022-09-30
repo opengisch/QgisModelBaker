@@ -19,7 +19,7 @@
 """
 from enum import IntEnum
 
-from qgis.core import QgsDataSourceUri, QgsMapLayer, QgsProject
+from qgis.core import QgsMapLayer, QgsProject
 from qgis.PyQt.QtCore import QAbstractItemModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QHeaderView, QTableView, QWizardPage
 
@@ -245,10 +245,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
-                source = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
                 schema_identificator = (
-                    db_utils.get_schema_identificator_from_layersource(
-                        source_provider, source
+                    db_utils.get_schema_identificator_from_sourceprovider(
+                        source_provider
                     )
                 )
                 if (
@@ -258,8 +257,8 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     continue
 
                 configuration = Ili2DbCommandConfiguration()
-                valid, mode = db_utils.get_configuration_from_layersource(
-                    source_provider, source, configuration
+                valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    source_provider, configuration
                 )
                 if valid and mode:
                     configuration.tool = mode
