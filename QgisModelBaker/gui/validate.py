@@ -23,7 +23,9 @@ from PyQt5.QtGui import QColor, QGuiApplication
 from qgis.core import (
     QgsApplication,
     QgsDataSourceUri,
+    QgsGeometry,
     QgsMapLayer,
+    QgsPointXY,
     QgsProject,
     QgsRectangle,
 )
@@ -162,6 +164,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self._reset_current_values()
         self.info_label.setText("")
         self.progress_bar.setTextVisible(False)
+        self._set_count_label(0)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.result_table_view.setModel(
             ValidationResultTableModel(self.requested_roles)
@@ -369,10 +372,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.setStyleSheet(gui_utils.INVALID_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
+        self._set_count_label(
+            self.schema_validations[
+                self.current_schema_identificator
+            ].result_model.rowCount()
+        )
 
     def _disable_controls(self, disable):
         self.run_button.setDisabled(disable)
         self.result_table_view.setDisabled(disable)
+
+    def _set_count_label(self, count):
+        text = self.tr("{} Errors".format(count))
+        self.error_count_label.setText(text)
 
     def _table_context_menu_requested(self, pos):
         if not self.result_table_view.indexAt(pos).isValid():
@@ -435,40 +447,80 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
-        if not coord_x or not coord_y:
-            return
+        valid_coords = bool(coord_x and coord_y)
 
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
         layer, feature = self._get_feature_in_project(t_ili_tid)
-        if not layer or not feature:
+        valid_feature = bool(layer and feature)
+
+        if not valid_coords or not valid_feature:
             return
 
-        if self.auto_pan_button.isChecked():
-            QTimer.singleShot(
-                1,
-                lambda: self.iface.mapCanvas().panToFeatureIds(
-                    layer, [feature.id()], False
-                ),
-            )
-        elif self.auto_zoom_button.isChecked():
-            QTimer.singleShot(
-                1,
-                lambda: self.iface.mapCanvas().zoomToFeatureIds(layer, [feature.id()]),
-            )
+        if valid_coords:
+            if self.auto_pan_button.isChecked():
+                if valid_feature:
+                    QTimer.singleShot(
+                        1,
+                        lambda: self.iface.mapCanvas().panToFeatureIds(
+                            layer, [feature.id()], False
+                        ),
+                    )
+            elif self.auto_zoom_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
+                )
 
-        if self.flash_button.isChecked():
-            QTimer.singleShot(
-                1, lambda: self.iface.mapCanvas().flashFeatureIds(layer, [feature.id()])
-            )
+            if self.flash_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().flashGeometries(
+                        [
+                            QgsGeometry.fromPointXY(
+                                QgsPointXY(float(coord_x), float(coord_y))
+                            )
+                        ]
+                    ),
+                )
+
+        else:
+            if self.auto_pan_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().panToFeatureIds(
+                        layer, [feature.id()], False
+                    ),
+                )
+            elif self.auto_zoom_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().zoomToFeatureIds(
+                        layer, [feature.id()]
+                    ),
+                )
+
+            if self.flash_button.isChecked():
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().flashFeatureIds(
+                        layer, [feature.id()]
+                    ),
+                )
 
     def _zoom_to_coordinate(self, x, y):
         if x and y:
-            scale = 50
-            rect = QgsRectangle(
-                float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+            self._set_extend(x, y)
+            self.iface.mapCanvas().flashGeometries(
+                [QgsGeometry.fromPointXY(QgsPointXY(float(x), float(y)))]
             )
-            self.iface.mapCanvas().setExtent(rect)
-            self.iface.mapCanvas().refresh()
+
+    def _set_extend(self, x, y):
+        scale = 50
+        rect = QgsRectangle(
+            float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+        )
+        self.iface.mapCanvas().setExtent(rect)
+        self.iface.mapCanvas().refresh()
 
     def _open_form(self, t_ili_tid):
         layer, feature = self._get_feature_in_project(t_ili_tid)
