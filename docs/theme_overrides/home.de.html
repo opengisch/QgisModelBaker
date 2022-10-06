@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<style>
+  @media screen and (min-width:60em) {
+    .md-sidebar--secondary {
+      display: none
+    }
+  }
+
+  @media screen and (min-width:76.25em) {
+    .md-sidebar--primary {
+      display: none
+    }
+  }
+</style>
+<section>
+  <div class="md-grid md-typeset">
+    <div>
+      <div>
+        <p></p>
+        <img src="{{ base_url }}/assets/modelbaker_logo_long.svg" alt="QGIS Model Baker">
+        <p>
+          Model Baker ist ein <a href="https://plugins.qgis.org/plugins/QgisModelBaker/">QGIS plugin</a>, welches das
+          schnelle Erstellen von QGIS Projekten aus physischen Datenmodellen erlaubt. Ausserdem lässt es mittels
+          graphischen Ansteuerung der <a href="https://github.com/claeis/ili2db/blob/master/docs/ili2db.rst">ili2db</a>
+          Tools <a href="https://www.interlis.ch/en">INTERLIS</a> Modelle und Daten bequem in QGIS importieren,
+          exportieren und validieren.
+        </p>
+        <p>
+          Model Baker verwendet <a href="https://github.com/claeis/ili2db/blob/master/docs/ili2db.rst">ili2db</a>, um
+          ein INTERLIS-Modell in eine physische Datenbank zu importieren und die vorhandene Datenstruktur sowie
+          Metainformationen für die Konfiguration des QGIS Projekts mit Legende, Formularlayouts, Relationen und vielem
+          mehr. Diese Automatisierung reduziert den Konfigurationsaufwand massiv.
+        </p>
+        <p>
+          Ausserdem kann Model Baker als <a href="https://opengisch.github.io/QgisModelBaker/development/">Framework</a>
+          für andere Projekte verwendet werden. Das Plugin <a
+            href="https://github.com/SwissTierrasColombia/Asistente-LADM-COL">Asistente LADM-COL</a>, das für die <a
+            href="https://www.proadmintierra.info/">kolumbianische Implementierung des Land Administration Domain Model
+            (LADM)</a> erstellt wurde, verwendet das Backend von <a href="https://pypi.org/project/modelbaker/">Model
+            Baker als Bibliothek</a>, um so viel wie möglich von der spezifischen Lösung als QGIS-Kernfunktionalität zu
+          implementieren.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
