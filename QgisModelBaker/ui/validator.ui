@@ -103,7 +103,7 @@
       <item>
        <widget class="QToolButton" name="auto_zoom_button">
         <property name="toolTip">
-         <string>Automatically zoom to the current feature</string>
+         <string>Automatically zoom to the current feature / coordinates</string>
         </property>
         <property name="text">
          <string>...</string>

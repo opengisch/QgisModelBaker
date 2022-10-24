@@ -449,27 +449,37 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
         layer, feature = self._get_feature_in_project(t_ili_tid)
-        valid_feature = bool(layer and feature)
+        valid_feature = bool(layer and feature and feature.hasGeometry())
 
         if not valid_coords or not valid_feature:
             return
 
-        if valid_coords:
-            if self.auto_pan_button.isChecked():
-                if valid_feature:
-                    QTimer.singleShot(
-                        1,
-                        lambda: self.iface.mapCanvas().panToFeatureIds(
-                            layer, [feature.id()], False
-                        ),
-                    )
-            elif self.auto_zoom_button.isChecked():
+        if self.auto_pan_button.isChecked():
+            if valid_feature:
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().panToFeatureIds(
+                        layer, [feature.id()], False
+                    ),
+                )
+
+        if self.auto_zoom_button.isChecked():
+            if valid_coords:
                 QTimer.singleShot(
                     1,
                     lambda: self._set_extend(coord_x, coord_y),
                 )
+            else:
+                # otherwise it has a valid feature
+                QTimer.singleShot(
+                    1,
+                    lambda: self.iface.mapCanvas().zoomToFeatureIds(
+                        layer, [feature.id()]
+                    ),
+                )
 
-            if self.flash_button.isChecked():
+        if self.flash_button.isChecked():
+            if valid_coords:
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().flashGeometries(
@@ -480,24 +490,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         ]
                     ),
                 )
-
-        else:
-            if self.auto_pan_button.isChecked():
-                QTimer.singleShot(
-                    1,
-                    lambda: self.iface.mapCanvas().panToFeatureIds(
-                        layer, [feature.id()], False
-                    ),
-                )
-            elif self.auto_zoom_button.isChecked():
-                QTimer.singleShot(
-                    1,
-                    lambda: self.iface.mapCanvas().zoomToFeatureIds(
-                        layer, [feature.id()]
-                    ),
-                )
-
-            if self.flash_button.isChecked():
+            if valid_feature:
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().flashFeatureIds(
