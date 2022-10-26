@@ -79,8 +79,9 @@ class ValidationResultTableModel(ValidationResultModel):
                     else QColor(gui_utils.INVALID_COLOR)
                 )
             if role == Qt.ToolTipRole:
-                tooltip_text = "{type} at {tid}".format(
+                tooltip_text = "{type} at {tid} in {object}".format(
                     type=item.data(int(ValidationResultModel.Roles.TYPE)),
+                    object=item.data(int(ValidationResultModel.Roles.OBJ_TAG)),
                     tid=item.data(int(ValidationResultModel.Roles.TID)),
                 )
                 return tooltip_text
@@ -328,6 +329,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 validation_result_state = (
                     validator.run(edited_command) == ilivalidator.Validator.SUCCESS
                 )
+                # debug info: print( validator.command(True) )
             except JavaNotFoundError:
                 self.progress_bar.setValue(0)
                 self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
