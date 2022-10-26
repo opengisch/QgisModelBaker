@@ -523,13 +523,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
-                idx = layer.fields().lookupField("t_ili_tid")
-                if idx < 0:
-                    continue
-                for feature in layer.getFeatures():
-                    if feature.attributes()[idx] == t_ili_tid:
-                        return layer, feature
+            source_provider = layer.dataProvider()
+            schema_identificator = (
+                db_utils.get_schema_identificator_from_sourceprovider(source_provider)
+            )
+            if (
+                schema_identificator
+                and schema_identificator == self.current_schema_identificator
+            ):
+                if layer.type() == QgsMapLayer.VectorLayer:
+                    idx = layer.fields().lookupField("t_ili_tid")
+                    if idx < 0:
+                        continue
+                    for feature in layer.getFeatures():
+                        if feature.attributes()[idx] == t_ili_tid:
+                            return layer, feature
         return None, None
 
     def _auto_pan_button_clicked(self):
