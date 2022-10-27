@@ -118,7 +118,7 @@
     <item row="4" column="0" colspan="2">
      <widget class="QCheckBox" name="skip_geometry_errors_check_box">
       <property name="toolTip">
-       <string>ili2db option --skipGeometryErrors</string>
+       <string>Ignores geometry errors (--skipGeometryErrors) and AREA topology validation (--disableAreaValidation)</string>
       </property>
       <property name="text">
        <string>Skip Geometry Errors</string>

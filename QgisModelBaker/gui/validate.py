@@ -79,8 +79,9 @@ class ValidationResultTableModel(ValidationResultModel):
                     else QColor(gui_utils.INVALID_COLOR)
                 )
             if role == Qt.ToolTipRole:
-                tooltip_text = "{type} at {tid}".format(
+                tooltip_text = "{type} at {tid} in {object}".format(
                     type=item.data(int(ValidationResultModel.Roles.TYPE)),
+                    object=item.data(int(ValidationResultModel.Roles.OBJ_TAG)),
                     tid=item.data(int(ValidationResultModel.Roles.TID)),
                 )
                 return tooltip_text
@@ -328,6 +329,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 validation_result_state = (
                     validator.run(edited_command) == ilivalidator.Validator.SUCCESS
                 )
+                # debug info: print( validator.command(True) )
             except JavaNotFoundError:
                 self.progress_bar.setValue(0)
                 self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
@@ -464,18 +466,18 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 )
 
         if self.auto_zoom_button.isChecked():
-            if valid_coords:
-                QTimer.singleShot(
-                    1,
-                    lambda: self._set_extend(coord_x, coord_y),
-                )
-            else:
-                # otherwise it has a valid feature
+            if valid_feature:
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().zoomToFeatureIds(
                         layer, [feature.id()]
                     ),
+                )
+            else:
+                # otherwise it has valid coordinates
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
                 )
 
         if self.flash_button.isChecked():
@@ -521,13 +523,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
-                idx = layer.fields().lookupField("t_ili_tid")
-                if idx < 0:
-                    continue
-                for feature in layer.getFeatures():
-                    if feature.attributes()[idx] == t_ili_tid:
-                        return layer, feature
+            source_provider = layer.dataProvider()
+            schema_identificator = (
+                db_utils.get_schema_identificator_from_sourceprovider(source_provider)
+            )
+            if (
+                schema_identificator
+                and schema_identificator == self.current_schema_identificator
+            ):
+                if layer.type() == QgsMapLayer.VectorLayer:
+                    idx = layer.fields().lookupField("t_ili_tid")
+                    if idx < 0:
+                        continue
+                    for feature in layer.getFeatures():
+                        if feature.attributes()[idx] == t_ili_tid:
+                            return layer, feature
         return None, None
 
     def _auto_pan_button_clicked(self):
