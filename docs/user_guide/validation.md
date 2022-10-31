@@ -144,9 +144,6 @@ Use for that the `"PARAMETER"` section:
 #deactivates mandatory constraints
 multiplicity="off"
 
-#deactivates reference constraint
-target="off"
-
 #deactivates logical constraints
 constraintValidation="off"
 ```
