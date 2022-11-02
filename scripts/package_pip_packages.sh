@@ -1,7 +1,7 @@
 #!/bin/bash
 LIBS_DIR="QgisModelBaker/libs"
 
-MODELBAKER_LIBRARY=("modelbaker" "1.3.3")
+MODELBAKER_LIBRARY=("modelbaker" "1.3.4")
 PACKAGING=("packaging" "21.3")
 
 PACKAGES=(
@@ -18,8 +18,8 @@ for PACKAGE in ${PACKAGES[@]}; do
   mkdir -p temp
   #download the wheel
   pip download -v ${!PACKAGE:0:1}==${!PACKAGE:1:1} --only-binary :all: -d temp/
-  #unpack the wheel
-  unzip -o temp/${!PACKAGE:0:1}*.whl -d $LIBS_DIR
+  #unpack all the wheels found (means including dependencies)
+  unzip -o "temp/*.whl" -d $LIBS_DIR
   #remove temp folder
   rm -r temp
   #set write rights to group (because qgis-plugin-ci needs it)
