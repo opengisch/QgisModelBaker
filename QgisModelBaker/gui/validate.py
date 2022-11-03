@@ -462,7 +462,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         layer, feature = self._get_feature_in_project(t_ili_tid)
         valid_feature = bool(layer and feature and feature.hasGeometry())
 
-        if not valid_coords or not valid_feature:
+        if not valid_coords and not valid_feature:
             return
 
         if self.auto_pan_button.isChecked():
@@ -517,7 +517,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             )
 
     def _set_extend(self, x, y):
-        scale = 10
+        scale = 5
         rect = QgsRectangle(
             float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
         )
