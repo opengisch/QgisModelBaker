@@ -155,6 +155,9 @@ constraintValidation="off"
 See for all the global configurations the official [documentation of ilivalidator](https://github.com/claeis/ilivalidator/blob/master/docs/ilivalidator.rst#ini-globale-konfigurationen).
 
 
+!!! Note
+    Validation with deactivated validation is useful because it checks if everything is ok with the technical aspects (like `t_typ`, `t_id` etc).
+
 ## ili2db with `--validate` in the background
 On running the validation `ili2db` is used in the background with the parameter `--validate`. This means no export of the data is needed. The output is parsed by Model Baker and provided in the result list.
 
