@@ -16,8 +16,9 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
-        qgis_version: [release-3_16, release-3_22, latest]
+        qgis_version: [focal-3.16, 3.22-jammy, latest]
     env:
       QGIS_TEST_VERSION: ${{ matrix.qgis_version }}
     steps:
