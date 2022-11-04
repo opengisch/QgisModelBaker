@@ -91,8 +91,8 @@ Since mostly the person validating the data is not the same than the person crea
 Having the class in the INTERLIS model:
 
 ```
-MODEL Brutalism (en) =
-  TOPIC Buildings =
+MODEL ModernCity_V1 (en) =
+  TOPIC Living =
     CLASS Resident =
       ID: MANDATORY TEXT;
       Name: TEXT;
@@ -106,11 +106,11 @@ MODEL Brutalism (en) =
 And the meta attribute from the example above in the configuration file:
 
 ```ini
-["Brutalism.Buildings.Resident.ID"]
+["ModernCity_V1.Living.Resident.ID"]
 # disable mandatory constraint of ID
 multiplicity="off"
 
-["Brutalism.Buildings.Resident.Constraint1"]
+["ModernCity_V1.Living.Resident.Constraint1"]
 # disable first logical constraint of class Resident
 check="off"
 ```
@@ -121,14 +121,14 @@ check="off"
 You can set the message of the constraints in the configuration file as well:
 
 ```ini
-["Brutalism.Buildings.Resident.Constraint1"]
+["ModernCity_V1.Living.Resident.Constraint1"]
 msg = "When the resident {ID} is human, then it needs a name."
 ```
 
 When you have a name set in the model, you can use it here:
 
 ```ini
-["Brutalism.Buildings.Resident.MandatoryHumanName"]
+["ModernCity_V1.Living.Resident.MandatoryHumanName"]
 msg = "When the resident {ID} is human, then it needs a name."
 ```
 
