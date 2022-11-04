@@ -413,11 +413,20 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if t_ili_tid:
             action_open_form = QAction(
                 QgsApplication.getThemeIcon("/mActionFormView.svg"),
-                self.tr("Open Feature Form"),
+                self.tr("Open in Feature Form"),
                 self,
             )
             action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
             menu.addAction(action_open_form)
+            action_select_feature = QAction(
+                QgsApplication.getThemeIcon("/mActionOpenTableSelected.svg"),
+                self.tr("Select in Attribute Table"),
+                self,
+            )
+            action_select_feature.triggered.connect(
+                lambda: self._select_feature_in_attributetable(t_ili_tid)
+            )
+            menu.addAction(action_select_feature)
         if id:
             action_fix = QAction(
                 self.tr("Set to unfixed")
@@ -453,7 +462,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         layer, feature = self._get_feature_in_project(t_ili_tid)
         valid_feature = bool(layer and feature and feature.hasGeometry())
 
-        if not valid_coords or not valid_feature:
+        if not valid_coords and not valid_feature:
             return
 
         if self.auto_pan_button.isChecked():
@@ -508,7 +517,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             )
 
     def _set_extend(self, x, y):
-        scale = 50
+        scale = 5
         rect = QgsRectangle(
             float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
         )
@@ -520,6 +529,20 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if layer and feature:
             self.iface.layerTreeView().setCurrentLayer(layer)
             self.iface.openFeatureForm(layer, feature, True)
+
+    def _select_feature_in_attributetable(self, t_ili_tid):
+        layer, feature = self._get_feature_in_project(t_ili_tid)
+        if layer and feature:
+            self.iface.layerTreeView().setCurrentLayer(layer)
+            layer.removeSelection()
+            layer.select(feature.id())
+            attribute_table = self.iface.showAttributeTable(layer)
+            if attribute_table:
+                selected_filter_action = attribute_table.findChild(
+                    QAction, "mActionSelectedFilter"
+                )
+                if selected_filter_action:
+                    selected_filter_action.trigger()
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
