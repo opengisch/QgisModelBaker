@@ -537,7 +537,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             layer.removeSelection()
             layer.select(feature.id())
             attribute_table = self.iface.showAttributeTable(layer)
-            attribute_table.findChild(QAction, "mActionSelectedFilter").trigger()
+            if attribute_table:
+                selected_filter_action = attribute_table.findChild(
+                    QAction, "mActionSelectedFilter"
+                )
+                if selected_filter_action:
+                    selected_filter_action.trigger()
 
     def _get_feature_in_project(self, t_ili_tid):
         for layer in QgsProject.instance().mapLayers().values():
