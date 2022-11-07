@@ -23,7 +23,7 @@ for PACKAGE in ${PACKAGES[@]}; do
   #remove temp folder
   rm -r temp
   #set write rights to group (because qgis-plugin-ci needs it)
-  chmod -R g+w $LIBS_DIR
+  chmod -R g+rwX $LIBS_DIR
 done
 
 #create the __init__.py in libs folder
