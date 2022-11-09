@@ -238,8 +238,10 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             )
             if matches:
                 model_index = matches[0]
-                path = self.ilireferencedatacache.model.data(
-                    model_index, int(IliDataItemModel.Roles.ID)
+                path = "ilidata:{}".format(
+                    self.ilireferencedatacache.model.data(
+                        model_index, int(IliDataItemModel.Roles.ID)
+                    )
                 )
         return self.source_model.add_source(name, type, path, origin_info)
 
