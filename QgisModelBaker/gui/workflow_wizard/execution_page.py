@@ -20,7 +20,7 @@
 
 import copy
 
-from qgis.PyQt.QtCore import QCoreApplication, QEventLoop
+from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, pyqtSignal
 from qgis.PyQt.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
@@ -39,6 +39,9 @@ PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):
+
+    cancel_current_session = pyqtSignal()
+
     def __init__(self, parent, title, db_action_type):
         QWizardPage.__init__(self, parent)
 
@@ -159,6 +162,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         loop = QEventLoop()
         for session_widget in self.session_widget_list:
             session_widget.on_done_or_skipped.connect(lambda: loop.quit())
+            self.cancel_current_session.connect(session_widget.cancel_session)
             # fall in a loop on fail untill the user skipped it or it has been successful
             if not session_widget.run():
                 loop.exec()

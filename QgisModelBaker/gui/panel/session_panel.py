@@ -48,6 +48,7 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object)
+    cancel_session = pyqtSignal()
 
     def __init__(
         self,
@@ -92,11 +93,15 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.skip_action = QAction(self.tr("Skip"), None)
         self.skip_action.triggered.connect(self.skip)
 
+        self.cancel_action = QAction(self.tr("Cancel"), None)
+        self.cancel_action.triggered.connect(lambda: self.cancel_session.emit())
+
         self.create_tool_button.addAction(
             self.set_button_to_create_without_constraints_action
         )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
+        self.create_tool_button.addAction(self.cancel_action)
         self.create_tool_button.setText(self.create_text)
         self.create_tool_button.clicked.connect(self.run)
 
@@ -225,7 +230,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         with OverrideCursor(Qt.WaitCursor):
             self.progress_bar.setValue(10)
-            self.setDisabled(True)
+            # self.setDisabled(True)
 
             porter.stdout.connect(
                 lambda str: self.print_info.emit(str, LogColor.COLOR_INFO)
@@ -233,6 +238,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             porter.stderr.connect(self.on_stderr)
             porter.process_started.connect(self.on_process_started)
             porter.process_finished.connect(self.on_process_finished)
+            self.cancel_session.connect(porter.cancel_process)
             self.progress_bar.setValue(20)
             try:
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
