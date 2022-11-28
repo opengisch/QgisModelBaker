@@ -145,6 +145,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         custom_layer_order_structure = list()
         custom_project_properties = {}
+        mapthemes = {}
 
         # Project topping file for legend and layers: collect and download
         projecttopping_file_path_list = []
@@ -211,6 +212,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             if path
                             else None,
                         )
+                    if "mapthemes" in projecttopping_data:
+                        mapthemes = projecttopping_data["mapthemes"]
                     if "layer-order" in projecttopping_data:
                         custom_layer_order_structure = projecttopping_data[
                             "layer-order"
@@ -237,6 +240,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         project.bags_of_enum = bags_of_enum
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
+        project.mapthemes = mapthemes
 
         self.workflow_wizard.log_panel.print_info(
             self.tr("Configure forms and widgets…")
