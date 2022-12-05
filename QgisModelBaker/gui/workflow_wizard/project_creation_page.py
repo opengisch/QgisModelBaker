@@ -146,7 +146,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         custom_layer_order_structure = list()
         custom_project_properties = {}
         mapthemes = {}
-        layouts = {}
         custom_project_variables = {}
 
         # Project topping file for legend and layers: collect and download
@@ -233,7 +232,14 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
                     # layouts
                     if "layouts" in projecttopping_data:
-                        layouts = projecttopping_data["layouts"]
+                        resolved_layouts = generator.resolved_layouts(
+                            projecttopping_data["layouts"],
+                            path_resolver=lambda path: self.ilidata_path_resolver(
+                                os.path.dirname(projecttopping_file_path), path
+                            )
+                            if path
+                            else None,
+                        )
 
                     # variables
                     if "variables" in projecttopping_data:
@@ -264,7 +270,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
         project.mapthemes = mapthemes
-        project.layouts = layouts
+        project.layouts = resolved_layouts
         project.custom_project_variables = custom_project_variables
 
         self.workflow_wizard.log_panel.print_info(
