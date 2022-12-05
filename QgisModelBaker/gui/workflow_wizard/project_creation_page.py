@@ -146,6 +146,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         custom_layer_order_structure = list()
         custom_project_properties = {}
         mapthemes = {}
+        layouts = {}
+        custom_project_variables = {}
 
         # Project topping file for legend and layers: collect and download
         projecttopping_file_path_list = []
@@ -193,6 +195,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             with open(projecttopping_file_path, "r") as stream:
                 try:
                     projecttopping_data = yaml.safe_load(stream)
+
+                    # layertree / legend
                     layertree_key = "layertree"
                     if layertree_key not in projecttopping_data:
                         layertree_key = "legend"
@@ -212,9 +216,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             if path
                             else None,
                         )
-                    if "mapthemes" in projecttopping_data:
-                        mapthemes = projecttopping_data["mapthemes"]
 
+                    # layer order
                     layerorder_key = "layerorder"
                     if layerorder_key not in projecttopping_data:
                         layerorder_key = "layer-order"
@@ -224,6 +227,19 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             layerorder_key
                         ]
 
+                    # map themes
+                    if "mapthemes" in projecttopping_data:
+                        mapthemes = projecttopping_data["mapthemes"]
+
+                    # layouts
+                    if "layouts" in projecttopping_data:
+                        layouts = projecttopping_data["layouts"]
+
+                    # variables
+                    if "variables" in projecttopping_data:
+                        custom_project_variables = projecttopping_data["variables"]
+
+                    # properties (inoffical)
                     if "properties" in projecttopping_data:
                         custom_project_properties = projecttopping_data["properties"]
 
@@ -248,6 +264,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
         project.mapthemes = mapthemes
+        project.layouts = layouts
+        project.custom_project_variables = custom_project_variables
 
         self.workflow_wizard.log_panel.print_info(
             self.tr("Configure forms and widgets…")
