@@ -208,7 +208,7 @@ layertree:
         provider: "wms"
         uri: "contextualWMSLegend=0&crs=EPSG:2056&dpiMode=7&featureCount=10&format=image/jpeg&layers=ch.bav.kataster-belasteter-standorte-oev_lines&styles=default&url=https://wms.geo.admin.ch/?%0ASERVICE%3DWMS%0A%26VERSION%3D1.3.0%0A%26REQUEST%3DGetCapabilities"
 
-layer-order:
+layerorder:
   - 'geom punkt'
   - 'geom polygon'
 ```

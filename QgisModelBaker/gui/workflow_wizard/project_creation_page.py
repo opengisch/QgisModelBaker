@@ -214,12 +214,19 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         )
                     if "mapthemes" in projecttopping_data:
                         mapthemes = projecttopping_data["mapthemes"]
-                    if "layer-order" in projecttopping_data:
+
+                    layerorder_key = "layerorder"
+                    if layerorder_key not in projecttopping_data:
+                        layerorder_key = "layer-order"
+
+                    if layerorder_key in projecttopping_data:
                         custom_layer_order_structure = projecttopping_data[
-                            "layer-order"
+                            layerorder_key
                         ]
+
                     if "properties" in projecttopping_data:
                         custom_project_properties = projecttopping_data["properties"]
+
                 except yaml.YAMLError as exc:
                     self.workflow_wizard.log_panel.print_info(
                         self.tr("Unable to parse project topping: {}").format(exc),
