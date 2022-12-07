@@ -24,6 +24,7 @@ from enum import IntEnum
 from qgis.core import (
     QgsApplication,
     QgsLayerTree,
+    QgsLayerTreeLayer,
     QgsLayerTreeModel,
     QgsMapLayer,
     QgsProject,
@@ -215,7 +216,7 @@ class LayerModel(QgsLayerTreeModel):
                     index.column() == LayerModel.Columns.USE_STYLE
                     and not QgsLayerTree.isGroup(node)
                 ):
-                    self.export_settings.set_setting_values(
+                    self.export_settings._set_export_settings_values_for_all_styles(
                         ExportSettings.ToppingType.QMLSTYLE,
                         node,
                         None,
@@ -244,7 +245,7 @@ class LayerModel(QgsLayerTreeModel):
 
                     if bool(data):
                         # when the definition is checked the others become unchecked
-                        self.export_settings.set_setting_values(
+                        self.export_settings._set_export_settings_values_for_all_styles(
                             ExportSettings.ToppingType.QMLSTYLE,
                             node,
                             None,
@@ -296,7 +297,7 @@ class LayerModel(QgsLayerTreeModel):
         ):
             node = self.index2node(index)
             if node:
-                self.export_settings.set_setting_values(
+                self.export_settings._set_export_settings_values_for_all_styles(
                     ExportSettings.ToppingType.QMLSTYLE, node, None, True, data
                 )
                 return True
@@ -407,7 +408,7 @@ class LayerModel(QgsLayerTreeModel):
         self.beginResetModel()
         for layernode in layernodes:
             if self._is_ili_schema(layernode.layer()):
-                self.export_settings.set_setting_values(
+                self._set_export_settings_values_for_all_styles(
                     ExportSettings.ToppingType.QMLSTYLE,
                     layernode,
                     None,
@@ -426,7 +427,7 @@ class LayerModel(QgsLayerTreeModel):
                     bool(False),
                 )
             else:
-                self.export_settings.set_setting_values(
+                self._set_export_settings_values_for_all_styles(
                     ExportSettings.ToppingType.QMLSTYLE,
                     layernode,
                     None,
@@ -464,6 +465,24 @@ class LayerModel(QgsLayerTreeModel):
                 bool(False),
             )
         self.endResetModel()
+
+    def _set_export_settings_values_for_all_styles(
+        self,
+        type=ExportSettings.ToppingType.QMLSTYLE,
+        node: QgsLayerTreeLayer = None,
+        name: str = None,
+        export=True,
+        categories=None,
+    ):
+        """
+        Currently individual settings per style is not supported by the exporter.
+        So we have this function applying the setting (export True/False and category) on each style.
+        """
+        if isinstance(node, QgsLayerTreeLayer):
+            for style_name in node.layer().styleManager().styles():
+                self.export_settings.set_setting_values(
+                    type, node, name, export, categories, style_name
+                )
 
 
 class StyleCatDelegate(QStyledItemDelegate):
