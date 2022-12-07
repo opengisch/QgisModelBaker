@@ -146,7 +146,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         custom_layer_order_structure = list()
         custom_project_properties = {}
         mapthemes = {}
-        custom_project_variables = {}
+        custom_variables = {}
 
         # Project topping file for legend and layers: collect and download
         projecttopping_file_path_list = []
@@ -243,7 +243,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
                     # variables
                     if "variables" in projecttopping_data:
-                        custom_project_variables = projecttopping_data["variables"]
+                        custom_variables = projecttopping_data["variables"]
 
                     # properties (inoffical)
                     if "properties" in projecttopping_data:
@@ -271,7 +271,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         project.custom_layer_order_structure = custom_layer_order_structure
         project.mapthemes = mapthemes
         project.layouts = resolved_layouts
-        project.custom_project_variables = custom_project_variables
+        project.custom_variables = custom_variables
 
         self.workflow_wizard.log_panel.print_info(
             self.tr("Configure forms and widgets…")
