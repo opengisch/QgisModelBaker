@@ -23,6 +23,7 @@ from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 from QgisModelBaker.gui.panel.log_panel import LogPanel
+from QgisModelBaker.gui.topping_wizard.additives_page import AdditivesPage
 from QgisModelBaker.gui.topping_wizard.generation_page import GenerationPage
 from QgisModelBaker.gui.topping_wizard.ili2dbsettings_page import Ili2dbSettingsPage
 from QgisModelBaker.gui.topping_wizard.layers_page import LayersPage
@@ -62,6 +63,9 @@ class ToppingWizard(QWizard):
         self.layers_page = LayersPage(
             self, self._current_page_title(ToppingWizardPageIds.Layers)
         )
+        self.additives_page = AdditivesPage(
+            self, self._current_page_title(ToppingWizardPageIds.Additives)
+        )
         self.referencedata_page = ReferencedataPage(
             self, self._current_page_title(ToppingWizardPageIds.ReferenceData)
         )
@@ -75,6 +79,7 @@ class ToppingWizard(QWizard):
         self.setPage(ToppingWizardPageIds.Target, self.target_page)
         self.setPage(ToppingWizardPageIds.Models, self.models_page)
         self.setPage(ToppingWizardPageIds.Layers, self.layers_page)
+        self.setPage(ToppingWizardPageIds.Additives, self.additives_page)
         self.setPage(ToppingWizardPageIds.ReferenceData, self.referencedata_page)
         self.setPage(ToppingWizardPageIds.Ili2dbSettings, self.ili2dbsettings_page)
         self.setPage(ToppingWizardPageIds.Generation, self.generation_page)
@@ -100,6 +105,8 @@ class ToppingWizard(QWizard):
             return self.tr("Model Selection")
         elif id == ToppingWizardPageIds.Layers:
             return self.tr("Layer Configuration")
+        elif id == ToppingWizardPageIds.Additives:
+            return self.tr("Additive Project Settings")
         elif id == ToppingWizardPageIds.ReferenceData:
             return self.tr("Reference Data Selection")
         elif id == ToppingWizardPageIds.Ili2dbSettings:

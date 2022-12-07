@@ -169,9 +169,10 @@ class ToppingWizardPageIds:
     Target = 1
     Models = 2
     Layers = 3
-    ReferenceData = 4
-    Ili2dbSettings = 5
-    Generation = 6
+    Additives = 4
+    ReferenceData = 5
+    Ili2dbSettings = 6
+    Generation = 7
 
 
 # Util functions
@@ -793,14 +794,17 @@ class CheckEntriesModel(QStringListModel):
 
     def __init__(self):
         super().__init__()
-        self._checked_entries = None
+        self._checked_entries = {}
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def data(self, index, role):
         if role == Qt.CheckStateRole:
-            return self._checked_entries[self.data(index, Qt.DisplayRole)]
+            if self.data(index, Qt.DisplayRole) in self._checked_entries:
+                return self._checked_entries[self.data(index, Qt.DisplayRole)]
+            else:
+                return Qt.Unchecked
         else:
             return QStringListModel.data(self, index, role)
 
