@@ -90,7 +90,7 @@ To prevent this, it is recommended to load the `qml` files into the locally gene
 In a `yaml` file the project information like the layer display order and the legend tree structure is defined.
 As well the QML files can be linked here.
 
-Under main entry `layertree` the legend tree structure is defined and under `layer-order` the display order.
+Under main entry `layertree` the legend tree structure is defined and under `layerorder` the display order.
 
 So the content of a `yaml` file can look like this:
 ```yaml
@@ -111,7 +111,7 @@ layertree:
         - "Unterhalt":
         - "Deponietypen":
 
-layer-order:
+layerorder:
   - "Punkt"
   - "Linie"
   - "Fläche"

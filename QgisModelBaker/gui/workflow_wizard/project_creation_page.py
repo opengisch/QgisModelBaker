@@ -145,6 +145,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         custom_layer_order_structure = list()
         custom_project_properties = {}
+        mapthemes = {}
+        resolved_layouts = {}
+        custom_variables = {}
 
         # Project topping file for legend and layers: collect and download
         projecttopping_file_path_list = []
@@ -192,6 +195,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             with open(projecttopping_file_path, "r") as stream:
                 try:
                     projecttopping_data = yaml.safe_load(stream)
+
+                    # layertree / legend
                     layertree_key = "layertree"
                     if layertree_key not in projecttopping_data:
                         layertree_key = "legend"
@@ -211,12 +216,40 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             if path
                             else None,
                         )
-                    if "layer-order" in projecttopping_data:
+
+                    # layer order
+                    layerorder_key = "layerorder"
+                    if layerorder_key not in projecttopping_data:
+                        layerorder_key = "layer-order"
+
+                    if layerorder_key in projecttopping_data:
                         custom_layer_order_structure = projecttopping_data[
-                            "layer-order"
+                            layerorder_key
                         ]
+
+                    # map themes
+                    if "mapthemes" in projecttopping_data:
+                        mapthemes = projecttopping_data["mapthemes"]
+
+                    # layouts
+                    if "layouts" in projecttopping_data:
+                        resolved_layouts = generator.resolved_layouts(
+                            projecttopping_data["layouts"],
+                            path_resolver=lambda path: self.ilidata_path_resolver(
+                                os.path.dirname(projecttopping_file_path), path
+                            )
+                            if path
+                            else None,
+                        )
+
+                    # variables
+                    if "variables" in projecttopping_data:
+                        custom_variables = projecttopping_data["variables"]
+
+                    # properties (inoffical)
                     if "properties" in projecttopping_data:
                         custom_project_properties = projecttopping_data["properties"]
+
                 except yaml.YAMLError as exc:
                     self.workflow_wizard.log_panel.print_info(
                         self.tr("Unable to parse project topping: {}").format(exc),
@@ -237,6 +270,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         project.bags_of_enum = bags_of_enum
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
+        project.mapthemes = mapthemes
+        project.layouts = resolved_layouts
+        project.custom_variables = custom_variables
 
         self.workflow_wizard.log_panel.print_info(
             self.tr("Configure forms and widgets…")
