@@ -146,6 +146,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         custom_layer_order_structure = list()
         custom_project_properties = {}
         mapthemes = {}
+        resolved_layouts = {}
         custom_variables = {}
 
         # Project topping file for legend and layers: collect and download
