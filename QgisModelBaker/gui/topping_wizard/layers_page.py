@@ -216,7 +216,7 @@ class LayerModel(QgsLayerTreeModel):
                     index.column() == LayerModel.Columns.USE_STYLE
                     and not QgsLayerTree.isGroup(node)
                 ):
-                    self.export_settings._set_export_settings_values_for_all_styles(
+                    self._set_export_settings_values_for_all_styles(
                         ExportSettings.ToppingType.QMLSTYLE,
                         node,
                         None,
@@ -245,7 +245,7 @@ class LayerModel(QgsLayerTreeModel):
 
                     if bool(data):
                         # when the definition is checked the others become unchecked
-                        self.export_settings._set_export_settings_values_for_all_styles(
+                        self._set_export_settings_values_for_all_styles(
                             ExportSettings.ToppingType.QMLSTYLE,
                             node,
                             None,
@@ -297,7 +297,7 @@ class LayerModel(QgsLayerTreeModel):
         ):
             node = self.index2node(index)
             if node:
-                self.export_settings._set_export_settings_values_for_all_styles(
+                self._set_export_settings_values_for_all_styles(
                     ExportSettings.ToppingType.QMLSTYLE, node, None, True, data
                 )
                 return True
