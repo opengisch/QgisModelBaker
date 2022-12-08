@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>1257</width>
     <height>600</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Select the Map Themes that should be exported, as well as the custom project variables and the print layouts.</string>
+      <string>Additive project settings, that should be exported (if available). Like Map Themes, Custom Variables and Print Layouts.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
