@@ -56,19 +56,22 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         maptheme_collection = QgsProject.instance().mapThemeCollection()
         self.mapthemes_model.setStringList(maptheme_collection.mapThemes())
         self.mapthemes_model.check_all(Qt.Checked)
-        self.mapthemes_view.setEnabled(self.mapthemes_model.rowCount())
+        self.mapthemes_view.setVisible(self.mapthemes_model.rowCount())
+        self.mapthemes_label.setVisible(self.mapthemes_model.rowCount())
 
         variables_keys = []
         variables_keys = QgsProject.instance().customVariables().keys()
         self.variables_model.setStringList(variables_keys)
         self.variables_model.check_all(Qt.Checked)
-        self.mapthemes_view.setEnabled(self.variables_model.rowCount())
+        self.mapthemes_view.setVisible(self.variables_model.rowCount())
+        self.mapthemes_label.setVisible(self.variables_model.rowCount())
 
         layout_manager = QgsProject.instance().layoutManager()
         layout_names = [layout.name() for layout in layout_manager.printLayouts()]
         self.layouts_model.setStringList(layout_names)
         self.layouts_model.check_all(Qt.Checked)
-        self.layouts_view.setEnabled(self.layouts_model.rowCount())
+        self.layouts_view.setVisible(self.layouts_model.rowCount())
+        self.layouts_label.setVisible(self.layouts_model.rowCount())
         return super().initializePage()
 
     def validatePage(self) -> bool:
