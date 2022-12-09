@@ -132,9 +132,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         configuration.metaconfig = self.metaconfig
         configuration.metaconfig_id = self.current_metaconfig_id
         if "CONFIGURATION" in self.metaconfig.sections():
-            configuration.metaconfig_params_only = self.metaconfig["CONFIGURATION"].get(
-                "qgis.modelbaker.metaConfigParamsOnly", False
-            )
+            configuration.metaconfig_params_only = self.metaconfig[
+                "CONFIGURATION"
+            ].getboolean("qgis.modelbaker.metaConfigParamsOnly")
         # takes settings from the GUI and provides it to the configuration
         configuration.srs_auth = self.srs_auth
         configuration.srs_code = self.srs_code
@@ -239,6 +239,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     )
                 )
 
+    def _disable_settings(self, disable):
+        self.crsSelector.setDisabled(disable)
+        self.crs_label.setDisabled(disable)
+        self.ili2db_options_button.setDisabled(disable)
+
     def _refresh_ili_metaconfig_cache(self):
         self.ilimetaconfigcache.new_message.connect(
             self.workflow_wizard.log_panel.show_message
@@ -337,6 +342,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_metaconfig_id = None
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText("")
+        self._disable_settings(False)
 
     def _set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
@@ -468,7 +474,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
 
             # get prescript (sql)
-            if "prescript" in ili2db_metaconfig:
+            if "preScript" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Seek for prescript (sql) files:"), LogColor.COLOR_TOPPING
                 )
@@ -484,7 +490,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
 
             # get postscript (sql)
-            if "postscript" in ili2db_metaconfig:
+            if "postScript" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Seek for postscript (sql) files:"),
                     LogColor.COLOR_TOPPING,
@@ -500,9 +506,17 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr("- Loaded postscript (sql) files"), LogColor.COLOR_TOPPING
                 )
 
-        # get referenceData file and update the source model
         if "CONFIGURATION" in self.metaconfig.sections():
             configuration_section = self.metaconfig["CONFIGURATION"]
+
+            # check if only ili2db parameters from metaconfig should be considered
+            self._disable_settings(
+                configuration_section.getboolean(
+                    "qgis.modelbaker.metaConfigParamsOnly", fallback=False
+                )
+            )
+
+            # get referenceData file and update the source model
             if "ch.interlis.referenceData" in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr(
