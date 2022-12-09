@@ -113,27 +113,29 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
         # connect to the metaconfig check function
         self.smart1_radio_button.toggled.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
         self.smart2_radio_button.toggled.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
         self.create_import_tid_checkbox.toggled.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
         self.create_basket_col_checkbox.toggled.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
 
         self.toml_file_line_edit.textChanged.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
         self.pre_script_file_line_edit.textChanged.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
         self.post_script_file_line_edit.textChanged.connect(
-            lambda: self._check_metaconfig_ili2db()
+            lambda: self._restyle_concerning_metaconfig()
         )
+
+        self.metaconfig_info_label.setVisible(False)
 
         self.create_import_tid_groupbox.setHidden(remove_create_tid_group)
 
@@ -238,28 +240,29 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def load_metaconfig(self, metaconfig_ili2db):
         self.current_metaconfig_ili2db = metaconfig_ili2db
-        if "smart1Inheritance" in metaconfig_ili2db:
-            self.smart1_radio_button.setChecked(
-                metaconfig_ili2db.getboolean("smart1Inheritance")
-            )
-        if "smart2Inheritance" in metaconfig_ili2db:
-            self.smart2_radio_button.setChecked(
-                metaconfig_ili2db.getboolean("smart2Inheritance")
-            )
-        if "createBasketCol" in metaconfig_ili2db:
-            self.create_basket_col_checkbox.setChecked(
-                metaconfig_ili2db.getboolean("createBasketCol")
-            )
-        if "importTid" in metaconfig_ili2db:
-            self.create_import_tid_checkbox.setChecked(
-                metaconfig_ili2db.getboolean("importTid")
-            )
-        if "strokeArcs" in metaconfig_ili2db:
-            self.stroke_arcs_checkbox.setChecked(
-                metaconfig_ili2db.getboolean("strokeArcs")
-            )
-        self._check_metaconfig_ili2db()
-        self.save_configuration()
+        if self.current_metaconfig_ili2db:
+            if "smart1Inheritance" in self.current_metaconfig_ili2db:
+                self.smart1_radio_button.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("smart1Inheritance")
+                )
+            if "smart2Inheritance" in self.current_metaconfig_ili2db:
+                self.smart2_radio_button.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("smart2Inheritance")
+                )
+            if "createBasketCol" in self.current_metaconfig_ili2db:
+                self.create_basket_col_checkbox.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("createBasketCol")
+                )
+            if "importTid" in self.current_metaconfig_ili2db:
+                self.create_import_tid_checkbox.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("importTid")
+                )
+            if "strokeArcs" in self.current_metaconfig_ili2db:
+                self.stroke_arcs_checkbox.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("strokeArcs")
+                )
+            self.save_configuration()
+        self._restyle_concerning_metaconfig()
 
     def load_toml_file_path(self, key_postfix, toml_file_path):
         self.current_metaconfig_toml_file_path = toml_file_path
@@ -275,11 +278,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.current_metaconfig_pre_script_path = pre_script_path
         self.pre_script_file_line_edit.setText(pre_script_path)
 
-    def _check_metaconfig_ili2db(self):
+    def _restyle_concerning_metaconfig(self):
         """
-        Compares the values of the changed object
+        Compares the values of the changed object to make visual color indication.
         """
         if self.current_metaconfig_ili2db:
+
             if "smart1Inheritance" in self.current_metaconfig_ili2db:
                 if (
                     self.current_metaconfig_ili2db.getboolean("smart1Inheritance")
@@ -340,53 +344,84 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     self.stroke_arcs_checkbox.setStyleSheet(
                         f"color:{LogColor.COLOR_WARNING}"
                     )
-        if self.current_metaconfig_toml_file_path:
-            if (
-                self.current_metaconfig_toml_file_path
-                == self.toml_file_line_edit.text()
-            ):
-                self.toml_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_TOPPING}"
-                )
-                self.toml_file_label.setStyleSheet(f"color:{LogColor.COLOR_TOPPING}")
-            else:
-                self.toml_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_WARNING}"
-                )
-                self.toml_file_label.setStyleSheet(f"color:{LogColor.COLOR_WARNING}")
-        if self.current_metaconfig_post_script_path:
-            if (
-                self.current_metaconfig_post_script_path
-                == self.post_script_file_line_edit.text()
-            ):
-                self.post_script_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_TOPPING}"
-                )
-                self.post_script_file_label.setStyleSheet(
-                    f"color:{LogColor.COLOR_TOPPING}"
-                )
-            else:
-                self.post_script_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_WARNING}"
-                )
-                self.post_script_file_label.setStyleSheet(
-                    f"color:{LogColor.COLOR_WARNING}"
-                )
-        if self.current_metaconfig_pre_script_path:
-            if (
-                self.current_metaconfig_pre_script_path
-                == self.pre_script_file_line_edit.text()
-            ):
-                self.pre_script_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_TOPPING}"
-                )
-                self.pre_script_file_label.setStyleSheet(
-                    f"color:{LogColor.COLOR_TOPPING}"
-                )
-            else:
-                self.pre_script_file_browse_button.setStyleSheet(
-                    f"color:{LogColor.COLOR_WARNING}"
-                )
-                self.pre_script_file_label.setStyleSheet(
-                    f"color:{LogColor.COLOR_WARNING}"
-                )
+
+            if self.current_metaconfig_toml_file_path:
+                if (
+                    self.current_metaconfig_toml_file_path
+                    == self.toml_file_line_edit.text()
+                ):
+                    self.toml_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                    self.toml_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                else:
+                    self.toml_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+                    self.toml_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+
+            if self.current_metaconfig_post_script_path:
+                if (
+                    self.current_metaconfig_post_script_path
+                    == self.post_script_file_line_edit.text()
+                ):
+                    self.post_script_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                    self.post_script_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                else:
+                    self.post_script_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+                    self.post_script_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+            if self.current_metaconfig_pre_script_path:
+                if (
+                    self.current_metaconfig_pre_script_path
+                    == self.pre_script_file_line_edit.text()
+                ):
+                    self.pre_script_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                    self.pre_script_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_TOPPING}"
+                    )
+                else:
+                    self.pre_script_file_browse_button.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+                    self.pre_script_file_label.setStyleSheet(
+                        f"color:{LogColor.COLOR_WARNING}"
+                    )
+
+            self.metaconfig_info_label.setVisible(True)
+        else:
+            # reset all
+            self.smart1_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.smart2_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.create_basket_col_checkbox.setStyleSheet(
+                f"color:{LogColor.COLOR_INFO}"
+            )
+            self.create_import_tid_checkbox.setStyleSheet(
+                f"color:{LogColor.COLOR_INFO}"
+            )
+            self.stroke_arcs_checkbox.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.toml_file_browse_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.toml_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.post_script_file_browse_button.setStyleSheet(
+                f"color:{LogColor.COLOR_INFO}"
+            )
+            self.post_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.pre_script_file_browse_button.setStyleSheet(
+                f"color:{LogColor.COLOR_INFO}"
+            )
+            self.pre_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+
+            self.metaconfig_info_label.setVisible(False)

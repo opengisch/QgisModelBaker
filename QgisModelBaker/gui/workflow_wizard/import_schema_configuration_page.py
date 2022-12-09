@@ -284,6 +284,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
 
     def _on_metaconfig_completer_activated(self, text=None):
+        self._clean_metaconfig()
         matches = self.ilimetaconfigcache.model.match(
             self.ilimetaconfigcache.model.index(0, 0),
             Qt.DisplayRole,
@@ -343,6 +344,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.metaconfig.clear()
         self.metaconfig_file_info_label.setText("")
         self._disable_settings(False)
+        self.ili2db_options.load_metaconfig(None)
 
     def _set_metaconfig_line_edit_state(self, valid):
         self.ili_metaconfig_line_edit.setStyleSheet(
@@ -449,11 +451,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr("- Loaded models"), LogColor.COLOR_TOPPING
                 )
 
-            self.ili2db_options.load_metaconfig(ili2db_metaconfig)
-            self.workflow_wizard.log_panel.print_info(
-                self.tr("- Loaded ili2db options"), LogColor.COLOR_TOPPING
-            )
-
             # get iliMetaAttrs (toml)
             if "iliMetaAttrs" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
@@ -505,6 +502,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded postscript (sql) files"), LogColor.COLOR_TOPPING
                 )
+
+            self.ili2db_options.load_metaconfig(ili2db_metaconfig)
+            self.workflow_wizard.log_panel.print_info(
+                self.tr("- Loaded ili2db options"), LogColor.COLOR_TOPPING
+            )
 
         if "CONFIGURATION" in self.metaconfig.sections():
             configuration_section = self.metaconfig["CONFIGURATION"]
