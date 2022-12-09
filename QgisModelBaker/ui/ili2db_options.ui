@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>552</width>
-    <height>529</height>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,77 +17,6 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="5" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="toml_file_label">
-        <property name="text">
-         <string>Extra Model Information File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="toml_file_line_edit">
-        <property name="toolTip">
-         <string>Choose optional TOML file</string>
-        </property>
-        <property name="placeholderText">
-         <string>[Optional]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="toml_file_browse_button">
-        <property name="toolTip">
-         <string>Browse TOML files</string>
-        </property>
-        <property name="text">
-         <string>…</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="create_import_tid_groupbox">
-     <property name="title">
-      <string>Create Import Tid</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="create_import_tid_checkbox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_ili_tid in all classes, which is mandatory and should be unique, not only for across the current database, but across the whole system.&lt;/p&gt;&lt;p&gt;Normally you should not enable this option directly, but rely on the INTERLIS model and ili2db. The former should have a line enabling OIDs (preferably with UUIDs) and the latter will make sure the database updates the new column every time a new record is created.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Create Import Tid</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
@@ -122,7 +51,7 @@ using a SubClass strategy. Concrete classes, without a base class or their direc
 strategy are mapped using a NewClass strategy. All other classes are mapped using a SuperClass strategy.</string>
         </property>
         <property name="text">
-         <string>s&amp;mart1Inheritance</string>
+         <string>smart1Inheritance</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -136,33 +65,14 @@ strategy are mapped using a NewClass strategy. All other classes are mapped usin
 strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
         </property>
         <property name="text">
-         <string>smart&amp;2Inheritance</string>
+         <string>smart2Inheritance</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Create Basket Column</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="create_basket_col_checkbox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_basket in class tables which references entries in the additional table t_ili2db_basket.&lt;/p&gt;&lt;p&gt;The T_basket column needs to be filled with the basket to which an object belongs.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled by the database, by default values on QGIS side or manually from the user.&lt;/p&gt;&lt;p&gt;If&lt;span style=&quot; font-style:italic;&quot;&gt; BASKET OID&lt;/span&gt; is defined in the model, it's required to use the basket handling in QGIS. This is currently not automatically detected by the Model Baker and needs to be assured by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Create Basket Column</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0">
+   <item row="4" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
       <string>SQL scripts</string>
@@ -229,6 +139,106 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="toml_file_label">
+        <property name="text">
+         <string>Extra Model Information File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="toml_file_line_edit">
+        <property name="toolTip">
+         <string>Choose optional TOML file</string>
+        </property>
+        <property name="placeholderText">
+         <string>[Optional]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="toml_file_browse_button">
+        <property name="toolTip">
+         <string>Browse TOML files</string>
+        </property>
+        <property name="text">
+         <string>…</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Create Basket Column</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_basket_col_checkbox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_basket in class tables which references entries in the additional table t_ili2db_basket.&lt;/p&gt;&lt;p&gt;The T_basket column needs to be filled with the basket to which an object belongs.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Warning&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If this option is enabled, it is required to make sure that this column is filled by the database, by default values on QGIS side or manually from the user.&lt;/p&gt;&lt;p&gt;If&lt;span style=&quot; font-style:italic;&quot;&gt; BASKET OID&lt;/span&gt; is defined in the model, it's required to use the basket handling in QGIS. This is currently not automatically detected by the Model Baker and needs to be assured by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Create Basket Column</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="create_import_tid_groupbox">
+     <property name="title">
+      <string>Create Import Tid</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="create_import_tid_checkbox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new column t_ili_tid in all classes, which is mandatory and should be unique, not only for across the current database, but across the whole system.&lt;/p&gt;&lt;p&gt;Normally you should not enable this option directly, but rely on the INTERLIS model and ili2db. The former should have a line enabling OIDs (preferably with UUIDs) and the latter will make sure the database updates the new column every time a new record is created.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Create Import Tid</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="metaconfig_info_label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large; color:#341d5c;&quot;&gt;▪ &lt;/span&gt;&lt;span style=&quot; color:#341d5c;&quot;&gt;corresponds to the metaconfig &lt;/span&gt;&lt;span style=&quot; font-size:large; color:#c64600;&quot;&gt;▪ &lt;/span&gt;&lt;span style=&quot; color:#c64600;&quot;&gt;deviates from the metaconfig&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
     </widget>
    </item>
   </layout>

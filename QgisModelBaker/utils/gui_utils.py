@@ -139,6 +139,7 @@ DEFAULT_STYLE = """
 class LogColor:
     COLOR_INFO = "#000000"
     COLOR_SUCCESS = "#004905"
+    COLOR_WARNING = "#c64600"
     COLOR_FAIL = "#aa2222"
     COLOR_TOPPING = "#341d5c"
 
