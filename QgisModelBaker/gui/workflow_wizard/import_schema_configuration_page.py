@@ -128,11 +128,16 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._update_models_dependent_info()
 
     def update_configuration(self, configuration):
+        # metaconfig settings
+        configuration.metaconfig = self.metaconfig
+        configuration.metaconfig_id = self.current_metaconfig_id
+        if "CONFIGURATION" in self.metaconfig.sections():
+            configuration.metaconfig_params_only = self.metaconfig["CONFIGURATION"].get(
+                "qgis.modelbaker.metaConfigParamsOnly", False
+            )
         # takes settings from the GUI and provides it to the configuration
         configuration.srs_auth = self.srs_auth
         configuration.srs_code = self.srs_code
-        configuration.metaconfig = self.metaconfig
-        configuration.metaconfig_id = self.current_metaconfig_id
         # ili2db_options
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
