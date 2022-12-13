@@ -153,10 +153,12 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 return session_widget
         return None
 
-    def _on_done_or_skipped_received(self, id):
-        self.pending_sessions.remove(id)
-        if not self.pending_sessions:
-            self.setComplete(True)
+    def _on_done_or_skipped_received(self, id, state=True):
+        if state and id in self.pending_sessions:
+            self.pending_sessions.remove(id)
+        if not state and id not in self.pending_sessions:
+            self.pending_sessions.append(id)
+        self.setComplete(not self.pending_sessions)
 
     def _run(self):
         loop = QEventLoop()
