@@ -218,7 +218,7 @@ So the entry for the topping file "layerstyle/lu_grundnutzung.qml" of the type "
         </categories>
         <files>
           <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
+            <fileFormat>text/plain</fileFormat>
             <file>
               <DatasetIdx16.File>
                 <path>layerstyle/lu_grundnutzung.qml</path>
@@ -276,7 +276,7 @@ Basically exactly the same as a topping file. A repository-spanning unique Id, t
         </categories>
         <files>
           <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
+            <fileFormat>text/plain</fileFormat>
             <file>
               <DatasetIdx16.File>
                 <path>metaconfig/lu_nutzungsplanung_v310.ini</path>
@@ -325,7 +325,7 @@ This is how the entry finally looks like:
         </categories>
         <files>
           <DatasetIdx16.DataFile>
-            <fileFormat>text/plain;version=2.3</fileFormat>
+            <fileFormat>text/plain</fileFormat>
             <file>
               <DatasetIdx16.File>
                 <path>metaconfig/lu_nutzungsplanung_v310.ini</path>

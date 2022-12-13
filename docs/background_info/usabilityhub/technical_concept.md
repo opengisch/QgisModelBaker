@@ -47,7 +47,7 @@ Additional servers/repositories can be linked via the `ilisite.xml`. The `Datase
   </categories>
   <files>
     <DatasetIdx16.DataFile>
-      <fileFormat>text/plain;version=2.3</fileFormat>
+      <fileFormat>text/plain</fileFormat>
       <file>
         <DatasetIdx16.File>
           <path>metaconfig/opengisch_KbS_LV95_V1_4.ini</path>
