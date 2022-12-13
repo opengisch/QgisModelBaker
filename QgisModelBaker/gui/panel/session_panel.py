@@ -134,8 +134,6 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.dataset = ";".join(self.datasets)
             self.configuration.baskets = self.baskets
 
-        self.on_process_started.connect(self._on_process_started)
-        self.on_process_finished.connect(self._on_process_finished)
         self.is_skipped_or_done = False
 
     @property
@@ -364,12 +362,3 @@ class SessionPanel(QWidget, WIDGET_UI):
     def _get_tid_handling(self):
         db_connector = db_utils.get_db_connector(self.configuration)
         return db_connector.get_tid_handling()
-
-    def _on_process_started(self, command):
-        print("_on_process_started")
-
-    def _on_process_finished(self, exit_code, result):
-        if exit_code == 0:
-            print("_on_process_finished 1")
-        else:
-            print("_on_process_finished 2")
