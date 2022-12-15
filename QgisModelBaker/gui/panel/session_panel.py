@@ -141,6 +141,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         When widget gets hidden, we emit the cancel_session to terminate running java processes.
         This is called on every hide (including the one right before getting destroyed because of dialog close.
         """
+        self.print_info.emit(self.tr("Cancel session..."), LogColor.COLOR_INFO)
         self.cancel_session.emit()
         super().hideEvent(event)
 
