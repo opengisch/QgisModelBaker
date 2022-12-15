@@ -473,6 +473,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         layer, [feature.id()], False
                     ),
                 )
+            else:
+                # otherwise it has valid coordinates
+                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
 
         if self.auto_zoom_button.isChecked():
             if valid_feature:
@@ -522,6 +525,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
         )
         self.iface.mapCanvas().setExtent(rect)
+        self.iface.mapCanvas().refresh()
+
+    def _pan_to_coordinate(self, x, y):
+        self.iface.mapCanvas().setCenter(QgsPointXY(float(x), float(y)))
         self.iface.mapCanvas().refresh()
 
     def _open_form(self, t_ili_tid):
