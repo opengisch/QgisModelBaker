@@ -478,20 +478,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         layer, [feature.id()], False
                     ),
                 )
+
         if self.auto_zoom_button.isChecked():
-            if valid_feature:
+            if valid_coords:
                 # prefering coordinates when having both
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
+                )
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().zoomToFeatureIds(
                         layer, [feature.id()]
                     ),
-                )
-            else:
-                # otherwise it has valid coordinates
-                QTimer.singleShot(
-                    1,
-                    lambda: self._set_extend(coord_x, coord_y),
                 )
 
         if self.flash_button.isChecked():
