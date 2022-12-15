@@ -90,7 +90,7 @@
       <item>
        <widget class="QToolButton" name="auto_pan_button">
         <property name="toolTip">
-         <string>Automatically pan to the current feature</string>
+         <string>Automatically pan to the current coordinates / feature</string>
         </property>
         <property name="text">
          <string>...</string>

@@ -466,19 +466,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             return
 
         if self.auto_pan_button.isChecked():
-            if valid_feature:
+            if valid_coords:
+                # prefering coordinates when having both
+                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
+
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().panToFeatureIds(
                         layer, [feature.id()], False
                     ),
                 )
-            else:
-                # otherwise it has valid coordinates
-                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
-
         if self.auto_zoom_button.isChecked():
             if valid_feature:
+                # prefering coordinates when having both
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().zoomToFeatureIds(
