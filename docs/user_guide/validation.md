@@ -41,7 +41,7 @@ With *right click* on the error a menu is opened with the following options:
 Automatic pan, zoom and highlight features or coordinates are performed by clicking on the result tables entry.
 
 !!! Note
-    On automatic pan it pans to the feature geometry centroid, if the OID is provided by ili2db, and if not then no pan is performed (no pan to coordinates yet). On automatic zoom it zooms to the features geometry, if the OID is provided by ili2db, and if not then to the coordinates with the extend of 10 map units.
+    On automatic pan it pans to the feature geometry centroid, if the OID is provided by ili2db, and if not then to the coordinates. On automatic zoom it zooms to the features geometry, if the OID is provided by ili2db, and if not then to the coordinates with the extend of 10 map units.
 
 ## Using of Meta Attributes in the Validation
 As well as configuring [meta attributes](../../background_info/meta_attributes/) used for the physical database implementation and for QGIS project generation, meta attributes can be used for additional configuration of the validation like e.g. disable specific checks generally or on specific objects as well as naming of the constraints.
