@@ -466,7 +466,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             return
 
         if self.auto_pan_button.isChecked():
-            if valid_feature:
+            if valid_coords:
+                # prefering coordinates when having both
+                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
+
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().panToFeatureIds(
@@ -475,18 +480,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 )
 
         if self.auto_zoom_button.isChecked():
-            if valid_feature:
+            if valid_coords:
+                # prefering coordinates when having both
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
+                )
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().zoomToFeatureIds(
                         layer, [feature.id()]
                     ),
-                )
-            else:
-                # otherwise it has valid coordinates
-                QTimer.singleShot(
-                    1,
-                    lambda: self._set_extend(coord_x, coord_y),
                 )
 
         if self.flash_button.isChecked():
@@ -522,6 +528,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
         )
         self.iface.mapCanvas().setExtent(rect)
+        self.iface.mapCanvas().refresh()
+
+    def _pan_to_coordinate(self, x, y):
+        self.iface.mapCanvas().setCenter(QgsPointXY(float(x), float(y)))
         self.iface.mapCanvas().refresh()
 
     def _open_form(self, t_ili_tid):
