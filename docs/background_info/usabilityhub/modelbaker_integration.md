@@ -51,9 +51,6 @@ Changes are marked visually in the input mask for *ili2db Options*:
 
 ![uml](../../assets/usabilityhub_ili2dboptions.png)
 
-!!! Note
-    Currently ili2db does not support to set the files (like `--iliMetaAttrs`, `--preScript` and `--postScript`) to false. So a removal by the input mask is not possible at the moment.
-
 The parameters set by the Model Baker in the background are still set. But they can are overridden in the *metaconfiguration file*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with `false`.
 
 Exception is a the setting to consider ***only*** the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others (Exception from the exception is `--models` and `--sqlEnableNull` on "Run withouth constraints"):
