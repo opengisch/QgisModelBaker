@@ -42,7 +42,7 @@ Automatic pan, zoom and highlight features or coordinates are performed by click
 On automatic pan and zoom, the coordinates are taken into account if they are provided by ili2db, if not, then the geometry of the feature (according to the OID provided by ili2db). On automatic zoom on the features geometry, it's extent is taken and on coordinates an extend of 10 map units instead.
 
 !!! Note
-    Since ili2db sometimes on non-geometry errors provides the coordinates as well, there could be a confusion when it zooms or pans to the coordinates there. Still it's preverable to not zoom or pan to the coordinates on geometry errors when they provide an OID. Currently the validator cannot make a difference between those error-types.
+    Since ili2db sometimes on non-geometry errors provides the coordinates as well, there could be a confusion when it zooms or pans to the coordinates there. Still it's preferable to not zoom or pan to the coordinates on geometry errors when they provide an OID. Currently the validator cannot make a difference between those error-types.
 
 ## Using of Meta Attributes in the Validation
 As well as configuring [meta attributes](../../background_info/meta_attributes/) used for the physical database implementation and for QGIS project generation, meta attributes can be used for additional configuration of the validation like e.g. disable specific checks generally or on specific objects as well as naming of the constraints.
