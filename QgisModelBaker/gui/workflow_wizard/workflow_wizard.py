@@ -71,7 +71,7 @@ from QgisModelBaker.utils.gui_utils import (
 
 class WorkflowWizard(QWizard):
     def __init__(self, iface, base_config, parent):
-        QWizard.__init__(self, parent)
+        super().__init__(parent)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
@@ -523,10 +523,20 @@ class WorkflowWizard(QWizard):
                     dropped_file, self.tr("Added by user with drag'n'drop.")
                 )
 
+    def reject(self) -> None:
+        # if sessions running, the dialog is blocked until everything is cleaned up
+        if self.current_id == PageIds.ImportSchemaExecution:
+            self.import_schema_execution_page.cancel_sessions()
+        if self.current_id == PageIds.ImportDataExecution:
+            self.import_data_execution_page.cancel_sessions()
+        if self.current_id == PageIds.ExportDataExecution:
+            self.export_data_execution_page.cancel_sessions()
+        return super().reject()
+
 
 class WorkflowWizardDialog(QDialog):
     def __init__(self, iface, base_config, parent):
-        QDialog.__init__(self, parent)
+        super().__init__(parent)
         self.iface = iface
         self.base_config = base_config
 
@@ -552,3 +562,12 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.append_dropped_files(dropped_files)
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
+
+    def reject(self) -> None:
+        """
+        Cancel Button -> Wizard Reject
+        X -> Dialog Reject (and Close Event)
+        Escape -> sometimes Wizard Reject / sometimes Dialog Reject
+        """
+        self.workflow_wizard.reject()
+        return super().reject()
