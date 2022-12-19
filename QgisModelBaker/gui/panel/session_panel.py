@@ -49,7 +49,6 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object, bool)
     cancel_session = pyqtSignal()
-    run_finished = pyqtSignal()
 
     def __init__(
         self,
@@ -136,6 +135,15 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.baskets = self.baskets
 
         self.is_skipped_or_done = False
+
+    def hideEvent(self, event):
+        """
+        When widget gets hidden, we emit the cancel_session to terminate running java processes.
+        This is called on every hide (including the one right before getting destroyed because of dialog close.
+        """
+        self.print_info.emit(self.tr("Cancel session..."), LogColor.COLOR_INFO)
+        self.cancel_session.emit()
+        super().hideEvent(event)
 
     @property
     def id(self):
@@ -259,6 +267,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.print_info.emit(self.tr("Cancel session..."), LogColor.COLOR_INFO)
             self.set_button_to_last_create_state()
             self.cancel_session.emit()
+            self.is_running = False
             return
         else:
             self.on_done_or_skipped.emit(self.id, False)
@@ -287,17 +296,13 @@ class SessionPanel(QWidget, WIDGET_UI):
             try:
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.is_running = False
-                    self.progress_bar.setValue(0)
                     if not self.db_action_type == DbActionType.GENERATE:
                         self.set_button_to_create_without_constraints()
-                    self.run_finished.emit()
                     return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
                 self.is_running = False
-                self.progress_bar.setValue(0)
                 self.set_button_to_create_without_constraints()
-                self.run_finished.emit()
                 return False
 
             self.progress_bar.setValue(90)
@@ -315,7 +320,6 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.is_running = False
             self.print_info.emit(f'{self.tr("Done!")}\n', LogColor.COLOR_SUCCESS)
             self._done()
-            self.run_finished.emit()
             return True
 
     def _create_default_dataset(self):

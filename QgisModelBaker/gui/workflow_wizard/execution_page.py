@@ -20,7 +20,7 @@
 
 import copy
 
-from qgis.PyQt.QtCore import QCoreApplication, QEventLoop, QTimer
+from qgis.PyQt.QtCore import QCoreApplication, QEventLoop
 from qgis.PyQt.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
@@ -74,21 +74,6 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.run_command_button.clicked.connect(self._run)
         self.is_complete = False
         self.pending_sessions = []
-
-    def cancel_sessions(self):
-        for session in self.session_widget_list:
-            if session.is_running:
-                loop = QEventLoop()
-                session.run_finished.connect(lambda: loop.quit())
-                timer = QTimer()
-                timer.setSingleShot(True)
-                timer.timeout.connect(lambda: loop.quit())
-                self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Cancel current session...")
-                )
-                timer.start(10000)
-                session.cancel_session.emit()
-                loop.exec()
 
     def isComplete(self):
         return self.is_complete
