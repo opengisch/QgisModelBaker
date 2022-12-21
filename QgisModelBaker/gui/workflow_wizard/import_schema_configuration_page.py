@@ -130,7 +130,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def update_configuration(self, configuration):
         # metaconfig settings
         configuration.metaconfig = self.metaconfig
-        configuration.metaconfig_id = self.current_metaconfig_id
+        configuration.metaconfig_id = f"ilidata:{self.current_metaconfig_id}"
         if "CONFIGURATION" in self.metaconfig.sections():
             configuration.metaconfig_params_only = self.metaconfig[
                 "CONFIGURATION"
