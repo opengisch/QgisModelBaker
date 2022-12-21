@@ -101,9 +101,9 @@ BLUE = "#9BCADE"
 PURPLE = "#B18BC9"
 RED = "#EBB3A4"
 
-VALID_COLOR = GREEN
+SUCCESS_COLOR = GREEN
 
-VALID_STYLE = """
+SUCCESS_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
     QProgressBar::chunk {background-color: #A1DE9B; width: 20px;}
     QProgressBar {
@@ -113,9 +113,9 @@ VALID_STYLE = """
     }
     """
 
-INVALID_COLOR = RED
+ERROR_COLOR = RED
 
-INVALID_STYLE = """
+ERROR_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
     QProgressBar::chunk {background-color: #EBB3A4; width: 20px;}
     QProgressBar {
@@ -128,6 +128,16 @@ INVALID_STYLE = """
 DEFAULT_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
     QProgressBar::chunk {background-color: #9BCADE; width: 20px;}
+    QProgressBar {
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
+    }
+    """
+
+INACTIVE_STYLE = """
+    QProgressBar {border: 2px solid grey;border-radius: 5px;}
+    QProgressBar::chunk {background-color: #ECECEC; width: 20px;}
     QProgressBar {
         border: 2px solid grey;
         border-radius: 5px;

@@ -74,9 +74,9 @@ class ValidationResultTableModel(ValidationResultModel):
                 return item.data(int(self.roles[index.column()]))
             if role == Qt.DecorationRole:
                 return (
-                    QColor(gui_utils.VALID_COLOR)
+                    QColor(gui_utils.SUCCESS_COLOR)
                     if item.data(int(ValidationResultModel.Roles.FIXED))
-                    else QColor(gui_utils.INVALID_COLOR)
+                    else QColor(gui_utils.ERROR_COLOR)
                 )
             if role == Qt.ToolTipRole:
                 tooltip_text = "{type} at {tid} in {object}".format(
@@ -366,10 +366,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         if valid:
             self.progress_bar.setFormat(self.tr("Schema is valid"))
-            self.setStyleSheet(gui_utils.VALID_STYLE)
+            self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         else:
             self.progress_bar.setFormat(self.tr("Schema is not valid"))
-            self.setStyleSheet(gui_utils.INVALID_STYLE)
+            self.setStyleSheet(gui_utils.ERROR_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
         self._set_count_label(
