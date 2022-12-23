@@ -288,12 +288,17 @@ class SessionPanel(QWidget, WIDGET_UI):
                     self.progress_bar.setValue(0)
                     if not self.db_action_type == DbActionType.GENERATE:
                         self.set_button_to_create_without_constraints()
+                    else:
+                        self.set_button_to_create()
                     self.is_running = False
                     return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
                 self.progress_bar.setValue(0)
-                self.set_button_to_create_without_constraints()
+                if not self.db_action_type == DbActionType.GENERATE:
+                    self.set_button_to_create_without_constraints()
+                else:
+                    self.set_button_to_create()
                 self.is_running = False
                 return False
 
