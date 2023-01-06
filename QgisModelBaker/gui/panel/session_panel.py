@@ -47,7 +47,8 @@ class SessionPanel(QWidget, WIDGET_UI):
     on_stderr = pyqtSignal(str)
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
-    on_done_or_skipped = pyqtSignal(object)
+    on_done_or_skipped = pyqtSignal(object, bool)
+    cancel_session = pyqtSignal()
 
     def __init__(
         self,
@@ -59,7 +60,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         db_action_type,
         parent=None,
     ):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.db_simple_factory = DbSimpleFactory()
@@ -85,20 +86,22 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.set_button_to_create_without_constraints_action.triggered.connect(
             self.set_button_to_create_without_constraints
         )
-
         self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
         self.skip_action = QAction(self.tr("Skip"), None)
-        self.skip_action.triggered.connect(self.skip)
+        self.skip_action.triggered.connect(self._skip)
 
         self.create_tool_button.addAction(
             self.set_button_to_create_without_constraints_action
         )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
+
         self.create_tool_button.setText(self.create_text)
         self.create_tool_button.clicked.connect(self.run)
+
+        self.is_running = False
 
         # set up the values
         self.configuration = general_configuration
@@ -152,10 +155,12 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.configuration.disable_validation = False
         self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.removeAction(self.skip_action)
         self.create_tool_button.addAction(
             self.set_button_to_create_without_constraints_action
         )
         self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_text)
 
     def set_button_to_create_without_constraints(self):
@@ -169,15 +174,48 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.set_button_to_create_without_constraints_action
         )
         self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.removeAction(self.skip_action)
         self.create_tool_button.addAction(self.set_button_to_create_action)
         self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_without_constraints_text)
 
-    def skip(self):
-        self.setDisabled(True)
-        self.print_info.emit(f'{self.tr("Import skipped!")}\n', LogColor.COLOR_INFO)
+    def set_button_to_last_create_state(self):
+        if self.configuration.disable_validation:
+            self.set_button_to_create_without_constraints()
+        else:
+            self.set_button_to_create()
+
+    def set_button_to_cancel(self):
+        self.create_tool_button.removeAction(self.set_button_to_create_action)
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_constraints_action
+        )
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.removeAction(self.skip_action)
+        self.create_tool_button.setText(self.tr("Cancel"))
+
+    def _skip(self):
+        self.create_tool_button.removeAction(self.skip_action)
+
+        self.progress_bar.setValue(100)
+        self.progress_bar.setFormat(self.tr("SKIPPED"))
+        self.progress_bar.setTextVisible(True)
+        self.setStyleSheet(gui_utils.INACTIVE_STYLE)
+
         self.is_skipped_or_done = True
-        self.on_done_or_skipped.emit(self.id)
+        self.on_done_or_skipped.emit(self.id, True)
+
+    def _done(self):
+        self.create_tool_button.removeAction(self.skip_action)
+
+        self.progress_bar.setValue(100)
+        self.progress_bar.setFormat(self.tr("DONE"))
+        self.progress_bar.setTextVisible(True)
+        self.setStyleSheet(gui_utils.SUCCESS_STYLE)
+
+        self.is_skipped_or_done = True
+        self.on_done_or_skipped.emit(self.id, True)
 
     def _get_porter(self):
         porter = None
@@ -215,8 +253,17 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.run(edited_command)
 
     def run(self, edited_command=None):
-        if self.is_skipped_or_done:
-            return True
+        if self.is_running:
+            # means this is called by "cancel" option
+            self.print_info.emit(self.tr("Cancel session..."), LogColor.COLOR_INFO)
+            self.set_button_to_last_create_state()
+            self.cancel_session.emit()
+            return
+        else:
+            self.on_done_or_skipped.emit(self.id, False)
+            self.setStyleSheet(gui_utils.DEFAULT_STYLE)
+            self.set_button_to_cancel()
+            self.is_running = True
 
         if self.db_action_type == DbActionType.GENERATE:
             self._pre_generate_project()
@@ -224,8 +271,8 @@ class SessionPanel(QWidget, WIDGET_UI):
         porter = self._get_porter()
 
         with OverrideCursor(Qt.WaitCursor):
+            self.progress_bar.setTextVisible(False)
             self.progress_bar.setValue(10)
-            self.setDisabled(True)
 
             porter.stdout.connect(
                 lambda str: self.print_info.emit(str, LogColor.COLOR_INFO)
@@ -233,32 +280,43 @@ class SessionPanel(QWidget, WIDGET_UI):
             porter.stderr.connect(self.on_stderr)
             porter.process_started.connect(self.on_process_started)
             porter.process_finished.connect(self.on_process_finished)
+            self.cancel_session.connect(porter.cancel_process)
+
             self.progress_bar.setValue(20)
             try:
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
-                    self.setDisabled(False)
                     if not self.db_action_type == DbActionType.GENERATE:
                         self.set_button_to_create_without_constraints()
+                    else:
+                        self.set_button_to_create()
+                    self.is_running = False
                     return False
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
                 self.progress_bar.setValue(0)
-                self.setDisabled(False)
+                if not self.db_action_type == DbActionType.GENERATE:
+                    self.set_button_to_create_without_constraints()
+                else:
+                    self.set_button_to_create()
+                self.is_running = False
                 return False
 
             self.progress_bar.setValue(90)
 
+            # an user interaction (cancel) here cannot interupt the process, why it's disabled (and enabled again below). This part might come to a seperate page anyway in future.
+            self.setDisabled(True)
             if (
                 self.db_action_type == DbActionType.GENERATE
                 and self.configuration.create_basket_col
             ):
                 self._create_default_dataset()
+            self.setDisabled(False)
 
-            self.progress_bar.setValue(100)
+            self.set_button_to_last_create_state()
+            self.is_running = False
             self.print_info.emit(f'{self.tr("Done!")}\n', LogColor.COLOR_SUCCESS)
-            self.on_done_or_skipped.emit(self.id)
-            self.is_skipped_or_done = True
+            self._done()
             return True
 
     def _create_default_dataset(self):

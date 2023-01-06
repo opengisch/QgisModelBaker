@@ -336,6 +336,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         layer.layer.loadNamedStyle(style_file_path)
 
         self.progress_bar.setValue(100)
+        self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         self.workflow_wizard.log_panel.print_info(self.tr("It's served!"))
 
     def ilidata_path_resolver(self, base_path, path):

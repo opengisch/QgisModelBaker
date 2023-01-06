@@ -74,7 +74,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.metaconfig_delegate = MetaConfigCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
-        self.current_models = None
+        self.current_models = []
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(
             self.tr("[Search metaconfig / topping from UsabILIty Hub]")
@@ -165,9 +165,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         - Calls update of ilimetaconfig cache to provide metaconfigurations
         - Calls update of ilireferencedata cache to load referenced
         """
-        model_list_string = ", ".join(self.model_list_view.model().checked_models())
+        model_list = self.model_list_view.model().checked_models()
+        if set(model_list) == set(self.current_models):
+            return
+        self.current_models = model_list
         for pattern, crs in CRS_PATTERNS.items():
-            if re.search(pattern, model_list_string):
+            if re.search(pattern, ", ".join(model_list)):
                 self.crs = QgsCoordinateReferenceSystem.fromEpsgId(int(crs))
                 self._update_crs_info()
                 break

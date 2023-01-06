@@ -74,9 +74,9 @@ class ValidationResultTableModel(ValidationResultModel):
                 return item.data(int(self.roles[index.column()]))
             if role == Qt.DecorationRole:
                 return (
-                    QColor(gui_utils.VALID_COLOR)
+                    QColor(gui_utils.SUCCESS_COLOR)
                     if item.data(int(ValidationResultModel.Roles.FIXED))
-                    else QColor(gui_utils.INVALID_COLOR)
+                    else QColor(gui_utils.ERROR_COLOR)
                 )
             if role == Qt.ToolTipRole:
                 tooltip_text = "{type} at {tid} in {object}".format(
@@ -366,10 +366,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         if valid:
             self.progress_bar.setFormat(self.tr("Schema is valid"))
-            self.setStyleSheet(gui_utils.VALID_STYLE)
+            self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         else:
             self.progress_bar.setFormat(self.tr("Schema is not valid"))
-            self.setStyleSheet(gui_utils.INVALID_STYLE)
+            self.setStyleSheet(gui_utils.ERROR_STYLE)
         self.progress_bar.setTextVisible(True)
         self.result_table_view.setDisabled(valid)
         self._set_count_label(
@@ -466,7 +466,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             return
 
         if self.auto_pan_button.isChecked():
-            if valid_feature:
+            if valid_coords:
+                # prefering coordinates when having both
+                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
+
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().panToFeatureIds(
@@ -475,18 +480,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 )
 
         if self.auto_zoom_button.isChecked():
-            if valid_feature:
+            if valid_coords:
+                # prefering coordinates when having both
+                QTimer.singleShot(
+                    1,
+                    lambda: self._set_extend(coord_x, coord_y),
+                )
+            else:
+                # otherwise it has a valid feature
                 QTimer.singleShot(
                     1,
                     lambda: self.iface.mapCanvas().zoomToFeatureIds(
                         layer, [feature.id()]
                     ),
-                )
-            else:
-                # otherwise it has valid coordinates
-                QTimer.singleShot(
-                    1,
-                    lambda: self._set_extend(coord_x, coord_y),
                 )
 
         if self.flash_button.isChecked():
@@ -522,6 +528,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
         )
         self.iface.mapCanvas().setExtent(rect)
+        self.iface.mapCanvas().refresh()
+
+    def _pan_to_coordinate(self, x, y):
+        self.iface.mapCanvas().setCenter(QgsPointXY(float(x), float(y)))
         self.iface.mapCanvas().refresh()
 
     def _open_form(self, t_ili_tid):
