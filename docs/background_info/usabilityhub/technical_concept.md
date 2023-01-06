@@ -148,7 +148,7 @@ models = KbS_Basis_V1_4
 preScript=ilidata:ch.opengis.config.KbS_LV95_V1_4_prescript
 iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
 
-[qgis.modelbaker.ch]
+[qgis.modelbaker.qml]
 "Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
 "Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
 ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032

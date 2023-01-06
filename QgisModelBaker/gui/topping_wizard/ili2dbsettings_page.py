@@ -203,6 +203,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path = (
             self.toml_file_line_edit.text()
         )
+        self.topping_wizard.topping.metaconfig.metaconfigparamsonly = (
+            self.metaconfigparamsonly_checkbox.isChecked()
+        )
         self.topping_wizard.log_panel.print_info(
             self.tr(
                 "Chosen ili2db settings from: {schema}".format(
@@ -235,6 +238,13 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     "Extra Model Information File: {path}".format(
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
                     )
+                ),
+                gui_utils.LogColor.COLOR_SUCCESS,
+            )
+        if self.topping_wizard.topping.metaconfig.metaconfigparamsonly:
+            self.topping_wizard.log_panel.print_info(
+                self.tr(
+                    "This metaconfiguration will be passed without any additional settings on import made by Model Baker (except models and on disable constraint run): qgis.modelbaker.metaConfigParamsOnly = true"
                 ),
                 gui_utils.LogColor.COLOR_SUCCESS,
             )

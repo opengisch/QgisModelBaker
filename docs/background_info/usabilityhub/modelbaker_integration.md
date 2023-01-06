@@ -43,15 +43,26 @@ ili2db --metaConfig localfile.ini --import --db....  data.xtf
 
 ### Implementation in the Model Baker
 
-> The functionality that the parameters are loaded into the input mask is implemented so far. Otherwise this paragraph describes the SHOULD state. Because the passing of the metaconfiguration as well as the passing of `false` parameters is not yet supported by ili2db and Model Baker.
+Some parameters are automatically set in the background when ili2db is called by the Model Baker (like `--coalesceCatalogueRef --createEnumTabs --createNumChecks --createUnique --createFk --createFkIdx --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createGeomIdx --createMetaInfo --expandMultilingual --createTypeConstraint --createEnumTabsWithId --createTidCol --importTid`), and others can be configured by the user in the input mask of the Model Baker (like `--smart1Inheritance`/`--smart2Inheritance`, `--createBasketCol`, `--strokeArcs`, `--iliMetaAttrs` (for `ini`/`toml`), `--preScript` and `--postScript` or `--models`). In addition, the relevant *metaconfiguration file* is passed to ili2db. But parameters passed directly to ili2db ***override*** the configurations of the passed *metaconfiguration file*.
 
-Some parameters are automatically set in the background when ili2db is called by the Model Baker, and others can be configured by the user in the input mask of the Model Baker. In addition, the relevant *metaconfiguration file* is passed to ili2db. But parameters passed directly to ili2db override the configurations of the passed *metaconfiguration file*.
+The Model Baker reads the ili2db parameters from the *metaconfiguration file*. The parameters that can be set via the input mask of the Model Baker are loaded from the *metaconfiguration file* into the input mask. The user can now customize them. The Model Baker now passes the *metaconfiguration file* and the parameters from the input mask (whether customized or not) to ili2db. So if the parameters were listed in the *metaconfiguration file* but then disabled in the input mask, they will be passed to ili2db as `false`.
 
-The Model Baker reads the ili2db parameters from the *metaconfiguration file*. The parameters that can be set via the input mask of the Model Baker (like `--strokeArcs`, `--iliMetaAttrs` (for `ini`/`toml`) or `--models`) are loaded from the *metaconfiguration file* into the input mask. The user can now customize them. The Model Baker now passes the *metaconfiguration file* and the parameters from the input mask (whether customized or not) to ili2db. So if the parameters were listed in the *metaconfiguration file* but then disabled in the input mask, they will be passed to ili2db as `false`.
+Changes are marked visually in the input mask for *ili2db Options*:
 
-The parameters set by the Model Baker in the background (like `--createFkIdx`, `--coalesceMultiPoint`) are still set. But they can be overridden in the *Metaconfigurationfile*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with`false`.
+![uml](../../assets/usabilityhub_ili2dboptions.png)
 
-Exception is a (future) setting like `onlyUseMetaConfigParams` in the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others.
+The parameters set by the Model Baker in the background are still set. But they can be overridden in the *metaconfiguration file*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with `false`.
+
+Exception is the setting to consider ***only*** the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others (Exception from the exception is `--models` and `--sqlEnableNull` on "Run withouth constraints"):
+
+```ini
+[CONFIGURATION]
+qgis.modelbaker.metaConfigParamsOnly = True
+```
+When this parameter is set the *Advanced Options* and *CRS* settings are disabled in the input mask.
+
+!!! Warning
+    Be aware that the UsabILIty Hub Repository (located at http://models.opengis.ch) is not found by ili2db what means that when using `qgis.modelbaker.metaConfigParamsOnly` toppingfiles referenced in metaconfig file with `ilidata:` should not be located there. Other repositories (like e.g. from the cantons) can be used without any restrictions. Still you can add http://models.opengis.ch as a directory in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
 
 ### Refrencing other INTERLIS models
 Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
