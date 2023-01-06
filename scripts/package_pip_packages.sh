@@ -2,7 +2,6 @@
 LIBS_DIR="QgisModelBaker/libs"
 
 MODELBAKER_LIBRARY=("modelbaker" "1.4.0")
-
 PACKAGING=("packaging" "21.3")
 
 PACKAGES=(
