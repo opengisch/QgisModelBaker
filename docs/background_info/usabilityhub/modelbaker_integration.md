@@ -53,7 +53,7 @@ Changes are marked visually in the input mask for *ili2db Options*:
 
 The parameters set by the Model Baker in the background are still set. But they can be overridden in the *metaconfiguration file*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with `false`.
 
-Exception is a the setting to consider ***only*** the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others (Exception from the exception is `--models` and `--sqlEnableNull` on "Run withouth constraints"):
+Exception is the setting to consider ***only*** the *metaconfiguration file*. If this is set, then only the parameters configured in the *metaconfiguration file* should be set and no others (Exception from the exception is `--models` and `--sqlEnableNull` on "Run withouth constraints"):
 
 ```ini
 [CONFIGURATION]
