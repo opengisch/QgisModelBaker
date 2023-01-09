@@ -1,3 +1,5 @@
+Meta Attributes allow INTERLIS models to be supplemented with additional information that is not provided for in the current specification of INTERLIS. See the syntax how they are generally specified here [eCH-0117 Meta-Attribute für INTERLIS-Modelle](https://ech.ch/de/ech/ech-0117/1.0) or summarized and in Model Baker context below.
+
 > A meta element can be assigned compositional meta attributes (class "MetaAttribute"). Metaattributes are not defined more precisely by the INTERLIS language or by the metamodel. Their main purpose is to allow information that goes beyond INTERLIS to be attached as part of the model data. Metaattributes have a name (attribute "Name"), which must be unique within the metaattributes of the same meta element, and the descriptive value (attribute "Value").
 
 *The original source of this quote is in [KOGIS (2008): INTERLIS 2-Metamodell](https://www.interlis.ch/download/interlis2/ili23-metamodel_2008-08-29_d.pdf)*
