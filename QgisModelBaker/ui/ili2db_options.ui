@@ -153,7 +153,7 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="0" column="0">
        <widget class="QLabel" name="toml_file_label">
         <property name="text">
-         <string>Extra Model Information File</string>
+         <string>Extra Meta Attribute File</string>
         </property>
        </widget>
       </item>

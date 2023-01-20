@@ -199,7 +199,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def _fill_toml_file_info_label(self):
         text = None
         if self.ili2db_options.toml_file():
-            text = self.tr("Extra Model Information File: {}").format(
+            text = self.tr("Extra Meta Attribute File: {}").format(
                 (
                     "…"
                     + self.ili2db_options.toml_file()[

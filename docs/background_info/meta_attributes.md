@@ -60,7 +60,7 @@ Some additional non standard meta attributes are understood by the Model Baker a
 Used as the display expression for a layer. The display expression is the *name* that is used to identify a feature by text. One of the places where this is used is the combobox that is shown for a Relation Reference Widget on feature forms. ![relation reference](../assets/meta_attributes_relation_reference.png)
 
 
-## Extra Model Information File
+## Extra Meta Attribute File
 
 In these external files the meta attributes can be stored instead of having them directly in the INTERLIS files.
 

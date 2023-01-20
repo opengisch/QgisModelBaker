@@ -59,7 +59,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(
                 self.toml_file_line_edit,
-                title=self.tr("Open Extra Model Information File (*.toml *.ini)"),
+                title=self.tr("Open Extra Meta Attribute File (*.toml *.ini)"),
                 file_filter=self.tr(
                     "Extra Model Info File (*.toml *.TOML *.ini *.INI)"
                 ),
