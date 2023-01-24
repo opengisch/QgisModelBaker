@@ -133,8 +133,10 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(
                 self.toml_file_line_edit,
-                title=self.tr("Open Extra Model Information File (*.toml)"),
-                file_filter=self.tr("Extra Model Info File (*.toml *.TOML)"),
+                title=self.tr("Open Extra Meta Attribute File (*.toml *.ini)"),
+                file_filter=self.tr(
+                    "Extra Meta Attribute File (*.toml *.TOML *.ini *.INI)"
+                ),
             )
         )
         self.pre_script_file_browse_button.clicked.connect(
@@ -235,7 +237,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
-                    "Extra Model Information File: {path}".format(
+                    "Extra Meta Attribute File: {path}".format(
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
                     )
                 ),
