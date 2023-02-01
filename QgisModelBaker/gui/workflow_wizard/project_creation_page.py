@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
                               -------------------
@@ -82,7 +81,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         except DBConnectorError as db_connector_error:
             self.workflow_wizard.log_panel.txtStdout.setText(
                 self.tr(
-                    "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                    "There was an error connecting to the database. Check connection parameters. Error details: {}".format(
                         db_connector_error
                     )
                 )
@@ -92,7 +91,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         except FileNotFoundError as file_not_found_error:
             self.workflow_wizard.log_panel.txtStdout.setText(
                 self.tr(
-                    "There was an error connecting to the database. Check connection parameters. Error details: {0}".format(
+                    "There was an error connecting to the database. Check connection parameters. Error details: {}".format(
                         file_not_found_error
                     )
                 )
@@ -192,7 +191,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 ),
                 LogColor.COLOR_TOPPING,
             )
-            with open(projecttopping_file_path, "r") as stream:
+            with open(projecttopping_file_path) as stream:
                 try:
                     projecttopping_data = yaml.safe_load(stream)
 
