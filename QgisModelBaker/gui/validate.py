@@ -112,6 +112,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         QDockWidget.__init__(self, iface.mainWindow())
         self.setupUi(self)
         self.iface = iface
+        self.base_config = base_config
         self.db_simple_factory = DbSimpleFactory()
         QgsGui.instance().enableAutoGeometryRestore(self)
 
@@ -119,6 +120,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.requested_roles = [ValidationResultModel.Roles.MESSAGE]
 
         self.current_configuration = ValidateConfiguration()
+        self.current_configuration.base_configuration = self.base_config
         self.current_schema_identificator = ""
         self.current_models_model = SchemaModelsModel()
         self.current_datasets_model = SchemaDatasetsModel()
@@ -154,6 +156,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
+        self.current_configuration.base_configuration = self.base_config
         self.current_schema_identificator = ""
         self.current_models_model = SchemaModelsModel()
         self.current_datasets_model = SchemaDatasetsModel()
