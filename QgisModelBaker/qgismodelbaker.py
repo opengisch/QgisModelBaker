@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
                               -------------------
@@ -550,7 +549,7 @@ class QgisModelBakerPlugin(QObject):
 
 class DropFileFilter(QObject):
     def __init__(self, parent=None):
-        super(DropFileFilter, self).__init__(parent.iface.mainWindow())
+        super().__init__(parent.iface.mainWindow())
         self.parent = parent
 
     def _is_handling_requested(self, dropped_files):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
                               -------------------
@@ -39,7 +38,7 @@ yaml.add_implicit_resolver(
 yaml.add_constructor("tag:opengis.ch,2016:extend", extend_constructor)
 
 
-class ExtendObject(object):
+class ExtendObject:
     """
     The ExtendObject will be used as a placeholder for the loading time
     """
@@ -120,10 +119,10 @@ class InheritanceLoader(yaml.Loader):
                             a[key] = b[key]
                 else:
                     raise YamlReaderError(
-                        'Cannot merge non-dict "%s" into dict "%s"' % (b, a)
+                        'Cannot merge non-dict "{}" into dict "{}"'.format(b, a)
                     )
             else:
-                raise YamlReaderError('NOT IMPLEMENTED "%s" into "%s"' % (b, a))
+                raise YamlReaderError('NOT IMPLEMENTED "{}" into "{}"'.format(b, a))
         except TypeError as e:
             raise YamlReaderError(
                 'TypeError "%s" in key "%s" when merging "%s" into "%s"'

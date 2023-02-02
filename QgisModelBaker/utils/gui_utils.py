@@ -3,7 +3,7 @@ import os
 import pathlib
 import re
 import warnings
-import xml.etree.cElementTree as CET
+import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
 from qgis.PyQt.QtCore import (
@@ -212,15 +212,15 @@ class CompletionLineEdit(QLineEdit):
     punched = pyqtSignal()
 
     def __init__(self, parent=None):
-        super(CompletionLineEdit, self).__init__(parent)
+        super().__init__(parent)
         self.readyToEdit = True
 
     def focusInEvent(self, e):
-        super(CompletionLineEdit, self).focusInEvent(e)
+        super().focusInEvent(e)
         self.punched.emit()
 
     def mouseReleaseEvent(self, e):
-        super(CompletionLineEdit, self).mouseReleaseEvent(e)
+        super().mouseReleaseEvent(e)
         self.punched.emit()
 
 
@@ -230,7 +230,7 @@ class SemiTristateCheckbox(QCheckBox):
     """
 
     def __init__(self, parent=None):
-        super(SemiTristateCheckbox, self).__init__(parent)
+        super().__init__(parent)
 
     def nextCheckState(self) -> None:
         if self.checkState() == Qt.Checked:
@@ -249,7 +249,7 @@ class FileDropListView(QListView):
     files_dropped = pyqtSignal(list)
 
     def __init__(self, parent=None):
-        super(FileDropListView, self).__init__(parent)
+        super().__init__(parent)
         self.setAcceptDrops(True)
         self.setDragDropMode(QListView.InternalMove)
 
@@ -589,7 +589,7 @@ class ImportModelsModel(SourceModel):
         start_string = "<HEADERSECTION"
         end_string = "</HEADERSECTION>"
         text_found = ""
-        with open(data_file_path, "r") as f:
+        with open(data_file_path) as f:
             lines = ""
             for line_number, line in enumerate(f):
                 lines += line
@@ -795,7 +795,7 @@ class SpaceCheckListView(QListView):
         if e.key() == Qt.Key_Space:
             _selected_indexes = self.selectedIndexes()
             self.space_pressed.emit(_selected_indexes[0])
-        super(SpaceCheckListView, self).keyPressEvent(e)
+        super().keyPressEvent(e)
 
 
 class CheckEntriesModel(QStringListModel):
