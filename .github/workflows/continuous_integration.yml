@@ -14,7 +14,7 @@ on:
 jobs:
   # Run unit tests
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -33,7 +33,7 @@ jobs:
         run: docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       OSGEO_USERNAME: mkuhn
       OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
@@ -48,14 +48,14 @@ jobs:
           submodules: recursive
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt install qttools5-dev-tools qt5-default
+          sudo apt update && sudo apt install qtbase5-dev qttools5-dev-tools
           sudo pip install qgis-plugin-ci
       - name: Release
         run: |
           qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
 
   translations:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
