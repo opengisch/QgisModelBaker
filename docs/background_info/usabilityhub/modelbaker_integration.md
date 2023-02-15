@@ -62,7 +62,7 @@ qgis.modelbaker.metaConfigParamsOnly = True
 When this parameter is set the *Advanced Options* and *CRS* settings are disabled in the input mask.
 
 !!! Warning
-    Be aware that the UsabILIty Hub Repository (located at https://models.opengis.ch) is not found by ili2db what means that when using `qgis.modelbaker.metaConfigParamsOnly` toppingfiles referenced in metaconfig file with `ilidata:` should not be located there. Other repositories (like e.g. from the cantons) can be used without any restrictions. Still you can add https://models.opengis.ch as a directory/repository in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
+    Be aware that the UsabILIty Hub Repository (located at https://models.opengis.ch) is not found by ili2db when it's not passed additionally to it with `--modelDir`. Currently we do that automatically. Means when you choose a metaconfig file to pass, `--modelDir https://models.opengis.ch` is automatically added to the command. Concerning custom directory/repository, you have to add it manually in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
 
 ### Refrencing other INTERLIS models
 Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).

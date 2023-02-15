@@ -213,6 +213,14 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def nextId(self):
         return self.workflow_wizard.next_id()
 
+    def update_configuration(self, configuration):
+        # reset metaconfig_id because it's not yet implemented to pass the metaconfig to ili2db
+        configuration.metaconfig_id = None
+
+    def save_configuration(self, configuration):
+        # no configuration at the moment
+        pass
+
     def order_list(self):
         order_list = []
         for visual_index in range(0, self.file_table_view.verticalHeader().count()):
