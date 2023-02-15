@@ -12,10 +12,12 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # MSSQL: client side
+RUN apt-get update
+RUN apt-get install -y unixodbc unixodbc-dev odbcinst odbcinst1debian2 libodbc1 libqt5sql5-odbc
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
 RUN apt-get update
-RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc unixodbc-dev libqt5sql5-odbc
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
 
 COPY ./requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
