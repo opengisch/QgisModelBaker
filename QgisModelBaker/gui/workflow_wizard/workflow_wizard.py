@@ -267,6 +267,7 @@ class WorkflowWizard(QWizard):
             return PageIds.ProjectCreation
 
         if self.current_id == PageIds.ImportDataConfiguration:
+            self._update_configurations(self.data_configuration_page)
             return PageIds.ImportDataExecution
 
         if self.current_id == PageIds.ImportDataExecution:
