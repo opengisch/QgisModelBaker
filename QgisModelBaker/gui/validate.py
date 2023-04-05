@@ -32,6 +32,7 @@ from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QFileDialog, QHeaderView, QMenu
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
+from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
@@ -105,6 +106,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.models_model = SchemaModelsModel()
             self.datasets_model = SchemaDatasetsModel()
             self.baskets_model = SchemaBasketsModel()
+            self.export_models_model = SchemaModelsModel()
             self.result_model = None
 
     def __init__(self, base_config, iface):
@@ -125,10 +127,16 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_datasets_model = SchemaDatasetsModel()
         self.current_baskets_model = SchemaBasketsModel()
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
+        self.current_export_models_model = SchemaModelsModel()
+        self.current_export_models_active = False
 
         self.filter_data_panel = FilterDataPanel(self)
         self.filter_data_panel.setMaximumHeight(self.fontMetrics().lineSpacing() * 10)
         self.filter_layout.addWidget(self.filter_data_panel)
+
+        self.export_models_panel = ExportModelsPanel(self)
+        self.export_models_panel.setMaximumHeight(self.fontMetrics().lineSpacing() * 10)
+        self.export_models_layout.addWidget(self.export_models_panel)
         self._reset_gui()
 
         self.run_button.clicked.connect(self._run)
@@ -161,6 +169,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_datasets_model = SchemaDatasetsModel()
         self.current_baskets_model = SchemaBasketsModel()
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
+        self.current_export_models_model = SchemaModelsModel()
+        self.current_export_models_active = False
 
     def _reset_gui(self):
         self._reset_current_values()
@@ -253,7 +263,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.current_baskets_model = self.schema_validations[
                 self.current_schema_identificator
             ].baskets_model
+            self.current_export_models_model = self.schema_validations[
+                self.current_schema_identificator
+            ].export_models_model
+
             self.filter_data_panel.setup_dialog(self._basket_handling())
+            self.export_models_panel.setup_dialog(True)
             self.setDisabled(False)
 
     def _visibility_changed(self, visible):
@@ -271,6 +286,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.schema_validations[
             self.current_schema_identificator
         ].baskets_model.refresh_model(db_connector)
+        self.schema_validations[
+            self.current_schema_identificator
+        ].export_models_model.refresh_model([db_connector])
         return
 
     def _basket_handling(self):
@@ -316,6 +334,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             validator.configuration.ilimodels = ";".join(
                 self.current_models_model.stringList()
             )
+
+        if self.current_export_models_active:
+            validator.configuration.iliexportmodels = ";".join(
+                self.current_export_models_model.checked_entries()
+            )
+        else:
+            validator.configuration.iliexportmodels = ""
 
         validator.configuration.skip_geometry_errors = (
             self.skip_geometry_errors_check_box.isChecked()

@@ -22,6 +22,7 @@ from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
+from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
@@ -44,6 +45,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.filter_data_panel = FilterDataPanel(self.workflow_wizard)
         self.filter_layout.addWidget(self.filter_data_panel)
+
+        self.export_models_panel = ExportModelsPanel(self.workflow_wizard)
+        self.export_models_layout.addWidget(self.export_models_panel)
 
         self.is_complete = False
 
@@ -84,6 +88,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def setup_dialog(self, basket_handling):
         self.filter_data_panel.setup_dialog(basket_handling)
+        self.export_models_panel.setup_dialog()
 
     def _set_current_export_target(self, text):
         self.setComplete(

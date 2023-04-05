@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>605</width>
-    <height>123</height>
+    <width>603</width>
+    <height>176</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -26,25 +32,25 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="1" column="0" colspan="2">
-    <widget class="SemiTristateCheckbox" name="select_all_checkbox" native="true">
-     <property name="text" stdset="0">
-      <string>Select all models</string>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="export_models_checkbox">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If your data is in the format of the cantonal model, but you want to export it in the format of the national model.&lt;/p&gt;&lt;p&gt;Usually, this is one single model. However, it is also possible to pass multiple models, which makes sense if there are multiple base models in the schema you want to export.&lt;/p&gt;&lt;p&gt;This is the value passed to &lt;span style=&quot; font-family:'monospace';&quot;&gt;--exportModels&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Export the data in a model other than the one where it is stored</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="SpaceCheckListView" name="items_view" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
     </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="filter_combobox"/>
    </item>
   </layout>
  </widget>
@@ -54,11 +60,6 @@
    <extends></extends>
    <header>QgisModelBaker.utils.gui_utils</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>SemiTristateCheckbox</class>
-   <extends>QWidget</extends>
-   <header>QgisModelBaker.utils.gui_utils</header>
   </customwidget>
  </customwidgets>
  <resources/>
