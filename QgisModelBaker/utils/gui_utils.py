@@ -864,8 +864,27 @@ class SchemaModelsModel(CheckEntriesModel):
     Multiple db_connectors can be passed to scan multiple sources.
     """
 
+    class Roles(Enum):
+        PARENT_MODELS = Qt.UserRole + 1
+
+        def __int__(self):
+            return self.value
+
     def __init__(self):
         super().__init__()
+        self._parent_models = {}
+
+    def data(self, index, role):
+        if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
+            return self._parent_models[self.data(index, Qt.DisplayRole)]
+        else:
+            return CheckEntriesModel.data(self, index, role)
+
+    def setData(self, index, role, data):
+        if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
+            self._parent_models[self.data(index, Qt.DisplayRole)] = data
+        else:
+            CheckEntriesModel.setData(self, index, role, data)
 
     def refresh_model(self, db_connectors=[]):
         modelnames = []
@@ -887,6 +906,7 @@ class SchemaModelsModel(CheckEntriesModel):
                             and name not in modelnames
                         ):
                             modelnames.append(name)
+                            self._parent_models[name] = db_model["parents"]
 
         self.setStringList(modelnames)
 
