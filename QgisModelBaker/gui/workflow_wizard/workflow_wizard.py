@@ -362,14 +362,11 @@ class WorkflowWizard(QWizard):
 
             if self.current_export_models_active:
                 export_models = self.current_export_models_model.checked_entries()
-                self.export_data_configuration.iliexportmodels = ";".join(export_models)
-                # or (needs to be checked): sessions[self.current_export_target]["export_models"] = export_models
-            else:
-                self.export_data_configuration.iliexportmodels = ""
 
             sessions[self.current_export_target]["models"] = models
             sessions[self.current_export_target]["datasets"] = datasets
             sessions[self.current_export_target]["baskets"] = baskets
+            sessions[self.current_export_target]["export_models"] = export_models
 
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions

@@ -880,10 +880,10 @@ class SchemaModelsModel(CheckEntriesModel):
             if self._parent_models[model_name]:
                 return self.tr(
                     """
-                <html><head/><body>
-                <p><b>{}</b> is an extension of <b>{}</b></p>
-                </body></html>
-                """
+                    <html><head/><body>
+                    <p><b>{}</b> is an extension of <b>{}</b></p>
+                    </body></html>
+                    """
                 ).format(model_name, ", ".join(self._parent_models[model_name]))
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
             return self._parent_models[self.data(index, Qt.DisplayRole)]

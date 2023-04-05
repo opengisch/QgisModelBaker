@@ -97,12 +97,19 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             )
             baskets = sessions[key]["baskets"] if "baskets" in sessions[key] else None
 
+            export_models = (
+                sessions[key]["export_models"]
+                if "export_models" in sessions[key]
+                else None
+            )
+
             skipped_session_widget = self._find_skipped_session_widget(
                 (
                     key,
                     models,
                     datasets,
                     baskets,
+                    export_models,
                     db_utils.get_schema_identificator_from_configuration(configuration),
                 )
             )
@@ -115,6 +122,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     models,
                     datasets,
                     baskets,
+                    export_models,
                     self.db_action_type,
                 )
                 session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
