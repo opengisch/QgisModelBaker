@@ -40,10 +40,10 @@ class ExportModelsPanel(QWidget, WIDGET_UI):
             self.items_view.clicked.connect(self.items_view.model().check)
             self.items_view.space_pressed.connect(self.items_view.model().check)
 
-            self.export_models_checkbox.stateChanged.connect(self._active_state_changed)
             self.export_models_checkbox.setChecked(
                 self.parent.current_export_models_active
             )
+            self.export_models_checkbox.stateChanged.connect(self._active_state_changed)
             self._active_state_changed(self.parent.current_export_models_active)
 
     def _generate_texts(self, validation):
