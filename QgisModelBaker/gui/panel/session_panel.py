@@ -56,6 +56,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         models,
         datasets,
         baskets,
+        export_models,
         db_action_type,
         parent=None,
     ):
@@ -68,6 +69,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.models = models
         self.datasets = datasets
         self.baskets = baskets
+        self.export_models = export_models
 
         # set up the gui
         self.create_text = self.tr("Run")
@@ -109,27 +111,70 @@ class SessionPanel(QWidget, WIDGET_UI):
             if os.path.isfile(self.file):
                 self.configuration.ilifile = self.file
             self.configuration.ilimodels = ";".join(self.models)
-            self.info_label.setText(self.tr("Import {}").format(", ".join(self.models)))
+            self.info_label.setText(
+                self.tr(
+                    """
+                    <html><head/><body>
+                    <p>Import <b>{models}</b></p>
+                    </body></html>
+                    """
+                ).format(models=", ".join(self.models))
+            )
         elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
             self.configuration.with_importtid = self._get_tid_handling()
-            self.info_label.setText(
-                self.tr("Import {} of {}").format(", ".join(self.models), self.file)
-            )
+            if self.datasets:
+
+                self.info_label.setText(
+                    self.tr(
+                        """
+                        <html><head/><body>
+                        <p>Update the data in dataset <b>{dataset}</b></p>
+                        <p>with the data from <i>{file}</i></p>
+                        </body></html>
+                        """
+                    ).format(dataset=self.datasets[0], file=self.file)
+                )
+            else:
+                self.info_label.setText(
+                    self.tr(
+                        """
+                        <html><head/><body>
+                        <p>Import the data from <i>{file}</i></p>
+                        </body></html>
+                        """
+                    ).format(file=self.file)
+                )
+
             self.configuration.dataset = self.datasets[0] if self.datasets else None
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
-            self.configuration.ilimodels = ";".join(self.models)
             self.configuration.with_exporttid = self._get_tid_handling()
+            self.configuration.iliexportmodels = ";".join(self.export_models)
             self.info_label.setText(
-                self.tr('Export of "{}" \nto {}').format(
-                    '", "'.join(self.models)
-                    or '", "'.join(self.datasets)
-                    or '", "'.join(self.baskets),
-                    self.file,
+                self.tr(
+                    """
+                    <html><head/><body>
+                    <p>Export the data of <b>{filtered_data}</b></p>
+                    {export_model_part}
+                    <p>to file <i>{file}</i></p>
+                    </body></html>
+                    """
+                ).format(
+                    filtered_data=", ".join(self.models)
+                    or ", ".join(self.datasets)
+                    or ", ".join(self.baskets),
+                    export_model_part=self.tr(
+                        "<p>in the format of <b>{export_models}</b></p>"
+                    ).format(export_models=", ".join(self.export_models))
+                    if self.export_models
+                    else "",
+                    file=self.file,
                 )
             )
+
+            self.configuration.ilimodels = ";".join(self.models)
             self.configuration.dataset = ";".join(self.datasets)
             self.configuration.baskets = self.baskets
 

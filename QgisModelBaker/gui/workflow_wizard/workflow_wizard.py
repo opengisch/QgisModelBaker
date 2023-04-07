@@ -126,6 +126,10 @@ class WorkflowWizard(QWizard):
         self.current_export_target = ""
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
 
+        # the current_export_models_model keeps every single model found in the current database and keeps the selected models
+        self.current_export_models_model = SchemaModelsModel()
+        self.current_export_models_active = False
+
         # pages setup
         self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
         self.source_selection_page = ImportSourceSelectionPage(
@@ -345,6 +349,7 @@ class WorkflowWizard(QWizard):
             models = []
             datasets = []
             baskets = []
+            export_models = []
             if self.current_filter_mode == SchemaDataFilterMode.MODEL:
                 models = self.current_models_model.checked_entries()
             elif self.current_filter_mode == SchemaDataFilterMode.DATASET:
@@ -355,9 +360,13 @@ class WorkflowWizard(QWizard):
                 # no filter - export all models
                 models = self.current_models_model.stringList()
 
+            if self.current_export_models_active:
+                export_models = self.current_export_models_model.checked_entries()
+
             sessions[self.current_export_target]["models"] = models
             sessions[self.current_export_target]["datasets"] = datasets
             sessions[self.current_export_target]["baskets"] = baskets
+            sessions[self.current_export_target]["export_models"] = export_models
 
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
@@ -413,6 +422,7 @@ class WorkflowWizard(QWizard):
         self.current_models_model.refresh_model([db_connector])
         self.current_datasets_model.refresh_model(db_connector)
         self.current_baskets_model.refresh_model(db_connector)
+        self.current_export_models_model.refresh_model([db_connector])
         return
 
     def refresh_import_models(self, silent=False):
