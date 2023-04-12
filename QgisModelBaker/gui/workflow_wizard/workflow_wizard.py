@@ -206,79 +206,107 @@ class WorkflowWizard(QWizard):
         )
 
     def next_id(self):
-        # this is called on the nextId overrides of the pages - so after the next-button is pressed
-        # it finalizes the edits on the current page and returns the evaluated id of the next page
-        if self.current_id == PageIds.ImportSourceSelection:
-            return PageIds.ImportDatabaseSelection
+        """
+        This is called on the nextId overrides of the pages - so after the next-button is pressed.
+        It finalizes the edits on the current page and returns the evaluated id of the next page.
+        """
 
-        if self.current_id == PageIds.ImportDatabaseSelection:
-            if self.import_database_selection_page.is_valid():
-                self._update_configurations(self.import_database_selection_page)
-                if self.refresh_import_models(True):
-                    # when there are models to import, we go to the configuration page for schema import
-                    return PageIds.ImportSchemaConfiguration
-                if self.import_data_file_model.rowCount():
-                    # when there are transfer files found, we go to the configuration page for data import
+        # This function is called multiple times. As well it's called on pressing "Back". It's not really clear why. That's why it checks if the current page is the one the last current_id has been stored for, to be sure it only proceeds on pressing "Next".
+        if self.current_id == self.currentId():
+            if self.current_id == PageIds.ImportSourceSelection:
+                return PageIds.ImportDatabaseSelection
+
+            if self.current_id == PageIds.ImportDatabaseSelection:
+                if self.import_database_selection_page.is_valid():
+                    self._update_configurations(self.import_database_selection_page)
+                    if self.refresh_import_models(True):
+                        # when there are models to import, we go to the configuration page for schema import
+                        return PageIds.ImportSchemaConfiguration
+                    if self.import_data_file_model.rowCount():
+                        # when there are transfer files found, we go to the configuration page for data import
+                        return PageIds.ImportDataConfiguration
+                    return PageIds.ProjectCreation
+
+            if self.current_id == PageIds.GenerateDatabaseSelection:
+                if self.generate_database_selection_page.is_valid():
+                    self._update_configurations(self.generate_database_selection_page)
+                    if self._db_or_schema_exists(self.import_schema_configuration):
+                        return PageIds.ProjectCreation
+                    else:
+                        self.log_panel.print_info(
+                            self.tr("Database or schema does not exist.")
+                        )
+
+            if self.current_id == PageIds.ExportDatabaseSelection:
+                if self.export_database_selection_page.is_valid():
+                    self._update_configurations(self.export_database_selection_page)
+                    if self._db_or_schema_exists(self.export_data_configuration):
+                        self.refresh_export_models()
+                        return PageIds.ExportDataConfiguration
+                    else:
+                        self.log_panel.print_info(
+                            self.tr("Database or schema does not exist.")
+                        )
+
+            if self.current_id == PageIds.ImportSchemaConfiguration:
+                self._update_configurations(self.schema_configuration_page)
+                if bool(self.import_models_model.checked_models()):
+                    return PageIds.ImportSchemaExecution
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                if (
+                    self.import_data_file_model.rowCount()
+                    or self.update_referecedata_cache_model(
+                        self._db_modelnames(self.import_data_configuration),
+                        "referenceData",
+                    ).rowCount()
+                ):
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
+                    return PageIds.ImportDataConfiguration
+                else:
+                    self.log_panel.print_info(
+                        self.tr(
+                            "No models, no transfer files and no potential referenced data found. Nothing to do."
+                        )
+                    )
+
+            if self.current_id == PageIds.ImportSchemaExecution:
+                # if transfer file available or possible (by getting via UsabILIty Hub)
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                if (
+                    self.import_data_file_model.rowCount()
+                    or self.update_referecedata_cache_model(
+                        self._db_modelnames(self.import_data_configuration),
+                        "referenceData",
+                    ).rowCount()
+                ):
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
                     return PageIds.ImportDataConfiguration
                 return PageIds.ProjectCreation
 
-        if self.current_id == PageIds.GenerateDatabaseSelection:
-            if self.generate_database_selection_page.is_valid():
-                self._update_configurations(self.generate_database_selection_page)
-                if self._db_or_schema_exists(self.import_schema_configuration):
+            if self.current_id == PageIds.ImportDataConfiguration:
+                if self.import_data_file_model.rowCount():
+                    self._update_configurations(self.data_configuration_page)
+                    return PageIds.ImportDataExecution
+                else:
                     return PageIds.ProjectCreation
-                else:
-                    self.log_panel.print_info(
-                        self.tr("Database or schema does not exist.")
-                    )
 
-        if self.current_id == PageIds.ExportDatabaseSelection:
-            if self.export_database_selection_page.is_valid():
-                self._update_configurations(self.export_database_selection_page)
-                if self._db_or_schema_exists(self.export_data_configuration):
-                    self.refresh_export_models()
-                    return PageIds.ExportDataConfiguration
-                else:
-                    self.log_panel.print_info(
-                        self.tr("Database or schema does not exist.")
-                    )
+            if self.current_id == PageIds.ImportDataExecution:
+                return PageIds.ProjectCreation
 
-        if self.current_id == PageIds.ImportSchemaConfiguration:
-            self._update_configurations(self.schema_configuration_page)
-            if bool(self.import_models_model.checked_models()):
-                return PageIds.ImportSchemaExecution
-            if (
-                self.import_data_file_model.rowCount()
-                or self.update_referecedata_cache_model(
-                    self._db_modelnames(self.import_data_configuration), "referenceData"
-                ).rowCount()
-            ):
-                return PageIds.ImportDataConfiguration
-            else:
-                self.log_panel.print_info(
-                    self.tr("No models, no transfer files, nothing to do...")
-                )
-
-        if self.current_id == PageIds.ImportSchemaExecution:
-            # if transfer file available or possible (by getting via UsabILIty Hub)
-            if (
-                self.import_data_file_model.rowCount()
-                or self.update_referecedata_cache_model(
-                    self._db_modelnames(self.import_data_configuration), "referenceData"
-                ).rowCount()
-            ):
-                return PageIds.ImportDataConfiguration
-            return PageIds.ProjectCreation
-
-        if self.current_id == PageIds.ImportDataConfiguration:
-            self._update_configurations(self.data_configuration_page)
-            return PageIds.ImportDataExecution
-
-        if self.current_id == PageIds.ImportDataExecution:
-            return PageIds.ProjectCreation
-
-        if self.current_id == PageIds.ExportDataConfiguration:
-            return PageIds.ExportDataExecution
+            if self.current_id == PageIds.ExportDataConfiguration:
+                return PageIds.ExportDataExecution
 
         return self.current_id
 
@@ -306,7 +334,6 @@ class WorkflowWizard(QWizard):
             )
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
-            self.refresh_import_models()
             self.schema_configuration_page.restore_configuration()
 
         if self.current_id == PageIds.ImportSchemaExecution:
@@ -384,22 +411,24 @@ class WorkflowWizard(QWizard):
     def _current_page_title(self, id):
         if id == PageIds.ImportSourceSelection:
             return self.tr("Source Selection")
-        elif id == PageIds.ImportDatabaseSelection:
-            return self.tr("Database Configuration")
-        elif id == PageIds.GenerateDatabaseSelection:
+        elif (
+            id == PageIds.ImportDatabaseSelection
+            or id == PageIds.ExportDatabaseSelection
+            or id == PageIds.GenerateDatabaseSelection
+        ):
             return self.tr("Database Configuration")
         elif id == PageIds.ImportSchemaConfiguration:
             return self.tr("Schema Import Configuration")
         elif id == PageIds.ImportSchemaExecution:
             return self.tr("Schema Import Sessions")
         elif id == PageIds.ImportDataConfiguration:
-            return self.tr("Data import configuration")
+            return self.tr("Data Import Configuration")
         elif id == PageIds.ImportDataExecution:
             return self.tr("Data Import Sessions")
         elif id == PageIds.ExportDataConfiguration:
-            return self.tr("Data export configuration")
+            return self.tr("Data Export Configuration")
         elif id == PageIds.ExportDataExecution:
-            return self.tr("Data export Sessions")
+            return self.tr("Data Export Sessions")
         elif id == PageIds.ProjectCreation:
             return self.tr("Generate a QGIS Project")
         else:

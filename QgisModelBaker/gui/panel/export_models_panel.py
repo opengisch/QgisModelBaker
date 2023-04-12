@@ -31,10 +31,6 @@ class ExportModelsPanel(QWidget, WIDGET_UI):
         self.setupUi(self)
         self.parent = parent
 
-    def setup_dialog(self, validation=False):
-        self._generate_texts(validation)
-        self.export_models_checkbox.setChecked(False)
-        self.items_view.setVisible(False)
         if self.parent:
             self.items_view.setModel(self.parent.current_export_models_model)
             self.items_view.clicked.connect(self.items_view.model().check)
@@ -45,6 +41,11 @@ class ExportModelsPanel(QWidget, WIDGET_UI):
             )
             self.export_models_checkbox.stateChanged.connect(self._active_state_changed)
             self._active_state_changed(self.parent.current_export_models_active)
+
+    def setup_dialog(self, validation=False):
+        self._generate_texts(validation)
+        self.export_models_checkbox.setChecked(False)
+        self.items_view.setVisible(False)
 
     def _generate_texts(self, validation):
         self.export_models_checkbox.setText(
