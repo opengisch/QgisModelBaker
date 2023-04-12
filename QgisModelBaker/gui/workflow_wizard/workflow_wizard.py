@@ -384,22 +384,24 @@ class WorkflowWizard(QWizard):
     def _current_page_title(self, id):
         if id == PageIds.ImportSourceSelection:
             return self.tr("Source Selection")
-        elif id == PageIds.ImportDatabaseSelection:
-            return self.tr("Database Configuration")
-        elif id == PageIds.GenerateDatabaseSelection:
+        elif (
+            id == PageIds.ImportDatabaseSelection
+            or id == PageIds.ExportDatabaseSelection
+            or id == PageIds.GenerateDatabaseSelection
+        ):
             return self.tr("Database Configuration")
         elif id == PageIds.ImportSchemaConfiguration:
             return self.tr("Schema Import Configuration")
         elif id == PageIds.ImportSchemaExecution:
             return self.tr("Schema Import Sessions")
         elif id == PageIds.ImportDataConfiguration:
-            return self.tr("Data import configuration")
+            return self.tr("Data Import Configuration")
         elif id == PageIds.ImportDataExecution:
             return self.tr("Data Import Sessions")
         elif id == PageIds.ExportDataConfiguration:
-            return self.tr("Data export configuration")
+            return self.tr("Data Export Configuration")
         elif id == PageIds.ExportDataExecution:
-            return self.tr("Data export Sessions")
+            return self.tr("Data Export Sessions")
         elif id == PageIds.ProjectCreation:
             return self.tr("Generate a QGIS Project")
         else:
