@@ -209,11 +209,9 @@ class WorkflowWizard(QWizard):
         """
         This is called on the nextId overrides of the pages - so after the next-button is pressed.
         It finalizes the edits on the current page and returns the evaluated id of the next page.
-
-        But it's called multiple times. As well it's called on pressing "Back". It's not really clear why.
-        That's why it checks if the current page is the one the last current_id has been stored for, to be sure it only proceeds on pressing "Next".
         """
 
+        # This function is called multiple times. As well it's called on pressing "Back". It's not really clear why. That's why it checks if the current page is the one the last current_id has been stored for, to be sure it only proceeds on pressing "Next".
         if self.current_id == self.currentId():
             if self.current_id == PageIds.ImportSourceSelection:
                 return PageIds.ImportDatabaseSelection
