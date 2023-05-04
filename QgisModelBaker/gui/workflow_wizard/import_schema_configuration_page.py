@@ -80,9 +80,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.ili_metaconfig_line_edit.setEnabled(False)
         completer = QCompleter(
-            self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit
+            self.ilimetaconfigcache.sorted_model, self.ili_metaconfig_line_edit
         )
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
@@ -282,7 +283,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(
-            self.ilimetaconfigcache.model
+            self.ilimetaconfigcache.sorted_model
         )
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
 

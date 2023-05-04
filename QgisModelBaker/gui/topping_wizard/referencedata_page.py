@@ -81,10 +81,11 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             self.tr("[Search referenced data files from Repositories or Local System]")
         )
         completer = QCompleter(
-            self.ilireferencedatacache.model,
+            self.ilireferencedatacache.sorted_model,
             self.input_line_edit,
         )
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.input_line_edit.setCompleter(completer)

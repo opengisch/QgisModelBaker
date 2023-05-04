@@ -135,10 +135,11 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.ilireferencedata_line_edit.setEnabled(False)
         completer = QCompleter(
-            self.workflow_wizard.ilireferencedatacache.model,
+            self.workflow_wizard.ilireferencedatacache.sorted_model,
             self.ilireferencedata_line_edit,
         )
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.ilireferencedata_line_edit.setCompleter(completer)

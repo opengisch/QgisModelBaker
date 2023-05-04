@@ -166,8 +166,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         return bool(self.source_list_view.selectedIndexes())
 
     def update_models_completer(self):
-        completer = QCompleter(self.ilicache.model, self.input_line_edit)
+        completer = QCompleter(self.ilicache.sorted_model, self.input_line_edit)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
         completer.setFilterMode(Qt.MatchContains)
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
