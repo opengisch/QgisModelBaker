@@ -311,6 +311,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                         QCompleter.PopupCompletion
                     )
                     self.ilireferencedata_line_edit.completer().complete()
+            self.ilireferencedata_line_edit.completer().popup().scrollToTop()
 
     def _valid_referencedata(self):
         match_contains = (

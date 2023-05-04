@@ -281,6 +281,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 self.ili_metaconfig_line_edit.completer().complete()
 
+            self.ili_metaconfig_line_edit.completer().popup().scrollToTop()
+
     def _update_metaconfig_completer(self, rows):
         self.ili_metaconfig_line_edit.completer().setModel(
             self.ilimetaconfigcache.sorted_model
