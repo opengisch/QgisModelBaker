@@ -305,9 +305,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 return
             self.current_metaconfig_id = metaconfig_id
             self.metaconfig_file_info_label.setText(
-                self.tr("Current Metaconfig File: {} ({})").format(
+                self.tr(
+                    "<html><head/><body><p><b>Current Metaconfig File: {} ({})</b><br><i>{}</i></p></body></html>"
+                ).format(
                     self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
                     metaconfig_id,
+                    self.ilimetaconfigcache.model.data(
+                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION) or ""
+                    ),
                 )
             )
             self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
