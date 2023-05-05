@@ -79,13 +79,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.tr("[Search metaconfig / topping from UsabILIty Hub]")
         )
         self.ili_metaconfig_line_edit.setEnabled(False)
-        completer = QCompleter(
-            self.ilimetaconfigcache.model, self.ili_metaconfig_line_edit
-        )
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        completer.popup().setItemDelegate(self.metaconfig_delegate)
-        self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.textChanged.emit(
             self.ili_metaconfig_line_edit.text()
         )
@@ -280,10 +273,17 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 self.ili_metaconfig_line_edit.completer().complete()
 
+            self.ili_metaconfig_line_edit.completer().popup().scrollToTop()
+
     def _update_metaconfig_completer(self, rows):
-        self.ili_metaconfig_line_edit.completer().setModel(
-            self.ilimetaconfigcache.model
+        completer = QCompleter(
+            self.ilimetaconfigcache.sorted_model, self.ili_metaconfig_line_edit
         )
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.popup().setItemDelegate(self.metaconfig_delegate)
+        self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
 
     def _on_metaconfig_completer_activated(self, text=None):

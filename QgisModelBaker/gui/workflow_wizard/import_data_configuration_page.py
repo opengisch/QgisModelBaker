@@ -134,14 +134,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.tr("[Search referenced data files from UsabILIty Hub]")
         )
         self.ilireferencedata_line_edit.setEnabled(False)
-        completer = QCompleter(
-            self.workflow_wizard.ilireferencedatacache.model,
-            self.ilireferencedata_line_edit,
-        )
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        completer.popup().setItemDelegate(self.ilireferencedata_delegate)
-        self.ilireferencedata_line_edit.setCompleter(completer)
         self.ilireferencedata_line_edit.textChanged.emit(
             self.ilireferencedata_line_edit.text()
         )
@@ -310,6 +302,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                         QCompleter.PopupCompletion
                     )
                     self.ilireferencedata_line_edit.completer().complete()
+            self.ilireferencedata_line_edit.completer().popup().scrollToTop()
 
     def _valid_referencedata(self):
         match_contains = (
@@ -331,9 +324,15 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         return bool(self.file_table_view.selectedIndexes())
 
     def _update_referencedata_completer(self):
-        self.ilireferencedata_line_edit.completer().setModel(
-            self.workflow_wizard.ilireferencedatacache.model
+        completer = QCompleter(
+            self.workflow_wizard.ilireferencedatacache.sorted_model,
+            self.ilireferencedata_line_edit,
         )
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.popup().setItemDelegate(self.ilireferencedata_delegate)
+        self.ilireferencedata_line_edit.setCompleter(completer)
         self.ilireferencedata_line_edit.setEnabled(
             bool(self.workflow_wizard.ilireferencedatacache.model.rowCount())
         )
