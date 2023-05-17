@@ -192,6 +192,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.setDisabled(True)
 
     def set_current_layer(self, layer):
+        if self.isHidden():
+            return
+
         if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
             self.setDisabled(True)
             return
