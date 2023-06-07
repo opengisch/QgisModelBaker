@@ -28,7 +28,6 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliToppingFileItemModel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
@@ -257,10 +256,11 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
-        # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
+        # default transaction mode is automatic groups on every data source
         project = Project(
-            auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg)
-            or custom_project_properties.get("transaction_mode", "")
+            auto_transaction=custom_project_properties.get(
+                "transaction_mode", "AutomaticGroups"
+            )
             == "AutomaticGroups",
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
         )
