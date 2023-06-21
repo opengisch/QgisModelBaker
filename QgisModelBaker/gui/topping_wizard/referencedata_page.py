@@ -145,7 +145,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda: loop.quit())
-        timer.start(10000)
+        timer.start(3000)
         self.refresh_referencedata_cache(filter_models, type)
         loop.exec()
         return self.ilireferencedatacache.model
