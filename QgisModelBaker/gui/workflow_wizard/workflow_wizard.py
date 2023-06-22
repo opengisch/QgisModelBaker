@@ -257,6 +257,7 @@ class WorkflowWizard(QWizard):
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
+                self.schema_configuration_page.setComplete(False)
                 if (
                     self.import_data_file_model.rowCount()
                     or self.update_referecedata_cache_model(
@@ -267,6 +268,7 @@ class WorkflowWizard(QWizard):
                     self.log_panel.print_info(
                         self.tr("Potential referenced data found.")
                     )
+                    self.schema_configuration_page.setComplete(True)
                     return PageIds.ImportDataConfiguration
                 else:
                     self.log_panel.print_info(
@@ -274,6 +276,7 @@ class WorkflowWizard(QWizard):
                             "No models, no transfer files and no potential referenced data found. Nothing to do."
                         )
                     )
+                    self.schema_configuration_page.setComplete(True)
 
             if self.current_id == PageIds.ImportSchemaExecution:
                 # if transfer file available or possible (by getting via UsabILIty Hub)
@@ -282,6 +285,7 @@ class WorkflowWizard(QWizard):
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
+                self.import_schema_execution_page.setComplete(False)
                 if (
                     self.import_data_file_model.rowCount()
                     or self.update_referecedata_cache_model(
@@ -292,7 +296,9 @@ class WorkflowWizard(QWizard):
                     self.log_panel.print_info(
                         self.tr("Potential referenced data found.")
                     )
+                    self.import_schema_execution_page.setComplete(True)
                     return PageIds.ImportDataConfiguration
+                self.import_schema_execution_page.setComplete(True)
                 return PageIds.ProjectCreation
 
             if self.current_id == PageIds.ImportDataConfiguration:
@@ -524,7 +530,7 @@ class WorkflowWizard(QWizard):
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda: loop.quit())
-        timer.start(10000)
+        timer.start(2000)
         self.refresh_referencedata_cache(filter_models, type)
         loop.exec()
         return self.ilireferencedatacache.model
