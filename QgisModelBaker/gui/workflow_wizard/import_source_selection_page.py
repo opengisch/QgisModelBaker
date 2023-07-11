@@ -20,7 +20,7 @@
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
+from qgis.PyQt.QtWidgets import QCompleter, QPushButton, QWizardPage
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
@@ -93,6 +93,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.source_list_view.files_dropped.connect(
             self.workflow_wizard.append_dropped_files
         )
+
+        self.clear_ilicache_button = QPushButton(self.tr("Clear ilicache"))
+        self.clear_ilicache_button.clicked.connect(self._clear_ilicache_button_clicked)
 
     def nextId(self):
         self._disconnect_punch_slots()
@@ -186,3 +189,6 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)
         self.remove_button.setEnabled(self._valid_selection())
+
+    def _clear_ilicache_button_clicked(self):
+        print("_clear_ilicache_button_clicked")
