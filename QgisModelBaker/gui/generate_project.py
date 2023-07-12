@@ -17,6 +17,7 @@
  ***************************************************************************/
 """
 import configparser
+import logging
 import os
 import re
 import webbrowser
@@ -693,11 +694,13 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
     def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
+        logging.info(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
+        logging.error(text)
         QCoreApplication.processEvents()
 
     def on_process_started(self, command):

@@ -17,6 +17,7 @@
  ***************************************************************************/
 """
 
+import logging
 import os
 import os.path
 import re
@@ -480,11 +481,13 @@ class ExportDialog(QDialog, DIALOG_UI):
     def print_info(self, text):
         self.txtStdout.setTextColor(QColor(LogColor.COLOR_INFO))
         self.txtStdout.append(text)
+        logging.info(text)
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
         color_log_text(text, self.txtStdout)
         self.advance_progress_bar_by_text(text)
+        logging.error(text)
         QCoreApplication.processEvents()
 
     def show_message(self, level, message):

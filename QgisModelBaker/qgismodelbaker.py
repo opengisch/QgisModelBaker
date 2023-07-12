@@ -19,6 +19,8 @@
 import configparser
 import datetime
 import locale
+import logging
+import logging.handlers
 import os
 import pathlib
 import webbrowser
@@ -27,15 +29,18 @@ import pyplugin_installer
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import (
     QCoreApplication,
+    QDir,
     QEvent,
+    QFileInfo,
     QLocale,
     QObject,
     QSettings,
     QStandardPaths,
     Qt,
     QTranslator,
+    QUrl,
 )
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.utils import available_plugins
 
@@ -76,6 +81,7 @@ class QgisModelBakerPlugin(QObject):
         self.__validate_action = None
         self.__topping_wizard_action = None
         self.__configure_action = None
+        self.__show_logs_folder_action = None
         self.__help_action = None
         self.__about_action = None
         self.__dataset_selector_action = None
@@ -100,6 +106,9 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         settings.beginGroup("QgisModelBaker/ili2db")
         self.ili2db_configuration.restore(settings)
+
+        self.logsDirectory = "{}/logs".format(basepath)
+        self._initLogger()
 
         self.event_filter = DropFileFilter(self)
 
@@ -194,6 +203,7 @@ class QgisModelBakerPlugin(QObject):
         self.__configure_action = QAction(self.tr("Settings"), None)
         self.__infoseparator = QAction(None)
         self.__infoseparator.setSeparator(True)
+        self.__show_logs_folder_action = QAction(self.tr("Show log folder"), None)
         self.__help_action = QAction(self.tr("Help"), None)
         self.__about_action = QAction(self.tr("About"), None)
 
@@ -216,6 +226,7 @@ class QgisModelBakerPlugin(QObject):
             self.show_workflow_wizard_dialog
         )
         self.__topping_wizard_action.triggered.connect(self.show_topping_wizard_dialog)
+        self.__show_logs_folder_action.triggered.connect(self.show_logs_folder)
         self.__help_action.triggered.connect(self.show_help_documentation)
         self.__about_action.triggered.connect(self.show_about_dialog)
 
@@ -238,6 +249,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__configure_action
         )
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__infoseparator)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__show_logs_folder_action
+        )
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__help_action)
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__about_action)
 
@@ -268,6 +282,9 @@ class QgisModelBakerPlugin(QObject):
         )
         self.iface.removePluginDatabaseMenu(self.tr("Model Baker"), self.__help_action)
         self.iface.removePluginDatabaseMenu(self.tr("Model Baker"), self.__about_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__show_logs_folder_action
+        )
         self.toolbar.removeAction(self.__dataset_selector_action)
 
         self.iface.layerTreeView().currentLayerChanged.disconnect(
@@ -282,6 +299,7 @@ class QgisModelBakerPlugin(QObject):
         del self.__configure_action
         del self.__help_action
         del self.__about_action
+        del self.__show_logs_folder_action
         del self.__dataset_selector_action
         del self.__dataset_selector
         del self.__topping_wizard_action
@@ -417,6 +435,9 @@ class QgisModelBakerPlugin(QObject):
             settings.beginGroup("QgisModelBaker/ili2db")
             self.ili2db_configuration.save(settings)
 
+    def show_logs_folder(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.logsDirectory))
+
     def show_help_documentation(self):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
         if os_language in ["es", "de"]:
@@ -545,6 +566,33 @@ class QgisModelBakerPlugin(QObject):
                 output_file_name,
             ),
         )
+
+    def _initLogger(self):
+        directory = QDir(self.logsDirectory)
+        if not directory.exists():
+            directory.mkpath(self.logsDirectory)
+
+        if directory.exists():
+            logfile = QFileInfo(directory, "ModelBaker.log")
+
+            # Handler for files rotation, create one log per day
+            rotationHandler = logging.handlers.TimedRotatingFileHandler(
+                logfile.filePath(), when="midnight", backupCount=10
+            )
+
+            # Configure logging
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format="%(asctime)s %(levelname)-7s %(message)s",
+                handlers=[rotationHandler],
+            )
+        else:
+            logging.error(
+                "Can't create log files directory '{}'.".format(self.logsDirectory)
+            )
+
+        logging.info("")
+        logging.info("Starting Model Baker plugin version {}".format(self.__version__))
 
 
 class DropFileFilter(QObject):

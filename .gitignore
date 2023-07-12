@@ -2,6 +2,7 @@
 __pycache__
 /QgisModelBaker/libili2db/bin
 /QgisModelBaker/libs/
+/QgisModelBaker/logs/
 *.orig
 i18n
 .DS_Store
