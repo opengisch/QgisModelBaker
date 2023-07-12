@@ -324,19 +324,18 @@ class WorkflowWizard(QWizard):
         )
 
         if self.current_id == PageIds.ImportSourceSelection:
-            # Add extra button Clear ilicache
+            # Add extra button Clear cache
             self.setOption(QWizard.HaveCustomButton1, True)
             self.setButton(
-                QWizard.CustomButton1, self.source_selection_page.clear_ilicache_button
+                QWizard.CustomButton1, self.source_selection_page.clear_cache_button
             )
         else:
-            # Remove extra button Clear ilicache
+            # Remove extra button Clear cache
             if (
                 self.button(QWizard.CustomButton1)
-                == self.source_selection_page.clear_ilicache_button
+                == self.source_selection_page.clear_cache_button
             ):
                 self.setOption(QWizard.HaveCustomButton1, False)
-                self.setButton(QWizard.CustomButton1, None)
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
