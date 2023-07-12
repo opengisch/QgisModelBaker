@@ -191,6 +191,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.toml_file_key = None
         self.restore_configuration()
 
+    def set_toml_file(self, toml_file):
+        self.toml_file_line_edit.setText(toml_file)
+
     def toml_file(self):
         return self.toml_file_line_edit.text().strip()
 
