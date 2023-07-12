@@ -29,7 +29,14 @@ from qgis.core import (
 )
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QFileDialog, QHeaderView, QMenu
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QDockWidget,
+    QFileDialog,
+    QHeaderView,
+    QMenu,
+    QMessageBox,
+)
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
@@ -360,11 +367,17 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     validator.run(edited_command) == ilivalidator.Validator.SUCCESS
                 )
                 # debug info: print( validator.command(True) )
-            except JavaNotFoundError:
+            except JavaNotFoundError as e:
                 self.progress_bar.setValue(0)
                 self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
                 self.progress_bar.setTextVisible(True)
                 self._disable_controls(False)
+
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self, self.tr("Java not found error"), e.error_string
+                )
+
                 return
 
         self.progress_bar.setValue(50)

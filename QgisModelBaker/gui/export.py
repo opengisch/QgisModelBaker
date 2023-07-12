@@ -470,6 +470,12 @@ class ExportDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(e.error_string)
                 self.enable()
                 self.progress_bar.hide()
+
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self, self.tr("Java not found error"), e.error_string
+                )
+
                 return
 
             self.buttonBox.clear()
