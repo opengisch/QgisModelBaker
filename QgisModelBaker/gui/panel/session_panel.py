@@ -20,7 +20,7 @@
 import os
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgis.PyQt.QtWidgets import QAction, QWidget
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QWidget
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
@@ -344,6 +344,12 @@ class SessionPanel(QWidget, WIDGET_UI):
                 else:
                     self.set_button_to_create()
                 self.is_running = False
+
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self, self.tr("Java not found error"), e.error_string
+                )
+
                 return False
 
             self.progress_bar.setValue(90)
