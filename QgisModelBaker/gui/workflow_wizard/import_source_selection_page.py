@@ -20,15 +20,23 @@
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
+from qgis.PyQt.QtWidgets import (
+    QApplication,
+    QCompleter,
+    QMessageBox,
+    QPushButton,
+    QWizardPage,
+)
 
-import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliCache,
+    IliDataCache,
+    IliToppingFileCache,
     ModelCompleterDelegate,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
+    OverrideCursor,
     QValidator,
     make_file_selector,
 )
@@ -93,6 +101,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.source_list_view.files_dropped.connect(
             self.workflow_wizard.append_dropped_files
         )
+
+        self.clear_cache_button = QPushButton(self.tr("Clear ilicache"), self)
+        self.clear_cache_button.clicked.connect(self._clear_cache_button_clicked)
 
     def nextId(self):
         self._disconnect_punch_slots()
@@ -186,3 +197,42 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         indices = self.source_list_view.selectionModel().selectedIndexes()
         self.source_list_view.model().remove_sources(indices)
         self.remove_button.setEnabled(self._valid_selection())
+
+    def _clear_cache_button_clicked(self):
+        with OverrideCursor(Qt.WaitCursor):
+
+            try:
+                IliCache.clear_cache()
+            except Exception as exception:
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self,
+                    "Clear cache failed",
+                    "Can't delete the ili cache folder '{}'\n\nDetail:\n{}".format(
+                        IliCache.CACHE_PATH, str(exception)
+                    ),
+                )
+
+            try:
+                IliDataCache.clear_cache()
+            except Exception as exception:
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self,
+                    "Clear cache failed",
+                    "Can't delete the ili data cache folder '{}'\n\nDetail:\n{}".format(
+                        IliDataCache.CACHE_PATH, str(exception)
+                    ),
+                )
+
+            try:
+                IliToppingFileCache.clear_cache()
+            except Exception as exception:
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(
+                    self,
+                    "Clear cache failed",
+                    "Can't delete the ili topping cache folder '{}'\n\nDetail:\n{}".format(
+                        IliToppingFileCache.CACHE_PATH, str(exception)
+                    ),
+                )

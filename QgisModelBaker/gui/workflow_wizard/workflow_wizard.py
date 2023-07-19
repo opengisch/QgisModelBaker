@@ -323,6 +323,20 @@ class WorkflowWizard(QWizard):
             self.tr(f" > ---------- {self._current_page_title(self.current_id)}")
         )
 
+        if self.current_id == PageIds.ImportSourceSelection:
+            # Add extra button Clear cache
+            self.setOption(QWizard.HaveCustomButton1, True)
+            self.setButton(
+                QWizard.CustomButton1, self.source_selection_page.clear_cache_button
+            )
+        else:
+            # Remove extra button Clear cache
+            if (
+                self.button(QWizard.CustomButton1)
+                == self.source_selection_page.clear_cache_button
+            ):
+                self.setOption(QWizard.HaveCustomButton1, False)
+
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
             self.import_database_selection_page.restore_configuration(
