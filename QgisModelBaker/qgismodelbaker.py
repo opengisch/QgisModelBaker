@@ -41,9 +41,6 @@ from qgis.utils import available_plugins
 
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.drop_message import DropMessageDialog
-from QgisModelBaker.gui.export import ExportDialog
-from QgisModelBaker.gui.generate_project import GenerateProjectDialog
-from QgisModelBaker.gui.import_data import ImportDataDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.gui.topping_wizard.topping_wizard import ToppingWizardDialog
@@ -61,16 +58,10 @@ class QgisModelBakerPlugin(QObject):
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
 
-        self.generate_dlg = None
-        self.export_dlg = None
-        self.importdata_dlg = None
         self.workflow_wizard_dlg = None
         self.datasetmanager_dlg = None
         self.topping_wizard_dlg = None
 
-        self.__generate_action = None
-        self.__export_action = None
-        self.__importdata_action = None
         self.__workflow_wizard_action = None
         self.__datasetmanager_action = None
         self.__validate_action = None
@@ -121,35 +112,6 @@ class QgisModelBakerPlugin(QObject):
             pyplugin_installer.instance().uninstallPlugin(
                 "projectgenerator", quiet=True
             )
-        self.__generate_action = QAction(
-            QIcon(
-                os.path.join(
-                    os.path.dirname(__file__), "images/QgisModelBaker-generate-icon.svg"
-                )
-            ),
-            self.tr("Generate"),
-            None,
-        )
-        self.__export_action = QAction(
-            QIcon(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "images/QgisModelBaker-xtf-export-icon.svg",
-                )
-            ),
-            self.tr("Export Interlis Transfer File (.xtf)"),
-            None,
-        )
-        self.__importdata_action = QAction(
-            QIcon(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "images/QgisModelBaker-xtf-import-icon.svg",
-                )
-            ),
-            self.tr("Import Interlis Transfer File (.xtf)"),
-            None,
-        )
         self.__datasetmanager_action = QAction(
             QIcon(
                 os.path.join(
@@ -198,20 +160,14 @@ class QgisModelBakerPlugin(QObject):
         self.__about_action = QAction(self.tr("About"), None)
 
         # set these actions checkable to visualize that the dialog is open
-        self.__generate_action.setCheckable(True)
-        self.__export_action.setCheckable(True)
-        self.__importdata_action.setCheckable(True)
         self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
         self.__validate_action.setCheckable(True)
         self.__topping_wizard_action.setCheckable(True)
 
-        self.__generate_action.triggered.connect(self.show_generate_dialog)
         self.__configure_action.triggered.connect(self.show_options_dialog)
-        self.__importdata_action.triggered.connect(self.show_importdata_dialog)
         self.__datasetmanager_action.triggered.connect(self.show_datasetmanager_dialog)
         self.__validate_action.triggered.connect(self.show_validate_dock)
-        self.__export_action.triggered.connect(self.show_export_dialog)
         self.__workflow_wizard_action.triggered.connect(
             self.show_workflow_wizard_dialog
         )
@@ -285,9 +241,6 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__dataset_selector.set_current_layer
         )
-        del self.__generate_action
-        del self.__export_action
-        del self.__importdata_action
         del self.__workflow_wizard_action
         del self.__datasetmanager_action
         del self.__validate_action
@@ -301,40 +254,6 @@ class QgisModelBakerPlugin(QObject):
         del self.toolbar
 
         self.remove_validate_dock()
-
-    def show_generate_dialog(self):
-        if self.generate_dlg:
-            self.generate_dlg.reject()
-        else:
-            self.generate_dlg = GenerateProjectDialog(
-                self.iface, self.ili2db_configuration, self.iface.mainWindow()
-            )
-            self.generate_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.generate_dlg.setWindowFlags(self.generate_dlg.windowFlags() | Qt.Tool)
-            self.generate_dlg.show()
-            self.generate_dlg.finished.connect(self.generate_dialog_finished)
-            self.__generate_action.setChecked(True)
-
-    def generate_dialog_finished(self):
-        self.__generate_action.setChecked(False)
-        self.generate_dlg = None
-
-    def show_export_dialog(self):
-        if self.export_dlg:
-            self.export_dlg.reject()
-        else:
-            self.export_dlg = ExportDialog(
-                self.ili2db_configuration, self.iface.mainWindow()
-            )
-            self.export_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.export_dlg.setWindowFlags(self.export_dlg.windowFlags() | Qt.Tool)
-            self.export_dlg.show()
-            self.export_dlg.finished.connect(self.export_dialog_finished)
-            self.__export_action.setChecked(True)
-
-    def export_dialog_finished(self):
-        self.__export_action.setChecked(False)
-        self.export_dlg = None
 
     def show_workflow_wizard_dialog(self):
         if self.workflow_wizard_dlg:
@@ -377,25 +296,6 @@ class QgisModelBakerPlugin(QObject):
     def topping_wizard_dialog_finished(self):
         self.__topping_wizard_action.setChecked(False)
         self.topping_wizard_dlg = None
-
-    def show_importdata_dialog(self):
-        if self.importdata_dlg:
-            self.importdata_dlg.reject()
-        else:
-            self.importdata_dlg = ImportDataDialog(
-                self.iface, self.ili2db_configuration, self.iface.mainWindow()
-            )
-            self.importdata_dlg.setAttribute(Qt.WA_DeleteOnClose)
-            self.importdata_dlg.setWindowFlags(
-                self.importdata_dlg.windowFlags() | Qt.Tool
-            )
-            self.importdata_dlg.show()
-            self.importdata_dlg.finished.connect(self.importdata_dialog_finished)
-            self.__importdata_action.setChecked(True)
-
-    def importdata_dialog_finished(self):
-        self.__importdata_action.setChecked(False)
-        self.importdata_dlg = None
 
     def show_datasetmanager_dialog(self):
         if self.datasetmanager_dlg:
