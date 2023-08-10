@@ -241,6 +241,18 @@ class QgisModelBakerPlugin(QObject):
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__help_action)
         self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__about_action)
 
+        databaseMenuActions = self.iface.databaseMenu().actions()
+        for action in databaseMenuActions:
+            if action.text() == self.tr("Model Baker"):
+                action.setIcon(
+                    QIcon(
+                        os.path.join(
+                            os.path.dirname(__file__), "images/QgisModelBaker-icon.svg"
+                        )
+                    )
+                )
+                break
+
         self.toolbar = self.iface.addToolBar(self.tr("Model Baker"))
         self.toolbar.setObjectName("ModelBakerToolbar")
         self.toolbar.setToolTip(self.tr("Model Baker Toolbar"))
