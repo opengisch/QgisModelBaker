@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
 import os
 
 from PyQt5.QtGui import QColor, QGuiApplication
@@ -314,9 +315,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.progress_bar.setTextVisible(False)
         self._disable_controls(True)
         validator = ilivalidator.Validator()
-        if validator:
-            validator.tool = self.current_configuration.tool
-            validator.configuration = self.current_configuration
+
+        validator.stdout.connect(self._validator_stdout)
+        validator.stderr.connect(self._validator_stderr)
+
+        validator.tool = self.current_configuration.tool
+        validator.configuration = self.current_configuration
 
         validator.configuration.ilimodels = ""
         validator.configuration.dataset = ""
@@ -617,3 +621,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         )
         if filename:
             self.validator_config_file_line_edit.setText(filename)
+
+    def _validator_stdout(self, txt):
+        lines = txt.strip().split("\n")
+        for line in lines:
+            logging.info(line)
+
+    def _validator_stderr(self, txt):
+        lines = txt.strip().split("\n")
+        for line in lines:
+            logging.error(line)
