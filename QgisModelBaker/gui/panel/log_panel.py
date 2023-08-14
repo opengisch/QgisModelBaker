@@ -17,6 +17,8 @@
  ***************************************************************************/
 """
 
+import logging
+
 from PyQt5.QtWidgets import QGridLayout
 from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
@@ -51,6 +53,17 @@ class LogPanel(QWidget):
     def print_info(self, text, text_color=LogColor.COLOR_INFO):
         self.txtStdout.setTextColor(QColor(text_color))
         self.txtStdout.append(text)
+
+        if text_color == LogColor.COLOR_INFO:
+            logging.info(text)
+        elif text_color == LogColor.COLOR_SUCCESS:
+            logging.info(text)
+        elif text_color == LogColor.COLOR_WARNING:
+            logging.warning(text)
+        elif text_color == LogColor.COLOR_FAIL:
+            logging.error(text)
+        elif text_color == LogColor.COLOR_TOPPING:
+            logging.info(text)
 
     def on_stderr(self, text):
         color_log_text(text, self.txtStdout)
