@@ -458,11 +458,11 @@ class QgisModelBakerPlugin(QObject):
         qgis_project = QgsProject.instance()
         project.create(None, qgis_project, group)
 
-    def handle_dropped_files(self, dropped_files):
+    def handle_dropped_files(self, dropped_files, dropped_ini_files):
         if not self.workflow_wizard_dlg:
             self._set_dropped_file_configuration()
             self.show_workflow_wizard_dialog()
-        self.workflow_wizard_dlg.append_dropped_files(dropped_files)
+        self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
         return True
 
     def _set_dropped_file_configuration(self):
@@ -538,10 +538,18 @@ class DropFileFilter(QObject):
                 for url in event.mimeData().urls()
                 if pathlib.Path(url.toLocalFile()).suffix[1:] in ["xml", "XML"]
             ]
+            additional_ini_files = [
+                url.toLocalFile()
+                for url in event.mimeData().urls()
+                if pathlib.Path(url.toLocalFile()).suffix[1:]
+                in ["ini", "INI", "toml", "TOML"]
+            ]
             if dropped_files:
-                if self._is_handling_requested(dropped_files + additional_xml_files):
+                if self._is_handling_requested(
+                    dropped_files + additional_xml_files + additional_ini_files
+                ):
                     if self.parent.handle_dropped_files(
-                        dropped_files + additional_xml_files
+                        dropped_files + additional_xml_files, additional_ini_files
                     ):
                         return True
         return False

@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
 import os
 import pathlib
 import re
@@ -578,12 +579,24 @@ class WorkflowWizard(QWizard):
             path = None
         return self.source_model.add_source(name, type, path, origin_info)
 
-    def append_dropped_files(self, dropped_files):
+    def append_dropped_files(self, dropped_files, dropped_ini_files):
         if dropped_files:
             for dropped_file in dropped_files:
                 self.add_source(
                     dropped_file, self.tr("Added by user with drag'n'drop.")
                 )
+
+        if dropped_ini_files:
+            if len(dropped_ini_files) > 1:
+                logging.warning(
+                    "Only one INI/TOML file is supported by drag&drop: {}".format(
+                        dropped_ini_files
+                    )
+                )
+
+            self.schema_configuration_page.ili2db_options.set_toml_file(
+                dropped_ini_files[0]
+            )
 
 
 class WorkflowWizardDialog(QDialog):
@@ -607,10 +620,10 @@ class WorkflowWizardDialog(QDialog):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-    def append_dropped_files(self, dropped_files):
+    def append_dropped_files(self, dropped_files, dropped_ini_files):
         """
         Appends the files, restarts the wizard and jumps to the next page (what is ImportSourceSelection)
         """
-        self.workflow_wizard.append_dropped_files(dropped_files)
+        self.workflow_wizard.append_dropped_files(dropped_files, dropped_ini_files)
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
