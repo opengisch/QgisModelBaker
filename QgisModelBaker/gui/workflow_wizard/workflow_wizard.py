@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
 import os
 import pathlib
 import re
@@ -587,8 +588,11 @@ class WorkflowWizard(QWizard):
 
         if dropped_ini_files:
             if len(dropped_ini_files) > 1:
-                # TODO logging.warning("Only one INI/TOML file is supported by drag&drop: {}".format(dropped_ini_files))
-                pass
+                logging.warning(
+                    "Only one INI/TOML file is supported by drag&drop: {}".format(
+                        dropped_ini_files
+                    )
+                )
 
             self.schema_configuration_page.ili2db_options.set_toml_file(
                 dropped_ini_files[0]
