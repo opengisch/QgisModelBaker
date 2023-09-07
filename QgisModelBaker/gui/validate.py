@@ -230,6 +230,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 QStandardPaths.writableLocation(QStandardPaths.TempLocation),
                 output_file_name,
             )
+            self.current_configuration.xtffile = os.path.join(
+                QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+                f"dataexport_{output_file_name}",
+            )
             self.current_configuration.tool = mode
             if mode == DbIliMode.gpkg:
                 self.info_label.setText(
