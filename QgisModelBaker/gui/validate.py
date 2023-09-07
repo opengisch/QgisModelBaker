@@ -367,10 +367,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         validation_result_state = False
         with OverrideCursor(Qt.WaitCursor):
             try:
+                self._validator_stdout(f"Run: {validator.command(True)}")
                 validation_result_state = (
                     validator.run(edited_command) == ilivalidator.Validator.SUCCESS
                 )
-                # debug info: print( validator.command(True) )
             except JavaNotFoundError as e:
                 self.progress_bar.setValue(0)
                 self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
