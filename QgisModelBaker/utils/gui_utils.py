@@ -245,8 +245,9 @@ class FileDropListView(QListView):
     """
 
     ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
+    ValidIniExtensions = ["ini", "INI", "toml", "TOML"]
 
-    files_dropped = pyqtSignal(list)
+    files_dropped = pyqtSignal(list, list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -258,6 +259,7 @@ class FileDropListView(QListView):
             if (
                 pathlib.Path(url.toLocalFile()).suffix[1:]
                 in FileDropListView.ValidExtenstions
+                + FileDropListView.ValidIniExtensions
             ):
                 event.acceptProposedAction()
                 break
@@ -269,7 +271,13 @@ class FileDropListView(QListView):
             if pathlib.Path(url.toLocalFile()).suffix[1:]
             in FileDropListView.ValidExtenstions
         ]
-        self.files_dropped.emit(dropped_files)
+        dropped_ini_files = [
+            url.toLocalFile()
+            for url in event.mimeData().urls()
+            if pathlib.Path(url.toLocalFile()).suffix[1:]
+            in FileDropListView.ValidIniExtensions
+        ]
+        self.files_dropped.emit(dropped_files, dropped_ini_files)
         event.acceptProposedAction()
 
 
