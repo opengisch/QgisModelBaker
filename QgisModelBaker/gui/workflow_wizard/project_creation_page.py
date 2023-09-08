@@ -30,6 +30,7 @@ from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorE
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliToppingFileItemModel
+from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 from QgisModelBaker.utils.gui_utils import LogColor
@@ -47,6 +48,15 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.setFinalPage(True)
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
+
+        self.optimize_combo.clear()
+        self.optimize_combo.addItem(
+            self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
+        )
+        self.optimize_combo.addItem(
+            self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
+        )
+        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
 
         self.db_simple_factory = DbSimpleFactory()
         self.configuration = None
@@ -74,6 +84,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.configuration.dbschema,
                 mgmt_uri=mgmt_uri,
                 consider_basket_handling=True,
+                optimize_strategy=self.optimize_combo.currentData(),
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
@@ -257,12 +268,14 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
+        print(self.optimize_combo.currentData())
         # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
         project = Project(
             auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg)
             or custom_project_properties.get("transaction_mode", "")
             == "AutomaticGroups",
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
+            optimize_strategy=self.optimize_combo.currentData(),
         )
         project.layers = available_layers
         project.relations = relations
