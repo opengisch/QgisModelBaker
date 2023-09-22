@@ -67,7 +67,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you don't get it - nevermind and keep the default. If it's not like expected - try again with 'No optimization'...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>Should the project be optimized concerning inheritances?</string>
+      <string>Project optimization strategy concerning inheritances</string>
      </property>
     </widget>
    </item>
