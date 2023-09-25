@@ -674,14 +674,22 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.config_file_line_edit.setText(self._relative_path(filename))
 
     def _relative_path(self, path):
-        if QgsProject.instance().homePath() and os.path.isabs(path):
+        if (
+            os.path.isfile(path)
+            and QgsProject.instance().homePath()
+            and os.path.isabs(path)
+        ):
             # if it's a saved project and the path is not (yet) relative
             return os.path.relpath(path, QgsProject.instance().homePath())
         else:
             return path
 
     def _absolute_path(self, path):
-        if path and QgsProject.instance().homePath() and not os.path.isabs(path):
+        if (
+            os.path.isfile(path)
+            and QgsProject.instance().homePath()
+            and not os.path.isabs(path)
+        ):
             # if it's a saved project and the path is not not absolute
             return os.path.join(path, QgsProject.instance().homePath(), path)
         else:
