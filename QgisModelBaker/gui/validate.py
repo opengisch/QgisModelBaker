@@ -380,7 +380,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         validator.configuration.skip_geometry_errors = (
             self.skip_geometry_errors_check_box.isChecked()
         )
-        validator.configuration.valid_config = self.config_file_line_edit.text()
+        validator.configuration.valid_config = self._absolute_path(
+            self.config_file_line_edit.text()
+        )
+        print(validator.configuration.valid_config)
 
         self.progress_bar.setValue(20)
         validation_result_state = False
@@ -671,7 +674,18 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.config_file_line_edit.setText(self._relative_path(filename))
 
     def _relative_path(self, path):
-        return os.path.relpath(QgsProject.instance().homePath(), path)
+        if QgsProject.instance().homePath() and os.path.isabs(path):
+            # if it's a saved project and the path is not (yet) relative
+            return os.path.relpath(path, QgsProject.instance().homePath())
+        else:
+            return path
+
+    def _absolute_path(self, path):
+        if path and QgsProject.instance().homePath() and not os.path.isabs(path):
+            # if it's a saved project and the path is not not absolute
+            return os.path.join(path, QgsProject.instance().homePath(), path)
+        else:
+            return path
 
     def _validator_stdout(self, txt):
         lines = txt.strip().split("\n")
