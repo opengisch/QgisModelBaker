@@ -195,7 +195,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
 
     def _remove_selected_rows(self):
         indices = self.source_list_view.selectionModel().selectedIndexes()
-        self.source_list_view.model().remove_sources(indices)
+        self.workflow_wizard.remove_sources(indices)
         self.remove_button.setEnabled(self._valid_selection())
 
     def _clear_cache_button_clicked(self):
