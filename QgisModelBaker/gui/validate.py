@@ -22,6 +22,7 @@ import os
 from PyQt5.QtGui import QColor, QGuiApplication
 from qgis.core import (
     QgsApplication,
+    QgsExpressionContextUtils,
     QgsGeometry,
     QgsMapLayer,
     QgsPointXY,
@@ -165,9 +166,21 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.auto_pan_button.clicked.connect(self._auto_pan_button_clicked)
         self.auto_zoom_button.clicked.connect(self._auto_zoom_button_clicked)
 
-        self.validator_config_file_tool_button.clicked.connect(
-            self._select_validator_config_file
+        save_config_file_action = QAction(
+            QgsApplication.getThemeIcon("/mActionFileSave.svg"),
+            self.tr("Save config file to project..."),
+            self,
         )
+        save_config_file_action.triggered.connect(self._save_config_file)
+        self.config_file_tool_button.addAction(save_config_file_action)
+        load_config_file_action = QAction(
+            QgsApplication.getThemeIcon("/mActionFileOpen.svg"),
+            self.tr("Load config file from project..."),
+            self,
+        )
+        load_config_file_action.triggered.connect(self._load_config_file)
+        self.config_file_tool_button.addAction(load_config_file_action)
+        self.config_file_tool_button.clicked.connect(self._select_config_file)
 
     def _reset_current_values(self):
         self.current_configuration = ValidateConfiguration()
@@ -179,6 +192,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_filter_mode = SchemaDataFilterMode.NO_FILTER
         self.current_export_models_model = SchemaModelsModel()
         self.current_export_models_active = False
+        self.config_file_line_edit.clear()
 
     def _reset_gui(self):
         self._reset_current_values()
@@ -284,6 +298,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
             self.filter_data_panel.setup_dialog(self._basket_handling())
             self.export_models_panel.setup_dialog(True)
+
+            self._load_config_file()
+
             self.setDisabled(False)
 
     def _visibility_changed(self, visible):
@@ -363,9 +380,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         validator.configuration.skip_geometry_errors = (
             self.skip_geometry_errors_check_box.isChecked()
         )
-        validator.configuration.valid_config = (
-            self.validator_config_file_line_edit.text()
-        )
+        validator.configuration.valid_config = self.config_file_line_edit.text()
 
         self.progress_bar.setValue(20)
         validation_result_state = False
@@ -632,12 +647,31 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if self.auto_zoom_button.isChecked:
             self.auto_pan_button.setChecked(False)
 
-    def _select_validator_config_file(self):
+    def _select_config_file(self):
         filename, _ = QFileDialog.getOpenFileName(
             self, self.tr("Select the validator config file")
         )
         if filename:
-            self.validator_config_file_line_edit.setText(filename)
+            self.config_file_line_edit.setText(self._relative_path(filename))
+
+    def _save_config_file(self):
+        filename = self.config_file_line_edit.text()
+
+        QgsExpressionContextUtils.setProjectVariable(
+            QgsProject.instance(),
+            f"validator_config_{self.current_schema_identificator}",
+            self._relative_path(filename),
+        )
+
+    def _load_config_file(self):
+        filename = QgsExpressionContextUtils.projectScope(
+            QgsProject.instance()
+        ).variable(f"validator_config_{self.current_schema_identificator}")
+        if filename:
+            self.config_file_line_edit.setText(self._relative_path(filename))
+
+    def _relative_path(self, path):
+        return os.path.relpath(QgsProject.instance().homePath(), path)
 
     def _validator_stdout(self, txt):
         lines = txt.strip().split("\n")
