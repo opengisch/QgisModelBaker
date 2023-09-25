@@ -268,7 +268,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
-        print(self.optimize_combo.currentData())
         # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
         project = Project(
             auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg)
