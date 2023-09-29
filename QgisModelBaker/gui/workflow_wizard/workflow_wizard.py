@@ -56,6 +56,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils.gui_utils import (
+    FileDropListView,
     ImportDataModel,
     ImportModelsModel,
     LogColor,
@@ -579,9 +580,18 @@ class WorkflowWizard(QWizard):
             path = None
         return self.source_model.add_source(name, type, path, origin_info)
 
+    def remove_sources(self, indices):
+        # if it's a ini/toml file that should be removed, then remove it from the config
+        if (
+            indices[0].data(int(SourceModel.Roles.TYPE))
+            in FileDropListView.ValidIniExtensions
+        ):
+            self.schema_configuration_page.ili2db_options.set_toml_file("")
+        return self.source_model.remove_sources(indices)
+
     def append_dropped_files(self, dropped_files, dropped_ini_files):
-        if dropped_files:
-            for dropped_file in dropped_files:
+        if dropped_files or dropped_ini_files:
+            for dropped_file in dropped_files + dropped_ini_files:
                 self.add_source(
                     dropped_file, self.tr("Added by user with drag'n'drop.")
                 )

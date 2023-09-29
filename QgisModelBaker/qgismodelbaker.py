@@ -54,7 +54,7 @@ from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDia
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
-from QgisModelBaker.utils.gui_utils import DropMode
+from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
 
 
 class QgisModelBakerPlugin(QObject):
@@ -528,7 +528,7 @@ class DropFileFilter(QObject):
                 url.toLocalFile()
                 for url in event.mimeData().urls()
                 if pathlib.Path(url.toLocalFile()).suffix[1:]
-                in ["xtf", "XTF", "itf", "ITF", "ili"]
+                in FileDropListView.ValidExtenstions
             ]
             additional_xml_files = [
                 url.toLocalFile()
@@ -539,7 +539,7 @@ class DropFileFilter(QObject):
                 url.toLocalFile()
                 for url in event.mimeData().urls()
                 if pathlib.Path(url.toLocalFile()).suffix[1:]
-                in ["ini", "INI", "toml", "TOML"]
+                in FileDropListView.ValidIniExtensions
             ]
             if dropped_files:
                 if self._is_handling_requested(
