@@ -662,14 +662,14 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         QgsExpressionContextUtils.setProjectVariable(
             QgsProject.instance(),
-            f"validator_config_{self.current_schema_identificator}",
+            "validator_config",
             self._relative_path(filename),
         )
 
     def _load_config_file(self):
         filename = QgsExpressionContextUtils.projectScope(
             QgsProject.instance()
-        ).variable(f"validator_config_{self.current_schema_identificator}")
+        ).variable("validator_config")
         if filename:
             self.config_file_line_edit.setText(self._relative_path(filename))
 
