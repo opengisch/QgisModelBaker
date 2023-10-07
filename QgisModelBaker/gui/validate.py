@@ -684,15 +684,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             return path
 
     def _absolute_path(self, path):
-        if (
-            os.path.isfile(path)
-            and QgsProject.instance().homePath()
-            and not os.path.isabs(path)
-        ):
-            # if it's a saved project and the path is not not absolute
-            return os.path.join(path, QgsProject.instance().homePath(), path)
-        else:
-            return path
+        if QgsProject.instance().homePath() and not os.path.isabs(path):
+            # if it's a saved project and the path is not absolute
+            absolute_path = os.path.join(path, QgsProject.instance().homePath(), path)
+            if os.path.isfile(absolute_path):
+                return absolute_path
+        # otherwise most possibly it's an ilidata link
+        return path
 
     def _validator_stdout(self, txt):
         lines = txt.strip().split("\n")
