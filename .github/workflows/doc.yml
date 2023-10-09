@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - 'docs/**'
+      - '.github/workflows/doc.yml'
 
 jobs:
   deploy:
@@ -13,40 +14,43 @@ jobs:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Checkout Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: '3.10'
 
       - name: Install Requirements
         run: |
-            sudo apt-get update && sudo apt-get install -y transifex-client
             sudo pip install mkdocs-material mkdocs-static-i18n==0.31
 
-      - name: Push translations
-        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Install Transifex client
         run: |
-          set -e
-          if [[ -z "${TX_TOKEN}" ]]; then
-            echo "TX_TOKEN not set, skip tx push"
-          else
-            echo "Create .tx/config mapping."
-            tx config mapping-bulk -p qgis-model-baker-docs --source-language en --type GITHUBMARKDOWN -f '.md' --source-file-dir docs --expression "docs/{filepath}/{filename}.<lang>{extension}" --execute
-            echo "Push source files."
-            tx push -s -d
-          fi
+          curl -OL https://github.com/transifex/cli/releases/download/v1.3.1/tx-linux-amd64.tar.gz
+          tar -xvzf tx-linux-amd64.tar.gz
 
-      - name: Pull translations
+      - name: Configure Transifex
         run: |
-          set -e
-          if [[ -z "${TX_TOKEN}" ]]; then
-            echo "TX_TOKEN not set, skip tx pull"
-          else
-            echo "Pull translations."
-            tx pull -a
-          fi
+          python ./utils/transifex_utils.py
+        env:
+          TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
+      - name: Push source files to Transifex
+        run: |
+          ./tx push
+        env:
+          TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
+      - name: Pull translations from Transifex
+        run: |
+          ./tx pull --translations --all --minimum-perc 10
+          ./tx status
+        env:
+          TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Build docs
         run: mkdocs gh-deploy --force
