@@ -19,6 +19,9 @@ Sources can be INTERLIS models stored in `ili` files you select from your local 
 
 As well you can search for INTERLIS models in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories). Since model names should be given strictly as they were spelled in INTERLIS files, once you start typing, autocompletion will help you discover available models with their correct spelling. Add them wiht the ![plus button](../assets/plus_button.png).
 
+!!! Note
+    The models from the repositories are cached locally. If you want to clear this cache, use the button *Clear ilicache*.
+
 This leads you to a process to create the physical database in *PostgreSQL*, *MSSQL* or *GeoPackage*.
 
 ### Transfer and Catalogue Files (Data Files)
