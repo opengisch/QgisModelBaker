@@ -139,3 +139,24 @@ Then, with a simple click you generate your project. All the toppings received f
 ![baked project](../assets/generated_project.png)
 
 Bon appetit!
+
+### Optimize QGIS Project if extended
+
+In case you gereate your project for an extended model structure that was created with *smart2inheritance*, then you can optimize it (hide or group unused layers and relations).
+
+![project generation](../assets/workflow_wizard_project_generation.png)
+
+Choose your optimization strategy in the checkbox:
+- ***Hide unused base class layers***
+
+    Base class layers with same named extensions will be *hidden* and and base class layers with multiple extensions *as well*. Except if the extension is in the *same model*, then it's will *not* be *hidden* but *renamed*.
+
+    Relations of hidden layers will *not* be *created* and with them *no* widgets
+
+- ***Group unused base class layers***
+
+    Base class layers with same named extensions will be *collected in a group* and base class layers with multiple extensions *as well*. Except if the extension is in the *same model*, then it's will *not* be *grouped* but *renamed*.
+
+    Relations of grouped layers will be *created* but the widgets *not applied* to the form.
+
+For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
