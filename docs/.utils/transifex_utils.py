@@ -1,8 +1,6 @@
 import glob
 import os
 
-import frontmatter
-
 TX_ORGANIZATION = "opengisch"
 TX_PROJECT = "qgis-model-baker-docs"
 TX_SOURCE_LANG = "en"
@@ -17,7 +15,7 @@ def create_transifex_config():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_file = os.path.join(current_dir, "..", "..", ".tx", "config")
-    root = os.path.join(current_dir, "..")
+    root = os.path.join(current_dir, "..", "..")
     count = 0
 
     with open(config_file, "w") as f:
