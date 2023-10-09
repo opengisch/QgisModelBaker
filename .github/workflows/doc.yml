@@ -35,7 +35,7 @@ jobs:
 
       - name: Configure Transifex
         run: |
-          python ./scripts/transifex_utils.py
+          python ./docs/.utils/transifex_utils.py
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
