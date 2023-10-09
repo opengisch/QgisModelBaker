@@ -12,7 +12,7 @@ Since it's impossible to care for all the cases,  we need to make some assumptio
 
 - When you extend a base class with the ***same name***, you intend to "replace" it, otherwise you would rename it.
 - When you extend a base class ***multiple times*** (what you do with different names) then you intend to "replace" it.
-- Exception for the two cases above: When you extended the class it in the ***same model*** but another topic (because if you intent to "replace" it, you would have made it `ABSTRACT`).
+- Exception for the two cases above: When you extended the class in the ***same model*** but another topic (because if you intent to "replace" it, you would have made it `ABSTRACT`).
 
 ### Conclusion
 - Base classes with ***same named*** extensions are ***irrelevant***
