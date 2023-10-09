@@ -16,7 +16,7 @@ def create_transifex_config():
     print("Start creating transifex configuration")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(current_dir, "..", ".tx", "config")
+    config_file = os.path.join(current_dir, "..", "..", ".tx", "config")
     root = os.path.join(current_dir, "..")
     count = 0
 
