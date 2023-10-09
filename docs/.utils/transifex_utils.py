@@ -44,7 +44,7 @@ def create_transifex_config():
                 f.write(f"type = {TX_TYPE}\n\n")
                 count += 1
 
-    print(f"Transifex configuration created. {count} resources added.")
+    print(f"Transifex configuration created: {count} resources added.")
 
 
 create_transifex_config()
