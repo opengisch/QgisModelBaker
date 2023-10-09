@@ -1,6 +1,6 @@
 If a model or topic contains extended classes, the inclusive base classes are implemented in the physical database. The users only want to see, what is relevant for them and mostly work on the most extended instance of the topics/classes. Model Baker detects the ***irrelevant*** tables and offers optimization strategies to the users on ***smart1intehritance*** implementations.
 
-In the [workflow wizard](../../user_guide/import_workflow/#optimize-qgis-project-if-extended) you can choose the optimization [strategy]([corresponding chapter](../../background_info/extended_models_optimization/#strategies) and receive a nicely prepared layertree and forms.
+In the [workflow wizard](../../user_guide/import_workflow/#optimize-qgis-project-if-extended) you can choose the optimization [strategy](../../background_info/extended_models_optimization/#strategies) and receive a nicely prepared layertree and forms.
 
 But what is done in the backend?
 
