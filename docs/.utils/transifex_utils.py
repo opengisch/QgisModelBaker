@@ -26,7 +26,7 @@ def create_transifex_config():
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
-            tx_slug = frontmatter.load(file).get("tx_slug", None)
+            tx_slug = slugify(relative_path)
 
             if tx_slug:
                 print(f"Found file with tx_slug defined: {relative_path}, {tx_slug}")
