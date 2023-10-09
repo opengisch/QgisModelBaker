@@ -53,5 +53,3 @@ jobs:
 
       - name: Build docs
         run: mkdocs gh-deploy --force
-        env:
-          DEFAULT_LANGUAGE_ONLY: false
