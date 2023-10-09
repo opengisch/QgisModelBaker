@@ -157,6 +157,6 @@ Choose your optimization strategy in the checkbox:
 
     Base class layers with same named extensions will be *collected in a group* and base class layers with multiple extensions *as well*. Except if the extension is in the *same model*, then it's will *not* be *grouped* but *renamed*.
 
-    Relations of grouped layers will be *created* but the widgets *not applied* to the form.
+    Relations of grouped layers will be *created* but the widgets are *not applied* to the form.
 
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
