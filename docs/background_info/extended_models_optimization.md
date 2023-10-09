@@ -15,6 +15,7 @@ Since it's impossible to care for all the cases,  we need to make some assumptio
 - Exception for the two cases above: When you extended the class in the ***same model*** but another topic (because if you intent to "replace" it, you would have made it `ABSTRACT`).
 
 ### Conclusion
+
 - Base classes with ***same named*** extensions are ***irrelevant***
 - Base classes with ***multiple extensions*** are ***irrelevant***
 - Except if the extension is in the ***same model***, then it's not **irrelevant** but will be ***renamed***
