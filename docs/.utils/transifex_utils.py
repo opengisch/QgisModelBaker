@@ -30,15 +30,14 @@ def create_transifex_config():
 
             tx_slug = slugify(os.path.splitext(relative_path)[0])
 
-            if tx_slug:
+            if (
+                tx_slug and relative_path.count(".") == 1
+            ):  # if no dots defining language (to filter out the indes.de.md etc.)
                 print(f"Found file with tx_slug defined: {relative_path}, {tx_slug}")
                 f.write(f"[o:{TX_ORGANIZATION}:p:{TX_PROJECT}:r:{tx_slug}]\n")
-                if (
-                    relative_path.count(".") == 1
-                ):  # if no dots defining language (to filter out the indes.de.md etc.)
-                    f.write(
-                        f"file_filter = {os.path.splitext(relative_path)[0]}.<lang>.md\n"
-                    )
+                f.write(
+                    f"file_filter = {os.path.splitext(relative_path)[0]}.<lang>.md\n"
+                )
                 f.write(f"source_file = {relative_path}\n")
                 f.write(f"source_lang = {TX_SOURCE_LANG}\n")
                 f.write(f"type = {TX_TYPE}\n\n")
