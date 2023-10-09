@@ -4,7 +4,7 @@ In the [workflow wizard](../../user_guide/import_workflow/#optimize-qgis-project
 
 But what is done in the backend?
 
-## Backend Sollution
+## Backend solution
 
 ### Assumptions
 
