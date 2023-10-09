@@ -3,4 +3,4 @@ pytest
 pyodbc
 pyyaml
 future
-transifex-client
+python-frontmatter==1.0.0
