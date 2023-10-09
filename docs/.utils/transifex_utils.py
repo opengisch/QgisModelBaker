@@ -1,6 +1,8 @@
 import glob
 import os
 
+from slugify import slugify
+
 TX_ORGANIZATION = "opengisch"
 TX_PROJECT = "qgis-model-baker-docs"
 TX_SOURCE_LANG = "en"
