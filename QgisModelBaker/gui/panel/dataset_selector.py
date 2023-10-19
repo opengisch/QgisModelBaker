@@ -62,17 +62,18 @@ class DatasetSelector(QComboBox):
         )
         if not schema_identificator:
             return
-        layer_model_topic_name = (
+        layer_model_topic_names = (
             QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
         )
 
         # set the filter of the model according the current uri_identificator
-        self.current_schema_topic_identificator = slugify(
-            f"{schema_identificator}_{layer_model_topic_name}"
-        )
+        self.current_schema_topic_identificators = [
+            slugify(f"{schema_identificator}_{name}")
+            for name in layer_model_topic_names.split(",")
+        ]
 
         self.current_default_basket_topic = slugify(
-            f"default_basket{'_' if layer_model_topic_name else ''}{layer_model_topic_name}"
+            f"default_basket{'_' if layer_model_topic_names else ''}{layer_model_topic_names}"
         )
 
         if not self.basket_model.schema_baskets_loaded(schema_identificator):
@@ -98,7 +99,7 @@ class DatasetSelector(QComboBox):
                     pass
 
         self.filtered_model.setFilterRegExp(
-            f"{self.current_schema_topic_identificator}"
+            "|".join(self.current_schema_topic_identificators)
         )
 
         if self.filtered_model.rowCount():
