@@ -208,3 +208,27 @@ MODEL Staedtisches_Gewerbe_V1 (en) AT "https://modelbaker.ch" VERSION "2023-03-2
 
 END Staedtisches_Gewerbe_V1.
 ```
+
+### Basket Handling
+
+In the example models, the class `BesitzerIn` is designed in the topic `Ortsplanung_V1_1.Konstruktionen`. However if you work on an an extended topic (`Staedtische_Ortsplanung_V1_1.Freizeit` or `Staedtische_Ortsplanung_V1_1.Gewerbe`) you have to collect the objects of `BesitzerIn` in the dedicated basket and not in the basket that is an instance of the base-topic.
+
+The [Dastaset Selector](../../background_info/basket_handling/#dataset-selector) provides you all the baskets you need according to the strategy.
+
+#### Baskets of none strategy
+
+On not optimized projects, Model Baker hides nothing for you. You are able to collect data on every inheritance-level and that means ***all topics*** containing this class are provided.
+
+![baskets-all](../assets/extended-models-baskets-all.png)
+
+#### Baskets of hide or group strategy
+
+On optimized projects, you only see the baskets of the ***relevant topics***. Those are the topics that are most extended (not further extensions existing).
+
+The baskets provided for the layer `BesitzerIn` are the following.
+
+![baskets-relevant](../assets/extended-models-baskets-relevant.png)
+
+#### Confusion with the xml element name
+
+Sometimes there is a confusion when in the data file the XML element name of objects divert from the XML element name of the basket. Find [here](../../background_info/basket_handling/#basket-handling-in-extended-topics) the explanation.
