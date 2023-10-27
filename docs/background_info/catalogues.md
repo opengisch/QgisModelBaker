@@ -83,7 +83,7 @@ END CityCatalogues_V1.
 The values are stored in an INTERLIS transfer file (still for catalogues mostly the file extension `.xml` is used instead of `.xtf`).
 ```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
-<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="CityCatalogues_V1" VERSION="2022-06-2" URI="https://signedav.github.io/usabilitydave/models"></MODEL></MODELS></HEADERSECTION>
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="CityCatalogues_V1" VERSION="2022-06-2" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
 <CityCatalogues_V1.Catalogues BID="b1e196b7-7d1a-4512-a5c2-5f36f52ba2cc">
 <CityCatalogues_V1.Catalogues.MaterialItem TID="db473781-7aec-4100-80eb-9b366b05ffe5"><Name>Wood</Name></CityCatalogues_V1.Catalogues.MaterialItem>
@@ -166,7 +166,7 @@ And the data look like this:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
-<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="CityCatalogues_V1" VERSION="2022-06-2" URI="https://signedav.github.io/usabilitydave/models"></MODEL></MODELS></HEADERSECTION>
+<HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="CityCatalogues_V1" VERSION="2022-06-2" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
 <CityCatalogues_V1.Catalogues BID="b1e196b7-7d1a-4512-a5c2-5f36f52ba2cc">
 <CityCatalogues_V1.Catalogues.MaterialItem TID="a29e59ff-ab78-43cd-8a0d-9ab64037c4dd"><IsSuperItem>true</IsSuperItem><IsUseable>false</IsUseable><Name>Concrete</Name></CityCatalogues_V1.Catalogues.MaterialItem>

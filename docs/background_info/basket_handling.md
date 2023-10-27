@@ -17,7 +17,7 @@ Here we have a simple model representing a city with constructions (buildings an
 INTERLIS 2.3;
 
 MODEL City_V1 (en)
-AT "https://signedav.github.io/usabilitydave/models"
+AT "https://modelbaker.ch"
 VERSION "2020-06-22" =
   IMPORTS GeometryCHLV95_V1;
 
@@ -76,7 +76,7 @@ The model defines `BASKET OID` this means it requires stable basket ids and here
 And here are the data from one of the cities (Ul Qoma):
 ```
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
-<HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://signedav.github.io/usabilitydave/models"></MODEL></MODELS></HEADERSECTION>
+<HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
 <City_V1.Constructions BID="7dc3c035-b281-412f-9ba3-c69481054974">
   <City_V1.Constructions.Buildings TID="c7c3e013-b5bb-474d-b7d8-1f8de718e160"><Address><City_V1.Address><Street>Rue des Fleures</Street><Number>1</Number></City_V1.Address></Address><Description>Maison Une</Description><Geometry><SURFACE><BOUNDARY><POLYLINE><COORD><C1>2698886.335</C1><C2>1262452.203</C2></COORD><COORD><C1>2698895.284</C1><C2>1262445.346</C2></COORD><COORD><C1>2698902.726</C1><C2>1262460.945</C2></COORD><COORD><C1>2698895.825</C1><C2>1262467.883</C2></COORD><COORD><C1>2698886.335</C1><C2>1262452.203</C2></COORD></POLYLINE></BOUNDARY></SURFACE></Geometry></City_V1.Constructions.Buildings>
@@ -175,7 +175,7 @@ It looks more interesting when we import the data of "Besźel" as well.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
-<HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://signedav.github.io/usabilitydave/models"></MODEL></MODELS></HEADERSECTION>
+<HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
 <City_V1.Constructions BID="7dc3c035-b281-412f-9ba3-c69481054974">
 <City_V1.Constructions.Buildings TID="c7c3e013-b5bb-474d-b7d8-1f8de718e160"><Address><City_V1.Address><Street>Rue des Fleurs</Street><Number>1</Number></City_V1.Address></Address><Description>Maison Une</Description><Geometry><SURFACE><BOUNDARY><POLYLINE><COORD><C1>2698886.335</C1><C2>1262452.203</C2></COORD><COORD><C1>2698895.284</C1><C2>1262445.346</C2></COORD><COORD><C1>2698902.726</C1><C2>1262460.945</C2></COORD><COORD><C1>2698895.825</C1><C2>1262467.883</C2></COORD><COORD><C1>2698886.335</C1><C2>1262452.203</C2></COORD></POLYLINE></BOUNDARY></SURFACE></Geometry></City_V1.Constructions.Buildings>
@@ -281,15 +281,15 @@ You can have `BASKET OID` defined in the model.
 INTERLIS 2.3;
 
 MODEL Maps_V1 (en)
-AT "https://signedav.github.io/usabilitydave/models"
+AT "https://modelbaker.ch"
 VERSION "2021-12-15"  =
 
   TOPIC Maps =
     BASKET OID AS INTERLIS.UUIDOID;
     OID AS INTERLIS.UUIDOID;
-	CLASS Map =
-	  Map_Name : TEXT;
-	END Map;
+    CLASS Map =
+      Map_Name : TEXT;
+    END Map;
   END Maps;
 
 END Maps_V1.
@@ -327,14 +327,14 @@ You can still use the basket handling without having `BASKET OID` defined the mo
 INTERLIS 2.3;
 
 MODEL Maps_V1 (en)
-AT "https://signedav.github.io/usabilitydave/models"
+AT "https://modelbaker.ch"
 VERSION "2021-12-15"  =
 
   TOPIC Maps =
     OID AS INTERLIS.UUIDOID;
-	CLASS Map =
-	  Map_Name : TEXT;
-	END Map;
+    CLASS Map =
+      Map_Name : TEXT;
+    END Map;
   END Maps;
 
 END Maps_V1.
@@ -366,3 +366,48 @@ But be aware: The `BID`s are not stable.
 </DATASECTION>
 </TRANSFER>
 ```
+
+## Basket data in extended topics
+
+Sometimes there is a confusion when in the data file the XML element name of objects divert from the XML element name of the basket. This comes from inheritances of topics.
+
+### Example
+Having this:
+```
+MODEL Maps_V1 (en) AT "https://modelbaker.ch" VERSION "2021-12-15" =
+  TOPIC Maps =
+    OID AS INTERLIS.UUIDOID;
+    CLASS Map =
+      Map_Name : TEXT;
+    END Map;
+  END Maps;
+
+END Maps_V1.
+```
+and extending the topic and adding a new class:
+```
+MODEL CityMaps_V1 (en) AT "https://modelbaker.ch" VERSION "2021-12-15" =
+  IMPORTS Maps_V1;
+
+  TOPIC CityMaps EXTENDS Maps_V1.Maps =
+    OID AS INTERLIS.UUIDOID;
+    CLASS City =
+      City_Name : TEXT;
+    END City;
+  END CityMaps;
+
+END CityMaps_V1.
+```
+
+You now add objects, one Map-Object and one City-Object. You work - of course - in the basket of the extended topic (provided by the Dataset Selector of the optimized project). And you export the data:
+
+<CityMaps_V1.CityMaps BID="405b6f5c-6cb5-4c0e-b1ab-a4bd30ffe7fe">
+<CityMaps_V1.CityMaps.City TID="1"><City_Name>Ul Qoma</City_Name></CityMaps_V1.CityMaps.City>
+<Maps_V1.Maps.Map TID="2"><Map_Name>Street Map XY</Map_Name></Maps_V1.Maps.Map>
+</CityMaps_V1.CityMaps>
+
+Why do the XML element name divert now?
+
+### Reason
+
+A basket is an instance of a topic. Means a basket can contain objects (instaces of classes) that are allowed according to the topic. These classes can be defined in this topic (of the basket) *or as well* - if the topic of the basked is an extension of a base-topic - in the base-topic. That's why in the transfer file those classes can have different XML element names even when they are in the same basket.
