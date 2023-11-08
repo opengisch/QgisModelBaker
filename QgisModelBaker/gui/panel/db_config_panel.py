@@ -34,7 +34,6 @@ class AbstractQWidgetMeta(ABCMeta, type(QWidget)):
 class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
     """Panel where users fill out connection parameters to database. This is a abstract class.
 
-    :ivar bool interlis_mode: Value that determines whether the config panel is displayed with messages or fields interlis.
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
@@ -49,7 +48,6 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
         """
         QWidget.__init__(self, parent)
         self._db_action_type = db_action_type
-        self.interlis_mode = False
 
     @abstractmethod
     def _show_panel(self):

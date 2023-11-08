@@ -16,6 +16,7 @@
  ***************************************************************************/
 """
 
+import logging
 from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
@@ -36,7 +37,6 @@ WIDGET_UI = gui_utils.get_ui_class("pg_settings_panel.ui")
 class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     """Panel where users fill out connection parameters to Postgres/Postgis database.
 
-    :ivar bool interlis_mode: Value that determines whether the config panel is displayed with messages or fields interlis.
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
@@ -74,16 +74,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li><li>Export data to XTF</li></ul>"
             )
         )
-
-        if (
-            self._db_action_type == DbActionType.GENERATE
-            or self._db_action_type == DbActionType.IMPORT_DATA
-        ):
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
-        elif self._db_action_type == DbActionType.EXPORT:
-            self.pg_schema_line_edit.setPlaceholderText(
-                self.tr("[Enter a valid schema]")
-            )
 
         # define validators
         self.validators = Validators()
@@ -169,13 +159,20 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             Qt.ToolTipRole,
         )
 
+        self._show_panel()
+
     def _show_panel(self):
-        if self.interlis_mode or self._db_action_type == DbActionType.IMPORT_DATA:
+        if (
+            self._db_action_type == DbActionType.GENERATE
+            or self._db_action_type == DbActionType.IMPORT_DATA
+        ):
             self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
-        else:
+        elif self._db_action_type == DbActionType.EXPORT:
             self.pg_schema_line_edit.setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )
+        else:
+            logging.error(f"Unknown action type: {self._db_action_type}")
 
     def get_fields(self, configuration):
 
