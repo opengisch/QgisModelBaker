@@ -122,9 +122,13 @@ Model Baker uses a Relation Editor Widget for it.
 !!! Warning
     When importing the models with `--schemaimport` you should never import the catalogue model `CityCatalogues_V1` first when using BAG OF. The reason is that in this case the table based on the reference structure `MaterialRef` cannot be created with a foreign key to the table based on the class `Building`, because this model is not imported yet. Anyway when importing `City_V1`, `CityCatalogues_V1` is imported properly via dependency by ili2db.
 
+### What baskets do those data belong?
+
+On using baskets like described [here](../../background_info/basket_handling/) confusion may arise as to where in the physical database the data of the `MaterialRef` linking table should be assigned to. Since the  `MaterialRef` is designed in the topic of the Catalogue but the data are not "part" of the catalogue data. Anyway, we should not worry about this. Because a `STRUCTURE` (like`MaterialRef`) cannot exist by its own and is always part of its owner object (what in our case is `Building`), it doesn't matter what is entered in the `t_basket` column. It's anyway exported (and validated) as part of the `Building` object.
+
 ## Using Tree Catalogues
 
-YYou can also find models that use `CatalogueObjectTrees_V1`. This means that the catalog values are stored in a tree structure:
+You can also find models that use `CatalogueObjectTrees_V1`. This means that the catalog values are stored in a tree structure:
 
 ```
 ├── Concrete
