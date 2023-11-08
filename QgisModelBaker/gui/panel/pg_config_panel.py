@@ -19,6 +19,9 @@
 import logging
 from enum import IntEnum
 
+import psycopg2
+import psycopg2.extras
+from psycopg2 import OperationalError
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 
 import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
@@ -81,7 +84,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
-        self.pg_schema_line_edit.setValidator(nonEmptyValidator)
+        self.pg_schema_combo_box.setValidator(nonEmptyValidator)
+
+        self.pg_schema_combo_box.setEditable(True)
 
         self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
@@ -89,15 +94,14 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.validators.validate_line_edits
         )
         self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
-        self.pg_schema_line_edit.textChanged.connect(
+        self.pg_schema_combo_box.lineEdit().textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.pg_schema_line_edit.textChanged.emit(self.pg_host_line_edit.text())
 
         self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
         self.pg_database_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.pg_schema_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_schema_combo_box.currentTextChanged.connect(self.notify_fields_modified)
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
@@ -162,13 +166,16 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self._show_panel()
 
     def _show_panel(self):
+
+        self._fill_schema_combo_box()
+
         if (
             self._db_action_type == DbActionType.GENERATE
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
-            self.pg_schema_line_edit.setPlaceholderText(self.tr("Schema Name"))
+            self.pg_schema_combo_box.setPlaceholderText(self.tr("Schema Name"))
         elif self._db_action_type == DbActionType.EXPORT:
-            self.pg_schema_line_edit.setPlaceholderText(
+            self.pg_schema_combo_box.setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )
         else:
@@ -181,7 +188,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.dbport = self.pg_port_line_edit.text().strip()
         configuration.dbusr = self.pg_auth_settings.username()
         configuration.database = self.pg_database_line_edit.text().strip()
-        configuration.dbschema = self.pg_schema_line_edit.text().strip().lower()
+        configuration.dbschema = self.pg_schema_combo_box.currentText().strip().lower()
         configuration.dbpwd = self.pg_auth_settings.password()
         configuration.dbauthid = self.pg_auth_settings.configId()
 
@@ -241,7 +248,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_port_line_edit.setText(configuration.dbport)
         self.pg_auth_settings.setUsername(configuration.dbusr)
         self.pg_database_line_edit.setText(configuration.database)
-        self.pg_schema_line_edit.setText(configuration.dbschema)
+        self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
         self.pg_auth_settings.setPassword(configuration.dbpwd)
         self.pg_auth_settings.setConfigId(configuration.dbauthid)
 
@@ -300,7 +307,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_port_line_edit.setText(service_config.get("port", ""))
             self.pg_auth_settings.setUsername(service_config.get("user", ""))
             self.pg_database_line_edit.setText(service_config.get("dbname", ""))
-            self.pg_schema_line_edit.setText("")
+            self.pg_schema_combo_box.setText("")
             self.pg_auth_settings.setPassword(service_config.get("password", ""))
             self.pg_auth_settings.setConfigId("")
 
@@ -333,7 +340,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                     index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE
                 )
             )
-            self.pg_schema_line_edit.setText(
+            self.pg_schema_combo_box.setText(
                 self.pg_service_combo_box.itemData(
                     index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA
                 )
@@ -422,7 +429,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
         self.pg_service_combo_box.setItemData(
             index,
-            self.pg_schema_line_edit.text().strip().lower(),
+            self.pg_schema_combo_box.text().strip().lower(),
             PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
         )
         self.pg_service_combo_box.setItemData(
@@ -440,3 +447,46 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_ssl_mode_combo_box.currentData(),
             PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
         )
+
+    def _fill_schema_combo_box(self):
+        connection = None
+        try:
+            connection = psycopg2.connect(
+                dbname=self.pg_database_line_edit.text(),
+                user=self.pg_auth_settings.username(),
+                password=self.pg_auth_settings.password(),
+                host=self.pg_host_line_edit.text(),
+                port=self.pg_port_line_edit.text(),
+            )
+
+        except OperationalError as exception:
+            logging.warning(f"Pg connection error: {exception}")
+            return
+
+        sql = """SELECT schema_name
+        FROM information_schema.schemata; """
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+
+        schemas = cursor.fetchall()
+        print(schemas)
+
+        AUTO_ADDED_SCHEMA = "auto_added_schema"
+
+        currentText = self.pg_schema_combo_box.currentText()
+
+        # Remove all items that were not added by the user
+        index_to_remove = self.pg_schema_combo_box.findData(AUTO_ADDED_SCHEMA)
+        while index_to_remove > -1:
+            self.pg_schema_combo_box.removeItem(index_to_remove)
+            index_to_remove = self.pg_schema_combo_box.findData(AUTO_ADDED_SCHEMA)
+
+        for schema in schemas:
+            self.pg_schema_combo_box.addItem(schema[0], AUTO_ADDED_SCHEMA)
+
+        currentTextIndex = self.pg_schema_combo_box.findText(currentText)
+        if currentTextIndex > -1:
+            self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
+
+        connection.close()
