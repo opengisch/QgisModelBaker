@@ -15,6 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
+
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QValidator
 
@@ -35,7 +37,6 @@ WIDGET_UI = gui_utils.get_ui_class("gpkg_settings_panel.ui")
 class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
     """Panel where users fill out connection parameters to Geopackage database.
 
-    :ivar bool interlis_mode: Value that determines whether the config panel is displayed with messages or fields interlis.
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
@@ -65,7 +66,10 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def _show_panel(self):
-        if self.interlis_mode or self._db_action_type == DbActionType.IMPORT_DATA:
+        if (
+            self._db_action_type == DbActionType.GENERATE
+            or self._db_action_type == DbActionType.IMPORT_DATA
+        ):
             validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(
                 self.gpkg_file_line_edit,
@@ -74,17 +78,22 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
                 extensions=["." + ext for ext in self.ValidExtensions],
                 dont_confirm_overwrite=True,
             )
-        else:
+        elif self._db_action_type == DbActionType.EXPORT:
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(
                 self.gpkg_file_line_edit,
                 title=self.tr("Open GeoPackage database file"),
                 file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"),
             )
+        else:
+            logging.error(f"Unknown action type: {self._db_action_type}")
+
         try:
             self.gpkg_file_browse_button.clicked.disconnect()
-        except:
-            pass
+        except Exception as exception:
+            logging.error(
+                f"Can't disconnect gpkg_file_browse_button signal: {exception}"
+            )
 
         self.gpkg_file_line_edit.setValidator(validator)
         self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())

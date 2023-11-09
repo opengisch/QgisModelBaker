@@ -15,6 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import logging
+
 from qgis.PyQt.QtCore import pyqtSignal
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
@@ -73,19 +75,20 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_password_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def _show_panel(self):
-        if self.interlis_mode:
+        if self._db_action_type == DbActionType.GENERATE:
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]")
             )
+        elif self._db_action_type == DbActionType.IMPORT_DATA:
+            self.mssql_schema_line_edit.setPlaceholderText(
+                self.tr("[Leave empty to import data into a default schema]")
+            )
+        elif self._db_action_type == DbActionType.EXPORT:
+            self.mssql_schema_line_edit.setPlaceholderText(
+                self.tr("[Enter a valid schema]")
+            )
         else:
-            if self._db_action_type == DbActionType.IMPORT_DATA:
-                self.mssql_schema_line_edit.setPlaceholderText(
-                    self.tr("[Leave empty to import data into a default schema]")
-                )
-            else:
-                self.mssql_schema_line_edit.setPlaceholderText(
-                    self.tr("[Enter a valid schema]")
-                )
+            logging.error(f"Unknown action type: {self._db_action_type}")
 
     def get_fields(self, configuration):
         configuration.dbhost = self.mssql_host_line_edit.text().strip()
