@@ -470,7 +470,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         cursor.execute(sql)
 
         schemas = cursor.fetchall()
-        print(schemas)
 
         AUTO_ADDED_SCHEMA = "auto_added_schema"
 
