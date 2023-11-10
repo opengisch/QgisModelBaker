@@ -179,9 +179,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self._db_action_type == DbActionType.GENERATE
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
-            self.pg_schema_combo_box.setPlaceholderText(self.tr("Schema Name"))
+            self.pg_schema_combo_box.lineEdit().setPlaceholderText(
+                self.tr("Schema Name")
+            )
         elif self._db_action_type == DbActionType.EXPORT:
-            self.pg_schema_combo_box.setPlaceholderText(
+            self.pg_schema_combo_box.lineEdit().setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )
         else:
