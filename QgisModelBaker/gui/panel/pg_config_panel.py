@@ -19,12 +19,14 @@
 import logging
 from enum import IntEnum
 
-import psycopg2
-import psycopg2.extras
-from psycopg2 import OperationalError
-from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtCore import Qt, QTimer
 
 import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     NonEmptyStringValidator,
@@ -55,13 +57,17 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         DBAUTHID = Qt.UserRole + 7
         SSLMODE = Qt.UserRole + 8
 
-    notify_fields_modified = pyqtSignal(str)
+    REFRESH_SCHEMAS_TIMEOUT_MS = 500
 
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
 
         self._current_service = None
+
+        self._fill_schema_combo_box_timer = QTimer()
+        self._fill_schema_combo_box_timer.setSingleShot(True)
+        self._fill_schema_combo_box_timer.timeout.connect(self._fill_schema_combo_box)
 
         from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
             BaseConfiguration,
@@ -98,9 +104,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.validators.validate_line_edits
         )
 
-        self.pg_host_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.pg_port_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.pg_database_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.pg_host_line_edit.textChanged.connect(self._fields_modified)
+        self.pg_port_line_edit.textChanged.connect(self._fields_modified)
+        self.pg_database_line_edit.textChanged.connect(self._fields_modified)
         self.pg_schema_combo_box.currentTextChanged.connect(self.notify_fields_modified)
 
         # Fill pg_services combo box
@@ -307,7 +313,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_port_line_edit.setText(service_config.get("port", ""))
             self.pg_auth_settings.setUsername(service_config.get("user", ""))
             self.pg_database_line_edit.setText(service_config.get("dbname", ""))
-            self.pg_schema_combo_box.setText("")
+            self.pg_schema_combo_box.setCurrentText("")
             self.pg_auth_settings.setPassword(service_config.get("password", ""))
             self.pg_auth_settings.setConfigId("")
 
@@ -402,6 +408,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             == self.pg_ssl_mode_combo_box.findData(None)
         )
 
+        logging.info("_pg_service_combo_box_changed")
+        self._fields_modified()
+
     def _keep_custom_settings(self):
 
         index = self.pg_service_combo_box.findData(
@@ -429,7 +438,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
         self.pg_service_combo_box.setItemData(
             index,
-            self.pg_schema_combo_box.text().strip().lower(),
+            self.pg_schema_combo_box.currentText().strip().lower(),
             PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA,
         )
         self.pg_service_combo_box.setItemData(
@@ -448,28 +457,28 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
         )
 
-    def _fill_schema_combo_box(self):
-        connection = None
-        try:
-            connection = psycopg2.connect(
-                dbname=self.pg_database_line_edit.text(),
-                user=self.pg_auth_settings.username(),
-                password=self.pg_auth_settings.password(),
-                host=self.pg_host_line_edit.text(),
-                port=self.pg_port_line_edit.text(),
-            )
+    def _fields_modified(self):
 
-        except OperationalError as exception:
-            logging.warning(f"Pg connection error: {exception}")
+        self._fill_schema_combo_box_timer.start(self.REFRESH_SCHEMAS_TIMEOUT_MS)
+
+        self.notify_fields_modified.emit()
+
+    def _fill_schema_combo_box(self):
+
+        configuration = Ili2DbCommandConfiguration()
+
+        mode = DbIliMode.pg
+        self.get_fields(configuration)
+
+        configuration.tool = mode
+        configuration.db_ili_version = db_utils.db_ili_version(configuration)
+
+        db_connector = db_utils.get_db_connector(configuration)
+        if not db_connector:
+            logging.warning("Refresh schema list connection error")
             return
 
-        sql = """SELECT schema_name
-        FROM information_schema.schemata; """
-
-        cursor = connection.cursor()
-        cursor.execute(sql)
-
-        schemas = cursor.fetchall()
+        schemas = db_connector.get_schemas()
 
         AUTO_ADDED_SCHEMA = "auto_added_schema"
 
@@ -482,10 +491,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             index_to_remove = self.pg_schema_combo_box.findData(AUTO_ADDED_SCHEMA)
 
         for schema in schemas:
-            self.pg_schema_combo_box.addItem(schema[0], AUTO_ADDED_SCHEMA)
+            self.pg_schema_combo_box.addItem(schema, AUTO_ADDED_SCHEMA)
 
         currentTextIndex = self.pg_schema_combo_box.findText(currentText)
         if currentTextIndex > -1:
             self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
-
-        connection.close()
