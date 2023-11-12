@@ -85,6 +85,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 mgmt_uri=mgmt_uri,
                 consider_basket_handling=True,
                 optimize_strategy=self.optimize_combo.currentData(),
+                expose_t_ili_tid=self.expose_t_ili_tid_checkbox.isChecked(),
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
