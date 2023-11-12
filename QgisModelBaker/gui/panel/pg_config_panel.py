@@ -410,7 +410,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             == self.pg_ssl_mode_combo_box.findData(None)
         )
 
-        logging.info("_pg_service_combo_box_changed")
         self._fields_modified()
 
     def _keep_custom_settings(self):
