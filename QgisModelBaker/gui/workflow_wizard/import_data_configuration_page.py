@@ -272,6 +272,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     int(gui_utils.SourceModel.Roles.DELETE_DATA),
                 )
 
+            # needs to be fixed
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.DELETE_DATA,
                 CheckDelegate(self, role=gui_utils.SourceModel.Roles.DELETE_DATA),
