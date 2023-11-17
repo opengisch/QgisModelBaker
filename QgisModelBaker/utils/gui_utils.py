@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 from qgis.PyQt.QtCore import (
     QEvent,
     QModelIndex,
+    QRect,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
@@ -1134,6 +1135,19 @@ class CheckDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         opt = QStyleOptionButton()
         opt.rect = option.rect
+        center_x = opt.rect.x() + opt.rect.width() / 2
+        center_y = opt.rect.y() + opt.rect.height() / 2
+
+        checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
+        checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
+        checkbox_rect = QRect(
+            int(center_x - checkbox_width / 2),
+            int(center_y - checkbox_height / 2),
+            checkbox_width,
+            checkbox_height,
+        )
+        opt.rect = checkbox_rect
+
         value = index.data(int(self.role)) or False
         opt.state |= QStyle.State_On if value else QStyle.State_Off
         QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
