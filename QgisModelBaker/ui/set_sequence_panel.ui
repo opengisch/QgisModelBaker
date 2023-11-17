@@ -6,26 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>674</width>
-    <height>43</height>
+    <width>744</width>
+    <height>88</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="sequence_label">
-     <property name="text">
-      <string>T_Id (Sequence) Value</string>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="sequence_group">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;With this option you reset the technical sequence id on the database. &lt;/p&gt;&lt;p&gt;Do it only when you know what you are about to do.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QSpinBox" name="sequence_value_edit">
-     <property name="maximum">
-      <number>2147483647</number>
+     <property name="title">
+      <string>Reset the technical sequence used as t_id value</string>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="sequence_label">
+        <property name="text">
+         <string>T_Id (Sequence) Value</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="sequence_value_edit">
+        <property name="maximum">
+         <number>2147483647</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

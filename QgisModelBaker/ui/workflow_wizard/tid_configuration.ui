@@ -14,7 +14,7 @@
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0" colspan="3">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
       <size>
@@ -39,13 +39,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="set_sequence_layout"/>
+   <item row="1" column="0" colspan="3">
+    <layout class="QVBoxLayout" name="tid_configurator_layout"/>
    </item>
-   <item row="1" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="tid_config_layout"/>
-   </item>
-   <item row="9" column="0">
+   <item row="2" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -58,7 +55,14 @@
      </property>
     </spacer>
    </item>
-   <item row="11" column="0">
+   <item row="3" column="0" colspan="3">
+    <widget class="QProgressBar" name="progress_bar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -71,37 +75,10 @@
      </property>
     </spacer>
    </item>
-   <item row="11" column="1">
-    <widget class="QCommandLinkButton" name="set_tid_config_and_sequence_button">
+   <item row="4" column="2">
+    <widget class="QCommandLinkButton" name="set_layer_tids_and_sequence_button">
      <property name="text">
       <string>Set configuration</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QProgressBar" name="progress_bar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="5" column="1">
-    <widget class="QPushButton" name="reset_tid_config_button">
-     <property name="text">
-      <string>Reset Values</string>
      </property>
     </widget>
    </item>

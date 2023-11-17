@@ -28,7 +28,7 @@ import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.utils.qgis_utils import QgisProjectUtils
 from QgisModelBaker.utils.gui_utils import CheckDelegate
 
-WIDGET_UI = gui_utils.get_ui_class("tid_config_panel.ui")
+WIDGET_UI = gui_utils.get_ui_class("layer_tids_panel.ui")
 
 
 class TIDModel(QAbstractTableModel):
@@ -129,28 +129,28 @@ class TIDModel(QAbstractTableModel):
             QgisProjectUtils(qgis_project).set_oid_settings(self.oid_settings)
 
 
-class TIDConfigPanel(QWidget, WIDGET_UI):
+class LayerTIDsPanel(QWidget, WIDGET_UI):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.parent = parent
         self.tid_model = TIDModel()
-        self.tid_config_view.setModel(self.tid_model)
+        self.layer_tids_view.setModel(self.tid_model)
 
-        self.tid_config_view.horizontalHeader().setSectionResizeMode(
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.NAME, QHeaderView.Stretch
         )
-        self.tid_config_view.horizontalHeader().setSectionResizeMode(
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.OID_DOMAIN, QHeaderView.ResizeToContents
         )
-        self.tid_config_view.horizontalHeader().setSectionResizeMode(
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.DEFAULT_VALUE, QHeaderView.ResizeToContents
         )
-        self.tid_config_view.horizontalHeader().setSectionResizeMode(
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.IN_FORM, QHeaderView.ResizeToContents
         )
 
-        self.tid_config_view.setItemDelegateForColumn(
+        self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.IN_FORM,
             CheckDelegate(self, Qt.EditRole),
         )

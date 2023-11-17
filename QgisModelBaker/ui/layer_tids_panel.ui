@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>tid_config_layout</class>
- <widget class="QDialog" name="tid_config_layout">
+ <class>layer_tids_layout</class>
+ <widget class="QDialog" name="layer_tids_layout">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
-    <widget class="QTableView" name="tid_config_view">
+    <widget class="QTableView" name="layer_tids_view">
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
