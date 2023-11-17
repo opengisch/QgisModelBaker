@@ -379,6 +379,12 @@ class WorkflowWizard(QWizard):
                 self.import_schema_configuration
             )
 
+        if self.current_id == PageIds.TIDConfiguration:
+            self.tid_configuration_page.set_configuration(
+                self.import_schema_configuration
+            )
+            self.tid_configuration_page.setup_dialog()
+
         if self.current_id == PageIds.ImportDataConfiguration:
             self.data_configuration_page.setup_dialog(
                 self._basket_handling(self.import_data_configuration)

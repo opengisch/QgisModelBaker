@@ -30,8 +30,11 @@ class SetSequencePanel(QWidget, WIDGET_UI):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def _load_sequence(self):
-        pass
+    def load_sequence(self, db_connector=None):
+        if db_connector:
+            sequence_value = db_connector.get_ili2db_sequence_value()
+            self.sequence_value_edit.setValue(sequence_value)
 
-    def _save_sequence(self):
-        pass
+    def save_sequence(self, db_connector=None):
+        if db_connector:
+            db_connector.set_ili2db_sequence_value(self.sequence_value_edit.value())

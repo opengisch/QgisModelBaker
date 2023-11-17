@@ -117,6 +117,7 @@ class TIDModel(QAbstractTableModel):
                 key = list(self.oid_settings.keys())[index.row()]
                 self.oid_settings[key]["in_form"] = data
                 self.dataChanged.emit(index, index)
+        return True
 
     def load_tid_config(self, qgis_project=None):
         self.beginResetModel()
@@ -125,17 +126,14 @@ class TIDModel(QAbstractTableModel):
 
     def save_tid_config(self, qgis_project=None):
         if qgis_project:
-            QgisProjectUtils(qgis_project.set_oid_settings(self.oid_settings))
+            QgisProjectUtils(qgis_project).set_oid_settings(self.oid_settings)
 
 
 class TIDConfigPanel(QWidget, WIDGET_UI):
-    def __init__(self, qgis_project, parent=None):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.parent = parent
-        self.qgis_project = (
-            QgsProject.instance()
-        )  # test after that it should be passed with qgis_project
         self.tid_model = TIDModel()
         self.tid_config_view.setModel(self.tid_model)
 
@@ -152,16 +150,13 @@ class TIDConfigPanel(QWidget, WIDGET_UI):
             TIDModel.Columns.IN_FORM, QHeaderView.ResizeToContents
         )
 
-        # load data
-        self._load_tid_config()
-
         self.tid_config_view.setItemDelegateForColumn(
             TIDModel.Columns.IN_FORM,
             CheckDelegate(self, Qt.EditRole),
         )
 
-    def _load_tid_config(self):
-        self.tid_model.load_tid_config(self.qgis_project)
+    def load_tid_config(self, qgis_project=QgsProject.instance()):
+        self.tid_model.load_tid_config(qgis_project)
 
-    def _save_tid_config(self):
-        self.tid_model.save_tid_config(self.qgis_project)
+    def save_tid_config(self, qgis_project=QgsProject.instance()):
+        self.tid_model.save_tid_config(qgis_project)
