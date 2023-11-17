@@ -693,6 +693,7 @@ class ImportModelsModel(SourceModel):
             ]
         return SourceModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
@@ -838,11 +839,12 @@ class CheckEntriesModel(QStringListModel):
         else:
             return QStringListModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self._checked_entries[self.data(index, Qt.DisplayRole)] = data
         else:
-            QStringListModel.setData(self, index, role, data)
+            QStringListModel.setData(self, index, data, role)
 
     def check(self, index):
         if self.data(index, Qt.CheckStateRole) == Qt.Checked:
@@ -909,6 +911,7 @@ class SchemaModelsModel(CheckEntriesModel):
         else:
             return CheckEntriesModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
             self._parent_models[self.data(index, Qt.DisplayRole)] = data
@@ -1126,7 +1129,7 @@ class CheckDelegate(QStyledItemDelegate):
         self.role = role
 
     def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonRelease:
+        if event.type() == QEvent.MouseButtonPress:
             value = index.data(int(self.role)) or False
             model.setData(index, not value, int(self.role))
             return True
