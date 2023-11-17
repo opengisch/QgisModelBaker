@@ -24,6 +24,7 @@ from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
+    QAbstractItemView,
     QComboBox,
     QCompleter,
     QHeaderView,
@@ -151,6 +152,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             gui_utils.SourceModel.Columns.DATASET, QHeaderView.ResizeToContents
         )
 
+        self.file_table_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
         self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)

@@ -23,7 +23,12 @@ from enum import IntEnum
 from qgis.core import QgsProject
 from qgis.gui import QgsFieldExpressionWidget
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
-from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QWidget
+from qgis.PyQt.QtWidgets import (
+    QAbstractItemView,
+    QHeaderView,
+    QStyledItemDelegate,
+    QWidget,
+)
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.utils.qgis_utils import QgisProjectUtils
@@ -180,6 +185,7 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
             TIDModel.Columns.DEFAULT_VALUE,
             FieldExpressionDelegate(self),
         )
+        self.layer_tids_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 
     def load_tid_config(self, qgis_project=QgsProject.instance()):
         self.tid_model.load_tid_config(qgis_project)
