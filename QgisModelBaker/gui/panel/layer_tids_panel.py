@@ -21,8 +21,9 @@
 from enum import IntEnum
 
 from qgis.core import QgsProject
+from qgis.gui import QgsFieldExpressionWidget
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
-from qgis.PyQt.QtWidgets import QHeaderView, QWidget
+from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QWidget
 
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.utils.qgis_utils import QgisProjectUtils
@@ -129,6 +130,27 @@ class TIDModel(QAbstractTableModel):
             QgisProjectUtils(qgis_project).set_oid_settings(self.oid_settings)
 
 
+class FieldExpressionDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.editor = None
+
+    def createEditor(self, parent, option, index):
+        self.editor = QgsFieldExpressionWidget(parent)
+        return self.editor
+
+    def setEditorData(self, editor, index):
+        value = index.data(int(Qt.DisplayRole))
+        self.editor.setExpression(value)
+
+    def setModelData(self, editor, model, index):
+        value = editor.expression()
+        model.setData(index, value, int(Qt.EditRole))
+
+    def updateEditorGeometry(self, editor, option, index):
+        self.editor.setGeometry(option.rect)
+
+
 class LayerTIDsPanel(QWidget, WIDGET_UI):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -153,6 +175,10 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.IN_FORM,
             CheckDelegate(self, Qt.EditRole),
+        )
+        self.layer_tids_view.setItemDelegateForColumn(
+            TIDModel.Columns.DEFAULT_VALUE,
+            FieldExpressionDelegate(self),
         )
 
     def load_tid_config(self, qgis_project=QgsProject.instance()):
