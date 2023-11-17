@@ -44,6 +44,9 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
 from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
+from QgisModelBaker.gui.workflow_wizard.tid_configuration_page import (
+    TIDConfigurationPage,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ExportConfiguration,
     ImportDataConfiguration,
@@ -161,6 +164,9 @@ class WorkflowWizard(QWizard):
         self.project_creation_page = ProjectCreationPage(
             self, self._current_page_title(PageIds.ProjectCreation)
         )
+        self.tid_configuration_page = TIDConfigurationPage(
+            self, self._current_page_title(PageIds.TIDConfiguration)
+        )
         self.generate_database_selection_page = DatabaseSelectionPage(
             self,
             self._current_page_title(PageIds.GenerateDatabaseSelection),
@@ -189,6 +195,7 @@ class WorkflowWizard(QWizard):
         self.setPage(PageIds.ImportDataConfiguration, self.data_configuration_page)
         self.setPage(PageIds.ImportDataExecution, self.import_data_execution_page)
         self.setPage(PageIds.ProjectCreation, self.project_creation_page)
+        self.setPage(PageIds.TIDConfiguration, self.tid_configuration_page)
         self.setPage(
             PageIds.GenerateDatabaseSelection, self.generate_database_selection_page
         )
@@ -315,6 +322,9 @@ class WorkflowWizard(QWizard):
 
             if self.current_id == PageIds.ExportDataConfiguration:
                 return PageIds.ExportDataExecution
+
+            if self.current_id == PageIds.ProjectCreation:
+                return PageIds.TIDConfiguration
 
         return self.current_id
 
@@ -453,6 +463,8 @@ class WorkflowWizard(QWizard):
             return self.tr("Data Export Sessions")
         elif id == PageIds.ProjectCreation:
             return self.tr("Generate a QGIS Project")
+        elif id == PageIds.TIDConfiguration:
+            return self.tr("Configure OID Generation")
         else:
             return self.tr("Model Baker - Workflow Wizard")
 
