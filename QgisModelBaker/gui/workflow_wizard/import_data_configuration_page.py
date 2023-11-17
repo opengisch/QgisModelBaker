@@ -21,7 +21,7 @@ import os
 
 from PyQt5.QtWidgets import QApplication
 from qgis.core import QgsApplication
-from qgis.PyQt.QtCore import QEvent, Qt
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (
     QComboBox,
@@ -29,7 +29,6 @@ from qgis.PyQt.QtWidgets import (
     QHeaderView,
     QStyle,
     QStyledItemDelegate,
-    QStyleOptionButton,
     QStyleOptionComboBox,
     QWizardPage,
 )
@@ -42,7 +41,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     MetaConfigCompleterDelegate,
 )
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import CheckDelegate, LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
@@ -88,27 +87,6 @@ class DatasetComboDelegate(QStyledItemDelegate):
         value = index.data(int(Qt.DisplayRole))
         opt.currentText = value
         QApplication.style().drawControl(QStyle.CE_ComboBoxLabel, opt, painter)
-
-
-class CatalogueCheckDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-    def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonRelease:
-            value = index.data(int(gui_utils.SourceModel.Roles.IS_CATALOGUE)) or False
-            model.setData(
-                index, not value, int(gui_utils.SourceModel.Roles.IS_CATALOGUE)
-            )
-            return True
-        return super().editorEvent(event, model, option, index)
-
-    def paint(self, painter, option, index):
-        opt = QStyleOptionButton()
-        opt.rect = option.rect
-        value = index.data(int(gui_utils.SourceModel.Roles.IS_CATALOGUE)) or False
-        opt.state |= QStyle.State_On if value else QStyle.State_Off
-        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
 
 
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
@@ -269,7 +247,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.IS_CATALOGUE,
-                CatalogueCheckDelegate(self),
+                CheckDelegate(self, gui_utils.SourceModel.Roles.IS_CATALOGUE),
             )
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.DATASET,
