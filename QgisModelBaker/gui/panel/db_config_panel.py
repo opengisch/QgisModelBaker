@@ -38,7 +38,7 @@ class DbConfigPanel(QWidget, metaclass=AbstractQWidgetMeta):
     :type notify_field_modified: pyqtSignal(str)
     """
 
-    notify_fields_modified = pyqtSignal(str)
+    notify_fields_modified = pyqtSignal()
 
     def __init__(self, parent: QWidget, db_action_type: DbActionType):
         """

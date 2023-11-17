@@ -69,13 +69,6 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="pg_schema_line_edit">
-     <property name="placeholderText">
-      <string/>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
     <widget class="QLineEdit" name="pg_host_line_edit">
      <property name="text">
@@ -110,6 +103,9 @@
      </property>
     </widget>
    </item>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="pg_schema_combo_box"/>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -124,7 +120,7 @@
   <tabstop>pg_host_line_edit</tabstop>
   <tabstop>pg_port_line_edit</tabstop>
   <tabstop>pg_database_line_edit</tabstop>
-  <tabstop>pg_schema_line_edit</tabstop>
+  <tabstop>pg_schema_combo_box</tabstop>
   <tabstop>pg_use_super_login</tabstop>
  </tabstops>
  <resources/>

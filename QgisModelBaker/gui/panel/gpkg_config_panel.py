@@ -17,7 +17,6 @@
 """
 import logging
 
-from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtGui import QValidator
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
@@ -40,8 +39,6 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
     :cvar notify_fields_modified: Signal that is called when any field is modified.
     :type notify_field_modified: pyqtSignal(str)
     """
-
-    notify_fields_modified = pyqtSignal(str)
 
     ValidExtensions = ["gpkg", "GPKG"]
 

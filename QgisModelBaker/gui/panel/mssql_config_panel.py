@@ -17,8 +17,6 @@
 """
 import logging
 
-from qgis.PyQt.QtCore import pyqtSignal
-
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     NonEmptyStringValidator,
@@ -33,9 +31,6 @@ WIDGET_UI = gui_utils.get_ui_class("mssql_settings_panel.ui")
 
 
 class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
-
-    notify_fields_modified = pyqtSignal(str)
-
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
