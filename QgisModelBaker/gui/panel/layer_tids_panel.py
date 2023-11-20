@@ -18,11 +18,12 @@
 """
 
 
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 from qgis.core import QgsProject
 from qgis.gui import QgsFieldExpressionWidget
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
+from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import (
     QAbstractItemView,
     QHeaderView,
@@ -53,6 +54,12 @@ class TIDModel(QAbstractTableModel):
             [...]
         }
     """
+
+    class Roles(Enum):
+        LAYER = Qt.UserRole + 1
+
+        def __int__(self):
+            return self.value
 
     class Columns(IntEnum):
         NAME = 0
@@ -111,6 +118,9 @@ class TIDModel(QAbstractTableModel):
                 return self.oid_settings[key]["default_value_expression"]
             if index.column() == TIDModel.Columns.IN_FORM:
                 return self.oid_settings[key]["in_form"]
+        elif role == int(TIDModel.Roles.LAYER):
+            key = list(self.oid_settings.keys())[index.row()]
+            return self.oid_settings[key]["layer"]
         return None
 
     def setData(self, index, data, role):
@@ -138,10 +148,13 @@ class TIDModel(QAbstractTableModel):
 class FieldExpressionDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
         self.editor = None
 
     def createEditor(self, parent, option, index):
         self.editor = QgsFieldExpressionWidget(parent)
+        layer = index.data(int(TIDModel.Roles.LAYER))
+        self.editor.setLayer(layer)
         return self.editor
 
     def setEditorData(self, editor, index):
@@ -154,6 +167,17 @@ class FieldExpressionDelegate(QStyledItemDelegate):
 
     def updateEditorGeometry(self, editor, option, index):
         self.editor.setGeometry(option.rect)
+
+    def paint(self, painter, option, index):
+        opt = self.createEditor(self.parent, option, index)
+        opt.editable = False
+        value = index.data(int(Qt.DisplayRole))
+        opt.setExpression(value)
+        opt.resize(option.rect.width(), option.rect.height())
+        pixmap = QPixmap(opt.width(), opt.height())
+        opt.render(pixmap)
+        painter.drawPixmap(option.rect, pixmap)
+        painter.restore()
 
 
 class LayerTIDsPanel(QWidget, WIDGET_UI):
@@ -186,6 +210,9 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
             FieldExpressionDelegate(self),
         )
         self.layer_tids_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
+
+        # for row in range(0,self.tid_model.rowCount(QModelIndex())):
+        #    self.layer_tids_view.openPersistentEditor(self.tid_model.index(row, TIDModel.Columns.DEFAULT_VALUE))
 
     def load_tid_config(self, qgis_project=QgsProject.instance()):
         self.tid_model.load_tid_config(qgis_project)

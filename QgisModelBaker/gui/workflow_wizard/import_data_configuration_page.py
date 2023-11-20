@@ -19,18 +19,15 @@
 
 import os
 
-from PyQt5.QtWidgets import QApplication
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import (
     QAbstractItemView,
     QComboBox,
     QCompleter,
     QHeaderView,
-    QStyle,
     QStyledItemDelegate,
-    QStyleOptionComboBox,
     QWizardPage,
 )
 
@@ -50,6 +47,7 @@ PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
 class DatasetComboDelegate(QStyledItemDelegate):
     def __init__(self, parent, db_connector):
         super().__init__(parent)
+        self.parent = parent
         self.refresh_datasets(db_connector)
 
     def refresh_datasets(self, db_connector):
@@ -79,15 +77,16 @@ class DatasetComboDelegate(QStyledItemDelegate):
         editor.setGeometry(option.rect)
 
     def paint(self, painter, option, index):
-        """
-        Here it paints only the lable without a StyleItem for the ComboBox, because to edit it needs multiple clicks and the behavior gets confusing.
-        """
-        opt = QStyleOptionComboBox()
+        opt = self.createEditor(self.parent, option, index)
         opt.editable = False
-        opt.rect = option.rect
-        value = index.data(int(Qt.DisplayRole))
-        opt.currentText = value
-        QApplication.style().drawControl(QStyle.CE_ComboBoxLabel, opt, painter)
+        value = index.data(int(gui_utils.SourceModel.Roles.DATASET_NAME))
+        num = self.items.index(value) if value in self.items else 0
+        opt.setCurrentIndex(num)
+        opt.resize(option.rect.width(), option.rect.height())
+        pixmap = QPixmap(opt.width(), opt.height())
+        opt.render(pixmap)
+        painter.drawPixmap(option.rect, pixmap)
+        painter.restore()
 
 
 class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
