@@ -19,7 +19,6 @@
 from qgis.core import QgsMapLayer, QgsProject
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
-import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
 
@@ -43,10 +42,6 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
         self.buttonBox.rejected.connect(self._rejected)
 
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
-
-        self.configuration = configuration
-        db_connector = db_utils.get_db_connector(self.configuration)
-        self.tid_configurator_panel.setup_dialog(db_connector, QgsProject.instance())
 
         self.tid_configurator_panel.setup_dialog(QgsProject.instance())
 

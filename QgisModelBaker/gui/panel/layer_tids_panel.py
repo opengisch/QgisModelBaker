@@ -163,6 +163,7 @@ class FieldExpressionDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         value = editor.expression()
+        print(f"new exp{value}")
         model.setData(index, value, int(Qt.EditRole))
 
     def updateEditorGeometry(self, editor, option, index):
@@ -211,11 +212,11 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         )
         self.layer_tids_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 
-        # for row in range(0,self.tid_model.rowCount(QModelIndex())):
-        #    self.layer_tids_view.openPersistentEditor(self.tid_model.index(row, TIDModel.Columns.DEFAULT_VALUE))
-
     def load_tid_config(self, qgis_project=QgsProject.instance()):
         self.tid_model.load_tid_config(qgis_project)
 
     def save_tid_config(self, qgis_project=QgsProject.instance()):
+        # if a cell is still edited, we need to store it in model by force
+        index = self.layer_tids_view.currentIndex()
+        self.layer_tids_view.currentChanged(index, index)
         self.tid_model.save_tid_config(qgis_project)
