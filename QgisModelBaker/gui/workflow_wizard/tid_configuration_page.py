@@ -51,18 +51,22 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
     def set_configuration(self, configuration):
         self.configuration = configuration
         db_connector = db_utils.get_db_connector(self.configuration)
-        self.tid_configurator_panel.setup_dialog(db_connector, QgsProject.instance())
+        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), db_connector)
 
     def _set_tid_configuration(self):
         self.progress_bar.setValue(0)
         # we store the settings to project and db
-        self.tid_configurator_panel.set_tid_configuration()
-        self.workflow_wizard.log_panel.print_info(
-            self.tr("Stored TID configurations to current project")
-        )
-        self.workflow_wizard.log_panel.print_info(
-            self.tr("Stored the sequence value to current database")
-        )
-
-        self.progress_bar.setValue(100)
-        self.setStyleSheet(gui_utils.SUCCESS_STYLE)
+        result, message = self.tid_configurator_panel.set_tid_configuration()
+        if result:
+            self.workflow_wizard.log_panel.print_info(
+                self.tr("Stored TID configurations to current project")
+            )
+            self.workflow_wizard.log_panel.print_info(
+                self.tr("Stored the sequence value to current database")
+            )
+            self.progress_bar.setValue(100)
+            self.setStyleSheet(gui_utils.SUCCESS_STYLE)
+        else:
+            self.workflow_wizard.log_panel.print_info(message)
+            self.progress_bar.setValue(0)
+            self.setStyleSheet(gui_utils.ERROR_STYLE)

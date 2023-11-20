@@ -105,6 +105,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 if layer.isEditable():
                     editable_layers.append(layer)
         if editable_layers:
+            # in case it could not close it automatically
             warning_box = QMessageBox(self)
             warning_box.setIcon(QMessageBox.Warning)
             warning_title = self.tr("Layers still editable")

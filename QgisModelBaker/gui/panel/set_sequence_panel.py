@@ -36,5 +36,11 @@ class SetSequencePanel(QWidget, WIDGET_UI):
             self.sequence_value_edit.setValue(sequence_value)
 
     def save_sequence(self, db_connector=None):
-        if db_connector:
-            db_connector.set_ili2db_sequence_value(self.sequence_value_edit.value())
+        if self.sequence_group.isChecked():
+            if db_connector:
+                return db_connector.set_ili2db_sequence_value(
+                    self.sequence_value_edit.value()
+                )
+            return False, self.tr("Could not reset T_Id - no db_connector...")
+        else:
+            return True, self.tr("T_Id not set.")
