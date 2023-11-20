@@ -14,7 +14,7 @@
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
       <size>
@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Configure the OIDs (&lt;span style=&quot; font-family:'monospace';&quot;&gt;t_ili_tid&lt;/span&gt;) default values of the layers in the generated project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Define the default expression values used for the t_ili_tid field in the attribute forms according to the OID definition from the INTERLIS model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -39,30 +39,21 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="3">
-    <layout class="QVBoxLayout" name="tid_configurator_layout"/>
-   </item>
-   <item row="2" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="3">
+   <item row="2" column="0" colspan="2">
     <widget class="QProgressBar" name="progress_bar">
      <property name="value">
       <number>0</number>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="1" column="0" colspan="2">
+    <layout class="QVBoxLayout" name="tid_configurator_layout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+    </layout>
+   </item>
+   <item row="3" column="0">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -75,7 +66,7 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="2">
+   <item row="3" column="1">
     <widget class="QCommandLinkButton" name="set_layer_tids_and_sequence_button">
      <property name="text">
       <string>Set configuration</string>

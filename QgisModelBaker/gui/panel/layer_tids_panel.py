@@ -118,6 +118,47 @@ class TIDModel(QAbstractTableModel):
                 return self.oid_settings[key]["default_value_expression"]
             if index.column() == TIDModel.Columns.IN_FORM:
                 return self.oid_settings[key]["in_form"]
+        elif role == int(Qt.ToolTipRole):
+            key = list(self.oid_settings.keys())[index.row()]
+            if index.column() == TIDModel.Columns.NAME:
+                return f"{key} ({self.oid_settings[key]['interlis_topic']})"
+            if index.column() == TIDModel.Columns.OID_DOMAIN:
+                message = self.tr(
+                    "<html><head/><body><p>The OID format is not defined, you can use whatever you want, but it should always start with an underscore <code>_</code> or an alphanumeric value.</p></body></html>"
+                )
+                oid_domain = self.oid_settings[key].get("oid_domain", "")
+                if oid_domain[-7:] == "UUIDOID":
+                    message = self.tr(
+                        "<html><head/><body><p>The OID should be an Universally Unique Identifier (OID TEXT*36).</p></body></html>"
+                    )
+                elif oid_domain[-11:] == "STANDARDOID":
+                    message = self.tr(
+                        """<html>
+                        <body>
+                        <p>
+                        The OID format requireds an 8 char prefix and 8 char postfix.
+                        </p>
+                        <p><b>Prefix (2 + 6 chars):</b> Country identifier + a 'global' identification part assigned once by the official authority.</p>
+                        </p><p><b>Postfix (8 chars):</b> Sequence (numeric or alphanumeric) of your system as 'local' identification part.</p>
+                        </body>
+                        </html>
+                """
+                    )
+                elif oid_domain[-6:] == "I32OID":
+                    message = self.tr(
+                        "<html><head/><body><p>The OID must be an integer value (OID 0 .. 2147483647).</p></body></html>"
+                    )
+                elif oid_domain[-6:] == "ANYOID":
+                    message = self.tr(
+                        "<html><head/><body><p>The OID format could vary depending in what basket the object (entry) is located.</p><p>These objects could be in the following topics: {topics}</body></html>".format(
+                            topics=self.oid_settings[key]["interlis_topic"]
+                        )
+                    )
+                return message
+            if index.column() == TIDModel.Columns.DEFAULT_VALUE:
+                return self.oid_settings[key]["default_value_expression"]
+            if index.column() == TIDModel.Columns.IN_FORM:
+                return self.tr("Show t_ili_tid field (OID) in attribute form.")
         elif role == int(TIDModel.Roles.LAYER):
             key = list(self.oid_settings.keys())[index.row()]
             return self.oid_settings[key]["layer"]
