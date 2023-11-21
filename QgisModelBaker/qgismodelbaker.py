@@ -530,11 +530,6 @@ class DropFileFilter(QObject):
                 if pathlib.Path(url.toLocalFile()).suffix[1:]
                 in FileDropListView.ValidExtenstions
             ]
-            additional_xml_files = [
-                url.toLocalFile()
-                for url in event.mimeData().urls()
-                if pathlib.Path(url.toLocalFile()).suffix[1:] in ["xml", "XML"]
-            ]
             additional_ini_files = [
                 url.toLocalFile()
                 for url in event.mimeData().urls()
@@ -542,11 +537,9 @@ class DropFileFilter(QObject):
                 in FileDropListView.ValidIniExtensions
             ]
             if dropped_files:
-                if self._is_handling_requested(
-                    dropped_files + additional_xml_files + additional_ini_files
-                ):
+                if self._is_handling_requested(dropped_files + additional_ini_files):
                     if self.parent.handle_dropped_files(
-                        dropped_files + additional_xml_files, additional_ini_files
+                        dropped_files, additional_ini_files
                     ):
                         return True
         return False
