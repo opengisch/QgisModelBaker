@@ -6,15 +6,25 @@ import warnings
 import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
+from PyQt5.QtWidgets import QApplication
 from qgis.PyQt.QtCore import (
+    QEvent,
     QModelIndex,
+    QRect,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
     pyqtSignal,
 )
 from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
-from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
+from qgis.PyQt.QtWidgets import (
+    QCheckBox,
+    QLineEdit,
+    QListView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+)
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliCache
@@ -168,12 +178,13 @@ class PageIds:
     GenerateDatabaseSelection = 4
     ImportSchemaConfiguration = 5
     ImportSchemaExecution = 6
-    ImportDataConfiguration = 7
-    ImportDataExecution = 8
-    ExportDatabaseSelection = 9
-    ExportDataConfiguration = 10
-    ExportDataExecution = 11
-    ProjectCreation = 12
+    DefaultBaskets = 7
+    ImportDataConfiguration = 8
+    ImportDataExecution = 9
+    ExportDatabaseSelection = 10
+    ExportDataConfiguration = 11
+    ExportDataExecution = 12
+    ProjectCreation = 13
 
 
 class ToppingWizardPageIds:
@@ -1107,3 +1118,52 @@ class BasketSourceModel(QStandardItemModel):
         for basket in self.schema_baskets[schema_identificator]:
             model_topics.add(basket.get("topic", ""))
         return list(model_topics)
+
+
+class CheckDelegate(QStyledItemDelegate):
+    def __init__(self, parent, role):
+
+        super().__init__(parent)
+
+        self.role = role
+
+    def editorEvent(self, event, model, option, index):
+
+        if event.type() == QEvent.MouseButtonPress:
+
+            value = index.data(int(self.role)) or False
+
+            model.setData(index, not value, int(self.role))
+
+            return True
+
+        return super().editorEvent(event, model, option, index)
+
+    def paint(self, painter, option, index):
+
+        opt = QStyleOptionButton()
+
+        opt.rect = option.rect
+
+        center_x = opt.rect.x() + opt.rect.width() / 2
+
+        center_y = opt.rect.y() + opt.rect.height() / 2
+
+        checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
+
+        checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
+
+        checkbox_rect = QRect(
+            int(center_x - checkbox_width / 2),
+            int(center_y - checkbox_height / 2),
+            checkbox_width,
+            checkbox_height,
+        )
+
+        opt.rect = checkbox_rect
+
+        value = index.data(int(self.role)) or False
+
+        opt.state |= QStyle.State_On if value else QStyle.State_Off
+
+        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)

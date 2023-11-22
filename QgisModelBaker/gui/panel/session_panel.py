@@ -354,7 +354,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
             self.progress_bar.setValue(90)
 
-            # an user interaction (cancel) here cannot interupt the process, why it's disabled (and enabled again below). This part might come to a seperate page anyway in future.
+            # an user interaction (cancel) here cannot interupt the process, why it's disabled (and enabled again below).
             self.setDisabled(True)
             if (
                 self.db_action_type == DbActionType.GENERATE
@@ -396,16 +396,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 if default_datasets_info_tids:
                     default_dataset_tid = default_datasets_info_tids[0]
 
-        if default_dataset_tid is not None:
-            for topic_record in db_connector.get_topics_info():
-                status, message = db_connector.create_basket(
-                    default_dataset_tid,
-                    ".".join([topic_record["model"], topic_record["topic"]]),
-                )
-                self.print_info.emit(
-                    self.tr("- {}").format(message), LogColor.COLOR_INFO
-                )
-        else:
+        if default_dataset_tid is None:
             self.print_info.emit(
                 self.tr(
                     "No default dataset created ({}) - do it manually in the dataset manager."
