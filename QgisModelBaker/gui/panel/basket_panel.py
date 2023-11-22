@@ -165,35 +165,40 @@ class BasketModel(QAbstractTableModel):
         self.basket_settings.clear()
         for topic_record in db_connector.get_topics_info():
             basket_setting = {}
+
             topic_key = f"{topic_record['model']}.{topic_record['topic']}"
             # check if existing
-            if topic_key in [
-                basket_record["topic"]
-                for basket_record in db_connector.get_baskets_info()
-                if basket_record["datasetname"] == dataset
-            ]:
-                basket_setting["existing"] = True
-                basket_setting["create"] = True
-            else:
-                # if not existing "suggest" create if "relevant"
-                basket_setting["existing"] = False
-                basket_setting["create"] = topic_record["relevance"]
-            # set bid_domain and create suggestion of value
+            existing = False
+            for basket_record in db_connector.get_baskets_info():
+                if (
+                    basket_record["datasetname"] == dataset
+                    and topic_key == basket_record["topic"]
+                ):
+                    existing = True
+                    basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
+
+            # if not existing "suggest" create if "relevant"
+            basket_setting["existing"] = existing
+            basket_setting["create"] = existing or topic_record["relevance"]
+
             basket_setting["bid_domain"] = topic_record["bid_domain"]
-            if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
-                basket_setting["bid_value"] = uuid.uuid4()
-            elif basket_setting["bid_domain"] == "INTERLIS.STANDARDOID":
-                basket_setting["bid_value"] = f"chB00000{self._next_tid_value()}"
-            elif basket_setting["bid_domain"] == "INTERLIS.I32OID":
-                basket_setting["bid_value"] = self._next_tid_value()
-            else:
-                basket_setting["bid_value"] = f"_{uuid.uuid4()}"
+
+            if not existing:
+                # set suggestion of value
+                if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
+                    basket_setting["bid_value"] = uuid.uuid4()
+                elif basket_setting["bid_domain"] == "INTERLIS.STANDARDOID":
+                    basket_setting["bid_value"] = "chB00000{t_id}"
+                elif basket_setting["bid_domain"] == "INTERLIS.I32OID":
+                    basket_setting["bid_value"] = "{t_id}"
+                else:
+                    basket_setting["bid_value"] = f"_{uuid.uuid4()}"
 
             self.basket_settings[topic_key] = basket_setting
         self.endResetModel()
 
-    def _next_tid_value(self):
-        return 42
+    def _next_tid_value(self, db_connector):
+        return db_connector.get_next_ili2db_sequence_value()
 
     def save_basket_config(self, db_connector, dataset):
         feedbacks = []
@@ -212,7 +217,11 @@ class BasketModel(QAbstractTableModel):
                     # basket should be created
                     print(f"create {topic_key}")
                     status, message = db_connector.create_basket(
-                        dataset_tid, topic_key, basket_setting["bid_value"]
+                        dataset_tid,
+                        topic_key,
+                        basket_setting["bid_value"].format(
+                            t_id=self._next_tid_value(db_connector)
+                        ),
                     )
                     feedbacks.append((status, message))
         return feedbacks
@@ -241,7 +250,7 @@ class BasketPanel(QWidget, WIDGET_UI):
 
         self.basket_view.setItemDelegateForColumn(
             BasketModel.Columns.DO_CREATE,
-            CheckDelegate(self, Qt.EditRole),
+            CheckDelegate(self, Qt.EditRole, BasketModel.Roles.EXISTING),
         )
         self.basket_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 

@@ -1121,11 +1121,13 @@ class BasketSourceModel(QStandardItemModel):
 
 
 class CheckDelegate(QStyledItemDelegate):
-    def __init__(self, parent, role):
+    def __init__(self, parent, role, disable_role=None):
 
         super().__init__(parent)
 
         self.role = role
+        # according to this role it can be disabled or enabled
+        self.disable_role = disable_role
 
     def editorEvent(self, event, model, option, index):
 
@@ -1140,30 +1142,24 @@ class CheckDelegate(QStyledItemDelegate):
         return super().editorEvent(event, model, option, index)
 
     def paint(self, painter, option, index):
+        # don't show option when disabled
+        if index.data(int(self.disable_role)) if self.disable_role else False:
+            return
 
         opt = QStyleOptionButton()
-
         opt.rect = option.rect
-
         center_x = opt.rect.x() + opt.rect.width() / 2
-
         center_y = opt.rect.y() + opt.rect.height() / 2
-
         checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
-
         checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
-
         checkbox_rect = QRect(
             int(center_x - checkbox_width / 2),
             int(center_y - checkbox_height / 2),
             checkbox_width,
             checkbox_height,
         )
-
         opt.rect = checkbox_rect
 
         value = index.data(int(self.role)) or False
-
         opt.state |= QStyle.State_On if value else QStyle.State_Off
-
         QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
