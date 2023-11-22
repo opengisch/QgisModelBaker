@@ -54,7 +54,7 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.is_complete = complete
         self.create_default_baskets_button.setDisabled(complete)
         self.skip_button.setDisabled(complete)
-        self.basket_panel.setDisabled(complete)
+        self.baskets_panel.setDisabled(complete)
         self.completeChanged.emit()
 
     def nextId(self):
