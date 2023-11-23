@@ -42,6 +42,7 @@ In any case you are requested to set the connection to your database.
 - **Database User** Set the user to access the database.
 - **User Password** Set the password for the database user.
 - **Execute data management tasks with superuser login from settings** If checked, it uses the superuser login (set in the [plugin configurations](../plugin_configuration/) for data management tasks like the creation of the schema etc.
+
 ## Import of INTERLIS Model
 ### Model selection
 There are several ways the Model Baker wizard detects INTERLIS models to import.
@@ -84,7 +85,8 @@ When this option is checked, Model Baker passes `--createBasketCol` to the ili2d
 !!! Note
     If `BASKET OID` is defined in the model, it's required to use the basket handling in QGIS (we need to create the physical model the ili2db parameter `--createBasketCol`). This is currently not automatically detected by the Model Baker and needs to be assured by the user.
 
-When the dataset and basket handling is enabled, a default Dataset called `Baseset` will be created and one basket per topic in the INTERLIS model.
+When the dataset and basket handling is enabled, a default Dataset called `Baseset` will be created and the [page for basket creation](#create_baskets) will appear after schema import.
+
 ### Stroke Arcs
 
 If this option is activated, circular arcs are stroked when importing the data.
@@ -103,6 +105,15 @@ In the next step you can run all the sessions to create your physical model. If 
 ![wizard schema import sessions](../assets/workflow_wizard_schema_session.png)
 
 With the ![run arrow_button](../assets/arrow_button.png) button next to *Run* the options are provided to run the command without checking constraints or to edit the command manually before running it.
+
+## Create Baskets
+
+In case you don't have data to import into your default dataset and want to collect ***fresh*** data in QGIS, the baskets have to be created as well. It's up to you for what topics you want to create baskets. Model Baker suggests you what baskets should be created and reasonalbe values for the BID (value in the `t_ili_tid`) but you might need. to edit them.
+
+![wizard basket page](../assets/workflow_wizard_default_baskets_page.png)
+
+If you don't know what it is about, check more details [here](../../background_info/basket_hanlding/#creation_of_baskets) or just press *Create baskets* and then *Next*.
+
 ## Import of INTERLIS Data
 
 After the physial model is generated or you selected an existing database to import your transfer or catalogue files to containing the models already, you will see the page to set up your data imports.

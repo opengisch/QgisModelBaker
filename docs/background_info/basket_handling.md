@@ -74,7 +74,7 @@ The model defines `BASKET OID` this means it requires stable basket ids and here
 ### Data of Ul Qoma
 
 And here are the data from one of the cities (Ul Qoma):
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
@@ -110,15 +110,20 @@ To have a dataset called "Ul Qoma" selectable, we need to create it in the Datas
 ![dataset manager](../assets/baskets_dataset_manager.png)
 
 #### Creation of Baskets
-With the `--update` of the data to a dataset, the needed baskets are created by `ili2db`. In case you create a new dataset and you want to collect fresh data in QGIS (no import of existing data), the baskets have to be created as well by *Create baskets for selected dataset*.
 
+With the `--update` of the data to a dataset, the needed baskets are created by `ili2db`.
 
-!!! Note
-    When baskets are created by the Model Baker, the IDs are UUIDs. To change the IDs, edit the t_ili2db_basket table manually.
+In case you create a new dataset and you want to collect ***fresh*** data in QGIS (no import of existing data), the baskets have to be created as well. Open for that *Manage baskets of selected dataset*.
+
+![baket_manager](../assets/dataset_basket_manager.png)
+
+Reasonable BIDs (the value stored in the `t_ili_tid`) values are generated. In this case with UUIDs it's pretty automatic. But in case you use a `STANDARDOID` or user defined OID type for your `BID`, you might need to edit them. For more information about OIDs, BIDs etc. check the [corresponding chapter](../../background_info/oid_tid_generator).
 
 ### Update command
+
 After that you can double-click the dataset field and choose "Ul Qoma". This command will be excecuted in the background:
-```
+
+```bash
 java -jar /home/freddy/ili2pg-4.6.1.jar --update --dbhost localhost --dbport 5432 --dbusr postgres --dbpwd ****** --dbdatabase freds_bakery --dbschema thecityandthecity --importTid --importBid --dataset "Ul Qoma" /home/freddy/referencedata/TheCity_V1-ulqoma.xtf
 ```
 
@@ -127,6 +132,7 @@ As you can see `--importTid` and `--importBid` are automatically added to the co
 ## Structure in the Database
 
 An end user does not need to know that. But it might be interessting to know how it looks like in the database.
+
 ### Dataset and Data of "Ul Qoma"
 
 After importing your data of the city "Ul Qoma", there are now these two tables in the database. They look like this:
@@ -173,7 +179,7 @@ When we check out the data now, we see that they are referencing the baskets (wh
 
 It looks more interesting when we import the data of "Besźel" as well.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
@@ -195,7 +201,7 @@ It looks more interesting when we import the data of "Besźel" as well.
 ```
 
 We create the dataset "Besźel" with the Dataset Manager and update the data with the following command.
-```
+```bash
 java -jar /home/freddy/ili2pg-4.6.1.jar --update --dbhost localhost --dbport 5432 --dbusr postgres --dbpwd ****** --dbdatabase freds_bakery --dbschema thecityandthecity --importTid --importBid --dataset Besźel /home/dave/dev/gh_signedav/usabilitydave/referencedata/TheCity_V1-beszel.xtf
 ```
 
@@ -270,13 +276,14 @@ As mentioned before, a table is usually in one topic. This is not true for the d
 
 ![dataset relationreference domain](../assets/dataset_relation_reference_domain.png)
 
-
 ## `BASKET OID` or not
 
 It's up to the modeller if the `BASKET OID` should be defined or not. Here it's described how it's handled in the context of the Model Baker.
 
 ### Using `BASKET OID`
+
 You can have `BASKET OID` defined in the model.
+
 ```
 INTERLIS 2.3;
 
@@ -299,7 +306,7 @@ This ensures that the data can be validated for the proper format of the `BID` a
 
 On using basket handling the `BID` is validated and exported:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
@@ -312,13 +319,14 @@ On using basket handling the `BID` is validated and exported:
 
 When the user decides to use no basket handling, the collected data would not be considered by ili2db (because they are in no basket) and the export will be empty:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
 </DATASECTION>
 </TRANSFER>
 ```
+
 ### Not using `BASKET OID`
 
 You can still use the basket handling without having `BASKET OID` defined the model. As [mentioned](../../background_info/basket_handling/#update-command) `--importBid` are automatically added to the command, when the basket handling active. So ili2db assumes that the `BID`s we import are stable. This is not ensured by the model definition, it has to be ensured by the user providing the data.
@@ -341,7 +349,7 @@ END Maps_V1.
 ```
 
 On the export the `BID`s are considered:
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
@@ -356,7 +364,7 @@ When not having `BASKET OID` defined, it's possible not to use the basket handli
 
 But be aware: The `BID`s are not stable.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2gpkg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="Maps_V1" VERSION="2021-12-15" URI="mailto:U80863546@localhost"></MODEL></MODELS></HEADERSECTION>
 <DATASECTION>
@@ -401,10 +409,12 @@ END CityMaps_V1.
 
 You now add objects, one Map-Object and one City-Object. You work - of course - in the basket of the extended topic (provided by the Dataset Selector of the optimized project). And you export the data:
 
+```xml
 <CityMaps_V1.CityMaps BID="405b6f5c-6cb5-4c0e-b1ab-a4bd30ffe7fe">
 <CityMaps_V1.CityMaps.City TID="1"><City_Name>Ul Qoma</City_Name></CityMaps_V1.CityMaps.City>
 <Maps_V1.Maps.Map TID="2"><Map_Name>Street Map XY</Map_Name></Maps_V1.Maps.Map>
 </CityMaps_V1.CityMaps>
+```
 
 Why do the XML element name divert now?
 
