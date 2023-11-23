@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditDatasetDialog</class>
- <widget class="QDialog" name="EditDatasetDialog">
+ <class>BasketManagerDialog</class>
+ <widget class="QDialog" name="BasketManagerDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Edit dataset</string>
+   <string>Manage Baskets</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">

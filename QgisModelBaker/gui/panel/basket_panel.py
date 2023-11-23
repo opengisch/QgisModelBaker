@@ -142,7 +142,7 @@ class BasketModel(QAbstractTableModel):
                     )
                 return message
             if index.column() == BasketModel.Columns.BID_VALUE:
-                return self.basket_settings[key]["bid_value"]
+                return "<html><head/><body><p>Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.</body></html>"
         elif role == int(BasketModel.Roles.EXISTING):
             key = list(self.basket_settings.keys())[index.row()]
             return self.basket_settings[key]["existing"]

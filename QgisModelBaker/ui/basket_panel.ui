@@ -29,13 +29,6 @@
    <item row="0" column="0">
     <widget class="QTableView" name="basket_view"/>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
