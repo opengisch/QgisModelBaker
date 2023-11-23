@@ -88,9 +88,9 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 
 The `ANYOID` does not define a format of the OID but just that an OID needs to be defined in all the extended models. This domain is only used on topics that needs to be extended. There this sollution has some [limitations](#limitations).
 
-#### User and not defined OIDs
+#### User defined OIDs and not defined OIDs
 
-For user defined OIDs or when OIDs are required but not defined, Model Baker tries to suggest something reasonable.
+For user defined OIDs or when OIDs are not defined, Model Baker tries to suggest something reasonable.
 
 If there is no definition with OID AS, ili2db assumes TEXT and therefore they need to fulfill the rules of the XML-ID-type. This means the **first character** must be a **letter or underscore**, followed by letters, numbers, dots, minus signs, underscores; no colons (!), see [www.w3.org/TR/REC-xml](http://www.w3.org/TR/REC-xml).
 
@@ -103,10 +103,10 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 #### Summary
 | OID domain | Suggested default value expression |
 |---|---|
-|  INTERLIS.UUIDOID |  `uuid('WithoutBraces')`  |
-|  INTERLIS.I32OID | `t_id` |
-|  INTERLIS.STANDARDOID |  `'ch100000' \|\| lpad( t_id, 8, 0 )` |
-|  INTERLIS.ANYOID  | `'_' \|\| uuid('WithoutBraces')` |
+| INTERLIS.UUIDOID |  `uuid('WithoutBraces')`  |
+| INTERLIS.I32OID | `t_id` |
+| INTERLIS.STANDARDOID |  `'ch100000' \|\| lpad( t_id, 8, 0 )` |
+| INTERLIS.ANYOID | `'_' \|\| uuid('WithoutBraces')` |
 | City_V1.TypeID | `'_' \|\| uuid('WithoutBraces')` |
 | not defined | `'_' \|\| uuid('WithoutBraces')` |
 
