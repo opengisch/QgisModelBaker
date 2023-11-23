@@ -286,20 +286,25 @@ class WorkflowWizard(QWizard):
                     self.schema_configuration_page.setComplete(True)
 
             if self.current_id == PageIds.ImportSchemaExecution:
-                # if transfer file available or possible (by getting via UsabILIty Hub)
+                # if transfer files available, then go to data import
+                if self.import_data_file_model.rowCount():
+                    return PageIds.ImportDataConfiguration
+
+                # if basket handling active, go to the create basket
+                if self._basket_handling(self.import_schema_configuration):
+                    return PageIds.DefaultBaskets
+
+                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
                 self.log_panel.print_info(
                     self.tr(
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
                 self.import_schema_execution_page.setComplete(False)
-                if (
-                    self.import_data_file_model.rowCount()
-                    or self.update_referecedata_cache_model(
-                        self._db_modelnames(self.import_data_configuration),
-                        "referenceData",
-                    ).rowCount()
-                ):
+                if self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
                     self.log_panel.print_info(
                         self.tr("Potential referenced data found.")
                     )
@@ -307,11 +312,29 @@ class WorkflowWizard(QWizard):
                     return PageIds.ImportDataConfiguration
                 self.import_schema_execution_page.setComplete(True)
 
-                if self._basket_handling(self.import_schema_configuration):
-                    return PageIds.DefaultBaskets
+                # otherwise, go to project create
                 return PageIds.ProjectCreation
 
             if self.current_id == PageIds.DefaultBaskets:
+                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                self.default_baskets_page.setComplete(False)
+                if self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
+                    self.default_baskets_page.setComplete(True)
+                    return PageIds.ImportDataConfiguration
+                self.default_baskets_page.setComplete(True)
+
+                # otherwise, go to project create
                 return PageIds.ProjectCreation
 
             if self.current_id == PageIds.ImportDataConfiguration:
