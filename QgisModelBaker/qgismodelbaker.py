@@ -48,6 +48,7 @@ from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.gui.drop_message import DropMessageDialog
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
+from QgisModelBaker.gui.tid_manager import TIDManagerDialog
 from QgisModelBaker.gui.topping_wizard.topping_wizard import ToppingWizardDialog
 from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
@@ -65,10 +66,12 @@ class QgisModelBakerPlugin(QObject):
 
         self.workflow_wizard_dlg = None
         self.datasetmanager_dlg = None
+        self.tidmanager_dlg = None
         self.topping_wizard_dlg = None
 
         self.__workflow_wizard_action = None
         self.__datasetmanager_action = None
+        self.__tidmanager_action = None
         self.__validate_action = None
         self.__topping_wizard_action = None
         self.__configure_action = None
@@ -131,6 +134,16 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Dataset Manager"),
             None,
         )
+        self.__tidmanager_action = QAction(
+            QIcon(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "images/QgisModelBaker-tidmanager-icon.svg",
+                )
+            ),
+            self.tr("TID (OID) Manager"),
+            None,
+        )
         self.__validate_action = QAction(
             QIcon(
                 os.path.join(
@@ -172,11 +185,13 @@ class QgisModelBakerPlugin(QObject):
         # set these actions checkable to visualize that the dialog is open
         self.__workflow_wizard_action.setCheckable(True)
         self.__datasetmanager_action.setCheckable(True)
+        self.__tidmanager_action.setCheckable(True)
         self.__validate_action.setCheckable(True)
         self.__topping_wizard_action.setCheckable(True)
 
         self.__configure_action.triggered.connect(self.show_options_dialog)
         self.__datasetmanager_action.triggered.connect(self.show_datasetmanager_dialog)
+        self.__tidmanager_action.triggered.connect(self.show_tidmanager_dialog)
         self.__validate_action.triggered.connect(self.show_validate_dock)
         self.__workflow_wizard_action.triggered.connect(
             self.show_workflow_wizard_dialog
@@ -197,6 +212,9 @@ class QgisModelBakerPlugin(QObject):
         )
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__datasetmanager_action
+        )
+        self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__tidmanager_action
         )
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__topping_wizard_action
@@ -240,6 +258,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__tidmanager_action
+        )
+        self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__validate_action
         )
         self.iface.removePluginDatabaseMenu(
@@ -257,6 +278,7 @@ class QgisModelBakerPlugin(QObject):
         )
         del self.__workflow_wizard_action
         del self.__datasetmanager_action
+        del self.__tidmanager_action
         del self.__validate_action
         del self.__configure_action
         del self.__help_action
@@ -333,6 +355,23 @@ class QgisModelBakerPlugin(QObject):
         self.__dataset_selector.reset_model(self.iface.layerTreeView().currentLayer())
         self.__datasetmanager_action.setChecked(False)
         self.datasetmanager_dlg = None
+
+    def show_tidmanager_dialog(self):
+        if self.tidmanager_dlg:
+            self.tidmanager_dlg.reject()
+        else:
+            self.tidmanager_dlg = TIDManagerDialog(self.iface, self.iface.mainWindow())
+            self.tidmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.tidmanager_dlg.setWindowFlags(
+                self.tidmanager_dlg.windowFlags() | Qt.Tool
+            )
+            self.tidmanager_dlg.show()
+            self.tidmanager_dlg.finished.connect(self.tidmanager_dialog_finished)
+            self.__tidmanager_action.setChecked(True)
+
+    def tidmanager_dialog_finished(self):
+        self.__tidmanager_action.setChecked(False)
+        self.tidmanager_dlg = None
 
     def show_validate_dock(self):
         self.__validate_dock.setVisible(not self.__validate_dock.isVisible())

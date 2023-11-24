@@ -45,7 +45,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
 
         self.setupUi(self)
-        self.setFinalPage(True)
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
@@ -62,6 +61,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.configuration = None
 
         self.create_project_button.clicked.connect(self._create_project)
+
+        self.is_complete = False
+
+    def isComplete(self):
+        return self.is_complete
+
+    def setComplete(self, complete):
+        self.is_complete = complete
+        self.create_project_button.setDisabled(complete)
+        self.completeChanged.emit()
 
     def restore_configuration(self, configuration):
         self.configuration = configuration
@@ -349,6 +358,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.progress_bar.setValue(100)
         self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         self.workflow_wizard.log_panel.print_info(self.tr("It's served!"))
+        self.setComplete(True)
 
     def ilidata_path_resolver(self, base_path, path):
         if "ilidata:" in path or "file:" in path:

@@ -185,8 +185,9 @@ class PageIds:
     ExportDataConfiguration = 11
     ExportDataExecution = 12
     ProjectCreation = 13
+    TIDConfiguration = 14
 
-
+    
 class ToppingWizardPageIds:
     Target = 1
     Models = 2
@@ -693,6 +694,7 @@ class ImportModelsModel(SourceModel):
             ]
         return SourceModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
@@ -838,11 +840,12 @@ class CheckEntriesModel(QStringListModel):
         else:
             return QStringListModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self._checked_entries[self.data(index, Qt.DisplayRole)] = data
         else:
-            QStringListModel.setData(self, index, role, data)
+            QStringListModel.setData(self, index, data, role)
 
     def check(self, index):
         if self.data(index, Qt.CheckStateRole) == Qt.Checked:
@@ -909,6 +912,7 @@ class SchemaModelsModel(CheckEntriesModel):
         else:
             return CheckEntriesModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
             self._parent_models[self.data(index, Qt.DisplayRole)] = data
@@ -1122,30 +1126,23 @@ class BasketSourceModel(QStandardItemModel):
 
 class CheckDelegate(QStyledItemDelegate):
     def __init__(self, parent, role, disable_role=None):
-
         super().__init__(parent)
-
         self.role = role
         # according to this role it can be disabled or enabled
         self.disable_role = disable_role
 
     def editorEvent(self, event, model, option, index):
-
         if event.type() == QEvent.MouseButtonPress:
-
             value = index.data(int(self.role)) or False
-
             model.setData(index, not value, int(self.role))
-
             return True
-
         return super().editorEvent(event, model, option, index)
 
     def paint(self, painter, option, index):
         # don't show option when disabled
         if index.data(int(self.disable_role)) if self.disable_role else False:
             return
-
+          
         opt = QStyleOptionButton()
         opt.rect = option.rect
         center_x = opt.rect.x() + opt.rect.width() / 2
