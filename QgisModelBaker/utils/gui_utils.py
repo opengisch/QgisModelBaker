@@ -187,7 +187,7 @@ class PageIds:
     ProjectCreation = 13
     TIDConfiguration = 14
 
-    
+
 class ToppingWizardPageIds:
     Target = 1
     Models = 2
@@ -1142,7 +1142,7 @@ class CheckDelegate(QStyledItemDelegate):
         # don't show option when disabled
         if index.data(int(self.disable_role)) if self.disable_role else False:
             return
-          
+
         opt = QStyleOptionButton()
         opt.rect = option.rect
         center_x = opt.rect.x() + opt.rect.width() / 2
