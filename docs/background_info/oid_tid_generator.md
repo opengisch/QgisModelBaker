@@ -35,7 +35,7 @@ Often the models definition requires a cross-system unique identificator. The so
 
 ### OID Domains
 
-There are different types of OID domains. In Model Baker we try to set default values that fits into the definition.
+There are different types of OID domains. In Model Baker we try to set default values that fit into the definition.
 
 - UUIDOID
 - I32OID
