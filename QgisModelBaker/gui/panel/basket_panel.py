@@ -188,7 +188,7 @@ class BasketModel(QAbstractTableModel):
                 if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
                     basket_setting["bid_value"] = str(uuid.uuid4())
                 elif basket_setting["bid_domain"] == "INTERLIS.STANDARDOID":
-                    basket_setting["bid_value"] = "chB00000{t_id}"
+                    basket_setting["bid_value"] = "%change%{t_id}"
                 elif basket_setting["bid_domain"] == "INTERLIS.I32OID":
                     basket_setting["bid_value"] = "{t_id}"
                 else:
@@ -220,7 +220,7 @@ class BasketModel(QAbstractTableModel):
                         dataset_tid,
                         topic_key,
                         basket_setting["bid_value"].format(
-                            t_id=self._next_tid_value(db_connector)
+                            t_id=f"{self._next_tid_value(db_connector):08}"
                         ),
                     )
                     feedbacks.append((status, message))
