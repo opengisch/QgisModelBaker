@@ -21,6 +21,7 @@ from qgis.PyQt.QtCore import QSettings, Qt, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
+from QgisModelBaker.gui.basket_manager import BasketManagerDialog
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
 from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
@@ -89,7 +90,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.add_button.clicked.connect(self._add_dataset)
         self.edit_button.clicked.connect(self._edit_dataset)
-        self.create_baskets_button.clicked.connect(self._create_baskets)
+        self.basket_manager_button.clicked.connect(self._open_basket_manager)
         self.dataset_tableview.selectionModel().selectionChanged.connect(
             lambda: self._enable_dataset_handling(True)
         )
@@ -127,7 +128,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setEnabled(enable)
         self.add_button.setEnabled(enable)
         self.edit_button.setEnabled(self._valid_selection())
-        self.create_baskets_button.setEnabled(self._valid_selection())
+        self.basket_manager_button.setEnabled(self._valid_selection())
 
     def _type_changed(self):
         ili_mode = self.type_combo_box.currentData()
@@ -181,37 +182,17 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 self._refresh_datasets(self._updated_configuration())
                 self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
-    def _create_baskets(self):
+    def _open_basket_manager(self):
         if self._valid_selection():
             db_connector = db_utils.get_db_connector(self._updated_configuration())
             if db_connector and db_connector.get_basket_handling:
-                feedbacks = []
-                for record in db_connector.get_topics_info():
-                    dataset_tid = self.dataset_tableview.selectedIndexes()[0].data(
-                        int(DatasetModel.Roles.TID)
-                    )
-                    status, message = db_connector.create_basket(
-                        dataset_tid, ".".join([record["model"], record["topic"]])
-                    )
-                    feedbacks.append((status, message))
-
-                info_box = QMessageBox(self)
-                info_box.setIcon(
-                    QMessageBox.Warning
-                    if len([feedback for feedback in feedbacks if not feedback[0]])
-                    else QMessageBox.Information
+                datasetname = self.dataset_tableview.selectedIndexes()[0].data(
+                    int(DatasetModel.Roles.DATASETNAME)
                 )
-                info_title = self.tr("Created baskets")
-                info_box.setWindowTitle(info_title)
-                info_box.setText(
-                    "{}{}".format(
-                        "\n".join([feedback[1] for feedback in feedbacks]),
-                        "\n\nBe aware that the IDs of the baskets are created as UUIDs. To change that, edit the t_ili2db_basket table manually."
-                        if len([feedback for feedback in feedbacks if feedback[0]])
-                        else "",
-                    )
+                basket_manager_dialog = BasketManagerDialog(
+                    self, db_connector, datasetname
                 )
-                info_box.exec_()
+                basket_manager_dialog.exec_()
 
     def _jump_to_entry(self, datasetname):
         matches = self.dataset_model.match(

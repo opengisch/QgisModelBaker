@@ -29,6 +29,7 @@ from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.workflow_wizard.database_selection_page import (
     DatabaseSelectionPage,
 )
+from QgisModelBaker.gui.workflow_wizard.default_baskets_page import DefaultBasketsPage
 from QgisModelBaker.gui.workflow_wizard.execution_page import ExecutionPage
 from QgisModelBaker.gui.workflow_wizard.export_data_configuration_page import (
     ExportDataConfigurationPage,
@@ -153,6 +154,9 @@ class WorkflowWizard(QWizard):
             self._current_page_title(PageIds.ImportSchemaExecution),
             DbActionType.GENERATE,
         )
+        self.default_baskets_page = DefaultBasketsPage(
+            self, self._current_page_title(PageIds.DefaultBaskets)
+        )
         self.data_configuration_page = ImportDataConfigurationPage(
             self, self._current_page_title(PageIds.ImportDataConfiguration)
         )
@@ -192,6 +196,7 @@ class WorkflowWizard(QWizard):
         )
         self.setPage(PageIds.ImportSchemaConfiguration, self.schema_configuration_page)
         self.setPage(PageIds.ImportSchemaExecution, self.import_schema_execution_page)
+        self.setPage(PageIds.DefaultBaskets, self.default_baskets_page)
         self.setPage(PageIds.ImportDataConfiguration, self.data_configuration_page)
         self.setPage(PageIds.ImportDataExecution, self.import_data_execution_page)
         self.setPage(PageIds.ProjectCreation, self.project_creation_page)
@@ -288,26 +293,55 @@ class WorkflowWizard(QWizard):
                     self.schema_configuration_page.setComplete(True)
 
             if self.current_id == PageIds.ImportSchemaExecution:
-                # if transfer file available or possible (by getting via UsabILIty Hub)
+                # if transfer files available, then go to data import
+                if self.import_data_file_model.rowCount():
+                    return PageIds.ImportDataConfiguration
+
+                # if basket handling active, go to the create basket
+                if self._basket_handling(self.import_schema_configuration):
+                    return PageIds.DefaultBaskets
+
+                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
                 self.log_panel.print_info(
                     self.tr(
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
                 self.import_schema_execution_page.setComplete(False)
-                if (
-                    self.import_data_file_model.rowCount()
-                    or self.update_referecedata_cache_model(
-                        self._db_modelnames(self.import_data_configuration),
-                        "referenceData",
-                    ).rowCount()
-                ):
+                if self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
                     self.log_panel.print_info(
                         self.tr("Potential referenced data found.")
                     )
                     self.import_schema_execution_page.setComplete(True)
                     return PageIds.ImportDataConfiguration
                 self.import_schema_execution_page.setComplete(True)
+
+                # otherwise, go to project create
+                return PageIds.ProjectCreation
+
+            if self.current_id == PageIds.DefaultBaskets:
+                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                self.default_baskets_page.setComplete(False)
+                if self.update_referecedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
+                    self.default_baskets_page.setComplete(True)
+                    return PageIds.ImportDataConfiguration
+                self.default_baskets_page.setComplete(True)
+
+                # otherwise, go to project create
                 return PageIds.ProjectCreation
 
             if self.current_id == PageIds.ImportDataConfiguration:
@@ -374,8 +408,13 @@ class WorkflowWizard(QWizard):
                 self.import_models_model.import_sessions(),
             )
 
+        if self.current_id == PageIds.DefaultBaskets:
+            self.default_baskets_page.restore_configuration(
+                self.import_schema_configuration
+            )
+
         if self.current_id == PageIds.ProjectCreation:
-            self.project_creation_page.set_configuration(
+            self.project_creation_page.restore_configuration(
                 self.import_schema_configuration
             )
 
@@ -458,6 +497,8 @@ class WorkflowWizard(QWizard):
             return self.tr("Schema Import Configuration")
         elif id == PageIds.ImportSchemaExecution:
             return self.tr("Schema Import Sessions")
+        elif id == PageIds.DefaultBaskets:
+            return self.tr("Create Baskets for Default Dataset")
         elif id == PageIds.ImportDataConfiguration:
             return self.tr("Data Import Configuration")
         elif id == PageIds.ImportDataExecution:

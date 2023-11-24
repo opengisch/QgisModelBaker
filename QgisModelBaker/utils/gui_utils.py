@@ -178,13 +178,14 @@ class PageIds:
     GenerateDatabaseSelection = 4
     ImportSchemaConfiguration = 5
     ImportSchemaExecution = 6
-    ImportDataConfiguration = 7
-    ImportDataExecution = 8
-    ExportDatabaseSelection = 9
-    ExportDataConfiguration = 10
-    ExportDataExecution = 11
-    ProjectCreation = 12
-    TIDConfiguration = 13
+    DefaultBaskets = 7
+    ImportDataConfiguration = 8
+    ImportDataExecution = 9
+    ExportDatabaseSelection = 10
+    ExportDataConfiguration = 11
+    ExportDataExecution = 12
+    ProjectCreation = 13
+    TIDConfiguration = 14
 
 
 class ToppingWizardPageIds:
@@ -1124,9 +1125,11 @@ class BasketSourceModel(QStandardItemModel):
 
 
 class CheckDelegate(QStyledItemDelegate):
-    def __init__(self, parent, role):
+    def __init__(self, parent, role, disable_role=None):
         super().__init__(parent)
         self.role = role
+        # according to this role it can be disabled or enabled
+        self.disable_role = disable_role
 
     def editorEvent(self, event, model, option, index):
         if event.type() == QEvent.MouseButtonPress:
@@ -1136,11 +1139,14 @@ class CheckDelegate(QStyledItemDelegate):
         return super().editorEvent(event, model, option, index)
 
     def paint(self, painter, option, index):
+        # don't show option when disabled
+        if index.data(int(self.disable_role)) if self.disable_role else False:
+            return
+
         opt = QStyleOptionButton()
         opt.rect = option.rect
         center_x = opt.rect.x() + opt.rect.width() / 2
         center_y = opt.rect.y() + opt.rect.height() / 2
-
         checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
         checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
         checkbox_rect = QRect(

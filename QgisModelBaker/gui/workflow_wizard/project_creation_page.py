@@ -72,7 +72,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.create_project_button.setDisabled(complete)
         self.completeChanged.emit()
 
-    def set_configuration(self, configuration):
+    def restore_configuration(self, configuration):
         self.configuration = configuration
 
     def _create_project(self):
