@@ -128,7 +128,7 @@ If you need a counter in the expressions, you can use the `t_id` field, that has
 
 ### Limitations
 
-This sollution covers a lot, but not everything.
+This solution covers a lot, but not everything.
 
 #### ANYOID
 
