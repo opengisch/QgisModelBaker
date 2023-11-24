@@ -113,7 +113,7 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 
 ### TID (OID) Manager
 
-Since the user have to be able to edit those values, they are provided in the GUI.
+Since the user has to be able to edit those values, they are provided in the GUI.
 
 Additionally to the [page implemented in the wizard](../../user_guide/import_workflow/#tid_(oid)_values) the configuration of the TIDs can be made on existing QGIS Projects.
 
