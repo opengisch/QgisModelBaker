@@ -135,7 +135,6 @@ class DatasetSelector(QComboBox):
         )
 
     def set_default_project_variables(self, schema_identificator):
-        print(self.basket_model.model_topics(schema_identificator))
         for model_topic in self.basket_model.model_topics(schema_identificator):
             self._store_default_basket_tid(schema_identificator, model_topic)
 

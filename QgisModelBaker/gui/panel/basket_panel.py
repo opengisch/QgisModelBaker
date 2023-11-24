@@ -215,12 +215,13 @@ class BasketModel(QAbstractTableModel):
                 basket_setting = self.basket_settings[topic_key]
                 if not basket_setting["existing"] and basket_setting["create"]:
                     # basket should be created
-                    print(f"create {topic_key}")
                     status, message = db_connector.create_basket(
                         dataset_tid,
                         topic_key,
                         basket_setting["bid_value"].format(
                             t_id=f"{self._next_tid_value(db_connector):08}"
+                            if len(basket_setting["bid_value"]) > 6
+                            else self._next_tid_value(db_connector)
                         ),
                     )
                     feedbacks.append((status, message))
