@@ -70,7 +70,7 @@ It's defined as `OID TEXT*16` and follows some specific requirements.
 
 It requires an 8 char prefix and 8 char postfix:
 
-- **Prefix (2 + 6 chars):** Country identifier + a *global identification part* assigned once by the [official authority](https://www.interlis.ch/dienste/oid-bestellen)
+- **Prefix (2 + 6 chars):** Country identifier + a *global identification part*. The global identification part can be ordered from the [official authority](https://www.interlis.ch/dienste/oid-bestellen)
 
 - **Postfix (8 chars):** Sequence (numeric or alphanumeric) of your system as *local identification part*
 
