@@ -74,7 +74,7 @@ It requires an 8 char prefix and 8 char postfix:
 
 - **Postfix (8 chars):** Sequence (numeric or alphanumeric) of your system as *local identification part*
 
-Model Baker does not know what your *global identification part* is and uses a sample-prefix `%change%`. It's important that replace this part with your own prefix.
+Model Baker does not know what your *global identification part* is and uses a placeholder-prefix `%change%`. It's important that replace this part with your own prefix.
 
 As *local identification part* Model Baker suggests the counter provided by the `t_id` sequence.
 
