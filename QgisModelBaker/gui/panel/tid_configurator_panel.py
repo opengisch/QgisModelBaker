@@ -51,22 +51,24 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
     def setup_dialog(self, qgis_project, db_connector=None):
         self.qgis_project = qgis_project
 
-        if db_connector:
-            self.db_connector = db_connector
-        else:
-            # getting the data source of the first layer in the layer tree
-            first_tree_layer = qgis_project.layerTreeRoot().findLayers()[0]
-            if first_tree_layer:
-                configuration = Ili2DbCommandConfiguration()
-                source_provider = first_tree_layer.layer().dataProvider()
-                valid, mode = db_utils.get_configuration_from_sourceprovider(
-                    source_provider, configuration
-                )
-                if valid:
-                    configuration.tool = mode
-                    self.db_connector = db_utils.get_db_connector(configuration)
+        if self.qgis_project:
+            if db_connector:
+                self.db_connector = db_connector
+            else:
+                # getting the data source of the first layer in the layer tree
+                layers = qgis_project.layerTreeRoot().findLayers()
+                if layers:
+                    first_tree_layer = layers[0]
+                    configuration = Ili2DbCommandConfiguration()
+                    source_provider = first_tree_layer.layer().dataProvider()
+                    valid, mode = db_utils.get_configuration_from_sourceprovider(
+                        source_provider, configuration
+                    )
+                    if valid:
+                        configuration.tool = mode
+                        self.db_connector = db_utils.get_db_connector(configuration)
 
-        self._reset_tid_configuration()
+            self._reset_tid_configuration()
 
     def _reset_tid_configuration(self):
         self.layer_tids_panel.load_tid_config(self.qgis_project)

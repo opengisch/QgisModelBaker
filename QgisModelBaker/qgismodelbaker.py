@@ -258,6 +258,9 @@ class QgisModelBakerPlugin(QObject):
             self.tr("Model Baker"), self.__datasetmanager_action
         )
         self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__tidmanager_action
+        )
+        self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__validate_action
         )
         self.iface.removePluginDatabaseMenu(
@@ -275,6 +278,7 @@ class QgisModelBakerPlugin(QObject):
         )
         del self.__workflow_wizard_action
         del self.__datasetmanager_action
+        del self.__tidmanager_action
         del self.__validate_action
         del self.__configure_action
         del self.__help_action
