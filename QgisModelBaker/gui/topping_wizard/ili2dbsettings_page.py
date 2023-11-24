@@ -86,6 +86,7 @@ class ParametersModel(QAbstractItemModel):
                 return self.parameters.get(key, "")
         return None
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(Qt.EditRole):
             if index.column() == ParametersModel.Columns.NAME:

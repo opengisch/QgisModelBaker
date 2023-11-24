@@ -6,15 +6,25 @@ import warnings
 import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
+from PyQt5.QtWidgets import QApplication
 from qgis.PyQt.QtCore import (
+    QEvent,
     QModelIndex,
+    QRect,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
     pyqtSignal,
 )
 from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
-from qgis.PyQt.QtWidgets import QCheckBox, QLineEdit, QListView
+from qgis.PyQt.QtWidgets import (
+    QCheckBox,
+    QLineEdit,
+    QListView,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionButton,
+)
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliCache
@@ -174,6 +184,7 @@ class PageIds:
     ExportDataConfiguration = 10
     ExportDataExecution = 11
     ProjectCreation = 12
+    TIDConfiguration = 13
 
 
 class ToppingWizardPageIds:
@@ -682,6 +693,7 @@ class ImportModelsModel(SourceModel):
             ]
         return SourceModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self.beginResetModel()
@@ -827,11 +839,12 @@ class CheckEntriesModel(QStringListModel):
         else:
             return QStringListModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.CheckStateRole:
             self._checked_entries[self.data(index, Qt.DisplayRole)] = data
         else:
-            QStringListModel.setData(self, index, role, data)
+            QStringListModel.setData(self, index, data, role)
 
     def check(self, index):
         if self.data(index, Qt.CheckStateRole) == Qt.Checked:
@@ -898,6 +911,7 @@ class SchemaModelsModel(CheckEntriesModel):
         else:
             return CheckEntriesModel.data(self, index, role)
 
+    # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
             self._parent_models[self.data(index, Qt.DisplayRole)] = data
@@ -1107,3 +1121,36 @@ class BasketSourceModel(QStandardItemModel):
         for basket in self.schema_baskets[schema_identificator]:
             model_topics.add(basket.get("topic", ""))
         return list(model_topics)
+
+
+class CheckDelegate(QStyledItemDelegate):
+    def __init__(self, parent, role):
+        super().__init__(parent)
+        self.role = role
+
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonPress:
+            value = index.data(int(self.role)) or False
+            model.setData(index, not value, int(self.role))
+            return True
+        return super().editorEvent(event, model, option, index)
+
+    def paint(self, painter, option, index):
+        opt = QStyleOptionButton()
+        opt.rect = option.rect
+        center_x = opt.rect.x() + opt.rect.width() / 2
+        center_y = opt.rect.y() + opt.rect.height() / 2
+
+        checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
+        checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
+        checkbox_rect = QRect(
+            int(center_x - checkbox_width / 2),
+            int(center_y - checkbox_height / 2),
+            checkbox_width,
+            checkbox_height,
+        )
+        opt.rect = checkbox_rect
+
+        value = index.data(int(self.role)) or False
+        opt.state |= QStyle.State_On if value else QStyle.State_Off
+        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
