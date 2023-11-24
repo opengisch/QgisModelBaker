@@ -124,7 +124,7 @@ Here you can use the QGIS Expression Dialog to edit the default value expression
 
 If you want to have the `t_ili_tid` exposed to the form, you can select ***Show***.
 
-If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be carefull not to set it lower than already existing `t_id`s in your project. See below the [limitations](#limitations).
+If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project. See below the [limitations](#limitations).
 
 ### Limitations
 
