@@ -84,7 +84,6 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 'ch100000' || lpad( T_Id, 8, 0 )
 ```
 
-assuming `ch` as the country code and `100000` as the registered OID prefix.
 #### `ANYOID`
 
 The `ANYOID` does not define a format of the OID but just that an OID needs to be defined in all the extended models. This domain is only used on topics that need to be extended. This solution has some [limitations](#limitations).
