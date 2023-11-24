@@ -148,7 +148,7 @@ On creating a QGIS Project with Model Baker, there are default default value exp
 
 Here you can use the QGIS Expression Dialog to edit the default value expression for the `t_ili_tid` field of each layer.
 
-If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be carefull not to set it lower than already existing `t_id`s in your project.
+If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project.
 
 This settings can be made on an existing QGIS Project as well. Find the [TID (OID) Manager](../../background_info/oid_tid_generator/#tid_(oid)_manager) via the *Database > Model Baker* menu.
 
