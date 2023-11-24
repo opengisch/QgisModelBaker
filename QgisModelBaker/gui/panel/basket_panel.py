@@ -186,7 +186,7 @@ class BasketModel(QAbstractTableModel):
             if not existing:
                 # set suggestion of value
                 if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
-                    basket_setting["bid_value"] = uuid.uuid4()
+                    basket_setting["bid_value"] = str(uuid.uuid4())
                 elif basket_setting["bid_domain"] == "INTERLIS.STANDARDOID":
                     basket_setting["bid_value"] = "chB00000{t_id}"
                 elif basket_setting["bid_domain"] == "INTERLIS.I32OID":
