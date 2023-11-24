@@ -76,7 +76,7 @@ It requires an 8 char prefix and 8 char postfix:
 
 Model Baker does not know what your *global identification part* is, why it's important that you edit this part of the expression.
 
-As *local identification part* Model Baker suggests the couter provided by the `t_id` sequence.
+As *local identification part* Model Baker suggests the counter provided by the `t_id` sequence.
 
 In the QGIS Project the default value expression for `t_ili_tid` is therefore this:
 
