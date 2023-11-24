@@ -112,7 +112,7 @@ In case you don't have data to import into your default dataset and want to coll
 
 ![wizard basket page](../assets/workflow_wizard_default_baskets_page.png)
 
-If you don't know what it is about, check more details [here](../../background_info/basket_hanlding/#creation_of_baskets) or just press *Create baskets* and then *Next*.
+If you don't know what it is about, check more details [here](../../background_info/basket_handling/#creation-of-baskets) or just press *Create baskets* and then *Next*.
 
 ## Import of INTERLIS Data
 
