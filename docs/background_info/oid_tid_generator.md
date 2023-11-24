@@ -68,7 +68,7 @@ t_id
 
 It's defined as `OID TEXT*16` and follows some specific requirements.
 
-It requireds an 8 char prefix and 8 char postfix:
+It requires an 8 char prefix and 8 char postfix:
 
 - **Prefix (2 + 6 chars):** Country identifier + a *global identification part* assigned once by the [official authority](https://www.interlis.ch/dienste/oid-bestellen)
 
