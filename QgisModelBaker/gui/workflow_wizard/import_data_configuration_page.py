@@ -28,6 +28,7 @@ from qgis.PyQt.QtWidgets import (
     QCompleter,
     QHeaderView,
     QStyledItemDelegate,
+    QTextEdit,
     QWizardPage,
 )
 
@@ -77,11 +78,21 @@ class DatasetComboDelegate(QStyledItemDelegate):
         editor.setGeometry(option.rect)
 
     def paint(self, painter, option, index):
-        opt = self.createEditor(self.parent, option, index)
-        opt.editable = False
-        value = index.data(int(gui_utils.SourceModel.Roles.DATASET_NAME))
-        num = self.items.index(value) if value in self.items else 0
-        opt.setCurrentIndex(num)
+        if (
+            index.model()
+            .index(index.row(), gui_utils.SourceModel.Columns.IS_CATALOGUE)
+            .data(int(gui_utils.SourceModel.Roles.IS_CATALOGUE))
+        ):
+            opt = QTextEdit()
+            opt.editable = False
+            opt.setText("---")
+            opt.setEnabled(False)
+        else:
+            opt = self.createEditor(self.parent, option, index)
+            opt.editable = False
+            value = index.data(int(gui_utils.SourceModel.Roles.DATASET_NAME))
+            num = self.items.index(value) if value in self.items else 0
+            opt.setCurrentIndex(num)
         opt.resize(option.rect.width(), option.rect.height())
         pixmap = QPixmap(opt.width(), opt.height())
         opt.render(pixmap)
