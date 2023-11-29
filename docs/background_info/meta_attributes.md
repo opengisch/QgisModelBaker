@@ -31,12 +31,12 @@ VERSION "2017-02-08"  =
     !!@ topicInformation="Route-Type"
     TOPIC TypeOfRouteCatalogue
     EXTENDS CatalogueObjects_V1.Catalogues =
-    !!@ dispExpression="CONCAT(type, ' sometext')"
+    !!@ qgis.modelbaker.dispExpression="CONCAT(type, ' sometext')"
     CLASS TypeOfRoute
     EXTENDS CatalogueObjects_V1.Catalogues.Item =
 ```
 
-`furtherInformation` is referenced to `ExceptionalLoadsCatalogues_V1`, `topicInformation` to `TypeOfRouteCatalogue` and `dispExpression` to `TypeOfRoute`.
+`furtherInformation` is referenced to `ExceptionalLoadsCatalogues_V1`, `topicInformation` to `TypeOfRouteCatalogue` and `qgis.modelbaker.dispExpression` to `TypeOfRoute`.
 
 For more complex usage see the [INTERLIS 2-Metamodell](https://www.interlis.ch/download/interlis2/ili23-metamodel_2008-08-29_d.pdf)
 
@@ -44,11 +44,11 @@ For more complex usage see the [INTERLIS 2-Metamodell](https://www.interlis.ch/d
 
 When importing the data from the INTERLIS file to the DB, with ili2db integrated in the Model Baker, the meta attributes are stored in the table **t_ili2db_meta_attrs**:
 
-| ilielement                                                     | attr_name          | attr_value                  |
-|----------------------------------------------------------------|--------------------|-----------------------------|
-| ExceptionalLoadsCatalogues_V1                                  | furtherInformation | https://www.astra.admin.ch/ |
-| ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue             | topicInformation   | Route-Type                  |
-| ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute | dispExpression     | CONCAT(type, ' sometext')   |
+| ilielement                                                     | attr_name                      | attr_value                  |
+|----------------------------------------------------------------|--------------------------------|-----------------------------|
+| ExceptionalLoadsCatalogues_V1                                  | furtherInformation             | https://www.astra.admin.ch/ |
+| ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue             | topicInformation               | Route-Type                  |
+| ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute | qgis.modelbaker.dispExpression | CONCAT(type, ' sometext')   |
 
 ## Model Baker Specific Meta Attributes
 
@@ -56,7 +56,7 @@ Some additional non standard meta attributes are understood by the Model Baker a
 
 ### List of specific Attributes
 
-- **dispExpression**
+- **qgis.modelbaker.dispExpression**
 Used as the display expression for a layer. The display expression is the *name* that is used to identify a feature by text. One of the places where this is used is the combobox that is shown for a Relation Reference Widget on feature forms. ![relation reference](../assets/meta_attributes_relation_reference.png)
 
 
@@ -77,12 +77,12 @@ ExceptionalLoadsRoute.ini:
 
 ```ini
 ["ExceptionalLoadsRoute.TypeOfRouteCatalogue.TypeOfRoute"]
-dispExpression="type"
+qgis.modelbaker.dispExpression="type"
 ```
 Or using a more complex expression:
 ```ini
 ["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]
-dispExpression="CONCAT(type, ' sometext')"
+qgis.modelbaker.dispExpression="CONCAT(type, ' sometext')"
 ```
 
 The keys that need to be used for the INI sections are the *fully qualified INTERLIS names* of the objects. In the example above this is `["ExceptionalLoadsCatalogues_V1.TypeOfRouteCatalogue.TypeOfRoute"]`. A list of all available names can be found in the database table `t_ili2db_classname` after doing a schema import.
@@ -91,7 +91,7 @@ The keys that need to be used for the INI sections are the *fully qualified INTE
 
 The above example would be written as follows directly in an INTERLIS file (ExceptionalLoadsRoute.ili). If the above configuration is in the ini file, the ili meta attribute is no longer required, this is only here for reference.
 ```
-  !!@dispExpression="type"
+  !!@qgis.modelbaker.dispExpression="type"
   CLASS TypeOfRoute=
     type: MANDATORY TEXT*25;
   END TypeOfRoute;

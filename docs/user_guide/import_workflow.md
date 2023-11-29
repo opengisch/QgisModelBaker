@@ -96,7 +96,7 @@ If this option is activated, circular arcs are stroked when importing the data.
 You can define `sql` scripts that runs before and after the (schema) import.
 ### Extra Meta Attribute File
 
-A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `dispExpression`) instead of having them directly in the `ili` file.
+A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `qgis.modelbaker.dispExpression`) instead of having them directly in the `ili` file.
 
 ## Run ili2db Sessions
 
