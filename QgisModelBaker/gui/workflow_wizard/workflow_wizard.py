@@ -293,13 +293,13 @@ class WorkflowWizard(QWizard):
                     self.schema_configuration_page.setComplete(True)
 
             if self.current_id == PageIds.ImportSchemaExecution:
-                # if transfer files available, then go to data import
-                if self.import_data_file_model.rowCount():
-                    return PageIds.ImportDataConfiguration
-
                 # if basket handling active, go to the create basket
                 if self._basket_handling(self.import_schema_configuration):
                     return PageIds.DefaultBaskets
+
+                # if transfer files available, then go to data import
+                if self.import_data_file_model.rowCount():
+                    return PageIds.ImportDataConfiguration
 
                 # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
                 self.log_panel.print_info(
@@ -323,6 +323,10 @@ class WorkflowWizard(QWizard):
                 return PageIds.ProjectCreation
 
             if self.current_id == PageIds.DefaultBaskets:
+                # if transfer files available, then go to data import
+                if self.import_data_file_model.rowCount():
+                    return PageIds.ImportDataConfiguration
+
                 # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
                 self.log_panel.print_info(
                     self.tr(
