@@ -256,7 +256,8 @@ class FileDropListView(QListView):
     List view allowing to drop ili and transfer files.
     """
 
-    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili", "XML", "xml"]
+    ValidExtenstions = ["xtf", "XTF", "itf", "ITF", "ili"]
+    ValidXmlExtensions = ["XML", "xml"]
     ValidIniExtensions = ["ini", "INI", "toml", "TOML"]
 
     files_dropped = pyqtSignal(list, list)
@@ -277,20 +278,34 @@ class FileDropListView(QListView):
                 break
 
     def dropEvent(self, event):
-        dropped_files = [
-            url.toLocalFile()
-            for url in event.mimeData().urls()
-            if pathlib.Path(url.toLocalFile()).suffix[1:]
-            in FileDropListView.ValidExtenstions
-        ]
-        dropped_ini_files = [
-            url.toLocalFile()
-            for url in event.mimeData().urls()
-            if pathlib.Path(url.toLocalFile()).suffix[1:]
-            in FileDropListView.ValidIniExtensions
-        ]
+        dropped_files, dropped_xml_files, dropped_ini_files = self.extractDroppedFiles(
+            event.mimeData().urls()
+        )
+
+        dropped_files.extend(dropped_xml_files)
         self.files_dropped.emit(dropped_files, dropped_ini_files)
         event.acceptProposedAction()
+
+    @staticmethod
+    def extractDroppedFiles(url_list):
+        dropped_interlis_files = []
+        dropped_xml_files = []
+        dropped_ini_files = []
+        for url in url_list:
+            local_file = url.toLocalFile()
+            suffix = pathlib.Path(local_file).suffix[1:]
+            if suffix in FileDropListView.ValidExtenstions:
+                dropped_interlis_files.append(local_file)
+                continue
+
+            if suffix in FileDropListView.ValidXmlExtensions:
+                dropped_xml_files.append(local_file)
+                continue
+
+            if suffix in FileDropListView.ValidIniExtensions:
+                dropped_ini_files.append(local_file)
+
+        return dropped_interlis_files, dropped_xml_files, dropped_ini_files
 
 
 class SourceModel(QStandardItemModel):

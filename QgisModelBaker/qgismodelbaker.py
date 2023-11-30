@@ -563,29 +563,18 @@ class DropFileFilter(QObject):
         When files are dropped, then ask to use it in the model baker.
         """
         if event.type() == QEvent.Drop:
-            dropped_files = [
-                url.toLocalFile()
-                for url in event.mimeData().urls()
-                if pathlib.Path(url.toLocalFile()).suffix[1:]
-                in FileDropListView.ValidExtenstions
-            ]
-            additional_xml_files = [
-                url.toLocalFile()
-                for url in event.mimeData().urls()
-                if pathlib.Path(url.toLocalFile()).suffix[1:] in ["xml", "XML"]
-            ]
-            additional_ini_files = [
-                url.toLocalFile()
-                for url in event.mimeData().urls()
-                if pathlib.Path(url.toLocalFile()).suffix[1:]
-                in FileDropListView.ValidIniExtensions
-            ]
+            (
+                dropped_files,
+                dropped_xml_files,
+                dropped_ini_files,
+            ) = FileDropListView.extractDroppedFiles(event.mimeData().urls())
+
+            # Outside wizard, accept drops only for "real" interlis files, as xml and ini are too generic to assume must be handled by MB
             if dropped_files:
-                if self._is_handling_requested(
-                    dropped_files + additional_xml_files + additional_ini_files
-                ):
+                dropped_files.extend(dropped_xml_files)
+                if self._is_handling_requested(dropped_files + dropped_ini_files):
                     if self.parent.handle_dropped_files(
-                        dropped_files + additional_xml_files, additional_ini_files
+                        dropped_files, dropped_ini_files
                     ):
                         return True
         return False
