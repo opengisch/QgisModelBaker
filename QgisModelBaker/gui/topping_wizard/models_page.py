@@ -67,6 +67,9 @@ class ModelsPage(QWizardPage, PAGE_UI):
                 self.tr("No models set."),
                 gui_utils.LogColor.COLOR_SUCCESS,
             )
+        self.topping_wizard.topping.preferred_datasource = (
+            self.source_combobox.currentData()
+        )
         return super().validatePage()
 
     def _refresh(self):
