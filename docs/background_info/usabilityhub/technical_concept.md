@@ -41,7 +41,7 @@ Additional servers/repositories can be linked via the `ilisite.xml`. The `Datase
     </DatasetIdx16.Code_>
     <DatasetIdx16.Code_>
       <!--  Codes können auch generisch sein  -->
-    	<value>http://codes.opengis.ch/modelbaker</value>
+    	<value>http://codes.modelbaker.ch/preferredDataSource/gpkg</value>
       <!--  müssen aber eine URL sein  -->
     </DatasetIdx16.Code_>
   </categories>

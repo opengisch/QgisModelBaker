@@ -29,8 +29,8 @@ from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataCache,
+    IliDataFileCompleterDelegate,
     IliDataItemModel,
-    MetaConfigCompleterDelegate,
 )
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
@@ -71,7 +71,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
-        self.metaconfig_delegate = MetaConfigCompleterDelegate()
+        self.metaconfig_delegate = IliDataFileCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = []
         self.current_metaconfig_id = None
