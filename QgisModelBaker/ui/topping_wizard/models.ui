@@ -14,6 +14,19 @@
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>693</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
@@ -28,6 +41,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the type for which this topping should be made or specify none (allow all). This value will be written into  the categories and the toppings will be filtered accordingly.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>Select the Models of Interest. These are the models on what you will find the metaconfiguration / topping at UsabILIty Hub.</string>
      </property>
@@ -36,6 +52,13 @@
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="refresh_button">
+     <property name="text">
+      <string>Refresh</string>
      </property>
     </widget>
    </item>
@@ -49,23 +72,35 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>693</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
+   <item row="3" column="0" colspan="2">
+    <widget class="QComboBox" name="source_combobox">
+     <item>
+      <property name="text">
+       <string>Allow all sources</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PostGIS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>GeoPackage</string>
+      </property>
+     </item>
+    </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="refresh_button">
+   <item row="2" column="0">
+    <widget class="QLabel" name="source_description">
+     <property name="toolTip">
+      <string/>
+     </property>
      <property name="text">
-      <string>Refresh</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the type for which this topping should be made or specify none (allow all).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

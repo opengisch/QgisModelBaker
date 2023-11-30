@@ -70,18 +70,21 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().validatePage()
 
     def _refresh(self):
-        self._load_available_models()
+        self._load_available_models_and_sources()
         self.models_model.check_entries(self.topping_wizard.topping.models)
 
-    def _load_available_models(self):
+    def _load_available_models_and_sources(self):
         """
         Collects all the available sources in the project and makes the models_model to refresh accordingly.
         """
         checked_identificators = []
         db_connectors = []
+        sources = set()
+
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
+                self._append_possible_sources(sources, source_provider)
                 schema_identificator = (
                     db_utils.get_schema_identificator_from_sourceprovider(
                         source_provider
@@ -101,3 +104,32 @@ class ModelsPage(QWizardPage, PAGE_UI):
                         if db_connector:
                             db_connectors.append(db_connector)
         self.models_model.refresh_model(db_connectors)
+
+        self._refresh_source_combobox(sources)
+
+    def _append_possible_sources(self, sources, provider):
+        if provider.name() == "postgres":
+            sources.add("pg")
+        elif provider.name() == "mssql":
+            sources.add("mssql")
+        elif provider.name() == "ogr" and provider.storageType() == "GPKG":
+            sources.add("gpkg")
+
+    def _refresh_source_combobox(self, sources):
+        display_map = {"pg": "PostGIS", "gpkg": "GeoPackage", "mssql": "MSSQL"}
+
+        self.source_combobox.clear()
+        for source in list(sources):
+            self.source_combobox.addItem(display_map[source], source)
+
+        none_text = self.tr("No source defined (allow all)")
+
+        self.source_combobox.addItem(none_text, None)
+
+        if len(sources) == 1:
+            # it's clear which one we take
+            self.source_combobox.setCurrentText(display_map[list(sources)[0]])
+        else:
+            # no sources or it's not clear which one
+            self.source_combobox.setCurrentText(none_text)
+        self.source_combobox.setEnabled(bool(sources))
