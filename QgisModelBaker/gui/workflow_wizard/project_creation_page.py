@@ -277,11 +277,34 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
-        # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
+        transaction_mode = custom_project_properties.get("transaction_mode", None)
+
+        if Qgis.QGIS_VERSION_INT < 32600:
+            # pass transaction_mode as boolean
+            if transaction_mode is None:
+                # on geopackages we don't use the transaction mode on default otherwise we do
+                transaction_mode = not bool(self.configuration.tool & DbIliMode.gpkg)
+            else:
+                transaction_mode = custom_transaction_mode == "AutomaticGroups"
+        else:
+            # pass transaction_mode as string
+            if transaction_mode is None:
+                # on geopackages we don't use the transaction mode on default otherwise we do
+                transaction_mode = (
+                    "Disabled"
+                    if not bool(self.configuration.tool & DbIliMode.gpkg)
+                    else "AutomaticGroups"
+                )
+            else:
+                # in case the topping used True/False value we need to convert
+                if transaction_mode is True:
+                    transaction_mode = "AutomaticGroups"
+                if transaction_mode is False:
+                    transaction_mode = "Disabled"
+                # otherwise it's already a string and could be everything
+
         project = Project(
-            auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg)
-            or custom_project_properties.get("transaction_mode", "")
-            == "AutomaticGroups",
+            auto_transaction=transaction_mode,
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
             optimize_strategy=self.optimize_combo.currentData(),
         )
