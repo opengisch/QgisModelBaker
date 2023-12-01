@@ -277,13 +277,25 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.progress_bar.setValue(55)
 
+        # override optimize strategy if give n by topic
+        optimize_strategy = custom_project_properties.get("ili_optimize_strategy", None)
+
+        if optimize_strategy == "HIDE":
+            optimize_strategy = OptimizeStrategy.HIDE
+        elif optimize_strategy == "GROUP":
+            optimize_strategy = OptimizeStrategy.GROUP
+        elif optimize_strategy == "NONE":
+            optimize_strategy = OptimizeStrategy.NONE
+        else:
+            optimize_strategy = self.optimize_combo.currentData()
+
         # on geopackages we don't use the transaction mode on default, since this leaded to troubles, except the topping sais so
         project = Project(
             auto_transaction=not bool(self.configuration.tool & DbIliMode.gpkg)
             or custom_project_properties.get("transaction_mode", "")
             == "AutomaticGroups",
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
-            optimize_strategy=self.optimize_combo.currentData(),
+            optimize_strategy=optimize_strategy,
         )
         project.layers = available_layers
         project.relations = relations
