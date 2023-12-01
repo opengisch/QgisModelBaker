@@ -75,20 +75,19 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
         self.model_delegate = ModelCompleterDelegate()
-        self._refresh_ili_models_cache()
         self.input_line_edit.setPlaceholderText(
             self.tr("[Browse for file or search model from repository]")
         )
 
         # very unhappy about this behavior, but okay for prototype
-        self.first_time_punched = False
-        self.input_line_edit.punched.connect(self._first_time_punch)
+        self.input_line_edit.textChanged.connect(self._complete_models_completer)
+        self.input_line_edit.punched.connect(self._complete_models_completer)
 
         self.source_list_view.setModel(self.workflow_wizard.source_model)
         self.add_button.clicked.connect(self._add_row)
         self.remove_button.clicked.connect(self._remove_selected_rows)
 
-        self.add_button.setEnabled(self._valid_source())
+        self.add_button.setEnabled(False)
         self.input_line_edit.textChanged.connect(
             lambda: self.add_button.setEnabled(self._valid_source())
         )
@@ -106,24 +105,10 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.clear_cache_button.clicked.connect(self._clear_cache_button_clicked)
 
     def nextId(self):
-        self._disconnect_punch_slots()
         return self.workflow_wizard.next_id()
 
-    def _first_time_punch(self):
-        # might be nicer
-        self.input_line_edit.punched.disconnect(self._first_time_punch)
-        self.input_line_edit.textChanged.emit(self.input_line_edit.text())
-        self.input_line_edit.textChanged.connect(self._complete_models_completer)
-        self.input_line_edit.punched.connect(self._complete_models_completer)
-        self.first_time_punched = True
-
-    def _disconnect_punch_slots(self):
-        # might be nicer
-        if self.first_time_punched:
-            self.input_line_edit.textChanged.disconnect(self._complete_models_completer)
-            self.input_line_edit.punched.disconnect(self._complete_models_completer)
-            self.input_line_edit.punched.connect(self._first_time_punch)
-            self.first_time_punched = False
+    def initializePage(self) -> None:
+        self._refresh_ili_models_cache()
 
     def _refresh_ili_models_cache(self):
         self.ilicache.new_message.connect(self.workflow_wizard.log_panel.show_message)

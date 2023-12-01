@@ -36,8 +36,8 @@ import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliDataFileCompleterDelegate,
     IliDataItemModel,
-    MetaConfigCompleterDelegate,
 )
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
 from QgisModelBaker.utils.gui_utils import CheckDelegate, LogColor
@@ -118,7 +118,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.ilireferencedatacache.file_download_failed.connect(
             self._on_referencedata_failed
         )
-        self.ilireferencedata_delegate = MetaConfigCompleterDelegate()
+        self.ilireferencedata_delegate = IliDataFileCompleterDelegate()
         self.ilireferencedata_line_edit.setPlaceholderText(
             self.tr("[Search referenced data files from UsabILIty Hub]")
         )

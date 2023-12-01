@@ -101,7 +101,7 @@ class ToppingWizard(QWizard):
         if id == ToppingWizardPageIds.Target:
             return self.tr("Target Folder Selection")
         elif id == ToppingWizardPageIds.Models:
-            return self.tr("Model Selection")
+            return self.tr("Model and Source Selection")
         elif id == ToppingWizardPageIds.Layers:
             return self.tr("Layer Configuration")
         elif id == ToppingWizardPageIds.Additives:
