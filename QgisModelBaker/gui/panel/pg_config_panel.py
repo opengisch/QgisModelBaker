@@ -112,6 +112,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_database_line_edit.textChanged.connect(self._fields_modified)
         self.pg_schema_combo_box.currentTextChanged.connect(self.notify_fields_modified)
 
+        self.pg_auth_settings.usernameChanged.connect(self._fields_modified)
+        self.pg_auth_settings.passwordChanged.connect(self._fields_modified)
+        self.pg_auth_settings.configIdChanged.connect(self._fields_modified)
+
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
         for service in pgserviceparser.service_names():
@@ -173,6 +177,14 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
         self._show_panel()
+
+    def __del__(self):
+        # Make sure the refresh schemas task is finished to avoid crashes
+        try:
+            if self._read_pg_schemas_task:
+                self._read_pg_schemas_task.wait()
+        except RuntimeError:
+            pass
 
     def _show_panel(self):
 
@@ -462,7 +474,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _fields_modified(self):
-
         self._fill_schema_combo_box_timer.start(self.REFRESH_SCHEMAS_TIMEOUT_MS)
 
         self.notify_fields_modified.emit()
