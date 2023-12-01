@@ -285,7 +285,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 # on geopackages we don't use the transaction mode on default otherwise we do
                 transaction_mode = not bool(self.configuration.tool & DbIliMode.gpkg)
             else:
-                transaction_mode = custom_transaction_mode == "AutomaticGroups"
+                transaction_mode = (
+                    custom_transaction_mode == Qgis.TransactionMode.AutomaticGroups.name
+                )
         else:
             # pass transaction_mode as string
             if transaction_mode is None:
@@ -293,14 +295,14 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 transaction_mode = (
                     "Disabled"
                     if not bool(self.configuration.tool & DbIliMode.gpkg)
-                    else "AutomaticGroups"
+                    else Qgis.TransactionMode.AutomaticGroups.name
                 )
             else:
                 # in case the topping used True/False value we need to convert
                 if transaction_mode is True:
-                    transaction_mode = "AutomaticGroups"
+                    transaction_mode = Qgis.TransactionMode.AutomaticGroups.name
                 if transaction_mode is False:
-                    transaction_mode = "Disabled"
+                    transaction_mode = Qgis.TransactionMode.Disabled.name
                 # otherwise it's already a string and could be everything
 
         project = Project(
