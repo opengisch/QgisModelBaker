@@ -124,22 +124,23 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.existing_topping_checkbox.setVisible(False)
         self.existing_projecttopping_id = self._existing_projecttopping_id()
         if self.existing_projecttopping_id:
-            self.tr("Use existing project topping {}").format(self.projecttopping_id)
             self.existing_topping_checkbox.setVisible(True)
+            # with setting it checked _use_existing is called
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
         self.busy(False)
 
     def _use_existing(self, state):
-        # triggered by checked state...
+        # triggered by checked state.
         if state:
             self._clean_topping()
-            self.topping_line_edit.setText("")
-            self._enable_topping_selection(False)
-            self._enable_optimize_combo(False)
             self.projecttopping_id = self.existing_projecttopping_id
             self._set_topping_info(True)
+            # disable other widgets
+            self._enable_topping_selection(False)
+            self._enable_optimize_combo(False)
+            self.topping_line_edit.setText("")
         else:
             self._clean_topping()
             self.ilitoppingcache = IliDataCache(
@@ -165,7 +166,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.ilitoppingcache.model_refreshed.connect(
                 lambda: self._enable_topping_selection(True)
             )
-            self._enable_optimize_combo(True)
             self.ilitoppingcache.refresh()
 
             completer = QCompleter(
@@ -179,7 +179,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             completer.setFilterMode(Qt.MatchContains)
             completer.popup().setItemDelegate(self.ilitopping_delegate)
             self.topping_line_edit.setCompleter(completer)
-            self._enable_optimize_combo(True)
 
     def _enable_topping_selection(self, state):
         # doublecheck if meanwhile user checked box again
@@ -189,79 +188,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.topping_line_edit.setEnabled(state)
         self.topping_line_label.setEnabled(state)
         self.topping_info.setEnabled(state)
+
+        self._enable_optimize_combo(state)
         self.busy(False)
 
     def _enable_optimize_combo(self, state):
         self.optimize_combo.setEnabled(state)
         self.optimize_label.setEnabled(state)
-
-    def _datasource_metaconfig(self):
-        metaconfig_id = None
-        setting_records = self.db_connector.get_ili2db_settings()
-        for setting_record in setting_records:
-            if setting_record["tag"] == "ch.ehi.ili2db.metaConfigFileName":
-                metaconfig_id = setting_record["setting"]
-                break
-        if metaconfig_id:
-            metaconfig_file_path_list = self.workflow_wizard.get_topping_file_list(
-                [metaconfig_id]
-            )
-
-            if not metaconfig_file_path_list:
-                self.workflow_wizard.log_panel.print_info(
-                    self.tr(
-                        "Found a metaconfig-id ({}) in the data source, but no corresponding metaconfig in the repositories."
-                    ).format(metaconfig_id),
-                    LogColor.COLOR_TOPPING,
-                )
-                return None
-
-            metaconfig = configparser.ConfigParser()
-            with open(metaconfig_file_path_list[0]) as metaconfig_file:
-                metaconfig.read_file(metaconfig_file)
-                return metaconfig
-
-        return None
-
-    def _existing_projecttopping_id(self):
-        metaconfig = self.configuration.metaconfig
-
-        if not metaconfig:
-            metaconfig = self._datasource_metaconfig()
-
-        if not metaconfig:
-            # no existing metaconfig available
-            return None
-
-        # get projecttopping_id from metaconfig
-        if "CONFIGURATION" in metaconfig.sections():
-            configuration_section = metaconfig["CONFIGURATION"]
-            # get topping referenced in qgis.modelbaker.projecttopping
-            key = "qgis.modelbaker.projecttopping"
-            if key not in configuration_section:
-                key = "qgis.modelbaker.layertree"
-                self.workflow_wizard.log_panel.print_info(
-                    self.tr(
-                        'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
-                    ),
-                    LogColor.COLOR_TOPPING,
-                )
-
-            if key in configuration_section:
-                self.workflow_wizard.log_panel.print_info(
-                    self.tr("Metaconfig contains a project topping."),
-                    LogColor.COLOR_TOPPING,
-                )
-                projecttopping_id_list = configuration_section[key].split(";")
-                if len(projecttopping_id_list) > 1:
-                    self.workflow_wizard.log_panel.print_info(
-                        self.tr(
-                            "Only one projectopping allowed. Taking first one of the list."
-                        ),
-                        LogColor.COLOR_TOPPING,
-                    )
-                return projecttopping_id_list[0]
-        return None
 
     def _complete_completer(self):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
@@ -353,21 +286,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 "#ffffff" if valid else "#ffd356"
             )
         )
-
-    def _modelnames(self):
-        modelnames = []
-        db_models = self.db_connector.get_models()
-        regex = re.compile(r"(?:\{[^\}]*\}|\s)")
-        for db_model in db_models:
-            for modelname in regex.split(db_model["modelname"]):
-                name = modelname.strip()
-                if (
-                    name
-                    and name not in TRANSFERFILE_MODELS_BLACKLIST
-                    and name not in modelnames
-                ):
-                    modelnames.append(name)
-        return modelnames
 
     def _create_project(self):
         self.progress_bar.setValue(0)
@@ -659,6 +577,89 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             data_file_path_list = self.workflow_wizard.get_topping_file_list([path])
             return data_file_path_list[0] if data_file_path_list else None
         return os.path.join(base_path, path)
+
+    def _datasource_metaconfig(self):
+        metaconfig_id = None
+        setting_records = self.db_connector.get_ili2db_settings()
+        for setting_record in setting_records:
+            if setting_record["tag"] == "ch.ehi.ili2db.metaConfigFileName":
+                metaconfig_id = setting_record["setting"]
+                break
+        if metaconfig_id:
+            metaconfig_file_path_list = self.workflow_wizard.get_topping_file_list(
+                [metaconfig_id]
+            )
+
+            if not metaconfig_file_path_list:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        "Found a metaconfig-id ({}) in the data source, but no corresponding metaconfig in the repositories."
+                    ).format(metaconfig_id),
+                    LogColor.COLOR_TOPPING,
+                )
+                return None
+
+            metaconfig = configparser.ConfigParser()
+            with open(metaconfig_file_path_list[0]) as metaconfig_file:
+                metaconfig.read_file(metaconfig_file)
+                return metaconfig
+
+        return None
+
+    def _existing_projecttopping_id(self):
+        metaconfig = self.configuration.metaconfig
+
+        if not metaconfig:
+            metaconfig = self._datasource_metaconfig()
+
+        if not metaconfig:
+            # no existing metaconfig available
+            return None
+
+        # get projecttopping_id from metaconfig
+        if "CONFIGURATION" in metaconfig.sections():
+            configuration_section = metaconfig["CONFIGURATION"]
+            # get topping referenced in qgis.modelbaker.projecttopping
+            key = "qgis.modelbaker.projecttopping"
+            if key not in configuration_section:
+                key = "qgis.modelbaker.layertree"
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
+                    ),
+                    LogColor.COLOR_TOPPING,
+                )
+
+            if key in configuration_section:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr("Metaconfig contains a project topping."),
+                    LogColor.COLOR_TOPPING,
+                )
+                projecttopping_id_list = configuration_section[key].split(";")
+                if len(projecttopping_id_list) > 1:
+                    self.workflow_wizard.log_panel.print_info(
+                        self.tr(
+                            "Only one projectopping allowed. Taking first one of the list."
+                        ),
+                        LogColor.COLOR_TOPPING,
+                    )
+                return projecttopping_id_list[0]
+        return None
+
+    def _modelnames(self):
+        modelnames = []
+        db_models = self.db_connector.get_models()
+        regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+        for db_model in db_models:
+            for modelname in regex.split(db_model["modelname"]):
+                name = modelname.strip()
+                if (
+                    name
+                    and name not in TRANSFERFILE_MODELS_BLACKLIST
+                    and name not in modelnames
+                ):
+                    modelnames.append(name)
+        return modelnames
 
     def busy(self, busy, text=None):
         self.setEnabled(not busy)
