@@ -195,3 +195,10 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, color)
+
+    def busy(self, busy, text=None):
+        self.setEnabled(not busy)
+        if busy:
+            self.workflow_wizard.start_busy_bar(text)
+        else:
+            self.workflow_wizard.stop_busy_bar()

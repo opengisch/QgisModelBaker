@@ -185,6 +185,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache.model_refreshed.connect(
             self._update_metaconfig_completer
         )
+        self.busy(True, self.tr("Refresh repository data..."))
         self._refresh_ili_metaconfig_cache()
 
     def _update_ilireferencedatacache(self):
@@ -289,6 +290,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
+        self.busy(False)
 
     def _on_metaconfig_completer_activated(self, text=None):
         self._clean_metaconfig()
@@ -315,8 +317,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
                     metaconfig_id,
                     self.ilimetaconfigcache.model.data(
-                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION) or ""
-                    ),
+                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
+                    )
+                    or "",
                 )
             )
             self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
@@ -433,6 +436,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._crs_changed()
 
     def _load_metaconfig(self):
+        self.busy(True, "Load metaconfiguration...")
         # load ili2db parameters to the GUI
         if "ch.ehi.ili2db" in self.metaconfig.sections():
             self.workflow_wizard.log_panel.print_info(
@@ -570,3 +574,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             LogColor.COLOR_TOPPING,
                         )
             self.workflow_wizard.refresh_import_models()
+
+        self.busy(False)
+
+    def busy(self, busy, text=None):
+        self.setEnabled(not busy)
+        if busy:
+            self.workflow_wizard.start_busy_bar(text)
+        else:
+            self.workflow_wizard.stop_busy_bar()

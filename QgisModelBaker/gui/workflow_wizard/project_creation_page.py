@@ -113,7 +113,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.completeChanged.emit()
 
     def restore_configuration(self, configuration):
-        self.setEnabled(False)
+        self.busy(
+            True,
+            self.tr("Restoring configuration and check existing metaconfigfile..."),
+        )
         self.configuration = configuration
         self.db_connector = db_utils.get_db_connector(self.configuration)
 
@@ -126,7 +129,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
-        self.setEnabled(True)
+        self.busy(False)
 
     def _use_existing(self, state):
         # triggered by checked state...
@@ -139,14 +142,26 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self._set_topping_info(True)
         else:
             self._clean_topping()
-            models = ";".join(self._modelnames())
             self.ilitoppingcache = IliDataCache(
-                self.configuration.base_configuration, "projecttopping", models
+                self.configuration.base_configuration,
+                type="projecttopping",
+                models=";".join(self._modelnames()),
+                datasources=["pg"]
+                if (
+                    self.workflow_wizard.import_schema_configuration.tool & DbIliMode.pg
+                )
+                else ["gpkg"]
+                if (
+                    self.workflow_wizard.import_schema_configuration.tool
+                    & DbIliMode.gpkg
+                )
+                else None,
             )
             self.ilitoppingcache.new_message.connect(
                 self.workflow_wizard.log_panel.show_message
             )
-            # wait before activating untill end of refreshment
+            # wait before activating until end of refreshment
+            self.busy(True, self.tr("Refresh repository data..."))
             self.ilitoppingcache.model_refreshed.connect(
                 lambda: self._enable_topping_selection(True)
             )
@@ -174,6 +189,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.topping_line_edit.setEnabled(state)
         self.topping_line_label.setEnabled(state)
         self.topping_info.setEnabled(state)
+        self.busy(False)
 
     def _enable_optimize_combo(self, state):
         self.optimize_combo.setEnabled(state)
@@ -307,21 +323,26 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
     def _set_topping_info(self, valid, index=None):
         if self.projecttopping_id:
             if index:
+                if self.existing_topping_checkbox.isChecked():
+                    info = self.tr(
+                        "Project topping received according to the id found in the database or selected previously"
+                    )
+                else:
+                    info = self.tr("Project topping received according selection")
                 self.topping_info.setText(
-                    self.tr(
-                        "<html><head/><body><p><b>Current project topping is: {} ({})</b><br><i>{}</i></p></body></html>"
-                    ).format(
-                        self.ilitoppingcache.model.data(index, Qt.DisplayRole),
+                    "<html><head/><body><p><b>{} ({})</b><br><i><b>{}</b></i></p></body></html>".format(
+                        info,
                         self.projecttopping_id,
                         self.ilitoppingcache.model.data(
-                            index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION) or ""
-                        ),
+                            index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
+                        )
+                        or "",
                     )
                 )
             else:
                 self.topping_info.setText(
                     self.tr(
-                        "<html><head/><body><p><b>Current project topping is: {}</b></p></body></html>"
+                        "<html><head/><body><p><b>Project topping from file {}</b></p></body></html>"
                     ).format(self.projecttopping_id)
                 )
 
@@ -638,3 +659,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             data_file_path_list = self.workflow_wizard.get_topping_file_list([path])
             return data_file_path_list[0] if data_file_path_list else None
         return os.path.join(base_path, path)
+
+    def busy(self, busy, text=None):
+        self.setEnabled(not busy)
+        if busy:
+            self.workflow_wizard.start_busy_bar(text)
+        else:
+            self.workflow_wizard.stop_busy_bar()
