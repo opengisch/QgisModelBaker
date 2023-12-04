@@ -17,28 +17,43 @@
  ***************************************************************************/
 """
 
+import configparser
 import os
+import re
 
 import yaml
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QWizardPage
+from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
-from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliToppingFileItemModel
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliDataCache,
+    IliDataFileCompleterDelegate,
+    IliDataItemModel,
+    IliToppingFileItemModel,
+)
 from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    FileValidator,
+    make_file_selector,
+)
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 
 
 class ProjectCreationPage(QWizardPage, PAGE_UI):
+
+    ValidExtensions = ["YAML", "yaml"]
+
     def __init__(self, parent, title):
         QWizardPage.__init__(self, parent)
 
@@ -47,6 +62,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
+
+        self.db_simple_factory = DbSimpleFactory()
+        self.configuration = None
+
+        self.existing_projecttopping_id = None
+        self.projecttopping_id = None
 
         self.optimize_combo.clear()
         self.optimize_combo.addItem(
@@ -57,12 +78,31 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         )
         self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
 
-        self.db_simple_factory = DbSimpleFactory()
-        self.configuration = None
-
         self.create_project_button.clicked.connect(self._create_project)
-
         self.is_complete = False
+
+        self.existing_topping_checkbox.setVisible(False)
+        self.existing_topping_checkbox.stateChanged.connect(self._use_existing)
+
+        self.ilitoppingcache = IliDataCache(None)
+        self.ilitopping_delegate = IliDataFileCompleterDelegate()
+        self.topping_line_edit.setPlaceholderText(
+            self.tr("[Search project toppings on the repositories or the local system]")
+        )
+        self.topping_line_edit.textChanged.connect(self._complete_completer)
+        self.topping_line_edit.punched.connect(self._complete_completer)
+        self.topping_line_edit.textChanged.emit(self.topping_line_edit.text())
+        self.topping_line_edit.textChanged.connect(self._on_completer_activated)
+        self.topping_file_browse_button.clicked.connect(
+            make_file_selector(
+                self.topping_line_edit,
+                title=self.tr("Project Topping"),
+                file_filter=self.tr("Project Topping File (*.yaml *.YAML)"),
+            )
+        )
+        self.fileValidator = FileValidator(
+            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
+        )
 
     def isComplete(self):
         return self.is_complete
@@ -73,7 +113,240 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.completeChanged.emit()
 
     def restore_configuration(self, configuration):
+        self.setEnabled(False)
         self.configuration = configuration
+        self.db_connector = db_utils.get_db_connector(self.configuration)
+
+        # get existing topping
+        self.existing_topping_checkbox.setVisible(False)
+        self.existing_projecttopping_id = self._existing_projecttopping_id()
+        if self.existing_projecttopping_id:
+            self.tr("Use existing project topping {}").format(self.projecttopping_id)
+            self.existing_topping_checkbox.setVisible(True)
+            self.existing_topping_checkbox.setChecked(True)
+        else:
+            self._use_existing(False)
+        self.setEnabled(True)
+
+    def _use_existing(self, state):
+        # triggered by checked state...
+        if state:
+            self._clean_topping()
+            self.topping_line_edit.setText("")
+            self._enable_topping_selection(False)
+            self._enable_optimize_combo(False)
+            self.projecttopping_id = self.existing_projecttopping_id
+            self._set_topping_info(True)
+        else:
+            self._clean_topping()
+            models = ";".join(self._modelnames())
+            self.ilitoppingcache = IliDataCache(
+                self.configuration.base_configuration, "projecttopping", models
+            )
+            self.ilitoppingcache.new_message.connect(
+                self.workflow_wizard.log_panel.show_message
+            )
+            # wait before activating untill end of refreshment
+            self.ilitoppingcache.model_refreshed.connect(
+                lambda: self._enable_topping_selection(True)
+            )
+            self._enable_optimize_combo(True)
+            self.ilitoppingcache.refresh()
+
+            completer = QCompleter(
+                self.ilitoppingcache.sorted_model,
+                self.topping_line_edit,
+            )
+            completer.setCaseSensitivity(Qt.CaseInsensitive)
+            completer.setModelSorting(
+                QCompleter.ModelSorting.CaseInsensitivelySortedModel
+            )
+            completer.setFilterMode(Qt.MatchContains)
+            completer.popup().setItemDelegate(self.ilitopping_delegate)
+            self.topping_line_edit.setCompleter(completer)
+            self._enable_optimize_combo(True)
+
+    def _enable_topping_selection(self, state):
+        # doublecheck if meanwhile user checked box again
+        if state:
+            state = state and not self.existing_topping_checkbox.isChecked()
+        self.topping_file_browse_button.setEnabled(state)
+        self.topping_line_edit.setEnabled(state)
+        self.topping_line_label.setEnabled(state)
+        self.topping_info.setEnabled(state)
+
+    def _enable_optimize_combo(self, state):
+        self.optimize_combo.setEnabled(state)
+        self.optimize_label.setEnabled(state)
+
+    def _datasource_metaconfig(self):
+        metaconfig_id = None
+        setting_records = self.db_connector.get_ili2db_settings()
+        for setting_record in setting_records:
+            if setting_record["tag"] == "ch.ehi.ili2db.metaConfigFileName":
+                metaconfig_id = setting_record["setting"]
+                break
+        if metaconfig_id:
+            metaconfig_file_path_list = self.workflow_wizard.get_topping_file_list(
+                [metaconfig_id]
+            )
+
+            if not metaconfig_file_path_list:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        "Found a metaconfig-id ({}) in the data source, but no corresponding metaconfig in the repositories."
+                    ).format(metaconfig_id),
+                    LogColor.COLOR_TOPPING,
+                )
+                return None
+
+            metaconfig = configparser.ConfigParser()
+            with open(metaconfig_file_path_list[0]) as metaconfig_file:
+                metaconfig.read_file(metaconfig_file)
+                return metaconfig
+
+        return None
+
+    def _existing_projecttopping_id(self):
+        metaconfig = self.configuration.metaconfig
+
+        if not metaconfig:
+            metaconfig = self._datasource_metaconfig()
+
+        if not metaconfig:
+            # no existing metaconfig available
+            return None
+
+        # get projecttopping_id from metaconfig
+        if "CONFIGURATION" in metaconfig.sections():
+            configuration_section = metaconfig["CONFIGURATION"]
+            # get topping referenced in qgis.modelbaker.projecttopping
+            key = "qgis.modelbaker.projecttopping"
+            if key not in configuration_section:
+                key = "qgis.modelbaker.layertree"
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
+                    ),
+                    LogColor.COLOR_TOPPING,
+                )
+
+            if key in configuration_section:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr("Metaconfig contains a project topping."),
+                    LogColor.COLOR_TOPPING,
+                )
+                projecttopping_id_list = configuration_section[key].split(";")
+                if len(projecttopping_id_list) > 1:
+                    self.workflow_wizard.log_panel.print_info(
+                        self.tr(
+                            "Only one projectopping allowed. Taking first one of the list."
+                        ),
+                        LogColor.COLOR_TOPPING,
+                    )
+                return projecttopping_id_list[0]
+        return None
+
+    def _complete_completer(self):
+        if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
+            if not self.topping_line_edit.text():
+                self.topping_line_edit.completer().setCompletionMode(
+                    QCompleter.UnfilteredPopupCompletion
+                )
+                self.topping_line_edit.completer().complete()
+            else:
+                match_contains = (
+                    self.topping_line_edit.completer()
+                    .completionModel()
+                    .match(
+                        self.topping_line_edit.completer()
+                        .completionModel()
+                        .index(0, 0),
+                        Qt.DisplayRole,
+                        self.topping_line_edit.text(),
+                        -1,
+                        Qt.MatchContains,
+                    )
+                )
+                if len(match_contains) > 1:
+                    self.topping_line_edit.completer().setCompletionMode(
+                        QCompleter.PopupCompletion
+                    )
+                    self.topping_line_edit.completer().complete()
+            self.topping_line_edit.completer().popup().scrollToTop()
+
+    def _on_completer_activated(self, text=None):
+        self._clean_topping()
+        if os.path.isfile(self.topping_line_edit.text()):
+            self.projecttopping_id = self.topping_line_edit.text()
+            self._set_topping_info(True)
+            self._enable_optimize_combo(False)
+            return
+
+        matches = self.ilitoppingcache.model.match(
+            self.ilitoppingcache.model.index(0, 0),
+            Qt.DisplayRole,
+            self.topping_line_edit.text(),
+            1,
+            Qt.MatchExactly,
+        )
+        if matches:
+            model_index = matches[0]
+            self.projecttopping_id = f"ilidata:{self.ilitoppingcache.model.data(model_index, int(IliDataItemModel.Roles.ID))}"
+            self._set_topping_info(True, model_index)
+            self._enable_optimize_combo(False)
+            return
+
+        self._set_topping_info(not self.topping_line_edit.text())
+        self._enable_optimize_combo(True)
+
+    def _clean_topping(self):
+        self.projecttopping_id = None
+        self.topping_info.setText("")
+
+    def _set_topping_info(self, valid, index=None):
+        if self.projecttopping_id:
+            if index:
+                self.topping_info.setText(
+                    self.tr(
+                        "<html><head/><body><p><b>Current project topping is: {} ({})</b><br><i>{}</i></p></body></html>"
+                    ).format(
+                        self.ilitoppingcache.model.data(index, Qt.DisplayRole),
+                        self.projecttopping_id,
+                        self.ilitoppingcache.model.data(
+                            index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION) or ""
+                        ),
+                    )
+                )
+            else:
+                self.topping_info.setText(
+                    self.tr(
+                        "<html><head/><body><p><b>Current project topping is: {}</b></p></body></html>"
+                    ).format(self.projecttopping_id)
+                )
+
+            self.topping_info.setStyleSheet(f"color: {LogColor.COLOR_TOPPING}")
+
+        self.topping_line_edit.setStyleSheet(
+            "QLineEdit {{ background-color: {} }}".format(
+                "#ffffff" if valid else "#ffd356"
+            )
+        )
+
+    def _modelnames(self):
+        modelnames = []
+        db_models = self.db_connector.get_models()
+        regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+        for db_model in db_models:
+            for modelname in regex.split(db_model["modelname"]):
+                name = modelname.strip()
+                if (
+                    name
+                    and name not in TRANSFERFILE_MODELS_BLACKLIST
+                    and name not in modelnames
+                ):
+                    modelnames.append(name)
+        return modelnames
 
     def _create_project(self):
         self.progress_bar.setValue(0)
@@ -167,117 +440,92 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         mapthemes = {}
         resolved_layouts = {}
         custom_variables = {}
+        transaction_mode = None
 
-        # Project topping file for legend and layers: collect and download
-        projecttopping_file_path_list = []
-        if (
-            self.configuration.metaconfig
-            and "CONFIGURATION" in self.configuration.metaconfig.sections()
-        ):
-            configuration_section = self.configuration.metaconfig["CONFIGURATION"]
-            # get topping referenced in qgis.modelbaker.projecttopping
-            key = "qgis.modelbaker.projecttopping"
-            if key not in configuration_section:
-                key = "qgis.modelbaker.layertree"
+        if self.projecttopping_id:
+            # Project topping file for legend and layers: collect and download
+            projecttopping_file_path = self.ilidata_path_resolver(
+                "", self.projecttopping_id
+            )
+
+            if projecttopping_file_path:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr(
-                        'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
+                    self.tr("Parse project topping file {}…").format(
+                        projecttopping_file_path
                     ),
                     LogColor.COLOR_TOPPING,
                 )
+                with open(projecttopping_file_path) as stream:
+                    try:
+                        projecttopping_data = yaml.safe_load(stream)
 
-            if key in configuration_section:
-                self.workflow_wizard.log_panel.print_info(
-                    self.tr("Metaconfig contains a project topping."),
-                    LogColor.COLOR_TOPPING,
-                )
-                projecttopping_data_list = configuration_section[key].split(";")
-                projecttopping_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(projecttopping_data_list)
-                )
+                        # layertree / legend
+                        layertree_key = "layertree"
+                        if layertree_key not in projecttopping_data:
+                            layertree_key = "legend"
+                            self.workflow_wizard.log_panel.print_info(
+                                self.tr(
+                                    'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
+                                ),
+                                LogColor.COLOR_TOPPING,
+                            )
+                        if layertree_key in projecttopping_data:
+                            legend = generator.legend(
+                                available_layers,
+                                layertree_structure=projecttopping_data[layertree_key],
+                                path_resolver=lambda path: self.ilidata_path_resolver(
+                                    os.path.dirname(projecttopping_file_path), path
+                                )
+                                if path
+                                else None,
+                            )
 
-        if len(projecttopping_file_path_list) > 1:
-            self.workflow_wizard.log_panel.print_info(
-                self.tr(
-                    "Multiple project toppings can lead to unexpected behavior, when the sections are not clearly separated."
-                ),
-                LogColor.COLOR_TOPPING,
-            )
+                        # layer order
+                        layerorder_key = "layerorder"
+                        if layerorder_key not in projecttopping_data:
+                            layerorder_key = "layer-order"
 
-        for projecttopping_file_path in projecttopping_file_path_list:
-            self.workflow_wizard.log_panel.print_info(
-                self.tr("Parse project topping file {}…").format(
-                    projecttopping_file_path
-                ),
-                LogColor.COLOR_TOPPING,
-            )
-            with open(projecttopping_file_path) as stream:
-                try:
-                    projecttopping_data = yaml.safe_load(stream)
+                        if layerorder_key in projecttopping_data:
+                            custom_layer_order_structure = projecttopping_data[
+                                layerorder_key
+                            ]
 
-                    # layertree / legend
-                    layertree_key = "layertree"
-                    if layertree_key not in projecttopping_data:
-                        layertree_key = "legend"
+                        # map themes
+                        if "mapthemes" in projecttopping_data:
+                            mapthemes = projecttopping_data["mapthemes"]
+
+                        # layouts
+                        if "layouts" in projecttopping_data:
+                            resolved_layouts = generator.resolved_layouts(
+                                projecttopping_data["layouts"],
+                                path_resolver=lambda path: self.ilidata_path_resolver(
+                                    os.path.dirname(projecttopping_file_path), path
+                                )
+                                if path
+                                else None,
+                            )
+
+                        # variables
+                        if "variables" in projecttopping_data:
+                            custom_variables = projecttopping_data["variables"]
+
+                        # properties (inoffical)
+                        if "properties" in projecttopping_data:
+                            custom_project_properties = projecttopping_data[
+                                "properties"
+                            ]
+
+                    except yaml.YAMLError as exc:
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr(
-                                'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
-                            ),
+                            self.tr("Unable to parse project topping: {}").format(exc),
                             LogColor.COLOR_TOPPING,
                         )
-                    if layertree_key in projecttopping_data:
-                        legend = generator.legend(
-                            available_layers,
-                            layertree_structure=projecttopping_data[layertree_key],
-                            path_resolver=lambda path: self.ilidata_path_resolver(
-                                os.path.dirname(projecttopping_file_path), path
-                            )
-                            if path
-                            else None,
-                        )
 
-                    # layer order
-                    layerorder_key = "layerorder"
-                    if layerorder_key not in projecttopping_data:
-                        layerorder_key = "layer-order"
+                self.progress_bar.setValue(55)
 
-                    if layerorder_key in projecttopping_data:
-                        custom_layer_order_structure = projecttopping_data[
-                            layerorder_key
-                        ]
-
-                    # map themes
-                    if "mapthemes" in projecttopping_data:
-                        mapthemes = projecttopping_data["mapthemes"]
-
-                    # layouts
-                    if "layouts" in projecttopping_data:
-                        resolved_layouts = generator.resolved_layouts(
-                            projecttopping_data["layouts"],
-                            path_resolver=lambda path: self.ilidata_path_resolver(
-                                os.path.dirname(projecttopping_file_path), path
-                            )
-                            if path
-                            else None,
-                        )
-
-                    # variables
-                    if "variables" in projecttopping_data:
-                        custom_variables = projecttopping_data["variables"]
-
-                    # properties (inoffical)
-                    if "properties" in projecttopping_data:
-                        custom_project_properties = projecttopping_data["properties"]
-
-                except yaml.YAMLError as exc:
-                    self.workflow_wizard.log_panel.print_info(
-                        self.tr("Unable to parse project topping: {}").format(exc),
-                        LogColor.COLOR_TOPPING,
-                    )
-
-        self.progress_bar.setValue(55)
-
-        transaction_mode = custom_project_properties.get("transaction_mode", None)
+                transaction_mode = custom_project_properties.get(
+                    "transaction_mode", None
+                )
 
         if Qgis.QGIS_VERSION_INT < 32600:
             # pass transaction_mode as boolean
