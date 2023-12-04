@@ -113,7 +113,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.completeChanged.emit()
 
     def restore_configuration(self, configuration):
-        self.busy(
+        self.workflow_wizard.busy(
+            self,
             True,
             self.tr("Restoring configuration and check existing metaconfigfile..."),
         )
@@ -129,7 +130,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
-        self.busy(False)
+        self.workflow_wizard.busy(self, False)
 
     def _use_existing(self, state):
         # triggered by checked state.
@@ -162,7 +163,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.workflow_wizard.log_panel.show_message
             )
             # wait before activating until end of refreshment
-            self.busy(True, self.tr("Refresh repository data..."))
+            self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
             self.ilitoppingcache.model_refreshed.connect(
                 lambda: self._enable_topping_selection(True)
             )
@@ -190,7 +191,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.topping_info.setEnabled(state)
 
         self._enable_optimize_combo(state)
-        self.busy(False)
+        self.workflow_wizard.busy(self, False)
 
     def _enable_optimize_combo(self, state):
         self.optimize_combo.setEnabled(state)
@@ -660,10 +661,3 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 ):
                     modelnames.append(name)
         return modelnames
-
-    def busy(self, busy, text=None):
-        self.setEnabled(not busy)
-        if busy:
-            self.workflow_wizard.start_busy_bar(text)
-        else:
-            self.workflow_wizard.stop_busy_bar()

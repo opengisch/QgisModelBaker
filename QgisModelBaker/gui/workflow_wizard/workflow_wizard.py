@@ -272,8 +272,10 @@ class WorkflowWizard(QWizard):
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
-                self.schema_configuration_page.busy(
-                    True, self.tr("Checking for potential referenced data...")
+                self.busy(
+                    self.schema_configuration_page,
+                    True,
+                    self.tr("Checking for potential referenced data..."),
                 )
                 self.schema_configuration_page.setComplete(False)
                 if (
@@ -287,7 +289,7 @@ class WorkflowWizard(QWizard):
                         self.tr("Potential referenced data found.")
                     )
                     self.schema_configuration_page.setComplete(True)
-                    self.schema_configuration_page.busy(False)
+                    self.busy(self.schema_configuration_page, False)
                     return PageIds.ImportDataConfiguration
                 else:
                     self.log_panel.print_info(
@@ -296,7 +298,7 @@ class WorkflowWizard(QWizard):
                         )
                     )
                     self.schema_configuration_page.setComplete(True)
-                    self.schema_configuration_page.busy(False)
+                    self.busy(self.schema_configuration_page, False)
 
             if self.current_id == PageIds.ImportSchemaExecution:
                 # if basket handling active, go to the create basket
@@ -313,8 +315,10 @@ class WorkflowWizard(QWizard):
                         "Checking for potential referenced data on the repositories (might take a while)..."
                     )
                 )
-                self.import_schema_execution_page.busy(
-                    True, self.tr("Checking for potential referenced data...")
+                self.busy(
+                    self.import_schema_execution_page,
+                    True,
+                    self.tr("Checking for potential referenced data..."),
                 )
                 self.import_schema_execution_page.setComplete(False)
                 if self.update_referecedata_cache_model(
@@ -325,10 +329,10 @@ class WorkflowWizard(QWizard):
                         self.tr("Potential referenced data found.")
                     )
                     self.import_schema_execution_page.setComplete(True)
-                    self.import_schema_execution_page.busy(False)
+                    self.busy(self.import_schema_execution_page, False)
                     return PageIds.ImportDataConfiguration
                 self.import_schema_execution_page.setComplete(True)
-                self.import_schema_execution_page.busy(False)
+                self.busy(self.import_schema_execution_page, False)
 
                 # otherwise, go to project create
                 return PageIds.ProjectCreation
@@ -345,8 +349,10 @@ class WorkflowWizard(QWizard):
                     )
                 )
                 self.default_baskets_page.setComplete(False)
-                self.default_baskets_page.busy(
-                    True, self.tr("Checking for potential referenced data...")
+                self.busy(
+                    self.default_baskets_page,
+                    True,
+                    self.tr("Checking for potential referenced data..."),
                 )
                 if self.update_referecedata_cache_model(
                     self._db_modelnames(self.import_data_configuration),
@@ -356,10 +362,10 @@ class WorkflowWizard(QWizard):
                         self.tr("Potential referenced data found.")
                     )
                     self.default_baskets_page.setComplete(True)
-                    self.default_baskets_page.busy(False)
+                    self.busy(self.default_baskets_page, False)
                     return PageIds.ImportDataConfiguration
                 self.default_baskets_page.setComplete(True)
-                self.default_baskets_page.busy(False)
+                self.busy(self.default_baskets_page, False)
 
                 # otherwise, go to project create
                 return PageIds.ProjectCreation
@@ -686,13 +692,14 @@ class WorkflowWizard(QWizard):
                 dropped_ini_files[0]
             )
 
-    def start_busy_bar(self, text="Loading..."):
-        self.log_panel.busy_bar.setFormat(text)
-        self.log_panel.busy_bar.setVisible(True)
-
-    def stop_busy_bar(self):
-        self.log_panel.busy_bar.setVisible(False)
-        self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
+    def busy(self, page, busy, text="Busy..."):
+        page.setEnabled(not busy)
+        if busy:
+            self.log_panel.busy_bar.setFormat(text)
+            self.log_panel.busy_bar.setVisible(True)
+        else:
+            self.log_panel.busy_bar.setVisible(False)
+            self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
 
 
 class WorkflowWizardDialog(QDialog):

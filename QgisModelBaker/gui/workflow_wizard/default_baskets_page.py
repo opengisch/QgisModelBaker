@@ -107,10 +107,3 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.skip_button.setDisabled(True)
         self.baskets_panel.setDisabled(True)
         self.setComplete(True)
-
-    def busy(self, busy, text=None):
-        self.setEnabled(not busy)
-        if busy:
-            self.workflow_wizard.start_busy_bar(text)
-        else:
-            self.workflow_wizard.stop_busy_bar()
