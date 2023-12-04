@@ -345,7 +345,7 @@ class WorkflowWizard(QWizard):
                     )
                 )
                 self.default_baskets_page.setComplete(False)
-                self.ddefault_baskets_page.busy(
+                self.default_baskets_page.busy(
                     True, self.tr("Checking for potential referenced data...")
                 )
                 if self.update_referecedata_cache_model(
