@@ -485,12 +485,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             return
 
         configuration = Ili2DbCommandConfiguration()
-
-        mode = DbIliMode.pg
         self.get_fields(configuration)
-
-        configuration.tool = mode
-        configuration.db_ili_version = db_utils.db_ili_version(configuration)
+        configuration.tool = DbIliMode.pg
 
         self._read_pg_schemas_task.configuration_changed(configuration)
 
