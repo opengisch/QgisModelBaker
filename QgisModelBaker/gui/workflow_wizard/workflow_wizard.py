@@ -694,11 +694,10 @@ class WorkflowWizard(QWizard):
 
     def busy(self, page, busy, text="Busy..."):
         page.setEnabled(not busy)
+        self.log_panel.busy_bar.setVisible(busy)
         if busy:
             self.log_panel.busy_bar.setFormat(text)
-            self.log_panel.busy_bar.setVisible(True)
         else:
-            self.log_panel.busy_bar.setVisible(False)
             self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
 
 
