@@ -294,7 +294,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 # on geopackages we don't use the transaction mode on default otherwise we do
                 transaction_mode = (
                     "Disabled"
-                    if not bool(self.configuration.tool & DbIliMode.gpkg)
+                    if bool(self.configuration.tool & DbIliMode.gpkg)
                     else Qgis.TransactionMode.AutomaticGroups.name
                 )
             else:
