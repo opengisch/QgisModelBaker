@@ -380,7 +380,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         mapthemes = {}
         resolved_layouts = {}
         custom_variables = {}
-        transaction_mode = None
 
         if self.projecttopping_id:
             # Project topping file for legend and layers: collect and download
@@ -449,7 +448,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         if "variables" in projecttopping_data:
                             custom_variables = projecttopping_data["variables"]
 
-                        # properties (inoffical)
+                        # properties
                         if "properties" in projecttopping_data:
                             custom_project_properties = projecttopping_data[
                                 "properties"
@@ -463,9 +462,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
                 self.progress_bar.setValue(55)
 
-                transaction_mode = custom_project_properties.get(
-                    "transaction_mode", None
-                )
+        # override transaction mode if give n by topic
+        transaction_mode = custom_project_properties.get("transaction_mode", None)
 
         if Qgis.QGIS_VERSION_INT < 32600:
             # pass transaction_mode as boolean
@@ -493,10 +491,22 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     transaction_mode = Qgis.TransactionMode.Disabled.name
                 # otherwise it's already a string and could be everything
 
+        # override optimize strategy if give n by topic
+        optimize_strategy = custom_project_properties.get("ili_optimize_strategy", None)
+
+        if optimize_strategy == "HIDE":
+            optimize_strategy = OptimizeStrategy.HIDE
+        elif optimize_strategy == "GROUP":
+            optimize_strategy = OptimizeStrategy.GROUP
+        elif optimize_strategy == "NONE":
+            optimize_strategy = OptimizeStrategy.NONE
+        else:
+            optimize_strategy = self.optimize_combo.currentData()
+
         project = Project(
             auto_transaction=transaction_mode,
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
-            optimize_strategy=self.optimize_combo.currentData(),
+            optimize_strategy=optimize_strategy,
         )
         project.layers = available_layers
         project.relations = relations
