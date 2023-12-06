@@ -52,9 +52,6 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
 
     def setComplete(self, complete):
         self.is_complete = complete
-        self.create_default_baskets_button.setDisabled(complete)
-        self.skip_button.setDisabled(complete)
-        self.baskets_panel.setDisabled(complete)
         self.completeChanged.emit()
 
     def nextId(self):
@@ -88,6 +85,9 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
             self.progress_bar.setFormat(self.tr("Default baskets created!"))
             self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.SUCCESS_STYLE)
+            self.create_default_baskets_button.setDisabled(True)
+            self.skip_button.setDisabled(True)
+            self.baskets_panel.setDisabled(True)
             self.setComplete(True)
         else:
             self.workflow_wizard.log_panel.print_info(message)
@@ -103,4 +103,7 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.progress_bar.setFormat(self.tr("SKIPPED"))
         self.progress_bar.setTextVisible(True)
         self.setStyleSheet(gui_utils.INACTIVE_STYLE)
+        self.create_default_baskets_button.setDisabled(True)
+        self.skip_button.setDisabled(True)
+        self.baskets_panel.setDisabled(True)
         self.setComplete(True)
