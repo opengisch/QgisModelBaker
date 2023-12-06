@@ -19,7 +19,7 @@
 import logging
 from enum import IntEnum
 
-from qgis.PyQt.QtCore import Qt, QTimer
+from qgis.PyQt.QtCore import Qt, QThread, QTimer
 
 import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -69,6 +69,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self._fill_schema_combo_box_timer.setSingleShot(True)
         self._fill_schema_combo_box_timer.timeout.connect(self._fill_schema_combo_box)
 
+        self._read_pg_schemas_task = ReadPgSchemasTask(self)
+        self._read_pg_schemas_task.finished.connect(self._read_pg_schemas_task_finished)
+
         from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
             BaseConfiguration,
         )
@@ -108,6 +111,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_port_line_edit.textChanged.connect(self._fields_modified)
         self.pg_database_line_edit.textChanged.connect(self._fields_modified)
         self.pg_schema_combo_box.currentTextChanged.connect(self.notify_fields_modified)
+
+        self.pg_auth_settings.usernameChanged.connect(self._fields_modified)
+        self.pg_auth_settings.passwordChanged.connect(self._fields_modified)
+        self.pg_auth_settings.configIdChanged.connect(self._fields_modified)
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
@@ -170,6 +177,14 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
         self._show_panel()
+
+    def __del__(self):
+        # Make sure the refresh schemas task is finished to avoid crashes
+        try:
+            if self._read_pg_schemas_task:
+                self._read_pg_schemas_task.wait()
+        except RuntimeError:
+            pass
 
     def _show_panel(self):
 
@@ -348,7 +363,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                     index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DATABASE
                 )
             )
-            self.pg_schema_combo_box.setText(
+            self.pg_schema_combo_box.setCurrentText(
                 self.pg_service_combo_box.itemData(
                     index, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSCHEMA
                 )
@@ -459,27 +474,24 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _fields_modified(self):
-
         self._fill_schema_combo_box_timer.start(self.REFRESH_SCHEMAS_TIMEOUT_MS)
 
         self.notify_fields_modified.emit()
 
     def _fill_schema_combo_box(self):
 
-        configuration = Ili2DbCommandConfiguration()
-
-        mode = DbIliMode.pg
-        self.get_fields(configuration)
-
-        configuration.tool = mode
-        configuration.db_ili_version = db_utils.db_ili_version(configuration)
-
-        db_connector = db_utils.get_db_connector(configuration)
-        if not db_connector:
-            logging.warning("Refresh schema list connection error")
+        if self._read_pg_schemas_task.isRunning():
+            self._fill_schema_combo_box_timer.start()
             return
 
-        schemas = db_connector.get_schemas()
+        configuration = Ili2DbCommandConfiguration()
+        self.get_fields(configuration)
+        configuration.tool = DbIliMode.pg
+
+        self._read_pg_schemas_task.configuration_changed(configuration)
+
+    def _read_pg_schemas_task_finished(self):
+        schemas = self._read_pg_schemas_task.schemas
 
         AUTO_ADDED_SCHEMA = "auto_added_schema"
 
@@ -497,3 +509,30 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         currentTextIndex = self.pg_schema_combo_box.findText(currentText)
         if currentTextIndex > -1:
             self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
+
+
+class ReadPgSchemasTask(QThread):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.schemas = []
+        self._configuration = None
+
+    def configuration_changed(self, configuration):
+        self._configuration = configuration
+        self.start()
+
+    def run(self):
+
+        try:
+            db_connector = db_utils.get_db_connector(self._configuration)
+            if not db_connector:
+                logging.warning("Refresh schema list connection error")
+                self.schemas = []
+                return
+
+            self.schemas = db_connector.get_schemas()
+
+        except Exception as exception:
+            logging.warning(f"Refresh schema list error: {exception}")
+            self.schemas = []
