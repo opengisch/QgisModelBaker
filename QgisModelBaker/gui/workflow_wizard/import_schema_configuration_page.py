@@ -27,10 +27,11 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataCache,
+    IliDataFileCompleterDelegate,
     IliDataItemModel,
-    MetaConfigCompleterDelegate,
 )
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
@@ -71,7 +72,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
-        self.metaconfig_delegate = MetaConfigCompleterDelegate()
+        self.metaconfig_delegate = IliDataFileCompleterDelegate()
         self.metaconfig = configparser.ConfigParser()
         self.current_models = []
         self.current_metaconfig_id = None
@@ -158,8 +159,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         - Calls update of ilireferencedata cache to load referenced
         """
         model_list = self.model_list_view.model().checked_models()
-        if set(model_list) == set(self.current_models):
-            return
         self.current_models = model_list
         for pattern, crs in CRS_PATTERNS.items():
             if re.search(pattern, ", ".join(model_list)):
@@ -173,6 +172,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration,
             models=";".join(self.model_list_view.model().checked_models()),
+            datasources=["pg"]
+            if (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.pg)
+            else ["gpkg"]
+            if (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.gpkg)
+            else None,
         )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self._on_metaconfig_received(path)
@@ -181,6 +185,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache.model_refreshed.connect(
             self._update_metaconfig_completer
         )
+        self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
         self._refresh_ili_metaconfig_cache()
 
     def _update_ilireferencedatacache(self):
@@ -285,6 +290,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
+        self.workflow_wizard.busy(self, False)
 
     def _on_metaconfig_completer_activated(self, text=None):
         self._clean_metaconfig()
@@ -311,8 +317,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
                     metaconfig_id,
                     self.ilimetaconfigcache.model.data(
-                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION) or ""
-                    ),
+                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
+                    )
+                    or "",
                 )
             )
             self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
@@ -429,6 +436,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._crs_changed()
 
     def _load_metaconfig(self):
+        self.workflow_wizard.busy(self, True, "Load metaconfiguration...")
         # load ili2db parameters to the GUI
         if "ch.ehi.ili2db" in self.metaconfig.sections():
             self.workflow_wizard.log_panel.print_info(
@@ -566,3 +574,5 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             LogColor.COLOR_TOPPING,
                         )
             self.workflow_wizard.refresh_import_models()
+
+        self.workflow_wizard.busy(self, False)

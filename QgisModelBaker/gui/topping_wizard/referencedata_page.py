@@ -27,8 +27,8 @@ from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataCache,
+    IliDataFileCompleterDelegate,
     IliDataItemModel,
-    MetaConfigCompleterDelegate,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
     FileValidator,
@@ -76,7 +76,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             self.topping_wizard.log_panel.show_message
         )
 
-        self.ilireferencedata_delegate = MetaConfigCompleterDelegate()
+        self.ilireferencedata_delegate = IliDataFileCompleterDelegate()
         self.input_line_edit.setPlaceholderText(
             self.tr("[Search referenced data files from Repositories or Local System]")
         )

@@ -19,7 +19,7 @@
 
 import logging
 
-from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QGridLayout, QProgressBar
 from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import QSize, Qt
@@ -40,9 +40,17 @@ class LogPanel(QWidget):
         self.txtStdout.setLayout(QGridLayout())
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
         self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+        self.scrollbar = self.txtStdout.verticalScrollBar()
+
+        self.busy_bar = QProgressBar()
+        self.busy_bar.setRange(0, 0)
+        self.busy_bar.setTextVisible(True)
+        self.busy_bar.setVisible(False)
 
         layout = QGridLayout()
         layout.addWidget(self.txtStdout)
+        layout.addWidget(self.busy_bar)
+
         self.setLayout(layout)
 
     def sizeHint(self):
