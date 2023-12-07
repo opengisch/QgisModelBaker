@@ -377,6 +377,16 @@ class SourceModel(QStandardItemModel):
                             f"../images/file_types/{type}.png",
                         )
                     )
+            if role == Qt.ToolTipRole:
+                if index.column() == SourceModel.Columns.IS_CATALOGUE:
+                    return self.tr(
+                        "If the data is a catalog, it is imported into the corresponding dataset (called catalogueset)."
+                    )
+                if index.column() == SourceModel.Columns.DELETE_DATA:
+                    return self.tr(
+                        "If activated, the existing data is deleted before the import."
+                    )
+
             return item.data(int(role))
 
     def add_source(self, name, type, path, origin_info=None):
