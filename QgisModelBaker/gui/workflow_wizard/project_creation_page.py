@@ -20,7 +20,7 @@
 import os
 
 import yaml
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 

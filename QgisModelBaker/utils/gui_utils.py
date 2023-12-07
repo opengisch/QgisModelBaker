@@ -821,8 +821,8 @@ class ImportDataModel(QSortFilterProxyModel):
                 else CATALOGUE_DATASETNAME
             )
             sessions[source] = {}
-            sessions[source]["datasets"] = [dataset]
-            sessions[source]["delete_data"] = [delete_data]
+            sessions[source]["datasets"] = [dataset] if dataset else []
+            sessions[source]["delete_data"] = delete_data
             i += 1
         return sessions
 

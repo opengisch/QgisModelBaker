@@ -235,6 +235,11 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 gui_utils.SourceModel.Columns.DATASET, True
             )
             self.datasetmanager_button.setHidden(True)
+
+        self.file_table_view.setItemDelegateForColumn(
+            gui_utils.SourceModel.Columns.DELETE_DATA,
+            CheckDelegate(self, role=gui_utils.SourceModel.Roles.DELETE_DATA),
+        )
         self._update_referencedata_completer()
 
     def _set_basket_defaults(self):
@@ -272,11 +277,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     int(gui_utils.SourceModel.Roles.DELETE_DATA),
                 )
 
-            # needs to be fixed
-            self.file_table_view.setItemDelegateForColumn(
-                gui_utils.SourceModel.Columns.DELETE_DATA,
-                CheckDelegate(self, role=gui_utils.SourceModel.Roles.DELETE_DATA),
-            )
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.IS_CATALOGUE,
                 CheckDelegate(self, role=gui_utils.SourceModel.Roles.IS_CATALOGUE),

@@ -96,11 +96,13 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 sessions[key]["datasets"] if "datasets" in sessions[key] else None
             )
             baskets = sessions[key]["baskets"] if "baskets" in sessions[key] else None
-
             export_models = (
                 sessions[key]["export_models"]
                 if "export_models" in sessions[key]
                 else None
+            )
+            delete_data = (
+                sessions[key]["delete_data"] if "delete_data" in sessions[key] else None
             )
 
             skipped_session_widget = self._find_skipped_session_widget(
@@ -111,6 +113,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     baskets,
                     export_models,
                     db_utils.get_schema_identificator_from_configuration(configuration),
+                    delete_data,
                 )
             )
             if skipped_session_widget:
@@ -124,6 +127,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     baskets,
                     export_models,
                     self.db_action_type,
+                    delete_data,
                 )
                 session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
                 session.print_info.connect(self.workflow_wizard.log_panel.print_info)
