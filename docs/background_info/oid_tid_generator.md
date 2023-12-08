@@ -1,6 +1,6 @@
 ## OID, TID, BID, t_ili_tid, tid... Sorry, what?
 
-Often the models definition requires a cross-system unique identificator. The so called **OID**.
+Often the models definition requires a cross-system unique identifier. The so called **OID**.
 
 ```
 [...]
@@ -26,7 +26,7 @@ Often the models definition requires a cross-system unique identificator. The so
 
 ... those OIDs are written to the column `t_ili_tid`.
 
-... while the `t_id` column contains just a ***schema-internal*** sequence used for foreign keys etc. Those `t_id`s are ***not*** the cross-system unique identificator.
+... while the `t_id` column contains just a ***schema-internal*** sequence used for foreign keys etc. Those `t_id`s are ***not*** the cross-system unique identifier.
 
 ![oid physical data](../assets/oid_physical_data.png)
 
@@ -41,7 +41,7 @@ There are different types of OID domains. In Model Baker we try to set default v
 - I32OID
 - STANDARDOID
 - ANYOID
-- User defined OID
+- user-defined OID
 
 #### `UUIDOID`
 
@@ -74,7 +74,7 @@ It requires an 8 char prefix and 8 char postfix:
 
 - **Postfix (8 chars):** Sequence (numeric or alphanumeric) of your system as *local identification part*
 
-Model Baker does not know what your *global identification part* is and uses a placeholder-prefix `%change%`. It's important that replace this part with your own prefix.
+Model Baker does not know what your *global identification part* is and uses a placeholder-prefix `%change%`. It's important that you replace this part with your own prefix.
 
 As *local identification part* Model Baker suggests the counter provided by the `t_id` sequence.
 
@@ -88,13 +88,13 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 
 The `ANYOID` does not define a format of the OID but just that an OID needs to be defined in all the extended models. This domain is only used on topics that need to be extended. This solution has some [limitations](#limitations).
 
-#### User defined OIDs and not defined OIDs
+#### User-defined OIDs and not defined OIDs
 
-For user defined OIDs or when OIDs are not defined, Model Baker tries to suggest something reasonable.
+For user-defined OIDs or when OIDs are not defined, Model Baker tries to suggest something reasonable.
 
-If there is no definition with OID AS, ili2db assumes TEXT and therefore they need to fulfill the rules of the XML-ID-type. This means the **first character** must be a **letter or underscore**, followed by letters, numbers, dots, minus signs, underscores; no colons (!), see [www.w3.org/TR/REC-xml](http://www.w3.org/TR/REC-xml).
+If there is no definition with OID AS, ili2db assumes TEXT and therefore identifiers need to fulfill the rules of the XML-ID-type. This means the **first character** must be a **letter or underscore**, followed by letters, numbers, dots, minus signs, underscores; no colons (!), see [www.w3.org/TR/REC-xml](http://www.w3.org/TR/REC-xml).
 
-In the QGIS Project the default value expression for `t_ili_tid` is therefore this:
+In the QGIS Project the default value expression for `t_ili_tid` therefore is:
 
 ```
 '_' || uuid('WithoutBraces')
@@ -105,10 +105,10 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 |---|---|
 | INTERLIS.UUIDOID |  `uuid('WithoutBraces')`  |
 | INTERLIS.I32OID | `t_id` |
-| INTERLIS.STANDARDOID |  `'%change%' \|\| lpad( t_id, 8, 0 )` |
-| INTERLIS.ANYOID | `'_' \|\| uuid('WithoutBraces')` |
-| City_V1.TypeID | `'_' \|\| uuid('WithoutBraces')` |
-| not defined | `'_' \|\| uuid('WithoutBraces')` |
+| INTERLIS.STANDARDOID |  <code>'%change%' &#124;&#124; lpad( t_id, 8, 0 )</code> |
+| INTERLIS.ANYOID | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
+| City_V1.TypeID | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
+| not defined | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
 
 ### TID (OID) Manager
 
@@ -132,11 +132,11 @@ This solution covers a lot, but not everything.
 
 #### ANYOID
 
-If a class is designed in a topic with an OID definition `ANYOID` and it's extended in multiple other topics with other OID definitions, we cannot say what should be the default value, since it could divert depending in what basket you work.
+If a class is part of a topic with an OID definition of `ANYOID` and it's extended in multiple other topics with other OID definitions, we cannot say what should be the default value, since it could divert depending in what basket you work.
 
 #### OIDs on another system
 
-When the OIDs are not UUIDs but e.g. `STANDARDOID`s instead, it's not possible to know in a system, wheter in other systems the same OIDs are generated. This means it's in the responsibility of the user to set the expressions (and the counters) in a way, that they don't conflict with OIDS of object generated some where else.
+When the OIDs are not UUIDs but e.g. `STANDARDOID`s instead, it's not possible to know in a system, wheter in other systems the same OIDs are generated. This means it's in the users responsibility to set the expressions (and the counters) in a way that they don't conflict with OIDs of objects generated somewhere else.
 
 #### T_Id conflicts
 
