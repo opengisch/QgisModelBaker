@@ -1,0 +1,51 @@
+INTERLIS 2.3;
+
+!! Version    | Modification
+!!----------------------------------------------------------------------------------------
+!! 2020-03-13 | Erste Modellversion; Import/Erweiterung MGDM BAFU
+
+!!@ IDGeoIV="195.1, 195.2"
+!!@ technicalContact=mailto:geoinformation@gl.ch
+!!@ furtherInformation=https://models.geo.gl.ch/pdf/GL_Wildruhezonen_V1.pdf
+MODEL GL_Wildruhezonen_Codelisten_V1 (de)
+AT "https://www.gl.ch"
+VERSION "2020-03-13"  =
+  IMPORTS CatalogueObjects_V1,Wildruhezonen_Codelisten_V2_1;
+
+  TOPIC Codelisten EXTENDS Wildruhezonen_Codelisten_V2_1.Codelisten =
+
+    /** Katalog der Zielarten Schutzbestimmung */
+    CLASS Zielarten_Catalogue EXTENDS CatalogueObjects_V1.Catalogues.Item =
+      /** Bezeichnung der Zielarten */
+      Bezeichnung : MANDATORY TEXT;
+    END Zielarten_Catalogue;
+
+    STRUCTURE Zielarten_CatRef EXTENDS CatalogueObjects_V1.Catalogues.MandatoryCatalogueReference =
+      Reference (EXTENDED) : MANDATORY REFERENCE TO (EXTERNAL) Zielarten_Catalogue;
+    END Zielarten_CatRef;
+
+  END Codelisten;
+
+END GL_Wildruhezonen_Codelisten_V1.
+
+
+!!@ IDGeoIV="195.1, 195.2"
+!!@ technicalContact=mailto:geoinformation@gl.ch
+!!@ furtherInformation=https://models.geo.gl.ch/pdf/GL_Wildruhezonen_V1.pdf
+MODEL GL_Wildruhezonen_V1 (de)
+AT "https://www.gl.ch"
+VERSION "2020-03-13"  =
+  IMPORTS GL_Wildruhezonen_Codelisten_V1,Wildruhezonen_LV95_V2_1;
+
+  TOPIC Wildruhezonen EXTENDS Wildruhezonen_LV95_V2_1.Wildruhezonen =
+    OID AS INTERLIS.UUIDOID;
+    DEPENDS ON GL_Wildruhezonen_Codelisten_V1.Codelisten;
+
+    CLASS Wildruhezone (EXTENDED) =
+      /** Zuordnung der Zielarten Schutzbestimmung zur Wildruhezone */
+      Zielart: GL_Wildruhezonen_Codelisten_V1.Codelisten.Zielarten_CatRef;
+    END Wildruhezone;
+
+  END Wildruhezonen;
+
+END GL_Wildruhezonen_V1.
