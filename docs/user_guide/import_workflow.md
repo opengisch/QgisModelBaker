@@ -151,7 +151,7 @@ Then, with a simple click you generate your project. All the toppings received f
 
 ### TID (OID) Values
 
-Often the models definition requires cross-system unique identificators. So called OIDs or TIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
+Often the models definition requires cross-system unique identifiers. So called OIDs or TIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
 
 On creating a QGIS Project with Model Baker, there are preset default value expression generated for the `t_ili_tid` field on the attribute form. But often those default value expressions need to be edited by the user (like e.g. the prefix in the `STANDARDOID`).
 

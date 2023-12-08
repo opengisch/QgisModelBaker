@@ -1,6 +1,6 @@
 ## OID, TID, BID, t_ili_tid, tid... Sorry, what?
 
-Often the models definition requires a cross-system unique identificator. The so called **OID**.
+Often the models definition requires a cross-system unique identifier. The so called **OID**.
 
 ```
 [...]
@@ -26,7 +26,7 @@ Often the models definition requires a cross-system unique identificator. The so
 
 ... those OIDs are written to the column `t_ili_tid`.
 
-... while the `t_id` column contains just a ***schema-internal*** sequence used for foreign keys etc. Those `t_id`s are ***not*** the cross-system unique identificator.
+... while the `t_id` column contains just a ***schema-internal*** sequence used for foreign keys etc. Those `t_id`s are ***not*** the cross-system unique identifier.
 
 ![oid physical data](../assets/oid_physical_data.png)
 
