@@ -105,10 +105,10 @@ In the QGIS Project the default value expression for `t_ili_tid` is therefore th
 |---|---|
 | INTERLIS.UUIDOID |  `uuid('WithoutBraces')`  |
 | INTERLIS.I32OID | `t_id` |
-| INTERLIS.STANDARDOID |  `'%change%' \|\| lpad( t_id, 8, 0 )` |
-| INTERLIS.ANYOID | `'_' \|\| uuid('WithoutBraces')` |
-| City_V1.TypeID | `'_' \|\| uuid('WithoutBraces')` |
-| not defined | `'_' \|\| uuid('WithoutBraces')` |
+| INTERLIS.STANDARDOID |  <code>'%change%' &#124;&#124; lpad( t_id, 8, 0 )</code> |
+| INTERLIS.ANYOID | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
+| City_V1.TypeID | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
+| not defined | <code>'_' &#124;&#124; uuid('WithoutBraces')</code> |
 
 ### TID (OID) Manager
 
