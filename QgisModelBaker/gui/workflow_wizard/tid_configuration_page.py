@@ -21,7 +21,6 @@
 from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
 
@@ -49,9 +48,7 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         self.configuration = None
 
     def set_configuration(self, configuration):
-        self.configuration = configuration
-        db_connector = db_utils.get_db_connector(self.configuration)
-        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), db_connector)
+        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), configuration)
 
     def _set_tid_configuration(self):
         self.progress_bar.setValue(0)
