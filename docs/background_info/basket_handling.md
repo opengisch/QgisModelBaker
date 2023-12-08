@@ -35,17 +35,14 @@ VERSION "2020-06-22" =
     OID AS INTERLIS.UUIDOID;
 
     CLASS Buildings  =
-      Code : MANDATORY TEXT*15;
-      Description : MANDATORY TEXT*99;
       Address : Address;
-      Geometry: Surface;
+      Description : TEXT*99;
+      Geometry : Surface;
     END Buildings;
 
     CLASS Street  =
-      Code : MANDATORY TEXT*15;
-      Description : MANDATORY TEXT*99;
-      Address : Address;
-      Geometry: Line;
+      Name : MANDATORY TEXT*99;
+      Geometry : Line;
     END Street;
 
   END Constructions;
@@ -101,7 +98,10 @@ These are basicly the data in a dataset. You might already notice the `BID` fiel
 
 We need to import the data of Ul Qoma now into our physical model with the ili2db parameter `--dataset "Ul Qoma"`. When the dataset already exists in the physical database we do not make an `--import`, but an `--update` instead. This means all the data in this dataset are updated with the data from the `xtf` file (and removed if not existent there).
 
-With the Model Baker we do make generally an `--update`, because we import only into exiting datasets.
+With the Model Baker we do make generally an `--update`, , as we only import into existing datasets. If you want to delete all the data from this dataset first (even from baskets other than those contained in the transfer file), you can check the corresponding box. In this case, a `--replace` command will be executed instead.
+
+!!! Note
+    The difference between a `--replace` and an `--update` is that the one hand with an `--update` the baskets that are not contained in the transferfile remain untouched and on the other hand the technical ids remain the physical database (because we "update"), whereas with  a `--replace` the are freshly created (because here we "delete" and "insert"). This means these two commands could trigger different backend functions (e.g. trigger functions on PostgreSQL).
 
 ### Dataset Manager
 
