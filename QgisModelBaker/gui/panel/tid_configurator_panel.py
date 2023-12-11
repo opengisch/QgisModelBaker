@@ -73,7 +73,8 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
     def _reset_tid_configuration(self):
         self.layer_tids_panel.load_tid_config(self.qgis_project)
         self.set_sequence_panel.set_configuration(self.configuration)
-        self.set_sequence_panel.load_sequence()
+        result, message = self.set_sequence_panel.load_sequence()
+        return result, message
 
     def set_tid_configuration(self):
         result, message = self.set_sequence_panel.save_sequence()

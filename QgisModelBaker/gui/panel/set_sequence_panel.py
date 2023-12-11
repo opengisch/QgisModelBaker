@@ -33,6 +33,8 @@ class SetSequencePanel(QWidget, WIDGET_UI):
         self.setupUi(self)
         self.configuration = None
         self.pg_use_super_login.stateChanged.connect(self._set_superuser)
+        self.last_loaded_sequence_value = None
+        self.sequence_value_edit.setSpecialValueText("-")
 
     def set_configuration(self, configuration):
         self.configuration = configuration
@@ -45,16 +47,43 @@ class SetSequencePanel(QWidget, WIDGET_UI):
     def load_sequence(self):
         db_connector = db_utils.get_db_connector(self.configuration)
         if db_connector:
-            sequence_value = db_connector.get_ili2db_sequence_value()
-            self.sequence_value_edit.setValue(sequence_value)
+            self.last_loaded_sequence_value = (
+                db_connector.get_ili2db_sequence_value() or 0
+            )
+        else:
+            self.last_loaded_sequence_value = 0
+
+        # not loaded is 0
+        self.sequence_value_edit.setValue(self.last_loaded_sequence_value)
+        if self.last_loaded_sequence_value == 0:
+            return False, self.tr("Could not load T_Id. Maybe wrong credentials.")
+        else:
+            return True, self.tr("T_Id loaded.")
 
     def save_sequence(self):
-        db_connector = db_utils.get_db_connector(self.configuration)
-        if self.sequence_group.isChecked():
-            if db_connector:
-                return db_connector.set_ili2db_sequence_value(
-                    self.sequence_value_edit.value()
-                )
-            return False, self.tr("Could not reset T_Id - no db_connector...")
-        else:
-            return True, self.tr("T_Id not set.")
+        if (
+            self.sequence_value_edit.value() != 0
+            and self.sequence_value_edit.value() != self.last_loaded_sequence_value
+        ):
+            # only if it changed
+            if self.sequence_group.isChecked():
+                result, message = False, None
+                db_connector = db_utils.get_db_connector(self.configuration)
+                if db_connector:
+                    result, message = db_connector.set_ili2db_sequence_value(
+                        self.sequence_value_edit.value()
+                    )
+                if not result:
+                    # reset value
+                    if self.last_loaded_sequence_value is None:
+                        self.sequence_value_edit.setSpecialValueText("-")
+                    else:
+                        self.sequence_value_edit.setValue(
+                            self.last_loaded_sequence_value
+                        )
+                    return False, message or self.tr(
+                        "Could not set T_Id. No connection to data source. Maybe wrong credentials."
+                    )
+                else:
+                    return True, self.tr("T_Id changed.")
+        return True, self.tr("T_Id not changed.")

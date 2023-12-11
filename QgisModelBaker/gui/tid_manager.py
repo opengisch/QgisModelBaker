@@ -72,7 +72,7 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
         result, message = self.tid_configurator_panel.set_tid_configuration()
         if not result:
             error_box = QMessageBox(self)
-            error_box.setIcon(QMessageBox.Error)
+            error_box.setIcon(QMessageBox.Critical)
             warning_title = self.tr("Problems on setting T_Id sequence.")
             error_box.setWindowTitle(warning_title)
             error_box.setText(message)

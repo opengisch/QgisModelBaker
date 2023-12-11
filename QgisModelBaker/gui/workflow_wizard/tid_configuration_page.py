@@ -23,6 +23,7 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
+from QgisModelBaker.utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/tid_configuration.ui")
 
@@ -64,6 +65,6 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         else:
-            self.workflow_wizard.log_panel.print_info(message)
-            self.progress_bar.setValue(0)
+            self.workflow_wizard.log_panel.print_info(message, LogColor.COLOR_WARNING)
+            self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.ERROR_STYLE)
