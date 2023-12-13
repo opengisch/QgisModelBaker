@@ -94,6 +94,7 @@ If this option is activated, circular arcs are stroked when importing the data.
 ### SQL Scripts
 
 You can define `sql` scripts that runs before and after the (schema) import.
+
 ### Extra Meta Attribute File
 
 A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `qgis.modelbaker.dispExpression`) instead of having them directly in the `ili` file.
@@ -121,7 +122,8 @@ After the physial model is generated or you selected an existing database to imp
 ![wizard data import](../assets/workflow_wizard_data_import.png)
 
 ### Import order
-While the order to import the INTERLIS models are not important (usually, see [exceptions](../../background_info/catalogues/Multiple-selection-with-BAG-OF)), the data import often requires the correct order. Transfer data often depends on existing catalogue / codelist data. Drag and drop your files with ![datafile arrow button](../assets/drag_arrows_button.png) to the right order.
+
+While the order to import the INTERLIS models are not important (usually, see [exceptions](../../background_info/catalogues/#multiple-selection-with-bag-of)), the data import often requires the correct order. Transfer data often depends on existing catalogue / codelist data. Drag and drop your files with ![datafile arrow button](../assets/drag_arrows_button.png) to the right order.
 
 ### Dataset Handling
 
@@ -140,6 +142,10 @@ If the data to import is a catalogue, please select the checkbox for *catalogue*
 Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png) (the needed models have been suggested in the [INTERLIS model import](#import-of-interlis-model) already).
 
 Check more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/modelbaker_integration/#directly-referenced-catalogues).
+
+### Delete data first
+
+If you want to delete the data in the database first, you can check the corresponding box. On using baskets, the ili2db parameter `--replace` is executed instead of `--update`. On not using baskets, the parameter `--deleteData` is added to the command. Note that on using baskets, only the data from the corresponding dataset is deleted, whereas on not using baskets all data from the schema is deleted.
 
 ## Generate the QGIS Project
 

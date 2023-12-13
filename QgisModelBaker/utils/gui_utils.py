@@ -322,14 +322,16 @@ class SourceModel(QStandardItemModel):
         DATASET_NAME = Qt.UserRole + 5
         IS_CATALOGUE = Qt.UserRole + 6
         ORIGIN_INFO = Qt.UserRole + 7
+        DELETE_DATA = Qt.UserRole + 8
 
         def __int__(self):
             return self.value
 
     class Columns(IntEnum):
         SOURCE = 0
-        IS_CATALOGUE = 1
-        DATASET = 2
+        DELETE_DATA = 1
+        IS_CATALOGUE = 2
+        DATASET = 3
 
     def __init__(self):
         super().__init__()
@@ -375,6 +377,16 @@ class SourceModel(QStandardItemModel):
                             f"../images/file_types/{type}.png",
                         )
                     )
+            if role == Qt.ToolTipRole:
+                if index.column() == SourceModel.Columns.IS_CATALOGUE:
+                    return self.tr(
+                        "If the data is a catalog, it is imported into the corresponding dataset (called catalogueset)."
+                    )
+                if index.column() == SourceModel.Columns.DELETE_DATA:
+                    return self.tr(
+                        "If activated, the existing data is deleted before the import."
+                    )
+
             return item.data(int(role))
 
     def add_source(self, name, type, path, origin_info=None):
@@ -400,6 +412,10 @@ class SourceModel(QStandardItemModel):
         if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return QStandardItemModel.setData(
                 self, index, data, int(SourceModel.Roles.IS_CATALOGUE)
+            )
+        if index.column() == SourceModel.Columns.DELETE_DATA:
+            return QStandardItemModel.setData(
+                self, index, data, int(SourceModel.Roles.DELETE_DATA)
             )
         if index.column() == SourceModel.Columns.DATASET:
             return QStandardItemModel.setData(
@@ -784,6 +800,8 @@ class ImportDataModel(QSortFilterProxyModel):
     def flags(self, index):
         if index.column() == SourceModel.Columns.IS_CATALOGUE:
             return Qt.ItemIsEnabled
+        if index.column() == SourceModel.Columns.DELETE_DATA:
+            return Qt.ItemIsEnabled
         if index.column() == SourceModel.Columns.DATASET:
             if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
                 int(SourceModel.Roles.IS_CATALOGUE)
@@ -799,6 +817,9 @@ class ImportDataModel(QSortFilterProxyModel):
             source = self.index(r, SourceModel.Columns.SOURCE).data(
                 int(SourceModel.Roles.PATH)
             )
+            delete_data = self.index(r, SourceModel.Columns.DELETE_DATA).data(
+                int(SourceModel.Roles.DELETE_DATA)
+            )
             is_catalogue = self.index(r, SourceModel.Columns.IS_CATALOGUE).data(
                 int(SourceModel.Roles.IS_CATALOGUE)
             )
@@ -810,7 +831,8 @@ class ImportDataModel(QSortFilterProxyModel):
                 else CATALOGUE_DATASETNAME
             )
             sessions[source] = {}
-            sessions[source]["datasets"] = [dataset]
+            sessions[source]["datasets"] = [dataset] if dataset else []
+            sessions[source]["delete_data"] = delete_data
             i += 1
         return sessions
 

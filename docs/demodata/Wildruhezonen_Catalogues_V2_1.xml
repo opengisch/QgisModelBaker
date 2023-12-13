@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Version    | Who  | Modification
+=======================================================================================
+2020-02-24 | BAFU | french and italian translation for Code "W1" and "W2" added
+
+File Wildruhezonen_Catalogues_V2_1.xml VERSION="2020-02-24" (https://models.geo.admin.ch/BAFU/)
+-->
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <HEADERSECTION VERSION="2.3" SENDER="BAFU">
+    <MODELS>
+      <MODEL NAME="Units" URI="http://interlis.ch/models" VERSION="2012-02-20"/>
+      <MODEL NAME="CoordSys" URI="http://www.interlis.ch/models" VERSION="2015-11-24"/>
+      <MODEL NAME="LocalisationCH_V1" URI="http://www.geo.admin.ch" VERSION="2011-08-30"/>
+      <MODEL NAME="CatalogueObjects_V1" URI="http://www.geo.admin.ch" VERSION="2011-08-30"/>
+      <MODEL NAME="CHAdminCodes_V1" URI="http://www.geo.admin.ch" VERSION="2018-02-19"/>
+      <MODEL NAME="GeometryCHLV03_V1" URI="http://www.geo.admin.ch" VERSION="2017-12-04"/>
+      <MODEL NAME="GeometryCHLV95_V1" URI="http://www.geo.admin.ch" VERSION="2017-12-04"/>
+      <MODEL NAME="Wildruhezonen_Codelisten_V2_1" URI="https://models.geo.admin.ch/BAFU/" VERSION="2020-01-23"/>
+      <MODEL NAME="Wildruhezonen_LV03_V2_1" URI="https://models.geo.admin.ch/BAFU/" VERSION="2020-01-23"/>
+      <MODEL NAME="Wildruhezonen_LV95_V2_1" URI="https://models.geo.admin.ch/BAFU/" VERSION="2020-01-23"/>
+    </MODELS>
+  </HEADERSECTION>
+
+  <DATASECTION>
+
+    <Wildruhezonen_Codelisten_V2_1.Codelisten BID="ch.admin.bafu.wildruhezonen_catalogues_V2_1">
+
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Schutzstatus_Catalogue TID="w1001">
+        <Code>S10</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>rechtsverbindlich</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>contraignant</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>vincolante</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Schutzstatus_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Schutzstatus_Catalogue TID="w1002">
+        <Code>S20</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>empfohlen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>recommandée</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>raccomandata</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Schutzstatus_Catalogue>
+
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4001">
+        <Code>R10</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d’accès</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4002">
+        <Code>R20</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot (zu Fuss und Wintersportarten)</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d’accès (à pied ou pour les sports d’hiver)</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso (a piedi o per la pratica di sport invernali)</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4003">
+        <Code>R30</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot, durchqueren auf eingezeichnetem Weg gestattet</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d‘accès, sauf sur le chemin indiqué</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso, tranne sui sentieri segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4004">
+        <Code>R40</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot, durchqueren auf eingezeichneter Route gestattet</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d‘accès, sauf sur les itinéraires indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso, tranne sui percorsi segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4005">
+        <Code>R50</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot, durchqueren auf eingezeichneter Route gestattet, Leinenpflicht</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d’accès, sauf sur les itinéraires indiqués, obligation de tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso, tranne sui percorsi segnalati; obbligo di tenere i cani al guinzaglio</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4006">
+        <Code>R60</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot abseits der eingezeichneten Wege</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction de quitter les chemins indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di uscire dai sentieri segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4007">
+        <Code>R70</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot abseits der eingezeichneten Wege, Leinenpflicht</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction de quitter les chemins indiqués, obligation de tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di uscire dai sentieri segnalati; obbligo di tenere i cani al guinzaglio</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4008">
+        <Code>R80</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Wegegebot</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Obligation de rester sur les chemins</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Obbligo di rimanere sui sentieri segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4009">
+        <Code>R90</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Wegegebot, Leinenpflicht</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Obligation de rester sur les chemins et de tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Obbligo di rimanere sui sentieri segnalati e di tenere i cani al guinzaglio</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4010">
+        <Code>R100</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Betreten oder befahren nur auf eingezeichneten Wegen oder Routen gestattet</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Accès autorisé uniquement sur les chemins ou itinéraires indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Accesso autorizzato solo sui sentieri e i percorsi segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4011">
+        <Code>R110</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Betreten oder befahren nur auf Pisten, Loipen und eingezeichneten Wegen oder Routen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Accès autorisé uniquement sur les pistes ou les chemins et itinéraires indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Accesso autorizzato solo sulle piste, i sentieri e i percorsi segnalati.</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4012">
+        <Code>R120</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Betreten oder befahren nur auf Pisten, Loipen und eingezeichneten Wegen oder Routen, Leinenpflicht</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Accès autorisés uniquement sur les pistes ou les chemins et itinéraires indiqués, obligation de tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Accesso autorizzato solo sulle piste, i sentieri e i percorsi segnalati; obbligo di tenere i cani al guinzaglio</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4013">
+        <Code>R130</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Zutrittsverbot, Abfahrt durch eingezeichneten Korridor gestattet</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction d’accès, descente dans le couloir indiqué autorisée</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di accesso, è autorizzata la discesa nei corridoi segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4014">
+        <Code>R140</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Wintersportverbot</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction de pratiquer des sports d‘hiver</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di praticare sport invernali</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4015">
+        <Code>R150</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Wintersportverbot abseits eingezeichneter Routen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction de pratiquer des sports d‘hiver hors des itinéraires indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di praticare sport invernali al di fuori dei percorsi segnalati</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4016">
+        <Code>R160</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Wintersportverbot abseits gekennzeichneter Pisten</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Interdiction de pratiquer des sports d‘hiver hors des pistes indiquéess</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Divieto di praticare sport invernali al di fuori delle piste segnalate</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4018">
+        <Code>R900</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Andere Bestimmung</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Autre disposition</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Altre disposizioni</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4019">
+        <Code>E10</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Bitte nicht betreten</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Merci de ne pas entrer dans cette zone sensible</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Si raccomanda di non entrare in questa zona sensibile</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4020">
+        <Code>E20</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Bitte nicht betreten, durchqueren nur auf eingezeichneter Route</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Merci de ne pas traverser cette zone sensible, sauf sur les itinéraires indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Si raccomanda di non attraversare questa zona sensibile, tranne sui percorsi segnalati.</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4021">
+        <Code>E30</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Bitte nicht betreten, durchqueren nur auf eingezeichneter Route, Hunde an der Leine führen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Merci de ne pas traverser cette zone sensible, sauf sur les itinéraires indiqués, et de tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Si raccomanda di non attraversare questa zona sensibile, tranne sui percorsi segnalati; obbligo di tenere i cani al guinzaglio.</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4022">
+        <Code>E40</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Bitte eingezeichnete Routen und Wege nicht verlassen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Merci de ne pas quitter les itinéraires et les chemins indiqués</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Si raccomanda di non abbandonare i percorsi e i sentieri segnalati.</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4023">
+        <Code>E50</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Bitte eingezeichnete Routen und Wege nicht verlassen, Hunde an der Leine führen</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Merci de ne pas quitter les itinéraires et les chemins indiqués, tenir les chiens en laisse</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Si raccomanda di non abbandonare i percorsi e i sentieri segnalati; obbligo di tenere i cani al guinzaglio.</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue TID="w4024">
+        <Code>E900</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Andere Bestimmung</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Autre disposition</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Altre disposizioni</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Bestimmungen_Catalogue>
+
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Wegtyp_Catalogue TID="w5001">
+        <Code>W1</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Erlaubter Weg/Route</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Chemin/itinéraire autorisé</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Sentiero/itinerario autorizzato</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Wegtyp_Catalogue>
+      <Wildruhezonen_Codelisten_V2_1.Codelisten.Wegtyp_Catalogue TID="w5002">
+        <Code>W2</Code>
+        <Description>
+          <LocalisationCH_V1.MultilingualText>
+            <LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>de</Language>
+                <Text>Weg/Route mit Einschränkung</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>fr</Language>
+                <Text>Chemin/itinéraire avec restriction</Text>
+              </LocalisationCH_V1.LocalisedText>
+              <LocalisationCH_V1.LocalisedText>
+                <Language>it</Language>
+                <Text>Sentiero/itinerario con restrizione</Text>
+              </LocalisationCH_V1.LocalisedText>
+            </LocalisedText>
+          </LocalisationCH_V1.MultilingualText>
+        </Description>
+      </Wildruhezonen_Codelisten_V2_1.Codelisten.Wegtyp_Catalogue>
+
+    </Wildruhezonen_Codelisten_V2_1.Codelisten>
+
+  </DATASECTION>
+</TRANSFER>

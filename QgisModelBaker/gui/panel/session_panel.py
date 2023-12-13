@@ -58,6 +58,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         baskets,
         export_models,
         db_action_type,
+        delete_data,
         parent=None,
     ):
         super().__init__(parent)
@@ -70,6 +71,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.datasets = datasets
         self.baskets = baskets
         self.export_models = export_models
+        self.delete_data = delete_data
 
         # set up the gui
         self.create_text = self.tr("Run")
@@ -130,24 +132,36 @@ class SessionPanel(QWidget, WIDGET_UI):
                     self.tr(
                         """
                         <html><head/><body>
-                        <p>Update the data in dataset <b>{dataset}</b></p>
+                        <p>{update_word} the data in dataset <b>{dataset}</b></p>
                         <p>with the data from <i>{file}</i></p>
                         </body></html>
                         """
-                    ).format(dataset=self.datasets[0], file=self.file)
+                    ).format(
+                        update_word=self.tr("Update")
+                        if not self.delete_data
+                        else self.tr("Replace"),
+                        dataset=self.datasets[0],
+                        file=self.file,
+                    )
                 )
             else:
                 self.info_label.setText(
                     self.tr(
                         """
                         <html><head/><body>
-                        <p>Import the data from <i>{file}</i></p>
+                        <p>{import_word} the data from <i>{file}</i></p>
                         </body></html>
                         """
-                    ).format(file=self.file)
+                    ).format(
+                        import_word=self.tr("Import")
+                        if not self.delete_data
+                        else self.tr("Delete existing data and import"),
+                        file=self.file,
+                    )
                 )
 
             self.configuration.dataset = self.datasets[0] if self.datasets else None
+            self.configuration.delete_data = self.delete_data
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
             self.configuration.with_exporttid = self._get_tid_handling()

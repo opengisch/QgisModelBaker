@@ -149,11 +149,19 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
-            [self.tr("Import File"), self.tr("Catalogue"), self.tr("Dataset")]
+            [
+                self.tr("Import File"),
+                self.tr("Delete"),
+                self.tr("Catalogue"),
+                self.tr("Dataset"),
+            ]
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.horizontalHeader().setSectionResizeMode(
             gui_utils.SourceModel.Columns.SOURCE, QHeaderView.Stretch
+        )
+        self.file_table_view.horizontalHeader().setSectionResizeMode(
+            gui_utils.SourceModel.Columns.DELETE_DATA, QHeaderView.ResizeToContents
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
             gui_utils.SourceModel.Columns.IS_CATALOGUE, QHeaderView.ResizeToContents
@@ -227,6 +235,11 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 gui_utils.SourceModel.Columns.DATASET, True
             )
             self.datasetmanager_button.setHidden(True)
+
+        self.file_table_view.setItemDelegateForColumn(
+            gui_utils.SourceModel.Columns.DELETE_DATA,
+            CheckDelegate(self, role=gui_utils.SourceModel.Roles.DELETE_DATA),
+        )
         self._update_referencedata_completer()
 
     def _set_basket_defaults(self):
@@ -256,10 +269,17 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     is_xml,
                     int(gui_utils.SourceModel.Roles.IS_CATALOGUE),
                 )
+                self.workflow_wizard.source_model.setData(
+                    self.workflow_wizard.source_model.index(
+                        row, gui_utils.SourceModel.Columns.DELETE_DATA
+                    ),
+                    False,
+                    int(gui_utils.SourceModel.Roles.DELETE_DATA),
+                )
 
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.IS_CATALOGUE,
-                CheckDelegate(self, gui_utils.SourceModel.Roles.IS_CATALOGUE),
+                CheckDelegate(self, role=gui_utils.SourceModel.Roles.IS_CATALOGUE),
             )
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.DATASET,
