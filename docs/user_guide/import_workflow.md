@@ -149,25 +149,17 @@ Then, with a simple click you generate your project. All the toppings received f
 
 ![baked project](../assets/generated_project.png)
 
-### TID (OID) Values
+Easy as that. Still you can choose some more options.
 
-Often the models definition requires cross-system unique identifiers. So called OIDs or TIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
+![project generation](../assets/workflow_wizard_project_generation.png)
 
-On creating a QGIS Project with Model Baker, there are preset default value expression generated for the `t_ili_tid` field on the attribute form. But often those default value expressions need to be edited by the user (like e.g. the prefix in the `STANDARDOID`).
+### Choose a Project Topping
 
-![tid generator](../assets/workflow_wizard_tid_generator_page.png)
-
-Here you can use the QGIS Expression Dialog to edit the default value expression for the `t_ili_tid` field of each layer.
-
-If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project.
-
-This settings can be made on an existing QGIS Project as well. Find the [TID (OID) Manager](../../background_info/oid_tid_generator/#tid_(oid)_manager) via the *Database > Model Baker* menu.
+If you have already selected a metaconfiguration file [previously](#metaconfiguration-topping) and this metaconfiguration file refers to a project topping file (`YAML` file containing the layer tree and links to the layer style files), it is taken into account by default. If you create the project from an existing database, Model Baker checks whether this schema was created with a meta configuration file to consider here. If this is not the case, or if you simply want to select a different file, this option is also available. Get your project topping file from the repositories or from your local system.
 
 ### Optimize QGIS Project if extended
 
 In case you gereate your project for an extended model structure that was created with *smart2inheritance*, then you can optimize it (hide or group unused layers and relations).
-
-![project generation](../assets/workflow_wizard_project_generation.png)
 
 Choose your optimization strategy in the checkbox:
 
@@ -182,3 +174,17 @@ Choose your optimization strategy in the checkbox:
   Relations of grouped layers will be *created* but the widgets are *not applied* to the form.
 
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
+
+### TID (OID) Values
+
+Often the models definition requires cross-system unique identificators. So called OIDs or TIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
+
+On creating a QGIS Project with Model Baker, there are preset default value expression generated for the `t_ili_tid` field on the attribute form. But often those default value expressions need to be edited by the user (like e.g. the prefix in the `STANDARDOID`).
+
+![tid generator](../assets/workflow_wizard_tid_generator_page.png)
+
+Here you can use the QGIS Expression Dialog to edit the default value expression for the `t_ili_tid` field of each layer.
+
+If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project.
+
+This settings can be made on an existing QGIS Project as well. Find the [TID (OID) Manager](../../background_info/oid_tid_generator/#tid_(oid)_manager) via the *Database > Model Baker* menu.
