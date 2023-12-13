@@ -26,16 +26,19 @@ DIALOG_UI = gui_utils.get_ui_class("tid_manager.ui")
 
 
 class TIDManagerDialog(QDialog, DIALOG_UI):
-    def __init__(self, iface, parent=None):
+    def __init__(self, iface, parent=None, base_config=None):
 
         QDialog.__init__(self, parent)
         self.iface = iface
         self._close_editing()
         self.parent = parent
+        self.base_config = base_config
 
         self.setupUi(self)
 
-        self.tid_configurator_panel = TIDConfiguratorPanel(self.parent)
+        self.tid_configurator_panel = TIDConfiguratorPanel(
+            self.parent, self.base_config
+        )
         self.tid_configurator_layout.addWidget(self.tid_configurator_panel)
 
         self.buttonBox.accepted.connect(self._accepted)
@@ -69,7 +72,7 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
         result, message = self.tid_configurator_panel.set_tid_configuration()
         if not result:
             error_box = QMessageBox(self)
-            error_box.setIcon(QMessageBox.Error)
+            error_box.setIcon(QMessageBox.Critical)
             warning_title = self.tr("Problems on setting T_Id sequence.")
             error_box.setWindowTitle(warning_title)
             error_box.setText(message)

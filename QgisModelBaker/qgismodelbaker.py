@@ -360,7 +360,9 @@ class QgisModelBakerPlugin(QObject):
         if self.tidmanager_dlg:
             self.tidmanager_dlg.reject()
         else:
-            self.tidmanager_dlg = TIDManagerDialog(self.iface, self.iface.mainWindow())
+            self.tidmanager_dlg = TIDManagerDialog(
+                self.iface, self.iface.mainWindow(), self.ili2db_configuration
+            )
             self.tidmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.tidmanager_dlg.setWindowFlags(
                 self.tidmanager_dlg.windowFlags() | Qt.Tool

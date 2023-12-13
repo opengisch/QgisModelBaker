@@ -21,9 +21,9 @@
 from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
+from QgisModelBaker.utils.gui_utils import LogColor
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/tid_configuration.ui")
 
@@ -49,9 +49,7 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         self.configuration = None
 
     def set_configuration(self, configuration):
-        self.configuration = configuration
-        db_connector = db_utils.get_db_connector(self.configuration)
-        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), db_connector)
+        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), configuration)
 
     def _set_tid_configuration(self):
         self.progress_bar.setValue(0)
@@ -67,6 +65,6 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         else:
-            self.workflow_wizard.log_panel.print_info(message)
-            self.progress_bar.setValue(0)
+            self.workflow_wizard.log_panel.print_info(message, LogColor.COLOR_WARNING)
+            self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.ERROR_STYLE)
