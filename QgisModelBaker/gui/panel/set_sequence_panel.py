@@ -62,7 +62,8 @@ class SetSequencePanel(QWidget, WIDGET_UI):
 
     def save_sequence(self):
         if (
-            self.sequence_value_edit.value() != 0
+            self.sequence_value_edit.value()
+            != self.sequence_value_edit.minimum()  # what is used for "NULL"
             and self.sequence_value_edit.value() != self.last_loaded_sequence_value
         ):
             # only if it changed
@@ -76,7 +77,9 @@ class SetSequencePanel(QWidget, WIDGET_UI):
                 if not result:
                     # reset value
                     if self.last_loaded_sequence_value is None:
-                        self.sequence_value_edit.setValue(0)
+                        self.sequence_value_edit.setValue(
+                            self.sequence_value_edit.minimum()
+                        )  # used for "NULL", what leads to displaying the special text value "-"
                     else:
                         self.sequence_value_edit.setValue(
                             self.last_loaded_sequence_value
