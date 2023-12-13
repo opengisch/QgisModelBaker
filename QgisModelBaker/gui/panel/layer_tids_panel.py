@@ -113,7 +113,7 @@ class TIDModel(QAbstractTableModel):
             if index.column() == TIDModel.Columns.NAME:
                 return f"{key} ({self.oid_settings[key]['interlis_topic']})"
             if index.column() == TIDModel.Columns.OID_DOMAIN:
-                return self.oid_settings[key]["oid_domain"]
+                return self.oid_settings[key]["oid_domain"] or "---"
             if index.column() == TIDModel.Columns.DEFAULT_VALUE:
                 return self.oid_settings[key]["default_value_expression"]
             if index.column() == TIDModel.Columns.IN_FORM:
