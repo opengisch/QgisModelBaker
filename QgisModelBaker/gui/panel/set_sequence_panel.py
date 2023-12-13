@@ -76,7 +76,7 @@ class SetSequencePanel(QWidget, WIDGET_UI):
                 if not result:
                     # reset value
                     if self.last_loaded_sequence_value is None:
-                        self.sequence_value_edit.setSpecialValueText("-")
+                        self.sequence_value_edit.setValue(0)
                     else:
                         self.sequence_value_edit.setValue(
                             self.last_loaded_sequence_value
