@@ -101,7 +101,7 @@ class TIDModel(QAbstractTableModel):
             if section == TIDModel.Columns.NAME:
                 return self.tr("Layer")
             if section == TIDModel.Columns.OID_DOMAIN:
-                return self.tr("TID (OID Type)")
+                return self.tr("OID Type")
             if section == TIDModel.Columns.DEFAULT_VALUE:
                 return self.tr("Default Value Expression")
             if section == TIDModel.Columns.IN_FORM:
