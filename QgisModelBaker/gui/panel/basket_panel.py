@@ -99,7 +99,7 @@ class BasketModel(QAbstractTableModel):
             if index.column() == BasketModel.Columns.TOPIC:
                 return key
             if index.column() == BasketModel.Columns.BID_DOMAIN:
-                return self.basket_settings[key]["bid_domain"]
+                return self.basket_settings[key]["bid_domain"] or "---"
             if index.column() == BasketModel.Columns.BID_VALUE:
                 return self.basket_settings[key]["bid_value"]
         elif role == int(Qt.ToolTipRole):
