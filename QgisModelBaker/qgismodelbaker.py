@@ -141,7 +141,7 @@ class QgisModelBakerPlugin(QObject):
                     "images/QgisModelBaker-tidmanager-icon.svg",
                 )
             ),
-            self.tr("TID (OID) Manager"),
+            self.tr("OID Manager"),
             None,
         )
         self.__validate_action = QAction(
