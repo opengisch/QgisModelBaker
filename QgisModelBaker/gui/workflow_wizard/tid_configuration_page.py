@@ -59,7 +59,7 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         result, message = self.tid_configurator_panel.set_tid_configuration()
         if result:
             self.workflow_wizard.log_panel.print_info(
-                self.tr("Stored TID configurations to current project")
+                self.tr("Stored OID configurations to current project")
             )
             self.workflow_wizard.log_panel.print_info(
                 self.tr("Stored the sequence value to current database")

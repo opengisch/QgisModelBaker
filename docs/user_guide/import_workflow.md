@@ -149,9 +149,9 @@ Then, with a simple click you generate your project. All the toppings received f
 
 ![baked project](../assets/generated_project.png)
 
-### TID (OID) Values
+### OID Values
 
-Often the models definition requires cross-system unique identificators. So called OIDs or TIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
+Often the models definition requires cross-system unique identificators. So called OIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
 
 On creating a QGIS Project with Model Baker, there are preset default value expression generated for the `t_ili_tid` field on the attribute form. But often those default value expressions need to be edited by the user (like e.g. the prefix in the `STANDARDOID`).
 
@@ -161,7 +161,7 @@ Here you can use the QGIS Expression Dialog to edit the default value expression
 
 If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project.
 
-This settings can be made on an existing QGIS Project as well. Find the [TID (OID) Manager](../../background_info/oid_tid_generator/#tid_(oid)_manager) via the *Database > Model Baker* menu.
+This settings can be made on an existing QGIS Project as well. Find the [OID Manager](../../background_info/oid_tid_generator/#oid_manager) via the *Database > Model Baker* menu.
 
 ### Optimize QGIS Project if extended
 

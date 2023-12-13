@@ -44,7 +44,7 @@ nav:
   - Tipps & Tricks:
     - Repositories: background_info/repositories.md
     - Basket and Dataset Handling: background_info/basket_handling.md
-    - OIDs and TID Generator: background_info/oid_tid_generator.md
+    - OID Generator: background_info/oid_tid_generator.md
     - UsabILIty Hub:
       - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
       - Technical Concept: background_info/usabilityhub/technical_concept.md
@@ -79,7 +79,7 @@ plugins:
           Plugin Configuration: Plugin Konfiguration
           Repositories: Repositories
           Basket and Dataset Handling: Dataset und Basket Handling
-          OIDs and TID Generator: OID und TID Generator
+          OID Generator: OID Generator
           Optimized Projects for Extended Models : Optimierte Projekte für erweiterte Modelle
           Model Baker Integration: Model Baker Integration
           Technical Concept: Technisches Konzept
