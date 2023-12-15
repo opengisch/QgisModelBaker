@@ -273,6 +273,7 @@ class FileDropListView(QListView):
                 pathlib.Path(url.toLocalFile()).suffix[1:]
                 in FileDropListView.ValidExtenstions
                 + FileDropListView.ValidIniExtensions
+                + FileDropListView.ValidXmlExtensions
             ):
                 event.acceptProposedAction()
                 break
