@@ -761,7 +761,7 @@ class ImportModelsModel(SourceModel):
                 source = (
                     item.data(int(SourceModel.Roles.PATH))
                     if type == "ili"
-                    else "repository " + model
+                    else "repository"
                 )
 
                 if (
@@ -775,7 +775,8 @@ class ImportModelsModel(SourceModel):
                         models = sessions[source]["models"]
                     else:
                         sessions[source] = {}
-                    models.append(model)
+                    if model not in models:
+                        models.append(model)
                     sessions[source]["models"] = models
         return sessions
 
