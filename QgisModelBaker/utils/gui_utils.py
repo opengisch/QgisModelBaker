@@ -982,7 +982,14 @@ class SchemaModelsModel(CheckEntriesModel):
 
         self.setStringList(modelnames)
 
-        self._checked_entries = {modelname: Qt.Checked for modelname in modelnames}
+        # if there where already entries with a status we take it and otherwise we set checked per default
+        new_checked_entries = {}
+        for modelname in modelnames:
+            if modelname in self._checked_entries:
+                new_checked_entries[modelname] = self._checked_entries[modelname]
+            else:
+                new_checked_entries[modelname] = Qt.Checked
+        self._checked_entries = new_checked_entries
 
         return self.rowCount()
 
