@@ -107,10 +107,31 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
             self.style_categories_list_view.model().check
         )
 
+        self.select_all_checkbox.stateChanged.connect(self._select_all_items)
+        self.model.dataChanged.connect(lambda: self._set_select_all_checkbox())
+
         self.ok_button.clicked.connect(self.accept)
+
+    def _set_select_all_checkbox(self):
+        self.select_all_checkbox.setCheckState(self._evaluated_check_state(self.model))
+
+    def _evaluated_check_state(self, model):
+        nbr_of_checked = len(model.checked_entries())
+        if nbr_of_checked:
+            if nbr_of_checked == model.rowCount():
+                return Qt.Checked
+            return Qt.PartiallyChecked
+        return Qt.Unchecked
+
+    def _select_all_items(self, state):
+        if state != Qt.PartiallyChecked and state != self._evaluated_check_state(
+            self.model
+        ):
+            self.model.check_all(state)
 
     def set_categories(self, categories: QgsMapLayer.StyleCategories):
         self.style_categories_list_view.model().set_categories(categories)
+        self._set_select_all_checkbox()
 
     @property
     def categories(self):

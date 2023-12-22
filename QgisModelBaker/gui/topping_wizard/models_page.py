@@ -87,6 +87,8 @@ class ModelsPage(QWizardPage, PAGE_UI):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
+                if not source_provider:
+                    continue
                 self._append_possible_sources(sources, source_provider)
                 schema_identificator = (
                     db_utils.get_schema_identificator_from_sourceprovider(

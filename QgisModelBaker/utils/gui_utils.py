@@ -902,10 +902,13 @@ class CheckEntriesModel(QStringListModel):
         self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount(), 0))
 
     def checked_entries(self):
+        """
+        Provides the selected entries as list
+        """
         return [
             name
             for name in self.stringList()
-            if self._checked_entries[name] == Qt.Checked
+            if self._checked_entries.get(name, Qt.Unchecked) == Qt.Checked
         ]
 
     def check_entries(self, entries: list = []):
@@ -917,6 +920,25 @@ class CheckEntriesModel(QStringListModel):
                 self._checked_entries[name] == Qt.Checked
             else:
                 self._checked_entries[name] == Qt.Unchecked
+
+    def refresh_stringlist(self, values):
+        """
+        This sets the values to the string list, keeps thes status (checked_entries) when they still exist, and sets the new ones to Checked
+        """
+
+        self.setStringList(values)
+
+        # if there where already entries with a status we take it and otherwise we set checked per default
+        new_checked_entries = {}
+        for value in values:
+            if value in self._checked_entries:
+                new_checked_entries[value] = self._checked_entries[value]
+            else:
+                new_checked_entries[value] = Qt.Checked
+        self._checked_entries = new_checked_entries
+
+        self._emit_data_changed()
+        return self.rowCount()
 
 
 class SchemaModelsModel(CheckEntriesModel):
@@ -980,11 +1002,7 @@ class SchemaModelsModel(CheckEntriesModel):
                             modelnames.append(name)
                             self._parent_models[name] = db_model["parents"]
 
-        self.setStringList(modelnames)
-
-        self._checked_entries = {modelname: Qt.Checked for modelname in modelnames}
-
-        return self.rowCount()
+        return self.refresh_stringlist(modelnames)
 
 
 class SchemaDatasetsModel(CheckEntriesModel):

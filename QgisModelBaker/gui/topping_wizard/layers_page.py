@@ -106,7 +106,7 @@ class LayerModel(QgsLayerTreeModel):
         self.use_definition_nodes = {}
         self.ili_schema_identificators = []
 
-        self.reload()
+        self.reload(True)
 
     def columnCount(self, parent=None):
         return len(LayerModel.Columns)
@@ -311,9 +311,10 @@ class LayerModel(QgsLayerTreeModel):
             else:
                 self.setData(index, Qt.CheckStateRole, Qt.Checked)
 
-    def reload(self):
+    def reload(self, load_defaults=False):
         self._load_ili_schema_identificators()
-        self._set_default_values()
+        if load_defaults:
+            self._set_default_values()
 
     def _disable_children(self, parent: QModelIndex):
         for child_row in range(self.rowCount(parent)):
@@ -359,6 +360,8 @@ class LayerModel(QgsLayerTreeModel):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
+                if not source_provider:
+                    continue
                 schema_identificator = (
                     db_utils.get_schema_identificator_from_sourceprovider(
                         source_provider
@@ -551,7 +554,7 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.categories_dialog = LayerStyleCategoriesDialog()
         self.stylecat_delegate.button_clicked.connect(self.open_categories_dialog)
-        self.reset_button.clicked.connect(self.layermodel.reload)
+        self.reset_button.clicked.connect(lambda: self.layermodel.reload(True))
 
     def open_categories_dialog(self, index):
         layername = index.data(int(Qt.DisplayRole))

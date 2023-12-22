@@ -257,6 +257,8 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         for layer in QgsProject.instance().mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 source_provider = layer.dataProvider()
+                if not source_provider:
+                    continue
                 schema_identificator = (
                     db_utils.get_schema_identificator_from_sourceprovider(
                         source_provider

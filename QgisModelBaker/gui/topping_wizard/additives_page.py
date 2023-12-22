@@ -18,7 +18,6 @@
 """
 
 from qgis.core import QgsProject
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.utils import gui_utils
@@ -26,7 +25,7 @@ from QgisModelBaker.utils.gui_utils import CheckEntriesModel
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/additives.ui")
 
-VARIABLE_PREFIX_BLACKLIST = ["default_basket"]
+VARIABLE_PREFIX_BLACKLIST = ["default_basket", "optimize_strategy"]
 
 
 class AdditivesPage(QWizardPage, PAGE_UI):
@@ -55,8 +54,7 @@ class AdditivesPage(QWizardPage, PAGE_UI):
 
     def initializePage(self) -> None:
         maptheme_collection = QgsProject.instance().mapThemeCollection()
-        self.mapthemes_model.setStringList(maptheme_collection.mapThemes())
-        self.mapthemes_model.check_all(Qt.Checked)
+        self.mapthemes_model.refresh_stringlist(maptheme_collection.mapThemes())
         self.mapthemes_view.setVisible(self.mapthemes_model.rowCount())
         self.mapthemes_label.setVisible(self.mapthemes_model.rowCount())
 
@@ -69,15 +67,13 @@ class AdditivesPage(QWizardPage, PAGE_UI):
                 if blacklisted_prefix not in variable_key
             ]
 
-        self.variables_model.setStringList(variables_keys)
-        self.variables_model.check_all(Qt.Checked)
+        self.variables_model.refresh_stringlist(variables_keys)
         self.variables_view.setVisible(self.variables_model.rowCount())
         self.variables_label.setVisible(self.variables_model.rowCount())
 
         layout_manager = QgsProject.instance().layoutManager()
         layout_names = [layout.name() for layout in layout_manager.printLayouts()]
-        self.layouts_model.setStringList(layout_names)
-        self.layouts_model.check_all(Qt.Checked)
+        self.layouts_model.refresh_stringlist(layout_names)
         self.layouts_view.setVisible(self.layouts_model.rowCount())
         self.layouts_label.setVisible(self.layouts_model.rowCount())
         return super().initializePage()
