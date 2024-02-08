@@ -589,7 +589,9 @@ class WorkflowWizard(QWizard):
 
         # we wait for the download or we timeout after 30 seconds and we apply what we have
         loop = QEventLoop()
-        topping_file_cache.download_finished.connect(lambda: loop.quit())
+        topping_file_cache.download_finished_and_model_fresh.connect(
+            lambda: loop.quit()
+        )
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda: loop.quit())
@@ -598,8 +600,8 @@ class WorkflowWizard(QWizard):
         topping_file_cache.refresh()
         self.log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
 
-        if len(topping_file_cache.downloaded_files) != len(id_list):
-            loop.exec()
+        # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
+        loop.exec()
 
         if len(topping_file_cache.downloaded_files) == len(id_list):
             self.log_panel.print_info(
