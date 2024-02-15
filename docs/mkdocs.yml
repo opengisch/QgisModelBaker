@@ -4,6 +4,8 @@ site_description: >-
   This site contains documentation about QGIS Model Baker
 site_url: https://opengisch.github.io/QgisModelBaker/
 
+docs_dir: .
+
 # Repository
 repo_name: opengisch/QgisModelBaker
 repo_url: https://github.com/opengisch/QgisModelBaker
@@ -65,7 +67,6 @@ markdown_extensions:
 
 plugins:
   - i18n:
-      default_language: en
       languages:
         - locale: en
           default: true
