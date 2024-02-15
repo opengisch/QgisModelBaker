@@ -1,5 +1,5 @@
 # Project information
-site_name: QGIS Model Baker Documenation
+site_name: QGIS Model Baker Documentation
 site_description: >-
   This site contains documentation about QGIS Model Baker
 site_url: https://opengisch.github.io/QgisModelBaker/
@@ -67,23 +67,28 @@ plugins:
   - i18n:
       default_language: en
       languages:
-        en: English
-        de: Deutsch
-      nav_translations:
-        de:
-          User Guide: Benutzerhandbuch
-          Get Started: Loslegen
-          Model and Data Import Workflow: Modell und Daten Import Workflow
-          Export Data Workflow: Daten Export Workflow
-          Validate Data: Daten Validierung
-          Plugin Configuration: Plugin Konfiguration
-          Repositories: Repositories
-          Basket and Dataset Handling: Dataset und Basket Handling
-          OID Generator: OID Generator
-          Optimized Projects for Extended Models : Optimierte Projekte für erweiterte Modelle
-          Model Baker Integration: Model Baker Integration
-          Technical Concept: Technisches Konzept
-          Catalogues and their special cases: Kataloge und ihre Spezialfälle
-          Meta Attributes: Metaattribute
-          Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
-          Development: Enwicklung
+        - locale: en
+          default: true
+          name: English
+          site_name: QGIS Model Baker Documentation
+
+        - locale: de
+          name: Deutsch
+          site_name: QGIS Model Baker Dokumentation
+          nav_translations:
+            User Guide: Benutzerhandbuch
+            Get Started: Loslegen
+            Model and Data Import Workflow: Modell und Daten Import Workflow
+            Export Data Workflow: Daten Export Workflow
+            Validate Data: Daten Validierung
+            Plugin Configuration: Plugin Konfiguration
+            Repositories: Repositories
+            Basket and Dataset Handling: Dataset und Basket Handling
+            OID Generator: OID Generator
+            Optimized Projects for Extended Models : Optimierte Projekte für erweiterte Modelle
+            Model Baker Integration: Model Baker Integration
+            Technical Concept: Technisches Konzept
+            Catalogues and their special cases: Kataloge und ihre Spezialfälle
+            Meta Attributes: Metaattribute
+            Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
+            Development: Enwicklung

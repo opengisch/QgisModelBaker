@@ -1,11 +1,26 @@
 name: doc
 on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - '.github/workflows/doc.yml'
   push:
     branches:
       - master
     paths:
       - 'docs/**'
       - '.github/workflows/doc.yml'
+  workflow_dispatch: # useful for testing tx pushes
+  workflow_call:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: docs
 
 jobs:
   deploy:
@@ -25,7 +40,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Python requirements
-        run: pip install -r ./docs/.utils/requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Install Transifex client
         run: |
@@ -33,23 +48,34 @@ jobs:
           tar -xvzf tx-linux-amd64.tar.gz
 
       - name: Configure Transifex
-        run: |
-          python ./docs/.utils/transifex_utils.py
+        run: scripts/transifex_utils.py
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Push source files to Transifex
-        run: |
-          ./tx push
+        if: ${{ github.event_name == 'push' }}
+        run: ./tx push
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Pull translations from Transifex
+        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'opengisch/QgisModelBaker' }}
         run: |
           ./tx pull --translations --all --minimum-perc 10
           ./tx status
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
-      - name: Build docs
+      - name: Build documentation
+        run: mkdocs build
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          name: docs
+          path: docs/site
+          if-no-files-found: error
+
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event_name == 'push' }}
         run: mkdocs gh-deploy --force
