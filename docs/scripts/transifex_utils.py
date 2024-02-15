@@ -19,18 +19,18 @@ def create_transifex_config():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_file = os.path.join(current_dir, "..", ".tx", "config")
-    root = os.path.join(current_dir, "..", "content")
+    root = os.path.join(current_dir, "..")
     count = 0
 
     with open(config_file, "w") as f:
         f.write("[main]\n")
         f.write("host = https://www.transifex.com\n\n")
 
-        for file in glob.iglob(current_dir + "/../content/**/*.md", recursive=True):
+        for file in glob.iglob(current_dir + "/../docs/**/*.md", recursive=True):
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
-            tx_slug = "docs-" + slugify(os.path.splitext(relative_path)[0])
+            tx_slug = slugify(os.path.splitext(relative_path)[0])
 
             if (
                 tx_slug and relative_path.count(".") == 1
