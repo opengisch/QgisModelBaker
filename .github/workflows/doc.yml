@@ -56,7 +56,7 @@ jobs:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Pull translations from Transifex
-        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'opengisch/QgisModelBaker' }}
+        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'opengisch/QgisModelBaker' && github.actor != 'dependabot[bot]' }}
         run: |
           ./tx pull --translations --all --minimum-perc 10
           ./tx status
