@@ -30,7 +30,7 @@ def create_transifex_config():
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
-            tx_slug = slugify(os.path.splitext(relative_path)[0])
+            tx_slug = "docs" + slugify(os.path.splitext(relative_path)[0])
 
             if (
                 tx_slug and relative_path.count(".") == 1
