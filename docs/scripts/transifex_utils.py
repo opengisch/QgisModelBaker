@@ -19,7 +19,7 @@ def create_transifex_config():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_file = os.path.join(current_dir, "..", ".tx", "config")
-    root = os.path.join(current_dir, "..")
+    root = os.path.join(current_dir, "..", "content")
     count = 0
 
     with open(config_file, "w") as f:
