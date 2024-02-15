@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import glob
 import os
 
@@ -16,15 +18,15 @@ def create_transifex_config():
     print("Start creating transifex configuration")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(current_dir, "..", "..", ".tx", "config")
-    root = os.path.join(current_dir, "..", "..")
+    config_file = os.path.join(current_dir, "..", ".tx", "config")
+    root = os.path.join(current_dir, "..")
     count = 0
 
     with open(config_file, "w") as f:
         f.write("[main]\n")
         f.write("host = https://www.transifex.com\n\n")
 
-        for file in glob.iglob(current_dir + "/../**/*.md", recursive=True):
+        for file in glob.iglob(current_dir + "/../docs/**/*.md", recursive=True):
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
