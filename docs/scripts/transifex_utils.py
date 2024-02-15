@@ -26,7 +26,7 @@ def create_transifex_config():
         f.write("[main]\n")
         f.write("host = https://www.transifex.com\n\n")
 
-        for file in glob.iglob(current_dir + "/../**/*.md", recursive=True):
+        for file in glob.iglob(current_dir + "/../content/**/*.md", recursive=True):
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
