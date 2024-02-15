@@ -21,6 +21,7 @@ theme:
     - search.suggest
     - search.highlight
   logo: assets/modelbaker_icon.svg
+  favicon: assets/modelbaker_icon.svg
   palette:
     - scheme: default
       primary: blue grey
