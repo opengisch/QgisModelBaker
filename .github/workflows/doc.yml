@@ -69,7 +69,7 @@ jobs:
       - name: Translate Mkdocs config
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == 'opengisch/QgisModelBaker' && github.actor != 'dependabot[bot]' }}
         run: |
-          ./scripts/mkdocs_tx.py -s fr update_config
+          ./scripts/mkdocs_tx.py -s en update_config
           ./scripts/mkdocs_tx_commit.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
