@@ -79,23 +79,26 @@ plugins:
           site_name: QGIS Model Baker Dokumentation
           nav_translations:
             Home: Home
-            Get Started: Loslegen
-            Model and Data Import Workflow: Modell und Daten Import Workflow
-            Export Data Workflow: Daten Export Workflow
-            Validate Data: Daten Validierung
-            Plugin Configuration: Plugin Konfiguration
+            User Guide: User Guide
+            Get Started: Get Started
+            Model and Data Import Workflow: Model and Data Import Workflow
+            Export Data Workflow: Export Data Workflow
+            Validate Data: Validate Data
+            Plugin Configuration: Plugin Configuration
+            Tipps & Tricks: Tipps & Tricks
             Repositories: Repositories
-            Basket and Dataset Handling: Dataset und Basket Handling
+            Basket and Dataset Handling: Basket and Dataset Handling
             OID Generator: OID Generator
+            UsabILIty Hub: UsabILIty Hub
             Model Baker Integration: Model Baker Integration
-            Technical Concept: Technisches Konzept
-            User Guide: Benutzerhandbuch
-            Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
-              Modelle
-            Catalogues and their special cases: Kataloge und ihre Spezialfälle
-            Meta Attributes: Metaattribute
-            Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
-            Development: Enwicklung
+            Technical Concept: Technical Concept
+            Optimized Projects for Extended Models: Optimized Projects for Extended
+              Models
+            Catalogues and their special cases: Catalogues and their special cases
+            Meta Attributes: Meta Attributes
+            Migrate from ili2db 3 to 4: Migrate from ili2db 3 to 4
+            Development: Development
+
           palette:
             - scheme: default
               primary: blue grey

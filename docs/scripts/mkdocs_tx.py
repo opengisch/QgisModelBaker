@@ -19,11 +19,11 @@ def read_config(file_path: str):
 
 
 def nav_config(config):
-    _nav_config = []
+    _nav_config = {}
 
     def add_nav_entry(title, content):
         if title:
-            _nav_config.append(title)
+            _nav_config[title] = title
         for _entry in content:
             if type(_entry) == str:
                 # this is pointing to a page directly, skipping
@@ -57,7 +57,7 @@ def create_translation_source(config_path, source_path):
 
 def update_config(config_path, source_path, source_language):
     config = read_config(config_path)
-    _nav_config = nav_config(config)
+    nav_config(config)
 
     found = False
     for plugin in config["plugins"]:
@@ -76,13 +76,7 @@ def update_config(config_path, source_path, source_language):
                     yaml = YAML()
                     tx = yaml.load(f)
 
-                    assert len(_nav_config) == len(tx["nav"])
-
-                    lang["nav_translations"] = {}
-                    for i in range(len(tx["nav"])):
-                        lang["nav_translations"][_nav_config[i]] = (
-                            tx["nav"][i] or _nav_config[i]
-                        )
+                    lang["nav_translations"] = tx["nav"]
 
                     try:
                         lang["palette"] = copy.deepcopy(config["theme"]["palette"])

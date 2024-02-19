@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - master
+      - docx # TODO remove
     paths:
       - 'docs/**'
       - '.github/workflows/doc.yml'
@@ -52,7 +53,7 @@ jobs:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Push source files to Transifex
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: ./tx push
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
