@@ -86,9 +86,11 @@ def update_config(config_path, source_path, source_language):
                         lang["palette"] = copy.deepcopy(config["theme"]["palette"])
                         i = 0
                         for palette in tx["theme"]["palette"]:
-                            lang["palette"][i]["toggle"]["name"] = palette["toggle"][
-                                "name"
-                            ]
+                            _name = (
+                                palette["toggle"]["name"]
+                                or config["theme"]["palette"][i]["toggle"]["name"]
+                            )
+                            lang["palette"][i]["toggle"]["name"] = _name
                             i += 1
                     except KeyError:
                         print("No theme/palette/toggle/name to translate")
