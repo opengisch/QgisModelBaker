@@ -84,5 +84,5 @@ jobs:
           if-no-files-found: error
 
       - name: Deploy to GitHub Pages
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: mkdocs gh-deploy --force
