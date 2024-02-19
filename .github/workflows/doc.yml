@@ -8,7 +8,6 @@ on:
       - '.github/workflows/doc.yml'
   push:
     branches:
-      - docx # TODO: remove
       - master
     paths:
       - 'docs/**'
