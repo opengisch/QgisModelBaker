@@ -1,7 +1,5 @@
 # Project information
 site_name: QGIS Model Baker Documentation
-site_description: >-
-  This site contains documentation about QGIS Model Baker
 site_url: https://opengisch.github.io/QgisModelBaker/
 
 docs_dir: docs

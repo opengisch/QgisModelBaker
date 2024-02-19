@@ -36,10 +36,40 @@ def nav_config(config):
     return _nav_config
 
 
-def create_translation_source(config_path, source_path):
+def get_site_description(config, source_language):
+    site_description = None
+    found = 0
+    try:
+        site_description = config["site_description"]
+        found += 1
+    except KeyError:
+        pass
+    try:
+        for plugin in config["plugins"]:
+            if type(plugin) != str and "i18n" in plugin:
+                for lang in plugin["i18n"]["languages"]:
+                    ltx = lang["locale"]
+                    if ltx == source_language:
+                        site_description = lang["site_description"]
+                        found += 1
+    except KeyError:
+        pass
+    if not found:
+        print("No site description found")
+    elif found > 1 and tx_cfg["site_description"] != config["site_description"]:
+        print("ERROR: site description found twice and different")
+        assert False
+
+    return site_description
+
+
+def create_translation_source(config_path, source_path, source_language):
     config = read_config(config_path)
 
-    tx_cfg = {"nav": nav_config(config)}
+    tx_cfg = {
+        "nav": nav_config(config),
+        "site_description": get_site_description(config, source_language),
+    }
 
     try:
         tx_cfg["theme"] = {"palette": []}
@@ -81,6 +111,13 @@ def update_config(config_path, source_path, source_language):
                     lang["nav_translations"] = tx["nav"]
 
                     try:
+                        lang["site_description"] = tx[
+                            "site_description"
+                        ] or get_site_description(config, source_language)
+                    except KeyError:
+                        print("No site description in translation")
+
+                    try:
                         lang["palette"] = copy.deepcopy(config["theme"]["palette"])
                         i = 0
                         for palette in tx["theme"]["palette"]:
@@ -91,7 +128,7 @@ def update_config(config_path, source_path, source_language):
                             lang["palette"][i]["toggle"]["name"] = _name
                             i += 1
                     except KeyError:
-                        print("No theme/palette/toggle/name to translate")
+                        print("No theme/palette/toggle/name in translation")
 
     assert found
 
@@ -132,7 +169,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == "create_source":
-        create_translation_source(args.config_path, args.translation_file_path)
+        create_translation_source(
+            args.config_path, args.translation_file_path, args.source_language
+        )
 
     elif args.command == "update_config":
         update_config(
