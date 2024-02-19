@@ -22,8 +22,16 @@ def create_translation_source(config_path, source_path):
     config = read_config(config_path)
 
     nav_config = []
-    for _entry in config["nav"]:
-        nav_config.append({v: k for k, v in _entry.items()})
+
+    def add_nav_entry(_title, _content):
+        if type(_content) == str:
+            nav_config.append(_title)
+        else:
+            for _entry in _content:
+                for title, content in _entry.items():
+                    add_nav_entry(title, content)
+
+    add_nav_entry(None, config["nav"])
 
     tx_cfg = {"nav": nav_config}
 
