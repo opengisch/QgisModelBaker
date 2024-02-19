@@ -18,14 +18,12 @@ def read_config(file_path: str):
         return yaml.load(f)
 
 
-def create_translation_source(config_path, source_path):
-    config = read_config(config_path)
-
-    nav_config = []
+def nav_config(config):
+    _nav_config = []
 
     def add_nav_entry(_title, _content):
         if type(_content) == str:
-            nav_config.append(_title)
+            _nav_config.append(_title)
         else:
             for _entry in _content:
                 for title, content in _entry.items():
@@ -33,7 +31,13 @@ def create_translation_source(config_path, source_path):
 
     add_nav_entry(None, config["nav"])
 
-    tx_cfg = {"nav": nav_config}
+    return _nav_config
+
+
+def create_translation_source(config_path, source_path):
+    config = read_config(config_path)
+
+    tx_cfg = {"nav": nav_config(config)}
 
     try:
         tx_cfg["theme"] = {"palette": []}
@@ -51,11 +55,7 @@ def create_translation_source(config_path, source_path):
 
 def update_config(config_path, source_path, source_language):
     config = read_config(config_path)
-
-    nav_config = {}
-    for _entry in config["nav"]:
-        for title, page in _entry.items():
-            nav_config[page] = title
+    _nav_config = nav_config(config)
 
     found = False
     for plugin in config["plugins"]:
@@ -74,11 +74,13 @@ def update_config(config_path, source_path, source_language):
                     yaml = YAML()
                     tx = yaml.load(f)
 
-                    for nav_entry in tx["nav"]:
-                        for page, title in nav_entry.items():
-                            source_language_tile = nav_config[page]
-                            if title:
-                                lang["nav_translations"][source_language_tile] = title
+                    assert len(_nav_config) == len(tx["nav"])
+
+                    lang["nav_translations"] = {}
+                    for i in range(len(tx["nav"])):
+                        lang["nav_translations"][_nav_config[i]] = (
+                            tx["nav"][i] or _nav_config[i]
+                        )
 
                     try:
                         lang["palette"] = copy.deepcopy(config["theme"]["palette"])
