@@ -57,7 +57,6 @@ def create_translation_source(config_path, source_path):
 
 def update_config(config_path, source_path, source_language):
     config = read_config(config_path)
-    nav_config(config)
 
     found = False
     for plugin in config["plugins"]:
@@ -76,6 +75,9 @@ def update_config(config_path, source_path, source_language):
                     yaml = YAML()
                     tx = yaml.load(f)
 
+                    for _title, _translation in tx["nav"].items():
+                        if not _translation:
+                            tx["nav"][_title] = _title
                     lang["nav_translations"] = tx["nav"]
 
                     try:
