@@ -21,13 +21,15 @@ def read_config(file_path: str):
 def nav_config(config):
     _nav_config = []
 
-    def add_nav_entry(_title, _content):
-        if type(_content) == str:
-            _nav_config.append(_title)
-        else:
-            for _entry in _content:
-                for title, content in _entry.items():
-                    add_nav_entry(title, content)
+    def add_nav_entry(title, content):
+        if title:
+            _nav_config.append(title)
+        for _entry in content:
+            if type(_entry) == str:
+                # this is pointing to a page directly, skipping
+                continue
+            for _title, _content in _entry.items():
+                add_nav_entry(_title, _content)
 
     add_nav_entry(None, config["nav"])
 
