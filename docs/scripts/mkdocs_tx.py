@@ -18,7 +18,7 @@ def read_config(file_path: str):
         return yaml.load(f)
 
 
-def nav_config(config):
+def nav_config(config) -> dict:
     _nav_config = {}
 
     def add_nav_entry(title, content):
@@ -36,31 +36,31 @@ def nav_config(config):
     return _nav_config
 
 
-def get_site_description(config, source_language):
-    site_description = None
+def site_description(config, source_language) -> str:
+    _site_description = None
     found = 0
     try:
-        site_description = config["site_description"]
+        _site_description = config["site_description"]
         found += 1
     except KeyError:
         pass
     try:
         for plugin in config["plugins"]:
-            if type(plugin) != str and "i18n" in plugin:
-                for lang in plugin["i18n"]["languages"]:
-                    ltx = lang["locale"]
-                    if ltx == source_language:
-                        site_description = lang["site_description"]
+            if not isinstance(plugin, str) and "i18n" in plugin:
+                for lang_info in plugin["i18n"]["languages"]:
+                    lang = lang_info["locale"]
+                    if lang == source_language:
+                        _site_description = lang_info["site_description"]
                         found += 1
     except KeyError:
         pass
     if not found:
         print("No site description found")
-    elif found > 1 and tx_cfg["site_description"] != config["site_description"]:
+    elif found > 1 and _site_description != config["site_description"]:
         print("ERROR: site description found twice and different")
         assert False
 
-    return site_description
+    return _site_description
 
 
 def create_translation_source(config_path, source_path, source_language):
@@ -68,7 +68,7 @@ def create_translation_source(config_path, source_path, source_language):
 
     tx_cfg = {
         "nav": nav_config(config),
-        "site_description": get_site_description(config, source_language),
+        "site_description": site_description(config, source_language),
     }
 
     try:
@@ -92,15 +92,15 @@ def update_config(config_path, source_path, source_language):
     for plugin in config["plugins"]:
         if type(plugin) != str and "i18n" in plugin:
             found = True
-            for lang in plugin["i18n"]["languages"]:
-                ltx = lang["locale"]
-                print(f"language found: '{ltx}'")
+            for lang_info in plugin["i18n"]["languages"]:
+                lang = lang_info["locale"]
+                print(f"language found: '{lang}'")
 
-                if ltx == source_language:
+                if lang == source_language:
                     print("skipping source language")
                     continue
 
-                tx_file = f'{source_path.removesuffix(".yml")}.{ltx}.yml'
+                tx_file = f'{source_path.removesuffix(".yml")}.{lang}.yml'
                 with open(tx_file) as f:
                     yaml = YAML()
                     tx = yaml.load(f)
@@ -108,24 +108,24 @@ def update_config(config_path, source_path, source_language):
                     for _title, _translation in tx["nav"].items():
                         if not _translation:
                             tx["nav"][_title] = _title
-                    lang["nav_translations"] = tx["nav"]
+                    lang_info["nav_translations"] = tx["nav"]
 
                     try:
-                        lang["site_description"] = tx[
+                        lang_info["site_description"] = tx[
                             "site_description"
-                        ] or get_site_description(config, source_language)
+                        ] or site_description(config, source_language)
                     except KeyError:
                         print("No site description in translation")
 
                     try:
-                        lang["palette"] = copy.deepcopy(config["theme"]["palette"])
+                        lang_info["palette"] = copy.deepcopy(config["theme"]["palette"])
                         i = 0
                         for palette in tx["theme"]["palette"]:
                             _name = (
                                 palette["toggle"]["name"]
                                 or config["theme"]["palette"][i]["toggle"]["name"]
                             )
-                            lang["palette"][i]["toggle"]["name"] = _name
+                            lang_info["palette"][i]["toggle"]["name"] = _name
                             i += 1
                     except KeyError:
                         print("No theme/palette/toggle/name in translation")
