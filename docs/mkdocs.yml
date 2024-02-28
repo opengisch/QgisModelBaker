@@ -1,7 +1,5 @@
 # Project information
 site_name: QGIS Model Baker Documentation
-site_description: >-
-  This site contains documentation about QGIS Model Baker
 site_url: https://opengisch.github.io/QgisModelBaker/
 
 docs_dir: docs
@@ -39,23 +37,23 @@ theme:
 nav:
   - Home: index.md
   - User Guide:
-    - Get Started: user_guide/get_started.md
-    - Model and Data Import Workflow: user_guide/import_workflow.md
-    - Export Data Workflow: user_guide/export_workflow.md
-    - Validate Data: user_guide/validation.md
-    - Plugin Configuration: user_guide/plugin_configuration.md
+      - Get Started: user_guide/get_started.md
+      - Model and Data Import Workflow: user_guide/import_workflow.md
+      - Export Data Workflow: user_guide/export_workflow.md
+      - Validate Data: user_guide/validation.md
+      - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
-    - Repositories: background_info/repositories.md
-    - Basket and Dataset Handling: background_info/basket_handling.md
-    - OID Generator: background_info/oid_tid_generator.md
-    - UsabILIty Hub:
-      - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
-      - Technical Concept: background_info/usabilityhub/technical_concept.md
-      - User Guide: background_info/usabilityhub/user_guide.md
-    - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
-    - Catalogues and their special cases: background_info/catalogues.md
-    - Meta Attributes: background_info/meta_attributes.md
-    - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
+      - Repositories: background_info/repositories.md
+      - Basket and Dataset Handling: background_info/basket_handling.md
+      - OID Generator: background_info/oid_tid_generator.md
+      - UsabILIty Hub:
+          - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
+          - Technical Concept: background_info/usabilityhub/technical_concept.md
+          - User Guide: background_info/usabilityhub/user_guide.md
+      - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
+      - Catalogues and their special cases: background_info/catalogues.md
+      - Meta Attributes: background_info/meta_attributes.md
+      - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
     #- Relations in QGIS: maybe from here https://github.com/signedav/interlis_relations_in_qgis
     #- INTERLIS Syntax in 10 Minutes: maybe stuff from here https://github.com/signedav/talk_iliuniverse
   - Development: development.md
@@ -78,19 +76,37 @@ plugins:
           name: Deutsch
           site_name: QGIS Model Baker Dokumentation
           nav_translations:
+            Home: Home
             User Guide: Benutzerhandbuch
             Get Started: Loslegen
             Model and Data Import Workflow: Modell und Daten Import Workflow
             Export Data Workflow: Daten Export Workflow
             Validate Data: Daten Validierung
             Plugin Configuration: Plugin Konfiguration
+            Tipps & Tricks: Tipps & Tricks
             Repositories: Repositories
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
-            Optimized Projects for Extended Models : Optimierte Projekte für erweiterte Modelle
+            UsabILIty Hub: UsabILIty Hub
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
+            Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
+              Modelle
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
             Meta Attributes: Metaattribute
             Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
             Development: Enwicklung
+          palette:
+            - scheme: default
+              primary: blue grey
+              toggle:
+                icon: material/weather-night
+                name: Switch to dark mode
+            - scheme: slate
+              primary: blue grey
+              toggle:
+                icon: material/weather-sunny
+                name: Switch to light mode
+                primary: white
+
+# Page tree

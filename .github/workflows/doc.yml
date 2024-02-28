@@ -13,10 +13,7 @@ on:
       - 'docs/**'
       - '.github/workflows/doc.yml'
   workflow_dispatch: # useful for testing tx pushes
-  workflow_call:
 
-permissions:
-  contents: write
 
 defaults:
   run:
@@ -37,12 +34,17 @@ jobs:
           python-version: '3.10'
 
       - name: Install Python requirements
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Install Transifex client
         run: |
           curl -OL https://github.com/transifex/cli/releases/download/v1.6.10/tx-linux-amd64.tar.gz
           tar -xvzf tx-linux-amd64.tar.gz
+
+      - name: Extract translatable content from mkdocs.yml config
+        run: ./scripts/mkdocs_tx.py create_source
 
       - name: Configure Transifex
         run: scripts/transifex_utils.py
@@ -50,18 +52,26 @@ jobs:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Push source files to Transifex
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: ./tx push
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Pull translations from Transifex
-        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'opengisch/QgisModelBaker' && github.actor != 'dependabot[bot]' }}
+        if: contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) || ${{ github.event_name == 'pull_request' && github.repository == 'opengisch/QgisModelBaker' }}
         run: |
           ./tx pull --translations --all --minimum-perc 10
           ./tx status
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
+      - name: Translate Mkdocs config
+        if: contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) || ${{ github.event_name == 'pull_request' && github.repository == 'opengisch/QgisModelBaker' }}
+        run: |
+          ./scripts/mkdocs_tx.py -s en update_config
+          ./scripts/mkdocs_tx_commit.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build documentation
         run: mkdocs build
@@ -74,5 +84,5 @@ jobs:
           if-no-files-found: error
 
       - name: Deploy to GitHub Pages
-        if: ${{ github.event_name == 'push' }}
+        if: contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
         run: mkdocs gh-deploy --force
