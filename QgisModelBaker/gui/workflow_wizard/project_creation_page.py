@@ -164,9 +164,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             )
             # wait before activating until end of refreshment
             self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
-            self.ilitoppingcache.model_refreshed.connect(
-                lambda: self._enable_topping_selection(True)
-            )
+            self.ilitoppingcache.model_refreshed.connect(self._enable_topping_selection)
             self.ilitoppingcache.refresh()
 
             completer = QCompleter(
