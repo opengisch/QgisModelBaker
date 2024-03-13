@@ -50,6 +50,7 @@ nav:
           - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
           - Technical Concept: background_info/usabilityhub/technical_concept.md
           - User Guide: background_info/usabilityhub/user_guide.md
+          - Topping Exporter: background_info/usabilityhub/topping_exporter.md
       - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
       - Catalogues and their special cases: background_info/catalogues.md
       - Meta Attributes: background_info/meta_attributes.md
@@ -90,6 +91,7 @@ plugins:
             UsabILIty Hub: UsabILIty Hub
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
+            Topping Exporter: Topping Exporter
             Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
               Modelle
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
