@@ -165,6 +165,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             # wait before activating until end of refreshment
             self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
             self.ilitoppingcache.model_refreshed.connect(self._enable_topping_selection)
+            self._enable_optimize_combo(True)
             self.ilitoppingcache.refresh()
 
             completer = QCompleter(
@@ -188,7 +189,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.topping_line_label.setEnabled(state)
         self.topping_info.setEnabled(state)
 
-        self._enable_optimize_combo(state)
         self.workflow_wizard.busy(self, False)
 
     def _enable_optimize_combo(self, state):
