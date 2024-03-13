@@ -91,7 +91,6 @@ plugins:
             UsabILIty Hub: UsabILIty Hub
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
-            Topping Exporter: Topping Exporter
             Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
               Modelle
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
@@ -112,3 +111,4 @@ plugins:
                 primary: white
 
 # Page tree
+          site_description:
