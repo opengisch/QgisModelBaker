@@ -15,7 +15,7 @@ layer tree, widget configuration, relations and more.
 plugin uses [ili2pg](https://github.com/claeis/ili2db#ili2db---importsexports-interlis-transfer-files-to-a-sql-db) to import an Interlis model into a PostGIS database and uses
 the additional meta information to configure the user interface even better.
 
-[Read the documentation](https://opengisch.github.io/QgisModelBaker/en/) for more information.
+[Read the documentation](https://opengisch.github.io/QgisModelBaker/) for more information.
 
 ## Translating the plugin
 
