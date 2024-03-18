@@ -8,13 +8,14 @@ To [choose data files and models to import or generate a new database](#source-s
 !!! Note
     As well the Wizard opens when you drop a file to QGIS with the extension `xtf`, `ili` or `xml` (`xml` only when it's dropped with a file having one of the other extensions).
 
+## 1. Source Selection
 
-## Source Selection
 First page offers you to select the sources to import.
 
 ![wizard source selection](../assets/workflow_wizard_source_selection.png)
 
 ### INTERLIS Models
+
 Sources can be INTERLIS models stored in `ili` files you select from your local system (with the file browser ![file_browser](../assets/file_browser_button.png) or with drag'n'drop).
 
 As well you can search for INTERLIS models in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories). Since model names should be given strictly as they were spelled in INTERLIS files, once you start typing, autocompletion will help you discover available models with their correct spelling. Add them wiht the ![plus button](../assets/plus_button.png).
@@ -25,11 +26,12 @@ As well you can search for INTERLIS models in the [repositories](../../backgroun
 This leads you to a process to create the physical database in *PostgreSQL*, *MSSQL* or *GeoPackage*.
 
 ### Transfer and Catalogue Files (Data Files)
+
 The `xtf` is an INTERLIS transfer file, containing spatial and/or alphanumeric data stored in XML format. Catalogues or Codelists are technically the same but have usually `xml` as extension.
 
 The selection of data files leads you to the process to import the data into a physical database.
 
-## Database Selection
+## 2. Database Selection
 
 In any case you are requested to set the connection to your database.
 
@@ -43,8 +45,10 @@ In any case you are requested to set the connection to your database.
 - **User Password** Set the password for the database user.
 - **Execute data management tasks with superuser login from settings** If checked, it uses the superuser login (set in the [plugin configurations](../plugin_configuration/) for data management tasks like the creation of the schema etc.
 
-## Import of INTERLIS Model
+## 3. Import of INTERLIS Model
+
 ### Model selection
+
 There are several ways the Model Baker wizard detects INTERLIS models to import.
 
 - Read from the selected local `ini` file.
@@ -103,7 +107,7 @@ You can define `sql` scripts that runs before and after the (schema) import.
 
 A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `qgis.modelbaker.dispExpression`) instead of having them directly in the `ili` file.
 
-## Run ili2db Sessions
+## 4. Run ili2db Sessions
 
 In the next step you can run all the sessions to create your physical model. If having multiple models selected that are received from the repositories, then they are passed in one command. You can run the commands one by one or all together.
 
@@ -111,7 +115,7 @@ In the next step you can run all the sessions to create your physical model. If 
 
 With the ![run arrow_button](../assets/arrow_button.png) button next to *Run* the options are provided to run the command without checking constraints or to edit the command manually before running it.
 
-## Create Baskets
+## 5. Create Baskets
 
 In case you don't have data to import into your default dataset and want to collect ***fresh*** data in QGIS, the baskets have to be created as well. It's up to you for what topics you want to create baskets. Model Baker suggests you what baskets should be created and reasonalbe values for the BID (value in the `t_ili_tid`) but you might need. to edit them.
 
@@ -119,7 +123,7 @@ In case you don't have data to import into your default dataset and want to coll
 
 If you don't know what it is about, check more details [here](../../background_info/basket_handling/#creation-of-baskets) or just press *Create baskets* and then *Next*.
 
-## Import of INTERLIS Data
+## 6. Import of INTERLIS Data
 
 After the physial model is generated or you selected an existing database to import your transfer or catalogue files to containing the models already, you will see the page to set up your data imports.
 
@@ -151,7 +155,7 @@ Check more information about the catalogues on the *UsabILIty Hub* [here](../../
 
 If you want to delete the data in the database first, you can check the corresponding box. On using baskets, the ili2db parameter `--replace` is executed instead of `--update`. On not using baskets, the parameter `--deleteData` is added to the command. Note that on using baskets, only the data from the corresponding dataset is deleted, whereas on not using baskets all data from the schema is deleted.
 
-## Generate the QGIS Project
+## 7. Generate the QGIS Project
 
 In case you want to generate your project from an existing database, you will need to [set the connection parameters](#database-selection) first.
 
@@ -185,7 +189,7 @@ Choose your optimization strategy in the checkbox:
 
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
 
-### OID Values
+## 8. OID Values
 
 Often the models definition requires cross-system unique identificators. So called OIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
 
