@@ -59,6 +59,10 @@ When you only got a model name (like in all cases except the one of the local `i
 
 You can check or uncheck the models you want to import to a physical schema.
 
+!!! Note
+    If our model requires (according to the ilidata.xml) a codelist and this codelist bases on a model that is not structurally linked (imported) to our model, it will appear here as well.
+    ![linked model](../assets/workflow_wizard_schema_import_linked_models.png)
+
 ### Metaconfiguration / Topping
 
 Choose a metaconfiguration file found on the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
