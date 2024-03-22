@@ -1,24 +1,7 @@
-According to a model name, paths to *metaconfiguration files* are found in *ilidata.xml*. These *metaconfiguration files* contain, besides configuration parameters, *DatasetMetadata-Ids*. Based on these *DatasetMetadata-Ids* the paths to the *Toppingfiles* are found in the *ilidata.xml*.
-
-> Other tools might use a different workflow. For example, the *ili2db* is passed the *metaconfiguration file*. There in the *metaconfiguration* then also the model is defined.
-
-![uml](../../assets/usabilityhub_uml_modelbaker.png)
-
-#### Workflow
-1. The user enters the model name in the [dialog](../../../user_guide/import_workflow/#metaconfiguration-topping).
-2. The *ilidata.xml* is parsed for links to *metaconfiguration files* according to the model name.
-3. The user selects a *metaconfiguration file*.
-4. The *metaconfiguration file* is downloaded.
-4. The configurations are read from the *metaconfiguration file*.
-5. The configurations are considered in the creation of the physical model.
-6. The DatasetMetadata-Ids to the *topping files* are read from the *metaconfiguration file*.
-7. The *ilidata.xml* is parsed for links to the  *topping files* based on the DatasetMetadata-Ids.
-8. The *topping files* are downloaded
-9. The information is read from the *topping files* and included in the generation of the QGIS project.
-
 ## ili2db configuration
 
 ### General Handling
+
 ili2db configurations are defined in the *metaconfiguration file*.
 ```ini
 [ch.ehi.ili2db]
