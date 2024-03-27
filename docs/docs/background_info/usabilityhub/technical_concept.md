@@ -92,7 +92,7 @@ In the UsabILIty Hub implementation of the Model Baker, the following types are 
 #### Generic
 However, the content of the `Code_` element is not strictly defined. As long as it is a URL, it is up to the tool developer how she wants to use it.
 
-> At the moment the Model Baker does not use generic categories.
+> At the moment the Model Baker uses a generic category to know for what data source this topping is made for: `http://codes.modelbaker.ch/preferredDataSource` what can be `pg` and `gpkg`.
 
 ## The ilisite.xml
 The *ilisite.xml* is based on the model `IliSite09`. It contains the class (elements) `SiteMetadata` where URLs to other repositories are defined. These repositories in turn manage an *ilimodel.xml* or - likewise - an *ilidata.xml*.

@@ -1,8 +1,8 @@
 ## What is it about?
 
-With Model Baker **additional information** for models can be found automatically via the web.
+With Model Baker ***additional information*** for models can be found automatically via the web.
 
-**Additional information** such as:
+***Additional information*** such as:
 
 - ili2db settings ([Metaconfiguration](#metaconfiguration))
 - Data files, like catalogs ([Referenced Data](#referenced-data))
@@ -46,13 +46,13 @@ Find technical background and detailed information about the toppings [here](../
 
 Just as we can now find INTERLIS models by searching the ilimodels.xml files on the repositories we can find this additional information via the `ilidata.xml` file.
 
-It filters the entries by the **name** of the used INTERLIS **model**.
+It filters the entries by the ***name*** of the used INTERLIS ***model***.
 
 More information about the technical background you can find [here](../../background_info/usabilityhub/technical_concept.md)
 
 ## What are the Workflows?
 
-All these **additional information** are concernig a specific model. That's why they are found according to the selected model's name.
+All these ***additional information*** are concernig a specific model. That's why they are found according to the selected model's name.
 
 ![model selection](../../assets/usabilityhub-abstract-modelselection.png)
 
@@ -60,7 +60,7 @@ All these **additional information** are concernig a specific model. That's why 
 
 ...that links to *referenced data* and a *projecttopping* the workflow looks like this:
 
-1. User enters the model name in the **Source Selection**
+1. User enters the model name in the ***Source Selection***
 2. *ilidata.xml* is parsed for links to *metaconfiguration files* according to the model name
 3. User selects a *metaconfiguration*
 
@@ -80,7 +80,7 @@ All these **additional information** are concernig a specific model. That's why 
 
 ### On choosing referenced data directly
 
-...from the repositories in the **Data Import Configuration** the steps are:
+...from the repositories in the ***Data Import Configuration*** the steps are:
 
 1. *ilidata.xml* is parsed for links to the *referenced data* according to the model name.
 2. User selects *referenced data*
@@ -94,7 +94,7 @@ All these **additional information** are concernig a specific model. That's why 
 
 ### On choosing project topping directly
 
-... from the repositories in **Project Generation** the steps are:
+... from the repositories in ***Project Generation*** the steps are:
 
 1. *ilidata.xml* is parsed for links to the *projecttoppings* according to the model name
 2. User selects a *projecttopping*

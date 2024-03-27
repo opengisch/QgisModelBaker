@@ -47,7 +47,7 @@ Find further information about [OIDs in general and the OID Manager](../backgrou
 
 ### UsabILIty Hub Topping Exporter
 
-In case you plan to create your own [UsabILIty Hub](../background_info/usabilityhub/modelbaker_integration.md) topping set, then you can use the [UsabILIty Hub Exporter](../user_guide/topping_exporter.md).
+In case you plan to create your own [UsabILIty Hub](../background_info/usabilityhub/modelbaker_integration.md) topping set, then you can use the [Topping Exporter](../user_guide/topping_exporter.md).
 
 ![usabilityhub-exporter](../assets/usabilityhub_exporter_target.png)
 
