@@ -1,7 +1,7 @@
-Just as we can now find INTERLIS models by searching the ilimodels.xml file from http://models.interlis.ch and the linked repositorie, we can find the  additional information via the `ilidata.xml` file.
+Just as we can now find INTERLIS models by searching the ilimodels.xml file from models.interlis.ch and the linked repositories, we can find additional information via the `ilidata.xml` file.
 
-!!! Note:
-  The entry point is not models.interlis.ch but models.opengis.ch, which in turn links to models.interlis.ch.
+!!! Note
+    The entry point is not models.interlis.ch but models.opengis.ch, which in turn links to models.interlis.ch.
 
 Settings for tools (like ili2db or Model Baker) are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
 

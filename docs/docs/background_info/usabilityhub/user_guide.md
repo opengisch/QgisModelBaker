@@ -169,7 +169,7 @@ ili2db.mapping=MultiSurface
 #### Transfer files (e.g. Catalogs) (`xtf`/`xml`/`itf` Files)
 Transfer files such as catalogs can also be used as toppings. In the project *Nutzungsplanung_V310*, however, none were specified.
 
-For information and examples about the referencing of those files see in the [Model Baker Integration](../modelbaker_integration/#catalogs-and-transfer-files)
+For information and examples about the referencing of those files see in the [Model Baker Integration](../modelbaker_integration/#referenced-data)
 
 ### 3. Storage and Indexing of the Toppings
 

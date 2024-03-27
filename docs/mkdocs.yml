@@ -41,16 +41,16 @@ nav:
       - Model and Data Import Workflow: user_guide/import_workflow.md
       - Export Data Workflow: user_guide/export_workflow.md
       - Validate Data: user_guide/validation.md
+      - Topping Exporter: user_guide/topping_exporter.md
       - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
       - Repositories: background_info/repositories.md
       - Basket and Dataset Handling: background_info/basket_handling.md
       - OID Generator: background_info/oid_tid_generator.md
       - UsabILIty Hub:
+          - Overview: background_info/usabilityhub/overview.md
           - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
           - Technical Concept: background_info/usabilityhub/technical_concept.md
-          - User Guide: background_info/usabilityhub/user_guide.md
-          - Topping Exporter: background_info/usabilityhub/topping_exporter.md
       - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
       - Catalogues and their special cases: background_info/catalogues.md
       - Meta Attributes: background_info/meta_attributes.md
