@@ -51,6 +51,7 @@ nav:
           - Overview: background_info/usabilityhub/overview.md
           - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
           - Technical Concept: background_info/usabilityhub/technical_concept.md
+          #obsolete but keep it for info - User Guide: background_info/usabilityhub/user_guide.md
       - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
       - Catalogues and their special cases: background_info/catalogues.md
       - Meta Attributes: background_info/meta_attributes.md
