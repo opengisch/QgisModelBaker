@@ -1,24 +1,9 @@
-According to a model name, paths to *metaconfiguration files* are found in *ilidata.xml*. These *metaconfiguration files* contain, besides configuration parameters, *DatasetMetadata-Ids*. Based on these *DatasetMetadata-Ids* the paths to the *Toppingfiles* are found in the *ilidata.xml*.
+## Metaconfiguration
 
-> Other tools might use a different workflow. For example, the *ili2db* is passed the *metaconfiguration file*. There in the *metaconfiguration* then also the model is defined.
-
-![uml](../../assets/usabilityhub_uml_modelbaker.png)
-
-#### Workflow
-1. The user enters the model name in the [dialog](../../../user_guide/import_workflow/#metaconfiguration-topping).
-2. The *ilidata.xml* is parsed for links to *metaconfiguration files* according to the model name.
-3. The user selects a *metaconfiguration file*.
-4. The *metaconfiguration file* is downloaded.
-4. The configurations are read from the *metaconfiguration file*.
-5. The configurations are considered in the creation of the physical model.
-6. The DatasetMetadata-Ids to the *topping files* are read from the *metaconfiguration file*.
-7. The *ilidata.xml* is parsed for links to the  *topping files* based on the DatasetMetadata-Ids.
-8. The *topping files* are downloaded
-9. The information is read from the *topping files* and included in the generation of the QGIS project.
-
-## ili2db configuration
+... and how it's handled in Model Baker.
 
 ### General Handling
+
 ili2db configurations are defined in the *metaconfiguration file*.
 ```ini
 [ch.ehi.ili2db]
@@ -67,16 +52,20 @@ When this parameter is set the *Advanced Options* and *CRS* settings are disable
 ### Refrencing other INTERLIS models
 Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
 
-## Toppings and their Configuration
-*Topping files* are files that are referenced in the *metaconfiguration* or in other *topping files* like e.g. the *project topping file* and contain the configuration information of the GIS project or parts of it. So they can be form configurations, style attributes, legend tree structures as well as data files. Individual topping files can be used for each tool.
+## Toppings
+
+... and their configuration.
+
+*Topping files* are files that are referenced in the *metaconfiguration* or in other *topping files* like e.g. the *project topping file* and contain the configuration information of the GIS project or parts of it. So they can be form configurations, style attribute as well as the legend tree structure. Individual topping files can be used for each tool.
 
 The Model Baker supports these kinds of *topping files*:
 
 - Project topping files: `yaml` files for project settings like legend display, linking to layer configuration files and layer order
 - QML layer style: `qml` files for layer configurations
 - Layer definition: `qlr` files for layer definitions
-- Data files: `xtf`/`xml`/`itf` files for data import
+
 ### Project Topping (`yaml`)
+
 Information about the project like the layer tree, the layers in the layer tree and the display order may be contained in a *toppingfile*. The `DatasetMetadata-Id` of the file is defined in the *metaconfiguration file* via the parameter `qgis.modelbaker.projecttopping` (or the deprecated `qgis.modelbaker.layertree`).
 
 The file is written in `yaml`:
@@ -143,6 +132,7 @@ layerorder:
 ```
 
 #### Layertree
+
 The layertree is described using a tree structure in the `yaml` format.
 
 Top level entry is `layertree` (or outdated: `legend`). This entry is not shown in the legend.
@@ -173,6 +163,7 @@ The `yaml` file shown above results in a legend structure in *QGIS*.
 ![uml](../../assets/usabilityhub_qgis_legend.png)
 
 ##### Renaming of layers
+
 Usually the existing layers are recognized by the names. This works fine for the most cases. But sometimes (e.g. when having an extended model with layers having the same name like the base model) the layers need to be recognized by other parameters. This gives the possiblity to name the layer as you want.
 
 It recognizes layers from the database optionally by `tablename` and `geometrycolumn`. INTERLIS based layers can be identified by the `iliname` as well. It takes the first match of `tablename` or `iliname` and otherwise it looks for the layername.
@@ -201,6 +192,7 @@ See the example:
     Be aware that relations loaded over qml style files rely on the layer names. This means, that you have to be carefull when the style files have been exported with other layer names than defined in the YAML.
 
 #### Display Order
+
 The display order of the layers is defined as simple list:
 ```
 layer-order:
@@ -209,11 +201,13 @@ layer-order:
 ```
 
 #### Multiple Models with multiple Project Toppings
+
 Layers with the same data source will not be added twice when the project is regenerated. New layers and subgroups are - if possible - loaded into already existing groups. Otherwise geometry layers are added above and the groups "tables" and "domains" below.
 
 Thus legend structures from several *project topping files* are merged.
 
 ### Layer Properties Topping (`qml`)
+
 For layer properties like form configurations, symbology etc. `qml` files are loaded as *topping files*.
 
 *Right-click on the layer > Export > Save as QGIS Layer Style File...*
@@ -251,30 +245,14 @@ The `qlr` topping files are assigned directly in the layertree of the *project t
 
 !!! Note
     The datasource in the QLR file is relative. This means you have to be carefull with QLR files providing file based datasources.
-### Catalogs and transfer files
-Catalogs and transferfiles (and other `itf`/`xtf`/`xml` files) can also be loaded as *toppingfiles*. The `DatasetMetadata-Ids` are defined in the *Metaconfigurationfile* via the global parameter `ch.interlis.referenceData`. Multiple ids and file paths can be specified (separated by `;`).
+
+## Referenced Data
+
+Catalogs and transferfiles (and other `itf`/`xtf`/`xml` files) can also be loaded. The `DatasetMetadata-Ids` are defined in the *Metaconfigurationfile* via the global parameter `ch.interlis.referenceData`. Multiple ids and file paths can be specified (separated by `;`).
 
 These data files are added to the list of files to import in the [wizard](../../../user_guide/import_workflow/#import-of-interlis-data).
 
-## Multiple Models and their Toppings
-Currently, a list of "LegendeEintrag_PlanGewaesserschutz_V1_1;KbS_LV95_V1_4;KbS_Basis_V1_4" lists the *metaconfiguration files* for all these models.
-![multimodels](../../assets/usabilityhub_multimodels.png)
-But then only one can be selected. If you want to select multiple *metaconfiguration files*, you have to import the models one after the other.
-
-### Best Practice
-It is best to make a *metaconfiguration file* that applies to the import of all models you usually choose. And to make the whole thing even more convenient, you can also configure the additional model in the *metaconfiguration file*.
-If a *metaconfiguration file* is valid for the import of both models "KbS_LV95_V1_4;KbS_Basis_V1_4", you can also configure both models in it:
-```ini
-[ch.ehi.ili2db]
-models = KbS_Basis_V1_4;KbS_Basis_V1_4
-```
-Thus the *Metaconfigurations* is found by both model names and when reading in "KbS_LV95_V1_4;KbS_Basis_V1_4" is loaded into the input mask of the Model Baker.
-
-## Using a local repository
-It can be useful for testing purposes to be able to use a local repository. This is configured as a [custom model directory](../../../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
-
-
-## Directly Referenced Catalogues
+### Directly Referenced Catalogues
 
 Catalogues can be linked directly in the ilidata.xml to the model names (without using a meta configuration file). Just add them as `referenceData` and add the model names in the `categories`.
 
@@ -325,3 +303,21 @@ But already before the data import, the Model Baker checks the UsabILIty Hub for
   </baskets>
 </DatasetIdx16.DataIndex.DatasetMetadata>
 ```
+
+## Multiple Models and their Toppings
+
+Currently, a list of "LegendeEintrag_PlanGewaesserschutz_V1_1;KbS_LV95_V1_4;KbS_Basis_V1_4" lists the *metaconfiguration files* for all these models.
+![multimodels](../../assets/usabilityhub_multimodels.png)
+But then only one can be selected. If you want to select multiple *metaconfiguration files*, you have to import the models one after the other.
+
+### Best Practice
+It is best to make a *metaconfiguration file* that applies to the import of all models you usually choose. And to make the whole thing even more convenient, you can also configure the additional model in the *metaconfiguration file*.
+If a *metaconfiguration file* is valid for the import of both models "KbS_LV95_V1_4;KbS_Basis_V1_4", you can also configure both models in it:
+```ini
+[ch.ehi.ili2db]
+models = KbS_Basis_V1_4;KbS_Basis_V1_4
+```
+Thus the *Metaconfigurations* is found by both model names and when reading in "KbS_LV95_V1_4;KbS_Basis_V1_4" is loaded into the input mask of the Model Baker.
+
+## Using a local repository
+It can be useful for testing purposes to be able to use a local repository. This is configured as a [custom model directory](../../../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.

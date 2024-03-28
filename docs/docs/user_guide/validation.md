@@ -3,12 +3,21 @@ You can validate your physical data against the INTERLIS models directly in QGIS
 ![validation](../assets/validation.png)
 
 ## Database
+
 The database connection parameter are emitted from the currently selected layer. Mostly this is representative for the whole project, since mostly a project bases on one single database schema/file. In case of multiple used database sources, it's possible to *switch* between the validation results when switching the layers.
 
 ## Filters
+
 You can filter the data being validated *either* by models *or* - if the database considers [Dataset and Basket Handling](../../background_info/basket_handling/) - by datasets *or* baskets. You can choose multiple models/datasets/baskets. But only one kind of filter (`--model`, `--dataset`, `--basket`) is given to the ili2db command (it would make no conjunction (AND) but a disjunction (OR) if multiple parameters are given (what is not really used). A conjunction can still be done by selecting the smallest instance (baskets)).
 
+## Validate in the base model
+
+This is relevant if you use *extended* models: You have your data stored in your extended model, but might want to validate it in the *format* of the base model only.
+
+![validate base](../assets/validation_exportmodels.png)
+
 ## Skip Geometry Errors
+
 ![validation_skipgeometryerrors](../assets/validation_skipgeometryerrors.png)
 
 When the checkbox is activated, geometry errors are ignored and the validation of AREA topology is disabled. Errors like those will not be listed.
@@ -21,6 +30,7 @@ When the checkbox is activated, geometry errors are ignored and the validation o
     In the backend the parameters `--skipGeometryErrors` and `--disableAreaValidation` are set.
 
 ## Configuration File
+
 It's possible to enable/disable and name constraints of the current model via meta attributes. For the configuration of those, see the chapter [Set Meta Attributes in the Config File](#set-meta-attributes-in-the-config-file) below.
 
 Add it to the validation by selecting it via file browser.
@@ -33,6 +43,7 @@ You can save this path to your project (to the project variables) with the ![run
     You can also use a configuration file from the [ilidata repositories](../../background_info/usabilityhub/technical_concept). Just add the ilidata-key (like `ilidata:<key>`) as the path.
 
 ## Results
+
 After running the validation by pressing the ![checkmark](../assets/checkmark_button.png) the results are listed.
 
 With *right click* on the error a menu is opened with the following options:
@@ -50,6 +61,7 @@ On automatic pan and zoom, the coordinates are taken into account if they are pr
     Since ili2db sometimes on non-geometry errors provides the coordinates as well, there could be a confusion when it zooms or pans to the coordinates there. Still it's preferable to not zoom or pan to the coordinates on geometry errors when they provide an OID. Currently the validator cannot make a difference between those error-types.
 
 ## Using of Meta Attributes in the Validation
+
 As well as configuring [meta attributes](../../background_info/meta_attributes/) used for the physical database implementation and for QGIS project generation, meta attributes can be used for additional configuration of the validation like e.g. disable specific checks generally or on specific objects as well as naming of the constraints.
 
 ### Set Meta Attributes in the ILI File
@@ -165,6 +177,7 @@ See for all the global configurations the official [documentation of ilivalidato
     Validation with deactivated validation is useful because it checks if everything is ok with the technical aspects (like `t_typ`, `t_id` etc).
 
 ## ili2db with `--validate` in the background
+
 On running the validation `ili2db` is used in the background with the parameter `--validate`. This means no export of the data is needed. The output is parsed by Model Baker and provided in the result list.
 
 Entries of the type `Error` and `Warning` are listed.
