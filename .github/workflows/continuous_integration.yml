@@ -50,9 +50,12 @@ jobs:
         run: |
           sudo apt update && sudo apt install qtbase5-dev qttools5-dev-tools
           sudo pip install qgis-plugin-ci
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
+          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD} --asset-path libs
 
   translations:
     runs-on: ubuntu-22.04
