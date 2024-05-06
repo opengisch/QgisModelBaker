@@ -84,12 +84,14 @@ plugins:
             Model and Data Import Workflow: Modell und Daten Import Workflow
             Export Data Workflow: Daten Export Workflow
             Validate Data: Daten Validierung
+            Topping Exporter: Topping Exporter
             Plugin Configuration: Plugin Konfiguration
             Tipps & Tricks: Tipps & Tricks
             Repositories: Repositories
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
             UsabILIty Hub: UsabILIty Hub
+            Overview: Übersicht
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
             Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
