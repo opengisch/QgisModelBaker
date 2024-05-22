@@ -1,5 +1,5 @@
 ARG QGIS_TEST_VERSION=latest
-FROM  opengisch/qgis:${QGIS_TEST_VERSION}
+FROM  qgis/qgis:${QGIS_TEST_VERSION}
 MAINTAINER Matthias Kuhn <matthias@opengis.ch>
 
 # remove QGIS apt repo to avoid signing key issues
