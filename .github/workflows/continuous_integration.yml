@@ -16,9 +16,9 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
+      fail-fast: false  # keep for now, since 3.22 and 3.28 have different bases than 3.34+
       matrix:
-        qgis_version: [3.22-jammy, 3.28-jammy, latest]
+        qgis_version: [release-3_22, release-3_28, 3.34, latest]
     env:
       QGIS_TEST_VERSION: ${{ matrix.qgis_version }}
     steps:
