@@ -69,14 +69,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.existing_projecttopping_id = None
         self.projecttopping_id = None
 
-        self.optimize_combo.clear()
-        self.optimize_combo.addItem(
-            self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
-        )
-        self.optimize_combo.addItem(
-            self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
-        )
-        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
+        self._update_optimize_combo()
 
         self.create_project_button.clicked.connect(self._create_project)
         self.is_complete = False
@@ -121,6 +114,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.configuration = configuration
         self.db_connector = db_utils.get_db_connector(self.configuration)
 
+        # get inheritance
+        self.configuration.inheritance = self._inheritance()
+        self._update_optimize_combo()
+
         # get existing topping
         self.existing_topping_checkbox.setVisible(False)
         self.existing_projecttopping_id = self._existing_projecttopping_id()
@@ -130,6 +127,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
+
         self.workflow_wizard.busy(self, False)
 
     def _use_existing(self, state):
@@ -194,6 +192,47 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
     def _enable_optimize_combo(self, state):
         self.optimize_combo.setEnabled(state)
         self.optimize_label.setEnabled(state)
+
+    def _update_optimize_combo(self):
+        index = self.optimize_combo.currentIndex()
+        self.optimize_combo.clear()
+        if self.configuration and self.configuration.inheritance == "smart2":
+            self.optimize_combo.addItem(
+                self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
+            )
+            self.optimize_combo.addItem(
+                self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
+            )
+            self.optimize_combo.setToolTip(
+                self.tr(
+                    """
+                <html><head/><body>
+                    <p><b>Hide unused base class layers:</b></p>
+                    <p>- Base class layers with same named extensions will be <i>hidden</i> and and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will <i>not</i> be <i>hidden</i> but <i>renamed</i>.</p>
+                    <p>- Relations of hidden layers will <i>not</i> be <i>created</i> and with them <i>no</i> widgets<br/></p>
+                    <p><b>Group unused base class layers:</b></p>
+                    <p>- Base class layers with same named extensions will be <i>collected in a group</i> and base class layers with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>grouped</i> but <i>renamed</i>.</p>
+                    <p>- Relations of grouped layers will be <i>created</i> but the widgets <i>not applied</i> to the form.</p>
+                </body></html>
+            """
+                )
+            )
+        else:
+            self.optimize_combo.addItem(
+                self.tr("Hide unused base class types"), OptimizeStrategy.HIDE
+            )
+            self.optimize_combo.setToolTip(
+                self.tr(
+                    """
+                <html><head/><body>
+                    <p><b>Hide unused base class types:</b></p>
+                    <p>- Base class tables with same named extensions will be <i>hidden</i> in the <code>t_type</code> dropdown and and base class tables with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>hidden</i>.</p>
+                </body></html>
+            """
+                )
+            )
+        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
+        self.optimize_combo.setCurrentIndex(index)
 
     def _complete_completer(self):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
@@ -669,3 +708,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 ):
                     modelnames.append(name)
         return modelnames
+
+    def _inheritance(self):
+        setting_records = self.db_connector.get_ili2db_settings()
+        for setting_record in setting_records:
+            if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
+                return setting_record["setting"]
