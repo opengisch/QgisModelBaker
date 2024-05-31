@@ -187,6 +187,9 @@ Choose your optimization strategy in the checkbox:
 
   Relations of grouped layers will be *created* but the widgets are *not applied* to the form.
 
+!!! Note
+    As well you can optimize projects created with *smart1inheritance*. There it only appends the relevant type-values to the `t_type` dropdown box in the form, when ***Hide unused base class types*** is selected. A "grouping" optimization does not make sense for *smart1inheritance*.
+
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
 
 ## 8. OID Values

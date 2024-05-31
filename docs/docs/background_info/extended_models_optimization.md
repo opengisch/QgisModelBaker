@@ -1,4 +1,4 @@
-If a model or topic contains extended classes, the inclusive base classes are implemented in the physical database. The users only want to see, what is relevant for them and mostly work on the most extended instance of the topics/classes. Model Baker detects the ***irrelevant*** tables and offers optimization strategies to the users on ***smart1intehritance*** implementations.
+If a model or topic contains extended classes, the inclusive base classes are implemented in the physical database. The users only want to see, what is relevant for them and mostly work on the most extended instance of the topics/classes. Model Baker detects the ***irrelevant*** tables and offers optimization strategies.
 
 In the [workflow wizard](../../user_guide/import_workflow/#optimize-qgis-project-if-extended) you can choose the optimization [strategy](../../background_info/extended_models_optimization/#strategies) and receive a nicely prepared layertree and forms.
 
@@ -36,7 +36,7 @@ What to do then? Well, you have always the option for the [NONE-strategy](../../
 
 ## Strategies
 
-Let's check out the following examle model and it's implementation according to the strategies.
+Let's check out the following examle model and it's implementation according to the strategies on a database created with ***smart2intehritance***.
 
 ### Ortsplanung Example
 
@@ -57,6 +57,9 @@ Base class layers with extensions of the same name are **_hidden_** and base cla
 
 Relations of hidden layers are **_not created_** and thus the widgets for them _**neither**_.
 
+!!! Note
+    With ***smart1inheritance***, the extended `Gebaeude` classes would all be summarised in a layer with a `t_type`, which defines what type of extension it is. This strategy hides the irrelevant values for ‘t_type’.
+
 #### Group strategy
 
 Base class layers with extensions of the same name are ***grouped***, base class layers with multiple extensions ***also***. Unless the extension is in the same model, then it's ***not grouped*** but ***renamed***.
@@ -66,6 +69,7 @@ Base class layers with extensions of the same name are ***grouped***, base class
 Relationships of grouped layers are ***created***, but widgets are ***not applied*** to the form.
 
 #### None strategy
+
 Independently from extended models (but pretty much connected to it), we eliminate ambiguous layer naming in general. This means:
 
 - If layername is ambiuous append topic name as suffix.
