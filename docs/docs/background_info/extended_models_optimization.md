@@ -36,7 +36,7 @@ What to do then? Well, you have always the option for the [NONE-strategy](../../
 
 ## Strategies
 
-Let's check out the following examle model and it's implementation according to the strategies on a database created with ***smart2intehritance***.
+Let's check out the following example model and it's implementation according to the strategies on a database created with ***smart2intehritance***.
 
 ### Ortsplanung Example
 
