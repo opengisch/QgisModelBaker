@@ -1,3 +1,4 @@
 mkdocs-material==9.5.20
+mkdocs-material==9.5.25
 mkdocs-static-i18n==1.2.3
 python-slugify
