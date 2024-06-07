@@ -30,7 +30,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.tests.utils import _testdata_path
+from QgisModelBaker.tests.utils import path_testdata
 
 start_app()
 
@@ -40,7 +40,7 @@ class TestPgservice(unittest.TestCase):
     def setUpClass(cls):
         """Run before all tests."""
         cls.pgservicefile = os.environ.get("PGSERVICEFILE", None)
-        os.environ["PGSERVICEFILE"] = _testdata_path("pgservice/pg_service.conf")
+        os.environ["PGSERVICEFILE"] = path_testdata("pgservice/pg_service.conf")
 
     def test_pgservice_pg_config_panel(self):
 
@@ -112,10 +112,10 @@ class TestPgservice(unittest.TestCase):
     def test_pgservice_modified_settings_remembered(self):
         # Switch to a copy pg_service.conf
         shutil.copy(
-            _testdata_path("pgservice/pg_service.conf"),
-            _testdata_path("pgservice/pg_service_mod.conf"),
+            path_testdata("pgservice/pg_service.conf"),
+            path_testdata("pgservice/pg_service_mod.conf"),
         )
-        os.environ["PGSERVICEFILE"] = _testdata_path("pgservice/pg_service_mod.conf")
+        os.environ["PGSERVICEFILE"] = path_testdata("pgservice/pg_service_mod.conf")
 
         # Remove password setting from the copied pg_service.conf
         config = pgserviceparser.full_config()
@@ -179,7 +179,7 @@ class TestPgservice(unittest.TestCase):
         self.assertEqual(pg_config_panel.pg_auth_settings.password(), "new_secret")
         self.assertEqual(pg_config_panel.pg_auth_settings.username(), "postgres")
 
-        os.environ["PGSERVICEFILE"] = _testdata_path("pgservice/pg_service.conf")
+        os.environ["PGSERVICEFILE"] = path_testdata("pgservice/pg_service.conf")
 
     @classmethod
     def tearDownClass(cls):
@@ -187,5 +187,5 @@ class TestPgservice(unittest.TestCase):
         if cls.pgservicefile:
             os.environ["PGSERVICEFILE"] = cls.pgservicefile
 
-        if os.path.exists(_testdata_path("pgservice/pg_service_mod.conf")):
-            os.remove(_testdata_path("pgservice/pg_service_mod.conf"))
+        if os.path.exists(path_testdata("pgservice/pg_service_mod.conf")):
+            os.remove(path_testdata("pgservice/pg_service_mod.conf"))
