@@ -22,7 +22,8 @@ import pathlib
 import re
 
 from qgis.PyQt.QtCore import QEventLoop, QSize, Qt, QTimer
-from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
+from qgis.PyQt.QtGui import QPixmap
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -81,7 +82,7 @@ class WorkflowWizard(QWizard):
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
-        self.setOption(QWizard.NoCancelButtonOnLastPage)
+        self.setOptions(QWizard.NoCancelButtonOnLastPage | QWizard.HaveHelpButton)
 
         self.current_id = 0
 
@@ -214,6 +215,9 @@ class WorkflowWizard(QWizard):
         self.setPage(PageIds.ExportDataExecution, self.export_data_execution_page)
 
         self.currentIdChanged.connect(self.id_changed)
+
+        # on pressing the help button
+        self.helpRequested.connect(self._show_help)
 
     def sizeHint(self):
         return QSize(
@@ -693,6 +697,40 @@ class WorkflowWizard(QWizard):
             self.schema_configuration_page.ili2db_options.set_toml_file(
                 dropped_ini_files[0]
             )
+
+    def _show_help(self):
+        current_id = self.currentId()
+
+        self.msg = QMessageBox()
+        self.msg.setIconPixmap(
+            QPixmap(
+                os.path.join(
+                    os.path.dirname(__file__), "../../images/QgisModelBaker-icon.svg"
+                )
+            )
+        )
+        self.msg.setTextFormat(Qt.RichText)
+        self.msg.setWindowTitle(
+            self.tr("Help at {}".format(self._current_page_title(current_id)))
+        )
+        self.msg.setText(
+            """<h3>{title}</h3>
+            <p align="justify">{p1}</p>
+            <p align="justify">{p2}</p>
+            <p align="justify">{p3}</p>
+            """.format(
+                title=self._current_page_title(current_id),
+                p1=self.tr("Helping here."),
+                p2=self.tr(
+                    'Find more information in the dedicated chapter at the official <a href="https://opengisch.github.io/QgisModelBaker/">Model Baker Documentation</a>'
+                ),
+                p3=self.tr(
+                    'Or get community help at <a href="https://interlis.discourse.group/c/interlis-werkzeuge/qgis-model-baker/12">Model Baker @ INTERLIS Forum</a> or at <a href="https://github.com/opengisch/QgisModelBaker">GitHub</a>'
+                ),
+            )
+        )
+        self.msg.setStandardButtons(QMessageBox.Close)
+        self.msg.exec_()
 
     def busy(self, page, busy, text="Busy..."):
         page.setEnabled(not busy)
