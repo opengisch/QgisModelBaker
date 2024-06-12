@@ -90,10 +90,17 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.add_button.clicked.connect(self._add_dataset)
         self.edit_button.clicked.connect(self._edit_dataset)
-        self.basket_manager_button.clicked.connect(self._open_basket_manager)
         self.dataset_tableview.selectionModel().selectionChanged.connect(
             lambda: self._enable_dataset_handling(True)
         )
+
+        if parent.objectName() == "InterlisImport":
+            # While performing an Import Data operation,
+            # baskets should not be shown, since the operation
+            # will create a new basket for the chosen dataset.
+            self.basket_manager_button.setVisible(False)
+        else:
+            self.basket_manager_button.clicked.connect(self._open_basket_manager)
 
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
