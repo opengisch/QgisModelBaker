@@ -59,7 +59,9 @@ class TargetPage(QWizardPage, PAGE_UI):
             self.tr("Folder will be created if not existing.")
         )
 
-        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
+        self.info_text_box.setStyleSheet(
+            f"background-color: lightgray; color: #35322f;"
+        )
 
         self.main_folder_browse_button.clicked.connect(
             make_folder_selector(

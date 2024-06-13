@@ -36,7 +36,9 @@ class GenerationPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
-        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
+        self.info_text_box.setStyleSheet(
+            f"background-color: lightgray; color: #35322f;"
+        )
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
