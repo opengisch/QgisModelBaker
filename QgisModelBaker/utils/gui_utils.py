@@ -159,9 +159,9 @@ INACTIVE_STYLE = """
 
 class LogLevel(IntEnum):
     INFO = 0
-    SUCCESS = 1
-    WARNING = 2
-    FAIL = 3
+    WARNING = 1
+    FAIL = 2
+    SUCCESS = 3
     TOPPING = 4
 
 
