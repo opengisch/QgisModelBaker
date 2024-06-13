@@ -578,6 +578,6 @@ class LayersPage(QWizardPage, PAGE_UI):
     def validatePage(self) -> bool:
         self.topping_wizard.log_panel.print_info(
             self.tr("Set export settings for layers."),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         return super().validatePage()

@@ -129,12 +129,12 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
                         )
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         else:
             self.topping_wizard.log_panel.print_info(
                 self.tr("No referenceData set."),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         return super().validatePage()
 

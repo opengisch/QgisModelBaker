@@ -214,7 +214,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     schema=self.schema_combobox.currentText()
                 )
             ),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path:
             self.topping_wizard.log_panel.print_info(
@@ -223,7 +223,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path:
             self.topping_wizard.log_panel.print_info(
@@ -232,7 +232,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
             self.topping_wizard.log_panel.print_info(
@@ -241,14 +241,14 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.metaconfigparamsonly:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "This metaconfiguration will be passed without any additional settings on import made by Model Baker (except models and on disable constraint run): qgis.modelbaker.metaConfigParamsOnly = true"
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         return super().validatePage()
 

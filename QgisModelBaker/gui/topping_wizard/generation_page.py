@@ -52,5 +52,5 @@ class GenerationPage(QWizardPage, PAGE_UI):
         self.progress_bar.setFormat(result_message)
         self.progress_bar.setTextVisible(True)
         self.topping_wizard.log_panel.print_info(
-            result_message, gui_utils.LogColor.COLOR_SUCCESS
+            result_message, gui_utils.LogLevel.SUCCESS
         )

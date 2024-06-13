@@ -7,6 +7,7 @@ import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
 from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import (
     QEvent,
     QModelIndex,
@@ -16,7 +17,7 @@ from qgis.PyQt.QtCore import (
     Qt,
     pyqtSignal,
 )
-from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
+from qgis.PyQt.QtGui import QColor, QIcon, QPalette, QStandardItem, QStandardItemModel
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QLineEdit,
@@ -156,12 +157,43 @@ INACTIVE_STYLE = """
     """
 
 
-class LogColor:
-    COLOR_INFO = "#000000"
-    COLOR_SUCCESS = "#004905"
-    COLOR_WARNING = "#c64600"
-    COLOR_FAIL = "#aa2222"
-    COLOR_TOPPING = "#341d5c"
+class LogLevel(IntEnum):
+    INFO = 0
+    SUCCESS = 1
+    WARNING = 2
+    FAIL = 3
+    TOPPING = 4
+
+
+def get_text_color(level: LogLevel = LogLevel.INFO) -> str:
+    if level == LogLevel.INFO:
+        return QgsApplication.palette().color(QPalette.WindowText).name(QColor.HexRgb)
+    elif level == LogLevel.SUCCESS:
+        return "#0f6e00"  # From night mapping theme
+    elif level == LogLevel.WARNING:
+        return "#d7801a"  # From night mapping theme
+    elif level == LogLevel.FAIL:
+        return "#ff0000"
+    elif level == LogLevel.TOPPING:
+        return "#5c34a2"  # Adjusted to night mapping theme
+
+
+def get_text_color_object(level: LogLevel = LogLevel.INFO) -> QColor:
+    return QColor(get_text_color(level))
+
+
+def get_parsed_log_text_color(text, txt_edit) -> None:
+    textlines = text.splitlines()
+    for textline in textlines:
+        if textline.startswith("Warning:"):
+            txt_edit.setTextColor(get_text_color_object(LogLevel.WARNING))
+            txt_edit.append(textline)
+        elif "error" in textline.lower() or "failed" in textline.lower():
+            txt_edit.setTextColor(get_text_color_object(LogLevel.FAIL))
+            txt_edit.append(textline)
+        else:
+            txt_edit.setTextColor(get_text_color_object(LogLevel.INFO))
+            txt_edit.append(textline)
 
 
 class SchemaDataFilterMode(IntEnum):

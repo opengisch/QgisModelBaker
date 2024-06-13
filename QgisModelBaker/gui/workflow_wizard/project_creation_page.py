@@ -45,7 +45,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
 )
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
-from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogColor
+from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 
@@ -317,7 +317,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     ).format(self.projecttopping_id)
                 )
 
-            self.topping_info.setStyleSheet(f"color: {LogColor.COLOR_TOPPING}")
+            self.topping_info.setStyleSheet(f"color: {LogLevel.TOPPING}")
 
         self.topping_line_edit.setStyleSheet(
             "QLineEdit {{ background-color: {} }}".format(
@@ -429,7 +429,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr("Parse project topping file {}…").format(
                         projecttopping_file_path
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 with open(projecttopping_file_path) as stream:
                     try:
@@ -443,7 +443,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                                 self.tr(
                                     'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
                                 ),
-                                LogColor.COLOR_TOPPING,
+                                LogLevel.TOPPING,
                             )
                         if layertree_key in projecttopping_data:
                             legend = generator.legend(
@@ -494,7 +494,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     except yaml.YAMLError as exc:
                         self.workflow_wizard.log_panel.print_info(
                             self.tr("Unable to parse project topping: {}").format(exc),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
 
                 self.progress_bar.setValue(55)
@@ -583,7 +583,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.tr(
                     "Metaconfig contains QML toppings. Better practice would be to define QML toppings in the project topping file."
                 ),
-                LogColor.COLOR_TOPPING,
+                LogLevel.TOPPING,
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
@@ -611,7 +611,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             self.tr("Apply QML topping on layer {}:{}…").format(
                                 layer.alias, style_file_path
                             ),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
                         layer.layer.loadNamedStyle(style_file_path)
 
@@ -643,7 +643,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         "Found a metaconfig-id ({}) in the data source, but no corresponding metaconfig in the repositories."
                     ).format(metaconfig_id),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 return None
 
@@ -675,13 +675,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
 
             if key in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("Metaconfig contains a project topping."),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 projecttopping_id_list = configuration_section[key].split(";")
                 if len(projecttopping_id_list) > 1:
@@ -689,7 +689,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         self.tr(
                             "Only one projectopping allowed. Taking first one of the list."
                         ),
-                        LogColor.COLOR_TOPPING,
+                        LogLevel.TOPPING,
                     )
                 return projecttopping_id_list[0]
         return None

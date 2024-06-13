@@ -109,7 +109,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         if not mainfolder:
             self.topping_wizard.log_panel.print_info(
                 self.tr("Target Folder needs to be set."),
-                gui_utils.LogColor.COLOR_FAIL,
+                gui_utils.LogLevel.FAIL,
             )
             return False
         self.topping_wizard.topping.target = IliTarget(
@@ -117,7 +117,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         )
         self.topping_wizard.log_panel.print_info(
             self.tr("Target Object created."),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         return super().validatePage()
 

@@ -125,7 +125,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         if not res:
             self.workflow_wizard.log_panel.print_info(
                 message,
-                gui_utils.LogColor.COLOR_FAIL,
+                gui_utils.LogLevel.FAIL,
             )
         return res
 
