@@ -31,10 +31,6 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    NonEmptyStringValidator,
-    Validators,
-)
 from QgisModelBaker.utils import gui_utils
 
 from .db_config_panel import DbConfigPanel
@@ -91,8 +87,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
         # define validators
-        self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+        self.validators = gui_utils.Validators()
+        nonEmptyValidator = gui_utils.NonEmptyStringValidator()
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)

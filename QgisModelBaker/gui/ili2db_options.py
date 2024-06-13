@@ -21,11 +21,7 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import LogLevel, get_text_color
 
@@ -82,13 +78,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             )
         )
 
-        self.validators = Validators()
-        self.file_validator = FileValidator(
+        self.validators = gui_utils.Validators()
+        self.file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(
+        self.sql_file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)

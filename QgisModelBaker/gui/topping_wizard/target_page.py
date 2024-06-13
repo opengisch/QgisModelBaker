@@ -22,14 +22,8 @@ from qgis.core import QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliTarget
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_folder_selector,
-    slugify,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/target.ui")
@@ -75,8 +69,8 @@ class TargetPage(QWizardPage, PAGE_UI):
             )
         )
 
-        self.validators = Validators()
-        self.folder_validator = FileValidator(allow_non_existing=True)
+        self.validators = gui_utils.Validators()
+        self.folder_validator = gui_utils.FileValidator(allow_non_existing=True)
         self.main_folder_line_edit.setValidator(self.folder_validator)
         self.main_folder_line_edit.textChanged.connect(
             self.validators.validate_line_edits

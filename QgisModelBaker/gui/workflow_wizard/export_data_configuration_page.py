@@ -24,11 +24,7 @@ from qgis.PyQt.QtWidgets import QWizardPage
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_save_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_save_file_selector
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
@@ -63,9 +59,9 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
         )
 
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
 
-        fileValidator = FileValidator(
+        fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions],
             allow_non_existing=True,
         )

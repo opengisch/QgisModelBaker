@@ -21,10 +21,6 @@ import logging
 from typing_extensions import override
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    NonEmptyStringValidator,
-    Validators,
-)
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 
@@ -42,8 +38,8 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
             self.mssql_odbc_driver.addItem(item_odbc_driver)
 
         # define validators
-        self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+        self.validators = gui_utils.Validators()
+        nonEmptyValidator = gui_utils.NonEmptyStringValidator()
 
         self.mssql_host_line_edit.setValidator(nonEmptyValidator)
         self.mssql_database_line_edit.setValidator(nonEmptyValidator)
