@@ -38,7 +38,9 @@ DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
-    def __init__(self, iface, parent=None, wizard_embedded=False):
+    def __init__(
+        self, iface, parent=None, wizard_embedded=False, basket_integration=True
+    ):
 
         QDialog.__init__(self, parent)
         self.iface = iface
@@ -94,13 +96,13 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             lambda: self._enable_dataset_handling(True)
         )
 
-        if parent.objectName() == "InterlisImport":
+        if basket_integration:
+            self.basket_manager_button.clicked.connect(self._open_basket_manager)
+        else:
             # While performing an Import Data operation,
             # baskets should not be shown, since the operation
             # will create a new basket for the chosen dataset.
             self.basket_manager_button.setVisible(False)
-        else:
-            self.basket_manager_button.clicked.connect(self._open_basket_manager)
 
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
