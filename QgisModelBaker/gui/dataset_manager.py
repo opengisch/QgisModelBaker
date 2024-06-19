@@ -38,9 +38,7 @@ DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
 
 class DatasetManagerDialog(QDialog, DIALOG_UI):
-    def __init__(
-        self, iface, parent=None, wizard_embedded=False, basket_integration=True
-    ):
+    def __init__(self, iface, parent=None, wizard_embedded=False):
 
         QDialog.__init__(self, parent)
         self.iface = iface
@@ -64,7 +62,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.type_combo_box.currentIndexChanged.connect(self._type_changed)
 
-        # when opened by the wizard it uses the current db connection settings and should not be changable
+        # when opened by the wizard it uses the current db connection settings and should not be changeable
         self.db_frame.setHidden(wizard_embedded)
 
         self.dataset_model = DatasetModel()
@@ -96,7 +94,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             lambda: self._enable_dataset_handling(True)
         )
 
-        if basket_integration:
+        if wizard_embedded:
             self.basket_manager_button.clicked.connect(self._open_basket_manager)
         else:
             # While performing an Import Data operation,
