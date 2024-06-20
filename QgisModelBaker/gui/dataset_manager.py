@@ -95,12 +95,12 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         )
 
         if wizard_embedded:
-            self.basket_manager_button.clicked.connect(self._open_basket_manager)
-        else:
             # While performing an Import Data operation,
             # baskets should not be shown, since the operation
             # will create a new basket for the chosen dataset.
             self.basket_manager_button.setVisible(False)
+        else:
+            self.basket_manager_button.clicked.connect(self._open_basket_manager)
 
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
