@@ -435,7 +435,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.datasetmanager_dlg.reject()
         else:
             self.datasetmanager_dlg = DatasetManagerDialog(
-                self.workflow_wizard.iface, self, True, False
+                self.workflow_wizard.iface, self, True
             )
             self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(
