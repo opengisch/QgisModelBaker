@@ -35,9 +35,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     ModelCompleterDelegate,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
     OverrideCursor,
-    QValidator,
     make_file_selector,
 )
 from QgisModelBaker.utils import gui_utils
@@ -67,7 +65,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
             )
         )
 
-        self.fileValidator = FileValidator(
+        self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
 
