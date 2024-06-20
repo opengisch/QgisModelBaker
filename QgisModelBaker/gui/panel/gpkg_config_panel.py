@@ -24,8 +24,6 @@ from typing_extensions import override
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
     make_file_selector,
     make_save_file_selector,
 )
@@ -50,13 +48,13 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.setupUi(self)
 
         # validators
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
 
-        self.gpkgSaveFileValidator = FileValidator(
+        self.gpkgSaveFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions],
             allow_non_existing=True,
         )
-        self.gpkgOpenFileValidator = FileValidator(
+        self.gpkgOpenFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions]
         )
         self.gpkg_file_line_edit.textChanged.connect(

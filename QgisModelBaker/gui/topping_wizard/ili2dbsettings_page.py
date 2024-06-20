@@ -26,11 +26,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils import db_utils
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/ili2dbsettings.ui")
@@ -153,13 +149,13 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                 file_filter=self.tr("SQL script to run after (*.sql *.SQL)"),
             )
         )
-        self.validators = Validators()
-        self.file_validator = FileValidator(
+        self.validators = gui_utils.Validators()
+        self.file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(
+        self.sql_file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -214,7 +210,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     schema=self.schema_combobox.currentText()
                 )
             ),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path:
             self.topping_wizard.log_panel.print_info(
@@ -223,7 +219,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path:
             self.topping_wizard.log_panel.print_info(
@@ -232,7 +228,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
             self.topping_wizard.log_panel.print_info(
@@ -241,14 +237,14 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.metaconfigparamsonly:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "This metaconfiguration will be passed without any additional settings on import made by Model Baker (except models and on disable constraint run): qgis.modelbaker.metaConfigParamsOnly = true"
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         return super().validatePage()
 

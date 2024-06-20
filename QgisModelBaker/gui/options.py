@@ -30,7 +30,6 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     SchemaImportConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils import qt_utils
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import FileValidator, Validators
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DropMode
 
@@ -62,9 +61,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
             )
         )
         self.java_path_line_edit.setValidator(
-            FileValidator(is_executable=True, allow_empty=True)
+            gui_utils.FileValidator(is_executable=True, allow_empty=True)
         )
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
         self.java_path_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )

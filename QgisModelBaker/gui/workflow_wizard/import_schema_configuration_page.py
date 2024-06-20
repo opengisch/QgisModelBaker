@@ -35,7 +35,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 )
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel, get_text_color
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
 
@@ -322,7 +322,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     or "",
                 )
             )
-            self.metaconfig_file_info_label.setStyleSheet("color: #341d5c")
+            self.metaconfig_file_info_label.setStyleSheet(
+                "color: {}".format(get_text_color(LogLevel.TOPPING))
+            )
             repository = self.ilimetaconfigcache.model.data(
                 model_index, int(IliDataItemModel.Roles.ILIREPO)
             )
@@ -344,7 +346,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr("File not specified for metaconfig with id {}.").format(
                         dataset_id
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
 
             self._set_metaconfig_line_edit_state(True)
@@ -371,7 +373,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def _on_metaconfig_received(self, path):
         self.workflow_wizard.log_panel.print_info(
             self.tr("Metaconfig file successfully downloaded: {}").format(path),
-            LogColor.COLOR_TOPPING,
+            LogLevel.TOPPING,
         )
         # parse metaconfig
         self.metaconfig.clear()
@@ -381,14 +383,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             # enable the next buttton
             self._fill_toml_file_info_label()
             self.workflow_wizard.log_panel.print_info(
-                self.tr("Metaconfig successfully loaded."), LogColor.COLOR_TOPPING
+                self.tr("Metaconfig successfully loaded."), LogLevel.TOPPING
             )
             self.setComplete(True)
 
     def _on_metaconfig_failed(self, dataset_id, error_msg):
         self.workflow_wizard.log_panel.print_info(
             self.tr("Download of metaconfig file failed: {}.").format(error_msg),
-            LogColor.COLOR_TOPPING,
+            LogLevel.TOPPING,
         )
         # enable the next buttton
         self.setComplete(True)
@@ -441,7 +443,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if "ch.ehi.ili2db" in self.metaconfig.sections():
             self.workflow_wizard.log_panel.print_info(
                 self.tr("Load the ili2db configurations from the metaconfig…"),
-                LogColor.COLOR_TOPPING,
+                LogLevel.TOPPING,
             )
 
             ili2db_metaconfig = self.metaconfig["ch.ehi.ili2db"]
@@ -452,7 +454,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             ):
                 self._load_crs_from_metaconfig(ili2db_metaconfig)
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Loaded CRS"), LogColor.COLOR_TOPPING
+                    self.tr("- Loaded CRS"), LogLevel.TOPPING
                 )
 
             if "models" in ili2db_metaconfig:
@@ -464,14 +466,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         self.tr("Model defined in metaconfigurationfile."),
                     )
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Loaded models"), LogColor.COLOR_TOPPING
+                    self.tr("- Loaded models"), LogLevel.TOPPING
                 )
 
             # get iliMetaAttrs (toml)
             if "iliMetaAttrs" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Seek for iliMetaAttrs (toml) files:"),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 ili_meta_attrs_list = ili2db_metaconfig.get("iliMetaAttrs").split(";")
                 ili_meta_attrs_file_path_list = (
@@ -483,13 +485,13 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded iliMetaAttrs (toml) files"),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
 
             # get prescript (sql)
             if "preScript" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Seek for prescript (sql) files:"), LogColor.COLOR_TOPPING
+                    self.tr("- Seek for prescript (sql) files:"), LogLevel.TOPPING
                 )
                 prescript_list = ili2db_metaconfig.get("prescript").split(";")
                 prescript_file_path_list = self.workflow_wizard.get_topping_file_list(
@@ -499,14 +501,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     ";".join(prescript_file_path_list)
                 )
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Loaded prescript (sql) files"), LogColor.COLOR_TOPPING
+                    self.tr("- Loaded prescript (sql) files"), LogLevel.TOPPING
                 )
 
             # get postscript (sql)
             if "postScript" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Seek for postscript (sql) files:"),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 postscript_list = ili2db_metaconfig.get("postscript").split(";")
                 postscript_file_path_list = self.workflow_wizard.get_topping_file_list(
@@ -516,12 +518,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     ";".join(postscript_file_path_list)
                 )
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Loaded postscript (sql) files"), LogColor.COLOR_TOPPING
+                    self.tr("- Loaded postscript (sql) files"), LogLevel.TOPPING
                 )
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
             self.workflow_wizard.log_panel.print_info(
-                self.tr("- Loaded ili2db options"), LogColor.COLOR_TOPPING
+                self.tr("- Loaded ili2db options"), LogLevel.TOPPING
             )
 
         if "CONFIGURATION" in self.metaconfig.sections():
@@ -540,7 +542,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         "Metaconfig contains transfer or catalogue toppings (reference data)."
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 reference_data_list = configuration_section[
                     "ch.interlis.referenceData"
@@ -556,7 +558,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             self.tr("Append reference data file {}…").format(
                                 referencedata_file_path
                             ),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
                         self.workflow_wizard.source_model.add_source(
                             name,
@@ -571,7 +573,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             self.tr("Could not append reference data file {}…").format(
                                 referencedata_file_path
                             ),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
             self.workflow_wizard.refresh_import_models()
 

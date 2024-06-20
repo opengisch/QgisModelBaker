@@ -40,7 +40,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataItemModel,
 )
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
-from QgisModelBaker.utils.gui_utils import CheckDelegate, LogColor
+from QgisModelBaker.utils.gui_utils import CheckDelegate, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
 
@@ -383,7 +383,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         "File not specified for referenced transfer file with id {}."
                     ).format(dataset_id),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
 
     def _on_referencedata_received(self, path):
@@ -391,7 +391,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.tr("Referenced transfer file successfully downloaded: {}").format(
                 path
             ),
-            LogColor.COLOR_TOPPING,
+            LogLevel.TOPPING,
         )
         if (
             self.workflow_wizard.add_source(
@@ -409,7 +409,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.tr("Download of referenced transfer file failed: {}.").format(
                 error_msg
             ),
-            LogColor.COLOR_TOPPING,
+            LogLevel.TOPPING,
         )
         # enable the next buttton
         self.setComplete(True)

@@ -22,14 +22,8 @@ from qgis.core import QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
-import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliTarget
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_folder_selector,
-    slugify,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/target.ui")
@@ -65,7 +59,9 @@ class TargetPage(QWizardPage, PAGE_UI):
             self.tr("Folder will be created if not existing.")
         )
 
-        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
+        self.info_text_box.setStyleSheet(
+            f"background-color: lightgray; color: #35322f;"
+        )
 
         self.main_folder_browse_button.clicked.connect(
             make_folder_selector(
@@ -75,8 +71,8 @@ class TargetPage(QWizardPage, PAGE_UI):
             )
         )
 
-        self.validators = Validators()
-        self.folder_validator = FileValidator(allow_non_existing=True)
+        self.validators = gui_utils.Validators()
+        self.folder_validator = gui_utils.FileValidator(allow_non_existing=True)
         self.main_folder_line_edit.setValidator(self.folder_validator)
         self.main_folder_line_edit.textChanged.connect(
             self.validators.validate_line_edits
@@ -109,7 +105,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         if not mainfolder:
             self.topping_wizard.log_panel.print_info(
                 self.tr("Target Folder needs to be set."),
-                gui_utils.LogColor.COLOR_FAIL,
+                gui_utils.LogLevel.FAIL,
             )
             return False
         self.topping_wizard.topping.target = IliTarget(
@@ -117,7 +113,7 @@ class TargetPage(QWizardPage, PAGE_UI):
         )
         self.topping_wizard.log_panel.print_info(
             self.tr("Target Object created."),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         return super().validatePage()
 

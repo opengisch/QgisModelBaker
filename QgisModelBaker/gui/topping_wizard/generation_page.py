@@ -36,7 +36,9 @@ class GenerationPage(QWizardPage, PAGE_UI):
 
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
-        self.info_text_box.setStyleSheet(f"background-color: lightgray;")
+        self.info_text_box.setStyleSheet(
+            f"background-color: lightgray; color: #35322f;"
+        )
         self.run_generate_button.clicked.connect(self.generate)
 
     def generate(self):
@@ -52,5 +54,5 @@ class GenerationPage(QWizardPage, PAGE_UI):
         self.progress_bar.setFormat(result_message)
         self.progress_bar.setTextVisible(True)
         self.topping_wizard.log_panel.print_info(
-            result_message, gui_utils.LogColor.COLOR_SUCCESS
+            result_message, gui_utils.LogLevel.SUCCESS
         )

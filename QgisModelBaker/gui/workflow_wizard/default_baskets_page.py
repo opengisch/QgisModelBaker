@@ -23,7 +23,7 @@ import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.basket_panel import BasketPanel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/default_baskets.ui")
 
@@ -71,14 +71,10 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         for feedback in feedbacks:
             if feedback[0]:
                 # positive
-                self.workflow_wizard.log_panel.print_info(
-                    feedback[1], LogColor.COLOR_INFO
-                )
+                self.workflow_wizard.log_panel.print_info(feedback[1], LogLevel.INFO)
             else:
                 # negative
-                self.workflow_wizard.log_panel.print_info(
-                    feedback[1], LogColor.COLOR_FAIL
-                )
+                self.workflow_wizard.log_panel.print_info(feedback[1], LogLevel.FAIL)
                 success = False
 
         if success:

@@ -32,7 +32,7 @@ import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 
@@ -183,7 +183,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
     def _on_process_finished(self, exit_code, result):
         if exit_code == 0:
             message = "Finished with success."
-            color = LogColor.COLOR_SUCCESS
+            level = LogLevel.SUCCESS
             if self.db_action_type == DbActionType.GENERATE:
                 message = self.tr(
                     "Interlis model(s) successfully imported into the database!"
@@ -195,7 +195,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             elif self.db_action_type == DbActionType.EXPORT:
                 message = self.tr("Data successfully exported into transfer file!")
         else:
-            color = LogColor.COLOR_FAIL
+            level = LogLevel.FAIL
             message = self.tr("Finished with errors!")
 
-        self.workflow_wizard.log_panel.print_info(message, color)
+        self.workflow_wizard.log_panel.print_info(message, level)
