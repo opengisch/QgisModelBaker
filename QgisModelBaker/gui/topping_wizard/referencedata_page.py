@@ -30,11 +30,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataFileCompleterDelegate,
     IliDataItemModel,
 )
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    QValidator,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import SourceModel
 
@@ -64,7 +60,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             )
         )
 
-        self.fileValidator = FileValidator(
+        self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
 
@@ -197,7 +193,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return (
             len(match_contains) == 1
             or self.fileValidator.validate(self.input_line_edit.text(), 0)[0]
-            == QValidator.Acceptable
+            == gui_utils.QValidator.Acceptable
         )
 
     def _valid_selection(self):

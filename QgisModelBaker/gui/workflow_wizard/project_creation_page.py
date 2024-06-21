@@ -39,10 +39,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliToppingFileItemModel,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogLevel
@@ -93,7 +90,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 file_filter=self.tr("Project Topping File (*.yaml *.YAML)"),
             )
         )
-        self.fileValidator = FileValidator(
+        self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
 
