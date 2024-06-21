@@ -422,7 +422,7 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == PageIds.ExportDatabaseSelection:
             self.export_database_selection_page.restore_configuration(
-                self.export_data_configuration
+                self.export_data_configuration, True
             )
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
