@@ -115,45 +115,57 @@ TRANSFERFILE_MODELS_BLACKLIST = [
 ]
 
 # style
-ORANGE = "#D1C28E"
+ORANGE = "#D1C28E"  # Not used
 GREEN = "#A1DE9B"
 BLUE = "#9BCADE"
-PURPLE = "#B18BC9"
-RED = "#EBB3A4"
+PURPLE = "#B18BC9"  # Not used
+RED = "#ff0000" if QgsApplication.themeName() == "Night Mapping" else "#EBB3A4"
 
 SUCCESS_COLOR = GREEN
 
+# Note SUCCESS_PROGRESSBAR_BG_COLOR and SUCCESS_COLOR differ for Night
+# Mapping theme so that they are distinguishable in the validation list,
+# since selected list items will have the SUCCESS_PROGRESSBAR_BG_COLOR.
+SUCCESS_PROGRESSBAR_BG_COLOR = (
+    "#0f6e00" if QgsApplication.themeName() == "Night Mapping" else GREEN
+)
 SUCCESS_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #A1DE9B; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    SUCCESS_PROGRESSBAR_BG_COLOR
+)
 
 ERROR_COLOR = RED
 
 ERROR_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #EBB3A4; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    ERROR_COLOR
+)
 
+DEFAULT_PROGRESSBAR_BG_COLOR = (
+    "#d7801a" if QgsApplication.themeName() == "Night Mapping" else BLUE
+)
 DEFAULT_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #9BCADE; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    DEFAULT_PROGRESSBAR_BG_COLOR
+)
 
 INACTIVE_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
