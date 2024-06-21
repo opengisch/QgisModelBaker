@@ -258,7 +258,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
         configuration.tool = mode
-        print(configuration.dbschema)
         return configuration
 
     def _save_configuration(self, configuration):
