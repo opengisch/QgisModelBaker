@@ -289,6 +289,12 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.IN_FORM, QHeaderView.ResizeToContents
         )
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
+            TIDModel.Columns.NOTNULL, QHeaderView.ResizeToContents
+        )
+        self.layer_tids_view.horizontalHeader().setSectionResizeMode(
+            TIDModel.Columns.UNIQUE, QHeaderView.ResizeToContents
+        )
 
         self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.DEFAULT_VALUE,
