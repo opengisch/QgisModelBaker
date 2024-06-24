@@ -251,7 +251,6 @@ class FieldExpressionDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         value = editor.expression()
-        print(f"new exp{value}")
         model.setData(index, value, int(Qt.EditRole))
 
     def updateEditorGeometry(self, editor, option, index):
