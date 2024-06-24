@@ -49,7 +49,9 @@ class TIDModel(QAbstractTableModel):
                 "oid_domain": "STANDARDOID",
                 "interlis_topic" : "OIDMadness_V1",
                 "default_value_expression": "uuid()",
-                "in_form": True
+                "in_form": True,
+                "not_null": True,
+                "unique": True,
             }
             [...]
         }
@@ -66,6 +68,8 @@ class TIDModel(QAbstractTableModel):
         OID_DOMAIN = 1
         DEFAULT_VALUE = 2
         IN_FORM = 3
+        NOTNULL = 4
+        UNIQUE = 5
 
     def __init__(self):
         super().__init__()
@@ -78,7 +82,13 @@ class TIDModel(QAbstractTableModel):
         return len(self.oid_settings.keys())
 
     def flags(self, index):
-        if index.column() == TIDModel.Columns.IN_FORM:
+        if index.column() == any(
+            [
+                TIDModel.Columns.IN_FORM,
+                TIDModel.Columns.NOTNULL,
+                TIDModel.Columns.UNIQUE,
+            ]
+        ):
             return Qt.ItemIsEnabled
         if index.column() == TIDModel.Columns.DEFAULT_VALUE:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
@@ -106,6 +116,10 @@ class TIDModel(QAbstractTableModel):
                 return self.tr("Default Value Expression")
             if section == TIDModel.Columns.IN_FORM:
                 return self.tr("Show")
+            if section == TIDModel.Columns.NOTNULL:
+                return self.tr("Not Null")
+            if section == TIDModel.Columns.UNIQUE:
+                return self.tr("Unique")
 
     def data(self, index, role):
         if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
@@ -118,6 +132,10 @@ class TIDModel(QAbstractTableModel):
                 return self.oid_settings[key]["default_value_expression"]
             if index.column() == TIDModel.Columns.IN_FORM:
                 return self.oid_settings[key]["in_form"]
+            if index.column() == TIDModel.Columns.NOTNULL:
+                return self.oid_settings[key]["not_null"]
+            if index.column() == TIDModel.Columns.UNIQUE:
+                return self.oid_settings[key]["unique"]
         elif role == int(Qt.ToolTipRole):
             key = list(self.oid_settings.keys())[index.row()]
             if index.column() == TIDModel.Columns.NAME:
@@ -159,6 +177,27 @@ class TIDModel(QAbstractTableModel):
                 return self.oid_settings[key]["default_value_expression"]
             if index.column() == TIDModel.Columns.IN_FORM:
                 return self.tr("Show t_ili_tid field (OID) in attribute form.")
+            if index.column() == TIDModel.Columns.NOTNULL:
+                oid_domain = self.oid_settings[key].get("oid_domain", None)
+                if oid_domain:
+                    return self.tr(
+                        "t_ili_tid fields based on defined OIDs usually have a not-null-constraint set."
+                    )
+                else:
+                    return self.tr(
+                        "t_ili_tid fields based on undefined OIDs usually have no constraints set. But feel free to change it."
+                    )
+            if index.column() == TIDModel.Columns.UNIQUE:
+                oid_domain = self.oid_settings[key].get("oid_domain", None)
+                if oid_domain:
+                    return self.tr(
+                        "t_ili_tid fields based on defined OIDs usually have a unique-constraint set."
+                    )
+                else:
+                    return self.tr(
+                        "t_ili_tid fields based on undefined OIDs usually have no constraints set. But feel free to change it."
+                    )
+                return self.tr("Show t_ili_tid field (OID) in attribute form.")
         elif role == int(TIDModel.Roles.LAYER):
             key = list(self.oid_settings.keys())[index.row()]
             return self.oid_settings[key]["layer"]
@@ -173,6 +212,14 @@ class TIDModel(QAbstractTableModel):
             if index.column() == TIDModel.Columns.IN_FORM:
                 key = list(self.oid_settings.keys())[index.row()]
                 self.oid_settings[key]["in_form"] = data
+                self.dataChanged.emit(index, index)
+            if index.column() == TIDModel.Columns.NOTNULL:
+                key = list(self.oid_settings.keys())[index.row()]
+                self.oid_settings[key]["not_null"] = data
+                self.dataChanged.emit(index, index)
+            if index.column() == TIDModel.Columns.UNIQUE:
+                key = list(self.oid_settings.keys())[index.row()]
+                self.oid_settings[key]["unique"] = data
                 self.dataChanged.emit(index, index)
         return True
 
@@ -244,12 +291,20 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         )
 
         self.layer_tids_view.setItemDelegateForColumn(
+            TIDModel.Columns.DEFAULT_VALUE,
+            FieldExpressionDelegate(self),
+        )
+        self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.IN_FORM,
             CheckDelegate(self, Qt.EditRole),
         )
         self.layer_tids_view.setItemDelegateForColumn(
-            TIDModel.Columns.DEFAULT_VALUE,
-            FieldExpressionDelegate(self),
+            TIDModel.Columns.NOTNULL,
+            CheckDelegate(self, Qt.EditRole),
+        )
+        self.layer_tids_view.setItemDelegateForColumn(
+            TIDModel.Columns.UNIQUE,
+            CheckDelegate(self, Qt.EditRole),
         )
         self.layer_tids_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 
