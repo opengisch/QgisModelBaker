@@ -119,7 +119,7 @@ ORANGE = "#D1C28E"  # Not used
 GREEN = "#A1DE9B"
 BLUE = "#9BCADE"
 PURPLE = "#B18BC9"  # Not used
-RED = "#ff0000" if QgsApplication.themeName() == "Night Mapping" else "#EBB3A4"
+RED = "#870808" if QgsApplication.themeName() == "Night Mapping" else "#EBB3A4"
 
 SUCCESS_COLOR = GREEN
 
