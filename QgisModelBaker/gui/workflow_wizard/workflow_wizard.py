@@ -713,7 +713,7 @@ class WorkflowWizard(QWizard):
             docu_and_community_paragraphs=self.tr(
                 """
             <p align="justify">{docutext}</p>
-            <p align="justify">... or get community help at {forum} or at {github}</p>
+            <p align="justify">...or get community help at {forum} or at {github}</p>
             """
             ).format(
                 docutext=docutext,
