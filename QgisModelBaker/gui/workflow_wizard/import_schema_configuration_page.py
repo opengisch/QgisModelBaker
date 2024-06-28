@@ -77,7 +77,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_models = []
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(
-            self.tr("[Search metaconfig / topping from UsabILIty Hub]")
+            self.tr("[Search metaconfiguration from repository]")
         )
         self.ili_metaconfig_line_edit.setEnabled(False)
         self.ili_metaconfig_line_edit.textChanged.emit(

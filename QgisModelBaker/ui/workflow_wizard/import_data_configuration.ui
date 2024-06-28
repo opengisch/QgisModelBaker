@@ -123,7 +123,7 @@
       <item row="3" column="0" rowspan="2">
        <widget class="QLabel" name="ilireferencedata_label">
         <property name="text">
-         <string>Topping Transferdata</string>
+         <string>Referenced Data</string>
         </property>
        </widget>
       </item>
