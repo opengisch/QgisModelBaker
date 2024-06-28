@@ -220,3 +220,35 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                         IliToppingFileCache.CACHE_PATH, str(exception)
                     ),
                 )
+
+    def help_text(self):
+        logline = self.tr(
+            "Here you have to add the models and/or files you want to use..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4 align="justify">On GeoPackage</h4>
+        <p align="justify">You can choose a <code>gpkg</code> file. If you want to create a new one, just enter the desired name on an existing path (it will be created).</p>
+        <h4 align="justify">On PostgreSQL</h4>
+        <p align="justify">All the possiblities are supported that are in QGIS as well. More detailed description of </p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#2-database-selection">documentation</a> ...'
+        )
+        return logline, help_paragraphs, docutext
+
+    def help_text(self):
+        logline = self.tr(
+            "Here you need to add the models and/or files you want to use..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">You can select a model from the <b>repository</b> and add it with the <code><b>+</b></code>.</p>
+        <p align="justify">You can add <b>local files</b> (<code>ili</code>, <code>xtf</code>, <code>xml</code>, <code>toml</code> etc.) via the file browser or with <b>drag and drop</b>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about the <b>source selection</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#1-source-selection">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

@@ -23,7 +23,7 @@ import re
 
 from qgis.PyQt.QtCore import QEventLoop, QSize, Qt, QTimer
 from qgis.PyQt.QtGui import QPixmap
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QSplitter, QVBoxLayout, QWizard
+from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -700,37 +700,32 @@ class WorkflowWizard(QWizard):
 
     def _show_help(self):
         current_id = self.currentId()
+        title = self.tr("Help at {}".format(self._current_page_title(current_id)))
+        logline, help_paragraphs, docutext = self.currentPage().help_text()
+        text = """<hr>
+        {help_paragraphs}
+        <hr>
+        {docu_and_community_paragraphs}
+        """.format(
+            title=self._current_page_title(current_id),
+            help_paragraphs=help_paragraphs,
+            docutext=docutext,
+            docu_and_community_paragraphs=self.tr(
+                """
+            <p align="justify">{docutext}</p>
+            <p align="justify">... or get community help at {forum} or at {github}</p>
+            """
+            ).format(
+                docutext=docutext,
+                forum='<a href="https://interlis.discourse.group/c/interlis-werkzeuge/qgis-model-baker">Model Baker @ INTERLIS Forum</a>',
+                github='<a href="https://github.com/opengisch/QgisModelBaker/issues">GitHub</a>',
+            ),
+        )
+        log_paragraph = f'<p align="justify"><b><code>&lt; {logline}</code></b></p>'
 
-        self.msg = QMessageBox()
-        self.msg.setIconPixmap(
-            QPixmap(
-                os.path.join(
-                    os.path.dirname(__file__), "../../images/QgisModelBaker-icon.svg"
-                )
-            )
-        )
-        self.msg.setTextFormat(Qt.RichText)
-        self.msg.setWindowTitle(
-            self.tr("Help at {}".format(self._current_page_title(current_id)))
-        )
-        self.msg.setText(
-            """<h3>{title}</h3>
-            <p align="justify">{p1}</p>
-            <p align="justify">{p2}</p>
-            <p align="justify">{p3}</p>
-            """.format(
-                title=self._current_page_title(current_id),
-                p1=self.tr("Helping here."),
-                p2=self.tr(
-                    'Find more information in the dedicated chapter at the official <a href="https://opengisch.github.io/QgisModelBaker/">Model Baker Documentation</a>'
-                ),
-                p3=self.tr(
-                    'Or get community help at <a href="https://interlis.discourse.group/c/interlis-werkzeuge/qgis-model-baker/12">Model Baker @ INTERLIS Forum</a> or at <a href="https://github.com/opengisch/QgisModelBaker">GitHub</a>'
-                ),
-            )
-        )
-        self.msg.setStandardButtons(QMessageBox.Close)
-        self.msg.exec_()
+        self.help_dlg = HelpDialog(self, title, log_paragraph, text)
+        self.help_dlg.setAttribute(Qt.WA_DeleteOnClose)
+        self.help_dlg.show()
 
     def busy(self, page, busy, text="Busy..."):
         page.setEnabled(not busy)
@@ -770,3 +765,29 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.append_dropped_files(dropped_files, dropped_ini_files)
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
+
+
+class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):
+    def __init__(
+        self,
+        parent=None,
+        title="Help",
+        logline="I need somebody",
+        text="Not just anybody",
+    ):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+
+        self.setWindowTitle(title)
+        scaled_pixmap = QPixmap(
+            os.path.join(
+                os.path.dirname(__file__), "../../images/QgisModelBaker-icon.svg"
+            )
+        ).scaled(
+            int(self.fontMetrics().lineSpacing() * 4.5),
+            self.fontMetrics().lineSpacing() * 5,
+        )
+
+        self.imagelabel.setPixmap(scaled_pixmap)
+        self.loglinelabel.setText(logline)
+        self.textlabel.setText(text)

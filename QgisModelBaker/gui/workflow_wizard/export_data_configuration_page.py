@@ -92,3 +92,21 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             == QValidator.Acceptable
         )
         self.workflow_wizard.current_export_target = text
+
+    def help_text(self):
+        logline = self.tr(
+            "You want to export your data to an xml-file? There are two big options..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4>Filter</h4>
+        <p align="justify">You can filter your data by the models, datasets or baskets in which it is stored.</p>
+        <h4>Format</h4>
+        <p align="justify">Still you can choose <b>Export data in another model</b>, which allows you to select a base model as the data fromat.<br />
+        Even if the data is stored in an extended model.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about <b>exporting data</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/export_workflow/#2-export-data">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

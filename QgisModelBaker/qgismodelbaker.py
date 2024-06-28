@@ -40,7 +40,7 @@ from qgis.PyQt.QtCore import (
     QTranslator,
     QUrl,
 )
-from qgis.PyQt.QtGui import QDesktopServices, QIcon
+from qgis.PyQt.QtGui import QDesktopServices, QIcon, QPixmap
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.utils import available_plugins
 
@@ -399,7 +399,13 @@ class QgisModelBakerPlugin(QObject):
 
     def show_about_dialog(self):
         self.msg = QMessageBox()
-        self.msg.setIcon(QMessageBox.Information)
+        pixmap = QPixmap(
+            os.path.join(os.path.dirname(__file__), "images/QgisModelBaker-icon.svg")
+        ).scaled(
+            int(self.msg.fontMetrics().lineSpacing() * 4.5),
+            self.msg.fontMetrics().lineSpacing() * 5,
+        )
+        self.msg.setIconPixmap(pixmap)
         self.msg.setTextFormat(Qt.RichText)
         self.msg.setWindowTitle(self.tr("About Model Baker"))
         self.msg.setText(

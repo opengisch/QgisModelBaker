@@ -199,3 +199,19 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             message = self.tr("Finished with errors!")
 
         self.workflow_wizard.log_panel.print_info(message, level)
+
+    def help_text(self):
+        logline = self.tr("Run, skip or edit the required ili2db sessions...")
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">With the small triangle next to run, you can expand the possiblities.</p>
+         <p align="justify">Usually the required ili2db sessions are detected, you should not need to <b>skip</b> them.</p>
+         <p align="justify">You might need to <b>edit</b> the command in case your system requires it. But you would know, if you need to.</p>
+         <p align="justify">A pretty common use case is, that you want to import <b>invalid</b> data, to fix 'em in QGIS.<br />
+         So you can create schemas <b>without constraints</b> and/or import data <b>without validation</b>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#4-run-ili2db-sessions">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

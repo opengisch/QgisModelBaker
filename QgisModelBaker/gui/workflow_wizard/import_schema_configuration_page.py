@@ -578,3 +578,28 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.refresh_import_models()
 
         self.workflow_wizard.busy(self, False)
+
+    def help_text(self):
+        logline = self.tr(
+            "Now the given models are detected. You may not need all of 'em..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">There are several ways the Model Baker wizard detects INTERLIS models:
+        <ul>
+        <li>Read from the selected local ini file.</li>
+        <li>Selected from the repositories.</li>
+        <li>Parsed from the selected transfer or catalogue files.</li>
+        <li>Depending model of a catalogue referenced in the ilidata.xml of the repositories.</li>
+        <li>Defined as ili2db attribute in the metaconfiguration received from the UsabILIty Hub.</li>
+        </ul>
+        <br />You can <b>check or uncheck</b> the models you want to import to a physical schema.</p>
+        <p align="justify">As well you can select a <b>Metaconfiguration</b> file from the repositories to load ili2db settings and styling properties into QGIS project.<br />
+        More information about those metaconfigurations in the <a href="https://opengisch.github.io/QgisModelBaker/background_info/usabilityhub/modelbaker_integration/">documentation</a>.</p>
+        <p align="justify">The <b>Advanced Options</b> allow you to edit the most important <b>ili2db settings</b></p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#3-import-of-interlis-model">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext
