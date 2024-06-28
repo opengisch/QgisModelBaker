@@ -1,3 +1,4 @@
+import fnmatch
 import mmap
 import os
 import pathlib
@@ -7,16 +8,25 @@ import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
 from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import (
     QEvent,
     QModelIndex,
+    QObject,
     QRect,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
     pyqtSignal,
 )
-from qgis.PyQt.QtGui import QIcon, QStandardItem, QStandardItemModel
+from qgis.PyQt.QtGui import (
+    QColor,
+    QIcon,
+    QPalette,
+    QStandardItem,
+    QStandardItemModel,
+    QValidator,
+)
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QLineEdit,
@@ -105,45 +115,57 @@ TRANSFERFILE_MODELS_BLACKLIST = [
 ]
 
 # style
-ORANGE = "#D1C28E"
+ORANGE = "#D1C28E"  # Not used
 GREEN = "#A1DE9B"
 BLUE = "#9BCADE"
-PURPLE = "#B18BC9"
-RED = "#EBB3A4"
+PURPLE = "#B18BC9"  # Not used
+RED = "#870808" if QgsApplication.themeName() == "Night Mapping" else "#EBB3A4"
 
 SUCCESS_COLOR = GREEN
 
+# Note SUCCESS_PROGRESSBAR_BG_COLOR and SUCCESS_COLOR differ for Night
+# Mapping theme so that they are distinguishable in the validation list,
+# since selected list items will have the SUCCESS_PROGRESSBAR_BG_COLOR.
+SUCCESS_PROGRESSBAR_BG_COLOR = (
+    "#0f6e00" if QgsApplication.themeName() == "Night Mapping" else GREEN
+)
 SUCCESS_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #A1DE9B; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    SUCCESS_PROGRESSBAR_BG_COLOR
+)
 
 ERROR_COLOR = RED
 
 ERROR_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #EBB3A4; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    ERROR_COLOR
+)
 
+DEFAULT_PROGRESSBAR_BG_COLOR = (
+    "#d7801a" if QgsApplication.themeName() == "Night Mapping" else BLUE
+)
 DEFAULT_STYLE = """
-    QProgressBar {border: 2px solid grey;border-radius: 5px;}
-    QProgressBar::chunk {background-color: #9BCADE; width: 20px;}
-    QProgressBar {
+    QProgressBar::chunk {{background-color: {}; width: 20px;}}
+    QProgressBar {{
         border: 2px solid grey;
         border-radius: 5px;
         text-align: center;
-    }
-    """
+    }}
+    """.format(
+    DEFAULT_PROGRESSBAR_BG_COLOR
+)
 
 INACTIVE_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
@@ -156,12 +178,43 @@ INACTIVE_STYLE = """
     """
 
 
-class LogColor:
-    COLOR_INFO = "#000000"
-    COLOR_SUCCESS = "#004905"
-    COLOR_WARNING = "#c64600"
-    COLOR_FAIL = "#aa2222"
-    COLOR_TOPPING = "#341d5c"
+class LogLevel(IntEnum):
+    INFO = 0
+    WARNING = 1
+    FAIL = 2
+    SUCCESS = 3
+    TOPPING = 4
+
+
+def get_text_color(level: LogLevel = LogLevel.INFO) -> str:
+    if level == LogLevel.INFO:
+        return QgsApplication.palette().color(QPalette.WindowText).name(QColor.HexRgb)
+    elif level == LogLevel.SUCCESS:
+        return "#0f6e00"  # From night mapping theme
+    elif level == LogLevel.WARNING:
+        return "#d7801a"  # From night mapping theme
+    elif level == LogLevel.FAIL:
+        return "#ff0000"
+    elif level == LogLevel.TOPPING:
+        return "#5c34a2"  # Adjusted to night mapping theme
+
+
+def get_text_color_object(level: LogLevel = LogLevel.INFO) -> QColor:
+    return QColor(get_text_color(level))
+
+
+def get_parsed_log_text_color(text, txt_edit) -> None:
+    textlines = text.splitlines()
+    for textline in textlines:
+        if textline.startswith("Warning:"):
+            txt_edit.setTextColor(get_text_color_object(LogLevel.WARNING))
+            txt_edit.append(textline)
+        elif "error" in textline.lower() or "failed" in textline.lower():
+            txt_edit.setTextColor(get_text_color_object(LogLevel.FAIL))
+            txt_edit.append(textline)
+        else:
+            txt_edit.setTextColor(get_text_color_object(LogLevel.INFO))
+            txt_edit.append(textline)
 
 
 class SchemaDataFilterMode(IntEnum):
@@ -1055,7 +1108,7 @@ class SchemaBasketsModel(CheckEntriesModel):
         ):
             baskets_info = db_connector.get_baskets_info()
             for record in baskets_info:
-                basketname = f"{record['datasetname']}-{record['topic']} ({record['basket_t_ili_tid']})"
+                basketname = f"{record['datasetname']}-{record['topic']} ({record['basket_t_ili_tid']}) {record['attachmentkey']}"
                 basketnames.append(basketname)
                 self._basket_ids[basketname] = record["basket_t_ili_tid"]
         self.setStringList(basketnames)
@@ -1217,3 +1270,104 @@ class CheckDelegate(QStyledItemDelegate):
         value = index.data(int(self.role)) or False
         opt.state |= QStyle.State_On if value else QStyle.State_Off
         QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
+
+
+class Validators(QObject):
+    def validate_line_edits(self, *args, **kwargs):
+        """
+        Validate line edits and set their color to indicate validation state.
+        """
+        senderObj = self.sender()
+        validator = senderObj.validator()
+        if validator is None:
+            color = QgsApplication.palette().color(QPalette.Base).name(QColor.HexRgb)
+        else:
+            state = validator.validate(senderObj.text().strip(), 0)[0]
+            if state == QValidator.Acceptable:
+                color = (
+                    QgsApplication.palette().color(QPalette.Base).name(QColor.HexRgb)
+                )
+            elif state == QValidator.Intermediate:
+                color = "#ffd356"  # Light orange
+            else:
+                color = "#f6989d"  # Red
+        senderObj.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
+
+
+class FileValidator(QValidator):
+    def __init__(
+        self,
+        pattern="*",
+        is_executable=False,
+        parent=None,
+        allow_empty=False,
+        allow_non_existing=False,
+    ):
+        """
+        Validates if a string is a valid filename, based on the provided parameters.
+
+        :param pattern: A file glob pattern as recognized by ``fnmatch``, if a list if provided, the validator will try
+                        to match every pattern in the list.
+        :param is_executable: Only match executable files
+        :param parent: The parent QObject
+        :param allow_empty: Empty strings are valid
+        :param allow_non_existing: Non existing files are valid
+        """
+        QValidator.__init__(self, parent)
+        self.pattern = pattern
+        self.is_executable = is_executable
+        self.allow_empty = allow_empty
+        self.allow_non_existing = allow_non_existing
+        self.error = ""
+
+    """
+    Validator for file line edits
+    """
+
+    def validate(self, text, pos):
+        self.error = ""
+
+        if self.allow_empty and not text.strip():
+            return QValidator.Acceptable, text, pos
+
+        pattern_matches = False
+        if type(self.pattern) is str:
+            pattern_matches = fnmatch.fnmatch(text, self.pattern)
+        elif type(self.pattern) is list:
+            pattern_matches = True in (
+                fnmatch.fnmatch(text, pattern) for pattern in self.pattern
+            )
+        else:
+            raise TypeError(
+                "pattern must be str or list, not {}".format(type(self.pattern))
+            )
+
+        if not text:
+            self.error = self.tr("Text field value is empty.")
+        elif not self.allow_non_existing and not os.path.isfile(text):
+            self.error = self.tr("The chosen file does not exist.")
+        elif not pattern_matches:
+            self.error = self.tr(
+                "The chosen file has a wrong extension (has to be {}).".format(
+                    self.pattern
+                    if type(self.pattern) is str
+                    else ",".join(self.pattern)
+                )
+            )
+        elif self.is_executable and not os.access(text, os.X_OK):
+            self.error = self.tr("The chosen file is not executable.")
+        if self.error:
+            return QValidator.Intermediate, text, pos
+        else:
+            return QValidator.Acceptable, text, pos
+
+
+class NonEmptyStringValidator(QValidator):
+    def __init__(self, parent=None):
+        QValidator.__init__(self, parent)
+
+    def validate(self, text, pos):
+        if not text.strip():
+            return QValidator.Intermediate, text, pos
+
+        return QValidator.Acceptable, text, pos

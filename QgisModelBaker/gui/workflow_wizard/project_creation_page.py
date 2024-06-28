@@ -39,13 +39,10 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliToppingFileItemModel,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
-from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogColor
+from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 
@@ -69,14 +66,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.existing_projecttopping_id = None
         self.projecttopping_id = None
 
-        self.optimize_combo.clear()
-        self.optimize_combo.addItem(
-            self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
-        )
-        self.optimize_combo.addItem(
-            self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
-        )
-        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
+        self._update_optimize_combo()
 
         self.create_project_button.clicked.connect(self._create_project)
         self.is_complete = False
@@ -100,7 +90,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 file_filter=self.tr("Project Topping File (*.yaml *.YAML)"),
             )
         )
-        self.fileValidator = FileValidator(
+        self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
 
@@ -121,6 +111,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.configuration = configuration
         self.db_connector = db_utils.get_db_connector(self.configuration)
 
+        # get inheritance
+        self.configuration.inheritance = self._inheritance()
+        self._update_optimize_combo()
+
         # get existing topping
         self.existing_topping_checkbox.setVisible(False)
         self.existing_projecttopping_id = self._existing_projecttopping_id()
@@ -130,6 +124,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
+
         self.workflow_wizard.busy(self, False)
 
     def _use_existing(self, state):
@@ -194,6 +189,47 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
     def _enable_optimize_combo(self, state):
         self.optimize_combo.setEnabled(state)
         self.optimize_label.setEnabled(state)
+
+    def _update_optimize_combo(self):
+        index = self.optimize_combo.currentIndex()
+        self.optimize_combo.clear()
+        if self.configuration and self.configuration.inheritance == "smart2":
+            self.optimize_combo.addItem(
+                self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
+            )
+            self.optimize_combo.addItem(
+                self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
+            )
+            self.optimize_combo.setToolTip(
+                self.tr(
+                    """
+                <html><head/><body>
+                    <p><b>Hide unused base class layers:</b></p>
+                    <p>- Base class layers with same named extensions will be <i>hidden</i> and and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will <i>not</i> be <i>hidden</i> but <i>renamed</i>.</p>
+                    <p>- Relations of hidden layers will <i>not</i> be <i>created</i> and with them <i>no</i> widgets<br/></p>
+                    <p><b>Group unused base class layers:</b></p>
+                    <p>- Base class layers with same named extensions will be <i>collected in a group</i> and base class layers with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>grouped</i> but <i>renamed</i>.</p>
+                    <p>- Relations of grouped layers will be <i>created</i> but the widgets <i>not applied</i> to the form.</p>
+                </body></html>
+            """
+                )
+            )
+        else:
+            self.optimize_combo.addItem(
+                self.tr("Hide unused base class types"), OptimizeStrategy.HIDE
+            )
+            self.optimize_combo.setToolTip(
+                self.tr(
+                    """
+                <html><head/><body>
+                    <p><b>Hide unused base class types:</b></p>
+                    <p>- Base class tables with same named extensions will be <i>hidden</i> in the <code>t_type</code> dropdown and and base class tables with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>hidden</i>.</p>
+                </body></html>
+            """
+                )
+            )
+        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
+        self.optimize_combo.setCurrentIndex(index)
 
     def _complete_completer(self):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
@@ -278,7 +314,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     ).format(self.projecttopping_id)
                 )
 
-            self.topping_info.setStyleSheet(f"color: {LogColor.COLOR_TOPPING}")
+            self.topping_info.setStyleSheet(f"color: {LogLevel.TOPPING}")
 
         self.topping_line_edit.setStyleSheet(
             "QLineEdit {{ background-color: {} }}".format(
@@ -390,7 +426,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr("Parse project topping file {}…").format(
                         projecttopping_file_path
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 with open(projecttopping_file_path) as stream:
                     try:
@@ -404,7 +440,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                                 self.tr(
                                     'Keyword "legend" is deprecated (but still working).. Use "layertree" instead.'
                                 ),
-                                LogColor.COLOR_TOPPING,
+                                LogLevel.TOPPING,
                             )
                         if layertree_key in projecttopping_data:
                             legend = generator.legend(
@@ -455,7 +491,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     except yaml.YAMLError as exc:
                         self.workflow_wizard.log_panel.print_info(
                             self.tr("Unable to parse project topping: {}").format(exc),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
 
                 self.progress_bar.setValue(55)
@@ -544,7 +580,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.tr(
                     "Metaconfig contains QML toppings. Better practice would be to define QML toppings in the project topping file."
                 ),
-                LogColor.COLOR_TOPPING,
+                LogLevel.TOPPING,
             )
             qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
             qml_file_model = self.workflow_wizard.get_topping_file_model(
@@ -572,7 +608,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             self.tr("Apply QML topping on layer {}:{}…").format(
                                 layer.alias, style_file_path
                             ),
-                            LogColor.COLOR_TOPPING,
+                            LogLevel.TOPPING,
                         )
                         layer.layer.loadNamedStyle(style_file_path)
 
@@ -604,7 +640,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         "Found a metaconfig-id ({}) in the data source, but no corresponding metaconfig in the repositories."
                     ).format(metaconfig_id),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 return None
 
@@ -636,13 +672,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.tr(
                         'Keyword "qgis.modelbaker.layertree" is deprecated (but still working). Use "qgis.modelbaker.projecttopping" instead.'
                     ),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
 
             if key in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("Metaconfig contains a project topping."),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
                 projecttopping_id_list = configuration_section[key].split(";")
                 if len(projecttopping_id_list) > 1:
@@ -650,7 +686,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         self.tr(
                             "Only one projectopping allowed. Taking first one of the list."
                         ),
-                        LogColor.COLOR_TOPPING,
+                        LogLevel.TOPPING,
                     )
                 return projecttopping_id_list[0]
         return None
@@ -669,3 +705,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 ):
                     modelnames.append(name)
         return modelnames
+
+    def _inheritance(self):
+        setting_records = self.db_connector.get_ili2db_settings()
+        for setting_record in setting_records:
+            if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
+                return setting_record["setting"]

@@ -21,13 +21,9 @@ from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel, get_text_color
 
 DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
 
@@ -36,6 +32,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ["toml", "TOML", "ini", "INI"]
     SQLValidExtensions = ["sql", "SQL"]
+    COLOR_INFO = get_text_color(LogLevel.INFO)
+    COLOR_WARNING = get_text_color(LogLevel.WARNING)
+    COLOR_TOPPING = get_text_color(LogLevel.TOPPING)
 
     def __init__(self, parent=None, remove_create_tid_group=True):
         """
@@ -79,13 +78,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             )
         )
 
-        self.validators = Validators()
-        self.file_validator = FileValidator(
+        self.validators = gui_utils.Validators()
+        self.file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(
+        self.sql_file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -292,11 +291,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.smart1_radio_button.isChecked()
                 ):
                     self.smart1_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.smart1_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "smart2Inheritance" in self.current_metaconfig_ili2db:
                 if (
@@ -304,11 +303,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.smart2_radio_button.isChecked()
                 ):
                     self.smart2_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.smart2_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "createBasketCol" in self.current_metaconfig_ili2db:
                 if (
@@ -316,11 +315,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.create_basket_col_checkbox.isChecked()
                 ):
                     self.create_basket_col_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.create_basket_col_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "importTid" in self.current_metaconfig_ili2db:
                 if (
@@ -328,11 +327,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.create_import_tid_checkbox.isChecked()
                 ):
                     self.create_import_tid_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.create_import_tid_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "strokeArcs" in self.current_metaconfig_ili2db:
                 if (
@@ -340,11 +339,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.stroke_arcs_checkbox.isChecked()
                 ):
                     self.stroke_arcs_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.stroke_arcs_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
 
             if self.current_metaconfig_toml_file_path:
@@ -353,18 +352,14 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.toml_file_line_edit.text()
                 ):
                     self.toml_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
-                    self.toml_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
-                    )
+                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_TOPPING}")
                 else:
                     self.toml_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
-                    self.toml_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
-                    )
+                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_WARNING}")
 
             if self.current_metaconfig_post_script_path:
                 if (
@@ -372,17 +367,17 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.post_script_file_line_edit.text()
                 ):
                     self.post_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                     self.post_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.post_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
                     self.post_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if self.current_metaconfig_pre_script_path:
                 if (
@@ -390,40 +385,34 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.pre_script_file_line_edit.text()
                 ):
                     self.pre_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                     self.pre_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.pre_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
                     self.pre_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
 
             self.metaconfig_info_label.setVisible(True)
         else:
             # reset all
-            self.smart1_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.smart2_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.create_basket_col_checkbox.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.create_import_tid_checkbox.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.stroke_arcs_checkbox.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.toml_file_browse_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.toml_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.smart1_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.smart2_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.create_basket_col_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.create_import_tid_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.stroke_arcs_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.toml_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.toml_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.post_script_file_browse_button.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
+                f"color:{self.COLOR_INFO}"
             )
-            self.post_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.pre_script_file_browse_button.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.pre_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.post_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.pre_script_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.pre_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
 
             self.metaconfig_info_label.setVisible(False)

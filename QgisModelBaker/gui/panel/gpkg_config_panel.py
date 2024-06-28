@@ -19,10 +19,11 @@ import logging
 
 from qgis.PyQt.QtGui import QValidator
 
+# Available in typing module from v3.12 on
+from typing_extensions import override
+
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
     make_file_selector,
     make_save_file_selector,
 )
@@ -47,13 +48,13 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.setupUi(self)
 
         # validators
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
 
-        self.gpkgSaveFileValidator = FileValidator(
+        self.gpkgSaveFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions],
             allow_non_existing=True,
         )
-        self.gpkgOpenFileValidator = FileValidator(
+        self.gpkgOpenFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions]
         )
         self.gpkg_file_line_edit.textChanged.connect(
@@ -62,6 +63,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
 
+    @override
     def _show_panel(self):
         if (
             self._db_action_type == DbActionType.GENERATE
@@ -96,13 +98,16 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
         self.gpkg_file_browse_button.clicked.connect(file_selector)
 
+    @override
     def get_fields(self, configuration):
         configuration.dbfile = self.gpkg_file_line_edit.text().strip()
         configuration.dbschema = None
 
+    @override
     def set_fields(self, configuration):
         self.gpkg_file_line_edit.setText(configuration.dbfile)
 
+    @override
     def is_valid(self):
         result = False
         message = ""

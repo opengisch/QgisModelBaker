@@ -17,11 +17,10 @@
 """
 import logging
 
+# Available in typing module from v3.12 on
+from typing_extensions import override
+
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    NonEmptyStringValidator,
-    Validators,
-)
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.mssql_utils import get_odbc_drivers
 
@@ -39,8 +38,8 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
             self.mssql_odbc_driver.addItem(item_odbc_driver)
 
         # define validators
-        self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+        self.validators = gui_utils.Validators()
+        nonEmptyValidator = gui_utils.NonEmptyStringValidator()
 
         self.mssql_host_line_edit.setValidator(nonEmptyValidator)
         self.mssql_database_line_edit.setValidator(nonEmptyValidator)
@@ -69,6 +68,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_user_line_edit.textChanged.connect(self.notify_fields_modified)
         self.mssql_password_line_edit.textChanged.connect(self.notify_fields_modified)
 
+    @override
     def _show_panel(self):
         if self._db_action_type == DbActionType.GENERATE:
             self.mssql_schema_line_edit.setPlaceholderText(
@@ -85,6 +85,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         else:
             logging.error(f"Unknown action type: {self._db_action_type}")
 
+    @override
     def get_fields(self, configuration):
         configuration.dbhost = self.mssql_host_line_edit.text().strip()
         configuration.dbinstance = self.mssql_instance_line_edit.text().strip()
@@ -95,6 +96,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.dbpwd = self.mssql_password_line_edit.text()
         configuration.db_odbc_driver = self.mssql_odbc_driver.currentText()
 
+    @override
     def set_fields(self, configuration):
         self.mssql_host_line_edit.setText(configuration.dbhost)
         self.mssql_instance_line_edit.setText(configuration.dbinstance)
@@ -108,6 +110,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         if index != -1:
             self.mssql_odbc_driver.setCurrentIndex(index)
 
+    @override
     def is_valid(self):
         result = False
         message = ""

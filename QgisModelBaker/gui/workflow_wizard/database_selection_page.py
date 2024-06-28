@@ -17,12 +17,16 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
 from QgisModelBaker.libs.modelbaker.utils import db_utils
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils import gui_utils
@@ -83,21 +87,38 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             if is_current_panel_selected:
                 value._show_panel()
 
-    def restore_configuration(self, configuration):
-        # takes settings from QSettings and provides it to the gui (not the configuration)
-        # it needs the configuration - this is the same for Schema or Data Config
-        settings = QSettings()
+    def restore_configuration(self, configuration, get_config_from_project=False):
+        configuration = Ili2DbCommandConfiguration()
+        valid = False
+        mode = None
 
-        for db_id in self.db_simple_factory.get_db_list(False):
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(configuration)
-            config_manager.load_config_from_qsettings()
-            self._lst_panel[db_id].set_fields(configuration)
+        if get_config_from_project:
+            # tries to take settings from the project
+            layer = self._relevant_layer()
+            if layer:
+                source_provider = layer.dataProvider()
+                valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    source_provider, configuration
+                )
 
-        mode = settings.value("QgisModelBaker/importtype")
-        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
-        mode = mode & ~DbIliMode.ili
+        if valid and mode:
+            # uses the settings from the project and provides it to the gui
+            configuration.tool = mode
+        else:
+            # takes settings from QSettings and provides it to the gui
+            settings = QSettings()
 
+            for db_id in self.db_simple_factory.get_db_list(False):
+                db_factory = self.db_simple_factory.create_factory(db_id)
+                config_manager = db_factory.get_db_command_config_manager(configuration)
+                config_manager.load_config_from_qsettings()
+
+            mode = settings.value("QgisModelBaker/importtype")
+            mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+            mode = mode & ~DbIliMode.ili
+            configuration.tool = mode
+
+        self._lst_panel[mode].set_fields(configuration)
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self._type_changed()
 
@@ -119,13 +140,22 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
 
+    def _relevant_layer(self):
+        layer = None
+
+        for layer in [self.workflow_wizard.iface.activeLayer()] + list(
+            QgsProject.instance().mapLayers().values()
+        ):
+            if layer and layer.dataProvider() and layer.dataProvider().isValid():
+                return layer
+
     def is_valid(self):
         db_id = self.type_combo_box.currentData()
         res, message = self._lst_panel[db_id].is_valid()
         if not res:
             self.workflow_wizard.log_panel.print_info(
                 message,
-                gui_utils.LogColor.COLOR_FAIL,
+                gui_utils.LogLevel.FAIL,
             )
         return res
 

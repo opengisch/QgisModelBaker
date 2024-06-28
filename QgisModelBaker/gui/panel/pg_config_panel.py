@@ -21,6 +21,9 @@ from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt, QThread, QTimer
 
+# Available in typing module from v3.12 on
+from typing_extensions import override
+
 import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
@@ -28,10 +31,6 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    NonEmptyStringValidator,
-    Validators,
-)
 from QgisModelBaker.utils import gui_utils
 
 from .db_config_panel import DbConfigPanel
@@ -88,8 +87,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
         # define validators
-        self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+        self.validators = gui_utils.Validators()
+        nonEmptyValidator = gui_utils.NonEmptyStringValidator()
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
@@ -186,6 +185,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         except RuntimeError:
             pass
 
+    @override
     def _show_panel(self):
 
         self._fill_schema_combo_box()
@@ -204,6 +204,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         else:
             logging.error(f"Unknown action type: {self._db_action_type}")
 
+    @override
     def get_fields(self, configuration):
 
         configuration.dbservice = self.pg_service_combo_box.currentData()
@@ -219,6 +220,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
 
+    @override
     def set_fields(self, configuration):
 
         if configuration.dbservice is None:
@@ -267,22 +269,52 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
             )
 
-        self.pg_host_line_edit.setText(configuration.dbhost)
-        self.pg_port_line_edit.setText(configuration.dbport)
-        self.pg_auth_settings.setUsername(configuration.dbusr)
-        self.pg_database_line_edit.setText(configuration.database)
-        self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
-        self.pg_auth_settings.setPassword(configuration.dbpwd)
-        self.pg_auth_settings.setConfigId(configuration.dbauthid)
+            self.pg_host_line_edit.setText(configuration.dbhost)
+            self.pg_port_line_edit.setText(configuration.dbport)
+            self.pg_auth_settings.setUsername(configuration.dbusr)
+            self.pg_database_line_edit.setText(configuration.database)
+            self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
+            self.pg_auth_settings.setPassword(configuration.dbpwd)
+            self.pg_auth_settings.setConfigId(configuration.dbauthid)
 
-        index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
-        self.pg_ssl_mode_combo_box.setCurrentIndex(index)
+            index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+            self.pg_ssl_mode_combo_box.setCurrentIndex(index)
 
-        self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+        else:
+            index = self.pg_service_combo_box.findData(configuration.dbservice)
+            self.pg_service_combo_box.setCurrentIndex(index)
 
-        index = self.pg_service_combo_box.findData(configuration.dbservice)
-        self.pg_service_combo_box.setCurrentIndex(index)
+            # Only apply stored QSettings if the
+            # PG service didn't have a value for them
+            service_config = pgserviceparser.service_config(configuration.dbservice)
 
+            if not service_config.get("host"):
+                self.pg_host_line_edit.setText(configuration.dbhost)
+
+            if not service_config.get("port"):
+                self.pg_port_line_edit.setText(configuration.dbport)
+
+            if not service_config.get("dbname"):
+                self.pg_database_line_edit.setText(configuration.database)
+
+            if not service_config.get("user"):
+                self.pg_auth_settings.setUsername(configuration.dbusr)
+
+            if not service_config.get("password"):
+                self.pg_auth_settings.setPassword(configuration.dbpwd)
+
+            if not service_config.get("sslmode"):
+                index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+                self.pg_ssl_mode_combo_box.setCurrentIndex(index)
+
+            # On the contrary, next settings will never be stored
+            # in PG service, so always take them from QSettings
+            self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
+            self.pg_auth_settings.setConfigId(configuration.dbauthid)
+            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+
+    @override
     def is_valid(self):
         result = False
         message = ""
@@ -324,7 +356,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             service_config = pgserviceparser.service_config(service)
 
             # QGIS cannot handle manually set hosts with service
-            # So it needs to has a host defined in service conf or it takes localhost
+            # So it needs to have a host defined in service conf or it takes localhost
             self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
 
             self.pg_port_line_edit.setText(service_config.get("port", ""))

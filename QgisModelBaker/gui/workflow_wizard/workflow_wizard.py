@@ -65,7 +65,7 @@ from QgisModelBaker.utils.gui_utils import (
     FileDropListView,
     ImportDataModel,
     ImportModelsModel,
-    LogColor,
+    LogLevel,
     PageIds,
     SchemaBasketsModel,
     SchemaDataFilterMode,
@@ -416,17 +416,17 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
             self.import_database_selection_page.restore_configuration(
-                self.import_schema_configuration
+                self.import_schema_configuration, True
             )
 
         if self.current_id == PageIds.GenerateDatabaseSelection:
             self.generate_database_selection_page.restore_configuration(
-                self.import_schema_configuration
+                self.import_schema_configuration, True
             )
 
         if self.current_id == PageIds.ExportDatabaseSelection:
             self.export_database_selection_page.restore_configuration(
-                self.export_data_configuration
+                self.export_data_configuration, True
             )
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
@@ -581,7 +581,7 @@ class WorkflowWizard(QWizard):
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
                 self.log_panel.print_info(
-                    self.tr("- - Got file {}").format(file_path), LogColor.COLOR_TOPPING
+                    self.tr("- - Got file {}").format(file_path), LogLevel.TOPPING
                 )
                 file_path_list.append(file_path)
         return file_path_list
@@ -602,7 +602,7 @@ class WorkflowWizard(QWizard):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
+        self.log_panel.print_info(self.tr("- - Downloading…"), LogLevel.TOPPING)
 
         # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
         loop.exec()
@@ -610,7 +610,7 @@ class WorkflowWizard(QWizard):
         if len(topping_file_cache.downloaded_files) == len(id_list):
             self.log_panel.print_info(
                 self.tr("- - All topping files successfully downloaded"),
-                LogColor.COLOR_TOPPING,
+                LogLevel.TOPPING,
             )
         else:
             missing_file_ids = id_list
@@ -622,7 +622,7 @@ class WorkflowWizard(QWizard):
                     self.tr(
                         "- - Some topping files where not successfully downloaded: {}"
                     ).format(" ".join(missing_file_ids)),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
             except Exception:
                 pass

@@ -60,12 +60,12 @@ class ModelsPage(QWizardPage, PAGE_UI):
                         models=", ".join(self.topping_wizard.topping.models)
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         else:
             self.topping_wizard.log_panel.print_info(
                 self.tr("No models set."),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         self.topping_wizard.topping.preferred_datasource = (
             self.source_combobox.currentData()

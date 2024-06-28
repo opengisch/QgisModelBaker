@@ -23,11 +23,13 @@ from PyQt5.QtWidgets import QGridLayout, QProgressBar
 from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import QSize, Qt
-from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
 
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import color_log_text
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import (
+    LogLevel,
+    get_parsed_log_text_color,
+    get_text_color_object,
+)
 
 
 class LogPanel(QWidget):
@@ -58,23 +60,19 @@ class LogPanel(QWidget):
             self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 10
         )
 
-    def print_info(self, text, text_color=LogColor.COLOR_INFO):
-        self.txtStdout.setTextColor(QColor(text_color))
+    def print_info(self, text, level=LogLevel.INFO):
+        self.txtStdout.setTextColor(get_text_color_object(level))
         self.txtStdout.append(text)
 
-        if text_color == LogColor.COLOR_INFO:
+        if level in (LogLevel.INFO, LogLevel.SUCCESS, LogLevel.TOPPING):
             logging.info(text)
-        elif text_color == LogColor.COLOR_SUCCESS:
-            logging.info(text)
-        elif text_color == LogColor.COLOR_WARNING:
+        elif level == LogLevel.WARNING:
             logging.warning(text)
-        elif text_color == LogColor.COLOR_FAIL:
+        elif level == LogLevel.FAIL:
             logging.error(text)
-        elif text_color == LogColor.COLOR_TOPPING:
-            logging.info(text)
 
     def on_stderr(self, text):
-        color_log_text(text, self.txtStdout)
+        get_parsed_log_text_color(text, self.txtStdout)
 
     def show_message(self, level, message):
         if level == Qgis.Warning:
