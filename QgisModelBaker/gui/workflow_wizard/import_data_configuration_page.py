@@ -462,11 +462,11 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         help_paragraphs = self.tr(
             """
         <h4>The list</h4>
-        <p align="justify">Those are the datafiles you've chosen for import or where detected automatically. If one shouldn't be there, you can remove it with <code><b>-</b></code>.</p>
+        <p align="justify">Those are the datafiles you've chosen for import or were detected automatically. If one shouldn't be there, you can remove it with <code><b>-</b></code>.</p>
         <p align="justify">Maybe you want to add <b>referenced data</b> file from the repositories (ilidata.xml).</p>
         <p align="justify">Or you may want to change the order of the imports (perhaps the user data depends on the catalogue data, etc.),<br />which you can do by dragging and dropping with the arrows on the left.</p>
         <h4>Delete</h4>
-        <p align="justify">Iff you choose to delete, the existing data will be deleted before the new data is imported.<br />Usually this makes no difference when using baskets, as an update will also replace the data.</p>
+        <p align="justify">If you choose to delete, the existing data will be deleted before the new data is imported.<br />Usually this makes no difference when using baskets, as an update will also replace the data.</p>
         <h4>Dataset</h4>
         <p align="justify">Choose the dataset. If you need another, then create a new one via the <b>Dataset manager</b>.</p>
         """

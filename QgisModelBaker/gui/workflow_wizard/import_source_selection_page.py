@@ -223,23 +223,6 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
 
     def help_text(self):
         logline = self.tr(
-            "Here you have to add the models and/or files you want to use..."
-        )
-        help_paragraphs = self.tr(
-            """
-        <h4 align="justify">On GeoPackage</h4>
-        <p align="justify">You can choose a <code>gpkg</code> file. If you want to create a new one, just enter the desired name on an existing path (it will be created).</p>
-        <h4 align="justify">On PostgreSQL</h4>
-        <p align="justify">All the possiblities are supported that are in QGIS as well. More detailed description of </p>
-        """
-        )
-        docutext = self.tr(
-            'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#2-database-selection">documentation</a> ...'
-        )
-        return logline, help_paragraphs, docutext
-
-    def help_text(self):
-        logline = self.tr(
             "Here you need to add the models and/or files you want to use..."
         )
         help_paragraphs = self.tr(

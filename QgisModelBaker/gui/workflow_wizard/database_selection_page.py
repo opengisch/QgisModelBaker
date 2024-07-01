@@ -161,7 +161,7 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
     def help_text(self):
         logline = self.tr(
-            "Here you have to set the connection parameters for your datasource...."
+            "Here you have to set the connection parameters for your datasource..."
         )
         help_paragraphs = self.tr(
             """

@@ -102,7 +102,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         <h4>Filter</h4>
         <p align="justify">You can filter your data by the models, datasets or baskets in which it is stored.</p>
         <h4>Format</h4>
-        <p align="justify">Still you can choose <b>Export data in another model</b>, which allows you to select a base model as the data fromat.<br />
+        <p align="justify">Still you can choose <b>Export data in another model</b>, which allows you to select a base model as the data format.<br />
         Even if the data is stored in an extended model.</p>
         """
         )

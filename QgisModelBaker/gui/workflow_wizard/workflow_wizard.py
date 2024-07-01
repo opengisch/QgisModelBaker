@@ -707,7 +707,6 @@ class WorkflowWizard(QWizard):
         <hr>
         {docu_and_community_paragraphs}
         """.format(
-            title=self._current_page_title(current_id),
             help_paragraphs=help_paragraphs,
             docutext=docutext,
             docu_and_community_paragraphs=self.tr(

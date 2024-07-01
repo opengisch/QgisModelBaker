@@ -111,7 +111,7 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         help_paragraphs = self.tr(
             """
         <p align="justify">If you plan to <b>import data later</b> (from <code>xtf</code> or <code>xml</code>), the necessary baskets will be created on import anyway.</p>
-        <p align="justify">However, if you have no data to import and want to <b>collect the data fresh</b>, you may need to create the basekts.</p>
+        <p align="justify">However, if you have no data to import and want to <b>collect the data fresh</b>, you may need to create the baskets.</p>
         <p align="justify">The checked baskets are those that Model Baker has identified as <i>relevant</i> according to the recognised <a href="https://opengisch.github.io/QgisModelBaker/background_info/extended_models_optimization/#basket-handling">inheritance</a>.</p>
         """
         )
