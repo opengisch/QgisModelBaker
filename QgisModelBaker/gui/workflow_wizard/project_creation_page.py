@@ -711,3 +711,22 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         for setting_record in setting_records:
             if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
                 return setting_record["setting"]
+
+    def help_text(self):
+        logline = self.tr(
+            "Most of the time you won't need to change anything here.<br />Just press Generate :-)"
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4>Project Topping</h4>
+        <p align="justify">If your database was created using a <b>metaconfiguration</b> (you'd know this), it will now be recognised.</p>
+        <p align="justify">If not, you may still be able to choose a <b>project topping</b> from the repositories.</p>
+        <h4>Project Optimization</h4>
+        <p align="justify">The project is optimized depending on the inheritance structure of the INTERLIS model on which it is based.<br />
+        Means it hides unused layers etc. Read more about optimization strategies <a href="https://opengisch.github.io/QgisModelBaker/background_info/extended_models_optimization/">here</a>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this page in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#7-generate-the-qgis-project">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

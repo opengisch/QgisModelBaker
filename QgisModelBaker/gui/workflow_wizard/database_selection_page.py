@@ -159,5 +159,24 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             )
         return res
 
+    def help_text(self):
+        logline = self.tr(
+            "Here you have to set the connection parameters for your datasource..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4 align="justify">On GeoPackage</h4>
+        <p align="justify">You can select a <code>gpkg</code> file.<br />
+        Or if you want to create a new one, just type the desired name on an existing path (and it will be created).</p>
+        <h4 align="justify">On PostgreSQL</h4>
+        <p align="justify">For a detailed description of each parameter, see the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#2-database-selection">documentation</a></p>
+        <p align="justify">A <b>superuser login</b> must be configured in the Model Baker settings <i>Database &lt; Model Baker &lt; Settings<i>.
+        """
+        )
+        docutext = self.tr(
+            'Find more information about the <b>database settings</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext
+
     def nextId(self):
         return self.workflow_wizard.next_id()
