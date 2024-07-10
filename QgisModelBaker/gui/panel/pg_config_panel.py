@@ -117,8 +117,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
-        for service in pgserviceparser.service_names():
-            self.pg_service_combo_box.addItem(service, service)
+        try:
+            for service in pgserviceparser.service_names():
+                self.pg_service_combo_box.addItem(service, service)
+        except pgserviceparser.ServiceFileNotFound:
+            # we don't care when no service file is found
+            pass
 
         self.pg_service_combo_box.currentIndexChanged.connect(
             self._pg_service_combo_box_changed
@@ -223,7 +227,10 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     @override
     def set_fields(self, configuration):
 
-        if configuration.dbservice is None:
+        service_config = self._get_service_config(configuration.dbservice)
+
+        # if no dbservice in the configuration or one is there but the the servicefile is not available anymore
+        if service_config is None:
 
             indexNoService = self.pg_service_combo_box.findData(
                 None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
@@ -287,8 +294,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
             # Only apply stored QSettings if the
             # PG service didn't have a value for them
-            service_config = pgserviceparser.service_config(configuration.dbservice)
-
             if not service_config.get("host"):
                 self.pg_host_line_edit.setText(configuration.dbhost)
 
@@ -352,9 +357,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if self._current_service is None:
             self._keep_custom_settings()
 
-        if service:
-            service_config = pgserviceparser.service_config(service)
+        service_config = self._get_service_config(service)
 
+        if service_config:
             # QGIS cannot handle manually set hosts with service
             # So it needs to have a host defined in service conf or it takes localhost
             self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
@@ -541,6 +546,24 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         currentTextIndex = self.pg_schema_combo_box.findText(currentText)
         if currentTextIndex > -1:
             self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
+
+    def _get_service_config(self, servicename):
+        if not servicename:
+            return None
+
+        try:
+            # when service file found and service found
+            return pgserviceparser.service_config(servicename)
+        except pgserviceparser.ServiceFileNotFound as sfe:
+            logging.warning(
+                f"The last used service {servicename} cannot be found, since no service file {str(sfe)} available anymore."
+            )
+            return None
+        except pgserviceparser.ServiceNotFound:
+            logging.warning(
+                f"The last used service {servicename} cannot be found in the service file."
+            )
+            return None
 
 
 class ReadPgSchemasTask(QThread):
