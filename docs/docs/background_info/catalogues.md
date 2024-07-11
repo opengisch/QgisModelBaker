@@ -193,7 +193,7 @@ It's not possible to export data with validation from a model that uses codelist
 ![tree_validation](../assets/catalogues_treevalidation.png)
 
 #### Reason
-There is a constraint in the the class `CatalogueReference` of [`CatalogeObjectTrees_V1`](http://models.geo.admin.ch/CH/CHBase_Part3_CATALOGUEOBJECTS_V1.ili):
+There is a constraint in the class `CatalogueReference` of [`CatalogeObjectTrees_V1`](http://models.geo.admin.ch/CH/CHBase_Part3_CATALOGUEOBJECTS_V1.ili):
 ```
   MANDATORY CONSTRAINT
     Reference->IsUseable;

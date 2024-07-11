@@ -229,7 +229,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         service_config = self._get_service_config(configuration.dbservice)
 
-        # if no dbservice in the configuration or one is there but the the servicefile is not available anymore
+        # if no dbservice in the configuration or one is there but the servicefile is not available anymore
         if service_config is None:
 
             indexNoService = self.pg_service_combo_box.findData(
