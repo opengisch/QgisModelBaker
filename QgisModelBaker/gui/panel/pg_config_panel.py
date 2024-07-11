@@ -24,7 +24,6 @@ from qgis.PyQt.QtCore import Qt, QThread, QTimer
 # Available in typing module from v3.12 on
 from typing_extensions import override
 
-import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
@@ -117,12 +116,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
-        try:
-            for service in pgserviceparser.service_names():
-                self.pg_service_combo_box.addItem(service, service)
-        except pgserviceparser.ServiceFileNotFound:
-            # we don't care when no service file is found
-            pass
+        services, _ = db_utils.get_service_names()
+        for service in services:
+            self.pg_service_combo_box.addItem(service, service)
 
         self.pg_service_combo_box.currentIndexChanged.connect(
             self._pg_service_combo_box_changed
@@ -227,10 +223,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     @override
     def set_fields(self, configuration):
 
-        service_config = self._get_service_config(configuration.dbservice)
+        service_config, error = db_utils.get_service_config(configuration.dbservice)
+        if error:
+            logging.warning(error)
 
         # if no dbservice in the configuration or one is there but the servicefile is not available anymore
-        if service_config is None:
+        if not service_config:
 
             indexNoService = self.pg_service_combo_box.findData(
                 None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
@@ -357,7 +355,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if self._current_service is None:
             self._keep_custom_settings()
 
-        service_config = self._get_service_config(service)
+        service_config, error = db_utils.get_service_config(service)
+        if error:
+            logging.warning(error)
 
         if service_config:
             # QGIS cannot handle manually set hosts with service
@@ -546,24 +546,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         currentTextIndex = self.pg_schema_combo_box.findText(currentText)
         if currentTextIndex > -1:
             self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
-
-    def _get_service_config(self, servicename):
-        if not servicename:
-            return None
-
-        try:
-            # when service file found and service found
-            return pgserviceparser.service_config(servicename)
-        except pgserviceparser.ServiceFileNotFound as sfe:
-            logging.warning(
-                f"The last used service {servicename} cannot be found, since no service file {str(sfe)} available anymore."
-            )
-            return None
-        except pgserviceparser.ServiceNotFound:
-            logging.warning(
-                f"The last used service {servicename} cannot be found in the service file."
-            )
-            return None
 
 
 class ReadPgSchemasTask(QThread):
