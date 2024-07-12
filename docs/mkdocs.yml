@@ -91,7 +91,7 @@ plugins:
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
             UsabILIty Hub: UsabILIty Hub
-            Overview: Overview
+            Overview: Übersicht
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
             Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
@@ -105,12 +105,12 @@ plugins:
               primary: blue grey
               toggle:
                 icon: material/weather-night
-                name: Switch to dark mode
+                name: Wechsel zu Nachmodus
             - scheme: slate
               primary: blue grey
               toggle:
                 icon: material/weather-sunny
-                name: Switch to light mode
+                name: Wechsel zu Tagmodus
                 primary: white
 
 # Page tree

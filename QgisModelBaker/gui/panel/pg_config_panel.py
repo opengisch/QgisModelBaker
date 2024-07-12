@@ -24,7 +24,6 @@ from qgis.PyQt.QtCore import Qt, QThread, QTimer
 # Available in typing module from v3.12 on
 from typing_extensions import override
 
-import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
@@ -117,7 +116,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
-        for service in pgserviceparser.service_names():
+        services, _ = db_utils.get_service_names()
+        for service in services:
             self.pg_service_combo_box.addItem(service, service)
 
         self.pg_service_combo_box.currentIndexChanged.connect(
@@ -223,7 +223,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     @override
     def set_fields(self, configuration):
 
-        if configuration.dbservice is None:
+        service_config, error = db_utils.get_service_config(configuration.dbservice)
+        if error:
+            logging.warning(error)
+
+        # if no dbservice in the configuration or one is there but the servicefile is not available anymore
+        if not service_config:
 
             indexNoService = self.pg_service_combo_box.findData(
                 None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
@@ -287,8 +292,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
             # Only apply stored QSettings if the
             # PG service didn't have a value for them
-            service_config = pgserviceparser.service_config(configuration.dbservice)
-
             if not service_config.get("host"):
                 self.pg_host_line_edit.setText(configuration.dbhost)
 
@@ -352,9 +355,11 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if self._current_service is None:
             self._keep_custom_settings()
 
-        if service:
-            service_config = pgserviceparser.service_config(service)
+        service_config, error = db_utils.get_service_config(service)
+        if error:
+            logging.warning(error)
 
+        if service_config:
             # QGIS cannot handle manually set hosts with service
             # So it needs to have a host defined in service conf or it takes localhost
             self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
