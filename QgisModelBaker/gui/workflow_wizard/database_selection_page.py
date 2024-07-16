@@ -88,9 +88,9 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
                 value._show_panel()
 
     def restore_configuration(self, configuration, get_config_from_project=False):
-        configuration = Ili2DbCommandConfiguration()
         valid = False
         mode = None
+        layer_configuration = Ili2DbCommandConfiguration()
 
         if get_config_from_project:
             # tries to take settings from the project
@@ -98,12 +98,14 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             if layer:
                 source_provider = layer.dataProvider()
                 valid, mode = db_utils.get_configuration_from_sourceprovider(
-                    source_provider, configuration
+                    source_provider, layer_configuration
                 )
 
         if valid and mode:
             # uses the settings from the project and provides it to the gui
+            configuration = layer_configuration
             configuration.tool = mode
+            self._lst_panel[mode].set_fields(configuration)
         else:
             # takes settings from QSettings and provides it to the gui
             settings = QSettings()
@@ -112,13 +114,12 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
                 db_factory = self.db_simple_factory.create_factory(db_id)
                 config_manager = db_factory.get_db_command_config_manager(configuration)
                 config_manager.load_config_from_qsettings()
+                self._lst_panel[db_id].set_fields(configuration)
 
             mode = settings.value("QgisModelBaker/importtype")
             mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
             mode = mode & ~DbIliMode.ili
-            configuration.tool = mode
 
-        self._lst_panel[mode].set_fields(configuration)
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self._type_changed()
 
