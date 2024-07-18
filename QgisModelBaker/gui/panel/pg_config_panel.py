@@ -21,9 +21,6 @@ from enum import IntEnum
 
 from qgis.PyQt.QtCore import Qt, QThread, QTimer
 
-# Available in typing module from v3.12 on
-from typing_extensions import override
-
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
@@ -185,7 +182,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         except RuntimeError:
             pass
 
-    @override
     def _show_panel(self):
 
         self._fill_schema_combo_box()
@@ -204,7 +200,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         else:
             logging.error(f"Unknown action type: {self._db_action_type}")
 
-    @override
     def get_fields(self, configuration):
 
         configuration.dbservice = self.pg_service_combo_box.currentData()
@@ -220,7 +215,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
 
-    @override
     def set_fields(self, configuration):
 
         service_config, error = db_utils.get_service_config(configuration.dbservice)
@@ -317,7 +311,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_auth_settings.setConfigId(configuration.dbauthid)
             self.pg_use_super_login.setChecked(configuration.db_use_super_login)
 
-    @override
     def is_valid(self):
         result = False
         message = ""
