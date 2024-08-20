@@ -68,7 +68,14 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
                     )
                     if valid:
                         self.configuration.tool = mode
+
+        if self.configuration and self.configuration.tool:
             self._reset_tid_configuration()
+            return True, ""
+        else:
+            return False, self.tr(
+                "To use the OID Manager, configure a connection to an INTERLIS based database."
+            )
 
     def _reset_tid_configuration(self):
         self.layer_tids_panel.load_tid_config(self.qgis_project)
