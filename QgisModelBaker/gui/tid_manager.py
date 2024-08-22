@@ -16,8 +16,10 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsMapLayer, QgsProject
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.core import Qgis, QgsMapLayer, QgsProject
+from qgis.gui import QgsMessageBar
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QSizePolicy
 
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
@@ -46,7 +48,16 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
 
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
-        self.tid_configurator_panel.setup_dialog(QgsProject.instance())
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+
+        result, message = self.tid_configurator_panel.setup_dialog(
+            QgsProject.instance()
+        )
+        if not result:
+            self.tid_configurator_panel.setEnabled(False)
+            self.bar.pushMessage(message, Qgis.Warning)
 
     def _close_editing(self):
         editable_layers = []
