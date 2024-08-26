@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
-from QgisModelBaker.gui.create_baskets import CreateBasketDialog
+from QgisModelBaker.gui.basket_manager import BasketManagerDialog
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
@@ -183,7 +183,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 datasetname = self.dataset_tableview.selectedIndexes()[0].data(
                     int(DatasetModel.Roles.DATASETNAME)
                 )
-                basket_manager_dialog = CreateBasketDialog(
+                basket_manager_dialog = BasketManagerDialog(
                     self, db_connector, datasetname
                 )
                 basket_manager_dialog.exec_()
