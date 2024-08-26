@@ -51,7 +51,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.setupUi(self)
         self.buttonBox.accepted.connect(self._accepted)
-        self.buttonBox.rejected.connect(self._rejected)
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.info_layout.addWidget(self.bar, 0, Qt.AlignTop)
@@ -69,6 +68,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.add_button.clicked.connect(self._add_dataset)
         self.edit_button.clicked.connect(self._edit_dataset)
+        self.delete_button.clicked.connect(self._delete_dataset)
         self.dataset_tableview.selectionModel().selectionChanged.connect(
             lambda: self._enable_dataset_handling(True)
         )
@@ -83,6 +83,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
+        self.delete_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
 
         self.configuration = self._evaluated_configuration()
         self._refresh_datasets()
@@ -117,6 +118,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setEnabled(enable)
         self.add_button.setEnabled(enable)
         self.edit_button.setEnabled(self._valid_selection())
+        self.delete_button.setEnabled(self._valid_selection())
         self.basket_manager_button.setEnabled(self._valid_selection())
 
     def _refresh_datasets(self):
@@ -158,6 +160,21 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 edit_dataset_dialog.exec_()
                 self._refresh_datasets()
                 self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
+
+    def _delete_dataset(self):
+        if self._valid_selection():
+            if (
+                QMessageBox.warning(
+                    self,
+                    self.tr("Delete dataset"),
+                    self.tr(
+                        "Deleting a Dataset will also delete children baskets and all the data they contain. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
+                    ),
+                    QMessageBox.No | QMessageBox.Yes,
+                )
+                == QMessageBox.Yes
+            ):
+                print("DELETED! (TODO)")
 
     def _open_basket_manager(self):
         if self._valid_selection():
@@ -268,7 +285,4 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
     def _accepted(self):
         self._save_configuration(self.configuration)
-        self.close()
-
-    def _rejected(self):
         self.close()
