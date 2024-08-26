@@ -19,13 +19,13 @@
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
-from QgisModelBaker.gui.panel.basket_panel import BasketPanel
+from QgisModelBaker.gui.panel.create_basket_panel import CreateBasketPanel
 from QgisModelBaker.utils import gui_utils
 
-DIALOG_UI = gui_utils.get_ui_class("basket_manager.ui")
+DIALOG_UI = gui_utils.get_ui_class("create_baskets.ui")
 
 
-class BasketManagerDialog(QDialog, DIALOG_UI):
+class CreateBasketDialog(QDialog, DIALOG_UI):
     def __init__(self, parent=None, db_connector=None, datasetname=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -37,7 +37,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         self.buttonBox.rejected.connect(self._rejected)
 
         # baskets part
-        self.baskets_panel = BasketPanel(self)
+        self.baskets_panel = CreateBasketPanel(self)
         self.baskets_layout.addWidget(self.baskets_panel)
 
         self.baskets_panel.load_basket_config(self.db_connector, self.datasetname)
