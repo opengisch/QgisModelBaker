@@ -58,7 +58,9 @@ nav:
       - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
     #- Relations in QGIS: maybe from here https://github.com/signedav/interlis_relations_in_qgis
     #- INTERLIS Syntax in 10 Minutes: maybe stuff from here https://github.com/signedav/talk_iliuniverse
-  - Development: development.md
+  - About:
+      - Development: about/development.md
+      - Translation: about/translation.md
     #- Library: Info about the upcoming python package
 
 markdown_extensions:
@@ -99,7 +101,9 @@ plugins:
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
             Meta Attributes: Metaattribute
             Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
-            Development: Enwicklung
+            About: Über
+            Development: Entwicklung
+            Translation: Übersetzung
           palette:
             - scheme: default
               primary: blue grey
