@@ -12,7 +12,7 @@ Your language is missing? Feel free to contribute!
 
     ![search-mask](../assets/transifex-search-mask.png)
 
-3. Select the project you want to translate and select *Join this project*, you will be taken back to yout dashboard:
+3. Select the project you want to translate and select *Join this project*, you will be taken back to your dashboard:
 
     ![join-requested](../assets/transifex-join-requested.png)
 
