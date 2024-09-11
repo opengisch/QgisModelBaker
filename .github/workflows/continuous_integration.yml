@@ -30,7 +30,7 @@ jobs:
         run: |
           sudo ./scripts/package_pip_packages.sh
       - name: Test on QGIS
-        run: docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
+        run: docker compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
   release:
     runs-on: ubuntu-22.04
