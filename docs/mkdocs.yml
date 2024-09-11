@@ -101,7 +101,9 @@ plugins:
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
             Meta Attributes: Metaattribute
             Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
+            About: About
             Development: Enwicklung
+            Translation: Translation
           palette:
             - scheme: default
               primary: blue grey
