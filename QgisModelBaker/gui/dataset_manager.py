@@ -166,7 +166,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             if (
                 QMessageBox.warning(
                     self,
-                    self.tr("Delete dataset"),
+                    self.tr("Delete Dataset"),
                     self.tr(
                         "Deleting a Dataset will also delete children baskets and all the data they contain. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),

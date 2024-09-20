@@ -136,6 +136,12 @@ class BasketModel(QAbstractTableModel):
                 return "Attachment key"
         return None
 
+    def basket_config_by_index(self, index: QModelIndex) -> dict:
+        # Return the basket config for the row corrsponding to the given index.
+        # This includes the whole basket configuration (t_id, dataset_id,
+        # topic, etc.)
+        return list(self.basket_settings.values())[index.row()]
+
     def load_basket_config(self, db_connector, dataset):
         self.beginResetModel()
         self.basket_settings.clear()
@@ -153,6 +159,12 @@ class BasketModel(QAbstractTableModel):
                     basket_setting["attachment_key"] = basket_record["attachmentkey"]
                     basket_setting["dataset"] = basket_record["datasetname"]
                     basket_setting["bid_domain"] = topic_record["bid_domain"]
+
+                    # Additional basket info, not displayed by the view, but useful
+                    # in other operations (e.g., edit) to fully identify baskets
+                    basket_setting["basket_t_id"] = basket_record["basket_t_id"]
+                    basket_setting["dataset_t_id"] = basket_record["dataset_t_id"]
+                    basket_setting["topic"] = basket_record["topic"]
                     self.basket_settings[basket_record["topic"]] = basket_setting
                     break  # Go to next topic
 
@@ -185,3 +197,12 @@ class SummaryBasketPanel(QWidget, WIDGET_UI):
 
     def load_basket_config(self, db_connector, dataset):
         self.bid_model.load_basket_config(db_connector, dataset)
+
+    def selected_basket_settings(self) -> dict:
+        # Returns the whole configuration for the selected basket
+        selected_baskets = self.basket_view.selectedIndexes()
+        if selected_baskets:
+            # Pick the first index, since all others belong to the same row
+            return self.bid_model.basket_config_by_index(selected_baskets[0])
+
+        return {}
