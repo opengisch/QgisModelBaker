@@ -19,7 +19,7 @@
 
 
 import uuid
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QAbstractItemView, QHeaderView, QWidget
@@ -32,16 +32,11 @@ WIDGET_UI = gui_utils.get_ui_class("basket_panel.ui")
 
 class CreateBasketModel(QAbstractTableModel):
     """
-    ItemModel providing all the baskets, the existing ones and the possible ones in the given dataset.
-    It provides the topic, the suggested BIDs (t_ili_tid) and the information if it's created already.
-    As well the option if it should be created (could be extended if it should be deleted when unchecked)
+    ItemModel providing possible (non-existing) baskets in the given dataset,
+    based on keys model-topic.
+    It provides the topic and the suggested BIDs (t_ili_tid), as well as
+    the option if it should be created.
     """
-
-    class Roles(Enum):
-        EXISTING = Qt.UserRole + 1
-
-        def __int__(self):
-            return self.value
 
     class Columns(IntEnum):
         DO_CREATE = 0
@@ -57,11 +52,9 @@ class CreateBasketModel(QAbstractTableModel):
         return len(CreateBasketModel.Columns)
 
     def rowCount(self, parent):
-        return len(self.basket_settings.keys())
+        return len(self.basket_settings)
 
     def flags(self, index):
-        if index.data(int(CreateBasketModel.Roles.EXISTING)):
-            return Qt.ItemIsSelectable
         if index.column() == CreateBasketModel.Columns.DO_CREATE:
             return Qt.ItemIsEnabled
         if index.column() == CreateBasketModel.Columns.BID_VALUE:
@@ -143,9 +136,6 @@ class CreateBasketModel(QAbstractTableModel):
                 return message
             if index.column() == CreateBasketModel.Columns.BID_VALUE:
                 return "<html><head/><body><p>Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.</body></html>"
-        elif role == int(CreateBasketModel.Roles.EXISTING):
-            key = list(self.basket_settings.keys())[index.row()]
-            return self.basket_settings[key]["existing"]
         return None
 
     def setData(self, index, data, role):
@@ -175,15 +165,13 @@ class CreateBasketModel(QAbstractTableModel):
                     and topic_key == basket_record["topic"]
                 ):
                     existing = True
-                    basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
-
-            # if not existing "suggest" create if "relevant"
-            basket_setting["existing"] = existing
-            basket_setting["create"] = existing or topic_record["relevance"]
-
-            basket_setting["bid_domain"] = topic_record["bid_domain"]
+                    break
 
             if not existing:
+                # if not existing "suggest" create if "relevant"
+                basket_setting["create"] = topic_record["relevance"]
+                basket_setting["bid_domain"] = topic_record["bid_domain"]
+
                 # set suggestion of value
                 if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
                     basket_setting["bid_value"] = str(uuid.uuid4())
@@ -194,7 +182,7 @@ class CreateBasketModel(QAbstractTableModel):
                 else:
                     basket_setting["bid_value"] = f"_{uuid.uuid4()}"
 
-            self.basket_settings[topic_key] = basket_setting
+                self.basket_settings[topic_key] = basket_setting
         self.endResetModel()
 
     def _next_tid_value(self, db_connector):
@@ -213,7 +201,7 @@ class CreateBasketModel(QAbstractTableModel):
         else:
             for topic_key in self.basket_settings.keys():
                 basket_setting = self.basket_settings[topic_key]
-                if not basket_setting["existing"] and basket_setting["create"]:
+                if basket_setting["create"]:
                     # basket should be created
                     status, message = db_connector.create_basket(
                         dataset_tid,
@@ -251,7 +239,7 @@ class CreateBasketPanel(QWidget, WIDGET_UI):
 
         self.basket_view.setItemDelegateForColumn(
             CreateBasketModel.Columns.DO_CREATE,
-            CheckDelegate(self, Qt.EditRole, CreateBasketModel.Roles.EXISTING),
+            CheckDelegate(self, Qt.EditRole),
         )
         self.basket_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 

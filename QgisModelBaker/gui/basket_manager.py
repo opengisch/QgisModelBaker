@@ -35,8 +35,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         self.datasetname = datasetname
         self.db_connector = db_connector
 
-        # self.buttonBox.accepted.connect(self._accepted)
-        # self.buttonBox.rejected.connect(self._rejected)
+        self.buttonBox.accepted.connect(self.accept)
 
         # baskets part
         self.baskets_panel = SummaryBasketPanel(self)
@@ -62,10 +61,23 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         create_basket_dialog = CreateBasketDialog(
             self, self.db_connector, self.datasetname
         )
-        create_basket_dialog.exec_()
-        self.baskets_panel.bid_model.load_basket_config(
-            self.db_connector, self.datasetname
-        )
+        if create_basket_dialog.baskets_can_be_created():
+            create_basket_dialog.exec_()
+
+            # Refresh existing baskets in basket manager after creation
+            self.baskets_panel.bid_model.load_basket_config(
+                self.db_connector, self.datasetname
+            )
+        else:
+            QMessageBox.information(
+                self,
+                self.tr("Create Baskets"),
+                self.tr(
+                    f"The dataset '{self.datasetname}' already contains one basket for each topic.\n\n"
+                    f"No additional baskets can be created."
+                ),
+                QMessageBox.Close,
+            )
 
     def _edit_basket(self):
         if self._valid_selection():
