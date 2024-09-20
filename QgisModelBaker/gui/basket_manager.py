@@ -21,6 +21,7 @@ from qgis.core import QgsApplication
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
 from QgisModelBaker.gui.create_baskets import CreateBasketDialog
+from QgisModelBaker.gui.edit_basket import EditBasketDialog
 from QgisModelBaker.gui.panel.summary_basket_panel import SummaryBasketPanel
 from QgisModelBaker.utils import gui_utils
 
@@ -79,16 +80,25 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                 QMessageBox.Close,
             )
 
-    def _edit_basket(self):
+    def _edit_basket(self) -> None:
         if self._valid_selection():
-            print("EDIT! (TODO)")
+            selected_basket_settings = self.baskets_panel.selected_basket_settings()
+            edit_basket_dialog = EditBasketDialog(
+                self, self.db_connector, selected_basket_settings
+            )
+            edit_basket_dialog.exec_()
 
-    def _delete_basket(self):
+            # Refresh existing baskets in basket manager after creation
+            self.baskets_panel.bid_model.load_basket_config(
+                self.db_connector, self.datasetname
+            )
+
+    def _delete_basket(self) -> None:
         if self._valid_selection():
             if (
                 QMessageBox.warning(
                     self,
-                    self.tr("Delete basket"),
+                    self.tr("Delete Basket"),
                     self.tr(
                         "Deleting a Basket will also delete all the data it contains. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),
