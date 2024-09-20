@@ -42,6 +42,11 @@ class CreateBasketDialog(QDialog, DIALOG_UI):
 
         self.baskets_panel.load_basket_config(self.db_connector, self.datasetname)
 
+    def baskets_can_be_created(self):
+        # Check if any (non-existing) basket was added, otherwise
+        # inform that no other baskets can be created for this dataset
+        return len(self.baskets_panel.bid_model.basket_settings)
+
     def _accepted(self):
         feedbacks = self.baskets_panel.save_basket_config(
             self.db_connector, self.datasetname

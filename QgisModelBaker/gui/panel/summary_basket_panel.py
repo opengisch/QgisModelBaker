@@ -17,8 +17,7 @@
  ***************************************************************************/
 """
 
-import uuid
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QHeaderView, QWidget
@@ -30,16 +29,9 @@ WIDGET_UI = gui_utils.get_ui_class("basket_panel.ui")
 
 class BasketModel(QAbstractTableModel):
     """
-    ItemModel providing all the baskets, the existing ones and the possible ones in the given dataset.
-    It provides the topic, the suggested BIDs (t_ili_tid) and the information if it's created already.
-    As well the option if it should be created (could be extended if it should be deleted when unchecked)
+    ItemModel providing all the existing baskets in the given dataset.
+    It provides the topic, the BIDs (t_ili_tid), among others.
     """
-
-    class Roles(Enum):
-        EXISTING = Qt.UserRole + 1
-
-        def __int__(self):
-            return self.value
 
     class Columns(IntEnum):
         DATASET = 0
@@ -56,7 +48,7 @@ class BasketModel(QAbstractTableModel):
         return len(BasketModel.Columns)
 
     def rowCount(self, parent):
-        return len(self.basket_settings.keys())
+        return len(self.basket_settings)
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -138,54 +130,32 @@ class BasketModel(QAbstractTableModel):
                         )
                     )
                 return message
-            if index.column() == BasketModel.Columns.BID_VALUE:
-                return "<html><head/><body><p>Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.</body></html>"
+            # if index.column() == BasketModel.Columns.BID_VALUE:  # TODO: Move this tooltip to the Edit Basket dialog instead?
+            #    return "<html><head/><body><p>Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.</body></html>"
             if index.column() == BasketModel.Columns.ATTACHMENT_KEY:
                 return "Attachment key"
-        elif role == int(BasketModel.Roles.EXISTING):
-            key = list(self.basket_settings.keys())[index.row()]
-            return self.basket_settings[key]["existing"]
         return None
 
     def load_basket_config(self, db_connector, dataset):
         self.beginResetModel()
         self.basket_settings.clear()
+
         for topic_record in db_connector.get_topics_info():
             basket_setting = {}
-
             topic_key = f"{topic_record['model']}.{topic_record['topic']}"
-            basket_setting["attachment_key"] = ""
-            # check if existing
-            existing = False
+
             for basket_record in db_connector.get_baskets_info():
                 if (
                     basket_record["datasetname"] == dataset
                     and topic_key == basket_record["topic"]
                 ):
-                    existing = True
                     basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
                     basket_setting["attachment_key"] = basket_record["attachmentkey"]
+                    basket_setting["dataset"] = basket_record["datasetname"]
+                    basket_setting["bid_domain"] = topic_record["bid_domain"]
+                    self.basket_settings[basket_record["topic"]] = basket_setting
+                    break  # Go to next topic
 
-            basket_setting["dataset"] = dataset
-
-            # if not existing "suggest" create if "relevant"
-            basket_setting["existing"] = existing
-            basket_setting["create"] = existing or topic_record["relevance"]
-
-            basket_setting["bid_domain"] = topic_record["bid_domain"]
-
-            if not existing:
-                # set suggestion of value
-                if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
-                    basket_setting["bid_value"] = str(uuid.uuid4())
-                elif basket_setting["bid_domain"] == "INTERLIS.STANDARDOID":
-                    basket_setting["bid_value"] = "%change%{t_id}"
-                elif basket_setting["bid_domain"] == "INTERLIS.I32OID":
-                    basket_setting["bid_value"] = "{t_id}"
-                else:
-                    basket_setting["bid_value"] = f"_{uuid.uuid4()}"
-
-            self.basket_settings[topic_key] = basket_setting
         self.endResetModel()
 
 
