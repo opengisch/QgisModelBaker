@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QWidget
 
@@ -83,10 +84,20 @@ class EditBasketDialog(QDialog, DIALOG_UI):
 
         return filtered_datasets
 
-    def _accept(self):
+    def _accept(self) -> None:
         self._save_edited_basket()
         self.close()
 
-    def _save_edited_basket(self):
-        # Save basket attributes
-        return
+    def _save_edited_basket(self) -> None:
+        # Save edited basket attributes
+        basket_config = self._basket_info.copy()
+        basket_config["dataset_t_id"] = self.cboDatasets.currentData()
+        basket_config["datasetname"] = self.cboDatasets.currentText()
+        basket_config["bid_value"] = self.txtBidValue.text().strip()
+        basket_config["attachmentkey"] = self.txtAttachmentKey.text().strip()
+
+        res, msg = self.db_connector.edit_basket(basket_config)
+        if not res:
+            QMessageBox.warning(
+                self, self.tr("Edit Basket Failed"), msg, QMessageBox.Close
+            )
