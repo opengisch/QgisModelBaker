@@ -4,11 +4,11 @@ Your language is missing? Feel free to contribute!
 
 # How to get started
 
-1. Log in to https://app.transifex.com/
+1. Log in to [Transifex](https://app.transifex.com/)
 
     Then go to *Join another organization*
 
-2. In the search mask, enter “qgis model baker”. You will be taken to this page https://explore.transifex.com/search/?q=model%20baker
+2. In the search mask, enter “qgis model baker”. You will be taken to [this page](https://explore.transifex.com/search/?q=model%20baker)
 
     ![search-mask](../assets/transifex-search-mask.png)
 
