@@ -41,6 +41,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         # baskets part
         self.baskets_panel = SummaryBasketPanel(self)
         self.baskets_layout.addWidget(self.baskets_panel)
+        self.baskets_panel.basket_view.doubleClicked.connect(self._edit_basket)
 
         self.baskets_panel.load_basket_config(self.db_connector, self.datasetname)
 
