@@ -82,7 +82,7 @@ class BasketModel(QAbstractTableModel):
         if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == BasketModel.Columns.DATASET:
-                return self.basket_settings[key]["dataset"]
+                return self.basket_settings[key]["datasetname"]
             if index.column() == BasketModel.Columns.TOPIC:
                 return key
             if index.column() == BasketModel.Columns.BID_DOMAIN:
@@ -90,7 +90,7 @@ class BasketModel(QAbstractTableModel):
             if index.column() == BasketModel.Columns.BID_VALUE:
                 return self.basket_settings[key]["bid_value"]
             if index.column() == BasketModel.Columns.ATTACHMENT_KEY:
-                return self.basket_settings[key]["attachment_key"]
+                return self.basket_settings[key]["attachmentkey"]
         elif role == int(Qt.ToolTipRole):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == BasketModel.Columns.DATASET:
@@ -156,8 +156,8 @@ class BasketModel(QAbstractTableModel):
                     and topic_key == basket_record["topic"]
                 ):
                     basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
-                    basket_setting["attachment_key"] = basket_record["attachmentkey"]
-                    basket_setting["dataset"] = basket_record["datasetname"]
+                    basket_setting["attachmentkey"] = basket_record["attachmentkey"]
+                    basket_setting["datasetname"] = basket_record["datasetname"]
                     basket_setting["bid_domain"] = topic_record["bid_domain"]
 
                     # Additional basket info, not displayed by the view, but useful
