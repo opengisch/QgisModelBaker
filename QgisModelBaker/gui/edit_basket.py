@@ -40,7 +40,7 @@ class EditBasketDialog(QDialog, DIALOG_UI):
         self.txtTopic.setText(self._basket_info["topic"])
         self.txtBidOidType.setText(self._basket_info["bid_domain"])
         self.txtBidValue.setText(self._basket_info["bid_value"])
-        self.txtAttachmentKey.setText(self._basket_info["attachment_key"])
+        self.txtAttachmentKey.setText(self._basket_info["attachmentkey"])
 
         # Fill filtered datasets
         for t_id, dataset_data in self._get_filtered_datasets().items():

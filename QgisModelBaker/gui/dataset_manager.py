@@ -31,14 +31,13 @@ import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.basket_manager import BasketManagerDialog
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.libs.modelbaker.iliwrapper import ilideleter
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-    DeleteConfiguration,
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DatasetModel
+from QgisModelBaker.utils.ili2db_utils import Ili2DbUtils
 
 DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
@@ -191,16 +190,10 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 dataset = self.dataset_tableview.selectedIndexes()[0].data(
                     int(DatasetModel.Roles.DATASETNAME)
                 )
-                res, msg = self._do_delete(dataset)
+                res, msg = Ili2DbUtils().delete_dataset(dataset, self.configuration)
                 if res:
-                    # Refresh layer data sources and also their symbology (including feature count)
-                    layer_tree_view = self.iface.layerTreeView()
-                    for tree_layer in (
-                        QgsProject.instance().layerTreeRoot().findLayers()
-                    ):
-                        layer = tree_layer.layer()
-                        layer.dataProvider().reloadData()
-                        layer_tree_view.refreshLayerSymbology(layer.id())
+                    # After deletion, make sure canvas is refreshed
+                    self._refresh_map_layers()
 
                     # Refresh dataset table view
                     self._refresh_datasets()
@@ -213,59 +206,13 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 warning_box.setText(msg)
                 warning_box.exec_()
 
-    def _do_delete(self, dataset):
-        from qgis.core import Qgis, QgsMessageLog
-
-        from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
-            JavaNotFoundError,
-        )
-        from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
-
-        deleter = ilideleter.Deleter()
-        deleter.tool = self.configuration.tool
-        deleter.configuration = DeleteConfiguration(self.configuration)
-        deleter.configuration.dataset = dataset
-
-        with OverrideCursor(Qt.WaitCursor):
-            self._connect_ili_executable_signals(deleter)
-            self._log = ""
-
-            res = True
-            msg = self.tr("Dataset '{}' successfully deleted!").format(dataset)
-            try:
-                if deleter.run() != ilideleter.Deleter.SUCCESS:
-                    msg = self.tr(
-                        "An error occurred when deleting the dataset '{}' from the DB (check the QGIS log panel)."
-                    ).format(dataset)
-                    res = False
-                    QgsMessageLog.logMessage(
-                        self._log, self.tr("Delete dataset from DB"), Qgis.Critical
-                    )
-            except JavaNotFoundError as e:
-                msg = e.error_string
-                res = False
-
-            self._disconnect_ili_executable_signals(deleter)
-
-        return res, msg
-
-    def _connect_ili_executable_signals(self, ili_executable):
-        # ili_executable.stderr.connect(self.stderr)
-        # ili_executable.stdout.connect(self.stdout)
-        ili_executable.process_started.connect(self._on_process_started)
-        ili_executable.stderr.connect(self._on_stderr)
-
-    def _disconnect_ili_executable_signals(self, ili_executable):
-        # ili_executable.stderr.disconnect(self.stderr)
-        # ili_executable.stdout.disconnect(self.stdout)
-        ili_executable.process_started.disconnect(self._on_process_started)
-        ili_executable.stderr.disconnect(self._on_stderr)
-
-    def _on_process_started(self, command):
-        self._log += command + "\n"
-
-    def _on_stderr(self, text):
-        self._log += text
+    def _refresh_map_layers(self):
+        # Refresh layer data sources and also their symbology (including feature count)
+        layer_tree_view = self.iface.layerTreeView()
+        for tree_layer in QgsProject.instance().layerTreeRoot().findLayers():
+            layer = tree_layer.layer()
+            layer.dataProvider().reloadData()
+            layer_tree_view.refreshLayerSymbology(layer.id())
 
     def _open_basket_manager(self):
         if self._valid_selection():
@@ -275,7 +222,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     int(DatasetModel.Roles.DATASETNAME)
                 )
                 basket_manager_dialog = BasketManagerDialog(
-                    self, db_connector, datasetname
+                    self.iface, self, db_connector, datasetname, self.configuration
                 )
                 basket_manager_dialog.exec_()
 
