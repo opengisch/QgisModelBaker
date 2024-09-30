@@ -17,9 +17,12 @@
  ***************************************************************************/
 """
 
+from enum import Enum
+
 from qgis.PyQt.QtCore import QCoreApplication
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 
 CRS_PATTERNS = {"LV95": 2056, "LV03": 21781}
 
@@ -41,3 +44,10 @@ displayDbIliMode = {
         "QgisModelBaker", "Interlis (use SQL Server)"
     ),
 }
+
+
+class AdministrativeDBActionTypes(Enum):
+    """Defines constants for modelbaker actions that require superuser login"""
+
+    GENERATE = DbActionType.GENERATE
+    IMPORT_DATA = DbActionType.IMPORT_DATA
