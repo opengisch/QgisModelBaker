@@ -61,16 +61,32 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         self.add_button.clicked.connect(self._add_basket)
         self.edit_button.clicked.connect(self._edit_basket)
         self.delete_button.clicked.connect(self._delete_basket)
+        self.baskets_panel.basket_view.selectionModel().selectionChanged.connect(
+            lambda: self._enable_basket_handling(True)
+        )
 
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
         self.delete_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+
+        self._enable_basket_handling(True)  # Initial widget status
+
+    def _enable_basket_handling(self, enable):
+        self.add_button.setEnabled(enable)
+        self.edit_button.setEnabled(self._valid_selection())
+        self.delete_button.setEnabled(self._valid_selection())
 
     def _valid_selection(self):
         """
         Returns if at least one dataset is selected
         """
         return bool(self.baskets_panel.basket_view.selectedIndexes())
+
+    def _refresh_baskets(self):
+        self.baskets_panel.bid_model.load_basket_config(
+            self.db_connector, self.datasetname
+        )
+        self._enable_basket_handling(True)
 
     def _add_basket(self):
         create_basket_dialog = CreateBasketDialog(
@@ -80,9 +96,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             create_basket_dialog.exec_()
 
             # Refresh existing baskets in basket manager after creation
-            self.baskets_panel.bid_model.load_basket_config(
-                self.db_connector, self.datasetname
-            )
+            self._refresh_baskets()
         else:
             QMessageBox.information(
                 self,
@@ -102,10 +116,8 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             )
             edit_basket_dialog.exec_()
 
-            # Refresh existing baskets in basket manager after creation
-            self.baskets_panel.bid_model.load_basket_config(
-                self.db_connector, self.datasetname
-            )
+            # Refresh existing baskets in basket manager after edition
+            self._refresh_baskets()
 
     def _delete_basket(self) -> None:
         if self._valid_selection():
@@ -139,9 +151,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                     self._refresh_map_layers()
 
                     # Refresh existing baskets in basket manager after deletion
-                    self.baskets_panel.bid_model.load_basket_config(
-                        self.db_connector, self.datasetname
-                    )
+                    self._refresh_baskets()
 
                 warning_box = QMessageBox(self)
                 warning_box.setIcon(
