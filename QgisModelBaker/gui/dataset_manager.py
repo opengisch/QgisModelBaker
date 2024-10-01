@@ -125,17 +125,18 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _refresh_datasets(self):
         db_connector = db_utils.get_db_connector(self.configuration)
         if db_connector and db_connector.get_basket_handling():
+            self.dataset_model.refresh_model(db_connector)
             self._enable_dataset_handling(True)
-            return self.dataset_model.refresh_model(db_connector)
         else:
-            self._enable_dataset_handling(False)
             self.bar.pushWarning(
                 self.tr("Warning"),
                 self.tr(
                     "This source does not support datasets and baskets (recreate it with basket columns)."
                 ),
             )
-            return self.dataset_model.clear()
+            self.dataset_model.clear()
+            self._enable_dataset_handling(False)
+        return
 
     def _add_dataset(self):
         db_connector = db_utils.get_db_connector(self.configuration)
