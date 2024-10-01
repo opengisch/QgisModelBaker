@@ -17,7 +17,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsApplication, QgsProject
+from qgis.core import Qgis, QgsApplication, QgsMessageLog, QgsProject
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
 from QgisModelBaker.gui.create_baskets import CreateBasketDialog
@@ -26,8 +26,8 @@ from QgisModelBaker.gui.panel.summary_basket_panel import SummaryBasketPanel
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
+from QgisModelBaker.libs.modelbaker.utils.ili2db_utils import Ili2DbUtils
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.ili2db_utils import Ili2DbUtils
 
 DIALOG_UI = gui_utils.get_ui_class("basket_manager.ui")
 
@@ -188,7 +188,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             )
 
         # Remove temporary dataset
-        res, msg = Ili2DbUtils().delete_dataset(tmp_dataset_name, self.configuration)
+        ili2db_utils = Ili2DbUtils()
+        ili2db_utils.log_on_error.connect(self._log_on_delete_dataset_error)
+        res, msg = ili2db_utils.delete_dataset(tmp_dataset_name, self.configuration)
 
         # If anything went bad, leave everything as the original status,
         # i.e., move the basket to its original dataset
@@ -210,3 +212,6 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             )
 
         return res, msg
+
+    def _log_on_delete_dataset_error(self, log):
+        QgsMessageLog.logMessage(log, self.tr("Delete dataset from DB"), Qgis.Critical)
