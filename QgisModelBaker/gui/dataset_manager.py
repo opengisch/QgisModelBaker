@@ -16,7 +16,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsApplication, QgsMapLayer, QgsProject
+from qgis.core import Qgis, QgsApplication, QgsMapLayer, QgsMessageLog, QgsProject
 from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtWidgets import (
@@ -35,9 +35,9 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
+from QgisModelBaker.libs.modelbaker.utils.ili2db_utils import Ili2DbUtils
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DatasetModel
-from QgisModelBaker.utils.ili2db_utils import Ili2DbUtils
 
 DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
 
@@ -190,7 +190,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 dataset = self.dataset_tableview.selectedIndexes()[0].data(
                     int(DatasetModel.Roles.DATASETNAME)
                 )
-                res, msg = Ili2DbUtils().delete_dataset(dataset, self.configuration)
+                ili2db_utils = Ili2DbUtils()
+                ili2db_utils.log_on_error.connect(self._log_on_delete_dataset_error)
+                res, msg = ili2db_utils.delete_dataset(dataset, self.configuration)
                 if res:
                     # After deletion, make sure canvas is refreshed
                     self._refresh_map_layers()
@@ -205,6 +207,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 warning_box.setWindowTitle(self.tr("Delete Dataset"))
                 warning_box.setText(msg)
                 warning_box.exec_()
+
+    def _log_on_delete_dataset_error(self, log):
+        QgsMessageLog.logMessage(log, self.tr("Delete dataset from DB"), Qgis.Critical)
 
     def _refresh_map_layers(self):
         # Refresh layer data sources and also their symbology (including feature count)
