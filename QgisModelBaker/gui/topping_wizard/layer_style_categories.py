@@ -113,7 +113,7 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
                 self.style_categories_list_view.model().check
             )
         else:
-            self.model = QgsMapLayerStyleCategoriesModel(Qgis.LayerType.Vector)
+            self.model = QgsMapLayerStyleCategoriesModel(QgsMapLayer.VectorLayer)
             self.style_categories_list_view.setModel(self.model)
             self.style_categories_list_view.setWordWrap(True)
             self.style_categories_list_view.setItemDelegate(
@@ -124,6 +124,13 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
         self.deselectall_button.clicked.connect(lambda: self.select_all_items(False))
 
         self.ok_button.clicked.connect(self.accept)
+
+    def set_layer_type(self, type):
+        if Qgis.QGIS_VERSION_INT < 34000:
+            return
+        # we need to reset the model with new type
+        self.model = QgsMapLayerStyleCategoriesModel(type)
+        self.style_categories_list_view.setModel(self.model)
 
     def select_all_items(self, state):
         if Qgis.QGIS_VERSION_INT < 34000:
