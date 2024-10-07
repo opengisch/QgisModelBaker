@@ -29,6 +29,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils import gui_utils
 
+from ...utils.globals import AdministrativeDBActionTypes
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = gui_utils.get_ui_class("pg_settings_panel.ui")
@@ -78,7 +79,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
         self.pg_use_super_login.setToolTip(
             self.tr(
-                "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li><li>Export data to XTF</li></ul>"
+                "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li></ul>"
             )
         )
 
@@ -197,6 +198,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_schema_combo_box.lineEdit().setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )
+            self.pg_use_super_login.setVisible(False)
         else:
             logging.error(f"Unknown action type: {self._db_action_type}")
 
@@ -330,8 +332,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             )
             self.pg_auth_settings.setFocus()
         elif (
-            self.pg_auth_settings.configId() and not self.pg_use_super_login.isChecked()
+            self.pg_auth_settings.configId()
+            and not self.pg_use_super_login.isChecked()
+            and self._db_action_type
+            in {item.value for item in AdministrativeDBActionTypes}
         ):
+            # For Python v3.12+, we can just check like this: self._db_action_type in AdministrativeDBActionTypes
             message = self.tr(
                 "Use superuser login for data management tasks when you use an authentication configuration."
             )
