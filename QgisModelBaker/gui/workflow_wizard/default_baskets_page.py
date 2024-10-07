@@ -20,7 +20,7 @@
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
-from QgisModelBaker.gui.panel.basket_panel import BasketPanel
+from QgisModelBaker.gui.panel.create_basket_panel import CreateBasketPanel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
 from QgisModelBaker.utils.gui_utils import LogLevel
@@ -38,8 +38,8 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
-        self.baskets_panel = BasketPanel(self)
-        self.baskets_layout.addWidget(self.baskets_panel)
+        self.create_baskets_panel = CreateBasketPanel(self)
+        self.baskets_layout.addWidget(self.create_baskets_panel)
 
         self.create_default_baskets_button.clicked.connect(self._create_default_baskets)
         self.skip_button.clicked.connect(self._skip)
@@ -59,12 +59,14 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
 
     def restore_configuration(self, configuration):
         self.db_connector = db_utils.get_db_connector(configuration)
-        self.baskets_panel.load_basket_config(self.db_connector, DEFAULT_DATASETNAME)
+        self.create_baskets_panel.load_basket_config(
+            self.db_connector, DEFAULT_DATASETNAME
+        )
 
     def _create_default_baskets(self):
         self.progress_bar.setValue(0)
         # we store the settings to the db
-        feedbacks = self.baskets_panel.save_basket_config(
+        feedbacks = self.create_baskets_panel.save_basket_config(
             self.db_connector, DEFAULT_DATASETNAME
         )
         success = True
@@ -83,10 +85,12 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
             self.setStyleSheet(gui_utils.SUCCESS_STYLE)
             self.create_default_baskets_button.setDisabled(True)
             self.skip_button.setDisabled(True)
-            self.baskets_panel.setDisabled(True)
+            self.create_baskets_panel.setDisabled(True)
             self.setComplete(True)
         else:
-            self.workflow_wizard.log_panel.print_info(message)
+            self.workflow_wizard.log_panel.print_info(
+                message
+            )  # TODO: Where message comes from?
             self.progress_bar.setFormat(
                 self.tr(
                     "Issues occured. Skip to proceed and fix it in Dataset Manager..."
@@ -101,7 +105,7 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.setStyleSheet(gui_utils.INACTIVE_STYLE)
         self.create_default_baskets_button.setDisabled(True)
         self.skip_button.setDisabled(True)
-        self.baskets_panel.setDisabled(True)
+        self.create_baskets_panel.setDisabled(True)
         self.setComplete(True)
 
     def help_text(self):
