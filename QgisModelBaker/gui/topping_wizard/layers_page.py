@@ -91,6 +91,7 @@ class LayerModel(QgsLayerTreeModel):
 
     class Roles(IntEnum):
         CATEGORIES = Qt.UserRole + 1
+        LAYERTYPE = Qt.UserRole + 2
 
     class Columns(IntEnum):
         NAME = 0
@@ -204,6 +205,15 @@ class LayerModel(QgsLayerTreeModel):
                 return settings.get(
                     "categories", QgsMapLayer.StyleCategory.AllStyleCategories
                 )
+
+        if (
+            role == LayerModel.Roles.LAYERTYPE
+            and index.column() == LayerModel.Columns.USE_STYLE
+        ):
+            node = self.index2node(index)
+            if not QgsLayerTree.isGroup(node):
+                layer = QgsProject.instance().mapLayersByName(node.name())[0]
+                return layer.type()
 
         return QgsLayerTreeModel.data(self, index, role)
 
@@ -560,6 +570,9 @@ class LayersPage(QWizardPage, PAGE_UI):
         layername = index.data(int(Qt.DisplayRole))
         self.categories_dialog.setWindowTitle(
             self.tr(f"Layer Style Categories of {layername}")
+        )
+        self.categories_dialog.set_layer_type(
+            index.data(int(LayerModel.Roles.LAYERTYPE))
         )
         categories = index.data(int(LayerModel.Roles.CATEGORIES))
         self.categories_dialog.set_categories(categories)
