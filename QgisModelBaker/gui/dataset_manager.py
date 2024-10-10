@@ -249,14 +249,12 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _restored_configuration(self):
         settings = QSettings()
         configuration = Ili2DbCommandConfiguration()
-        for db_id in self.db_simple_factory.get_db_list(False):
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(configuration)
-            config_manager.load_config_from_qsettings()
-
         mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
+        db_factory = self.db_simple_factory.create_factory(mode)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager.load_config_from_qsettings()
         configuration.tool = mode
         return configuration
 
