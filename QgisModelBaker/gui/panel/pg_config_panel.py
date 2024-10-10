@@ -19,11 +19,12 @@
 import logging
 from enum import IntEnum
 
-from qgis.PyQt.QtCore import Qt, QThread, QTimer
+from qgis.PyQt.QtCore import QSettings, Qt, QThread, QTimer
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    BaseConfiguration,
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
@@ -68,15 +69,17 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self._read_pg_schemas_task = ReadPgSchemasTask(self)
         self._read_pg_schemas_task.finished.connect(self._read_pg_schemas_task_finished)
 
-        from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-            BaseConfiguration,
-        )
+        self.base_config = BaseConfiguration()
+        settings = QSettings()
+        settings.beginGroup("QgisModelBaker/ili2db")
+        self.base_config.restore(settings)
 
         self.pg_use_super_login.setText(
             self.tr(
                 "Execute data management tasks with superuser login from settings ({})"
-            ).format(BaseConfiguration().super_pg_user)
+            ).format(self.base_config.super_pg_user)
         )
+
         self.pg_use_super_login.setToolTip(
             self.tr(
                 "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li></ul>"
@@ -111,6 +114,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_auth_settings.usernameChanged.connect(self._fields_modified)
         self.pg_auth_settings.passwordChanged.connect(self._fields_modified)
         self.pg_auth_settings.configIdChanged.connect(self._fields_modified)
+
+        self.pg_use_super_login.stateChanged.connect(self._fields_modified)
 
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
@@ -521,6 +526,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             return
 
         configuration = Ili2DbCommandConfiguration()
+        configuration.base_configuration = self.base_config
         self.get_fields(configuration)
         configuration.tool = DbIliMode.pg
 
