@@ -253,7 +253,7 @@ class WorkflowWizard(QWizard):
                         return PageIds.ProjectCreation
                     else:
                         self.log_panel.print_info(
-                            self.tr("Database or schema does not exist.")
+                            self.tr("Database or schema not reachable.")
                         )
 
             if self.current_id == PageIds.ExportDatabaseSelection:
@@ -264,7 +264,7 @@ class WorkflowWizard(QWizard):
                         return PageIds.ExportDataConfiguration
                     else:
                         self.log_panel.print_info(
-                            self.tr("Database or schema does not exist.")
+                            self.tr("Database or schema not reachable.")
                         )
 
             if self.current_id == PageIds.ImportSchemaConfiguration:
