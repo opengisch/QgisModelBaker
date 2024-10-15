@@ -19,7 +19,7 @@
 
 
 import uuid
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 from qgis.PyQt.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QAbstractItemView, QHeaderView, QWidget
@@ -30,41 +30,38 @@ from QgisModelBaker.utils.gui_utils import CheckDelegate
 WIDGET_UI = gui_utils.get_ui_class("basket_panel.ui")
 
 
-class BasketModel(QAbstractTableModel):
+class CreateBasketModel(QAbstractTableModel):
     """
-    ItemModel providing all the baskets, the existing ones and the possible ones in the given dataset.
-    It provides the topic, the suggested BIDs (t_ili_tid) and the information if it's created already.
-    As well the option if it should be created (could be extended if it should be deleted when unchecked)
+    ItemModel providing possible (non-existing) baskets in the given dataset,
+    based on keys model-topic.
+    It provides the topic and the suggested BIDs (t_ili_tid), as well as
+    the option if it should be created.
     """
-
-    class Roles(Enum):
-        EXISTING = Qt.UserRole + 1
-
-        def __int__(self):
-            return self.value
 
     class Columns(IntEnum):
         DO_CREATE = 0
         TOPIC = 1
         BID_DOMAIN = 2
         BID_VALUE = 3
+        ATTACHMENT_KEY = 4
 
     def __init__(self):
         super().__init__()
         self.basket_settings = {}
 
     def columnCount(self, parent):
-        return len(BasketModel.Columns)
+        return len(CreateBasketModel.Columns)
 
     def rowCount(self, parent):
-        return len(self.basket_settings.keys())
+        return len(self.basket_settings)
 
     def flags(self, index):
-        if index.data(int(BasketModel.Roles.EXISTING)):
-            return Qt.ItemIsSelectable
-        if index.column() == BasketModel.Columns.DO_CREATE:
+        if index.column() == CreateBasketModel.Columns.DO_CREATE:
             return Qt.ItemIsEnabled
-        if index.column() == BasketModel.Columns.BID_VALUE:
+        if index.column() in (
+            CreateBasketModel.Columns.BID_VALUE,
+            CreateBasketModel.Columns.ATTACHMENT_KEY,
+        ):
             return Qt.ItemIsEditable | Qt.ItemIsEnabled
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
@@ -82,33 +79,37 @@ class BasketModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            if section == BasketModel.Columns.DO_CREATE:
+            if section == CreateBasketModel.Columns.DO_CREATE:
                 return self.tr("Create")
-            if section == BasketModel.Columns.TOPIC:
+            if section == CreateBasketModel.Columns.TOPIC:
                 return self.tr("Topic")
-            if section == BasketModel.Columns.BID_DOMAIN:
+            if section == CreateBasketModel.Columns.BID_DOMAIN:
                 return self.tr("BID (OID Type)")
-            if section == BasketModel.Columns.BID_VALUE:
+            if section == CreateBasketModel.Columns.BID_VALUE:
                 return self.tr("BID Value")
+            if section == CreateBasketModel.Columns.ATTACHMENT_KEY:
+                return self.tr("Attachment key")
 
     def data(self, index, role):
         if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
             key = list(self.basket_settings.keys())[index.row()]
-            if index.column() == BasketModel.Columns.DO_CREATE:
+            if index.column() == CreateBasketModel.Columns.DO_CREATE:
                 return self.basket_settings[key]["create"]
-            if index.column() == BasketModel.Columns.TOPIC:
+            if index.column() == CreateBasketModel.Columns.TOPIC:
                 return key
-            if index.column() == BasketModel.Columns.BID_DOMAIN:
+            if index.column() == CreateBasketModel.Columns.BID_DOMAIN:
                 return self.basket_settings[key]["bid_domain"] or "---"
-            if index.column() == BasketModel.Columns.BID_VALUE:
+            if index.column() == CreateBasketModel.Columns.BID_VALUE:
                 return self.basket_settings[key]["bid_value"]
+            if index.column() == CreateBasketModel.Columns.ATTACHMENT_KEY:
+                return self.basket_settings[key]["attachmentkey"]
         elif role == int(Qt.ToolTipRole):
             key = list(self.basket_settings.keys())[index.row()]
-            if index.column() == BasketModel.Columns.DO_CREATE:
+            if index.column() == CreateBasketModel.Columns.DO_CREATE:
                 return self.tr("If this basket should be created")
-            if index.column() == BasketModel.Columns.TOPIC:
+            if index.column() == CreateBasketModel.Columns.TOPIC:
                 return key
-            if index.column() == BasketModel.Columns.BID_DOMAIN:
+            if index.column() == CreateBasketModel.Columns.BID_DOMAIN:
                 message = self.tr(
                     "<html><head/><body><p>The OID format is not defined, you can use whatever you want, but it should always start with an underscore <code>_</code> or an alphanumeric value.</p></body></html>"
                 )
@@ -141,21 +142,20 @@ class BasketModel(QAbstractTableModel):
                         )
                     )
                 return message
-            if index.column() == BasketModel.Columns.BID_VALUE:
+            if index.column() == CreateBasketModel.Columns.BID_VALUE:
                 return "<html><head/><body><p>Use `{t_id}` as placeholder when you want to use the next T_Id sequence value.</body></html>"
-        elif role == int(BasketModel.Roles.EXISTING):
-            key = list(self.basket_settings.keys())[index.row()]
-            return self.basket_settings[key]["existing"]
         return None
 
     def setData(self, index, data, role):
         if role == int(Qt.EditRole):
-            if index.column() == BasketModel.Columns.BID_VALUE:
-                key = list(self.basket_settings.keys())[index.row()]
+            key = list(self.basket_settings.keys())[index.row()]
+            if index.column() == CreateBasketModel.Columns.BID_VALUE:
                 self.basket_settings[key]["bid_value"] = data
                 self.dataChanged.emit(index, index)
-            if index.column() == BasketModel.Columns.DO_CREATE:
-                key = list(self.basket_settings.keys())[index.row()]
+            if index.column() == CreateBasketModel.Columns.ATTACHMENT_KEY:
+                self.basket_settings[key]["attachmentkey"] = data
+                self.dataChanged.emit(index, index)
+            if index.column() == CreateBasketModel.Columns.DO_CREATE:
                 self.basket_settings[key]["create"] = data
                 self.dataChanged.emit(index, index)
         return True
@@ -175,15 +175,13 @@ class BasketModel(QAbstractTableModel):
                     and topic_key == basket_record["topic"]
                 ):
                     existing = True
-                    basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
-
-            # if not existing "suggest" create if "relevant"
-            basket_setting["existing"] = existing
-            basket_setting["create"] = existing or topic_record["relevance"]
-
-            basket_setting["bid_domain"] = topic_record["bid_domain"]
+                    break
 
             if not existing:
+                # if not existing "suggest" create if "relevant"
+                basket_setting["create"] = topic_record["relevance"]
+                basket_setting["bid_domain"] = topic_record["bid_domain"]
+
                 # set suggestion of value
                 if basket_setting["bid_domain"] == "INTERLIS.UUIDOID":
                     basket_setting["bid_value"] = str(uuid.uuid4())
@@ -194,7 +192,9 @@ class BasketModel(QAbstractTableModel):
                 else:
                     basket_setting["bid_value"] = f"_{uuid.uuid4()}"
 
-            self.basket_settings[topic_key] = basket_setting
+                basket_setting["attachmentkey"] = "modelbaker"  # Default
+
+                self.basket_settings[topic_key] = basket_setting
         self.endResetModel()
 
     def _next_tid_value(self, db_connector):
@@ -213,7 +213,7 @@ class BasketModel(QAbstractTableModel):
         else:
             for topic_key in self.basket_settings.keys():
                 basket_setting = self.basket_settings[topic_key]
-                if not basket_setting["existing"] and basket_setting["create"]:
+                if basket_setting["create"]:
                     # basket should be created
                     status, message = db_connector.create_basket(
                         dataset_tid,
@@ -223,35 +223,39 @@ class BasketModel(QAbstractTableModel):
                             if len(basket_setting["bid_value"]) > 6
                             else self._next_tid_value(db_connector)
                         ),
+                        basket_setting["attachmentkey"],
                     )
                     feedbacks.append((status, message))
         return feedbacks
 
 
-class BasketPanel(QWidget, WIDGET_UI):
+class CreateBasketPanel(QWidget, WIDGET_UI):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.parent = parent
-        self.bid_model = BasketModel()
+        self.bid_model = CreateBasketModel()
         self.basket_view.setModel(self.bid_model)
 
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.DO_CREATE, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.DO_CREATE, QHeaderView.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.TOPIC, QHeaderView.Stretch
+            CreateBasketModel.Columns.TOPIC, QHeaderView.Stretch
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_VALUE, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.BID_VALUE, QHeaderView.ResizeToContents
+        )
+        self.basket_view.horizontalHeader().setSectionResizeMode(
+            CreateBasketModel.Columns.ATTACHMENT_KEY, QHeaderView.ResizeToContents
         )
 
         self.basket_view.setItemDelegateForColumn(
-            BasketModel.Columns.DO_CREATE,
-            CheckDelegate(self, Qt.EditRole, BasketModel.Roles.EXISTING),
+            CreateBasketModel.Columns.DO_CREATE,
+            CheckDelegate(self, Qt.EditRole),
         )
         self.basket_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
 

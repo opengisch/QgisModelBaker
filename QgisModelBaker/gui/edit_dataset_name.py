@@ -37,11 +37,13 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
         self.tid, self.datasetname = dataset
         self.db_connector = db_connector
 
-        self.ok_button.setText(
-            self.tr("Create Dataset")
-            if not self.datasetname
-            else self.tr("Rename Dataset")
-        )
+        if not self.datasetname:
+            self.setWindowTitle(self.tr("Create Dataset"))
+            self.ok_button.setText(self.tr("Create Dataset"))
+        else:
+            self.setWindowTitle(self.tr("Edit Dataset"))
+            self.ok_button.setText(self.tr("Rename Dataset"))
+
         self.ok_button.clicked.connect(self.accepted)
         self.ok_button.setEnabled(False)
 
