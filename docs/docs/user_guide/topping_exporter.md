@@ -86,8 +86,8 @@ Generate your files. At least one metaconfiguration and one project topping file
 
 ![generated](../assets/usabilityhub-exporter-generated.png)
 
-## 8. Taste your toppics
+## 8. Taste your toppings
 
-Test your toppics locally before adding them to your repository. Do this by adding the path of your toppings as [custom model directory](../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
+Test your toppings locally before adding them to your repository. Do this by adding the path of your toppings as [custom model directory](../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
 
 ![localrepo](../assets/usabilityhub-exporter-repo.png)
