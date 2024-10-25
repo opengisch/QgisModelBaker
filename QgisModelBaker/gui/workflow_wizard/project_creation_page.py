@@ -97,7 +97,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
-        self.gpkg_multigeometry_info.setVisible(False)
+        self.gpkg_multigeometry_frame.setVisible(False)
 
     def isComplete(self):
         return self.is_complete
@@ -133,7 +133,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         else:
             self._use_existing(False)
 
-        self.gpkg_multigeometry_info.setVisible(self._multigeom_gpkg())
+        self.gpkg_multigeometry_frame.setVisible(self._multigeom_gpkg())
 
         self.workflow_wizard.busy(self, False)
 
@@ -750,14 +750,32 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             return False
 
         if int(gdal.VersionInfo("VERSION_NUM")) < 3080000:
-            # if our GDAL is not able to handle, we tell it and maybe block the project creation
-            self.gpkg_multigeometry_info.setText("<b>Oh oh, this is not gonna work</b>")
-        else:
-            # if our GDAL is able to handle, we give a warning that others might not be able to read the project
-            self.gpkg_multigeometry_info.setText(
-                "<b>It's gonna work but be aware of...</b>"
+            self.gpkg_multigeometry_label.setText(
+                """
+                <html><head/><body style="background-color:powderblue;">
+                     <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS.<br/>Your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>Means this won't work.</p>
+                </body></html>
+                """.format(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    gdal_version=gdal.VersionInfo("RELEASE_NAME"),
+                )
             )
-
+            self.create_project_button.setDisabled(True)
+        else:
+            self.gpkg_multigeometry_label.setText(
+                """
+                <html><head/><body style="background-color:powderblue;">
+                    <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS.<br/>Your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>But note that others with lower 3.8 version <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.</p>
+                </body></html>
+                """.format(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    gdal_version=gdal.VersionInfo("RELEASE_NAME"),
+                )
+            )
         return True
 
     def _multiple_geometry_gpkg_table(self):
