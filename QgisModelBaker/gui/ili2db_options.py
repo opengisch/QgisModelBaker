@@ -142,17 +142,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         # on gdal versions that dont support multiple geometries per table it's disabled
         if int(gdal.VersionInfo("VERSION_NUM")) < 3080000:
             self.create_gpkg_multigeom_groupbox.setHidden(True)
-            self.create_gpkg_multigeom_checkbox.setChecked(False)
         else:
             self.create_gpkg_multigeom_groupbox.setHidden(False)
-            self.create_gpkg_multigeom_checkbox.setChecked(
-                False
-            )  # maybe in future this could be true...
             self.create_gpkg_multigeom_checkbox.setToolTip(
                 """<html><head/><body>
             <p>If the INTERLIS model has classes that contain <span style=" font-weight:600;">multiple geometries</span>, tables with multiple geometry columns can be created in <span style=" font-weight:600;">GeoPackage</span>.</p>
-            <p><br/></p
-            ><p>This function is not standardized and requires <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS (your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version},</span> but note that others with lower 3.8 versions <span style=" font-weight:600;">will not be able </span>to read this GeoPackage or create a QGIS project from it.</p>
+            <p>This function is not standardized and such tables with multiple geometries require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS (your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version},</span> but note that others with lower 3.8 versions <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.</p>
             </body></html>""".format(
                     qgis_version=Qgis.QGIS_VERSION,
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
@@ -259,7 +254,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             "QgisModelBaker/ili2db/create_import_tid", defaultValue=True, type=bool
         )
         create_gpkg_multigeom = settings.value(
-            "QgisModelBaker/ili2db/create_gpkg_multigeom", defaultValue=True, type=bool
+            "QgisModelBaker/ili2db/create_gpkg_multigeom",
+            defaultValue=True,
+            type=bool,
         )
         stroke_arcs = settings.value(
             "QgisModelBaker/ili2db/stroke_arcs", defaultValue=True, type=bool
@@ -267,7 +264,10 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)
-        self.create_gpkg_multigeom_checkbox.setChecked(create_gpkg_multigeom)
+        if int(gdal.VersionInfo("VERSION_NUM")) >= 3080000:
+            self.create_gpkg_multigeom_checkbox.setChecked(create_gpkg_multigeom)
+        else:
+            self.create_gpkg_multigeom_checkbox.setChecked(False)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
         self.toml_file_line_edit.setText(settings.value(self.toml_file_key))
 
