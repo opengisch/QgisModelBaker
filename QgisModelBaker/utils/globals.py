@@ -45,6 +45,13 @@ displayDbIliMode = {
     ),
 }
 
+displayLanguages = {
+    "en": QCoreApplication.translate("QgisModelBaker", "English"),
+    "de": QCoreApplication.translate("QgisModelBaker", "German"),
+    "fr": QCoreApplication.translate("QgisModelBaker", "French"),
+    "it": QCoreApplication.translate("QgisModelBaker", "Italian"),
+}
+
 
 class AdministrativeDBActionTypes(Enum):
     """Defines constants for modelbaker actions that require superuser login"""
