@@ -22,6 +22,8 @@ import os
 import re
 
 import yaml
+
+from osgeo import gdal
 from qgis.core import Qgis, QgsApplication, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
@@ -95,6 +97,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
+        self.gpkg_multigeometry_info.setVisible(False)
 
     def isComplete(self):
         return self.is_complete
@@ -129,6 +132,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
+
+        self.gpkg_multigeometry_info.setVisible(self._multigeom_gpkg())
 
         self.workflow_wizard.busy(self, False)
 
@@ -734,6 +739,32 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         for setting_record in setting_records:
             if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
                 return setting_record["setting"]
+
+    def _multigeom_gpkg(self):
+        # this concerns only geopackage
+        if not (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.gpkg):
+            return False
+
+        # and when this geopackage has multiple geometry columns in a table
+        if len(self.db_connector.multiple_geometry_tables()) == 0:
+            return False
+
+        if int(gdal.VersionInfo("VERSION_NUM")) < 3080000:
+            # if our GDAL is not able to handle, we tell it and maybe block the project creation
+            self.gpkg_multigeometry_info.setText("<b>Oh oh, this is not gonna work</b>")
+        else:
+            # if our GDAL is able to handle, we give a warning that others might not be able to read the project
+            self.gpkg_multigeometry_info.setText(
+                "<b>It's gonna work but be aware of...</b>"
+            )
+
+        return True
+
+    def _multiple_geometry_gpkg_table(self):
+        if self.db_connector.multiple_geometry_tables() > 0:
+            return True
+
+        return false
 
     def help_text(self):
         logline = self.tr(
