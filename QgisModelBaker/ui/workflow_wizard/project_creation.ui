@@ -303,7 +303,7 @@ Select the language in which the QGIS project is to be set up.</string>
       <item row="0" column="0">
        <widget class="QLabel" name="gpkg_multigeometry_label">
         <property name="styleSheet">
-         <string notr="true"/>
+         <string notr="true">color: rgb(36, 31, 49);</string>
         </property>
         <property name="text">
          <string>GPKG info</string>
