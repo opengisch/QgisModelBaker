@@ -104,7 +104,6 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         if valid and mode:
             # uses the settings from the project and provides it to the gui
             configuration = layer_configuration
-            configuration.tool = mode
             self._lst_panel[mode].set_fields(configuration)
         else:
             # takes settings from QSettings and provides it to the gui

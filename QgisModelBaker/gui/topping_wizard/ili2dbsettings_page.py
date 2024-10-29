@@ -271,7 +271,6 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     source_provider, configuration
                 )
                 if valid and mode:
-                    configuration.tool = mode
                     db_connector = db_utils.get_db_connector(configuration)
                     # only load it when it exists and metadata there (contains interlis data)
                     if (
