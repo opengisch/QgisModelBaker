@@ -19,6 +19,7 @@
 
 import os
 
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox, QWidget
 
@@ -34,7 +35,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper import (
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
-from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
+from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME, DbIliMode
 from QgisModelBaker.utils.gui_utils import LogLevel
 
 WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
@@ -108,6 +109,13 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
+        if self.configuration.tool & DbIliMode.pg:
+            # on pg we should consider the user account name as fallback
+            if (
+                not self.configuration.db_use_super_login
+                and not self.configuration.dbusr
+            ):
+                self.configuration.dbusr = QgsApplication.userLoginName()
         if self.db_action_type == DbActionType.GENERATE:
             self.configuration.ilifile = ""
             if os.path.isfile(self.file):
