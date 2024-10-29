@@ -26,6 +26,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 )
 from QgisModelBaker.libs.modelbaker.utils.db_utils import (
     get_configuration_from_sourceprovider,
+    get_db_connector,
     get_schema_identificator_from_sourceprovider,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
@@ -82,12 +83,8 @@ class DatasetSelector(QComboBox):
                 source_provider, configuration
             )
             if valid and mode:
-                db_factory = self.db_simple_factory.create_factory(mode)
-                config_manager = db_factory.get_db_command_config_manager(configuration)
                 try:
-                    db_connector = db_factory.get_db_connector(
-                        config_manager.get_uri(), configuration.dbschema
-                    )
+                    db_connector = get_db_connector(configuration)
                     if db_connector.get_basket_handling():
                         self.basket_model.reload_schema_baskets(
                             db_connector,
