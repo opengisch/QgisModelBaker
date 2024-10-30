@@ -205,6 +205,10 @@
      <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0">
       <item row="0" column="0">
        <widget class="QLabel" name="translation_label">
+        <property name="toolTip">
+         <string>Several translations of the INTERLIS model are implemented in the database schema (TRANSLATION OF).
+Select the language in which the QGIS project is to be set up.</string>
+        </property>
         <property name="text">
          <string>Preferred language for database objects like tables and fields</string>
         </property>
