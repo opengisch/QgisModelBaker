@@ -222,6 +222,9 @@ Select the language in which the QGIS project is to be set up.</string>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>English</string>

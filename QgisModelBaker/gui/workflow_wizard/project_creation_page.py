@@ -245,6 +245,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.translation_combo.addItem(self.tr("Original model language"), "__")
 
+        # Synchronize length of both comboboxes
+        self.translation_combo.setMinimumSize(self.optimize_combo.minimumSizeHint())
+
     def _complete_completer(self):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
             if not self.topping_line_edit.text():
