@@ -147,7 +147,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.create_gpkg_multigeom_checkbox.setToolTip(
                 """<html><head/><body>
             <p>If the INTERLIS model has classes that contain <span style=" font-weight:600;">multiple geometries</span>, tables with multiple geometry columns can be created in <span style=" font-weight:600;">GeoPackage</span>.</p>
-            <p>This function is not standardized and such tables with multiple geometries require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS (your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version}</span>, but note that others with lower 3.8 versions <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.</p>
+            <p>This function is not standardized and such tables with multiple geometries require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS (yours is <span style=" font-weight:600;">{gdal_version}</span>, but note that others with lower 3.8 versions <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.)</p>
             </body></html>""".format(
                     qgis_version=Qgis.QGIS_VERSION,
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),

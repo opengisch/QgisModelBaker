@@ -754,7 +754,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 """
                 <html><head/><body style="background-color:powderblue;">
                      <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
-                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS.<br/>Your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS, yours is <span style=" font-weight:600;">{gdal_version}</span>.</p>
                     <p>Means this won't work.</p>
                 </body></html>
                 """.format(
@@ -768,8 +768,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 """
                 <html><head/><body style="background-color:powderblue;">
                     <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
-                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS.<br/>Your current QGIS version is <span style=" font-weight:600;">{qgis_version}</span> with GDAL <span style=" font-weight:600;">{gdal_version}</span>.</p>
-                    <p>But note that others with lower 3.8 version <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.</p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS, yours is <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>But note that others with lower 3.8 version <span style=" font-weight:600;">will not be able</span> to read such tables in the created QGIS project.</p>
                 </body></html>
                 """.format(
                     qgis_version=Qgis.QGIS_VERSION,
@@ -777,12 +777,6 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 )
             )
         return True
-
-    def _multiple_geometry_gpkg_table(self):
-        if self.db_connector.multiple_geometry_tables() > 0:
-            return True
-
-        return false
 
     def help_text(self):
         logline = self.tr(
