@@ -199,7 +199,6 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 valid, mode = db_utils.get_configuration_from_sourceprovider(
                     source_provider, configuration
                 )
-                configuration.tool = mode
                 source_info_text = self.tr(
                     "<body><p>It's the datasource of the current project, evaluated by layer <b>{}</b>.</p>"
                 ).format(layer.name())

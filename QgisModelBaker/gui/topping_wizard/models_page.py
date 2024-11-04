@@ -104,7 +104,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
                         source_provider, current_configuration
                     )
                     if valid and mode:
-                        current_configuration.tool = mode
                         db_connector = db_utils.get_db_connector(current_configuration)
                         if db_connector:
                             db_connectors.append(db_connector)

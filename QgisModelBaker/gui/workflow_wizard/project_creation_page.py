@@ -22,7 +22,7 @@ import os
 import re
 
 import yaml
-from qgis.core import Qgis, QgsProject
+from qgis.core import Qgis, QgsApplication, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
@@ -349,7 +349,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.configuration
             )
             uri = config_manager.get_uri(qgis=True)
-            mgmt_uri = config_manager.get_uri(self.configuration.db_use_super_login)
+            mgmt_uri = config_manager.get_uri(
+                su=self.configuration.db_use_super_login,
+                fallback_user=QgsApplication.userLoginName(),
+            )
             generator = Generator(
                 self.configuration.tool,
                 uri,
@@ -393,7 +396,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(0)
             return
 
-        res, message = db_factory.post_generate_project_validations(self.configuration)
+        res, message = db_factory.post_generate_project_validations(
+            self.configuration, QgsApplication.userLoginName()
+        )
 
         if not res:
             self.workflow_wizard.log_panel.txtStdout.setText(message)

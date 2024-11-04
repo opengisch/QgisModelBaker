@@ -248,7 +248,6 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 QStandardPaths.writableLocation(QStandardPaths.TempLocation),
                 f"dataexport_{output_file_name}",
             )
-            self.current_configuration.tool = mode
             if mode == DbIliMode.gpkg:
                 self.info_label.setText(
                     self.tr(
@@ -349,6 +348,13 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         validator.tool = self.current_configuration.tool
         validator.configuration = self.current_configuration
+        if validator.configuration.tool & DbIliMode.pg:
+            # on pg we should consider the user account name as fallback
+            if (
+                not validator.configuration.db_use_super_login
+                and not validator.configuration.dbusr
+            ):
+                validator.configuration.dbusr = QgsApplication.userLoginName()
 
         validator.configuration.ilimodels = ""
         validator.configuration.dataset = ""

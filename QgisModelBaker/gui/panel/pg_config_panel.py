@@ -328,15 +328,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             message = self.tr("Please set a database before creating the project.")
             self.pg_database_line_edit.setFocus()
         elif (
-            not self.pg_auth_settings.username()
-            and not self.pg_auth_settings.configId()
-        ):
-            message = self.tr(
-                "Please set a username or select an authentication configuration before creating the "
-                "project."
-            )
-            self.pg_auth_settings.setFocus()
-        elif (
             self.pg_auth_settings.configId()
             and not self.pg_use_super_login.isChecked()
             and self._db_action_type

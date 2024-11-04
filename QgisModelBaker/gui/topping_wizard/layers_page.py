@@ -389,7 +389,6 @@ class LayerModel(QgsLayerTreeModel):
                     source_provider, configuration
                 )
                 if valid and mode:
-                    configuration.tool = mode
                     db_connector = db_utils.get_db_connector(configuration)
 
                     if (
