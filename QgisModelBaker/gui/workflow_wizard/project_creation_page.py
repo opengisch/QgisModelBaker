@@ -41,7 +41,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
+from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, displayLanguages
 from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
@@ -65,8 +65,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.existing_projecttopping_id = None
         self.projecttopping_id = None
+        self.db_connector = None
 
         self._update_optimize_combo()
+        self._update_translation_combo()
 
         self.create_project_button.clicked.connect(self._create_project)
         self.is_complete = False
@@ -114,6 +116,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         # get inheritance
         self.configuration.inheritance = self._inheritance()
         self._update_optimize_combo()
+
+        # get translation languages
+        self._update_translation_combo()
 
         # get existing topping
         self.existing_topping_checkbox.setVisible(False)
@@ -231,6 +236,18 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
         self.optimize_combo.setCurrentIndex(index)
 
+    def _update_translation_combo(self):
+        self.translation_combo.clear()
+
+        if self.db_connector:
+            for lang in self.db_connector.get_available_languages():
+                self.translation_combo.addItem(displayLanguages.get(lang, lang), lang)
+
+        self.translation_combo.addItem(self.tr("Original model language"), "__")
+
+        # Synchronize length of both comboboxes
+        self.translation_combo.setMinimumSize(self.optimize_combo.minimumSizeHint())
+
     def _complete_completer(self):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
             if not self.topping_line_edit.text():
@@ -341,6 +358,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 mgmt_uri=mgmt_uri,
                 consider_basket_handling=True,
                 optimize_strategy=self.optimize_combo.currentData(),
+                preferred_language=self.translation_combo.currentData(),
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
             generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
