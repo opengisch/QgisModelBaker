@@ -22,7 +22,6 @@ import os
 import re
 
 import yaml
-
 from osgeo import gdal
 from qgis.core import Qgis, QgsApplication, QgsProject
 from qgis.PyQt.QtCore import Qt
