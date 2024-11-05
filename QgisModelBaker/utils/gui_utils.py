@@ -65,7 +65,7 @@ TransferExtensions = [
     "XLSX",
 ]
 
-TRANSFERFILE_MODELS_BLACKLIST = [
+MODELS_BLACKLIST = [
     "CHBaseEx_MapCatalogue_V1",
     "CHBaseEx_WaterNet_V1",
     "CHBaseEx_Sewage_V1",
@@ -112,6 +112,7 @@ TRANSFERFILE_MODELS_BLACKLIST = [
     "StandardSymbology",
     "Time",
     "Units",
+    "",
 ]
 
 # style
@@ -714,8 +715,7 @@ class ImportModelsModel(SourceModel):
                     for sub_element in element:
                         if (
                             "NAME" in sub_element.attrib
-                            and sub_element.attrib["NAME"]
-                            not in TRANSFERFILE_MODELS_BLACKLIST
+                            and sub_element.attrib["NAME"] not in MODELS_BLACKLIST
                         ):
                             model = {}
                             model["name"] = sub_element.attrib["NAME"]
@@ -1049,7 +1049,7 @@ class SchemaModelsModel(CheckEntriesModel):
                         name = modelname.strip()
                         if (
                             name
-                            and name not in TRANSFERFILE_MODELS_BLACKLIST
+                            and name not in MODELS_BLACKLIST
                             and name not in modelnames
                         ):
                             modelnames.append(name)
