@@ -213,7 +213,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         self.setDisabled(True)
 
-    def set_current_layer(self, layer):
+    def set_current_layer(self, layer, force_reload=False):
         if self.isHidden():
             return
 
@@ -228,7 +228,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if not schema_identificator:
             self.setDisabled(True)
             return
-        if schema_identificator == self.current_schema_identificator:
+        if (
+            schema_identificator == self.current_schema_identificator
+            and not force_reload
+        ):
             self.setEnabled(True)
             return
 
@@ -304,7 +307,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _visibility_changed(self, visible):
         if visible:
-            self.set_current_layer(self.iface.activeLayer())
+            self.set_current_layer(self.iface.activeLayer(), True)
 
     def _refresh_schemadata_models(self):
         db_connector = db_utils.get_db_connector(self.current_configuration)

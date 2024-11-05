@@ -353,6 +353,7 @@ class QgisModelBakerPlugin(QObject):
 
     def datasetmanager_dialog_finished(self):
         self.__dataset_selector.reset_model(self.iface.layerTreeView().currentLayer())
+        self.__validate_dock.set_current_layer(self.iface.activeLayer(), True)
         self.__datasetmanager_action.setChecked(False)
         self.datasetmanager_dlg = None
 
