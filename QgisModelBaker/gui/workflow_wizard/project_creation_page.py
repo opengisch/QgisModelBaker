@@ -43,7 +43,7 @@ from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, displayLanguages
-from QgisModelBaker.utils.gui_utils import TRANSFERFILE_MODELS_BLACKLIST, LogLevel
+from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 
@@ -244,8 +244,17 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.translation_combo.clear()
 
         if self.db_connector:
-            for lang in self.db_connector.get_available_languages():
-                self.translation_combo.addItem(displayLanguages.get(lang, lang), lang)
+            available_languages = self.db_connector.get_available_languages(
+                MODELS_BLACKLIST
+            )
+            if len(available_languages) > 1:
+                for lang in available_languages:
+                    self.translation_combo.addItem(
+                        displayLanguages.get(lang, lang), lang
+                    )
+                self.translation_combo.setEnabled(True)
+            else:
+                self.translation_combo.setEnabled(False)
 
         self.translation_combo.addItem(self.tr("Original model language"), "__")
 
@@ -725,11 +734,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         for db_model in db_models:
             for modelname in regex.split(db_model["modelname"]):
                 name = modelname.strip()
-                if (
-                    name
-                    and name not in TRANSFERFILE_MODELS_BLACKLIST
-                    and name not in modelnames
-                ):
+                if name and name not in MODELS_BLACKLIST and name not in modelnames:
                     modelnames.append(name)
         return modelnames
 
