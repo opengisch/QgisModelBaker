@@ -6,132 +6,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>979</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Select Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="description">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
+   <item row="5" column="0" colspan="2">
+    <widget class="QFrame" name="gpkg_multigeometry_frame">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 200, 0);</string>
      </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="text">
-      <string>Generate a QGIS Project from an existing database.</string>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QCommandLinkButton" name="create_project_button">
-     <property name="text">
-      <string>Generate</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="description">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Generate a QGIS Project from an existing database.</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QGroupBox" name="inheritance_groupbox">
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
-       <widget class="QLabel" name="optimize_label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you don't get it - nevermind and keep the default. If it's not like expected - try again with 'No optimization'...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <widget class="QLabel" name="gpkg_multigeometry_label">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(36, 31, 49);</string>
         </property>
         <property name="text">
-         <string>Project optimization strategy concerning inheritances</string>
+         <string>GPKG info</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="optimize_combo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hide unused base class layers:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Base class layers with same named extensions will be &lt;span style=&quot; font-style:italic;&quot;&gt;hidden&lt;/span&gt; and and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;hidden&lt;/span&gt; but &lt;span style=&quot; font-style:italic;&quot;&gt;renamed&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;- Relations of hidden layers will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;created&lt;/span&gt; and with them &lt;span style=&quot; font-style:italic;&quot;&gt;no&lt;/span&gt; widgets&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Group unused base class layers:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Base class layers with same named extensions will be &lt;span style=&quot; font-style:italic;&quot;&gt;collected in a group&lt;/span&gt; and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;grouped&lt;/span&gt; but &lt;span style=&quot; font-style:italic;&quot;&gt;renamed&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;- Relations of grouped layers will be &lt;span style=&quot; font-style:italic;&quot;&gt;created&lt;/span&gt; but the widgets &lt;span style=&quot; font-style:italic;&quot;&gt;not applied&lt;/span&gt; to the form.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Hide unused base class layers</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Group unused base class layers</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>No optimization</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
@@ -202,7 +107,46 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="6" column="0" colspan="2">
+    <widget class="QProgressBar" name="progress_bar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QCommandLinkButton" name="create_project_button">
+     <property name="text">
+      <string>Generate</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="description">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Generate a QGIS Project from an existing database.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -215,8 +159,112 @@
      </property>
     </spacer>
    </item>
+   <item row="8" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="description">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Generate a QGIS Project from an existing database.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="inheritance_groupbox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="optimize_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you don't get it - nevermind and keep the default. If it's not like expected - try again with 'No optimization'...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Project optimization strategy concerning inheritances</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="optimize_combo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hide unused base class layers:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Base class layers with same named extensions will be &lt;span style=&quot; font-style:italic;&quot;&gt;hidden&lt;/span&gt; and and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;hidden&lt;/span&gt; but &lt;span style=&quot; font-style:italic;&quot;&gt;renamed&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;- Relations of hidden layers will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;created&lt;/span&gt; and with them &lt;span style=&quot; font-style:italic;&quot;&gt;no&lt;/span&gt; widgets&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Group unused base class layers:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;- Base class layers with same named extensions will be &lt;span style=&quot; font-style:italic;&quot;&gt;collected in a group&lt;/span&gt; and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will &lt;span style=&quot; font-style:italic;&quot;&gt;not&lt;/span&gt; be &lt;span style=&quot; font-style:italic;&quot;&gt;grouped&lt;/span&gt; but &lt;span style=&quot; font-style:italic;&quot;&gt;renamed&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;- Relations of grouped layers will be &lt;span style=&quot; font-style:italic;&quot;&gt;created&lt;/span&gt; but the widgets &lt;span style=&quot; font-style:italic;&quot;&gt;not applied&lt;/span&gt; to the form.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Hide unused base class layers</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Group unused base class layers</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>No optimization</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QGroupBox" name="translation_groupbox">
      <property name="title">
       <string/>
      </property>
@@ -263,54 +311,6 @@ Select the language in which the QGIS project is to be set up.</string>
           <string>Italian</string>
          </property>
         </item>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QProgressBar" name="progress_bar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QFrame" name="gpkg_multigeometry_frame">
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 200, 0);</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QLabel" name="gpkg_multigeometry_label">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(36, 31, 49);</string>
-        </property>
-        <property name="text">
-         <string>GPKG info</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
      </layout>
