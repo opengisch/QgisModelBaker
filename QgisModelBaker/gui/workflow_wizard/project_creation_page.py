@@ -22,6 +22,7 @@ import os
 import re
 
 import yaml
+from osgeo import gdal
 from qgis.core import Qgis, QgsApplication, QgsProject
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
@@ -95,6 +96,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
+        self.gpkg_multigeometry_frame.setVisible(False)
 
     def isComplete(self):
         return self.is_complete
@@ -129,6 +131,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.existing_topping_checkbox.setChecked(True)
         else:
             self._use_existing(False)
+
+        self.gpkg_multigeometry_frame.setVisible(self._multigeom_gpkg())
 
         self.workflow_wizard.busy(self, False)
 
@@ -734,6 +738,44 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         for setting_record in setting_records:
             if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
                 return setting_record["setting"]
+
+    def _multigeom_gpkg(self):
+        # this concerns only geopackage
+        if not (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.gpkg):
+            return False
+
+        # and when this geopackage has multiple geometry columns in a table
+        if len(self.db_connector.multiple_geometry_tables()) == 0:
+            return False
+
+        if int(gdal.VersionInfo("VERSION_NUM")) < 3080000:
+            self.gpkg_multigeometry_label.setText(
+                """
+                <html><head/><body style="background-color:powderblue;">
+                     <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS, yours is <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>Means this won't work.</p>
+                </body></html>
+                """.format(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    gdal_version=gdal.VersionInfo("RELEASE_NAME"),
+                )
+            )
+            self.create_project_button.setDisabled(True)
+        else:
+            self.gpkg_multigeometry_label.setText(
+                """
+                <html><head/><body style="background-color:powderblue;">
+                    <p><b>This GeoPackage contains at least one table with multiple geometries</b></p>
+                    <p>These tables require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS, yours is <span style=" font-weight:600;">{gdal_version}</span>.</p>
+                    <p>But note that others with lower 3.8 version <span style=" font-weight:600;">will not be able</span> to read such tables in the created QGIS project.</p>
+                </body></html>
+                """.format(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    gdal_version=gdal.VersionInfo("RELEASE_NAME"),
+                )
+            )
+        return True
 
     def help_text(self):
         logline = self.tr(
