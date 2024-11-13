@@ -27,7 +27,7 @@ from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
 
 from QgisModelBaker.utils.gui_utils import (
     LogLevel,
-    get_parsed_log_text_color,
+    get_parsed_log_text_level,
     get_text_color_object,
 )
 
@@ -71,8 +71,8 @@ class LogPanel(QWidget):
         elif level == LogLevel.FAIL:
             logging.error(text)
 
-    def on_stderr(self, text):
-        get_parsed_log_text_color(text, self.txtStdout)
+    def print_stdout_info(self, text):
+        self.print_info(text, get_parsed_log_text_level(text))
 
     def show_message(self, level, message):
         if level == Qgis.Warning:

@@ -204,18 +204,15 @@ def get_text_color_object(level: LogLevel = LogLevel.INFO) -> QColor:
     return QColor(get_text_color(level))
 
 
-def get_parsed_log_text_color(text, txt_edit) -> None:
+def get_parsed_log_text_level(text) -> LogLevel:
     textlines = text.splitlines()
     for textline in textlines:
         if textline.startswith("Warning:"):
-            txt_edit.setTextColor(get_text_color_object(LogLevel.WARNING))
-            txt_edit.append(textline)
+            return LogLevel.WARNING
         elif "error" in textline.lower() or "failed" in textline.lower():
-            txt_edit.setTextColor(get_text_color_object(LogLevel.FAIL))
-            txt_edit.append(textline)
+            return LogLevel.FAIL
         else:
-            txt_edit.setTextColor(get_text_color_object(LogLevel.INFO))
-            txt_edit.append(textline)
+            return LogLevel.INFO
 
 
 class SchemaDataFilterMode(IntEnum):
