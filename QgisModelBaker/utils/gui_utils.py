@@ -205,14 +205,11 @@ def get_text_color_object(level: LogLevel = LogLevel.INFO) -> QColor:
 
 
 def get_parsed_log_text_level(text) -> LogLevel:
-    textlines = text.splitlines()
-    for textline in textlines:
-        if textline.startswith("Warning:"):
-            return LogLevel.WARNING
-        elif "error" in textline.lower() or "failed" in textline.lower():
-            return LogLevel.FAIL
-        else:
-            return LogLevel.INFO
+    if text.startswith("Warning:"):
+        return LogLevel.WARNING
+    elif "error" in text.lower() or "failed" in text.lower():
+        return LogLevel.FAIL
+    return LogLevel.INFO
 
 
 class SchemaDataFilterMode(IntEnum):
