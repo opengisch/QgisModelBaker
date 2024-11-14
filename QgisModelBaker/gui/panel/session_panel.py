@@ -44,7 +44,7 @@ WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
 class SessionPanel(QWidget, WIDGET_UI):
 
     print_info = pyqtSignal(str, int)
-    on_stderr = pyqtSignal(str)
+    on_stdout = pyqtSignal(str)
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object, bool)
@@ -340,8 +340,8 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.progress_bar.setTextVisible(False)
             self.progress_bar.setValue(10)
 
-            porter.stdout.connect(lambda str: self.print_info.emit(str, LogLevel.INFO))
-            porter.stderr.connect(self.on_stderr)
+            porter.stdout.connect(self.on_stdout)
+            porter.stderr.connect(self.on_stdout)
             porter.process_started.connect(self.on_process_started)
             porter.process_finished.connect(self.on_process_finished)
             self.cancel_session.connect(porter.cancel_process)

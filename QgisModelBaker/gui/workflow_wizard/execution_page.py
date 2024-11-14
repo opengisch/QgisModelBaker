@@ -131,7 +131,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 )
                 session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
                 session.print_info.connect(self.workflow_wizard.log_panel.print_info)
-                session.on_stderr.connect(self.workflow_wizard.log_panel.on_stderr)
+                session.on_stdout.connect(
+                    self.workflow_wizard.log_panel.print_stdout_info
+                )
                 session.on_process_started.connect(self._on_process_started)
                 session.on_process_finished.connect(self._on_process_finished)
                 new_sessions.append(session)
@@ -177,7 +179,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 loop.exec()
 
     def _on_process_started(self, command):
-        self.workflow_wizard.log_panel.print_info(command, "#000000")
+        self.workflow_wizard.log_panel.print_info(command, LogLevel.INFO)
         QCoreApplication.processEvents()
 
     def _on_process_finished(self, exit_code, result):
