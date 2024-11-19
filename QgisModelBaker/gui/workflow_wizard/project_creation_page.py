@@ -445,6 +445,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         )
         legend = generator.legend(available_layers)
 
+        self.progress_bar.setValue(50)
+
         custom_layer_order_structure = list()
         custom_project_properties = {}
         mapthemes = {}
@@ -530,8 +532,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             LogLevel.TOPPING,
                         )
 
-                self.progress_bar.setValue(55)
+        self.progress_bar.setValue(55)
 
+        self.workflow_wizard.log_panel.print_info(self.tr("Set transaction mode…"))
         # override transaction mode if give n by topic
         transaction_mode = custom_project_properties.get("transaction_mode", None)
 
@@ -560,6 +563,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 if transaction_mode is False:
                     transaction_mode = Qgis.TransactionMode.Disabled.name
                 # otherwise it's already a string and could be everything
+
+        self.progress_bar.setValue(60)
+
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Optimize according the strategy...")
+        )
 
         # override optimize strategy if give n by topic
         optimize_strategy = custom_project_properties.get("ili_optimize_strategy", None)
@@ -592,10 +601,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         )
         project.post_generate()
 
+        self.progress_bar.setValue(70)
+
         qgis_project = QgsProject.instance()
 
         self.workflow_wizard.log_panel.print_info(self.tr("Generate QGIS project…"))
         project.create(None, qgis_project)
+
+        self.progress_bar.setValue(75)
+
+        self.workflow_wizard.log_panel.print_info(self.tr("Set map canvas extent..."))
 
         # Set the extent of the mapCanvas from the first layer extent found
         for layer in project.layers:
@@ -604,7 +619,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.workflow_wizard.iface.mapCanvas().refresh()
                 break
 
-        self.progress_bar.setValue(60)
+        self.progress_bar.setValue(80)
 
         # QML Toppings in the metadata: collect, download and apply
         # This configuration is legacy (should be in project topping instead), but it's still supported
