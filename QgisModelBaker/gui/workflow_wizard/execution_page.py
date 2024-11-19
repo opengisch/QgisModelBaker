@@ -188,7 +188,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             level = LogLevel.SUCCESS
             if self.db_action_type == DbActionType.GENERATE:
                 message = self.tr(
-                    "Interlis model(s) successfully imported into the database!"
+                    "INTERLIS model(s) successfully imported into the database!"
                 )
             elif self.db_action_type == DbActionType.IMPORT_DATA:
                 message = self.tr(
