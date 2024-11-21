@@ -87,7 +87,7 @@
       <item row="1" column="2">
        <widget class="QToolButton" name="topping_file_browse_button">
         <property name="toolTip">
-         <string>Browse Interlis files</string>
+         <string>Browse INTERLIS files</string>
         </property>
         <property name="text">
          <string>…</string>

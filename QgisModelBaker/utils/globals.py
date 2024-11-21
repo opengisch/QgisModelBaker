@@ -33,15 +33,15 @@ displayDbIliMode = {
     DbIliMode.pg: QCoreApplication.translate("QgisModelBaker", "PostGIS"),
     DbIliMode.gpkg: QCoreApplication.translate("QgisModelBaker", "GeoPackage"),
     DbIliMode.mssql: QCoreApplication.translate("QgisModelBaker", "SQL Server"),
-    DbIliMode.ili: QCoreApplication.translate("QgisModelBaker", "Interlis"),
+    DbIliMode.ili: QCoreApplication.translate("QgisModelBaker", "INTERLIS"),
     DbIliMode.ili2pg: QCoreApplication.translate(
-        "QgisModelBaker", "Interlis (use PostGIS)"
+        "QgisModelBaker", "INTERLIS (use PostGIS)"
     ),
     DbIliMode.ili2gpkg: QCoreApplication.translate(
-        "QgisModelBaker", "Interlis (use GeoPackage)"
+        "QgisModelBaker", "INTERLIS (use GeoPackage)"
     ),
     DbIliMode.ili2mssql: QCoreApplication.translate(
-        "QgisModelBaker", "Interlis (use SQL Server)"
+        "QgisModelBaker", "INTERLIS (use SQL Server)"
     ),
 }
 

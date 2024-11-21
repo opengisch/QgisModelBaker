@@ -52,7 +52,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
                 self.xtf_file_line_edit,
                 title=self.tr("Save in XTF Transfer File"),
                 file_filter=self.tr(
-                    "XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
+                    "XTF Transfer File (*.xtf *XTF);;INTERLIS 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
                 ),
                 extension=".xtf",
                 extensions=["." + ext for ext in self.ValidExtensions],
