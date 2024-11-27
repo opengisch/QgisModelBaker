@@ -289,6 +289,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
 
     def _schema_changed(self):
+        self.topping_wizard.busy(
+            self, True, self.tr("Get ili2db settings of the current schema...")
+        )
         configuration = self.schema_combobox.currentData()
         parsed_from_file = False
         if configuration:
@@ -306,6 +309,8 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.parameters_model.refresh_model(
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )
+        self.topping_wizard.busy(self, False)
 
     def _log_on_export_metagonfig_error(self, log):
         QgsMessageLog.logMessage(log, self.tr("Export metaConfig"), Qgis.Critical)
+
