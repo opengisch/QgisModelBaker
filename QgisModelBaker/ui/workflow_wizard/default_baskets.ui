@@ -14,14 +14,27 @@
    <string>Create default Baskets</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="baskets_layout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
+   <item row="2" column="0" colspan="3">
+    <widget class="QProgressBar" name="progress_bar">
+     <property name="value">
+      <number>0</number>
      </property>
-    </layout>
+    </widget>
    </item>
-   <item row="0" column="0" colspan="2">
+   <item row="3" column="2">
+    <widget class="QCommandLinkButton" name="create_default_baskets_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Create baskets</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
     <widget class="QLabel" name="description">
      <property name="minimumSize">
       <size>
@@ -36,7 +49,7 @@
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You need baskets of the default dataset (&lt;code&gt;Baseset&lt;/code&gt;) to collect new data in the created schema. &lt;/p&gt;&lt;p&gt;If you plan to start with the import of existing data, you can skip this step. To create baskets later on, find the &lt;b&gt;&lt;i&gt;Dataset Manager&lt;/i&gt;&lt;/b&gt; in the Model Baker Menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You need baskets of the default dataset (&lt;span style=&quot; font-family:'monospace';&quot;&gt;Baseset&lt;/span&gt;) to collect new data in the created schema, otherwise you can skip this step. To create baskets later on, find the &lt;span style=&quot; font-style:italic;&quot;&gt;Dataset Manager&lt;/span&gt; in the Model Baker Menu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -46,37 +59,69 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QCommandLinkButton" name="create_default_baskets_button">
-     <property name="text">
-      <string>Create baskets</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QProgressBar" name="progress_bar">
-     <property name="value">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
+   <item row="4" column="2">
     <widget class="QCommandLinkButton" name="skip_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Skip this step</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <layout class="QVBoxLayout" name="baskets_layout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+    </layout>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="skip_desc">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you are planning to start with &lt;span style=&quot; font-weight:600;&quot;&gt;importing existing&lt;/span&gt; data...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="create_default_basket_desc">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you are planning to start with&lt;span style=&quot; font-weight:600;&quot;&gt; collecting new &lt;/span&gt;data...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
