@@ -73,8 +73,10 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().validatePage()
 
     def _refresh(self):
+        self.topping_wizard.busy(self, True, self.tr("Refresh model information..."))
         self._load_available_models_and_sources()
         self.models_model.check_entries(self.topping_wizard.topping.models)
+        self.topping_wizard.busy(self, False)
 
     def _load_available_models_and_sources(self):
         """

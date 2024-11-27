@@ -136,6 +136,11 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
 
     def update_referecedata_cache_model(self, filter_models, type):
         # updates the model and waits for the end
+        self.topping_wizard.busy(
+            self,
+            True,
+            self.tr("Search for available reference data in the repositories..."),
+        )
         loop = QEventLoop()
         self.ilireferencedatacache.model_refreshed.connect(lambda: loop.quit())
         timer = QTimer()
@@ -144,6 +149,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         timer.start(3000)
         self.refresh_referencedata_cache(filter_models, type)
         loop.exec()
+        self.topping_wizard.busy(self, False)
         return self.ilireferencedatacache.model
 
     def refresh_referencedata_cache(self, filter_models, type):
