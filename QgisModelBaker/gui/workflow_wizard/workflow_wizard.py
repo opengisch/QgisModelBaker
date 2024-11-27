@@ -154,7 +154,7 @@ class WorkflowWizard(QWizard):
         self.import_schema_execution_page = ExecutionPage(
             self,
             self._current_page_title(PageIds.ImportSchemaExecution),
-            DbActionType.GENERATE,
+            DbActionType.SCHEMA_IMPORT,
         )
         self.default_baskets_page = DefaultBasketsPage(
             self, self._current_page_title(PageIds.DefaultBaskets)
