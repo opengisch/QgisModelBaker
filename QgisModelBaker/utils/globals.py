@@ -56,5 +56,5 @@ displayLanguages = {
 class AdministrativeDBActionTypes(Enum):
     """Defines constants for modelbaker actions that require superuser login"""
 
-    GENERATE = DbActionType.GENERATE
+    SCHEMA_IMPORT = DbActionType.SCHEMA_IMPORT
     IMPORT_DATA = DbActionType.IMPORT_DATA

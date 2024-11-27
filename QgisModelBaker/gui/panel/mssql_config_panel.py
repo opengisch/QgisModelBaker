@@ -66,7 +66,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_password_line_edit.textChanged.connect(self.notify_fields_modified)
 
     def _show_panel(self):
-        if self._db_action_type == DbActionType.GENERATE:
+        if self._db_action_type == DbActionType.SCHEMA_IMPORT:
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to create a default schema]")
             )
@@ -74,7 +74,10 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Leave empty to import data into a default schema]")
             )
-        elif self._db_action_type == DbActionType.EXPORT:
+        elif (
+            self._db_action_type == DbActionType.EXPORT
+            or self._db_action_type == DbActionType.GENERATE
+        ):
             self.mssql_schema_line_edit.setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )

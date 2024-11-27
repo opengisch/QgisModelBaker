@@ -62,7 +62,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def _show_panel(self):
         if (
-            self._db_action_type == DbActionType.GENERATE
+            self._db_action_type == DbActionType.SCHEMA_IMPORT
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
             validator = self.gpkgSaveFileValidator
@@ -73,7 +73,10 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
                 extensions=["." + ext for ext in self.ValidExtensions],
                 dont_confirm_overwrite=True,
             )
-        elif self._db_action_type == DbActionType.EXPORT:
+        elif (
+            self._db_action_type == DbActionType.EXPORT
+            or self._db_action_type == DbActionType.GENERATE
+        ):
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(
                 self.gpkg_file_line_edit,

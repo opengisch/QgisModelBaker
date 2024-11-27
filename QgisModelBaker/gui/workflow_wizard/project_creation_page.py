@@ -443,7 +443,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.log_panel.print_info(
             self.tr("Arranging layers into groups…")
         )
-        legend = generator.legend(available_layers)
+        legend = generator.legend(available_layers, hide_systemlayers=True)
 
         self.progress_bar.setValue(50)
 

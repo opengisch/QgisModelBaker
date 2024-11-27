@@ -16,9 +16,10 @@
  *                                                                         *
  ***************************************************************************/
 """
+import tempfile
 from enum import IntEnum
 
-from qgis.core import QgsMapLayer, QgsProject
+from qgis.core import Qgis, QgsMapLayer, QgsMessageLog, QgsProject
 from qgis.PyQt.QtCore import QAbstractItemModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QHeaderView, QTableView, QWizardPage
 
@@ -26,6 +27,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils import db_utils
+from QgisModelBaker.libs.modelbaker.utils.ili2db_utils import Ili2DbUtils
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 
@@ -291,15 +293,24 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
             self, True, self.tr("Get ili2db settings of the current schema...")
         )
         configuration = self.schema_combobox.currentData()
+        parsed_from_file = False
         if configuration:
-            db_connector = db_utils.get_db_connector(configuration)
-            if db_connector:
-                self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_db(
-                    db_connector
+            _, tmp_ini_file = tempfile.mkstemp(".ini")
+
+            ili2db_utils = Ili2DbUtils()
+            ili2db_utils.log_on_error.connect(self._log_on_export_metagonfig_error)
+            res, msg = ili2db_utils.export_metaconfig(tmp_ini_file, configuration)
+            if res:
+                parsed_from_file = self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_ini_file(
+                    tmp_ini_file
                 )
-        else:
+        if not parsed_from_file:
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = {}
         self.parameters_model.refresh_model(
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )
         self.topping_wizard.busy(self, False)
+
+    def _log_on_export_metagonfig_error(self, log):
+        QgsMessageLog.logMessage(log, self.tr("Export metaConfig"), Qgis.Critical)
+
