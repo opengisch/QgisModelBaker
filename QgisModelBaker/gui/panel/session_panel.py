@@ -80,7 +80,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
 
         self.db_action_type = db_action_type
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.create_without_constraints_text = self.tr("Run without constraints")
         else:
             self.create_without_constraints_text = self.tr("Run without validation")
@@ -116,7 +116,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 and not self.configuration.dbusr
             ):
                 self.configuration.dbusr = QgsApplication.userLoginName()
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.configuration.ilifile = ""
             if os.path.isfile(self.file):
                 self.configuration.ilifile = self.file
@@ -331,7 +331,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.set_button_to_cancel()
             self.is_running = True
 
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self._pre_generate_project()
 
         porter = self._get_porter()
@@ -350,7 +350,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             try:
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
-                    if not self.db_action_type == DbActionType.GENERATE:
+                    if not self.db_action_type == DbActionType.SCHEMA_IMPORT:
                         self.set_button_to_create_without_constraints()
                     else:
                         self.set_button_to_create()
@@ -359,7 +359,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             except JavaNotFoundError as e:
                 self.print_info.emit(e.error_string, LogLevel.FAIL)
                 self.progress_bar.setValue(0)
-                if not self.db_action_type == DbActionType.GENERATE:
+                if not self.db_action_type == DbActionType.SCHEMA_IMPORT:
                     self.set_button_to_create_without_constraints()
                 else:
                     self.set_button_to_create()
@@ -377,7 +377,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             # an user interaction (cancel) here cannot interupt the process, why it's disabled (and enabled again below).
             self.setDisabled(True)
             if (
-                self.db_action_type == DbActionType.GENERATE
+                self.db_action_type == DbActionType.SCHEMA_IMPORT
                 and self.configuration.create_basket_col
             ):
                 self._create_default_dataset()

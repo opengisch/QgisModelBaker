@@ -47,8 +47,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
 
-        # in this context we use GENERATE for the schema import and IMPORT_DATA for the data import
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.description.setText(
                 self.tr(
                     "Run the ili2db sessions to make the model imports (or skip to continue)."
@@ -186,7 +185,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         if exit_code == 0:
             message = "Finished with success."
             level = LogLevel.SUCCESS
-            if self.db_action_type == DbActionType.GENERATE:
+            if self.db_action_type == DbActionType.SCHEMA_IMPORT:
                 message = self.tr(
                     "INTERLIS model(s) successfully imported into the database!"
                 )

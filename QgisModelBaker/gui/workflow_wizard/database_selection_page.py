@@ -45,7 +45,6 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
 
-        # in this context we use GENERATE for the project generation and the IMPORT_DATA for the schema import (and the data import)
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(
                 self.tr(
