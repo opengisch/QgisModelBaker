@@ -45,7 +45,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the type for which this topping should be made or specify none (allow all). This value will be written into  the categories and the toppings will be filtered accordingly.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>Select the models for which you want to find this  topping at UsabILIty Hub.</string>
+      <string>Select the models for which you want to find this topping in the repositories.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

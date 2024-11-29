@@ -37,9 +37,7 @@ class ToppingWizard(QWizard):
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self, parent)
 
-        self.setWindowTitle(
-            self.tr("QGIS Model Baker UsabILIty Hub Topping Maker Wizard")
-        )
+        self.setWindowTitle(self.tr("QGIS Model Baker Topping Maker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
         self.setOption(QWizard.NoCancelButtonOnLastPage)
 
@@ -107,11 +105,11 @@ class ToppingWizard(QWizard):
         elif id == ToppingWizardPageIds.Additives:
             return self.tr("Additive Project Settings")
         elif id == ToppingWizardPageIds.ReferenceData:
-            return self.tr("Reference Data Selection")
+            return self.tr("Referenced Data Selection")
         elif id == ToppingWizardPageIds.Ili2dbSettings:
             return self.tr("Schema with ili2db Settings Selection")
         elif id == ToppingWizardPageIds.Generation:
-            return self.tr("Make the Topping")
+            return self.tr("Make the Toppings")
         else:
             return self.tr("Model Baker - Workflow Wizard")
 
@@ -122,7 +120,7 @@ class ToppingWizardDialog(QDialog):
         self.iface = iface
         self.base_config = base_config
 
-        self.setWindowTitle(self.tr("Model Baker - UsabILIty Hub Topping Maker Wizard"))
+        self.setWindowTitle(self.tr("Model Baker - Topping Maker Wizard"))
         self.log_panel = LogPanel()
         self.topping_wizard = ToppingWizard(self.iface, self.base_config, self)
         self.topping_wizard.setStartId(ToppingWizardPageIds.Target)

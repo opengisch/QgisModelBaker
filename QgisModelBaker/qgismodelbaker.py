@@ -169,7 +169,7 @@ class QgisModelBakerPlugin(QObject):
                     os.path.dirname(__file__), "images/QgisModelBaker-topping-icon.svg"
                 )
             ),
-            self.tr("UsabILIty Hub Topping Exporter"),
+            self.tr("Topping Exporter"),
             None,
         )
         self.__configseparator = QAction(None)

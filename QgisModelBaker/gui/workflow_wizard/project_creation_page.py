@@ -648,7 +648,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 if len(projecttopping_id_list) > 1:
                     self.workflow_wizard.log_panel.print_info(
                         self.tr(
-                            "Only one projectopping allowed. Taking first one of the list."
+                            "Only one projec topping allowed. Taking first one of the list."
                         ),
                         LogColor.COLOR_TOPPING,
                     )

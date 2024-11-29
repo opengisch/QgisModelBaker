@@ -538,7 +538,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if "ch.interlis.referenceData" in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr(
-                        "Metaconfig contains transfer or catalogue toppings (reference data)."
+                        "Metaconfig contains transfer or catalogue files (referenced data)."
                     ),
                     LogColor.COLOR_TOPPING,
                 )
@@ -553,7 +553,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         name = pathlib.Path(referencedata_file_path).name
                         type = pathlib.Path(referencedata_file_path).suffix[1:]
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Append reference data file {}…").format(
+                            self.tr("Append referenced data file {}…").format(
                                 referencedata_file_path
                             ),
                             LogColor.COLOR_TOPPING,
@@ -568,7 +568,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Could not append reference data file {}…").format(
+                            self.tr("Could not append referenced data file {}…").format(
                                 referencedata_file_path
                             ),
                             LogColor.COLOR_TOPPING,
