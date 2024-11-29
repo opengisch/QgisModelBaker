@@ -27,7 +27,14 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="QTableView" name="basket_view"/>
+    <widget class="QTableView" name="basket_view">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

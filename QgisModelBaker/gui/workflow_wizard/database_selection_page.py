@@ -17,12 +17,16 @@
  ***************************************************************************/
 """
 
+from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+)
 from QgisModelBaker.libs.modelbaker.utils import db_utils
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils import gui_utils
@@ -41,7 +45,6 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
 
-        # in this context we use GENERATE for the project generation and the IMPORT_DATA for the schema import (and the data import)
         if db_action_type == DbActionType.GENERATE:
             self.description.setText(
                 self.tr(
@@ -83,20 +86,37 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             if is_current_panel_selected:
                 value._show_panel()
 
-    def restore_configuration(self, configuration):
-        # takes settings from QSettings and provides it to the gui (not the configuration)
-        # it needs the configuration - this is the same for Schema or Data Config
-        settings = QSettings()
+    def restore_configuration(self, configuration, get_config_from_project=False):
+        valid = False
+        mode = None
+        layer_configuration = Ili2DbCommandConfiguration()
 
-        for db_id in self.db_simple_factory.get_db_list(False):
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(configuration)
-            config_manager.load_config_from_qsettings()
-            self._lst_panel[db_id].set_fields(configuration)
+        if get_config_from_project:
+            # tries to take settings from the project
+            layer = self._relevant_layer()
+            if layer:
+                source_provider = layer.dataProvider()
+                valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    source_provider, layer_configuration
+                )
 
-        mode = settings.value("QgisModelBaker/importtype")
-        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
-        mode = mode & ~DbIliMode.ili
+        if valid and mode:
+            # uses the settings from the project and provides it to the gui
+            configuration = layer_configuration
+            self._lst_panel[mode].set_fields(configuration)
+        else:
+            # takes settings from QSettings and provides it to the gui
+            settings = QSettings()
+
+            for db_id in self.db_simple_factory.get_db_list(False):
+                db_factory = self.db_simple_factory.create_factory(db_id)
+                config_manager = db_factory.get_db_command_config_manager(configuration)
+                config_manager.load_config_from_qsettings()
+                self._lst_panel[db_id].set_fields(configuration)
+
+            mode = settings.value("QgisModelBaker/importtype")
+            mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+            mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self._type_changed()
@@ -119,15 +139,43 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         config_manager = db_factory.get_db_command_config_manager(updated_configuration)
         config_manager.save_config_in_qsettings()
 
+    def _relevant_layer(self):
+        layer = None
+
+        for layer in [self.workflow_wizard.iface.activeLayer()] + list(
+            QgsProject.instance().mapLayers().values()
+        ):
+            if layer and layer.dataProvider() and layer.dataProvider().isValid():
+                return layer
+
     def is_valid(self):
         db_id = self.type_combo_box.currentData()
         res, message = self._lst_panel[db_id].is_valid()
         if not res:
             self.workflow_wizard.log_panel.print_info(
                 message,
-                gui_utils.LogColor.COLOR_FAIL,
+                gui_utils.LogLevel.FAIL,
             )
         return res
+
+    def help_text(self):
+        logline = self.tr(
+            "Here you have to set the connection parameters for your datasource..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4 align="justify">On GeoPackage</h4>
+        <p align="justify">You can select a <code>gpkg</code> file.<br />
+        Or if you want to create a new one, just type the desired name on an existing path (and it will be created).</p>
+        <h4 align="justify">On PostgreSQL</h4>
+        <p align="justify">For a detailed description of each parameter, see the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#2-database-selection">documentation</a></p>
+        <p align="justify">A <b>superuser login</b> must be configured in the Model Baker settings <i>Database &lt; Model Baker &lt; Settings<i>.
+        """
+        )
+        docutext = self.tr(
+            'Find more information about the <b>database settings</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext
 
     def nextId(self):
         return self.workflow_wizard.next_id()

@@ -15,5 +15,5 @@ fi
 cd $(dirname $0)/..
 export GITHUB_WORKSPACE=$PWD # only for local execution
 
-docker-compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh $@
-docker-compose -f .docker/docker-compose.gh.yml rm -s -f
+docker compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh $@
+docker compose -f .docker/docker-compose.gh.yml rm -s -f

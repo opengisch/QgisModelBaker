@@ -32,7 +32,7 @@ import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 
@@ -47,8 +47,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.setupUi(self)
         self.setTitle(title)
 
-        # in this context we use GENERATE for the schema import and IMPORT_DATA for the data import
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.description.setText(
                 self.tr(
                     "Run the ili2db sessions to make the model imports (or skip to continue)."
@@ -131,7 +130,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 )
                 session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
                 session.print_info.connect(self.workflow_wizard.log_panel.print_info)
-                session.on_stderr.connect(self.workflow_wizard.log_panel.on_stderr)
+                session.on_stdout.connect(
+                    self.workflow_wizard.log_panel.print_stdout_info
+                )
                 session.on_process_started.connect(self._on_process_started)
                 session.on_process_finished.connect(self._on_process_finished)
                 new_sessions.append(session)
@@ -177,16 +178,16 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 loop.exec()
 
     def _on_process_started(self, command):
-        self.workflow_wizard.log_panel.print_info(command, "#000000")
+        self.workflow_wizard.log_panel.print_info(command, LogLevel.INFO)
         QCoreApplication.processEvents()
 
     def _on_process_finished(self, exit_code, result):
         if exit_code == 0:
             message = "Finished with success."
-            color = LogColor.COLOR_SUCCESS
-            if self.db_action_type == DbActionType.GENERATE:
+            level = LogLevel.SUCCESS
+            if self.db_action_type == DbActionType.SCHEMA_IMPORT:
                 message = self.tr(
-                    "Interlis model(s) successfully imported into the database!"
+                    "INTERLIS model(s) successfully imported into the database!"
                 )
             elif self.db_action_type == DbActionType.IMPORT_DATA:
                 message = self.tr(
@@ -195,7 +196,23 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             elif self.db_action_type == DbActionType.EXPORT:
                 message = self.tr("Data successfully exported into transfer file!")
         else:
-            color = LogColor.COLOR_FAIL
+            level = LogLevel.FAIL
             message = self.tr("Finished with errors!")
 
-        self.workflow_wizard.log_panel.print_info(message, color)
+        self.workflow_wizard.log_panel.print_info(message, level)
+
+    def help_text(self):
+        logline = self.tr("Run, skip or edit the required ili2db sessions...")
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">With the small triangle next to run, you can expand the possiblities.</p>
+         <p align="justify">Usually the required ili2db sessions are detected, you should not need to <b>skip</b> them.</p>
+         <p align="justify">You might need to <b>edit</b> the command in case your system requires it. But you would know, if you need to.</p>
+         <p align="justify">A pretty common use case is, that you want to import <b>invalid</b> data, to fix 'em in QGIS.<br />
+         So you can create schemas <b>without constraints</b> and/or import data <b>without validation</b>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#4-run-ili2db-sessions">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

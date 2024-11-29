@@ -1,5 +1,7 @@
-The idea of the UsabILIty Toppings is to receive additional information for implemented INTERLIS models automatically via the web.
-Just as we can get models by linking the ilimodels.xml file from http://models.interlis.ch and the linked repositories, we can get the additional information with the ilidata.xml file on all the repositories (currently including a test and demo repository https://models.opengis.ch).
+Just as we can now find INTERLIS models by searching the ilimodels.xml file from models.interlis.ch and the linked repositories, we can find additional information via the `ilidata.xml` file.
+
+!!! Note
+    The entry point is not models.interlis.ch but models.opengis.ch, which in turn links to models.interlis.ch.
 
 Settings for tools (like ili2db or Model Baker) are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
 
@@ -90,7 +92,7 @@ In the UsabILIty Toppings implementation of the Model Baker, the following types
 #### Generic
 However, the content of the `Code_` element is not strictly defined. As long as it is a URL, it is up to the tool developer how she wants to use it.
 
-> At the moment the Model Baker does not use generic categories.
+> At the moment the Model Baker uses a generic category to know for what data source this topping is made for: `http://codes.modelbaker.ch/preferredDataSource` what can be `pg` and `gpkg`.
 
 ## The ilisite.xml
 The *ilisite.xml* is based on the model `IliSite09`. It contains the class (elements) `SiteMetadata` where URLs to other repositories are defined. These repositories in turn manage an *ilimodel.xml* or - likewise - an *ilidata.xml*.

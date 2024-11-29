@@ -20,6 +20,7 @@
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import (
     QApplication,
     QCompleter,
@@ -35,9 +36,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     ModelCompleterDelegate,
 )
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
     OverrideCursor,
-    QValidator,
     make_file_selector,
 )
 from QgisModelBaker.utils import gui_utils
@@ -60,14 +59,14 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.file_browse_button.clicked.connect(
             make_file_selector(
                 self.input_line_edit,
-                title=self.tr("Open Interlis Model, Transfer or Catalogue File"),
+                title=self.tr("Open INTERLIS Model, Transfer or Catalogue File"),
                 file_filter=self.tr(
-                    "Interlis Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)"
+                    "INTERLIS Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)"
                 ),
             )
         )
 
-        self.fileValidator = FileValidator(
+        self.fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
         )
 
@@ -221,3 +220,18 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                         IliToppingFileCache.CACHE_PATH, str(exception)
                     ),
                 )
+
+    def help_text(self):
+        logline = self.tr(
+            "Here you need to add the models and/or files you want to use..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">You can select a model from the <b>repository</b> and add it with the <code><b>+</b></code>.</p>
+        <p align="justify">You can add <b>local files</b> (<code>ili</code>, <code>xtf</code>, <code>xml</code>, <code>toml</code> etc.) via the file browser or with <b>drag and drop</b>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about the <b>source selection</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#1-source-selection">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

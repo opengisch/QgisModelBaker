@@ -23,7 +23,7 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/tid_configuration.ui")
 
@@ -65,6 +65,24 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
             self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.SUCCESS_STYLE)
         else:
-            self.workflow_wizard.log_panel.print_info(message, LogColor.COLOR_WARNING)
+            self.workflow_wizard.log_panel.print_info(message, LogLevel.WARNING)
             self.progress_bar.setValue(100)
             self.setStyleSheet(gui_utils.ERROR_STYLE)
+
+    def help_text(self):
+        logline = self.tr(
+            "OIDs can be a pain to fill up - let Model Baker do it for you..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <p align="justify">Model Baker recognized the OID Type according to the model and proposed <b>default expressions</b>.</p>
+        <p align="justify">You still can change them. In case of <b><code>STANDARDOID</code></b> you have to set your own prefix.</p>
+        <h4>Reset the <code>t_id</code> value</h4>
+        <p align="justify">When using <code>STANDARDOID</code> or <code>I32OID</code> we need a sequence. Here we take the one from the <code>t_id</code>.<br />
+        When you change it here, be aware that you don't set it lower than a currently used <code>t_id</code>.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about this page in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#8-oid-values">documentation</a> and about OID settings in general <a href="https://opengisch.github.io/QgisModelBaker/background_info/oid_tid_generator/#tid_(oid)_manager">here</a>'
+        )
+        return logline, help_paragraphs, docutext

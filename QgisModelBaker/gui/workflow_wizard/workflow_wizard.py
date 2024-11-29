@@ -22,6 +22,7 @@ import pathlib
 import re
 
 from qgis.PyQt.QtCore import QEventLoop, QSize, Qt, QTimer
+from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -64,7 +65,7 @@ from QgisModelBaker.utils.gui_utils import (
     FileDropListView,
     ImportDataModel,
     ImportModelsModel,
-    LogColor,
+    LogLevel,
     PageIds,
     SchemaBasketsModel,
     SchemaDataFilterMode,
@@ -81,7 +82,7 @@ class WorkflowWizard(QWizard):
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.ModernStyle)
-        self.setOption(QWizard.NoCancelButtonOnLastPage)
+        self.setOptions(QWizard.NoCancelButtonOnLastPage | QWizard.HaveHelpButton)
 
         self.current_id = 0
 
@@ -153,7 +154,7 @@ class WorkflowWizard(QWizard):
         self.import_schema_execution_page = ExecutionPage(
             self,
             self._current_page_title(PageIds.ImportSchemaExecution),
-            DbActionType.GENERATE,
+            DbActionType.SCHEMA_IMPORT,
         )
         self.default_baskets_page = DefaultBasketsPage(
             self, self._current_page_title(PageIds.DefaultBaskets)
@@ -215,6 +216,9 @@ class WorkflowWizard(QWizard):
 
         self.currentIdChanged.connect(self.id_changed)
 
+        # on pressing the help button
+        self.helpRequested.connect(self._show_help)
+
     def sizeHint(self):
         return QSize(
             self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 48
@@ -249,7 +253,7 @@ class WorkflowWizard(QWizard):
                         return PageIds.ProjectCreation
                     else:
                         self.log_panel.print_info(
-                            self.tr("Database or schema does not exist.")
+                            self.tr("Database or schema not reachable.")
                         )
 
             if self.current_id == PageIds.ExportDatabaseSelection:
@@ -260,7 +264,7 @@ class WorkflowWizard(QWizard):
                         return PageIds.ExportDataConfiguration
                     else:
                         self.log_panel.print_info(
-                            self.tr("Database or schema does not exist.")
+                            self.tr("Database or schema not reachable.")
                         )
 
             if self.current_id == PageIds.ImportSchemaConfiguration:
@@ -412,17 +416,17 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
             self.import_database_selection_page.restore_configuration(
-                self.import_schema_configuration
+                self.import_schema_configuration, True
             )
 
         if self.current_id == PageIds.GenerateDatabaseSelection:
             self.generate_database_selection_page.restore_configuration(
-                self.import_schema_configuration
+                self.import_schema_configuration, True
             )
 
         if self.current_id == PageIds.ExportDatabaseSelection:
             self.export_database_selection_page.restore_configuration(
-                self.export_data_configuration
+                self.export_data_configuration, True
             )
 
         if self.current_id == PageIds.ImportSchemaConfiguration:
@@ -577,7 +581,7 @@ class WorkflowWizard(QWizard):
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
                 self.log_panel.print_info(
-                    self.tr("- - Got file {}").format(file_path), LogColor.COLOR_TOPPING
+                    self.tr("- - Got file {}").format(file_path), LogLevel.TOPPING
                 )
                 file_path_list.append(file_path)
         return file_path_list
@@ -598,7 +602,7 @@ class WorkflowWizard(QWizard):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.log_panel.print_info(self.tr("- - Downloading…"), LogColor.COLOR_TOPPING)
+        self.log_panel.print_info(self.tr("- - Downloading…"), LogLevel.TOPPING)
 
         # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
         loop.exec()
@@ -606,7 +610,7 @@ class WorkflowWizard(QWizard):
         if len(topping_file_cache.downloaded_files) == len(id_list):
             self.log_panel.print_info(
                 self.tr("- - All topping files successfully downloaded"),
-                LogColor.COLOR_TOPPING,
+                LogLevel.TOPPING,
             )
         else:
             missing_file_ids = id_list
@@ -618,7 +622,7 @@ class WorkflowWizard(QWizard):
                     self.tr(
                         "- - Some topping files where not successfully downloaded: {}"
                     ).format(" ".join(missing_file_ids)),
-                    LogColor.COLOR_TOPPING,
+                    LogLevel.TOPPING,
                 )
             except Exception:
                 pass
@@ -694,6 +698,34 @@ class WorkflowWizard(QWizard):
                 dropped_ini_files[0]
             )
 
+    def _show_help(self):
+        current_id = self.currentId()
+        title = self.tr("Help at {}".format(self._current_page_title(current_id)))
+        logline, help_paragraphs, docutext = self.currentPage().help_text()
+        text = """<hr>
+        {help_paragraphs}
+        <hr>
+        {docu_and_community_paragraphs}
+        """.format(
+            help_paragraphs=help_paragraphs,
+            docutext=docutext,
+            docu_and_community_paragraphs=self.tr(
+                """
+            <p align="justify">{docutext}</p>
+            <p align="justify">...or get community help at {forum} or at {github}</p>
+            """
+            ).format(
+                docutext=docutext,
+                forum='<a href="https://interlis.discourse.group/c/interlis-werkzeuge/qgis-model-baker">Model Baker @ INTERLIS Forum</a>',
+                github='<a href="https://github.com/opengisch/QgisModelBaker/issues">GitHub</a>',
+            ),
+        )
+        log_paragraph = f'<p align="justify"><b><code>&lt; {logline}</code></b></p>'
+
+        self.help_dlg = HelpDialog(self, title, log_paragraph, text)
+        self.help_dlg.setAttribute(Qt.WA_DeleteOnClose)
+        self.help_dlg.show()
+
     def busy(self, page, busy, text="Busy..."):
         page.setEnabled(not busy)
         self.log_panel.busy_bar.setVisible(busy)
@@ -732,3 +764,29 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.append_dropped_files(dropped_files, dropped_ini_files)
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
+
+
+class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):
+    def __init__(
+        self,
+        parent=None,
+        title="Help",
+        logline="I need somebody",
+        text="Not just anybody",
+    ):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+
+        self.setWindowTitle(title)
+        scaled_pixmap = QPixmap(
+            os.path.join(
+                os.path.dirname(__file__), "../../images/QgisModelBaker-icon.svg"
+            )
+        ).scaled(
+            int(self.fontMetrics().lineSpacing() * 4.5),
+            self.fontMetrics().lineSpacing() * 5,
+        )
+
+        self.imagelabel.setPixmap(scaled_pixmap)
+        self.loglinelabel.setText(logline)
+        self.textlabel.setText(text)

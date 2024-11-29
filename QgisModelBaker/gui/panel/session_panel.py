@@ -19,8 +19,9 @@
 
 import os
 
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QWidget
+from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox, QWidget
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
@@ -34,16 +35,16 @@ from QgisModelBaker.libs.modelbaker.iliwrapper import (
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
-from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME, DbIliMode
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
 
 
 class SessionPanel(QWidget, WIDGET_UI):
 
-    print_info = pyqtSignal(str, str)
-    on_stderr = pyqtSignal(str)
+    print_info = pyqtSignal(str, int)
+    on_stdout = pyqtSignal(str)
     on_process_started = pyqtSignal(str)
     on_process_finished = pyqtSignal(int, int)
     on_done_or_skipped = pyqtSignal(object, bool)
@@ -79,7 +80,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
 
         self.db_action_type = db_action_type
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.create_without_constraints_text = self.tr("Run without constraints")
         else:
             self.create_without_constraints_text = self.tr("Run without validation")
@@ -108,7 +109,14 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.configuration.tool & DbIliMode.pg:
+            # on pg we should consider the user account name as fallback
+            if (
+                not self.configuration.db_use_super_login
+                and not self.configuration.dbusr
+            ):
+                self.configuration.dbusr = QgsApplication.userLoginName()
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self.configuration.ilifile = ""
             if os.path.isfile(self.file):
                 self.configuration.ilifile = self.file
@@ -295,7 +303,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         if not res:
             self.print_info.emit(
                 message,
-                LogColor.COLOR_FAIL,
+                LogLevel.FAIL,
             )
 
     def edit_command(self):
@@ -313,7 +321,7 @@ class SessionPanel(QWidget, WIDGET_UI):
     def run(self, edited_command=None):
         if self.is_running:
             # means this is called by "cancel" option
-            self.print_info.emit(self.tr("Cancel session..."), LogColor.COLOR_INFO)
+            self.print_info.emit(self.tr("Cancel session..."), LogLevel.INFO)
             self.set_button_to_last_create_state()
             self.cancel_session.emit()
             return
@@ -323,7 +331,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.set_button_to_cancel()
             self.is_running = True
 
-        if self.db_action_type == DbActionType.GENERATE:
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
             self._pre_generate_project()
 
         porter = self._get_porter()
@@ -332,10 +340,8 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.progress_bar.setTextVisible(False)
             self.progress_bar.setValue(10)
 
-            porter.stdout.connect(
-                lambda str: self.print_info.emit(str, LogColor.COLOR_INFO)
-            )
-            porter.stderr.connect(self.on_stderr)
+            porter.stdout.connect(self.on_stdout)
+            porter.stderr.connect(self.on_stdout)
             porter.process_started.connect(self.on_process_started)
             porter.process_finished.connect(self.on_process_finished)
             self.cancel_session.connect(porter.cancel_process)
@@ -344,16 +350,16 @@ class SessionPanel(QWidget, WIDGET_UI):
             try:
                 if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
                     self.progress_bar.setValue(0)
-                    if not self.db_action_type == DbActionType.GENERATE:
+                    if not self.db_action_type == DbActionType.SCHEMA_IMPORT:
                         self.set_button_to_create_without_constraints()
                     else:
                         self.set_button_to_create()
                     self.is_running = False
                     return False
             except JavaNotFoundError as e:
-                self.print_info.emit(e.error_string, LogColor.COLOR_FAIL)
+                self.print_info.emit(e.error_string, LogLevel.FAIL)
                 self.progress_bar.setValue(0)
-                if not self.db_action_type == DbActionType.GENERATE:
+                if not self.db_action_type == DbActionType.SCHEMA_IMPORT:
                     self.set_button_to_create_without_constraints()
                 else:
                     self.set_button_to_create()
@@ -371,7 +377,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             # an user interaction (cancel) here cannot interupt the process, why it's disabled (and enabled again below).
             self.setDisabled(True)
             if (
-                self.db_action_type == DbActionType.GENERATE
+                self.db_action_type == DbActionType.SCHEMA_IMPORT
                 and self.configuration.create_basket_col
             ):
                 self._create_default_dataset()
@@ -379,14 +385,14 @@ class SessionPanel(QWidget, WIDGET_UI):
 
             self.set_button_to_last_create_state()
             self.is_running = False
-            self.print_info.emit(f'{self.tr("Done!")}\n', LogColor.COLOR_SUCCESS)
+            self.print_info.emit(f'{self.tr("Done!")}\n', LogLevel.SUCCESS)
             self._done()
             return True
 
     def _create_default_dataset(self):
         self.print_info.emit(
             self.tr("Create the default dataset {}").format(DEFAULT_DATASETNAME),
-            LogColor.COLOR_INFO,
+            LogLevel.INFO,
         )
         db_connector = db_utils.get_db_connector(self.configuration)
 
@@ -400,7 +406,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             default_dataset_tid = default_datasets_info_tids[0]
         else:
             status, message = db_connector.create_dataset(DEFAULT_DATASETNAME)
-            self.print_info.emit(message, LogColor.COLOR_INFO)
+            self.print_info.emit(message, LogLevel.INFO)
             if status:
                 default_datasets_info_tids = [
                     datasets_info["t_id"]
@@ -415,7 +421,7 @@ class SessionPanel(QWidget, WIDGET_UI):
                 self.tr(
                     "No default dataset created ({}) - do it manually in the dataset manager."
                 ).format(message),
-                LogColor.COLOR_FAIL,
+                LogLevel.FAIL,
             )
 
     def _get_tid_handling(self):

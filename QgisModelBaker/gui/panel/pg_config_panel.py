@@ -19,21 +19,18 @@
 import logging
 from enum import IntEnum
 
-from qgis.PyQt.QtCore import Qt, QThread, QTimer
+from qgis.PyQt.QtCore import QSettings, Qt, QThread, QTimer
 
-import QgisModelBaker.libs.modelbaker.libs.pgserviceparser as pgserviceparser
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    BaseConfiguration,
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    NonEmptyStringValidator,
-    Validators,
-)
 from QgisModelBaker.utils import gui_utils
 
+from ...utils.globals import AdministrativeDBActionTypes
 from .db_config_panel import DbConfigPanel
 
 WIDGET_UI = gui_utils.get_ui_class("pg_settings_panel.ui")
@@ -72,24 +69,26 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self._read_pg_schemas_task = ReadPgSchemasTask(self)
         self._read_pg_schemas_task.finished.connect(self._read_pg_schemas_task_finished)
 
-        from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-            BaseConfiguration,
-        )
+        self.base_config = BaseConfiguration()
+        settings = QSettings()
+        settings.beginGroup("QgisModelBaker/ili2db")
+        self.base_config.restore(settings)
 
         self.pg_use_super_login.setText(
             self.tr(
                 "Execute data management tasks with superuser login from settings ({})"
-            ).format(BaseConfiguration().super_pg_user)
+            ).format(self.base_config.super_pg_user)
         )
+
         self.pg_use_super_login.setToolTip(
             self.tr(
-                "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li><li>Export data to XTF</li></ul>"
+                "Data management tasks are <ul><li>Create the schema</li><li>Read meta information</li><li>Import data from XTF</li></ul>"
             )
         )
 
         # define validators
-        self.validators = Validators()
-        nonEmptyValidator = NonEmptyStringValidator()
+        self.validators = gui_utils.Validators()
+        nonEmptyValidator = gui_utils.NonEmptyStringValidator()
 
         self.pg_host_line_edit.setValidator(nonEmptyValidator)
         self.pg_database_line_edit.setValidator(nonEmptyValidator)
@@ -116,9 +115,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_auth_settings.passwordChanged.connect(self._fields_modified)
         self.pg_auth_settings.configIdChanged.connect(self._fields_modified)
 
+        self.pg_use_super_login.stateChanged.connect(self._fields_modified)
+
         # Fill pg_services combo box
         self.pg_service_combo_box.addItem(self.tr("None"), None)
-        for service in pgserviceparser.service_names():
+        services, _ = db_utils.get_service_names()
+        for service in services:
             self.pg_service_combo_box.addItem(service, service)
 
         self.pg_service_combo_box.currentIndexChanged.connect(
@@ -191,16 +193,20 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self._fill_schema_combo_box()
 
         if (
-            self._db_action_type == DbActionType.GENERATE
+            self._db_action_type == DbActionType.SCHEMA_IMPORT
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
             self.pg_schema_combo_box.lineEdit().setPlaceholderText(
                 self.tr("Schema Name")
             )
-        elif self._db_action_type == DbActionType.EXPORT:
+        elif (
+            self._db_action_type == DbActionType.EXPORT
+            or self._db_action_type == DbActionType.GENERATE
+        ):
             self.pg_schema_combo_box.lineEdit().setPlaceholderText(
                 self.tr("[Enter a valid schema]")
             )
+            self.pg_use_super_login.setVisible(False)
         else:
             logging.error(f"Unknown action type: {self._db_action_type}")
 
@@ -221,7 +227,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def set_fields(self, configuration):
 
-        if configuration.dbservice is None:
+        service_config, error = db_utils.get_service_config(configuration.dbservice)
+        if error:
+            logging.warning(error)
+
+        # if no dbservice in the configuration or one is there but the servicefile is not available anymore
+        if not service_config:
 
             indexNoService = self.pg_service_combo_box.findData(
                 None, PgConfigPanel._SERVICE_COMBOBOX_ROLE.DBSERVICE
@@ -267,21 +278,48 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 PgConfigPanel._SERVICE_COMBOBOX_ROLE.SSLMODE,
             )
 
-        self.pg_host_line_edit.setText(configuration.dbhost)
-        self.pg_port_line_edit.setText(configuration.dbport)
-        self.pg_auth_settings.setUsername(configuration.dbusr)
-        self.pg_database_line_edit.setText(configuration.database)
-        self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
-        self.pg_auth_settings.setPassword(configuration.dbpwd)
-        self.pg_auth_settings.setConfigId(configuration.dbauthid)
+            self.pg_host_line_edit.setText(configuration.dbhost)
+            self.pg_port_line_edit.setText(configuration.dbport)
+            self.pg_auth_settings.setUsername(configuration.dbusr)
+            self.pg_database_line_edit.setText(configuration.database)
+            self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
+            self.pg_auth_settings.setPassword(configuration.dbpwd)
+            self.pg_auth_settings.setConfigId(configuration.dbauthid)
 
-        index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
-        self.pg_ssl_mode_combo_box.setCurrentIndex(index)
+            index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+            self.pg_ssl_mode_combo_box.setCurrentIndex(index)
 
-        self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+        else:
+            index = self.pg_service_combo_box.findData(configuration.dbservice)
+            self.pg_service_combo_box.setCurrentIndex(index)
 
-        index = self.pg_service_combo_box.findData(configuration.dbservice)
-        self.pg_service_combo_box.setCurrentIndex(index)
+            # Only apply stored QSettings if the
+            # PG service didn't have a value for them
+            if not service_config.get("host"):
+                self.pg_host_line_edit.setText(configuration.dbhost)
+
+            if not service_config.get("port"):
+                self.pg_port_line_edit.setText(configuration.dbport)
+
+            if not service_config.get("dbname"):
+                self.pg_database_line_edit.setText(configuration.database)
+
+            if not service_config.get("user"):
+                self.pg_auth_settings.setUsername(configuration.dbusr)
+
+            if not service_config.get("password"):
+                self.pg_auth_settings.setPassword(configuration.dbpwd)
+
+            if not service_config.get("sslmode"):
+                index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+                self.pg_ssl_mode_combo_box.setCurrentIndex(index)
+
+            # On the contrary, next settings will never be stored
+            # in PG service, so always take them from QSettings
+            self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
+            self.pg_auth_settings.setConfigId(configuration.dbauthid)
+            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
 
     def is_valid(self):
         result = False
@@ -293,17 +331,12 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             message = self.tr("Please set a database before creating the project.")
             self.pg_database_line_edit.setFocus()
         elif (
-            not self.pg_auth_settings.username()
-            and not self.pg_auth_settings.configId()
+            self.pg_auth_settings.configId()
+            and not self.pg_use_super_login.isChecked()
+            and self._db_action_type
+            in {item.value for item in AdministrativeDBActionTypes}
         ):
-            message = self.tr(
-                "Please set a username or select an authentication configuration before creating the "
-                "project."
-            )
-            self.pg_auth_settings.setFocus()
-        elif (
-            self.pg_auth_settings.configId() and not self.pg_use_super_login.isChecked()
-        ):
+            # For Python v3.12+, we can just check like this: self._db_action_type in AdministrativeDBActionTypes
             message = self.tr(
                 "Use superuser login for data management tasks when you use an authentication configuration."
             )
@@ -320,11 +353,13 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if self._current_service is None:
             self._keep_custom_settings()
 
-        if service:
-            service_config = pgserviceparser.service_config(service)
+        service_config, error = db_utils.get_service_config(service)
+        if error:
+            logging.warning(error)
 
+        if service_config:
             # QGIS cannot handle manually set hosts with service
-            # So it needs to has a host defined in service conf or it takes localhost
+            # So it needs to have a host defined in service conf or it takes localhost
             self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
 
             self.pg_port_line_edit.setText(service_config.get("port", ""))
@@ -485,6 +520,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             return
 
         configuration = Ili2DbCommandConfiguration()
+        configuration.base_configuration = self.base_config
         self.get_fields(configuration)
         configuration.tool = DbIliMode.pg
 

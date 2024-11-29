@@ -60,12 +60,12 @@ class ModelsPage(QWizardPage, PAGE_UI):
                         models=", ".join(self.topping_wizard.topping.models)
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         else:
             self.topping_wizard.log_panel.print_info(
                 self.tr("No models set."),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         self.topping_wizard.topping.preferred_datasource = (
             self.source_combobox.currentData()
@@ -73,8 +73,10 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().validatePage()
 
     def _refresh(self):
+        self.topping_wizard.busy(self, True, self.tr("Refresh model information..."))
         self._load_available_models_and_sources()
         self.models_model.check_entries(self.topping_wizard.topping.models)
+        self.topping_wizard.busy(self, False)
 
     def _load_available_models_and_sources(self):
         """
@@ -104,7 +106,6 @@ class ModelsPage(QWizardPage, PAGE_UI):
                         source_provider, current_configuration
                     )
                     if valid and mode:
-                        current_configuration.tool = mode
                         db_connector = db_utils.get_db_connector(current_configuration)
                         if db_connector:
                             db_connectors.append(db_connector)

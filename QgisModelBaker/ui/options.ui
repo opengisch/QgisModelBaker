@@ -91,7 +91,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Interlis</string>
+       <string>INTERLIS</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0" colspan="2">
@@ -115,7 +115,7 @@
               </property>
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Directories which contain Interlis Models (ili files). Several paths can be separated with a semicolon `;`. It is also possible to specify URL's of model repositories.&lt;/p&gt;
+&lt;p&gt;Directories which contain INTERLIS Models (ili files). Several paths can be separated with a semicolon `;`. It is also possible to specify URL's of model repositories.&lt;/p&gt;
 &lt;dl&gt;
 &lt;dt&gt;%ILI_FROM_DB&lt;/dt&gt;&lt;dd&gt;is a placeholder for the models in the database (in the table &lt;code&gt;t_ili2db_model&lt;/code&gt;).
 &lt;/dt&gt;

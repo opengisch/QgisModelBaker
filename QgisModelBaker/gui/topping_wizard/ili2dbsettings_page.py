@@ -16,9 +16,10 @@
  *                                                                         *
  ***************************************************************************/
 """
+import tempfile
 from enum import IntEnum
 
-from qgis.core import QgsMapLayer, QgsProject
+from qgis.core import Qgis, QgsMapLayer, QgsMessageLog, QgsProject
 from qgis.PyQt.QtCore import QAbstractItemModel, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import QHeaderView, QTableView, QWizardPage
 
@@ -26,11 +27,8 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils import db_utils
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.ili2db_utils import Ili2DbUtils
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/ili2dbsettings.ui")
@@ -153,13 +151,13 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                 file_filter=self.tr("SQL script to run after (*.sql *.SQL)"),
             )
         )
-        self.validators = Validators()
-        self.file_validator = FileValidator(
+        self.validators = gui_utils.Validators()
+        self.file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(
+        self.sql_file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -214,7 +212,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     schema=self.schema_combobox.currentText()
                 )
             ),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path:
             self.topping_wizard.log_panel.print_info(
@@ -223,7 +221,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path:
             self.topping_wizard.log_panel.print_info(
@@ -232,7 +230,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
             self.topping_wizard.log_panel.print_info(
@@ -241,14 +239,14 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                         path=self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
                     )
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         if self.topping_wizard.topping.metaconfig.metaconfigparamsonly:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "This metaconfiguration will be passed without any additional settings on import made by Model Baker (except models and on disable constraint run): qgis.modelbaker.metaConfigParamsOnly = true"
                 ),
-                gui_utils.LogColor.COLOR_SUCCESS,
+                gui_utils.LogLevel.SUCCESS,
             )
         return super().validatePage()
 
@@ -275,7 +273,6 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                     source_provider, configuration
                 )
                 if valid and mode:
-                    configuration.tool = mode
                     db_connector = db_utils.get_db_connector(configuration)
                     # only load it when it exists and metadata there (contains interlis data)
                     if (
@@ -292,15 +289,28 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
 
     def _schema_changed(self):
+        self.topping_wizard.busy(
+            self, True, self.tr("Get ili2db settings of the current schema...")
+        )
         configuration = self.schema_combobox.currentData()
+        parsed_from_file = False
         if configuration:
-            db_connector = db_utils.get_db_connector(configuration)
-            if db_connector:
-                self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_db(
-                    db_connector
+            _, tmp_ini_file = tempfile.mkstemp(".ini")
+
+            ili2db_utils = Ili2DbUtils()
+            ili2db_utils.log_on_error.connect(self._log_on_export_metagonfig_error)
+            res, msg = ili2db_utils.export_metaconfig(tmp_ini_file, configuration)
+            if res:
+                parsed_from_file = self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_ini_file(
+                    tmp_ini_file
                 )
-        else:
+        if not parsed_from_file:
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = {}
         self.parameters_model.refresh_model(
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )
+        self.topping_wizard.busy(self, False)
+
+    def _log_on_export_metagonfig_error(self, log):
+        QgsMessageLog.logMessage(log, self.tr("Export metaConfig"), Qgis.Critical)
+

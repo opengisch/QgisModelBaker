@@ -57,8 +57,11 @@ Some additional non standard meta attributes are understood by the Model Baker a
 ### List of specific Attributes
 
 - **qgis.modelbaker.dispExpression**
-Used as the display expression for a layer. The display expression is the *name* that is used to identify a feature by text. One of the places where this is used is the combobox that is shown for a Relation Reference Widget on feature forms. ![relation reference](../assets/meta_attributes_relation_reference.png)
 
+  Used as the display expression for a layer. The display expression is the *name* that is used to identify a feature by text. One of the places where this is used is the combobox that is shown for a Relation Reference Widget on feature forms. ![relation reference](../assets/meta_attributes_relation_reference.png)
+- **qgis.modelbaker.formOrder**
+
+  Used to define the order of the attributes in the form like `!!@qgis.modelbaker.formOrder=1`. If you define the order of an attribute, all other attributes in the class will have a lower priority, what means when you set the order for one single attribute (the value doesn't matter) it will appear as the first attribute in the corresponding form.
 
 ## Extra Meta Attribute File
 

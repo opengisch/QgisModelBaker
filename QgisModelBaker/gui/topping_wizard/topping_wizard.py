@@ -95,6 +95,14 @@ class ToppingWizard(QWizard):
             self.tr(f" > ---------- {self._current_page_title(self.current_id)}")
         )
 
+    def busy(self, page, busy, text="Busy..."):
+        page.setEnabled(not busy)
+        self.log_panel.busy_bar.setVisible(busy)
+        if busy:
+            self.log_panel.busy_bar.setFormat(text)
+        else:
+            self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
+
     def _current_page_title(self, id):
         if id == ToppingWizardPageIds.Target:
             return self.tr("Target Folder Selection")

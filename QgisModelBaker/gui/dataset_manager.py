@@ -16,22 +16,27 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsApplication, QgsMapLayer, QgsProject
-from qgis.PyQt.QtCore import QSettings, Qt, QTimer
-from qgis.PyQt.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableView
+from qgis.core import Qgis, QgsApplication, QgsMapLayer, QgsMessageLog, QgsProject
+from qgis.gui import QgsMessageBar
+from qgis.PyQt.QtCore import QSettings, Qt
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QHeaderView,
+    QMessageBox,
+    QSizePolicy,
+    QTableView,
+)
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.basket_manager import BasketManagerDialog
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from QgisModelBaker.gui.panel import db_panel_utils
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
-from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.ili2db_utils import Ili2DbUtils
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.globals import displayDbIliMode
 from QgisModelBaker.utils.gui_utils import DatasetModel
 
 DIALOG_UI = gui_utils.get_ui_class("dataset_manager.ui")
@@ -42,28 +47,16 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
         QDialog.__init__(self, parent)
         self.iface = iface
+        self.embedded = wizard_embedded
         self._close_editing()
 
         self.setupUi(self)
         self.buttonBox.accepted.connect(self._accepted)
-        self.buttonBox.rejected.connect(self._rejected)
+        self.bar = QgsMessageBar()
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.info_layout.addWidget(self.bar, 0, Qt.AlignTop)
 
-        self.type_combo_box.clear()
-        self._lst_panel = dict()
         self.db_simple_factory = DbSimpleFactory()
-
-        for db_id in self.db_simple_factory.get_db_list(False):
-            self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            item_panel = db_panel_utils.get_config_panel(
-                db_id, self, DbActionType.EXPORT
-            )
-            self._lst_panel[db_id] = item_panel
-            self.db_layout.addWidget(item_panel)
-
-        self.type_combo_box.currentIndexChanged.connect(self._type_changed)
-
-        # when opened by the wizard it uses the current db connection settings and should not be changable
-        self.db_frame.setHidden(wizard_embedded)
 
         self.dataset_model = DatasetModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(
@@ -74,29 +67,27 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setSelectionMode(QTableView.SingleSelection)
         self.dataset_tableview.setModel(self.dataset_model)
 
-        self._restore_configuration()
-
-        # refresh the models on changing values but avoid massive db connects by timer
-        self.refreshTimer = QTimer()
-        self.refreshTimer.setSingleShot(True)
-        self.refreshTimer.timeout.connect(
-            lambda: self._refresh_datasets(self._updated_configuration())
-        )
-
-        for key, value in self._lst_panel.items():
-            value.notify_fields_modified.connect(self._request_for_refresh_datasets)
-
-        self._refresh_datasets(self._updated_configuration())
-
         self.add_button.clicked.connect(self._add_dataset)
         self.edit_button.clicked.connect(self._edit_dataset)
-        self.basket_manager_button.clicked.connect(self._open_basket_manager)
+        self.delete_button.clicked.connect(self._delete_dataset)
         self.dataset_tableview.selectionModel().selectionChanged.connect(
             lambda: self._enable_dataset_handling(True)
         )
 
+        if self.embedded:
+            # While performing an Import Data operation,
+            # baskets should not be shown, since the operation
+            # will create a new basket for the chosen dataset.
+            self.basket_manager_button.setVisible(False)
+        else:
+            self.basket_manager_button.clicked.connect(self._open_basket_manager)
+
         self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
         self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
+        self.delete_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+
+        self.configuration = self._evaluated_configuration()
+        self._refresh_datasets()
 
     def _close_editing(self):
         editable_layers = []
@@ -128,47 +119,37 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.dataset_tableview.setEnabled(enable)
         self.add_button.setEnabled(enable)
         self.edit_button.setEnabled(self._valid_selection())
+        self.delete_button.setEnabled(self._valid_selection())
         self.basket_manager_button.setEnabled(self._valid_selection())
 
-    def _type_changed(self):
-        ili_mode = self.type_combo_box.currentData()
-        db_id = ili_mode & ~DbIliMode.ili
-
-        self.db_wrapper_group_box.setTitle(displayDbIliMode[db_id])
-
-        # Refresh panels
-        for key, value in self._lst_panel.items():
-            is_current_panel_selected = db_id == key
-            value.setVisible(is_current_panel_selected)
-            if is_current_panel_selected:
-                value._show_panel()
-        self._refresh_datasets(self._updated_configuration())
-
-    def _request_for_refresh_datasets(self):
-        # hold refresh back
-        self.refreshTimer.start(500)
-
-    def _refresh_datasets(self, configuration):
-        db_connector = db_utils.get_db_connector(configuration)
-        if db_connector and db_connector.get_basket_handling:
+    def _refresh_datasets(self):
+        db_connector = db_utils.get_db_connector(self.configuration)
+        if db_connector and db_connector.get_basket_handling():
+            self.dataset_model.refresh_model(db_connector)
             self._enable_dataset_handling(True)
-            return self.dataset_model.refresh_model(db_connector)
         else:
+            self.bar.pushWarning(
+                self.tr("Warning"),
+                self.tr(
+                    "This source does not support datasets and baskets (recreate it with basket columns)."
+                ),
+            )
+            self.dataset_model.clear()
             self._enable_dataset_handling(False)
-            return self.dataset_model.clear()
+        return
 
     def _add_dataset(self):
-        db_connector = db_utils.get_db_connector(self._updated_configuration())
-        if db_connector and db_connector.get_basket_handling:
+        db_connector = db_utils.get_db_connector(self.configuration)
+        if db_connector and db_connector.get_basket_handling():
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
             edit_dataset_dialog.exec_()
-            self._refresh_datasets(self._updated_configuration())
+            self._refresh_datasets()
             self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
     def _edit_dataset(self):
         if self._valid_selection():
-            db_connector = db_utils.get_db_connector(self._updated_configuration())
-            if db_connector and db_connector.get_basket_handling:
+            db_connector = db_utils.get_db_connector(self.configuration)
+            if db_connector and db_connector.get_basket_handling():
                 dataset = (
                     self.dataset_tableview.selectedIndexes()[0].data(
                         int(DatasetModel.Roles.TID)
@@ -179,18 +160,75 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 )
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
                 edit_dataset_dialog.exec_()
-                self._refresh_datasets(self._updated_configuration())
+                self._refresh_datasets()
                 self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
+
+    def _delete_dataset(self):
+        if self._valid_selection():
+            db_connector = db_utils.get_db_connector(self.configuration)
+            if not db_connector.get_basket_handling():
+                QMessageBox.warning(
+                    self,
+                    self.tr("Delete Dataset"),
+                    self.tr(
+                        "Delete datasets is only available for database schemas created with --createBasketCol parameter."
+                    ),
+                    QMessageBox.Close,
+                )
+                return
+
+            if (
+                QMessageBox.warning(
+                    self,
+                    self.tr("Delete Dataset"),
+                    self.tr(
+                        "Deleting a Dataset will also delete children baskets and all the data they contain. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
+                    ),
+                    QMessageBox.No | QMessageBox.Yes,
+                )
+                == QMessageBox.Yes
+            ):
+                dataset = self.dataset_tableview.selectedIndexes()[0].data(
+                    int(DatasetModel.Roles.DATASETNAME)
+                )
+                ili2db_utils = Ili2DbUtils()
+                ili2db_utils.log_on_error.connect(self._log_on_delete_dataset_error)
+                res, msg = ili2db_utils.delete_dataset(dataset, self.configuration)
+                if res:
+                    # After deletion, make sure canvas is refreshed
+                    self._refresh_map_layers()
+
+                    # Refresh dataset table view
+                    self._refresh_datasets()
+
+                warning_box = QMessageBox(self)
+                warning_box.setIcon(
+                    QMessageBox.Information if res else QMessageBox.Warning
+                )
+                warning_box.setWindowTitle(self.tr("Delete Dataset"))
+                warning_box.setText(msg)
+                warning_box.exec_()
+
+    def _log_on_delete_dataset_error(self, log):
+        QgsMessageLog.logMessage(log, self.tr("Delete dataset from DB"), Qgis.Critical)
+
+    def _refresh_map_layers(self):
+        # Refresh layer data sources and also their symbology (including feature count)
+        layer_tree_view = self.iface.layerTreeView()
+        for tree_layer in QgsProject.instance().layerTreeRoot().findLayers():
+            layer = tree_layer.layer()
+            layer.dataProvider().reloadData()
+            layer_tree_view.refreshLayerSymbology(layer.id())
 
     def _open_basket_manager(self):
         if self._valid_selection():
-            db_connector = db_utils.get_db_connector(self._updated_configuration())
-            if db_connector and db_connector.get_basket_handling:
+            db_connector = db_utils.get_db_connector(self.configuration)
+            if db_connector and db_connector.get_basket_handling():
                 datasetname = self.dataset_tableview.selectedIndexes()[0].data(
                     int(DatasetModel.Roles.DATASETNAME)
                 )
                 basket_manager_dialog = BasketManagerDialog(
-                    self, db_connector, datasetname
+                    self.iface, self, db_connector, datasetname, self.configuration
                 )
                 basket_manager_dialog.exec_()
 
@@ -206,46 +244,88 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             self.dataset_tableview.setCurrentIndex(matches[0])
             self.dataset_tableview.scrollTo(matches[0])
 
-    def _restore_configuration(self):
+    def _evaluated_configuration(self):
+        configuration = Ili2DbCommandConfiguration()
+
+        if self.embedded:
+            # when embedded, just use the current configuration
+            configuration = self._restored_configuration()
+        else:
+            valid = False
+            mode = None
+
+            layer = self._relevant_layer()
+            if layer:
+                source_provider = layer.dataProvider()
+                valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    source_provider, configuration
+                )
+                source_info_text = self.tr(
+                    "<body><p>It's the datasource of the current project, evaluated by layer <b>{}</b>.</p>"
+                ).format(layer.name())
+
+            # when no valid configuration has been read from layer(s), take the last stored
+            if not valid or not mode:
+                configuration = self._restored_configuration()
+                source_info_text = self.tr(
+                    "<p>It's the last time used datasource, since no valid layer in the current project (probably empty project).</p>"
+                )
+
+            if configuration.tool == DbIliMode.gpkg:
+                self.info_label.setText(
+                    self.tr(
+                        """<html><head/><body><p><b>Modify datasets and baskets in the GeoPackage databasefile <span style=" font-family:'monospace'; color:'#9BCADE';">{}</span></b></p>{}</body></html>"""
+                    ).format(configuration.dbfile, source_info_text)
+                )
+            elif (
+                configuration.tool == DbIliMode.pg
+                or configuration.tool == DbIliMode.mssql
+            ):
+                self.info_label.setText(
+                    self.tr(
+                        """<html><head/><body><p><b>Modify datasets and baskets in the schema <span style=" font-family:'monospace'; color:'#9BCADE';">{}</span> at the PostgreSQL database <span style=" font-family:'monospace'; color:'#9BCADE';">{}</span></b></p>{}</body></html>"""
+                    ).format(
+                        configuration.dbschema, configuration.database, source_info_text
+                    )
+                )
+            else:
+                self.info_label.setText(
+                    self.tr(
+                        """<html><head/><body><p><b>No valid datasource found. Open or create an INTERLIS based QGIS project first.</b></p></body></html>"""
+                    )
+                )
+
+        return configuration
+
+    def _relevant_layer(self):
+        layer = None
+
+        for layer in [self.iface.activeLayer()] + list(
+            QgsProject.instance().mapLayers().values()
+        ):
+            if layer and layer.dataProvider() and layer.dataProvider().isValid():
+                return layer
+
+    def _restored_configuration(self):
         settings = QSettings()
-
-        for db_id in self.db_simple_factory.get_db_list(False):
-            configuration = Ili2DbCommandConfiguration()
-            db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(configuration)
-            config_manager.load_config_from_qsettings()
-            self._lst_panel[db_id].set_fields(configuration)
-
+        configuration = Ili2DbCommandConfiguration()
         mode = settings.value("QgisModelBaker/importtype")
         mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
         mode = mode & ~DbIliMode.ili
-
-        self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
-        self._type_changed()
-
-    def _updated_configuration(self):
-        configuration = Ili2DbCommandConfiguration()
-
-        mode = self.type_combo_box.currentData()
-        self._lst_panel[mode].get_fields(configuration)
-
+        db_factory = self.db_simple_factory.create_factory(mode)
+        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager.load_config_from_qsettings()
         configuration.tool = mode
-        configuration.db_ili_version = db_utils.db_ili_version(configuration)
         return configuration
 
     def _save_configuration(self, configuration):
         settings = QSettings()
-        settings.setValue(
-            "QgisModelBaker/importtype", self.type_combo_box.currentData().name
-        )
-        mode = self.type_combo_box.currentData()
+        settings.setValue("QgisModelBaker/importtype", configuration.tool.name)
+        mode = configuration.tool
         db_factory = self.db_simple_factory.create_factory(mode)
         config_manager = db_factory.get_db_command_config_manager(configuration)
         config_manager.save_config_in_qsettings()
 
     def _accepted(self):
-        self._save_configuration(self._updated_configuration())
-        self.close()
-
-    def _rejected(self):
+        self._save_configuration(self.configuration)
         self.close()

@@ -16,18 +16,16 @@
  *                                                                         *
  ***************************************************************************/
 """
+from osgeo import gdal
+from qgis.core import Qgis
 from qgis.gui import QgsGui, QgsMessageBar
 from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogColor
+from QgisModelBaker.utils.gui_utils import LogLevel, get_text_color
 
 DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
 
@@ -36,6 +34,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     ValidExtensions = ["toml", "TOML", "ini", "INI"]
     SQLValidExtensions = ["sql", "SQL"]
+    COLOR_INFO = get_text_color(LogLevel.INFO)
+    COLOR_WARNING = get_text_color(LogLevel.WARNING)
+    COLOR_TOPPING = get_text_color(LogLevel.TOPPING)
 
     def __init__(self, parent=None, remove_create_tid_group=True):
         """
@@ -79,13 +80,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             )
         )
 
-        self.validators = Validators()
-        self.file_validator = FileValidator(
+        self.validators = gui_utils.Validators()
+        self.file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
-        self.sql_file_validator = FileValidator(
+        self.sql_file_validator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -138,6 +139,21 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
         self.create_import_tid_groupbox.setHidden(remove_create_tid_group)
 
+        # on gdal versions that dont support multiple geometries per table it's disabled
+        if int(gdal.VersionInfo("VERSION_NUM")) < 3080000:
+            self.create_gpkg_multigeom_groupbox.setHidden(True)
+        else:
+            self.create_gpkg_multigeom_groupbox.setHidden(False)
+            self.create_gpkg_multigeom_checkbox.setToolTip(
+                """<html><head/><body>
+            <p>If the INTERLIS model has classes that contain <span style=" font-weight:600;">multiple geometries</span>, tables with multiple geometry columns can be created in <span style=" font-weight:600;">GeoPackage</span>.</p>
+            <p>This function is not standardized and such tables with multiple geometries require <span style=" font-weight:600;">GDAL version &gt;= 3.8</span> to run in QGIS (yours is <span style=" font-weight:600;">{gdal_version}</span>, but note that others with lower 3.8 versions <span style=" font-weight:600;">will not be able </span>to read such tables in the created QGIS project.)</p>
+            </body></html>""".format(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    gdal_version=gdal.VersionInfo("RELEASE_NAME"),
+                )
+            )
+
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
@@ -178,6 +194,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
     def create_basket_col(self):
         return self.create_basket_col_checkbox.isChecked()
 
+    def create_gpkg_multigeom(self):
+        return self.create_gpkg_multigeom_checkbox.isChecked()
+
     def inheritance_type(self):
         if self.smart1_radio_button.isChecked():
             return "smart1"
@@ -216,6 +235,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         settings.setValue(
             "QgisModelBaker/ili2db/create_import_tid", self.create_import_tid()
         )
+        settings.setValue(
+            "QgisModelBaker/ili2db/create_gpkg_multigeom", self.create_gpkg_multigeom()
+        )
         settings.setValue("QgisModelBaker/ili2db/stroke_arcs", self.stroke_arcs())
 
     def restore_configuration(self):
@@ -231,12 +253,21 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         create_import_tid = settings.value(
             "QgisModelBaker/ili2db/create_import_tid", defaultValue=True, type=bool
         )
+        create_gpkg_multigeom = settings.value(
+            "QgisModelBaker/ili2db/create_gpkg_multigeom",
+            defaultValue=True,
+            type=bool,
+        )
         stroke_arcs = settings.value(
             "QgisModelBaker/ili2db/stroke_arcs", defaultValue=True, type=bool
         )
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)
+        if int(gdal.VersionInfo("VERSION_NUM")) >= 3080000:
+            self.create_gpkg_multigeom_checkbox.setChecked(create_gpkg_multigeom)
+        else:
+            self.create_gpkg_multigeom_checkbox.setChecked(False)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
         self.toml_file_line_edit.setText(settings.value(self.toml_file_key))
 
@@ -258,6 +289,10 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             if "importTid" in self.current_metaconfig_ili2db:
                 self.create_import_tid_checkbox.setChecked(
                     self.current_metaconfig_ili2db.getboolean("importTid")
+                )
+            if "gpkgMultiGeomPerTable" in self.current_metaconfig_ili2db:
+                self.create_gpkg_multigeom.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("gpkgMultiGeomPerTable")
                 )
             if "strokeArcs" in self.current_metaconfig_ili2db:
                 self.stroke_arcs_checkbox.setChecked(
@@ -292,11 +327,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.smart1_radio_button.isChecked()
                 ):
                     self.smart1_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.smart1_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "smart2Inheritance" in self.current_metaconfig_ili2db:
                 if (
@@ -304,11 +339,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.smart2_radio_button.isChecked()
                 ):
                     self.smart2_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.smart2_radio_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "createBasketCol" in self.current_metaconfig_ili2db:
                 if (
@@ -316,11 +351,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.create_basket_col_checkbox.isChecked()
                 ):
                     self.create_basket_col_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.create_basket_col_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "importTid" in self.current_metaconfig_ili2db:
                 if (
@@ -328,11 +363,23 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.create_import_tid_checkbox.isChecked()
                 ):
                     self.create_import_tid_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.create_import_tid_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
+                    )
+            if "gpkgMultiGeomPerTable" in self.current_metaconfig_ili2db:
+                if (
+                    self.current_metaconfig_ili2db.getboolean("gpkgMultiGeomPerTable")
+                    == self.create_gpkg_multigeom_checkbox.isChecked()
+                ):
+                    self.create_gpkg_multigeom_checkbox.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
+                else:
+                    self.create_gpkg_multigeom_checkbox.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
                     )
             if "strokeArcs" in self.current_metaconfig_ili2db:
                 if (
@@ -340,11 +387,11 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.stroke_arcs_checkbox.isChecked()
                 ):
                     self.stroke_arcs_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.stroke_arcs_checkbox.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
 
             if self.current_metaconfig_toml_file_path:
@@ -353,18 +400,14 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.toml_file_line_edit.text()
                 ):
                     self.toml_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
-                    self.toml_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
-                    )
+                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_TOPPING}")
                 else:
                     self.toml_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
-                    self.toml_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
-                    )
+                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_WARNING}")
 
             if self.current_metaconfig_post_script_path:
                 if (
@@ -372,17 +415,17 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.post_script_file_line_edit.text()
                 ):
                     self.post_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                     self.post_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.post_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
                     self.post_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
             if self.current_metaconfig_pre_script_path:
                 if (
@@ -390,40 +433,34 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     == self.pre_script_file_line_edit.text()
                 ):
                     self.pre_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                     self.pre_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_TOPPING}"
+                        f"color:{self.COLOR_TOPPING}"
                     )
                 else:
                     self.pre_script_file_browse_button.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
                     self.pre_script_file_label.setStyleSheet(
-                        f"color:{LogColor.COLOR_WARNING}"
+                        f"color:{self.COLOR_WARNING}"
                     )
 
             self.metaconfig_info_label.setVisible(True)
         else:
             # reset all
-            self.smart1_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.smart2_radio_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.create_basket_col_checkbox.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.create_import_tid_checkbox.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.stroke_arcs_checkbox.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.toml_file_browse_button.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.toml_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.smart1_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.smart2_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.create_basket_col_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.create_import_tid_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.stroke_arcs_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.toml_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.toml_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.post_script_file_browse_button.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
+                f"color:{self.COLOR_INFO}"
             )
-            self.post_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
-            self.pre_script_file_browse_button.setStyleSheet(
-                f"color:{LogColor.COLOR_INFO}"
-            )
-            self.pre_script_file_label.setStyleSheet(f"color:{LogColor.COLOR_INFO}")
+            self.post_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.pre_script_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.pre_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
 
             self.metaconfig_info_label.setVisible(False)

@@ -21,8 +21,6 @@ from qgis.PyQt.QtGui import QValidator
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
     make_file_selector,
     make_save_file_selector,
 )
@@ -47,13 +45,13 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.setupUi(self)
 
         # validators
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
 
-        self.gpkgSaveFileValidator = FileValidator(
+        self.gpkgSaveFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions],
             allow_non_existing=True,
         )
-        self.gpkgOpenFileValidator = FileValidator(
+        self.gpkgOpenFileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions]
         )
         self.gpkg_file_line_edit.textChanged.connect(
@@ -64,7 +62,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def _show_panel(self):
         if (
-            self._db_action_type == DbActionType.GENERATE
+            self._db_action_type == DbActionType.SCHEMA_IMPORT
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
             validator = self.gpkgSaveFileValidator
@@ -75,7 +73,10 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
                 extensions=["." + ext for ext in self.ValidExtensions],
                 dont_confirm_overwrite=True,
             )
-        elif self._db_action_type == DbActionType.EXPORT:
+        elif (
+            self._db_action_type == DbActionType.EXPORT
+            or self._db_action_type == DbActionType.GENERATE
+        ):
             validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(
                 self.gpkg_file_line_edit,

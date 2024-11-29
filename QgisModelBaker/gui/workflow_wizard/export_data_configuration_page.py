@@ -24,11 +24,7 @@ from qgis.PyQt.QtWidgets import QWizardPage
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
-    FileValidator,
-    Validators,
-    make_save_file_selector,
-)
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_save_file_selector
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/export_data_configuration.ui")
 
@@ -56,16 +52,16 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
                 self.xtf_file_line_edit,
                 title=self.tr("Save in XTF Transfer File"),
                 file_filter=self.tr(
-                    "XTF Transfer File (*.xtf *XTF);;Interlis 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
+                    "XTF Transfer File (*.xtf *XTF);;INTERLIS 1 Transfer File (*.itf *ITF);;XML (*.xml *XML);;GML (*.gml *GML)"
                 ),
                 extension=".xtf",
                 extensions=["." + ext for ext in self.ValidExtensions],
             )
         )
 
-        self.validators = Validators()
+        self.validators = gui_utils.Validators()
 
-        fileValidator = FileValidator(
+        fileValidator = gui_utils.FileValidator(
             pattern=["*." + ext for ext in self.ValidExtensions],
             allow_non_existing=True,
         )
@@ -96,3 +92,21 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
             == QValidator.Acceptable
         )
         self.workflow_wizard.current_export_target = text
+
+    def help_text(self):
+        logline = self.tr(
+            "You want to export your data to an xml-file? There are two big options..."
+        )
+        help_paragraphs = self.tr(
+            """
+        <h4>Filter</h4>
+        <p align="justify">You can filter your data by the models, datasets or baskets in which it is stored.</p>
+        <h4>Format</h4>
+        <p align="justify">Still you can choose <b>Export data in another model</b>, which allows you to select a base model as the data format.<br />
+        Even if the data is stored in an extended model.</p>
+        """
+        )
+        docutext = self.tr(
+            'Find more information about <b>exporting data</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/export_workflow/#2-export-data">documentation</a>...'
+        )
+        return logline, help_paragraphs, docutext

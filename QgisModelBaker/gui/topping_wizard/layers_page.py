@@ -91,6 +91,7 @@ class LayerModel(QgsLayerTreeModel):
 
     class Roles(IntEnum):
         CATEGORIES = Qt.UserRole + 1
+        LAYERTYPE = Qt.UserRole + 2
 
     class Columns(IntEnum):
         NAME = 0
@@ -204,6 +205,15 @@ class LayerModel(QgsLayerTreeModel):
                 return settings.get(
                     "categories", QgsMapLayer.StyleCategory.AllStyleCategories
                 )
+
+        if (
+            role == LayerModel.Roles.LAYERTYPE
+            and index.column() == LayerModel.Columns.USE_STYLE
+        ):
+            node = self.index2node(index)
+            if not QgsLayerTree.isGroup(node):
+                layer = QgsProject.instance().mapLayersByName(node.name())[0]
+                return layer.type()
 
         return QgsLayerTreeModel.data(self, index, role)
 
@@ -379,7 +389,6 @@ class LayerModel(QgsLayerTreeModel):
                     source_provider, configuration
                 )
                 if valid and mode:
-                    configuration.tool = mode
                     db_connector = db_utils.get_db_connector(configuration)
 
                     if (
@@ -554,12 +563,20 @@ class LayersPage(QWizardPage, PAGE_UI):
 
         self.categories_dialog = LayerStyleCategoriesDialog()
         self.stylecat_delegate.button_clicked.connect(self.open_categories_dialog)
-        self.reset_button.clicked.connect(lambda: self.layermodel.reload(True))
+        self.reset_button.clicked.connect(self.reload_layermodel)
+
+    def reload_layermodel(self):
+        self.topping_wizard.busy(self, True, self.tr("Reload layertree..."))
+        self.layermodel.reload(True)
+        self.topping_wizard.busy(self, False)
 
     def open_categories_dialog(self, index):
         layername = index.data(int(Qt.DisplayRole))
         self.categories_dialog.setWindowTitle(
             self.tr(f"Layer Style Categories of {layername}")
+        )
+        self.categories_dialog.set_layer_type(
+            index.data(int(LayerModel.Roles.LAYERTYPE))
         )
         categories = index.data(int(LayerModel.Roles.CATEGORIES))
         self.categories_dialog.set_categories(categories)
@@ -578,6 +595,6 @@ class LayersPage(QWizardPage, PAGE_UI):
     def validatePage(self) -> bool:
         self.topping_wizard.log_panel.print_info(
             self.tr("Set export settings for layers."),
-            gui_utils.LogColor.COLOR_SUCCESS,
+            gui_utils.LogLevel.SUCCESS,
         )
         return super().validatePage()
