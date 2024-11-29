@@ -313,4 +313,3 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
 
     def _log_on_export_metagonfig_error(self, log):
         QgsMessageLog.logMessage(log, self.tr("Export metaConfig"), Qgis.Critical)
-
