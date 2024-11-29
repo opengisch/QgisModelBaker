@@ -62,10 +62,10 @@ qgis.modelbaker.metaConfigParamsOnly = True
 When this parameter is set the *Advanced Options* and *CRS* settings are disabled in the input mask.
 
 !!! Warning
-    Be aware that the UsabILIty Hub Repository (located at https://models.opengis.ch) is not found by ili2db when it's not passed additionally to it with `--modelDir`. Currently we do that automatically. Means when you choose a metaconfig file to pass, `--modelDir https://models.opengis.ch` is automatically added to the command. Concerning custom directory/repository, you have to add it manually in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
+    Be aware that the UsabILIty Toppings Repository (located at https://models.opengis.ch) is not found by ili2db when it's not passed additionally to it with `--modelDir`. Currently we do that automatically. Means when you choose a metaconfig file to pass, `--modelDir https://models.opengis.ch` is automatically added to the command. Concerning custom directory/repository, you have to add it manually in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
 
 ### Refrencing other INTERLIS models
-Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on UsabILIty Hub will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
+Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on the Repositories will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
 
 ## Toppings and their Configuration
 *Topping files* are files that are referenced in the *metaconfiguration* or in other *topping files* like e.g. the *project topping file* and contain the configuration information of the GIS project or parts of it. So they can be form configurations, style attributes, legend tree structures as well as data files. Individual topping files can be used for each tool.
@@ -292,7 +292,7 @@ Catalogues can be linked directly in the ilidata.xml to the model names (without
   </categories>
 ```
 
-Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds a referenced catalogue data it provides them in the autocomplete widget on [Data Import](../../../user_guide/import_workflow/#import-of-interlis-data).
+Model Baker checks the repositories for all the models contained in the database schema. If it founds a referenced catalogue data it provides them in the autocomplete widget on [Data Import](../../../user_guide/import_workflow/#import-of-interlis-data).
 
 ```xml
   <files>
@@ -308,7 +308,7 @@ Model Baker checks the UsabILIty Hub repositories for all the models contained i
   </files>
 ```
 
-But already before the data import, the Model Baker checks the UsabILIty Hub for those referenced data. In the [Import of the INTERLIS Models](../../../user_guide/import_workflow/#import-of-interlis-model) it provides all the models found in the `modelLink` property.
+But already before the data import, the Model Baker checks the repositories for those referenced data. In the [Import of the INTERLIS Models](../../../user_guide/import_workflow/#import-of-interlis-model) it provides all the models found in the `modelLink` property.
 
 ```xml
   <baskets>

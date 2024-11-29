@@ -1,5 +1,5 @@
-The idea of the UsabILIty Hub is to receive additional information for implemented INTERLIS models automatically via the web.
-Just as we can get models by linking the ilimodels.xml file from http://models.interlis.ch and the linked repositories, we can get the additional information with the ilidata.xml file on the UsabILIty Hub (currently https://models.opengis.ch) and the linked repositories.
+The idea of the UsabILIty Toppings is to receive additional information for implemented INTERLIS models automatically via the web.
+Just as we can get models by linking the ilimodels.xml file from http://models.interlis.ch and the linked repositories, we can get the additional information with the ilidata.xml file on all the repositories (currently including a test and demo repository https://models.opengis.ch).
 
 Settings for tools (like ili2db or Model Baker) are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
 
@@ -60,7 +60,7 @@ Additional servers/repositories can be linked via the `ilisite.xml`. The `Datase
 ```
 
 ### Filtering
-The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the UsabILIty Hub, the following two categories are primarily used.
+The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the UsabILIty Toppings, the following two categories are primarily used.
 
 #### Model
 The category for the model is identified with the prefix http://codes.interlis.ch/model/ and contains the model name.
@@ -78,7 +78,7 @@ The category for the file type is identified with the prefix http://codes.interl
 </DatasetIdx16.Code_>
 ```
 
-In the UsabILIty Hub implementation of the Model Baker, the following types are used:
+In the UsabILIty Toppings implementation of the Model Baker, the following types are used:
 - `metaconfig` to describe that it is a *metaconfiguration file*.
 - `metaattributes` to describe that it is a meta attribute file written in TOML or INI.
 - `sql` to describe that it is a SQL query file that can be used when creating the database
