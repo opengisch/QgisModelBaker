@@ -45,9 +45,9 @@ With the OID Manager you can view and set the handling of the OIDs in the curren
 
 Find further information about [OIDs in general and the OID Manager](../background_info/oid_tid_generator.md)
 
-### UsabILIty Hub Topping Exporter
+### Topping Exporter
 
-In case you plan to create your own [UsabILIty Hub](../background_info/usabilityhub/modelbaker_integration.md) topping set, then you can use the [Topping Exporter](../user_guide/topping_exporter.md).
+In case you plan to create your own [UsabILIty Topping set](../background_info/usabilityhub/modelbaker_integration.md), then you can use the [Topping Exporter](../user_guide/topping_exporter.md).
 
 ![usabilityhub-exporter](../assets/usabilityhub_exporter_target.png)
 

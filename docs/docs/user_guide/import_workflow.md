@@ -55,7 +55,7 @@ There are several ways the Model Baker wizard detects INTERLIS models to import.
 - Selected from the repositories.
 - Parsed from the selected transfer or catalogue files.
 - Depending model of a catalogue referenced in the ilidata.xml of the repositories.
-- Defined as ili2db attribute in the metaconfiguration received from the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration).
+- Defined as ili2db attribute in the metaconfiguration received from the repositories. See [UsabILIty Toppings](../../background_info/usabilityhub/modelbaker_integration).
 
 When you only got a model name (like in all cases except the one of the local `ini` files) the models are searched in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories). It's possible that the models are listed multiple times coming from different sources. It's up to you what source you choose.
 
@@ -69,7 +69,7 @@ You can check or uncheck the models you want to import to a physical schema.
 
 ### Metaconfiguration / Topping
 
-Choose a metaconfiguration file found on the [UsabILIty Hub](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
+Choose a metaconfiguration file found on the [repositories](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
 
 ### Ili2db settings
 Since Model Baker uses ili2db, you can set advanced options that determine how your conceptual object-oriented model is mapped into a physical model.
@@ -145,11 +145,11 @@ Select the dataset you want to import your data to by double-click the dataset f
 
 If the data to import is a catalogue, please select the checkbox for *catalogue* and it will be imported into a dataset made for catalogues (called `catalogueset`).
 
-### Topping Transfer Data
+### Transfer Data from the repositories
 
-Not only meta data for ili2db and styling can be received over the ilidata.xml from the *UsabILIty Hub* repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the UsabILIty Hub repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png) (the needed models have been suggested in the [INTERLIS model import](#import-of-interlis-model) already).
+Not only meta data for ili2db and styling can be received over the ilidata.xml from the repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png) (the needed models have been suggested in the [INTERLIS model import](#import-of-interlis-model) already).
 
-Check more information about the catalogues on the *UsabILIty Hub* [here](../../background_info/usabilityhub/modelbaker_integration/#directly-referenced-catalogues).
+Check more information about the catalogues on the repositories [here](../../background_info/usabilityhub/modelbaker_integration/#directly-referenced-catalogues).
 
 ### Delete data first
 
@@ -159,7 +159,7 @@ If you want to delete the data in the database first, you can check the correspo
 
 In case you want to generate your project from an existing database, you will need to [set the connection parameters](#database-selection) first.
 
-Then, with a simple click you generate your project. All the toppings received from the *UsabILIty Hub* are considered here.
+Then, with a simple click you generate your project. All the toppings received from the *repositories* are considered here.
 
 ![baked project](../assets/generated_project.png)
 

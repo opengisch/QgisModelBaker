@@ -120,7 +120,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.ilireferencedata_delegate = IliDataFileCompleterDelegate()
         self.ilireferencedata_line_edit.setPlaceholderText(
-            self.tr("[Search referenced data files from UsabILIty Hub]")
+            self.tr("[Search referenced data from repositories]")
         )
         self.ilireferencedata_line_edit.setEnabled(False)
         self.ilireferencedata_line_edit.textChanged.emit(

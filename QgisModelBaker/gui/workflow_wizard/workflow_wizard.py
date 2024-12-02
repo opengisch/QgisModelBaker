@@ -313,7 +313,7 @@ class WorkflowWizard(QWizard):
                 if self.import_data_file_model.rowCount():
                     return PageIds.ImportDataConfiguration
 
-                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
+                # if transfer file are possible (by getting via Repositories), go to the data import
                 self.log_panel.print_info(
                     self.tr(
                         "Checking for potential referenced data on the repositories (might take a while)..."
@@ -346,7 +346,7 @@ class WorkflowWizard(QWizard):
                 if self.import_data_file_model.rowCount():
                     return PageIds.ImportDataConfiguration
 
-                # if transfer file are possible (by getting via UsabILIty Hub), go to the data import
+                # if transfer file are possible (by getting via Repositories), go to the data import
                 self.log_panel.print_info(
                     self.tr(
                         "Checking for potential referenced data on the repositories (might take a while)..."

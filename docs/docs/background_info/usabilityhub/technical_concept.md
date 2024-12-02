@@ -62,7 +62,7 @@ Additional servers/repositories can be linked via the `ilisite.xml`. The `Datase
 ```
 
 ### Filtering
-The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the UsabILIty Hub, the following two categories are primarily used.
+The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the UsabILIty Toppings, the following two categories are primarily used.
 
 #### Model
 The category for the model is identified with the prefix http://codes.interlis.ch/model/ and contains the model name.
@@ -80,7 +80,7 @@ The category for the file type is identified with the prefix http://codes.interl
 </DatasetIdx16.Code_>
 ```
 
-In the UsabILIty Hub implementation of the Model Baker, the following types are used:
+In the UsabILIty Toppings implementation of the Model Baker, the following types are used:
 - `metaconfig` to describe that it is a *metaconfiguration file*.
 - `metaattributes` to describe that it is a meta attribute file written in TOML or INI.
 - `sql` to describe that it is a SQL query file that can be used when creating the database
@@ -105,7 +105,7 @@ Thus, models can be found across multiple repositories and so can *metaconfigura
 <IliSite09.SiteMetadata.Site TID="1">
   <Name>usability.opengis.ch</Name>
   <Title>Allgemeine metadaten für ili-modelle</Title>
-  <shortDescription>Weitere Sites des UsabILItyHubs</shortDescription>
+  <shortDescription>Weitere Sites dieses Repos</shortDescription>
   <Owner>http://models.opengis.ch</Owner>
   <technicalContact>mailto:david@opengis.ch</technicalContact>
   <subsidiarySite>

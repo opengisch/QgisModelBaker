@@ -46,11 +46,11 @@ class GenerationPage(QWizardPage, PAGE_UI):
         ilidata_file = self.topping_wizard.topping.makeit(QgsProject.instance())
         if ilidata_file:
             self.progress_bar.setValue(100)
-            result_message = self.tr("Topping generated 🧁")
+            result_message = self.tr("Toppings generated 🧁")
             self.info_text_box.setHtml(f"Find the ilidata.xml here:\n\n{ilidata_file}")
         else:
             self.progress_bar.setValue(0)
-            result_message = self.tr("Topping not generated 💩")
+            result_message = self.tr("Toppings not generated 💩")
         self.progress_bar.setFormat(result_message)
         self.progress_bar.setTextVisible(True)
         self.topping_wizard.log_panel.print_info(

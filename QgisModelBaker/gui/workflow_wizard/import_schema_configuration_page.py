@@ -77,7 +77,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_models = []
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(
-            self.tr("[Search metaconfig / topping from UsabILIty Hub]")
+            self.tr("[Search metaconfiguration from repositories]")
         )
         self.ili_metaconfig_line_edit.setEnabled(False)
         self.ili_metaconfig_line_edit.textChanged.emit(
@@ -543,7 +543,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             if "ch.interlis.referenceData" in configuration_section:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr(
-                        "Metaconfig contains transfer or catalogue toppings (reference data)."
+                        "Metaconfig contains transfer or catalogue files (referenced data)."
                     ),
                     LogLevel.TOPPING,
                 )
@@ -558,7 +558,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         name = pathlib.Path(referencedata_file_path).name
                         type = pathlib.Path(referencedata_file_path).suffix[1:]
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Append reference data file {}…").format(
+                            self.tr("Append referenced data file {}…").format(
                                 referencedata_file_path
                             ),
                             LogLevel.TOPPING,
@@ -573,7 +573,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Could not append reference data file {}…").format(
+                            self.tr("Could not append referenced data file {}…").format(
                                 referencedata_file_path
                             ),
                             LogLevel.TOPPING,
@@ -594,7 +594,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         <li>Selected from the repositories.</li>
         <li>Parsed from the selected transfer or catalogue files.</li>
         <li>Depending model of a catalogue referenced in the ilidata.xml of the repositories.</li>
-        <li>Defined as ili2db attribute in the metaconfiguration received from the UsabILIty Hub.</li>
+        <li>Defined as ili2db attribute in the metaconfiguration received from the repositories.</li>
         </ul></p>
         <p align="justify">You can <b>check or uncheck</b> the models you want to import to a physical schema.</p>
         <p align="justify">As well you can select a <b>Metaconfiguration</b> file from the repositories to load ili2db settings and styling properties into QGIS project.<br />

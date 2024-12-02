@@ -47,7 +47,7 @@ nav:
       - Repositories: background_info/repositories.md
       - Basket and Dataset Handling: background_info/basket_handling.md
       - OID Generator: background_info/oid_tid_generator.md
-      - UsabILIty Hub:
+      - UsabILIty Toppings:
           - Overview: background_info/usabilityhub/overview.md
           - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
           - Technical Concept: background_info/usabilityhub/technical_concept.md

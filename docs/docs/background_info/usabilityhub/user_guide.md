@@ -50,7 +50,7 @@ Or with a ili2db metaattribute `toml`/`ini` file.
 
 ![raw_import_toml](../../assets/usabilityhub_raw_import_toml.png)
 
-The metaatribute `toml` / `ini` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Meta Attribute File" and will also be included via the UsabILIty Hub in the following steps:
+The metaatribute `toml` / `ini` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Meta Attribute File" and will also be included via the UsabILIty Toppings workflow in the following steps:
 
 ![toml_config](../../assets/usabilityhub_toml_config.png)
 
