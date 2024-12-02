@@ -75,7 +75,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         )
         self.model_delegate = ModelCompleterDelegate()
         self.input_line_edit.setPlaceholderText(
-            self.tr("[Browse for file or search model from repository]")
+            self.tr("[Browse for file or search model from repositories]")
         )
 
         # very unhappy about this behavior, but okay for prototype

@@ -77,7 +77,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.current_models = []
         self.current_metaconfig_id = None
         self.ili_metaconfig_line_edit.setPlaceholderText(
-            self.tr("[Search metaconfiguration from repository]")
+            self.tr("[Search metaconfiguration from repositories]")
         )
         self.ili_metaconfig_line_edit.setEnabled(False)
         self.ili_metaconfig_line_edit.textChanged.emit(
@@ -594,7 +594,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         <li>Selected from the repositories.</li>
         <li>Parsed from the selected transfer or catalogue files.</li>
         <li>Depending model of a catalogue referenced in the ilidata.xml of the repositories.</li>
-        <li>Defined as ili2db attribute in the metaconfiguration received from the UsabILIty Hub.</li>
+        <li>Defined as ili2db attribute in the metaconfiguration received from the repositories.</li>
         </ul></p>
         <p align="justify">You can <b>check or uncheck</b> the models you want to import to a physical schema.</p>
         <p align="justify">As well you can select a <b>Metaconfiguration</b> file from the repositories to load ili2db settings and styling properties into QGIS project.<br />

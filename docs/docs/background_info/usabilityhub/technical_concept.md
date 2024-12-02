@@ -105,7 +105,7 @@ Thus, models can be found across multiple repositories and so can *metaconfigura
 <IliSite09.SiteMetadata.Site TID="1">
   <Name>usability.opengis.ch</Name>
   <Title>Allgemeine metadaten für ili-modelle</Title>
-  <shortDescription>Weitere Sites des UsabILItyHubs</shortDescription>
+  <shortDescription>Weitere Sites dieses Repos</shortDescription>
   <Owner>http://models.opengis.ch</Owner>
   <technicalContact>mailto:david@opengis.ch</technicalContact>
   <subsidiarySite>
