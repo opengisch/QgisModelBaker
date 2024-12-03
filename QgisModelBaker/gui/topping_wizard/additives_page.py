@@ -76,6 +76,16 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         self.layouts_model.refresh_stringlist(layout_names)
         self.layouts_view.setVisible(self.layouts_model.rowCount())
         self.layouts_label.setVisible(self.layouts_model.rowCount())
+
+        if not (
+            self.mapthemes_model.rowCount()
+            or self.variables_model.rowCount()
+            or self.layouts_model.rowCount()
+        ):
+            self.topping_wizard.log_panel.print_info(
+                self.tr("No additive settings - go on...")
+            )
+            self.topping_wizard.next()
         return super().initializePage()
 
     def validatePage(self) -> bool:
