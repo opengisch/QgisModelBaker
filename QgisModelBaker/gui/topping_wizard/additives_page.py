@@ -107,4 +107,8 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.export_settings.layouts = (
             self.layouts_model.checked_entries()
         )
+        if self.validatortopping_checkbox.isChecked():
+            self.topping_wizard.topping.export_settings.path_variables = [
+                VALIDATION_VARIABLE
+            ]
         return super().validatePage()
