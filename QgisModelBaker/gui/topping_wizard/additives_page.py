@@ -27,6 +27,8 @@ PAGE_UI = gui_utils.get_ui_class("topping_wizard/additives.ui")
 
 VARIABLE_PREFIX_BLACKLIST = ["default_basket", "optimize_strategy"]
 
+VALIDATION_VARIABLE = "validator_config"
+
 
 class AdditivesPage(QWizardPage, PAGE_UI):
     def __init__(self, parent, title):
@@ -71,11 +73,28 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         self.variables_view.setVisible(self.variables_model.rowCount())
         self.variables_label.setVisible(self.variables_model.rowCount())
 
+        if VALIDATION_VARIABLE in self.variables_model.stringList():
+            self.validatortopping_checkbox.setVisible(True)
+            self.validatortopping_checkbox.setChecked(True)
+        else:
+            self.validatortopping_checkbox.setVisible(False)
+            self.validatortopping_checkbox.setChecked(False)
+
         layout_manager = QgsProject.instance().layoutManager()
         layout_names = [layout.name() for layout in layout_manager.printLayouts()]
         self.layouts_model.refresh_stringlist(layout_names)
         self.layouts_view.setVisible(self.layouts_model.rowCount())
         self.layouts_label.setVisible(self.layouts_model.rowCount())
+
+        if not (
+            self.mapthemes_model.rowCount()
+            or self.variables_model.rowCount()
+            or self.layouts_model.rowCount()
+        ):
+            self.topping_wizard.log_panel.print_info(
+                self.tr("No additive settings - go on...")
+            )
+            self.topping_wizard.next()
         return super().initializePage()
 
     def validatePage(self) -> bool:
@@ -88,4 +107,8 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         self.topping_wizard.topping.export_settings.layouts = (
             self.layouts_model.checked_entries()
         )
+        if self.validatortopping_checkbox.isChecked():
+            self.topping_wizard.topping.export_settings.path_variables = [
+                VALIDATION_VARIABLE
+            ]
         return super().validatePage()
