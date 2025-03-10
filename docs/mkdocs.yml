@@ -157,6 +157,3 @@ plugins:
                 icon: material/weather-sunny
                 name: Passer en mode clair
                 primary: white
-
-# Page tree
-          site_description:
