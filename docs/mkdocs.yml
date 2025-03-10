@@ -158,45 +158,5 @@ plugins:
                 name: Passer en mode clair
                 primary: white
 
-        - locale: fr
-          name: Français
-          site_name: Documentation de QGIS Model Baker
-          nav_translations:
-            Home: Accueil
-            User Guide: Guide de l'utilisateur
-            Get Started: Premiers pas
-            Model and Data Import Workflow: Flux de travail d'importation de modèles et de données
-            Export Data Workflow: Flux de travail d'exportation de données
-            Validate Data: Validation des données
-            Topping Exporter: Exportateur de Topping
-            Plugin Configuration: Configuration du plugin
-            Tipps & Tricks: Trucs et astuces
-            Repositories: Dépôts
-            Basket and Dataset Handling: Gestion des paniers (baskets) et des ensembles (datasets)
-            OID Generator: Générateur OID
-            UsabILIty Toppings: Toppings UsabILIty
-            Overview: Vue d'ensemble
-            Model Baker Integration: Intégration de Model Baker
-            Technical Concept: Concept technique
-            Optimized Projects for Extended Models: Projets optimisés pour les modèles étendus
-            Catalogues and their special cases: Catalogues et leurs cas particuliers
-            Meta Attributes: Méta-attributs
-            Migrate from ili2db 3 to 4: Migration de ili2db 3 vers 4
-            About: À propos
-            Development: Développement
-            Translation: Traduction
-          palette:
-            - scheme: default
-              primary: blue grey
-              toggle:
-                icon: material/weather-night
-                name: Passer en mode sombre
-            - scheme: slate
-              primary: blue grey
-              toggle:
-                icon: material/weather-sunny
-                name: Passer en mode clair
-                primary: white
-
 # Page tree
           site_description:
