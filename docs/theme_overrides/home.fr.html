@@ -1,0 +1,49 @@
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<style>
+  @media screen and (min-width:60em) {
+    .md-sidebar--secondary {
+      display: none
+    }
+  }
+
+  @media screen and (min-width:76.25em) {
+    .md-sidebar--primary {
+      display: none
+    }
+  }
+</style>
+<section>
+  <div class="md-grid md-typeset">
+    <div>
+      <div>
+        <p></p>
+        <img src="{{ base_url }}/assets/modelbaker_logo_long.svg" alt="QGIS Model Baker">
+        <p>
+          Model Baker est un <a href="https://plugins.qgis.org/plugins/QgisModelBaker/">plugin QGIS</a> qui permet de
+          créer rapidement un projet QGIS à partir d'un modèle de données physique. De plus, il vous permet d'importer, d'exporter et de valider des modèles et des données <a
+            href="https://www.interlis.ch/en">INTERLIS</a> dans QGIS en utilisant le contrôle graphique des outils <a
+            href="https://github.com/claeis/ili2db/blob/master/docs/ili2db.rst">ili2db</a>.
+        </p>
+        <p>
+          Model Baker utilise <a href="https://github.com/claeis/ili2db/blob/master/docs/ili2db.rst">ili2db</a> pour importer
+          un modèle INTERLIS dans une base de données physique et la structure de la base de données ainsi que les méta-informations fournies
+          pour configurer le projet QGIS avec l'arborescence des couches, les widgets de champs, les mises en page de formulaires, les relations et bien plus encore. Cette
+          automatisation peut réduire considérablement l'effort de configuration.
+        </p>
+        <p>
+          De plus, Model Baker peut être utilisé comme un <a
+            href="https://opengisch.github.io/QgisModelBaker/development/">framework</a> pour d'autres projets. Le plugin
+          <a href="https://github.com/SwissTierrasColombia/Asistente-LADM-COL">Asistente LADM-COL</a>, créé pour la
+          <a href="https://www.proadmintierra.info/">mise en œuvre colombienne du modèle de domaine d'administration foncière
+            (LADM)</a>, utilise le backend de <a href="https://pypi.org/project/modelbaker/">Model Baker comme bibliothèque</a>
+          pour implémenter autant que possible la solution spécifique en tant que fonctionnalité de base de QGIS.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
