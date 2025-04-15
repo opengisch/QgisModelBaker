@@ -22,8 +22,8 @@ from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
+from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/tid_configuration.ui")
 

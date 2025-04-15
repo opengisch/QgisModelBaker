@@ -33,9 +33,10 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataFileCompleterDelegate,
     IliDataItemModel,
 )
+from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-from QgisModelBaker.utils.gui_utils import LogLevel, get_text_color
+from QgisModelBaker.utils.gui_utils import get_text_color
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
 

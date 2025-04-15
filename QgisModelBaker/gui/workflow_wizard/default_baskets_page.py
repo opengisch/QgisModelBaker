@@ -21,9 +21,9 @@ from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.create_basket_panel import CreateBasketPanel
+from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME
-from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/default_baskets.ui")
 
