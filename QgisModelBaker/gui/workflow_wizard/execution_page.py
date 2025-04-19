@@ -30,9 +30,8 @@ from qgis.PyQt.QtWidgets import (
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.session_panel import SessionPanel
-from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType, LogLevel
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 

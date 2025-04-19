@@ -33,10 +33,9 @@ from QgisModelBaker.libs.modelbaker.iliwrapper import (
     iliimporter,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
-from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
+from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType, LogLevel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME, DbIliMode
-from QgisModelBaker.utils.gui_utils import LogLevel
 
 WIDGET_UI = gui_utils.get_ui_class("workflow_wizard/session_panel.ui")
 

@@ -38,6 +38,7 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliCache
+from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
@@ -177,14 +178,6 @@ INACTIVE_STYLE = """
         text-align: center;
     }
     """
-
-
-class LogLevel(IntEnum):
-    INFO = 0
-    WARNING = 1
-    FAIL = 2
-    SUCCESS = 3
-    TOPPING = 4
 
 
 def get_text_color(level: LogLevel = LogLevel.INFO) -> str:
