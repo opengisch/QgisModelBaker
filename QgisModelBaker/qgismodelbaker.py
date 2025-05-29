@@ -571,7 +571,7 @@ class DropFileFilter(QObject):
         """
         When files are dropped, then ask to use it in the model baker.
         """
-        if event.type() == QEvent.Drop:
+        if event.type() == QEvent.Drop and hasattr(event, "mimeData"):
             (
                 dropped_files,
                 dropped_xml_files,
