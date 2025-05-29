@@ -535,27 +535,24 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.progress_bar.setValue(55)
 
         self.workflow_wizard.log_panel.print_info(self.tr("Set transaction mode…"))
-        # override transaction mode if give n by topic
+        # override transaction mode if given by topping
         transaction_mode = custom_project_properties.get("transaction_mode", None)
 
         if Qgis.QGIS_VERSION_INT < 32600:
-            # pass transaction_mode as boolean
+            # For backwards compatibility, we support booleans,
+            # but convert them to strings to match the new API
             if transaction_mode is None:
                 # on geopackages we don't use the transaction mode on default otherwise we do
-                transaction_mode = not bool(self.configuration.tool & DbIliMode.gpkg)
-            else:
-                transaction_mode = (
-                    custom_transaction_mode == Qgis.TransactionMode.AutomaticGroups.name
+                transaction_mode = str(
+                    not bool(self.configuration.tool & DbIliMode.gpkg)
                 )
+            else:
+                transaction_mode = str(transaction_mode)
         else:
             # pass transaction_mode as string
             if transaction_mode is None:
-                # on geopackages we don't use the transaction mode on default otherwise we do
-                transaction_mode = (
-                    "Disabled"
-                    if bool(self.configuration.tool & DbIliMode.gpkg)
-                    else Qgis.TransactionMode.AutomaticGroups.name
-                )
+                # on both PG and GPKG we use the transaction mode by default
+                transaction_mode = Qgis.TransactionMode.AutomaticGroups.name
             else:
                 # in case the topping used True/False value we need to convert
                 if transaction_mode is True:
