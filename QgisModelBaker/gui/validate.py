@@ -33,6 +33,7 @@ from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
 from qgis.PyQt.QtWidgets import (
     QAction,
+    QApplication,
     QDockWidget,
     QFileDialog,
     QHeaderView,
@@ -108,7 +109,7 @@ class ValidationResultTableModel(ValidationResultModel):
 class ValidateDock(QDockWidget, DIALOG_UI):
     class SchemaValidation:
         """
-        A "validation" should be keeped on layer change and "reused" if it's the same database schema of the layer.
+        A "validation" should be kept on layer change and "reused" if it's the same database schema of the layer.
         """
 
         def __init__(self):
@@ -388,6 +389,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         validator.configuration.skip_geometry_errors = (
             self.skip_geometry_errors_check_box.isChecked()
+        )
+        validator.configuration.verbose = (
+            self.activate_verbose_mode_check_box.isChecked()
         )
         validator.configuration.valid_config = self._absolute_path(
             self.config_file_line_edit.text()
