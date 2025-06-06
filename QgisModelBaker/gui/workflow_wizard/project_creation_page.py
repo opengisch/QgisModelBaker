@@ -440,6 +440,35 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         relations, bags_of_enum = generator.relations(available_layers)
         self.progress_bar.setValue(45)
 
+        # If coalesceCatalogueRef was used, suppress any catalogue
+        # ref layer that doesn't have a BAG OF attribute. Those
+        # ref layers are not needed to create data.
+        coalesce_catalogue_used = False
+        setting_records = self.db_connector.get_ili2db_settings()
+        for setting_record in setting_records:
+            if (
+                setting_record["tag"] == "ch.ehi.ili2db.catalogueRefTrafo"
+                and setting_record["setting"] == "coalesce"
+            ):
+                coalesce_catalogue_used = True
+                break
+
+        if coalesce_catalogue_used:
+            layer_count_before = len(available_layers)
+            relation_count_before = len(relations)
+            available_layers, relations = generator.suppress_catalogue_reference_layers(
+                available_layers, relations, bags_of_enum
+            )
+            if layer_count_before - len(available_layers) > 0:
+                self.workflow_wizard.log_panel.print_info(
+                    self.tr(
+                        "Filtering out {} catalogue reference layer(s) (not BAG OF) and {} relation(s)…".format(
+                            layer_count_before - len(available_layers),
+                            relation_count_before - len(relations),
+                        )
+                    )
+                )
+
         self.workflow_wizard.log_panel.print_info(
             self.tr("Arranging layers into groups…")
         )
