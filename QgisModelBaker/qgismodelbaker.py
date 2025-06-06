@@ -475,7 +475,7 @@ class QgisModelBakerPlugin(QObject):
         relations,
         bags_of_enum,
         legend,
-        auto_transaction=True,
+        auto_transaction="True",
         evaluate_default_values=True,
         group=None,
     ):
