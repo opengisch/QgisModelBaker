@@ -1,6 +1,6 @@
 This project (Plugin and documentation) can be translated into any language.
 
-Your language is missing? Feel free to contribute!
+Your language is missing? Then feel free to contribute!
 
 # How to get started
 
