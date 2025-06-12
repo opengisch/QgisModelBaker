@@ -84,6 +84,7 @@ MODELS_BLACKLIST = [
     "NonVector_Base_LV95_V3_1",
     "GeometryCHLV03_V1",
     "GeometryCHLV95_V1",
+    "Geometry_V1",
     "InternationalCodes_V1",
     "Localisation_V1",
     "LocalisationCH_V1",
@@ -114,6 +115,24 @@ MODELS_BLACKLIST = [
     "Time",
     "Units",
     "",
+    "CHAdminCodes_V2",
+    "AdministrativeUnits_V2",
+    "AdministrativeUnitsCH_V2",
+    "WithOneState_V2",
+    "WithLatestModification_V2",
+    "WithModificationObjects_V2",
+    "GraphicCHLV03_V2",
+    "GraphicCHLV95_V2",
+    "GeometryCHLV03_V2",
+    "GeometryCHLV95_V2",
+    "Geometry_V2",
+    "InternationalCodes_V2",
+    "Localisation_V2",
+    "LocalisationCH_V2",
+    "Dictionaries_V2",
+    "DictionariesCH_V2",
+    "CatalogueObjects_V2",
+    "CatalogueObjectTrees_V2",
 ]
 
 # style
@@ -655,13 +674,8 @@ class ImportModelsModel(SourceModel):
     def _transfer_file_models(self, data_file_path):
         """
         Get model names from an ITF file does a regex parse with mmap (to avoid long parsing time).
-        Get model names from an XTF file. Since XTF can be very large, we follow this strategy:
-        1. Parse line by line.
-            1.a. Compare parsed line with the regular expression to get the Header Section. (escape after 100 lines)
-            1.b. If found, stop parsing the XTF file and go to 2. If not found, append the new line to parsed lines and go
-                to next line.
-        2. Give the Header Section to an XML parser and extract models. Note that we don't give the full XTF file to the XML
-        parser because it will read it completely, which may be not optimal.
+        Get model names from an XTF file. Since XTF can be very large, we make an iterparse of the models element.
+        According to the namespace we decide if it's INTERLIS 2.3 or 2.4
         :param xtf_path: Path to an XTF file
         :return: List of model names from the datafile
         """
@@ -678,43 +692,40 @@ class ImportModelsModel(SourceModel):
                     models.append(model)
                 return models
 
-        # parse models from XTF
-        start_string = "<HEADERSECTION"
-        end_string = "</HEADERSECTION>"
-        text_found = ""
-        with open(data_file_path) as f:
-            lines = ""
-            for line_number, line in enumerate(f):
-                lines += line
-                start_pos = lines.find(start_string)
-                end_pos = lines.find(end_string)
-                if end_pos > start_pos:
-                    text_found = lines[start_pos : end_pos + len(end_string)]
-                    break
-                if line_number > 100:
+        try:
+            models_element = None
+            for event, elem in CET.iterparse(data_file_path, events=("end",)):
+                ns = elem.tag.split("}")[0].strip("{")
+                name = elem.tag.split("}")[1]
+                if name.lower() == "models":
+                    models_element = elem
                     break
 
-        if text_found:
-            try:
-                root = CET.fromstring(text_found)
-                element = root.find("MODELS")
-                if element:
-                    for sub_element in element:
-                        if (
-                            "NAME" in sub_element.attrib
-                            and sub_element.attrib["NAME"] not in MODELS_BLACKLIST
-                        ):
-                            model = {}
-                            model["name"] = sub_element.attrib["NAME"]
-                            models.append(model)
-            except CET.ParseError as e:
-                self.print_info.emit(
-                    self.tr(
-                        "Could not parse transferfile file `{file}` ({exception})".format(
-                            file=data_file_path, exception=str(e)
-                        )
+            if models_element:
+                for model_element in models_element:
+                    ns = model_element.tag.split("}")[0].strip("{")
+                    tagname = model_element.tag.split("}")[1]
+                    modelname = None
+                    if ns == "http://www.interlis.ch/xtf/2.4/INTERLIS":
+                        if tagname == "model" and model_element.text is not None:
+                            modelname = model_element.text
+                    else:
+                        if tagname == "MODEL" and "NAME" in model_element.attrib:
+                            modelname = model_element.attrib["NAME"]
+
+                    if modelname and modelname not in MODELS_BLACKLIST:
+                        model = {}
+                        model["name"] = modelname
+                        models.append(model)
+
+        except CET.ParseError as e:
+            self.print_info.emit(
+                self.tr(
+                    "Could not parse transferfile file `{file}` ({exception})".format(
+                        file=data_file_path, exception=str(e)
                     )
                 )
+            )
         return models
 
     def _db_modelnames(self, db_connector=None):
