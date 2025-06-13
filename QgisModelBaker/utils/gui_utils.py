@@ -706,7 +706,10 @@ class ImportModelsModel(SourceModel):
                     ns = model_element.tag.split("}")[0].strip("{")
                     tagname = model_element.tag.split("}")[1]
                     modelname = None
-                    if ns == "http://www.interlis.ch/xtf/2.4/INTERLIS":
+                    if ns in [
+                        "http://www.interlis.ch/xtf/2.4/INTERLIS",
+                        "https://www.interlis.ch/xtf/2.4/INTERLIS",
+                    ]:
                         if tagname == "model" and model_element.text is not None:
                             modelname = model_element.text
                     else:
