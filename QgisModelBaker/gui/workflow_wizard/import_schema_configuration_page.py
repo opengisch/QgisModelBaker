@@ -418,8 +418,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
 
         for linked_model in linked_models:
+            model_name = linked_model.split(":")[0]
             if self.workflow_wizard.source_model.add_source(
-                linked_model,
+                model_name,
                 "model",
                 None,
                 self.tr("Linked model referenced over ilidata repository."),
