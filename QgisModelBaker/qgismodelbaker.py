@@ -26,7 +26,7 @@ import pathlib
 import webbrowser
 
 import pyplugin_installer
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
@@ -41,7 +41,14 @@ from qgis.PyQt.QtCore import (
     QUrl,
 )
 from qgis.PyQt.QtGui import QDesktopServices, QIcon, QPixmap
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QWidget,
+)
 from qgis.utils import available_plugins
 
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
@@ -517,72 +524,8 @@ class QgisModelBakerPlugin(QObject):
         return True
 
     def handle_dropped_files_quick_n_dirty(self, dropped_files, dropped_ini_files):
-        # pro file ein import (ein gpkg)
-        status_map = {}
-        for file in dropped_files:
-            status, db_file = self.quick_n_import_dirty(file, dropped_ini_files)
-            status_map[file] = {}
-            status_map[file]["status"] = status
-            status_map[file]["db_file"] = db_file
-
-        # to do falls ein ilifile dabei, bei fail, versuche mit ilimodel (eines nach dem andern)
-
-        # lade raw projekt
-
-        for key in status_map.keys():
-            if status_map[key]["status"]:
-                self.quick_n_generate_dirty(status_map[key]["db_file"])
-            else:
-                print(f"That file failed {key}")
-
-    def quick_n_import_dirty(self, single_file, model_files):
-        importer = iliimporter.Importer(dataImport=True)
-
-        configuration = ImportDataConfiguration()
-        base_config = BaseConfiguration()
-        # todo model dir
-        configuration.base_configuration = base_config
-        configuration.tool = DbIliMode.ili2gpkg
-        configuration.xtffile = single_file
-        configuration.dbfile = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.TempLocation),
-            "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
-        )
-        # dirty specific parameter
-        configuration.inheritance = None
-        configuration.with_schemaimport = True
-        configuration.disable_validation = True
-
-        importer.configuration = configuration
-        importer.tool = configuration.tool
-
-        try:
-            if importer.run() != iliimporter.IliExecutable.SUCCESS:
-                # error
-                print("fail on run")
-                return False, importer.configuration.dbfile
-        except JavaNotFoundError:
-            # error
-            print("java fail")
-            return False, importer.configuration.dbfile
-        print("successfully import")
-        return True, importer.configuration.dbfile
-
-    def quick_n_generate_dirty(self, db_file):
-        generator = Generator(DbIliMode.ili2gpkg, db_file, None, raw_naming=True)
-
-        available_layers = generator.layers()
-        relations, _ = generator.relations(available_layers)
-        legend = generator.legend(available_layers)
-
-        project = Project()
-        project.layers = available_layers
-        project.relations = relations
-        project.legend = legend
-        project.post_generate()
-
-        qgis_project = QgsProject.instance()
-        project.create(None, qgis_project)
+        quick_baker = QuickXTFBaker(self)
+        return quick_baker.handle_dropped_files(dropped_files, dropped_ini_files)
 
     def _set_dropped_file_configuration(self):
         settings = QSettings()
@@ -652,7 +595,6 @@ class DropFileFilter(QObject):
                 dropped_ini_files,
             ) = FileDropListView.extractDroppedFiles(event.mimeData().urls())
 
-            print("drop")
             # Outside wizard, accept drops only for "real" interlis files, as xml and ini are too generic to assume must be handled by MB
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
@@ -660,13 +602,120 @@ class DropFileFilter(QObject):
                     if self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files
                     ):
-                        print("handle")
                         return True
                 else:
-                    print("quick")
                     # prototype - quick-n-dirty-import
                     self.parent.handle_dropped_files_quick_n_dirty(
                         dropped_files, dropped_ini_files
                     )
                     return True
         return False
+
+
+class QuickXTFBaker(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent.iface.mainWindow())
+        self.iface = parent.iface
+        self.message_bar = self.iface.messageBar()
+
+    def push_message_bar(
+        self, text, running=False, level=Qgis.MessageLevel.Info, timeout=0
+    ):
+        layout = QHBoxLayout()
+
+        if running:
+            busy_bar = QProgressBar()
+            busy_bar.setRange(0, 0)
+            busy_bar.setVisible(True)
+            layout.addWidget(busy_bar)
+
+        text_label = QLabel()
+        text_label.setText(text)
+        layout.addWidget(text_label)
+
+        message_widget = QWidget()
+        message_widget.setLayout(layout)
+
+        self.message_bar.clearWidgets()
+        self.message_bar.pushWidget(message_widget, level, timeout)
+
+    def handle_dropped_files(self, dropped_files, dropped_ini_files):
+
+        self.push_message_bar("Quick'n'dirty XTF import", True)
+        # pro file ein import (ein gpkg)
+        status_map = {}
+        for file in dropped_files:
+            self.push_message_bar(f"Import {file}", True)
+            status, db_file = self.import_file(file, dropped_ini_files)
+            status_map[file] = {}
+            status_map[file]["status"] = status
+            status_map[file]["db_file"] = db_file
+
+        # to do falls ein ilifile dabei, bei fail, versuche mit ilimodel (eines nach dem andern
+
+        suc_files = []
+        failed_files = []
+        for key in status_map.keys():
+            if status_map[key]["status"]:
+                self.generate_project(status_map[key]["db_file"])
+                suc_files.append(key)
+            else:
+                failed_files.append(key)
+
+        self.push_message_bar(
+            f"Import of {len(suc_files)} successful and {len(failed_files)} failed.",
+            False,
+            Qgis.MessageLevel.Warning
+            if len(failed_files) > 0
+            else Qgis.MessageLevel.Success,
+            15,
+        )
+
+        return True
+
+    def import_file(self, single_file, model_files):
+        importer = iliimporter.Importer(dataImport=True)
+
+        configuration = ImportDataConfiguration()
+        base_config = BaseConfiguration()
+        # todo model dir
+        configuration.base_configuration = base_config
+        configuration.tool = DbIliMode.ili2gpkg
+        configuration.xtffile = single_file
+        configuration.dbfile = os.path.join(
+            QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+            "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
+        )
+        # dirty specific parameter
+        configuration.inheritance = None
+        configuration.with_schemaimport = True
+        configuration.disable_validation = True
+
+        importer.configuration = configuration
+        importer.tool = configuration.tool
+
+        try:
+            if importer.run() != iliimporter.IliExecutable.SUCCESS:
+                print("log here")
+                return False, importer.configuration.dbfile
+        except JavaNotFoundError:
+            return False, importer.configuration.dbfile
+
+        print("log here")
+        return True, importer.configuration.dbfile
+
+    def generate_project(self, db_file):
+        generator = Generator(DbIliMode.ili2gpkg, db_file, None, raw_naming=True)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
