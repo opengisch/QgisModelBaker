@@ -58,7 +58,7 @@ class TIDModel(QAbstractTableModel):
     """
 
     class Roles(Enum):
-        LAYER = Qt.UserRole + 1
+        LAYER = Qt.ItemDataRole.UserRole + 1
 
         def __int__(self):
             return self.value
@@ -89,10 +89,10 @@ class TIDModel(QAbstractTableModel):
                 TIDModel.Columns.UNIQUE,
             ]
         ):
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         if index.column() == TIDModel.Columns.DEFAULT_VALUE:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
         """
@@ -107,7 +107,10 @@ class TIDModel(QAbstractTableModel):
         return index
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             if section == TIDModel.Columns.NAME:
                 return self.tr("Layer")
             if section == TIDModel.Columns.OID_DOMAIN:
@@ -122,7 +125,9 @@ class TIDModel(QAbstractTableModel):
                 return self.tr("Unique")
 
     def data(self, index, role):
-        if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.DisplayRole) or role == int(
+            Qt.ItemDataRole.EditRole
+        ):
             key = list(self.oid_settings.keys())[index.row()]
             if index.column() == TIDModel.Columns.NAME:
                 return f"{key} ({self.oid_settings[key]['interlis_topic']})"
@@ -136,7 +141,7 @@ class TIDModel(QAbstractTableModel):
                 return self.oid_settings[key]["not_null"]
             if index.column() == TIDModel.Columns.UNIQUE:
                 return self.oid_settings[key]["unique"]
-        elif role == int(Qt.ToolTipRole):
+        elif role == int(Qt.ItemDataRole.ToolTipRole):
             key = list(self.oid_settings.keys())[index.row()]
             if index.column() == TIDModel.Columns.NAME:
                 return f"{key} ({self.oid_settings[key]['interlis_topic']})"
@@ -204,7 +209,7 @@ class TIDModel(QAbstractTableModel):
         return None
 
     def setData(self, index, data, role):
-        if role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.EditRole):
             if index.column() == TIDModel.Columns.DEFAULT_VALUE:
                 key = list(self.oid_settings.keys())[index.row()]
                 self.oid_settings[key]["default_value_expression"] = data
@@ -246,12 +251,12 @@ class FieldExpressionDelegate(QStyledItemDelegate):
         return self.editor
 
     def setEditorData(self, editor, index):
-        value = index.data(int(Qt.DisplayRole))
+        value = index.data(int(Qt.ItemDataRole.DisplayRole))
         self.editor.setExpression(value)
 
     def setModelData(self, editor, model, index):
         value = editor.expression()
-        model.setData(index, value, int(Qt.EditRole))
+        model.setData(index, value, int(Qt.ItemDataRole.EditRole))
 
     def updateEditorGeometry(self, editor, option, index):
         self.editor.setGeometry(option.rect)
@@ -259,7 +264,7 @@ class FieldExpressionDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         opt = self.createEditor(self.parent, option, index)
         opt.editable = False
-        value = index.data(int(Qt.DisplayRole))
+        value = index.data(int(Qt.ItemDataRole.DisplayRole))
         opt.setExpression(value)
         opt.resize(option.rect.width(), option.rect.height())
         pixmap = QPixmap(opt.width(), opt.height())
@@ -277,22 +282,22 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         self.layer_tids_view.setModel(self.tid_model)
 
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.NAME, QHeaderView.Stretch
+            TIDModel.Columns.NAME, QHeaderView.ResizeMode.Stretch
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.OID_DOMAIN, QHeaderView.ResizeToContents
+            TIDModel.Columns.OID_DOMAIN, QHeaderView.ResizeMode.ResizeToContents
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.DEFAULT_VALUE, QHeaderView.ResizeToContents
+            TIDModel.Columns.DEFAULT_VALUE, QHeaderView.ResizeMode.ResizeToContents
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.IN_FORM, QHeaderView.ResizeToContents
+            TIDModel.Columns.IN_FORM, QHeaderView.ResizeMode.ResizeToContents
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.NOTNULL, QHeaderView.ResizeToContents
+            TIDModel.Columns.NOTNULL, QHeaderView.ResizeMode.ResizeToContents
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.UNIQUE, QHeaderView.ResizeToContents
+            TIDModel.Columns.UNIQUE, QHeaderView.ResizeMode.ResizeToContents
         )
 
         self.layer_tids_view.setItemDelegateForColumn(
@@ -301,17 +306,19 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
         )
         self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.IN_FORM,
-            CheckDelegate(self, Qt.EditRole),
+            CheckDelegate(self, Qt.ItemDataRole.EditRole),
         )
         self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.NOTNULL,
-            CheckDelegate(self, Qt.EditRole),
+            CheckDelegate(self, Qt.ItemDataRole.EditRole),
         )
         self.layer_tids_view.setItemDelegateForColumn(
             TIDModel.Columns.UNIQUE,
-            CheckDelegate(self, Qt.EditRole),
+            CheckDelegate(self, Qt.ItemDataRole.EditRole),
         )
-        self.layer_tids_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.layer_tids_view.setEditTriggers(
+            QAbstractItemView.EditTrigger.AllEditTriggers
+        )
 
     def load_tid_config(self, qgis_project=QgsProject.instance()):
         self.tid_model.load_tid_config(qgis_project)

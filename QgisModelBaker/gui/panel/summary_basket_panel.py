@@ -51,7 +51,7 @@ class BasketModel(QAbstractTableModel):
         return len(self.basket_settings)
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
         """
@@ -66,7 +66,10 @@ class BasketModel(QAbstractTableModel):
         return index
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             if section == BasketModel.Columns.DATASET:
                 return self.tr("Dataset")
             if section == BasketModel.Columns.TOPIC:
@@ -79,7 +82,9 @@ class BasketModel(QAbstractTableModel):
                 return self.tr("Attachment key")
 
     def data(self, index, role):
-        if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.DisplayRole) or role == int(
+            Qt.ItemDataRole.EditRole
+        ):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == BasketModel.Columns.DATASET:
                 return self.basket_settings[key]["datasetname"]
@@ -91,7 +96,7 @@ class BasketModel(QAbstractTableModel):
                 return self.basket_settings[key]["bid_value"]
             if index.column() == BasketModel.Columns.ATTACHMENT_KEY:
                 return self.basket_settings[key]["attachmentkey"]
-        elif role == int(Qt.ToolTipRole):
+        elif role == int(Qt.ItemDataRole.ToolTipRole):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == BasketModel.Columns.DATASET:
                 return self.tr("Dataset this basket belongs to")
@@ -180,19 +185,19 @@ class SummaryBasketPanel(QWidget, WIDGET_UI):
         self.basket_view.setModel(self.bid_model)
 
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.DATASET, QHeaderView.ResizeToContents
+            BasketModel.Columns.DATASET, QHeaderView.ResizeMode.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.TOPIC, QHeaderView.Stretch
+            BasketModel.Columns.TOPIC, QHeaderView.ResizeMode.Stretch
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeToContents
+            BasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeMode.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_VALUE, QHeaderView.ResizeToContents
+            BasketModel.Columns.BID_VALUE, QHeaderView.ResizeMode.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.ATTACHMENT_KEY, QHeaderView.ResizeToContents
+            BasketModel.Columns.ATTACHMENT_KEY, QHeaderView.ResizeMode.ResizeToContents
         )
 
     def load_basket_config(self, db_connector, dataset):

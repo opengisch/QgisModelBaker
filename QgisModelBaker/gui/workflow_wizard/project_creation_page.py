@@ -176,11 +176,11 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.ilitoppingcache.sorted_model,
                 self.topping_line_edit,
             )
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
+            completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
             completer.setModelSorting(
                 QCompleter.ModelSorting.CaseInsensitivelySortedModel
             )
-            completer.setFilterMode(Qt.MatchContains)
+            completer.setFilterMode(Qt.MatchFlag.MatchContains)
             completer.popup().setItemDelegate(self.ilitopping_delegate)
             self.topping_line_edit.setCompleter(completer)
 
@@ -265,7 +265,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
             if not self.topping_line_edit.text():
                 self.topping_line_edit.completer().setCompletionMode(
-                    QCompleter.UnfilteredPopupCompletion
+                    QCompleter.CompletionMode.UnfilteredPopupCompletion
                 )
                 self.topping_line_edit.completer().complete()
             else:
@@ -276,15 +276,15 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         self.topping_line_edit.completer()
                         .completionModel()
                         .index(0, 0),
-                        Qt.DisplayRole,
+                        Qt.ItemDataRole.DisplayRole,
                         self.topping_line_edit.text(),
                         -1,
-                        Qt.MatchContains,
+                        Qt.MatchFlag.MatchContains,
                     )
                 )
                 if len(match_contains) > 1:
                     self.topping_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
+                        QCompleter.CompletionMode.PopupCompletion
                     )
                     self.topping_line_edit.completer().complete()
             self.topping_line_edit.completer().popup().scrollToTop()
@@ -299,10 +299,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         matches = self.ilitoppingcache.model.match(
             self.ilitoppingcache.model.index(0, 0),
-            Qt.DisplayRole,
+            Qt.ItemDataRole.DisplayRole,
             self.topping_line_edit.text(),
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             model_index = matches[0]
@@ -674,7 +674,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         continue
                     matches = qml_file_model.match(
                         qml_file_model.index(0, 0),
-                        Qt.DisplayRole,
+                        Qt.ItemDataRole.DisplayRole,
                         qml_section[layer_qml],
                         1,
                     )
