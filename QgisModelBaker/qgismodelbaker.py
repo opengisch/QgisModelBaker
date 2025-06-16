@@ -54,7 +54,13 @@ from QgisModelBaker.gui.validate import ValidateDock
 from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    BaseConfiguration,
+    ImportDataConfiguration,
+)
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
 
 
@@ -510,6 +516,74 @@ class QgisModelBakerPlugin(QObject):
         self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
         return True
 
+    def handle_dropped_files_quick_n_dirty(self, dropped_files, dropped_ini_files):
+        # pro file ein import (ein gpkg)
+        status_map = {}
+        for file in dropped_files:
+            status, db_file = self.quick_n_import_dirty(file, dropped_ini_files)
+            status_map[file] = {}
+            status_map[file]["status"] = status
+            status_map[file]["db_file"] = db_file
+
+        # to do falls ein ilifile dabei, bei fail, versuche mit ilimodel (eines nach dem andern)
+
+        # lade raw projekt
+
+        for key in status_map.keys():
+            if status_map[key]["status"]:
+                self.quick_n_generate_dirty(status_map[key]["db_file"])
+            else:
+                print(f"That file failed {key}")
+
+    def quick_n_import_dirty(self, single_file, model_files):
+        importer = iliimporter.Importer(dataImport=True)
+
+        configuration = ImportDataConfiguration()
+        base_config = BaseConfiguration()
+        # todo model dir
+        configuration.base_configuration = base_config
+        configuration.tool = DbIliMode.ili2gpkg
+        configuration.xtffile = single_file
+        configuration.dbfile = os.path.join(
+            QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+            "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
+        )
+        # dirty specific parameter
+        configuration.inheritance = None
+        configuration.with_schemaimport = True
+        configuration.disable_validation = True
+
+        importer.configuration = configuration
+        importer.tool = configuration.tool
+
+        try:
+            if importer.run() != iliimporter.IliExecutable.SUCCESS:
+                # error
+                print("fail on run")
+                return False, importer.configuration.dbfile
+        except JavaNotFoundError:
+            # error
+            print("java fail")
+            return False, importer.configuration.dbfile
+        print("successfully import")
+        return True, importer.configuration.dbfile
+
+    def quick_n_generate_dirty(self, db_file):
+        generator = Generator(DbIliMode.ili2gpkg, db_file, None, raw_naming=True)
+
+        available_layers = generator.layers()
+        relations, _ = generator.relations(available_layers)
+        legend = generator.legend(available_layers)
+
+        project = Project()
+        project.layers = available_layers
+        project.relations = relations
+        project.legend = legend
+        project.post_generate()
+
+        qgis_project = QgsProject.instance()
+        project.create(None, qgis_project)
+
     def _set_dropped_file_configuration(self):
         settings = QSettings()
         settings.setValue("QgisModelBaker/importtype", "gpkg")
@@ -578,6 +652,7 @@ class DropFileFilter(QObject):
                 dropped_ini_files,
             ) = FileDropListView.extractDroppedFiles(event.mimeData().urls())
 
+            print("drop")
             # Outside wizard, accept drops only for "real" interlis files, as xml and ini are too generic to assume must be handled by MB
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
@@ -585,5 +660,13 @@ class DropFileFilter(QObject):
                     if self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files
                     ):
+                        print("handle")
                         return True
+                else:
+                    print("quick")
+                    # prototype - quick-n-dirty-import
+                    self.parent.handle_dropped_files_quick_n_dirty(
+                        dropped_files, dropped_ini_files
+                    )
+                    return True
         return False
