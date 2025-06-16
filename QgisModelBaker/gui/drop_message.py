@@ -18,9 +18,8 @@
 """
 import os
 
-from PyQt5.QtCore import QSize
 from qgis.gui import QgsGui
-from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtCore import QSettings, QSize
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
 from QgisModelBaker.utils import gui_utils

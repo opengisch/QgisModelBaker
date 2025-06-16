@@ -45,15 +45,15 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     """
 
     class _SERVICE_COMBOBOX_ROLE(IntEnum):
-        DBSERVICE = Qt.UserRole
-        DBHOST = Qt.UserRole + 1
-        DBPORT = Qt.UserRole + 2
-        DBUSR = Qt.UserRole + 3
-        DATABASE = Qt.UserRole + 4
-        DBSCHEMA = Qt.UserRole + 5
-        DBPWD = Qt.UserRole + 6
-        DBAUTHID = Qt.UserRole + 7
-        SSLMODE = Qt.UserRole + 8
+        DBSERVICE = Qt.ItemDataRole.UserRole
+        DBHOST = Qt.ItemDataRole.UserRole + 1
+        DBPORT = Qt.ItemDataRole.UserRole + 2
+        DBUSR = Qt.ItemDataRole.UserRole + 3
+        DATABASE = Qt.ItemDataRole.UserRole + 4
+        DBSCHEMA = Qt.ItemDataRole.UserRole + 5
+        DBPWD = Qt.ItemDataRole.UserRole + 6
+        DBAUTHID = Qt.ItemDataRole.UserRole + 7
+        SSLMODE = Qt.ItemDataRole.UserRole + 8
 
     REFRESH_SCHEMAS_TIMEOUT_MS = 500
 
@@ -138,45 +138,45 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_ssl_mode_combo_box.addItem("verify-full", "verify-full")
 
         self.pg_ssl_mode_combo_box.setItemData(
-            0, self.tr("Do not set the sslmode parameter"), Qt.ToolTipRole
+            0, self.tr("Do not set the sslmode parameter"), Qt.ItemDataRole.ToolTipRole
         )
         self.pg_ssl_mode_combo_box.setItemData(
-            1, self.tr("Only try a non-SSL connection"), Qt.ToolTipRole
+            1, self.tr("Only try a non-SSL connection"), Qt.ItemDataRole.ToolTipRole
         )
         self.pg_ssl_mode_combo_box.setItemData(
             2,
             self.tr(
                 "First try a non-SSL connection; if that fails, try an SSL connection"
             ),
-            Qt.ToolTipRole,
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
             3,
             self.tr(
                 "First try an SSL connection; if that fails, try a non-SSL connection"
             ),
-            Qt.ToolTipRole,
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
             4,
             self.tr(
                 "Only try an SSL connection. If a root CA file is present, verify the certificate in the same way as if verify-ca was specified"
             ),
-            Qt.ToolTipRole,
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
             5,
             self.tr(
                 "Only try an SSL connection, and verify that the server certificate is issued by a trusted certificate authority (CA)"
             ),
-            Qt.ToolTipRole,
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
             6,
             self.tr(
                 "Only try an SSL connection, verify that the server certificate is issued by a trusted CA and that the requested server host name matches that in the certificate"
             ),
-            Qt.ToolTipRole,
+            Qt.ItemDataRole.ToolTipRole,
         )
 
         self.pg_param_map = {}

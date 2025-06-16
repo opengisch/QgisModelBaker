@@ -19,11 +19,16 @@
 
 import logging
 
-from PyQt5.QtWidgets import QGridLayout, QProgressBar
 from qgis.core import Qgis
 from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import QSize, Qt
-from qgis.PyQt.QtWidgets import QGridLayout, QSizePolicy, QTextBrowser, QWidget
+from qgis.PyQt.QtWidgets import (
+    QGridLayout,
+    QProgressBar,
+    QSizePolicy,
+    QTextBrowser,
+    QWidget,
+)
 
 from QgisModelBaker.utils.gui_utils import (
     LogLevel,
@@ -38,10 +43,10 @@ class LogPanel(QWidget):
 
         self.txtStdout = QTextBrowser()
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.txtStdout.setLayout(QGridLayout())
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
-        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
         self.scrollbar = self.txtStdout.verticalScrollBar()
 
         self.busy_bar = QProgressBar()
@@ -75,7 +80,7 @@ class LogPanel(QWidget):
         self.print_info(text, get_parsed_log_text_level(text))
 
     def show_message(self, level, message):
-        if level == Qgis.Warning:
-            self.bar.pushMessage(message, Qgis.Info, 10)
-        elif level == Qgis.Critical:
-            self.bar.pushMessage(message, Qgis.Warning, 10)
+        if level == Qgis.MessageLevel.Warning:
+            self.bar.pushMessage(message, Qgis.MessageLevel.Info, 10)
+        elif level == Qgis.MessageLevel.Critical:
+            self.bar.pushMessage(message, Qgis.MessageLevel.Warning, 10)

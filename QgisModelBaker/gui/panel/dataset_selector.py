@@ -36,7 +36,7 @@ from QgisModelBaker.utils.gui_utils import BasketSourceModel
 class DatasetSelector(QComboBox):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self.setToolTip(self.tr("Dataset used as default value in form"))
 
         self.db_simple_factory = DbSimpleFactory()
@@ -119,7 +119,7 @@ class DatasetSelector(QComboBox):
             int(BasketSourceModel.Roles.BASKET_TID),
             current_basket_tid,
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             self.setCurrentIndex(matches[0].row())

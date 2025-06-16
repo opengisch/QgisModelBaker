@@ -89,7 +89,7 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _set_current_export_target(self, text):
         self.setComplete(
             self.xtf_file_line_edit.validator().validate(text, 0)[0]
-            == QValidator.Acceptable
+            == QValidator.State.Acceptable
         )
         self.workflow_wizard.current_export_target = text
 

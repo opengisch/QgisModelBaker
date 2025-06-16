@@ -113,7 +113,7 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         if (
             not db_file
             or self.gpkg_file_line_edit.validator().validate(db_file, 0)[0]
-            != QValidator.Acceptable
+            != QValidator.State.Acceptable
         ):
             message = self.tr(
                 "Please set a valid database file before creating the project."

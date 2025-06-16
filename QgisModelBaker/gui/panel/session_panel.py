@@ -313,7 +313,7 @@ class SessionPanel(QWidget, WIDGET_UI):
         command = porter.command(True)
         edit_command_dialog = EditCommandDialog(self)
         edit_command_dialog.command_edit.setPlainText(command)
-        if edit_command_dialog.exec_():
+        if edit_command_dialog.exec():
             edited_command = edit_command_dialog.command_edit.toPlainText()
             self.run(edited_command)
 
@@ -335,7 +335,7 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         porter = self._get_porter()
 
-        with OverrideCursor(Qt.WaitCursor):
+        with OverrideCursor(Qt.CursorShape.WaitCursor):
             self.progress_bar.setTextVisible(False)
             self.progress_bar.setValue(10)
 

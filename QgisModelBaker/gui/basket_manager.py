@@ -93,7 +93,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             self, self.db_connector, self.datasetname
         )
         if create_basket_dialog.baskets_can_be_created():
-            create_basket_dialog.exec_()
+            create_basket_dialog.exec()
 
             # Refresh existing baskets in basket manager after creation
             self._refresh_baskets()
@@ -105,7 +105,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                     f"The dataset '{self.datasetname}' already contains one basket for each topic.\n\n"
                     f"No additional baskets can be created."
                 ),
-                QMessageBox.Close,
+                QMessageBox.StandardButton.Close,
             )
 
     def _edit_basket(self) -> None:
@@ -114,7 +114,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             edit_basket_dialog = EditBasketDialog(
                 self, self.db_connector, selected_basket_settings
             )
-            edit_basket_dialog.exec_()
+            edit_basket_dialog.exec()
 
             # Refresh existing baskets in basket manager after edition
             self._refresh_baskets()
@@ -128,7 +128,7 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Delete baskets is only available for database schemas created with --createBasketCol parameter."
                     ),
-                    QMessageBox.Close,
+                    QMessageBox.StandardButton.Close,
                 )
                 return
 
@@ -139,9 +139,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Deleting a Basket will also delete all the data it contains. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),
-                    QMessageBox.No | QMessageBox.Yes,
+                    QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
                 )
-                == QMessageBox.Yes
+                == QMessageBox.StandardButton.Yes
             ):
                 basket_config = self.baskets_panel.selected_basket_settings()
                 res, msg = self._do_delete_basket(basket_config)
@@ -155,11 +155,11 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
 
                 warning_box = QMessageBox(self)
                 warning_box.setIcon(
-                    QMessageBox.Information if res else QMessageBox.Warning
+                    QMessageBox.Icon.Information if res else QMessageBox.Icon.Warning
                 )
                 warning_box.setWindowTitle(self.tr("Delete Basket"))
                 warning_box.setText(msg)
-                warning_box.exec_()
+                warning_box.exec()
 
     def _refresh_map_layers(self):
         # Refresh layer data sources and also their symbology (including feature count)
@@ -224,4 +224,6 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         return res, msg
 
     def _log_on_delete_dataset_error(self, log):
-        QgsMessageLog.logMessage(log, self.tr("Delete dataset from DB"), Qgis.Critical)
+        QgsMessageLog.logMessage(
+            log, self.tr("Delete dataset from DB"), Qgis.MessageLevel.Critical
+        )

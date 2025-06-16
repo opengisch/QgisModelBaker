@@ -71,7 +71,9 @@ class LayerStyleWidget(QWidget):
         self.settings_button.setIcon(
             QgsApplication.getThemeIcon("/propertyicons/symbology.svg")
         )
-        self.settings_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.settings_button.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
         self.settings_button.setVisible(False)
         self.checkbox.stateChanged.connect(self.settings_button.setVisible)
 
@@ -81,7 +83,7 @@ class LayerStyleWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
 
 class LayerModel(QgsLayerTreeModel):
@@ -90,8 +92,8 @@ class LayerModel(QgsLayerTreeModel):
     """
 
     class Roles(IntEnum):
-        CATEGORIES = Qt.UserRole + 1
-        LAYERTYPE = Qt.UserRole + 2
+        CATEGORIES = Qt.ItemDataRole.UserRole + 1
+        LAYERTYPE = Qt.ItemDataRole.UserRole + 2
 
     class Columns(IntEnum):
         NAME = 0
@@ -114,20 +116,23 @@ class LayerModel(QgsLayerTreeModel):
 
     def flags(self, index):
         if index.column() == LayerModel.Columns.NAME:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         if index.column() == LayerModel.Columns.USE_DEFINITION:
-            return Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled
         if index.column() == LayerModel.Columns.USE_STYLE:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         else:
             node = self.index2node(index)
             if not QgsLayerTree.isGroup(node):
-                return Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+                return Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled
             else:
-                return Qt.NoItemFlags
+                return Qt.ItemFlag.NoItemFlags
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             if section == LayerModel.Columns.NAME:
                 return self.tr("Layers and Groups")
             if section == LayerModel.Columns.USE_STYLE:
@@ -136,7 +141,10 @@ class LayerModel(QgsLayerTreeModel):
                 return self.tr("Definition (QLR)")
             if section == LayerModel.Columns.USE_SOURCE:
                 return self.tr("Source")
-        if orientation == Qt.Horizontal and role == Qt.ToolTipRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.ToolTipRole
+        ):
             if section == LayerModel.Columns.NAME:
                 return self.tr(
                     "The layers/groups listed here will be stored the layertree in the project topping (YAML) file. To remove a layer or a group, remove it in your project."
@@ -156,7 +164,7 @@ class LayerModel(QgsLayerTreeModel):
         return QgsLayerTreeModel.headerData(self, section, orientation, role)
 
     def data(self, index, role):
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             node = self.index2node(index)
             if node:
                 if (
@@ -166,12 +174,20 @@ class LayerModel(QgsLayerTreeModel):
                     settings = self.export_settings.get_setting(
                         ExportSettings.ToppingType.QMLSTYLE, node
                     )
-                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
+                    return (
+                        Qt.CheckState.Checked
+                        if settings.get("export", False)
+                        else Qt.CheckState.Unchecked
+                    )
                 if index.column() == LayerModel.Columns.USE_DEFINITION:
                     settings = self.export_settings.get_setting(
                         ExportSettings.ToppingType.DEFINITION, node
                     )
-                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
+                    return (
+                        Qt.CheckState.Checked
+                        if settings.get("export", False)
+                        else Qt.CheckState.Unchecked
+                    )
                 if (
                     index.column() == LayerModel.Columns.USE_SOURCE
                     and not QgsLayerTree.isGroup(node)
@@ -179,16 +195,20 @@ class LayerModel(QgsLayerTreeModel):
                     settings = self.export_settings.get_setting(
                         ExportSettings.ToppingType.SOURCE, node
                     )
-                    return Qt.Checked if settings.get("export", False) else Qt.Unchecked
+                    return (
+                        Qt.CheckState.Checked
+                        if settings.get("export", False)
+                        else Qt.CheckState.Unchecked
+                    )
 
-        if role == Qt.BackgroundRole:
+        if role == Qt.ItemDataRole.BackgroundRole:
             node = self.index2node(index)
             if QgsLayerTree.isGroup(node):
-                return QColor(Qt.gray)
+                return QColor(Qt.GlobalColor.gray)
             else:
                 layer = QgsProject.instance().mapLayersByName(node.name())[0]
                 if layer:
-                    if layer.type() == QgsMapLayer.VectorLayer:
+                    if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                         if self._is_ili_schema(layer):
                             return QColor(gui_utils.BLUE)
                     return QColor(gui_utils.GREEN)
@@ -219,7 +239,7 @@ class LayerModel(QgsLayerTreeModel):
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             node = self.index2node(index)
             if node:
                 if (
@@ -315,11 +335,20 @@ class LayerModel(QgsLayerTreeModel):
         return QgsLayerTreeModel.setData(self, index, role, data)
 
     def check(self, index):
-        if index.flags() & (Qt.ItemIsUserCheckable | Qt.ItemIsEnabled):
-            if self.data(index, Qt.CheckStateRole) == Qt.Checked:
-                self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        if index.flags() & (
+            Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled
+        ):
+            if (
+                self.data(index, Qt.ItemDataRole.CheckStateRole)
+                == Qt.CheckState.Checked
+            ):
+                self.setData(
+                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked
+                )
             else:
-                self.setData(index, Qt.CheckStateRole, Qt.Checked)
+                self.setData(
+                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
+                )
 
     def reload(self, load_defaults=False):
         self._load_ili_schema_identificators()
@@ -330,17 +359,17 @@ class LayerModel(QgsLayerTreeModel):
         for child_row in range(self.rowCount(parent)):
             self.setData(
                 self.index(child_row, LayerModel.Columns.USE_STYLE, parent),
-                Qt.CheckStateRole,
+                Qt.ItemDataRole.CheckStateRole,
                 False,
             )
             self.setData(
                 self.index(child_row, LayerModel.Columns.USE_DEFINITION, parent),
-                Qt.CheckStateRole,
+                Qt.ItemDataRole.CheckStateRole,
                 False,
             )
             self.setData(
                 self.index(child_row, LayerModel.Columns.USE_SOURCE, parent),
-                Qt.CheckStateRole,
+                Qt.ItemDataRole.CheckStateRole,
                 False,
             )
             self._disable_children(
@@ -356,7 +385,7 @@ class LayerModel(QgsLayerTreeModel):
             LayerModel.Columns.USE_DEFINITION,
             index.parent().parent(),
         )
-        self.setData(parent_definition_index, Qt.CheckStateRole, False)
+        self.setData(parent_definition_index, Qt.ItemDataRole.CheckStateRole, False)
         if index.parent() != QModelIndex():
             self._disable_parent_definition(index.parent())
 
@@ -368,7 +397,7 @@ class LayerModel(QgsLayerTreeModel):
         self.ili_schema_identificators = []
         checked_schema_identificator = []
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 source_provider = layer.dataProvider()
                 if not source_provider:
                     continue
@@ -508,16 +537,20 @@ class StyleCatDelegate(QStyledItemDelegate):
         widget = LayerStyleWidget(parent, option.rect)
         widget.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, QColor(index.data(Qt.BackgroundRole)))
+        palette.setColor(
+            QPalette.ColorRole.Base, QColor(index.data(Qt.ItemDataRole.BackgroundRole))
+        )
         widget.setPalette(palette)
         widget.checkbox.stateChanged.connect(
-            lambda state: index.model().setData(index, Qt.CheckStateRole, state)
+            lambda state: index.model().setData(
+                index, Qt.ItemDataRole.CheckStateRole, state
+            )
         )
         widget.settings_button.clicked.connect(lambda: self.button_clicked.emit(index))
         return widget
 
     def setEditorData(self, editor, index):
-        check_state = index.data(Qt.CheckStateRole)
+        check_state = index.data(Qt.ItemDataRole.CheckStateRole)
         if check_state is not None:
             editor.checkbox.setVisible(True)
             editor.checkbox.setCheckState(check_state)
@@ -549,7 +582,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.layermodel.setFlags(QgsLayerTreeModel.Flags())
         self.layer_table_view.setModel(self.layermodel)
         self.layer_table_view.header().setSectionResizeMode(
-            LayerModel.Columns.NAME, QHeaderView.Stretch
+            LayerModel.Columns.NAME, QHeaderView.ResizeMode.Stretch
         )
         self.layer_table_view.header().setStretchLastSection(False)
 
@@ -571,7 +604,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.topping_wizard.busy(self, False)
 
     def open_categories_dialog(self, index):
-        layername = index.data(int(Qt.DisplayRole))
+        layername = index.data(int(Qt.ItemDataRole.DisplayRole))
         self.categories_dialog.setWindowTitle(
             self.tr(f"Layer Style Categories of {layername}")
         )
@@ -580,7 +613,7 @@ class LayersPage(QWizardPage, PAGE_UI):
         )
         categories = index.data(int(LayerModel.Roles.CATEGORIES))
         self.categories_dialog.set_categories(categories)
-        if self.categories_dialog.exec_():
+        if self.categories_dialog.exec():
             self.layermodel.setData(
                 index,
                 int(LayerModel.Roles.CATEGORIES),

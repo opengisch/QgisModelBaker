@@ -156,8 +156,8 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             )
 
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
 
     def accepted(self):
         """Save settings before accepting the dialog"""
@@ -168,7 +168,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         ]:
             if (
                 line_edit.validator().validate(line_edit.text().strip(), 0)[0]
-                != QValidator.Acceptable
+                != QValidator.State.Acceptable
             ):
                 self.bar.pushWarning(
                     self.tr("Warning"),

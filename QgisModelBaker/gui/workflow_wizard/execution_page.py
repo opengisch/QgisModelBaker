@@ -143,7 +143,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         for session_widget in self.session_widget_list:
             session_layout.addWidget(session_widget)
         session_layout.addSpacerItem(
-            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Expanding)
+            QSpacerItem(
+                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            )
         )
         content.setLayout(session_layout)
         self.scroll_area.setWidget(content)

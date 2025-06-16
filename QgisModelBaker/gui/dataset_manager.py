@@ -53,18 +53,20 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.setupUi(self)
         self.buttonBox.accepted.connect(self._accepted)
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.info_layout.addWidget(self.bar, 0, Qt.AlignTop)
+        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.info_layout.addWidget(self.bar, 0, Qt.AlignmentFlag.AlignTop)
 
         self.db_simple_factory = DbSimpleFactory()
 
         self.dataset_model = DatasetModel()
         self.dataset_tableview.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
+            QHeaderView.ResizeMode.Stretch
         )
         self.dataset_tableview.horizontalHeader().hide()
         self.dataset_tableview.verticalHeader().hide()
-        self.dataset_tableview.setSelectionMode(QTableView.SingleSelection)
+        self.dataset_tableview.setSelectionMode(
+            QTableView.SelectionMode.SingleSelection
+        )
         self.dataset_tableview.setModel(self.dataset_model)
 
         self.add_button.clicked.connect(self._add_dataset)
@@ -92,14 +94,14 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
     def _close_editing(self):
         editable_layers = []
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 self.iface.vectorLayerTools().stopEditing(layer)
                 if layer.isEditable():
                     editable_layers.append(layer)
         if editable_layers:
             # in case it could not close it automatically
             warning_box = QMessageBox(self)
-            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setIcon(QMessageBox.Icon.Warning)
             warning_title = self.tr("Layers still editable")
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(
@@ -107,7 +109,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     "You still have layers in edit mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
                 ).format("\n - ".join([layer.name() for layer in editable_layers]))
             )
-            warning_box.exec_()
+            warning_box.exec()
 
     def _valid_selection(self):
         """
@@ -142,7 +144,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         db_connector = db_utils.get_db_connector(self.configuration)
         if db_connector and db_connector.get_basket_handling():
             edit_dataset_dialog = EditDatasetDialog(self, db_connector)
-            edit_dataset_dialog.exec_()
+            edit_dataset_dialog.exec()
             self._refresh_datasets()
             self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
@@ -159,7 +161,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     ),
                 )
                 edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
-                edit_dataset_dialog.exec_()
+                edit_dataset_dialog.exec()
                 self._refresh_datasets()
                 self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
 
@@ -173,7 +175,7 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Delete datasets is only available for database schemas created with --createBasketCol parameter."
                     ),
-                    QMessageBox.Close,
+                    QMessageBox.StandardButton.Close,
                 )
                 return
 
@@ -184,9 +186,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Deleting a Dataset will also delete children baskets and all the data they contain. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),
-                    QMessageBox.No | QMessageBox.Yes,
+                    QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
                 )
-                == QMessageBox.Yes
+                == QMessageBox.StandardButton.Yes
             ):
                 dataset = self.dataset_tableview.selectedIndexes()[0].data(
                     int(DatasetModel.Roles.DATASETNAME)
@@ -203,14 +205,16 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
                 warning_box = QMessageBox(self)
                 warning_box.setIcon(
-                    QMessageBox.Information if res else QMessageBox.Warning
+                    QMessageBox.Icon.Information if res else QMessageBox.Icon.Warning
                 )
                 warning_box.setWindowTitle(self.tr("Delete Dataset"))
                 warning_box.setText(msg)
-                warning_box.exec_()
+                warning_box.exec()
 
     def _log_on_delete_dataset_error(self, log):
-        QgsMessageLog.logMessage(log, self.tr("Delete dataset from DB"), Qgis.Critical)
+        QgsMessageLog.logMessage(
+            log, self.tr("Delete dataset from DB"), Qgis.MessageLevel.Critical
+        )
 
     def _refresh_map_layers(self):
         # Refresh layer data sources and also their symbology (including feature count)
@@ -230,15 +234,15 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                 basket_manager_dialog = BasketManagerDialog(
                     self.iface, self, db_connector, datasetname, self.configuration
                 )
-                basket_manager_dialog.exec_()
+                basket_manager_dialog.exec()
 
     def _jump_to_entry(self, datasetname):
         matches = self.dataset_model.match(
             self.dataset_model.index(0, 0),
-            Qt.DisplayRole,
+            Qt.ItemDataRole.DisplayRole,
             datasetname,
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             self.dataset_tableview.setCurrentIndex(matches[0])

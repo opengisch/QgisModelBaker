@@ -158,22 +158,29 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            gui_utils.SourceModel.Columns.SOURCE, QHeaderView.Stretch
+            gui_utils.SourceModel.Columns.SOURCE, QHeaderView.ResizeMode.Stretch
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            gui_utils.SourceModel.Columns.DELETE_DATA, QHeaderView.ResizeToContents
+            gui_utils.SourceModel.Columns.DELETE_DATA,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            gui_utils.SourceModel.Columns.IS_CATALOGUE, QHeaderView.ResizeToContents
+            gui_utils.SourceModel.Columns.IS_CATALOGUE,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            gui_utils.SourceModel.Columns.DATASET, QHeaderView.ResizeToContents
+            gui_utils.SourceModel.Columns.DATASET,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
 
-        self.file_table_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.file_table_view.setEditTriggers(
+            QAbstractItemView.EditTrigger.AllEditTriggers
+        )
         self.file_table_view.verticalHeader().setSectionsMovable(True)
         self.file_table_view.verticalHeader().setDragEnabled(True)
-        self.file_table_view.verticalHeader().setDragDropMode(QHeaderView.InternalMove)
+        self.file_table_view.verticalHeader().setDragDropMode(
+            QHeaderView.DragDropMode.InternalMove
+        )
         self.file_table_view.resizeColumnsToContents()
         self.workflow_wizard.import_data_file_model.dataChanged.connect(
             self._update_delegates
@@ -290,7 +297,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         if self.ilireferencedata_line_edit.hasFocus():
             if not self.ilireferencedata_line_edit.text():
                 self.ilireferencedata_line_edit.completer().setCompletionMode(
-                    QCompleter.UnfilteredPopupCompletion
+                    QCompleter.CompletionMode.UnfilteredPopupCompletion
                 )
                 self.ilireferencedata_line_edit.completer().complete()
             else:
@@ -301,15 +308,15 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                         self.ilireferencedata_line_edit.completer()
                         .completionModel()
                         .index(0, 0),
-                        Qt.DisplayRole,
+                        Qt.ItemDataRole.DisplayRole,
                         self.ilireferencedata_line_edit.text(),
                         -1,
-                        Qt.MatchContains,
+                        Qt.MatchFlag.MatchContains,
                     )
                 )
                 if len(match_contains) > 1:
                     self.ilireferencedata_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
+                        QCompleter.CompletionMode.PopupCompletion
                     )
                     self.ilireferencedata_line_edit.completer().complete()
             self.ilireferencedata_line_edit.completer().popup().scrollToTop()
@@ -322,10 +329,10 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 self.ilireferencedata_line_edit.completer()
                 .completionModel()
                 .index(0, 0),
-                Qt.DisplayRole,
+                Qt.ItemDataRole.DisplayRole,
                 self.ilireferencedata_line_edit.text(),
                 -1,
-                Qt.MatchExactly,
+                Qt.MatchFlag.MatchExactly,
             )
         )
         return len(match_contains) == 1
@@ -338,9 +345,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.ilireferencedatacache.sorted_model,
             self.ilireferencedata_line_edit,
         )
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
-        completer.setFilterMode(Qt.MatchContains)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.ilireferencedata_line_edit.setCompleter(completer)
         self.ilireferencedata_line_edit.setEnabled(
@@ -353,10 +360,10 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
     def _get_referencedata(self):
         matches = self.workflow_wizard.ilireferencedatacache.model.match(
             self.workflow_wizard.ilireferencedatacache.model.index(0, 0),
-            Qt.DisplayRole,
+            Qt.ItemDataRole.DisplayRole,
             self.ilireferencedata_line_edit.text(),
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             model_index = matches[0]
@@ -437,9 +444,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.datasetmanager_dlg = DatasetManagerDialog(
                 self.workflow_wizard.iface, self, True
             )
-            self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(
-                self.datasetmanager_dlg.windowFlags() | Qt.Tool
+                self.datasetmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.datasetmanager_dlg.show()
             self.datasetmanager_dlg.finished.connect(
