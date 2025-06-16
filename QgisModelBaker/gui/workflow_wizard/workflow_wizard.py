@@ -81,8 +81,11 @@ class WorkflowWizard(QWizard):
         QWizard.__init__(self, parent)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
-        self.setWizardStyle(QWizard.ModernStyle)
-        self.setOptions(QWizard.NoCancelButtonOnLastPage | QWizard.HaveHelpButton)
+        self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
+        self.setOptions(
+            QWizard.WizardOption.NoCancelButtonOnLastPage
+            | QWizard.WizardOption.HaveHelpButton
+        )
 
         self.current_id = 0
 
@@ -401,17 +404,18 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == PageIds.ImportSourceSelection:
             # Add extra button Clear cache
-            self.setOption(QWizard.HaveCustomButton1, True)
+            self.setOption(QWizard.WizardOption.HaveCustomButton1, True)
             self.setButton(
-                QWizard.CustomButton1, self.source_selection_page.clear_cache_button
+                QWizard.WizardButton.CustomButton1,
+                self.source_selection_page.clear_cache_button,
             )
         else:
             # Remove extra button Clear cache
             if (
-                self.button(QWizard.CustomButton1)
+                self.button(QWizard.WizardButton.CustomButton1)
                 == self.source_selection_page.clear_cache_button
             ):
-                self.setOption(QWizard.HaveCustomButton1, False)
+                self.setOption(QWizard.WizardOption.HaveCustomButton1, False)
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
@@ -576,7 +580,7 @@ class WorkflowWizard(QWizard):
 
         for file_id in id_list:
             matches = topping_file_model.match(
-                topping_file_model.index(0, 0), Qt.DisplayRole, file_id, 1
+                topping_file_model.index(0, 0), Qt.ItemDataRole.DisplayRole, file_id, 1
             )
             if matches:
                 file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
@@ -723,7 +727,7 @@ class WorkflowWizard(QWizard):
         log_paragraph = f'<p align="justify"><b><code>&lt; {logline}</code></b></p>'
 
         self.help_dlg = HelpDialog(self, title, log_paragraph, text)
-        self.help_dlg.setAttribute(Qt.WA_DeleteOnClose)
+        self.help_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.help_dlg.show()
 
     def busy(self, page, busy, text="Busy..."):
@@ -746,12 +750,12 @@ class WorkflowWizardDialog(QDialog):
         self.log_panel = LogPanel()
         self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
         self.workflow_wizard.setStartId(PageIds.Intro)
-        self.workflow_wizard.setWindowFlags(Qt.Widget)
+        self.workflow_wizard.setWindowFlags(Qt.WindowType.Widget)
         self.workflow_wizard.show()
         self.workflow_wizard.finished.connect(self.done)
 
         layout = QVBoxLayout()
-        splitter = QSplitter(Qt.Vertical)
+        splitter = QSplitter(Qt.Orientation.Vertical)
         splitter.addWidget(self.workflow_wizard)
         splitter.addWidget(self.log_panel)
         layout.addWidget(splitter)
