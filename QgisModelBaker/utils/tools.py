@@ -104,14 +104,30 @@ class QuickXtfBaker(QObject):
                 else:
                     model_files.append(file)
 
-        self.push_message_bar(
-            self.tr("Quick'n'dirty XTF import with QuickXtfBaker starts..."), True
-        )
         # one GeoPackage per file
-
         status_map = {}
         suc_files = set()
         failed_files = set()
+
+        if len(data_files) == 0:
+            self.push_message_bar(
+                self.tr(
+                    "Nothing to import with Quick XTF Backer (use the Model Baker wizard instead)."
+                ),
+                False,
+                Qgis.MessageLevel.Warning,
+                15,
+            )
+            return suc_files, failed_files
+
+        if len(model_files):
+            self.log(
+                f"Dropped model files are ignored {model_files} (but if not available in repo, they are used because they are in the same directory as the tranfer files)."
+            )
+
+        self.push_message_bar(
+            self.tr("Quick'n'dirty XTF import with QuickXtfBaker starts..."), True
+        )
 
         for file in data_files:
             self.push_message_bar(self.tr("Import {}").format(file), True)
