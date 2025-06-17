@@ -1,0 +1,236 @@
+INTERLIS 2.4;
+
+/* ########################################################################
+   CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
+   ======
+   BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
+   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+
+   PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
+   PUBLISHED: 2021-01-06
+   ########################################################################
+*/
+
+/* ########################################################################
+   ########################################################################
+   PART II -- LOCALISATION
+   - Package InternationalCodes
+   - Packages Localisation, LocalisationCH
+   - Packages Dictionaries, DictionariesCH
+*/
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL InternationalCodes_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  DOMAIN
+    LanguageCode_ISO639_1 = (de,fr,it,rm,en,
+      aa,ab,af,am,ar,as,ay,az,ba,be,bg,bh,bi,bn,bo,br,ca,co,cs,cy,da,dz,el,
+      eo,es,et,eu,fa,fi,fj,fo,fy,ga,gd,gl,gn,gu,ha,he,hi,hr,hu,hy,ia,id,ie,
+      ik,is,iu,ja,jw,ka,kk,kl,km,kn,ko,ks,ku,ky,la,ln,lo,lt,lv,mg,mi,mk,ml,
+      mn,mo,mr,ms,mt,my,na,ne,nl,no,oc,om,or,pa,pl,ps,pt,qu,rn,ro,ru,rw,sa,
+      sd,sg,sh,si,sk,sl,sm,sn,so,sq,sr,ss,st,su,sv,sw,ta,te,tg,th,ti,tk,tl,
+      tn,to,tr,ts,tt,tw,ug,uk,ur,uz,vi,vo,wo,xh,yi,yo,za,zh,zu);
+
+    CountryCode_ISO3166_1 = (CHE,
+      ABW,AFG,AGO,AIA,ALA,ALB,AND_,ANT,ARE,ARG,ARM,ASM,ATA,ATF,ATG,AUS,
+      AUT,AZE,BDI,BEL,BEN,BFA,BGD,BGR,BHR,BHS,BIH,BLR,BLZ,BMU,BOL,BRA,
+      BRB,BRN,BTN,BVT,BWA,CAF,CAN,CCK,CHL,CHN,CIV,CMR,COD,COG,COK,COL,
+      COM,CPV,CRI,CUB,CXR,CYM,CYP,CZE,DEU,DJI,DMA,DNK,DOM,DZA,ECU,EGY,
+      ERI,ESH,ESP,EST,ETH,FIN,FJI,FLK,FRA,FRO,FSM,GAB,GBR,GEO,GGY,GHA,
+      GIB,GIN,GLP,GMB,GNB,GNQ,GRC,GRD,GRL,GTM,GUF,GUM,GUY,HKG,HMD,HND,
+      HRV,HTI,HUN,IDN,IMN,IND,IOT,IRL,IRN,IRQ,ISL,ISR,ITA,JAM,JEY,JOR,
+      JPN,KAZ,KEN,KGZ,KHM,KIR,KNA,KOR,KWT,LAO,LBN,LBR,LBY,LCA,LIE,LKA,
+      LSO,LTU,LUX,LVA,MAC,MAR,MCO,MDA,MDG,MDV,MEX,MHL,MKD,MLI,MLT,MMR,
+      MNE,MNG,MNP,MOZ,MRT,MSR,MTQ,MUS,MWI,MYS,MYT,NAM,NCL,NER,NFK,NGA,
+      NIC,NIU,NLD,NOR,NPL,NRU,NZL,OMN,PAK,PAN,PCN,PER,PHL,PLW,PNG,POL,
+      PRI,PRK,PRT,PRY,PSE,PYF,QAT,REU,ROU,RUS,RWA,SAU,SDN,SEN,SGP,SGS,
+      SHN,SJM,SLB,SLE,SLV,SMR,SOM,SPM,SRB,STP,SUR,SVK,SVN,SWE,SWZ,SYC,
+      SYR,TCA,TCD,TGO,THA,TJK,TKL,TKM,TLS,TON,TTO,TUN,TUR,TUV,TWN,TZA,
+      UGA,UKR,UMI,URY,USA,UZB,VAT,VCT,VEN,VGB,VIR,VNM,VUT,WLF,WSM,YEM,
+      ZAF,ZMB,ZWE);
+
+END InternationalCodes_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL Localisation_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS InternationalCodes_V2;
+
+  STRUCTURE LocalisedText =
+    Language: InternationalCodes_V2.LanguageCode_ISO639_1;
+    Text: MANDATORY TEXT;
+  END LocalisedText;
+
+  STRUCTURE LocalisedMText =
+    Language: InternationalCodes_V2.LanguageCode_ISO639_1;
+    Text: MANDATORY MTEXT;
+  END LocalisedMText;
+
+  STRUCTURE LocalisedUri =
+    Language: InternationalCodes_V2.LanguageCode_ISO639_1;
+    Text: MANDATORY URI;
+  END LocalisedUri;
+
+  STRUCTURE MultilingualText =
+    LocalisedText : BAG {1..*} OF LocalisedText;
+    UNIQUE (LOCAL) LocalisedText:Language;
+  END MultilingualText;
+
+  STRUCTURE MultilingualMText =
+    LocalisedText : BAG {1..*} OF LocalisedMText;
+    UNIQUE (LOCAL) LocalisedText:Language;
+  END MultilingualMText;
+
+  STRUCTURE MultilingualUri =
+    LocalisedText : BAG {1..*} OF LocalisedUri;
+    UNIQUE (LOCAL) LocalisedText:Language;
+  END MultilingualUri;
+
+  STRUCTURE LocalisedBlob =
+    Language : InternationalCodes_V2.LanguageCode_ISO639_1;
+    Content : BLACKBOX BINARY;
+  END LocalisedBlob;
+
+  STRUCTURE MultilingualBlob =
+    LocalisedBlob : BAG {1..*} OF LocalisedBlob;
+  END MultilingualBlob;
+
+  STRUCTURE LocalisedXML =
+    Language : InternationalCodes_V2.LanguageCode_ISO639_1;
+    Content : BLACKBOX XML;
+  END LocalisedXML;
+
+  STRUCTURE MultilingualXML =
+    LocalisedXML : BAG {1..*} OF LocalisedXML;
+  END MultilingualXML;
+
+END Localisation_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL LocalisationCH_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS Localisation_V2;
+
+  STRUCTURE LocalisedText EXTENDS Localisation_V2.LocalisedText =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedText;
+
+  STRUCTURE LocalisedMText EXTENDS Localisation_V2.LocalisedMText =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedMText;
+
+  STRUCTURE LocalisedUri EXTENDS Localisation_V2.LocalisedUri =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedUri;
+
+  STRUCTURE MultilingualText EXTENDS Localisation_V2.MultilingualText =
+    LocalisedText (EXTENDED) : BAG {1..*} OF LocalisedText;
+  END MultilingualText;
+
+  STRUCTURE MultilingualMText EXTENDS Localisation_V2.MultilingualMText =
+    LocalisedText (EXTENDED) : BAG {1..*} OF LocalisedMText;
+  END MultilingualMText;
+
+  STRUCTURE MultilingualUri EXTENDS Localisation_V2.MultilingualUri =
+    LocalisedText (EXTENDED) : BAG {1..*} OF LocalisedUri;
+  END MultilingualUri;
+
+  STRUCTURE LocalisedBlob EXTENDS Localisation_V2.LocalisedBlob =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedBlob;
+
+  STRUCTURE MultilingualBlob EXTENDS Localisation_V2.MultilingualBlob =
+    LocalisedBlob (EXTENDED) : BAG {1..*} OF LocalisedBlob;
+  END MultilingualBlob;
+
+  STRUCTURE LocalisedXML EXTENDS Localisation_V2.LocalisedXML =
+  MANDATORY CONSTRAINT
+    Language == #de OR
+    Language == #fr OR
+    Language == #it OR
+    Language == #rm OR
+    Language == #en;
+  END LocalisedXML;
+
+  STRUCTURE MultilingualXML EXTENDS Localisation_V2.MultilingualXML =
+    LocalisedXML (EXTENDED) : BAG {1..*} OF LocalisedXML;
+  END MultilingualXML;
+
+END LocalisationCH_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+MODEL Dictionaries_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS InternationalCodes_V2;
+
+  TOPIC Dictionaries (ABSTRACT) =
+
+    STRUCTURE Entry (ABSTRACT) =
+      Text: MANDATORY TEXT;
+    END Entry;
+
+         CLASS Dictionary =
+      Language: MANDATORY InternationalCodes_V2.LanguageCode_ISO639_1;
+      Entries: LIST OF Entry;
+    END Dictionary;
+
+  END Dictionaries;
+
+END Dictionaries_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+MODEL DictionariesCH_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS Dictionaries_V2;
+
+  TOPIC Dictionaries (ABSTRACT) EXTENDS Dictionaries_V2.Dictionaries =
+
+    CLASS Dictionary (EXTENDED) =
+    MANDATORY CONSTRAINT
+      Language == #de OR
+      Language == #fr OR
+      Language == #it OR
+      Language == #rm OR
+      Language == #en;
+    END Dictionary;
+
+  END Dictionaries;
+
+END DictionariesCH_V2.
+
+!! ########################################################################

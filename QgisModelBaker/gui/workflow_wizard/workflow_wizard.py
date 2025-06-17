@@ -88,6 +88,7 @@ class WorkflowWizard(QWizard):
 
         self.iface = iface
         self.log_panel = parent.log_panel
+        self.wizard_dialog = parent
 
         # configuration objects are keeped on top level to be able to access them from individual pages
         self.base_config = base_config
@@ -218,6 +219,10 @@ class WorkflowWizard(QWizard):
 
         # on pressing the help button
         self.helpRequested.connect(self._show_help)
+
+        self.source_selection_page.quickxtf_button.clicked.connect(
+            self.wizard_dialog.prefer_quickxtf
+        )
 
     def sizeHint(self):
         return QSize(
@@ -736,11 +741,12 @@ class WorkflowWizard(QWizard):
 
 
 class WorkflowWizardDialog(QDialog):
-    def __init__(self, iface, base_config, parent):
-        QDialog.__init__(self, parent)
+    def __init__(self, iface, base_config, main_window, parent):
+        QDialog.__init__(self, main_window)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
         self.iface = iface
         self.base_config = base_config
+        self.parent = parent
 
         self.setWindowTitle(self.tr("Model Baker - Workflow Wizard"))
         self.log_panel = LogPanel()
@@ -749,6 +755,8 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.setWindowFlags(Qt.Widget)
         self.workflow_wizard.show()
         self.workflow_wizard.finished.connect(self.done)
+
+        self.dropped_files = []
 
         layout = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
@@ -761,9 +769,14 @@ class WorkflowWizardDialog(QDialog):
         """
         Appends the files, restarts the wizard and jumps to the next page (what is ImportSourceSelection)
         """
+        self.dropped_files = dropped_files
         self.workflow_wizard.append_dropped_files(dropped_files, dropped_ini_files)
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
+
+    def prefer_quickxtf(self):
+        self.accept()
+        self.parent.handle_dropped_files_quick(self.dropped_files)
 
 
 class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):

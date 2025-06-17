@@ -1,0 +1,64 @@
+INTERLIS 2.4;
+
+/* ########################################################################
+   CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
+   ======
+   BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
+   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+
+   PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
+   PUBLISHED: 2021-01-06
+   ########################################################################
+*/
+
+/* ########################################################################
+   ########################################################################
+   PART III -- CATALOGUE OBJECTS
+   - Package CatalogueObjects
+   - Package CatalogueObjectTrees
+*/
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+MODEL CatalogueObjects_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  TOPIC Catalogues (ABSTRACT) =
+
+    CLASS Item (ABSTRACT) =
+    END Item;
+
+  END Catalogues;
+
+END CatalogueObjects_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+MODEL CatalogueObjectTrees_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS CatalogueObjects_V2;
+
+  TOPIC Catalogues (ABSTRACT) EXTENDS CatalogueObjects_V2.Catalogues =
+
+    CLASS Item (ABSTRACT,EXTENDED) =
+      IsSuperItem: MANDATORY BOOLEAN;
+      IsUseable: MANDATORY BOOLEAN;
+    MANDATORY CONSTRAINT
+      IsSuperItem OR IsUseable;
+    END Item;
+
+    ASSOCIATION EntriesTree =
+      Parent -<#> Item;
+      Child -- Item;
+    MANDATORY CONSTRAINT
+      Parent->IsSuperItem;
+    END EntriesTree;
+
+  END Catalogues;
+
+END CatalogueObjectTrees_V2.
+
+!! ########################################################################

@@ -35,6 +35,7 @@ class DropMessageDialog(QDialog, DIALOG_UI):
         self.setupUi(self)
         self.setFixedSize(QSize())
         QgsGui.instance().enableAutoGeometryRestore(self)
+
         file_list = "\n- ".join(
             os.path.basename(path)
             for path in dropped_files

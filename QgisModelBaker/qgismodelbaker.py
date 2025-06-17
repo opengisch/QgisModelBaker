@@ -56,6 +56,7 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
+from QgisModelBaker.utils.tools import QuickXtfBaker
 
 
 class QgisModelBakerPlugin(QObject):
@@ -297,7 +298,7 @@ class QgisModelBakerPlugin(QObject):
             self.workflow_wizard_dlg.reject()
         else:
             self.workflow_wizard_dlg = WorkflowWizardDialog(
-                self.iface, self.ili2db_configuration, self.iface.mainWindow()
+                self.iface, self.ili2db_configuration, self.iface.mainWindow(), self
             )
             self.workflow_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.workflow_wizard_dlg.setWindowFlags(
@@ -508,6 +509,16 @@ class QgisModelBakerPlugin(QObject):
             self._set_dropped_file_configuration()
             self.show_workflow_wizard_dialog()
         self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
+        return True
+
+    def handle_dropped_files_quick(self, data_files):
+        logging.info(
+            f"Handle dropped files with quick xtf baker to import the data in temporary layers"
+        )
+        quick_baker = QuickXtfBaker(self)
+        success_files, fail_files = quick_baker.handle_dropped_files(data_files)
+        logging.info(f"Successfully imported: {success_files}")
+        logging.info(f"Not imported: {fail_files}")
         return True
 
     def _set_dropped_file_configuration(self):
