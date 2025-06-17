@@ -196,7 +196,7 @@ class QuickXtfBaker(QObject):
         )
 
         # parameters to import the data "dirty" (without validation and constraints)
-        configuration.inheritance = None
+        configuration.inheritance = "smart2"
         configuration.disable_validation = True
         configuration.with_schemaimport = True
 
