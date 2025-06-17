@@ -21,6 +21,7 @@ import datetime
 import logging
 import logging.handlers
 import os
+import pathlib
 
 from qgis.core import Qgis, QgsProject
 from qgis.PyQt.QtCore import QObject, QStandardPaths
@@ -34,6 +35,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.utils import gui_utils
 
 
 class QuickXtfBaker(QObject):
@@ -46,8 +48,7 @@ class QuickXtfBaker(QObject):
     def __init__(self, parent=None):
         super().__init__(parent.iface.mainWindow())
         self.parent = parent
-        self.iface = self.parent.iface
-        self.message_bar = self.iface.messageBar()
+        self.message_bar = self.parent.iface.messageBar()
 
     def push_message_bar(
         self,
@@ -85,12 +86,23 @@ class QuickXtfBaker(QObject):
         self.message_bar.pushWidget(message_widget, level, timeout)
         self.log(f"Push to message bar: {message}", level)
 
-    def handle_dropped_files(self, dropped_files, dropped_ini_files):
+    def handle_dropped_files(self, dropped_files):
 
         """
         Main function receiving the files and trigger import to single GeoPackages.
         After that it generates the layer via modelbaker generator.
         """
+
+        data_files = []
+        model_files = []
+
+        # separate data files from ini files
+        for file in dropped_files:
+            if os.path.isfile(file):
+                if pathlib.Path(file).suffix[1:] in gui_utils.TransferExtensions:
+                    data_files.append(file)
+                else:
+                    model_files.append(file)
 
         self.push_message_bar(
             self.tr("Quick'n'dirty XTF import with QuickXtfBaker starts..."), True
@@ -101,9 +113,9 @@ class QuickXtfBaker(QObject):
         suc_files = set()
         failed_files = set()
 
-        for file in dropped_files:
+        for file in data_files:
             self.push_message_bar(self.tr("Import {}").format(file), True)
-            status, db_file = self.import_file(file)
+            status, db_file = self.import_file(file, self.parent.ili2db_configuration)
             status_map[file] = {}
             status_map[file]["status"] = status
             status_map[file]["db_file"] = db_file
@@ -112,22 +124,21 @@ class QuickXtfBaker(QObject):
             else:
                 failed_files.add(file)
 
-        if len(failed_files) > 0 and len(dropped_ini_files) > 0:
-            self.log("Retry failed XTF imports with the dropped model files")
-            for file in failed_files:
-                status = False
-                db_file = None
-                for ini_file in dropped_ini_files:
-                    status, db_file = self.import_file(ini_file)
-                    if not status:
-                        # on faile, try with the next model
-                        continue
-                    # otherwise try to import data to the resulting db_file
-                    status, db_file = self.import_file(file, db_file)
-                    if status:
-                        break
+        # this is a fallback: in case we have a custom model directory defined, it could be that we didn't found the model in the tranferfile's directory
+        if (
+            len(failed_files) > 0
+            and self.parent.ili2db_configuration.custom_model_directories_enabled
+        ):
+            self.log(
+                "Retry failed XTF imports with models in the same directory as the datafile"
+            )
+            base_config = self.parent.ili2db_configuration
+            base_config.custom_model_directories += ";%XTF_DIR"
+            failed_files_to_handle = failed_files.copy()
+            for file in failed_files_to_handle:
+                status, db_file = self.import_file(file, base_config)
                 if status:
-                    self.log(f"Succeeded to import {file} with model file")
+                    self.log(f"Succeeded to import {file} with model in directory")
                     status_map[file]["status"] = status
                     status_map[file]["db_file"] = db_file
                     failed_files.remove(file)
@@ -151,69 +162,18 @@ class QuickXtfBaker(QObject):
             15,
             bool(len(failed_files)),
         )
-        return True
+        return suc_files, failed_files
 
-    def import_file(self, single_file, db_file=None):
+    def import_file(self, single_file, base_config):
         """
         Function to create a GeoPackage in the temporary directory without any constraints and import the data without any validation.
         """
         importer = iliimporter.Importer(dataImport=True)
 
         configuration = ImportDataConfiguration()
-        base_config = (
-            self.parent.ili2db_configuration
-        )  # taking custom model repository if configured
         configuration.base_configuration = base_config
         configuration.tool = DbIliMode.ili2gpkg
         configuration.xtffile = single_file
-        # in case a db_file is passed we take it and otherwise we don't
-        configuration.dbfile = db_file or os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.TempLocation),
-            "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
-        )
-
-        # parameters to import the data "dirty" (without validation and constraints)
-        configuration.inheritance = None
-        configuration.disable_validation = True
-        # in case a db_file is passed we don't create schema, otherwise we do
-        if not db_file:
-            configuration.with_schemaimport = True
-
-        importer.configuration = configuration
-        importer.tool = configuration.tool
-
-        importer.stdout.connect(self.on_ili_stdout)
-        importer.stderr.connect(self.on_ili_stderr)
-        importer.process_started.connect(self.on_ili_process_started)
-        importer.process_finished.connect(self.on_ili_process_finished)
-        result = True
-
-        try:
-            if importer.run() != iliimporter.IliExecutable.SUCCESS:
-                result = False
-        except JavaNotFoundError as e:
-            self.log(
-                self.tr("Java not found error: {}").format(e.error_string),
-                Qgis.MessageLevel.Warning,
-            )
-            result = False
-
-        return result, importer.configuration.dbfile
-
-    def import_model(self, single_model_file):
-        """
-        Function used as fallback in case we cannot work with doSchemaImport (in case model is not in repo).
-        Here we create the schema without importing the data.
-        """
-        importer = iliimporter.Importer(dataImport=True)
-
-        configuration = SchemaImportConfiguration()
-        base_config = (
-            self.parent.ili2db_configuration
-        )  # taking custom model repository if configured
-        configuration.base_configuration = base_config
-        configuration.tool = DbIliMode.ili2gpkg
-        configuration.ilifile = single_model_file
         configuration.dbfile = os.path.join(
             QStandardPaths.writableLocation(QStandardPaths.TempLocation),
             "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
@@ -222,6 +182,7 @@ class QuickXtfBaker(QObject):
         # parameters to import the data "dirty" (without validation and constraints)
         configuration.inheritance = None
         configuration.disable_validation = True
+        configuration.with_schemaimport = True
 
         importer.configuration = configuration
         importer.tool = configuration.tool

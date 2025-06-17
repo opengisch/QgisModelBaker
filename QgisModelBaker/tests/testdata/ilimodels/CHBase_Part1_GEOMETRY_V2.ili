@@ -1,0 +1,207 @@
+INTERLIS 2.4;
+
+/* ########################################################################
+   CHBASE - BASE MODULES OF THE SWISS FEDERATION FOR MINIMAL GEODATA MODELS
+   ======
+   BASISMODULE DES BUNDES           MODULES DE BASE DE LA CONFEDERATION
+   FÜR MINIMALE GEODATENMODELLE     POUR LES MODELES DE GEODONNEES MINIMAUX
+
+   PROVIDER: GKG/KOGIS - GCS/COSIG             CONTACT: models@geo.admin.ch
+   PUBLISHED: 2021-01-06
+   ########################################################################
+*/
+
+/* ########################################################################
+   ########################################################################
+   PART I -- GEOMETRY
+   - Package Geometry
+   - Package GeometryCHLV03
+   - Package GeometryCHLV95
+*/
+
+!! Version    | Who   | Modification
+!!------------------------------------------------------------------------------
+!! 2021-10-19 | KOGIS | DirectedLine and DirectedLineWithoutArcs in models GeometryCHLV03_V2 and GeometryCHLV95_V2 adapted
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL Geometry_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-01-06" =
+
+  IMPORTS Units;
+
+  DOMAIN
+    Coord2 (GENERIC) = COORD NUMERIC, NUMERIC;
+    Coord3 (GENERIC) = COORD NUMERIC, NUMERIC, NUMERIC;
+    MultiPoint (GENERIC) = MULTICOORD NUMERIC, NUMERIC;
+    MultiPoint3D (GENERIC) = MULTICOORD NUMERIC, NUMERIC, NUMERIC;
+
+    /* line strings and surfaces with STRAIGHTS and ARCS */
+    Surface = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Area = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Line = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    DirectedLine EXTENDS Line = DIRECTED POLYLINE;
+    LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+
+    /* line strings and surfaces without ARCS */
+    SurfaceWithoutArcs = SURFACE WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    AreaWithoutArcs = AREA WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    LineWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    DirectedLineWithoutArcs EXTENDS LineWithoutArcs = DIRECTED POLYLINE;
+    LineWithAltitudeWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+    DirectedLineWithAltitudeWithoutArcs = DIRECTED POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+
+    Orientation = 0.00000 .. 359.99999 CIRCULAR [Units.Angle_Degree] <Coord2>;
+
+    Accuracy = (cm, cm50, m, m10, m50, vague);
+    Method = (measured, sketched, calculated);
+
+END Geometry_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL GeometryCHLV03_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-10-19" =
+
+  IMPORTS Units;
+  IMPORTS CoordSys;
+  IMPORTS Geometry_V2;
+
+  REFSYSTEM BASKET BCoordSys ~ CoordSys.CoordsysTopic
+    OBJECTS OF GeoCartesian2D: CHLV03
+    OBJECTS OF GeoHeight: SwissNormalAlt;
+
+  DOMAIN
+    !!@CRS=EPSG:21781
+    Coord2 EXTENDS Geometry_V2.Coord2 = COORD
+      460000.000 .. 870000.000 [INTERLIS.m] {CHLV03[1]},
+       45000.000 .. 310000.000 [INTERLIS.m] {CHLV03[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:21781
+    Coord3 EXTENDS Geometry_V2.Coord3 = COORD
+      460000.000 .. 870000.000 [INTERLIS.m] {CHLV03[1]},
+       45000.000 .. 310000.000 [INTERLIS.m] {CHLV03[2]},
+        -200.000 ..   5000.000 [INTERLIS.m] {SwissNormalAlt[1]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:21781
+    MultiPoint EXTENDS Geometry_V2.MultiPoint = MULTICOORD
+      460000.000 .. 870000.000 [INTERLIS.m] {CHLV03[1]},
+       45000.000 .. 310000.000 [INTERLIS.m] {CHLV03[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:21781
+    MultiPoint3D EXTENDS Geometry_V2.MultiPoint3D = MULTICOORD
+      460000.000 .. 870000.000 [INTERLIS.m] {CHLV03[1]},
+       45000.000 .. 310000.000 [INTERLIS.m] {CHLV03[2]},
+        -200.000 ..   5000.000 [INTERLIS.m] {SwissNormalAlt[1]},
+      ROTATION 2 -> 1;
+
+    /* line strings and surfaces with STRAIGHTS and ARCS */
+    Surface EXTENDS Geometry_V2.Surface = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Area EXTENDS Geometry_V2.Area = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Line EXTENDS Geometry_V2.Line = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    DirectedLine EXTENDS Geometry_V2.DirectedLine = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    LineWithAltitude EXTENDS Geometry_V2.LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    DirectedLineWithAltitude EXTENDS Geometry_V2.DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+
+    MultiLine = MULTIPOLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    MultiDirectedLine = DIRECTED MULTIPOLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    MultiSurface = MULTISURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+
+    /* line strings and surfaces without ARCS */
+    SurfaceWithoutArcs EXTENDS Geometry_V2.SurfaceWithoutArcs = SURFACE WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    AreaWithoutArcs EXTENDS Geometry_V2.AreaWithoutArcs = AREA WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    LineWithoutArcs EXTENDS Geometry_V2.LineWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    DirectedLineWithoutArcs EXTENDS LineWithoutArcs = DIRECTED POLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    LineWithAltitudeWithoutArcs EXTENDS Geometry_V2.LineWithAltitudeWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+    DirectedLineWithAltitudeWithoutArcs EXTENDS Geometry_V2.DirectedLineWithAltitudeWithoutArcs = DIRECTED POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+
+    MultiLineWithoutArcs = MULTIPOLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    MultiDirectedLineWithoutArcs = DIRECTED MULTIPOLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    MultiSurfaceWithoutArcs = MULTISURFACE WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+
+    Orientation = 0.00000 .. 359.99999 CIRCULAR [Units.Angle_Degree] <Coord2>;
+
+    Accuracy = (cm, cm50, m, m10, m50, vague);
+    Method = (measured, sketched, calculated);
+
+END GeometryCHLV03_V2.
+
+!! ########################################################################
+!!@technicalContact=mailto:models@geo.admin.ch
+!!@furtherInformation=https://www.geo.admin.ch/de/geoinformation-schweiz/geobasisdaten/geodata-models.html
+TYPE MODEL GeometryCHLV95_V2 (en)
+  AT "https://models.geo.admin.ch/CH/" VERSION "2021-10-19" =
+
+  IMPORTS Units;
+  IMPORTS CoordSys;
+  IMPORTS Geometry_V2;
+
+  REFSYSTEM BASKET BCoordSys ~ CoordSys.CoordsysTopic
+    OBJECTS OF GeoCartesian2D: CHLV95
+    OBJECTS OF GeoHeight: SwissNormalAlt;
+
+  DOMAIN
+    !!@CRS=EPSG:2056
+    Coord2 EXTENDS Geometry_V2.Coord2 = COORD
+      2460000.000 .. 2870000.000 [INTERLIS.m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [INTERLIS.m] {CHLV95[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:2056
+    Coord3 EXTENDS Geometry_V2.Coord3 = COORD
+      2460000.000 .. 2870000.000 [INTERLIS.m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [INTERLIS.m] {CHLV95[2]},
+         -200.000 ..    5000.000 [INTERLIS.m] {SwissNormalAlt[1]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:2056
+    MultiPoint EXTENDS Geometry_V2.MultiPoint = MULTICOORD
+      2460000.000 .. 2870000.000 [INTERLIS.m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [INTERLIS.m] {CHLV95[2]},
+      ROTATION 2 -> 1;
+
+    !!@CRS=EPSG:2056
+    MultiPoint3D EXTENDS Geometry_V2.MultiPoint3D = MULTICOORD
+      2460000.000 .. 2870000.000 [INTERLIS.m] {CHLV95[1]},
+      1045000.000 .. 1310000.000 [INTERLIS.m] {CHLV95[2]},
+         -200.000 ..    5000.000 [INTERLIS.m] {SwissNormalAlt[1]},
+      ROTATION 2 -> 1;
+
+    /* line strings and surfaces with STRAIGHTS and ARCS */
+    Surface EXTENDS Geometry_V2.Surface = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Area EXTENDS Geometry_V2.Area = AREA WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    Line EXTENDS Geometry_V2.Line = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    DirectedLine EXTENDS Geometry_V2.DirectedLine = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    LineWithAltitude EXTENDS Geometry_V2.LineWithAltitude = POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+    DirectedLineWithAltitude EXTENDS Geometry_V2.DirectedLineWithAltitude = DIRECTED POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord3;
+
+    MultiLine = MULTIPOLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    MultiDirectedLine = DIRECTED MULTIPOLYLINE WITH (STRAIGHTS, ARCS) VERTEX Coord2;
+    MultiSurface = MULTISURFACE WITH (STRAIGHTS, ARCS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+
+    /* line strings and surfaces without ARCS */
+    SurfaceWithoutArcs EXTENDS Geometry_V2.SurfaceWithoutArcs = SURFACE WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    AreaWithoutArcs EXTENDS Geometry_V2.AreaWithoutArcs = AREA WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+    LineWithoutArcs EXTENDS Geometry_V2.LineWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    DirectedLineWithoutArcs EXTENDS LineWithoutArcs = DIRECTED POLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    LineWithAltitudeWithoutArcs EXTENDS Geometry_V2.LineWithAltitudeWithoutArcs = POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+    DirectedLineWithAltitudeWithoutArcs EXTENDS Geometry_V2.DirectedLineWithAltitudeWithoutArcs = DIRECTED POLYLINE WITH (STRAIGHTS) VERTEX Coord3;
+
+    MultiLineWithoutArcs = MULTIPOLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    MultiDirectedLineWithoutArcs = DIRECTED MULTIPOLYLINE WITH (STRAIGHTS) VERTEX Coord2;
+    MultiSurfaceWithoutArcs = MULTISURFACE WITH (STRAIGHTS) VERTEX Coord2 WITHOUT OVERLAPS > 0.001;
+
+    Orientation = 0.00000 .. 359.99999 CIRCULAR [Units.Angle_Degree] <Coord2>;
+
+    Accuracy = (cm, cm50, m, m10, m50, vague);
+    Method = (measured, sketched, calculated);
+
+END GeometryCHLV95_V2.
+
+!! ########################################################################

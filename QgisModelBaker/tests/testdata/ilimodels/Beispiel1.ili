@@ -1,0 +1,27 @@
+TRANSFER INTERLIS1;
+
+MODEL Beispiel1
+
+  DOMAIN
+    LKoord = COORD2 2480000.00 1060000.00
+                   2850000.00 1320000.00;
+    Art = TEXT*6;
+
+  TOPIC Bodenbedeckung =
+
+    TABLE BoFlaechen =
+      Art : OPTIONAL Art;
+      Form : AREA WITH (STRAIGHTS, ARCS) VERTEX LKoord
+        WITHOUT OVERLAPS > 0.10;
+      NO IDENT
+    END BoFlaechen;
+
+  END Bodenbedeckung.
+
+END Beispiel1.
+
+FORMAT FREE;
+CODE BLANK = DEFAULT, UNDEFINED = DEFAULT, CONTINUE = DEFAULT;
+TID = ANY;
+
+END.

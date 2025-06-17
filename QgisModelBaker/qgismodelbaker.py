@@ -511,12 +511,15 @@ class QgisModelBakerPlugin(QObject):
         self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
         return True
 
-    def handle_dropped_files_quick_n_dirty(self, dropped_files, dropped_ini_files):
+    def handle_dropped_files_quick_n_dirty(self, dropped_files):
         logging.info(
             f"Handle dropped files with quick xtf baker to import the data in temporary layers"
         )
         quick_baker = QuickXtfBaker(self)
-        return quick_baker.handle_dropped_files(dropped_files, dropped_ini_files)
+        success_files, fail_files = quick_baker.handle_dropped_files(dropped_files)
+        logging.info(f"Successfully imported: {success_files}")
+        logging.info(f"Not imported: {fail_files}")
+        return True
 
     def _set_dropped_file_configuration(self):
         settings = QSettings()
@@ -596,8 +599,6 @@ class DropFileFilter(QObject):
                         return True
                 else:
                     # prototype - quick-n-dirty-import
-                    self.parent.handle_dropped_files_quick_n_dirty(
-                        dropped_files, dropped_ini_files
-                    )
+                    self.parent.handle_dropped_files_quick_n_dirty(dropped_files)
                     return True
         return False
