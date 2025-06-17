@@ -21,7 +21,7 @@ import os
 from PyQt5.QtCore import QSize
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QSettings
-from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QPushButton
+from qgis.PyQt.QtWidgets import QDialog
 
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DropMode
@@ -34,9 +34,6 @@ class DropMessageDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setFixedSize(QSize())
-        self.quick_button = QPushButton("Quick Import", self)
-        self.button_box.addButton(self.quick_button, QDialogButtonBox.ActionRole)
-
         QgsGui.instance().enableAutoGeometryRestore(self)
 
         file_list = "\n- ".join(
@@ -57,9 +54,6 @@ class DropMessageDialog(QDialog, DIALOG_UI):
         )
         self.accepted.connect(lambda: self.handle_dropped_file_configuration(True))
         self.rejected.connect(lambda: self.handle_dropped_file_configuration(False))
-        self.quick_button.clicked.connect(
-            lambda: self.handle_dropped_file_configuration(False)
-        )
 
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
