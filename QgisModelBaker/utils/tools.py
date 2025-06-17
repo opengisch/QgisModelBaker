@@ -222,7 +222,7 @@ class QuickXtfBaker(QObject):
         return result, importer.configuration.dbfile
 
     def generate_project(self, db_file):
-        generator = Generator(DbIliMode.ili2gpkg, db_file, None, raw_naming=True)
+        generator = Generator(DbIliMode.ili2gpkg, db_file, None)
 
         available_layers = generator.layers()
         relations, _ = generator.relations(available_layers)
