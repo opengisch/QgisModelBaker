@@ -220,9 +220,12 @@ class WorkflowWizard(QWizard):
         # on pressing the help button
         self.helpRequested.connect(self._show_help)
 
-        self.source_selection_page.quickxtf_button.clicked.connect(
-            self.wizard_dialog.prefer_quickxtf
+        self.source_selection_page.quick_import_button.clicked.connect(
+            self.gather_files_and_leave_to_quick
         )
+
+    def gather_files_and_leave_to_quick(self):
+        self.wizard_dialog.prefer_quickxtf(self.import_data_file_model.sources())
 
     def sizeHint(self):
         return QSize(
@@ -405,18 +408,31 @@ class WorkflowWizard(QWizard):
         )
 
         if self.current_id == PageIds.ImportSourceSelection:
-            # Add extra button Clear cache
+            # Add extra buttons
+            # Clear cache
             self.setOption(QWizard.HaveCustomButton1, True)
             self.setButton(
-                QWizard.CustomButton1, self.source_selection_page.clear_cache_button
+                QWizard.CustomButton1, self.source_selection_page.quick_import_button
+            )
+            # Quick import
+            self.setOption(QWizard.HaveCustomButton2, True)
+            self.setButton(
+                QWizard.CustomButton2, self.source_selection_page.clear_cache_button
             )
         else:
-            # Remove extra button Clear cache
+            # Remove extra buttons
+            # Clear cache
             if (
                 self.button(QWizard.CustomButton1)
-                == self.source_selection_page.clear_cache_button
+                == self.source_selection_page.quick_import_button
             ):
                 self.setOption(QWizard.HaveCustomButton1, False)
+            # Quick import
+            if (
+                self.button(QWizard.CustomButton2)
+                == self.source_selection_page.clear_cache_button
+            ):
+                self.setOption(QWizard.HaveCustomButton2, False)
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
@@ -774,9 +790,9 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
 
-    def prefer_quickxtf(self):
+    def prefer_quickxtf(self, files):
         self.accept()
-        self.parent.handle_dropped_files_quick(self.dropped_files)
+        self.parent.handle_dropped_files_quick(files)
 
 
 class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):

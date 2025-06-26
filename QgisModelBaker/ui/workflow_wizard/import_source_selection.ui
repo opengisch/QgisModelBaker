@@ -48,26 +48,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="input_line_label">
-        <property name="text">
-         <string>Model or Datafile</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="file_browse_button">
-        <property name="toolTip">
-         <string>Browse INTERLIS files</string>
-        </property>
-        <property name="text">
-         <string>…</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="3">
-       <widget class="FileDropListView" name="source_list_view" native="true"/>
-      </item>
       <item row="1" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
@@ -99,24 +79,28 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="1">
-       <widget class="CompletionLineEdit" name="input_line_edit" native="true"/>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QToolButton" name="quickxtf_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(248, 228, 92)</string>
-        </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="input_line_label">
         <property name="text">
-         <string>Import read-only project to view data quick and dirty</string>
+         <string>Model or Datafile</string>
         </property>
        </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="FileDropListView" name="source_list_view" native="true"/>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="file_browse_button">
+        <property name="toolTip">
+         <string>Browse INTERLIS files</string>
+        </property>
+        <property name="text">
+         <string>…</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="CompletionLineEdit" name="input_line_edit" native="true"/>
       </item>
      </layout>
     </widget>

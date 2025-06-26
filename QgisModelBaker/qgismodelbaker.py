@@ -45,7 +45,10 @@ from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.utils import available_plugins
 
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
-from QgisModelBaker.gui.drop_message import DropMessageDialog
+from QgisModelBaker.gui.drop_message import (
+    DopMessageModelBakerDialog,
+    DropMessageQuickDialog,
+)
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.gui.tid_manager import TIDManagerDialog
@@ -574,9 +577,17 @@ class DropFileFilter(QObject):
             settings.value("QgisModelBaker/drop_mode", DropMode.ASK.name, str)
         ]
         if drop_mode == DropMode.ASK:
-            drop_message_dialog = DropMessageDialog(dropped_files)
+            drop_message_dialog = DopMessageModelBakerDialog(dropped_files)
             return drop_message_dialog.exec_()
         return drop_mode == DropMode.YES
+
+    def _is_quick_import_requested(self, dropped_files):
+        settings = QSettings()
+        wizard_always = settings.value("QgisModelBaker/open_wizard_always", False, bool)
+        if not wizard_always:
+            drop_quick_dialog = DropMessageQuickDialog(dropped_files)
+            return drop_quick_dialog.exec_()
+        return False
 
     def eventFilter(self, obj, event):
         """
@@ -593,7 +604,10 @@ class DropFileFilter(QObject):
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
                 if self._is_handling_requested(dropped_files + dropped_ini_files):
-                    if self.parent.handle_dropped_files(
+                    if self._is_quick_import_requested(dropped_files):
+                        if self.parent.handle_dropped_files_quick(dropped_files):
+                            return True
+                    elif self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files
                     ):
                         return True
