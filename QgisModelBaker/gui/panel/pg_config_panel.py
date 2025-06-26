@@ -228,7 +228,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.sslmode = self.pg_ssl_mode_combo_box.currentData()
 
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        configuration.param_map = self.pg_param_map
+        configuration.dbparam_map = self.pg_param_map
 
     def set_fields(self, configuration):
 
@@ -326,7 +326,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_auth_settings.setConfigId(configuration.dbauthid)
             self.pg_use_super_login.setChecked(configuration.db_use_super_login)
 
-        self.pg_param_map = configuration.param_map
+        self.pg_param_map = configuration.dbparam_map
 
     def is_valid(self):
         result = False
@@ -596,7 +596,6 @@ class DbParamsDialog(QDialog, DIALOG_UI):
 
         self.param_map = param_map
 
-        self.mappingtable.insertRow(0)
         self.mappingtable.horizontalHeader().setSectionsClickable(True)
         self.mappingtable.setSortingEnabled(True)
 
@@ -605,6 +604,9 @@ class DbParamsDialog(QDialog, DIALOG_UI):
         self.mappingtable.cellChanged.connect(self._cell_changed)
 
     def init(self):
+        """
+        Reads content from param_map
+        """
         for key in self.param_map.keys():
             row = self.mappingtable.rowCount()
             self.mappingtable.insertRow(row)
@@ -614,9 +616,12 @@ class DbParamsDialog(QDialog, DIALOG_UI):
             value_item.setData(Qt.DisplayRole, self.param_map[key])
             self.mappingtable.setItem(row, 0, key_item)
             self.mappingtable.setItem(row, 1, value_item)
-            print(f"insert{key_item} and {value_item}")
+        self.mappingtable.insertRow(self.mappingtable.rowCount())
 
     def accepted(self):
+        """
+        Stores content to param_map
+        """
         self.param_map = {}
         for row in range(self.mappingtable.rowCount()):
             key_item = self.mappingtable.item(row, 0)
@@ -641,5 +646,10 @@ class DbParamsDialog(QDialog, DIALOG_UI):
             and len(str(value_item.data(Qt.DisplayRole))) > 0
         ):
             self.mappingtable.setRowCount(row + 1)
-        elif row == self.mappingtable.rowCount() - 1:
+        elif row == self.mappingtable.rowCount() - 1 and (
+            key_item
+            and len(str(key_item.data(Qt.DisplayRole))) > 0
+            or value_item
+            and len(str(value_item.data(Qt.DisplayRole))) > 0
+        ):
             self.mappingtable.insertRow(row + 1)
