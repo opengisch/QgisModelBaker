@@ -38,7 +38,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundEr
 from QgisModelBaker.utils import gui_utils
 
 
-class QuickXtfBaker(QObject):
+class QuickVisualizer(QObject):
     """
     This class provides the functionality for a quick import of dropped xtf files.
     It generates a GeoPackage in the temporary directory withouth any constraints and imports the data without any validation.
@@ -126,7 +126,7 @@ class QuickXtfBaker(QObject):
             )
 
         self.push_message_bar(
-            self.tr("Quick'n'dirty XTF import with QuickXtfBaker starts..."), True
+            self.tr("Quick'n'dirty XTF import with QuickVisualizer starts..."), True
         )
 
         for file in data_files:
@@ -262,7 +262,7 @@ class QuickXtfBaker(QObject):
             self.log(text, Qgis.MessageLevel.Critical)
 
     def log(self, message, level=Qgis.MessageLevel.Info):
-        log_text = f"QuickXtfBaker: {message}"
+        log_text = f"QuickVisualizer: {message}"
         if level == Qgis.MessageLevel.Warning:
             logging.warning(message)
         elif level == Qgis.MessageLevel.Critical:

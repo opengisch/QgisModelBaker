@@ -71,10 +71,10 @@ class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message
         QgsGui.instance().enableAutoGeometryRestore(self)
 
         quick_button = self.button_box.addButton(
-            "Quickly visualize", QDialogButtonBox.ActionRole
+            self.tr("Quickly visualize"), QDialogButtonBox.ActionRole
         )
         wizard_button = self.button_box.addButton(
-            "Model Baker Wizard", QDialogButtonBox.ActionRole
+            self.tr("Go to Model Baker Wizard"), QDialogButtonBox.ActionRole
         )
 
         file_list = "\n- ".join(

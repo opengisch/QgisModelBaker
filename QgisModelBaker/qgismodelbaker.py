@@ -59,7 +59,7 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
-from QgisModelBaker.utils.tools import QuickXtfBaker
+from QgisModelBaker.utils.tools import QuickVisualizer
 
 
 class QgisModelBakerPlugin(QObject):
@@ -514,12 +514,12 @@ class QgisModelBakerPlugin(QObject):
         self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
         return True
 
-    def handle_dropped_files_quick(self, data_files):
+    def visualize_dropped_files_quickly(self, data_files):
         logging.info(
-            f"Handle dropped files with quick xtf baker to import the data in temporary layers"
+            f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
         )
-        quick_baker = QuickXtfBaker(self)
-        success_files, fail_files = quick_baker.handle_dropped_files(data_files)
+        quick_visualizer = QuickVisualizer(self)
+        success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
         logging.info(f"Successfully imported: {success_files}")
         logging.info(f"Not imported: {fail_files}")
         return True
@@ -581,7 +581,7 @@ class DropFileFilter(QObject):
             return drop_message_dialog.exec_()
         return drop_mode == DropMode.YES
 
-    def _is_quick_import_requested(self, dropped_files):
+    def _is_quick_visualization_requested(self, dropped_files):
         settings = QSettings()
         wizard_always = settings.value("QgisModelBaker/open_wizard_always", False, bool)
         if not wizard_always:
@@ -604,8 +604,8 @@ class DropFileFilter(QObject):
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
                 if self._is_handling_requested(dropped_files + dropped_ini_files):
-                    if self._is_quick_import_requested(dropped_files):
-                        if self.parent.handle_dropped_files_quick(dropped_files):
+                    if self._is_quick_visualization_requested(dropped_files):
+                        if self.parent.visualize_dropped_files_quickly(dropped_files):
                             return True
                     elif self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files

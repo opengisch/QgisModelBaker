@@ -220,12 +220,12 @@ class WorkflowWizard(QWizard):
         # on pressing the help button
         self.helpRequested.connect(self._show_help)
 
-        self.source_selection_page.quick_import_button.clicked.connect(
-            self.gather_files_and_leave_to_quick
+        self.source_selection_page.quick_visualize_button.clicked.connect(
+            self.gather_files_and_leave_to_quick_visualizer
         )
 
-    def gather_files_and_leave_to_quick(self):
-        self.wizard_dialog.prefer_quickxtf(self.import_data_file_model.sources())
+    def gather_files_and_leave_to_quick_visualizer(self):
+        self.wizard_dialog.prefer_quickvisualizer(self.import_data_file_model.sources())
 
     def sizeHint(self):
         return QSize(
@@ -412,7 +412,7 @@ class WorkflowWizard(QWizard):
             # Clear cache
             self.setOption(QWizard.HaveCustomButton1, True)
             self.setButton(
-                QWizard.CustomButton1, self.source_selection_page.quick_import_button
+                QWizard.CustomButton1, self.source_selection_page.quick_visualize_button
             )
             # Quick import
             self.setOption(QWizard.HaveCustomButton2, True)
@@ -424,7 +424,7 @@ class WorkflowWizard(QWizard):
             # Clear cache
             if (
                 self.button(QWizard.CustomButton1)
-                == self.source_selection_page.quick_import_button
+                == self.source_selection_page.quick_visualize_button
             ):
                 self.setOption(QWizard.HaveCustomButton1, False)
             # Quick import
@@ -790,9 +790,9 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
 
-    def prefer_quickxtf(self, files):
+    def prefer_quickvisualizer(self, files):
         self.accept()
-        self.parent.handle_dropped_files_quick(files)
+        self.parent.visualize_dropped_files_quickly(files)
 
 
 class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):
