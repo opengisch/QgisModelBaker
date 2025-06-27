@@ -442,7 +442,7 @@ class QgisModelBakerPlugin(QObject):
             settings.value(
                 "QgisModelBaker/validate_dock/area",
                 Qt.DockWidgetArea.RightDockWidgetArea,
-                type=int,
+                type=Qt.DockWidgetArea,
             ),
             self.__validate_dock,
         )

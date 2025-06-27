@@ -95,7 +95,7 @@ class DatasetSelector(QComboBox):
                     # let it pass, it will have no entries what is okay
                     pass
 
-        self.filtered_model.setFilterRegExp(
+        self.filtered_model.setFilterRegularExpression(
             "|".join(self.current_schema_topic_identificators)
         )
 
@@ -145,7 +145,9 @@ class DatasetSelector(QComboBox):
             schema_topic_identificator = slugify(
                 f"{schema_identificator}_{model_topic}"
             )
-            self.filtered_model.setFilterRegExp(f"{schema_topic_identificator}")
+            self.filtered_model.setFilterRegularExpression(
+                f"{schema_topic_identificator}"
+            )
             first_index = self.model().index(0, 0)
             basket_tid = first_index.data(int(BasketSourceModel.Roles.BASKET_TID))
             QgsExpressionContextUtils.setProjectVariable(

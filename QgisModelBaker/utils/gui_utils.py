@@ -634,7 +634,7 @@ class ImportModelsModel(SourceModel):
                         )
 
         # models from the transfer files
-        filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
+        filtered_source_model.setFilterRegularExpression("|".join(TransferExtensions))
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(
                 r, SourceModel.Columns.SOURCE

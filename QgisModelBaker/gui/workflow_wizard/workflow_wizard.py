@@ -120,7 +120,9 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.print_info.connect(self.log_panel.print_info)
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
-        self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
+        self.import_data_file_model.setFilterRegularExpression(
+            "|".join(TransferExtensions)
+        )
         self.ilireferencedatacache = IliDataCache(
             self.import_schema_configuration.base_configuration,
             "referenceData",
