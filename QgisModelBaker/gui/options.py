@@ -126,7 +126,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
         if not self.chk_dontask_to_handle_dropped_files.isChecked():
             settings.setValue("QgisModelBaker/drop_mode", DropMode.ASK.name)
 
-        setting.setValue(
+        settings.setValue(
             "QgisModelBaker/open_wizard_always",
             self.chk_open_always_wizard_to_handle_dropped_files.isChecked(),
         )

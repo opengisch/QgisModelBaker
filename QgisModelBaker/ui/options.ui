@@ -94,7 +94,7 @@
         </widget>
        </item>
        <item row="3" column="0" colspan="2">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="chk_open_always_wizard_to_handle_dropped_files">
          <property name="text">
           <string>Always open the Wizard directly on dropped XTF / ITF</string>
          </property>

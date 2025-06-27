@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
+    <width>680</width>
     <height>112</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Handle Import Files</string>
+   <string>Use Model Baker to Handle Files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0" colspan="2">
