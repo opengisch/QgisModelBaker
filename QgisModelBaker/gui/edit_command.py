@@ -29,4 +29,6 @@ class EditCommandDialog(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         QgsGui.instance().enableAutoGeometryRestore(self)
-        self.button_box.button(QDialogButtonBox.Ok).setText(self.tr("Run"))
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setText(
+            self.tr("Run")
+        )

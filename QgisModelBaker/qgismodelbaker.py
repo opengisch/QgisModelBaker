@@ -299,9 +299,9 @@ class QgisModelBakerPlugin(QObject):
             self.workflow_wizard_dlg = WorkflowWizardDialog(
                 self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
-            self.workflow_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.workflow_wizard_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
             self.workflow_wizard_dlg.setWindowFlags(
-                self.workflow_wizard_dlg.windowFlags() | Qt.Tool
+                self.workflow_wizard_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.workflow_wizard_dlg.show()
             self.workflow_wizard_dlg.finished.connect(
@@ -320,9 +320,9 @@ class QgisModelBakerPlugin(QObject):
             self.topping_wizard_dlg = ToppingWizardDialog(
                 self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
-            self.topping_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.topping_wizard_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
             self.topping_wizard_dlg.setWindowFlags(
-                self.topping_wizard_dlg.windowFlags() | Qt.Tool
+                self.topping_wizard_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.topping_wizard_dlg.show()
             self.topping_wizard_dlg.finished.connect(
@@ -341,9 +341,9 @@ class QgisModelBakerPlugin(QObject):
             self.datasetmanager_dlg = DatasetManagerDialog(
                 self.iface, self.iface.mainWindow()
             )
-            self.datasetmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
             self.datasetmanager_dlg.setWindowFlags(
-                self.datasetmanager_dlg.windowFlags() | Qt.Tool
+                self.datasetmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.datasetmanager_dlg.show()
             self.datasetmanager_dlg.finished.connect(
@@ -364,9 +364,9 @@ class QgisModelBakerPlugin(QObject):
             self.tidmanager_dlg = TIDManagerDialog(
                 self.iface, self.iface.mainWindow(), self.ili2db_configuration
             )
-            self.tidmanager_dlg.setAttribute(Qt.WA_DeleteOnClose)
+            self.tidmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
             self.tidmanager_dlg.setWindowFlags(
-                self.tidmanager_dlg.windowFlags() | Qt.Tool
+                self.tidmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.tidmanager_dlg.show()
             self.tidmanager_dlg.finished.connect(self.tidmanager_dialog_finished)
@@ -381,7 +381,7 @@ class QgisModelBakerPlugin(QObject):
 
     def show_options_dialog(self):
         dlg = OptionsDialog(self.ili2db_configuration)
-        if dlg.exec_():
+        if dlg.exec():
             settings = QSettings()
             settings.beginGroup("QgisModelBaker/ili2db")
             self.ili2db_configuration.save(settings)
@@ -407,7 +407,7 @@ class QgisModelBakerPlugin(QObject):
             self.msg.fontMetrics().lineSpacing() * 5,
         )
         self.msg.setIconPixmap(pixmap)
-        self.msg.setTextFormat(Qt.RichText)
+        self.msg.setTextFormat(Qt.TextFormat.RichText)
         self.msg.setWindowTitle(self.tr("About Model Baker"))
         self.msg.setText(
             """<h1>{title}</h1>
@@ -428,15 +428,17 @@ class QgisModelBakerPlugin(QObject):
                 ),
             )
         )
-        self.msg.setStandardButtons(QMessageBox.Close)
-        self.msg.exec_()
+        self.msg.setStandardButtons(QMessageBox.StandardButton.Close)
+        self.msg.exec()
 
     def init_validate_dock(self):
         settings = QSettings()
         self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
         self.iface.addDockWidget(
             settings.value(
-                "QgisModelBaker/validate_dock/area", Qt.RightDockWidgetArea, type=int
+                "QgisModelBaker/validate_dock/area",
+                Qt.DockWidgetArea.RightDockWidgetArea,
+                type=Qt.DockWidgetArea,
             ),
             self.__validate_dock,
         )
@@ -519,7 +521,9 @@ class QgisModelBakerPlugin(QObject):
         settings.setValue(
             "QgisModelBaker/ili2gpkg/dbfile",
             os.path.join(
-                QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+                QStandardPaths.writableLocation(
+                    QStandardPaths.StandardLocation.TempLocation
+                ),
                 output_file_name,
             ),
         )
@@ -564,14 +568,14 @@ class DropFileFilter(QObject):
         ]
         if drop_mode == DropMode.ASK:
             drop_message_dialog = DropMessageDialog(dropped_files)
-            return drop_message_dialog.exec_()
+            return drop_message_dialog.exec()
         return drop_mode == DropMode.YES
 
     def eventFilter(self, obj, event):
         """
         When files are dropped, then ask to use it in the model baker.
         """
-        if event.type() == QEvent.Drop and hasattr(event, "mimeData"):
+        if event.type() == QEvent.Type.Drop and hasattr(event, "mimeData"):
             (
                 dropped_files,
                 dropped_xml_files,

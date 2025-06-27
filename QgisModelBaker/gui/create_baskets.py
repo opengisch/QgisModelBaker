@@ -56,7 +56,7 @@ class CreateBasketDialog(QDialog, DIALOG_UI):
         ]
         if negative_feedbacks:
             warning_box = QMessageBox(self)
-            warning_box.setIcon(QMessageBox.Critical)
+            warning_box.setIcon(QMessageBox.Icon.Critical)
             warning_title = self.tr("Creating baskets failed")
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(
@@ -65,7 +65,7 @@ class CreateBasketDialog(QDialog, DIALOG_UI):
                     "\n(The problem is often an incorrectly formatted BID)",
                 )
             )
-            warning_box.exec_()
+            warning_box.exec()
         self.close()
 
     def _rejected(self):

@@ -115,8 +115,9 @@ class FilterDataPanel(QWidget, WIDGET_UI):
         self.parent.current_filter_mode = filter
 
     def _select_all_items(self, state):
-        if state != Qt.PartiallyChecked and state != self._evaluated_check_state(
-            self.items_view.model()
+        if (
+            state != Qt.CheckState.PartiallyChecked
+            and state != self._evaluated_check_state(self.items_view.model())
         ):
             self.items_view.model().check_all(state)
 
@@ -129,6 +130,6 @@ class FilterDataPanel(QWidget, WIDGET_UI):
         nbr_of_checked = len(model.checked_entries())
         if nbr_of_checked:
             if nbr_of_checked == model.rowCount():
-                return Qt.Checked
-            return Qt.PartiallyChecked
-        return Qt.Unchecked
+                return Qt.CheckState.Checked
+            return Qt.CheckState.PartiallyChecked
+        return Qt.CheckState.Unchecked
