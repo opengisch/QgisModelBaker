@@ -5,6 +5,7 @@ version=dev
 icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
+supportsQt6=True
 author=OPENGIS.ch GmbH in collaboration with SwissTierras Colombia
 email=info@opengis.ch
 about=Model Baker (previously QgsProjectGenerator) creates QGIS projects from INTERLIS models, PostGIS database schemas or GeoPackages. It preconfigures layers, widgets, relations and much more based on meta information available from models.
