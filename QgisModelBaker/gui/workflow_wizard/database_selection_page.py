@@ -100,23 +100,23 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
                     source_provider, layer_configuration
                 )
 
+        # takes settings from QSettings and provides it to the gui
+        settings = QSettings()
+
+        for db_id in self.db_simple_factory.get_db_list(False):
+            db_factory = self.db_simple_factory.create_factory(db_id)
+            config_manager = db_factory.get_db_command_config_manager(configuration)
+            config_manager.load_config_from_qsettings()
+            self._lst_panel[db_id].set_fields(configuration)
+
+        mode = settings.value("QgisModelBaker/importtype")
+        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+        mode = mode & ~DbIliMode.ili
+
         if valid and mode:
-            # uses the settings from the project and provides it to the gui
+            # ... and overrides the settings with the settings from the project (this because there are more settings available in the settings than the project (e.g. dbparams))
             configuration = layer_configuration
             self._lst_panel[mode].set_fields(configuration)
-        else:
-            # takes settings from QSettings and provides it to the gui
-            settings = QSettings()
-
-            for db_id in self.db_simple_factory.get_db_list(False):
-                db_factory = self.db_simple_factory.create_factory(db_id)
-                config_manager = db_factory.get_db_command_config_manager(configuration)
-                config_manager.load_config_from_qsettings()
-                self._lst_panel[db_id].set_fields(configuration)
-
-            mode = settings.value("QgisModelBaker/importtype")
-            mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
-            mode = mode & ~DbIliMode.ili
 
         self.type_combo_box.setCurrentIndex(self.type_combo_box.findData(mode))
         self._type_changed()
