@@ -104,6 +104,10 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.chk_dontask_to_handle_dropped_files.setEnabled(drop_mode != DropMode.ASK)
         self.chk_dontask_to_handle_dropped_files.setChecked(drop_mode != DropMode.ASK)
 
+        self.chk_open_always_wizard_to_handle_dropped_files.setChecked(
+            settings.value("QgisModelBaker/open_wizard_always", False, bool)
+        )
+
     def accepted(self):
         self.configuration.custom_model_directories = (
             self.custom_model_directories_line_edit.text()
@@ -121,6 +125,11 @@ class OptionsDialog(QDialog, DIALOG_UI):
         settings = QSettings()
         if not self.chk_dontask_to_handle_dropped_files.isChecked():
             settings.setValue("QgisModelBaker/drop_mode", DropMode.ASK.name)
+
+        settings.setValue(
+            "QgisModelBaker/open_wizard_always",
+            self.chk_open_always_wizard_to_handle_dropped_files.isChecked(),
+        )
 
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)

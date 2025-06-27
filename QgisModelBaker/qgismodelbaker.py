@@ -45,7 +45,10 @@ from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.utils import available_plugins
 
 from QgisModelBaker.gui.dataset_manager import DatasetManagerDialog
-from QgisModelBaker.gui.drop_message import DropMessageDialog
+from QgisModelBaker.gui.drop_message import (
+    DopMessageModelBakerDialog,
+    DropMessageQuickDialog,
+)
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.gui.tid_manager import TIDManagerDialog
@@ -56,6 +59,7 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
+from QgisModelBaker.utils.tools import QuickVisualizer
 
 
 class QgisModelBakerPlugin(QObject):
@@ -297,7 +301,7 @@ class QgisModelBakerPlugin(QObject):
             self.workflow_wizard_dlg.reject()
         else:
             self.workflow_wizard_dlg = WorkflowWizardDialog(
-                self.iface, self.ili2db_configuration, self.iface.mainWindow()
+                self.iface, self.ili2db_configuration, self.iface.mainWindow(), self
             )
             self.workflow_wizard_dlg.setAttribute(Qt.WA_DeleteOnClose)
             self.workflow_wizard_dlg.setWindowFlags(
@@ -510,6 +514,16 @@ class QgisModelBakerPlugin(QObject):
         self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
         return True
 
+    def visualize_dropped_files_quickly(self, data_files):
+        logging.info(
+            f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
+        )
+        quick_visualizer = QuickVisualizer(self)
+        success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
+        logging.info(f"Successfully imported: {success_files}")
+        logging.info(f"Not imported: {fail_files}")
+        return True
+
     def _set_dropped_file_configuration(self):
         settings = QSettings()
         settings.setValue("QgisModelBaker/importtype", "gpkg")
@@ -563,9 +577,17 @@ class DropFileFilter(QObject):
             settings.value("QgisModelBaker/drop_mode", DropMode.ASK.name, str)
         ]
         if drop_mode == DropMode.ASK:
-            drop_message_dialog = DropMessageDialog(dropped_files)
+            drop_message_dialog = DopMessageModelBakerDialog(dropped_files)
             return drop_message_dialog.exec_()
         return drop_mode == DropMode.YES
+
+    def _is_quick_visualization_requested(self, dropped_files):
+        settings = QSettings()
+        wizard_always = settings.value("QgisModelBaker/open_wizard_always", False, bool)
+        if not wizard_always:
+            drop_quick_dialog = DropMessageQuickDialog(dropped_files)
+            return drop_quick_dialog.exec_()
+        return False
 
     def eventFilter(self, obj, event):
         """
@@ -582,7 +604,10 @@ class DropFileFilter(QObject):
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
                 if self._is_handling_requested(dropped_files + dropped_ini_files):
-                    if self.parent.handle_dropped_files(
+                    if self._is_quick_visualization_requested(dropped_files):
+                        if self.parent.visualize_dropped_files_quickly(dropped_files):
+                            return True
+                    elif self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files
                     ):
                         return True

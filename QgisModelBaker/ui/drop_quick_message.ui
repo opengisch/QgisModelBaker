@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DropMessage</class>
- <widget class="QDialog" name="DropMessage">
+ <class>DropQuickMessage</class>
+ <widget class="QDialog" name="DropQuickMessage">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>680</width>
+    <width>887</width>
     <height>112</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Use Model Baker to Handle Files</string>
+   <string>Quick Visualizer or Wizard</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0" colspan="2">
@@ -20,14 +20,14 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::No|QDialogButtonBox::Yes</set>
+      <set>QDialogButtonBox::NoButton</set>
      </property>
     </widget>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="info_label">
      <property name="text">
-      <string>Do you want to use the Model Baker plugin to handle XTF/ ITF files?</string>
+      <string>Would you like to quickly visualize these files, or would you prefer to create a structured database using the Model Baker Wizard?</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -35,9 +35,9 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QCheckBox" name="chk_dontask">
+    <widget class="QCheckBox" name="chk_alwayswizard">
      <property name="text">
-      <string>Remember my decision and don't ask me again (you can undo this in the Model Baker settings)</string>
+      <string>Always open the Model Baker Wizard and don't ask me again (you can undo this in the Model Baker settings)</string>
      </property>
     </widget>
    </item>
@@ -51,7 +51,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>accepted()</signal>
-   <receiver>DropMessage</receiver>
+   <receiver>DropQuickMessage</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -67,7 +67,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>rejected()</signal>
-   <receiver>DropMessage</receiver>
+   <receiver>DropQuickMessage</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
