@@ -28,6 +28,7 @@ import webbrowser
 import pyplugin_installer
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import (
+    QT_VERSION_STR,
     QCoreApplication,
     QDir,
     QEvent,
@@ -439,10 +440,12 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
         self.iface.addDockWidget(
-            settings.value(
-                "QgisModelBaker/validate_dock/area",
-                Qt.DockWidgetArea.RightDockWidgetArea,
-                type=Qt.DockWidgetArea,
+            Qt.DockWidgetArea(
+                settings.value(
+                    "QgisModelBaker/validate_dock/area",
+                    2,
+                    type=int,
+                )
             ),
             self.__validate_dock,
         )
@@ -460,7 +463,9 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         settings.setValue(
             "QgisModelBaker/validate_dock/area",
-            self.iface.mainWindow().dockWidgetArea(self.__validate_dock),
+            self.iface.mainWindow().dockWidgetArea(self.__validate_dock)
+            if QT_VERSION_STR < "6.0.0"
+            else self.iface.mainWindow().dockWidgetArea(self.__validate_dock).value,
         )
         settings.setValue(
             "QgisModelBaker/validate_dock/isVisible", self.__validate_dock.isVisible()

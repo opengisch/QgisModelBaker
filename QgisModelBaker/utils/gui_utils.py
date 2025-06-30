@@ -9,6 +9,7 @@ from enum import Enum, IntEnum
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import (
+    QT_VERSION_STR,
     QEvent,
     QModelIndex,
     QObject,
@@ -634,7 +635,12 @@ class ImportModelsModel(SourceModel):
                         )
 
         # models from the transfer files
-        filtered_source_model.setFilterRegularExpression("|".join(TransferExtensions))
+        if QT_VERSION_STR < "5.12.0":
+            self.filtered_model.setFilterRegExp("|".join(TransferExtensions))
+        else:
+            filtered_source_model.setFilterRegularExpression(
+                "|".join(TransferExtensions)
+            )
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(
                 r, SourceModel.Columns.SOURCE

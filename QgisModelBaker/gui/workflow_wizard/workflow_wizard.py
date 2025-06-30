@@ -21,7 +21,7 @@ import os
 import pathlib
 import re
 
-from qgis.PyQt.QtCore import QEventLoop, QSize, Qt, QTimer
+from qgis.PyQt.QtCore import QT_VERSION_STR, QEventLoop, QSize, Qt, QTimer
 from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
@@ -120,9 +120,12 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.print_info.connect(self.log_panel.print_info)
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
-        self.import_data_file_model.setFilterRegularExpression(
-            "|".join(TransferExtensions)
-        )
+        if QT_VERSION_STR < "5.12.0":
+            self.filtered_model.setFilterRegExp("|".join(TransferExtensions))
+        else:
+            self.import_data_file_model.setFilterRegularExpression(
+                "|".join(TransferExtensions)
+            )
         self.ilireferencedatacache = IliDataCache(
             self.import_schema_configuration.base_configuration,
             "referenceData",
