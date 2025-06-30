@@ -112,7 +112,7 @@ class QuickVisualizer(QObject):
         if len(data_files) == 0:
             self.push_message_bar(
                 self.tr(
-                    "Nothing to import with Quick XTF Backer (use the Model Baker wizard instead)."
+                    "Nothing to import with Quick Visualizer (use the Model Baker wizard instead)."
                 ),
                 False,
                 Qgis.MessageLevel.Warning,
@@ -122,7 +122,7 @@ class QuickVisualizer(QObject):
 
         if len(model_files):
             self.log(
-                f"Dropped model files are ignored {model_files} (but if not available in repo, they are used because they are in the same directory as the tranfer files)."
+                f"Dropped model files are ignored {model_files} (but if not available in repo, they are used because they are in the same directory as the transfer files)."
             )
 
         self.push_message_bar(
@@ -144,6 +144,8 @@ class QuickVisualizer(QObject):
         if (
             len(failed_files) > 0
             and self.parent.ili2db_configuration.custom_model_directories_enabled
+            and "%XTF_DIR"
+            not in self.parent.ili2db_configuration.custom_model_directories
         ):
             self.log(
                 "Retry failed XTF imports with models in the same directory as the datafile"

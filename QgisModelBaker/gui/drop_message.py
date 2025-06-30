@@ -84,9 +84,11 @@ class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message
         )
         self.info_label.setText(
             self.tr(
-                "Would you like to quickly visualize these files, or would you prefer to create a structured database using the Model Baker Wizard?\n- {} {}"
+                "Would you like to quickly visualize {}, or would you prefer to create a structured database using the Model Baker Wizard?\n- {} {}"
             ).format(
-                self.tr("files") if len(dropped_files) > 1 else self.tr("file"),
+                self.tr("these files")
+                if len(dropped_files) > 1
+                else self.tr("this file"),
                 file_list,
                 self.tr("\nand {} more...").format(len(dropped_files) - 10)
                 if len(dropped_files) > 10
