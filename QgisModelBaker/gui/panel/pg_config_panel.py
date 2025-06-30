@@ -639,13 +639,15 @@ class DbParamsDialog(QDialog, DIALOG_UI):
         """
         key_item = self.mappingtable.item(row, 0)
         value_item = self.mappingtable.item(row, 1)
+        # if we did something the second last row and it's empty (means we cleared it), we remove the empty row at the end.
         if row == self.mappingtable.rowCount() - 2 and not (
             key_item
             and len(str(key_item.data(Qt.DisplayRole))) > 0
             or value_item
             and len(str(value_item.data(Qt.DisplayRole))) > 0
         ):
-            self.mappingtable.setRowCount(row + 1)
+            self.mappingtable.removeRow(row + 1)
+        # if we did something in the last row, and it's not empty, we add a fresh empty row at the end.
         elif row == self.mappingtable.rowCount() - 1 and (
             key_item
             and len(str(key_item.data(Qt.DisplayRole))) > 0
