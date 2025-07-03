@@ -30,7 +30,7 @@
        <string>General</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
+       <item row="0" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Database Login</string>
@@ -70,8 +70,14 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="4" column="0" colspan="2">
         <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The less options, the better the software&lt;/p&gt;&lt;p&gt;&lt;i&gt;Aristotle, 343 BC&lt;/i&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
@@ -80,10 +86,17 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" rowspan="2" colspan="2">
         <widget class="QCheckBox" name="chk_dontask_to_handle_dropped_files">
          <property name="text">
           <string> Don't ask the user to handle dropped XTF / ITF with this plugin or not</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="chk_open_always_wizard_to_handle_dropped_files">
+         <property name="text">
+          <string>Always open the Wizard directly on dropped XTF / ITF</string>
          </property>
         </widget>
        </item>

@@ -103,6 +103,15 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.clear_cache_button = QPushButton(self.tr("Clear ilicache"), self)
         self.clear_cache_button.clicked.connect(self._clear_cache_button_clicked)
 
+        self.quick_visualize_button = QPushButton(
+            self.tr("Just visualize it quickly"), self
+        )
+        self.quick_visualize_button.setToolTip(
+            self.tr(
+                "Create a temporary GeoPackage without constraints to visualize the data quickly."
+            )
+        )
+
     def nextId(self):
         return self.workflow_wizard.next_id()
 

@@ -21,20 +21,19 @@ import os
 from PyQt5.QtCore import QSize
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QSettings
-from qgis.PyQt.QtWidgets import QDialog
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DropMode
 
-DIALOG_UI = gui_utils.get_ui_class("drop_message.ui")
 
-
-class DropMessageDialog(QDialog, DIALOG_UI):
+class DopMessageModelBakerDialog(QDialog, gui_utils.get_ui_class("drop_message.ui")):
     def __init__(self, dropped_files, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setFixedSize(QSize())
         QgsGui.instance().enableAutoGeometryRestore(self)
+
         file_list = "\n- ".join(
             os.path.basename(path)
             for path in dropped_files
@@ -62,3 +61,51 @@ class DropMessageDialog(QDialog, DIALOG_UI):
             settings.setValue("QgisModelBaker/drop_mode", DropMode.YES.name)
         else:
             settings.setValue("QgisModelBaker/drop_mode", DropMode.NO.name)
+
+
+class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message.ui")):
+    def __init__(self, dropped_files, parent=None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.setFixedSize(QSize())
+        QgsGui.instance().enableAutoGeometryRestore(self)
+
+        quick_button = self.button_box.addButton(
+            self.tr("Quickly visualize"), QDialogButtonBox.ActionRole
+        )
+        wizard_button = self.button_box.addButton(
+            self.tr("Go to Model Baker Wizard"), QDialogButtonBox.ActionRole
+        )
+
+        file_list = "\n- ".join(
+            os.path.basename(path)
+            for path in dropped_files
+            if dropped_files.index(path) < 10
+        )
+        self.info_label.setText(
+            self.tr(
+                "Would you like to quickly visualize {}, or would you prefer to create a structured database using the Model Baker Wizard?\n- {} {}"
+            ).format(
+                self.tr("these files")
+                if len(dropped_files) > 1
+                else self.tr("this file"),
+                file_list,
+                self.tr("\nand {} more...").format(len(dropped_files) - 10)
+                if len(dropped_files) > 10
+                else "",
+            )
+        )
+        quick_button.clicked.connect(self.accept)
+        quick_button.clicked.connect(
+            lambda: self.handle_dropped_file_quick_configuration()
+        )
+        wizard_button.clicked.connect(self.reject)
+        wizard_button.clicked.connect(
+            lambda: self.handle_dropped_file_quick_configuration()
+        )
+
+    def handle_dropped_file_quick_configuration(self):
+        settings = QSettings()
+        settings.setValue(
+            "QgisModelBaker/open_wizard_always", self.chk_alwayswizard.isChecked()
+        )

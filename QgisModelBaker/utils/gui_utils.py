@@ -892,6 +892,16 @@ class ImportDataModel(QSortFilterProxyModel):
             i += 1
         return sessions
 
+    def sources(self):
+        sources = []
+        for r in range(self.rowCount()):
+            sources.append(
+                self.index(r, SourceModel.Columns.SOURCE).data(
+                    int(SourceModel.Roles.PATH)
+                )
+            )
+        return sources
+
 
 class SpaceCheckListView(QListView):
     """
