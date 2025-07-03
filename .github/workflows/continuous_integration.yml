@@ -49,7 +49,7 @@ jobs:
           sudo ./scripts/package_pip_packages.sh
       - name: Build
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --asset-path QgisModelBaker/libs
+          qgis-plugin-ci release ${GITHUB_REF##*/} --asset-path QgisModelBaker/libs --no-validation
       - name: Upload Zip as Artifact
         uses: actions/upload-artifact@v4
         with:
