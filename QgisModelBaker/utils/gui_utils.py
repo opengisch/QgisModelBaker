@@ -636,7 +636,7 @@ class ImportModelsModel(SourceModel):
 
         # models from the transfer files
         if QT_VERSION_STR < "5.12.0":
-            self.filtered_model.setFilterRegExp("|".join(TransferExtensions))
+            filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
         else:
             filtered_source_model.setFilterRegularExpression(
                 "|".join(TransferExtensions)

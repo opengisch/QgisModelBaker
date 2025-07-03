@@ -121,7 +121,7 @@ class WorkflowWizard(QWizard):
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         if QT_VERSION_STR < "5.12.0":
-            self.filtered_model.setFilterRegExp("|".join(TransferExtensions))
+            self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
         else:
             self.import_data_file_model.setFilterRegularExpression(
                 "|".join(TransferExtensions)
