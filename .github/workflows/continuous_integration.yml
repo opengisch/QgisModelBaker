@@ -32,6 +32,36 @@ jobs:
       - name: Test on QGIS
         run: docker compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
+  zip_comment:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt install qtbase5-dev qttools5-dev-tools
+          sudo pip install qgis-plugin-ci
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
+      - name: Build
+        run: |
+          qgis-plugin-ci release ${GITHUB_REF##*/} --asset-path QgisModelBaker/libs
+      - name: Upload Zip as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QgisModelBaker
+          path: QgisModelBaker.zip
+      - name: 💬 Create comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            🎉 Ta-daaa, freshly created test [ZIP](https://github.com/opengisch/QgisModelBaker/actions/runs/${{github.run_id}}) ${{ github.event.pull_request.head.sha }}:
+
   release:
     runs-on: ubuntu-22.04
     env:
