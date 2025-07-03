@@ -47,20 +47,37 @@ jobs:
       - name: Package PyPI Packages
         run: |
           sudo ./scripts/package_pip_packages.sh
-      - name: Build
+      - name: Create Zip File
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --asset-path QgisModelBaker/libs --no-validation
+          cd ${GITHUB_WORKSPACE}
+          zip -r QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip QgisModelBaker
       - name: Upload Zip as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QgisModelBaker
-          path: QgisModelBaker.zip
-      - name: 💬 Create comment
+          name: QgisModelBaker_${{ github.event.pull_request.head.sha }}
+          path: QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip
+      - name: Get Artifact ID
+        id: get-artifact-id
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: 'opengisch',
+              repo: 'QgisModelBaker',
+              run_id: ${{github.run_id}},
+            });
+
+            const the_artifact = artifacts.data.artifacts[0];
+            if (the_artifact) {
+              core.setOutput('the_artifact-id', the_artifact.id);
+            }
+      - name: Create comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
-            🎉 Ta-daaa, freshly created test [ZIP](https://github.com/opengisch/QgisModelBaker/actions/runs/${{github.run_id}}) ${{ github.event.pull_request.head.sha }}:
+            🧁 Ta-daaa, find a test ZIP of ${{ github.event.pull_request.head.sha }} [here](https://github.com/opengisch/QgisModelBaker/actions/runs/${{github.run_id}}/artifacts/${{ steps.get-artifact-id.outputs.the_artifact-id }}).
 
   release:
     runs-on: ubuntu-22.04
