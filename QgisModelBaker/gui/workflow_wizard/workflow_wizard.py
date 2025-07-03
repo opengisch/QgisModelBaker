@@ -418,29 +418,31 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ImportSourceSelection:
             # Add extra buttons
             # Clear cache
-            self.setOption(QWizard.HaveCustomButton1, True)
+            self.setOption(QWizard.WizardOption.HaveCustomButton1, True)
             self.setButton(
-                QWizard.CustomButton1, self.source_selection_page.quick_visualize_button
+                QWizard.WizardButton.CustomButton1,
+                self.source_selection_page.quick_visualize_button,
             )
             # Quick import
-            self.setOption(QWizard.HaveCustomButton2, True)
+            self.setOption(QWizard.WizardOption.HaveCustomButton2, True)
             self.setButton(
-                QWizard.CustomButton2, self.source_selection_page.clear_cache_button
+                QWizard.WizardButton.CustomButton2,
+                self.source_selection_page.clear_cache_button,
             )
         else:
             # Remove extra buttons
             # Clear cache
             if (
-                self.button(QWizard.CustomButton1)
+                self.button(QWizard.WizardButton.CustomButton1)
                 == self.source_selection_page.quick_visualize_button
             ):
-                self.setOption(QWizard.HaveCustomButton1, False)
+                self.setOption(QWizard.WizardOption.HaveCustomButton1, False)
             # Quick import
             if (
-                self.button(QWizard.CustomButton2)
+                self.button(QWizard.WizardButton.CustomButton2)
                 == self.source_selection_page.clear_cache_button
             ):
-                self.setOption(QWizard.HaveCustomButton2, False)
+                self.setOption(QWizard.WizardOption.HaveCustomButton2, False)
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore

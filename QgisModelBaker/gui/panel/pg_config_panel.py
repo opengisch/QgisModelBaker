@@ -555,7 +555,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def _dbparams_open(self):
         db_params_dialog = DbParamsDialog(self, self.pg_param_map)
-        if db_params_dialog.exec_() == QDialog.Accepted:
+        if db_params_dialog.exec() == QDialog.DialogCode.Accepted:
             self.pg_param_map = db_params_dialog.param_map
 
 
@@ -611,9 +611,9 @@ class DbParamsDialog(QDialog, DIALOG_UI):
             row = self.mappingtable.rowCount()
             self.mappingtable.insertRow(row)
             key_item = QTableWidgetItem()
-            key_item.setData(Qt.DisplayRole, key)
+            key_item.setData(Qt.ItemDataRole.DisplayRole, key)
             value_item = QTableWidgetItem()
-            value_item.setData(Qt.DisplayRole, self.param_map[key])
+            value_item.setData(Qt.ItemDataRole.DisplayRole, self.param_map[key])
             self.mappingtable.setItem(row, 0, key_item)
             self.mappingtable.setItem(row, 1, value_item)
         self.mappingtable.insertRow(self.mappingtable.rowCount())
@@ -625,12 +625,15 @@ class DbParamsDialog(QDialog, DIALOG_UI):
         self.param_map = {}
         for row in range(self.mappingtable.rowCount()):
             key_item = self.mappingtable.item(row, 0)
-            if key_item and len(str(key_item.data(Qt.DisplayRole))) > 0:
+            if key_item and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0:
                 value_item = self.mappingtable.item(row, 1)
-                if value_item and len(str(value_item.data(Qt.DisplayRole))) > 0:
-                    self.param_map[str(key_item.data(Qt.DisplayRole))] = str(
-                        value_item.data(Qt.DisplayRole)
-                    )
+                if (
+                    value_item
+                    and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+                ):
+                    self.param_map[
+                        str(key_item.data(Qt.ItemDataRole.DisplayRole))
+                    ] = str(value_item.data(Qt.ItemDataRole.DisplayRole))
 
     def _cell_changed(self, row, column):
         """
@@ -642,16 +645,16 @@ class DbParamsDialog(QDialog, DIALOG_UI):
         # if we did something the second last row and it's empty (means we cleared it), we remove the empty row at the end.
         if row == self.mappingtable.rowCount() - 2 and not (
             key_item
-            and len(str(key_item.data(Qt.DisplayRole))) > 0
+            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
             or value_item
-            and len(str(value_item.data(Qt.DisplayRole))) > 0
+            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
         ):
             self.mappingtable.removeRow(row + 1)
         # if we did something in the last row, and it's not empty, we add a fresh empty row at the end.
         elif row == self.mappingtable.rowCount() - 1 and (
             key_item
-            and len(str(key_item.data(Qt.DisplayRole))) > 0
+            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
             or value_item
-            and len(str(value_item.data(Qt.DisplayRole))) > 0
+            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
         ):
             self.mappingtable.insertRow(row + 1)

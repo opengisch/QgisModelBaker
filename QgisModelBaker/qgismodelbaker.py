@@ -587,7 +587,7 @@ class DropFileFilter(QObject):
         ]
         if drop_mode == DropMode.ASK:
             drop_message_dialog = DopMessageModelBakerDialog(dropped_files)
-            return drop_message_dialog.exec_()
+            return drop_message_dialog.exec()
         return drop_mode == DropMode.YES
 
     def _is_quick_visualization_requested(self, dropped_files):
@@ -595,7 +595,7 @@ class DropFileFilter(QObject):
         wizard_always = settings.value("QgisModelBaker/open_wizard_always", False, bool)
         if not wizard_always:
             drop_quick_dialog = DropMessageQuickDialog(dropped_files)
-            return drop_quick_dialog.exec_()
+            return drop_quick_dialog.exec()
         return False
 
     def eventFilter(self, obj, event):
