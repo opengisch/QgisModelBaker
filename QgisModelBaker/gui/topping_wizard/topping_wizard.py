@@ -38,8 +38,8 @@ class ToppingWizard(QWizard):
         QWizard.__init__(self, parent)
 
         self.setWindowTitle(self.tr("QGIS Model Baker Topping Maker Wizard"))
-        self.setWizardStyle(QWizard.ModernStyle)
-        self.setOption(QWizard.NoCancelButtonOnLastPage)
+        self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
+        self.setOption(QWizard.WizardOption.NoCancelButtonOnLastPage)
 
         self.current_id = 0
 
@@ -132,12 +132,12 @@ class ToppingWizardDialog(QDialog):
         self.log_panel = LogPanel()
         self.topping_wizard = ToppingWizard(self.iface, self.base_config, self)
         self.topping_wizard.setStartId(ToppingWizardPageIds.Target)
-        self.topping_wizard.setWindowFlags(Qt.Widget)
+        self.topping_wizard.setWindowFlags(Qt.WindowType.Widget)
         self.topping_wizard.show()
 
         self.topping_wizard.finished.connect(self.done)
         layout = QVBoxLayout()
-        splitter = QSplitter(Qt.Vertical)
+        splitter = QSplitter(Qt.Orientation.Vertical)
         splitter.addWidget(self.topping_wizard)
         splitter.addWidget(self.log_panel)
         layout.addWidget(splitter)

@@ -49,27 +49,27 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.layout().addWidget(self.bar, 0, 0, Qt.AlignTop)
+        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
 
         result, message = self.tid_configurator_panel.setup_dialog(
             QgsProject.instance()
         )
         if not result:
             self.tid_configurator_panel.setEnabled(False)
-            self.bar.pushMessage(message, Qgis.Warning)
+            self.bar.pushMessage(message, Qgis.MessageLevel.Warning)
 
     def _close_editing(self):
         editable_layers = []
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 self.iface.vectorLayerTools().stopEditing(layer)
                 if layer.isEditable():
                     editable_layers.append(layer)
         if editable_layers:
             # in case it could not close it automatically
             warning_box = QMessageBox(self)
-            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setIcon(QMessageBox.Icon.Warning)
             warning_title = self.tr("Layers still editable")
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(
@@ -77,17 +77,17 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
                     "You still have layers in edit mode.\nIn case you modify the sequence in the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
                 ).format("\n - ".join([layer.name() for layer in editable_layers]))
             )
-            warning_box.exec_()
+            warning_box.exec()
 
     def _accepted(self):
         result, message = self.tid_configurator_panel.set_tid_configuration()
         if not result:
             error_box = QMessageBox(self)
-            error_box.setIcon(QMessageBox.Critical)
+            error_box.setIcon(QMessageBox.Icon.Critical)
             warning_title = self.tr("Problems on setting T_Id sequence.")
             error_box.setWindowTitle(warning_title)
             error_box.setText(message)
-            error_box.exec_()
+            error_box.exec()
         else:
             self.close()
 

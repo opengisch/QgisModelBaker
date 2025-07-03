@@ -80,9 +80,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             self.ilireferencedatacache.sorted_model,
             self.input_line_edit,
         )
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
-        completer.setFilterMode(Qt.MatchContains)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.input_line_edit.setCompleter(completer)
         self.input_line_edit.textChanged.connect(self._complete_referencedata_completer)
@@ -162,7 +162,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         if self.input_line_edit.hasFocus():
             if not self.input_line_edit.text():
                 self.input_line_edit.completer().setCompletionMode(
-                    QCompleter.UnfilteredPopupCompletion
+                    QCompleter.CompletionMode.UnfilteredPopupCompletion
                 )
                 self.input_line_edit.completer().complete()
             else:
@@ -171,15 +171,15 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
                     .completionModel()
                     .match(
                         self.input_line_edit.completer().completionModel().index(0, 0),
-                        Qt.DisplayRole,
+                        Qt.ItemDataRole.DisplayRole,
                         self.input_line_edit.text(),
                         -1,
-                        Qt.MatchContains,
+                        Qt.MatchFlag.MatchContains,
                     )
                 )
                 if len(match_contains) > 1:
                     self.input_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
+                        QCompleter.CompletionMode.PopupCompletion
                     )
                     self.input_line_edit.completer().complete()
             self.input_line_edit.completer().popup().scrollToTop()
@@ -190,10 +190,10 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             .completionModel()
             .match(
                 self.input_line_edit.completer().completionModel().index(0, 0),
-                Qt.DisplayRole,
+                Qt.ItemDataRole.DisplayRole,
                 self.input_line_edit.text(),
                 -1,
-                Qt.MatchExactly,
+                Qt.MatchFlag.MatchExactly,
             )
         )
         return (
@@ -234,10 +234,10 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             path = ""
             matches = self.ilireferencedatacache.model.match(
                 self.ilireferencedatacache.model.index(0, 0),
-                Qt.DisplayRole,
+                Qt.ItemDataRole.DisplayRole,
                 self.input_line_edit.text(),
                 1,
-                Qt.MatchExactly,
+                Qt.MatchFlag.MatchExactly,
             )
             if matches:
                 model_index = matches[0]

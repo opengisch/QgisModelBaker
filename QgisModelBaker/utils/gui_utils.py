@@ -7,9 +7,9 @@ import warnings
 import xml.etree.ElementTree as CET
 from enum import Enum, IntEnum
 
-from PyQt5.QtWidgets import QApplication
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import (
+    QT_VERSION_STR,
     QEvent,
     QModelIndex,
     QObject,
@@ -28,6 +28,7 @@ from qgis.PyQt.QtGui import (
     QValidator,
 )
 from qgis.PyQt.QtWidgets import (
+    QApplication,
     QCheckBox,
     QLineEdit,
     QListView,
@@ -201,7 +202,11 @@ INACTIVE_STYLE = """
 
 def get_text_color(level: LogLevel = LogLevel.INFO) -> str:
     if level == LogLevel.INFO:
-        return QgsApplication.palette().color(QPalette.WindowText).name(QColor.HexRgb)
+        return (
+            QgsApplication.palette()
+            .color(QPalette.ColorRole.WindowText)
+            .name(QColor.NameFormat.HexRgb)
+        )
     elif level == LogLevel.SUCCESS:
         return "#0f6e00"  # From night mapping theme
     elif level == LogLevel.WARNING:
@@ -305,10 +310,10 @@ class SemiTristateCheckbox(QCheckBox):
         super().__init__(parent)
 
     def nextCheckState(self) -> None:
-        if self.checkState() == Qt.Checked:
-            self.setCheckState(Qt.Unchecked)
+        if self.checkState() == Qt.CheckState.Checked:
+            self.setCheckState(Qt.CheckState.Unchecked)
         else:
-            self.setCheckState(Qt.Checked)
+            self.setCheckState(Qt.CheckState.Checked)
 
 
 class FileDropListView(QListView):
@@ -325,7 +330,7 @@ class FileDropListView(QListView):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
-        self.setDragDropMode(QListView.InternalMove)
+        self.setDragDropMode(QListView.DragDropMode.InternalMove)
 
     def dragEnterEvent(self, event):
         for url in event.mimeData().urls():
@@ -377,13 +382,13 @@ class SourceModel(QStandardItemModel):
     print_info = pyqtSignal([str], [str, str])
 
     class Roles(Enum):
-        NAME = Qt.UserRole + 1
-        TYPE = Qt.UserRole + 2
-        PATH = Qt.UserRole + 3
-        DATASET_NAME = Qt.UserRole + 5
-        IS_CATALOGUE = Qt.UserRole + 6
-        ORIGIN_INFO = Qt.UserRole + 7
-        DELETE_DATA = Qt.UserRole + 8
+        NAME = Qt.ItemDataRole.UserRole + 1
+        TYPE = Qt.ItemDataRole.UserRole + 2
+        PATH = Qt.ItemDataRole.UserRole + 3
+        DATASET_NAME = Qt.ItemDataRole.UserRole + 5
+        IS_CATALOGUE = Qt.ItemDataRole.UserRole + 6
+        ORIGIN_INFO = Qt.ItemDataRole.UserRole + 7
+        DELETE_DATA = Qt.ItemDataRole.UserRole + 8
 
         def __int__(self):
             return self.value
@@ -399,20 +404,23 @@ class SourceModel(QStandardItemModel):
         self.setColumnCount(3)
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Vertical and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Vertical
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             return "↑ ↓"
         return QStandardItemModel.headerData(self, section, orientation, role)
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
         if item:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 if index.column() == SourceModel.Columns.SOURCE:
                     return "{}{}".format(
-                        item.data(int(Qt.DisplayRole)),
+                        item.data(int(Qt.ItemDataRole.DisplayRole)),
                         f" ({item.data(int(SourceModel.Roles.PATH))})"
                         if item.data(int(SourceModel.Roles.TYPE)) != "model"
                         else "",
@@ -425,7 +433,7 @@ class SourceModel(QStandardItemModel):
                     else:
                         return item.data(int(SourceModel.Roles.DATASET_NAME))
 
-            if role == Qt.DecorationRole:
+            if role == Qt.ItemDataRole.DecorationRole:
                 if index.column() == SourceModel.Columns.SOURCE:
                     type = "data"
                     if item.data(int(SourceModel.Roles.TYPE)) and item.data(
@@ -438,7 +446,7 @@ class SourceModel(QStandardItemModel):
                             f"../images/file_types/{type}.png",
                         )
                     )
-            if role == Qt.ToolTipRole:
+            if role == Qt.ItemDataRole.ToolTipRole:
                 if index.column() == SourceModel.Columns.IS_CATALOGUE:
                     return self.tr(
                         "If the data is a catalog, it is imported into the corresponding dataset (called catalogueset)."
@@ -455,7 +463,7 @@ class SourceModel(QStandardItemModel):
             return False
 
         item = QStandardItem()
-        item.setData(name, int(Qt.DisplayRole))
+        item.setData(name, int(Qt.ItemDataRole.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
@@ -497,7 +505,11 @@ class SourceModel(QStandardItemModel):
 
     def _source_in_model(self, name, type, path):
         match_existing = self.match(
-            self.index(0, 0), int(SourceModel.Roles.NAME), name, -1, Qt.MatchExactly
+            self.index(0, 0),
+            int(SourceModel.Roles.NAME),
+            name,
+            -1,
+            Qt.MatchFlag.MatchExactly,
         )
         if (
             match_existing
@@ -554,13 +566,13 @@ class ImportModelsModel(SourceModel):
                                 int(SourceModel.Roles.PATH)
                             ),
                         ),
-                        Qt.Checked,
+                        Qt.CheckState.Checked,
                     )
                     if enabled
                     and modelname not in self.checked_models()
                     and self._LV95_equivalent_name(modelname)
                     not in self.checked_models()
-                    else Qt.Unchecked,
+                    else Qt.CheckState.Unchecked,
                     enabled,
                 )
                 if not silent:
@@ -601,13 +613,13 @@ class ImportModelsModel(SourceModel):
                                     int(SourceModel.Roles.PATH)
                                 ),
                             ),
-                            Qt.Checked
+                            Qt.CheckState.Checked
                             if model is models[-1]
                             and enabled
                             and model["name"] not in self.checked_models()
                             and self._LV95_equivalent_name(model["name"])
                             not in self.checked_models()
-                            else Qt.Unchecked,
+                            else Qt.CheckState.Unchecked,
                         ),
                         enabled,
                     )
@@ -623,7 +635,12 @@ class ImportModelsModel(SourceModel):
                         )
 
         # models from the transfer files
-        filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
+        if QT_VERSION_STR < "5.12.0":
+            filtered_source_model.setFilterRegExp("|".join(TransferExtensions))
+        else:
+            filtered_source_model.setFilterRegularExpression(
+                "|".join(TransferExtensions)
+            )
         for r in range(0, filtered_source_model.rowCount()):
             filtered_source_model_index = filtered_source_model.index(
                 r, SourceModel.Columns.SOURCE
@@ -649,12 +666,12 @@ class ImportModelsModel(SourceModel):
                                     int(SourceModel.Roles.PATH)
                                 ),
                             ),
-                            Qt.Checked
+                            Qt.CheckState.Checked
                             if enabled
                             and model["name"] not in self.checked_models()
                             and self._LV95_equivalent_name(model["name"])
                             not in self.checked_models()
-                            else Qt.Unchecked,
+                            else Qt.CheckState.Unchecked,
                         ),
                         enabled,
                     )
@@ -752,9 +769,11 @@ class ImportModelsModel(SourceModel):
         item = QStandardItem()
         self._checked_models[(name, path)] = checked
         item.setFlags(
-            Qt.ItemIsSelectable | Qt.ItemIsEnabled if enabled else Qt.NoItemFlags
+            Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            if enabled
+            else Qt.ItemFlag.NoItemFlags
         )
-        item.setData(name, int(Qt.DisplayRole))
+        item.setData(name, int(Qt.ItemDataRole.DisplayRole))
         item.setData(name, int(SourceModel.Roles.NAME))
         item.setData(type, int(SourceModel.Roles.TYPE))
         item.setData(path, int(SourceModel.Roles.PATH))
@@ -762,16 +781,16 @@ class ImportModelsModel(SourceModel):
         self.appendRow(item)
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return "{}{}".format(
                 ""
-                if index.flags() & Qt.ItemIsEnabled
+                if index.flags() & Qt.ItemFlag.ItemIsEnabled
                 else self.tr("Already in the database: "),
-                SourceModel.data(self, index, (Qt.DisplayRole)),
+                SourceModel.data(self, index, (Qt.ItemDataRole.DisplayRole)),
             )
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return self.data(index, int(SourceModel.Roles.ORIGIN_INFO))
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             return self._checked_models[
                 (
                     self.data(index, int(SourceModel.Roles.NAME)),
@@ -782,7 +801,7 @@ class ImportModelsModel(SourceModel):
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             self.beginResetModel()
             self._checked_models[
                 (
@@ -796,20 +815,27 @@ class ImportModelsModel(SourceModel):
         item = self.item(index.row(), index.column())
         if item:
             return item.flags()
-        return Qt.NoItemFlags
+        return Qt.ItemFlag.NoItemFlags
 
     def check(self, index):
-        if index.flags() & Qt.ItemIsEnabled:
-            if self.data(index, Qt.CheckStateRole) == Qt.Checked:
-                self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        if index.flags() & Qt.ItemFlag.ItemIsEnabled:
+            if (
+                self.data(index, Qt.ItemDataRole.CheckStateRole)
+                == Qt.CheckState.Checked
+            ):
+                self.setData(
+                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked
+                )
             else:
-                self.setData(index, Qt.CheckStateRole, Qt.Checked)
+                self.setData(
+                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
+                )
 
     def import_sessions(self):
         sessions = {}
         for r in range(0, self.rowCount()):
             item = self.index(r, SourceModel.Columns.SOURCE)
-            if item.data(int(Qt.Checked)):
+            if item.data(int(Qt.CheckState.Checked)):
                 type = item.data(int(SourceModel.Roles.TYPE))
                 model = item.data(int(SourceModel.Roles.NAME))
                 source = (
@@ -822,7 +848,7 @@ class ImportModelsModel(SourceModel):
                     self._checked_models[
                         (model, item.data(int(SourceModel.Roles.PATH)))
                     ]
-                    == Qt.Checked
+                    == Qt.CheckState.Checked
                 ):
                     models = []
                     if source in sessions:
@@ -839,7 +865,7 @@ class ImportModelsModel(SourceModel):
         return [
             key[0]
             for key in self._checked_models.keys()
-            if self._checked_models[key] == Qt.Checked
+            if self._checked_models[key] == Qt.CheckState.Checked
         ]
 
 
@@ -855,16 +881,16 @@ class ImportDataModel(QSortFilterProxyModel):
 
     def flags(self, index):
         if index.column() == SourceModel.Columns.IS_CATALOGUE:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         if index.column() == SourceModel.Columns.DELETE_DATA:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         if index.column() == SourceModel.Columns.DATASET:
             if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
                 int(SourceModel.Roles.IS_CATALOGUE)
             ):
-                return Qt.ItemIsEnabled
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+                return Qt.ItemFlag.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def import_sessions(self, order_list) -> dict():
         sessions = {}
@@ -916,7 +942,7 @@ class SpaceCheckListView(QListView):
 
     # to act when space is pressed
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Space:
+        if e.key() == Qt.Key.Key_Space:
             _selected_indexes = self.selectedIndexes()
             self.space_pressed.emit(_selected_indexes[0])
         super().keyPressEvent(e)
@@ -932,29 +958,31 @@ class CheckEntriesModel(QStringListModel):
         self._checked_entries = {}
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def data(self, index, role):
-        if role == Qt.CheckStateRole:
-            if self.data(index, Qt.DisplayRole) in self._checked_entries:
-                return self._checked_entries[self.data(index, Qt.DisplayRole)]
+        if role == Qt.ItemDataRole.CheckStateRole:
+            if self.data(index, Qt.ItemDataRole.DisplayRole) in self._checked_entries:
+                return self._checked_entries[
+                    self.data(index, Qt.ItemDataRole.DisplayRole)
+                ]
             else:
-                return Qt.Unchecked
+                return Qt.CheckState.Unchecked
         else:
             return QStringListModel.data(self, index, role)
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
-        if role == Qt.CheckStateRole:
-            self._checked_entries[self.data(index, Qt.DisplayRole)] = data
+        if role == Qt.ItemDataRole.CheckStateRole:
+            self._checked_entries[self.data(index, Qt.ItemDataRole.DisplayRole)] = data
         else:
             QStringListModel.setData(self, index, data, role)
 
     def check(self, index):
-        if self.data(index, Qt.CheckStateRole) == Qt.Checked:
-            self.setData(index, Qt.CheckStateRole, Qt.Unchecked)
+        if self.data(index, Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked:
+            self.setData(index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked)
         else:
-            self.setData(index, Qt.CheckStateRole, Qt.Checked)
+            self.setData(index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked)
         self._emit_data_changed()
 
     def check_all(self, state):
@@ -972,7 +1000,8 @@ class CheckEntriesModel(QStringListModel):
         return [
             name
             for name in self.stringList()
-            if self._checked_entries.get(name, Qt.Unchecked) == Qt.Checked
+            if self._checked_entries.get(name, Qt.CheckState.Unchecked)
+            == Qt.CheckState.Checked
         ]
 
     def check_entries(self, entries: list = []):
@@ -981,9 +1010,9 @@ class CheckEntriesModel(QStringListModel):
         """
         for name in self.stringList():
             if name in entries:
-                self._checked_entries[name] == Qt.Checked
+                self._checked_entries[name] == Qt.CheckState.Checked
             else:
-                self._checked_entries[name] == Qt.Unchecked
+                self._checked_entries[name] == Qt.CheckState.Unchecked
 
     def refresh_stringlist(self, values):
         """
@@ -998,7 +1027,7 @@ class CheckEntriesModel(QStringListModel):
             if value in self._checked_entries:
                 new_checked_entries[value] = self._checked_entries[value]
             else:
-                new_checked_entries[value] = Qt.Checked
+                new_checked_entries[value] = Qt.CheckState.Checked
         self._checked_entries = new_checked_entries
 
         self._emit_data_changed()
@@ -1012,7 +1041,7 @@ class SchemaModelsModel(CheckEntriesModel):
     """
 
     class Roles(Enum):
-        PARENT_MODELS = Qt.UserRole + 1
+        PARENT_MODELS = Qt.ItemDataRole.UserRole + 1
 
         def __int__(self):
             return self.value
@@ -1022,8 +1051,8 @@ class SchemaModelsModel(CheckEntriesModel):
         self._parent_models = {}
 
     def data(self, index, role):
-        if role == Qt.ToolTipRole:
-            model_name = self.data(index, Qt.DisplayRole)
+        if role == Qt.ItemDataRole.ToolTipRole:
+            model_name = self.data(index, Qt.ItemDataRole.DisplayRole)
             if self._parent_models[model_name]:
                 return self.tr(
                     """
@@ -1033,14 +1062,14 @@ class SchemaModelsModel(CheckEntriesModel):
                     """
                 ).format(model_name, ", ".join(self._parent_models[model_name]))
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
-            return self._parent_models[self.data(index, Qt.DisplayRole)]
+            return self._parent_models[self.data(index, Qt.ItemDataRole.DisplayRole)]
         else:
             return CheckEntriesModel.data(self, index, role)
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
-            self._parent_models[self.data(index, Qt.DisplayRole)] = data
+            self._parent_models[self.data(index, Qt.ItemDataRole.DisplayRole)] = data
         else:
             CheckEntriesModel.setData(self, index, role, data)
 
@@ -1093,7 +1122,7 @@ class SchemaDatasetsModel(CheckEntriesModel):
         self.setStringList(datasetnames)
 
         self._checked_entries = {
-            datasetname: Qt.Checked for datasetname in datasetnames
+            datasetname: Qt.CheckState.Checked for datasetname in datasetnames
         }
 
         return self.rowCount()
@@ -1124,7 +1153,9 @@ class SchemaBasketsModel(CheckEntriesModel):
                 self._basket_ids[basketname] = record["basket_t_ili_tid"]
         self.setStringList(basketnames)
 
-        self._checked_entries = {basketname: Qt.Checked for basketname in basketnames}
+        self._checked_entries = {
+            basketname: Qt.CheckState.Checked for basketname in basketnames
+        }
 
         return self.rowCount()
 
@@ -1132,7 +1163,8 @@ class SchemaBasketsModel(CheckEntriesModel):
         return [
             self._basket_ids[name]
             for name in self.stringList()
-            if self._checked_entries[name] == Qt.Checked and name in self._basket_ids
+            if self._checked_entries[name] == Qt.CheckState.Checked
+            and name in self._basket_ids
         ]
 
 
@@ -1142,8 +1174,8 @@ class DatasetModel(QStandardItemModel):
     """
 
     class Roles(Enum):
-        TID = Qt.UserRole + 1
-        DATASETNAME = Qt.UserRole + 2
+        TID = Qt.ItemDataRole.UserRole + 1
+        DATASETNAME = Qt.ItemDataRole.UserRole + 2
 
         def __int__(self):
             return self.value
@@ -1152,7 +1184,7 @@ class DatasetModel(QStandardItemModel):
         super().__init__()
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def refresh_model(self, db_connector=None):
         self.beginResetModel()
@@ -1163,7 +1195,7 @@ class DatasetModel(QStandardItemModel):
                 if record["datasetname"] == CATALOGUE_DATASETNAME:
                     continue
                 item = QStandardItem()
-                item.setData(record["datasetname"], int(Qt.DisplayRole))
+                item.setData(record["datasetname"], int(Qt.ItemDataRole.DisplayRole))
                 item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
                 item.setData(record["t_id"], int(DatasetModel.Roles.TID))
                 self.appendRow(item)
@@ -1177,12 +1209,12 @@ class BasketSourceModel(QStandardItemModel):
     """
 
     class Roles(Enum):
-        DATASETNAME = Qt.UserRole + 1
-        MODEL_TOPIC = Qt.UserRole + 2
-        BASKET_TID = Qt.UserRole + 3
+        DATASETNAME = Qt.ItemDataRole.UserRole + 1
+        MODEL_TOPIC = Qt.ItemDataRole.UserRole + 2
+        BASKET_TID = Qt.ItemDataRole.UserRole + 3
         # The SCHEMA_TOPIC_IDENTIFICATOR is a combination of db parameters and the topic
         # This because a dataset is usually valid per topic and db schema
-        SCHEMA_TOPIC_IDENTIFICATOR = Qt.UserRole + 4
+        SCHEMA_TOPIC_IDENTIFICATOR = Qt.ItemDataRole.UserRole + 4
 
         def __int__(self):
             return self.value
@@ -1197,7 +1229,7 @@ class BasketSourceModel(QStandardItemModel):
         for schema_identificator in self.schema_baskets.keys():
             for basket in self.schema_baskets[schema_identificator]:
                 item = QStandardItem()
-                item.setData(basket["datasetname"], int(Qt.DisplayRole))
+                item.setData(basket["datasetname"], int(Qt.ItemDataRole.DisplayRole))
                 item.setData(
                     basket["datasetname"], int(BasketSourceModel.Roles.DATASETNAME)
                 )
@@ -1228,7 +1260,7 @@ class BasketSourceModel(QStandardItemModel):
 
     def data(self, index, role):
         item = self.item(index.row(), index.column())
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return f"{item.data(int(role))} ({item.data(int(BasketSourceModel.Roles.MODEL_TOPIC))})"
         return item.data(int(role))
 
@@ -1253,7 +1285,7 @@ class CheckDelegate(QStyledItemDelegate):
         self.disable_role = disable_role
 
     def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonPress:
+        if event.type() == QEvent.Type.MouseButtonPress:
             value = index.data(int(self.role)) or False
             model.setData(index, not value, int(self.role))
             return True
@@ -1268,8 +1300,12 @@ class CheckDelegate(QStyledItemDelegate):
         opt.rect = option.rect
         center_x = opt.rect.x() + opt.rect.width() / 2
         center_y = opt.rect.y() + opt.rect.height() / 2
-        checkbox_width = QApplication.style().pixelMetric(QStyle.PM_IndicatorWidth)
-        checkbox_height = QApplication.style().pixelMetric(QStyle.PM_IndicatorHeight)
+        checkbox_width = QApplication.style().pixelMetric(
+            QStyle.PixelMetric.PM_IndicatorWidth
+        )
+        checkbox_height = QApplication.style().pixelMetric(
+            QStyle.PixelMetric.PM_IndicatorHeight
+        )
         checkbox_rect = QRect(
             int(center_x - checkbox_width / 2),
             int(center_y - checkbox_height / 2),
@@ -1279,8 +1315,10 @@ class CheckDelegate(QStyledItemDelegate):
         opt.rect = checkbox_rect
 
         value = index.data(int(self.role)) or False
-        opt.state |= QStyle.State_On if value else QStyle.State_Off
-        QApplication.style().drawControl(QStyle.CE_CheckBox, opt, painter)
+        opt.state |= QStyle.StateFlag.State_On if value else QStyle.StateFlag.State_Off
+        QApplication.style().drawControl(
+            QStyle.ControlElement.CE_CheckBox, opt, painter
+        )
 
 
 class Validators(QObject):
@@ -1291,14 +1329,20 @@ class Validators(QObject):
         senderObj = self.sender()
         validator = senderObj.validator()
         if validator is None:
-            color = QgsApplication.palette().color(QPalette.Base).name(QColor.HexRgb)
+            color = (
+                QgsApplication.palette()
+                .color(QPalette.ColorRole.Base)
+                .name(QColor.NameFormat.HexRgb)
+            )
         else:
             state = validator.validate(senderObj.text().strip(), 0)[0]
-            if state == QValidator.Acceptable:
+            if state == QValidator.State.Acceptable:
                 color = (
-                    QgsApplication.palette().color(QPalette.Base).name(QColor.HexRgb)
+                    QgsApplication.palette()
+                    .color(QPalette.ColorRole.Base)
+                    .name(QColor.NameFormat.HexRgb)
                 )
-            elif state == QValidator.Intermediate:
+            elif state == QValidator.State.Intermediate:
                 color = "#ffd356"  # Light orange
             else:
                 color = "#f6989d"  # Red
@@ -1339,7 +1383,7 @@ class FileValidator(QValidator):
         self.error = ""
 
         if self.allow_empty and not text.strip():
-            return QValidator.Acceptable, text, pos
+            return QValidator.State.Acceptable, text, pos
 
         pattern_matches = False
         if type(self.pattern) is str:
@@ -1368,9 +1412,9 @@ class FileValidator(QValidator):
         elif self.is_executable and not os.access(text, os.X_OK):
             self.error = self.tr("The chosen file is not executable.")
         if self.error:
-            return QValidator.Intermediate, text, pos
+            return QValidator.State.Intermediate, text, pos
         else:
-            return QValidator.Acceptable, text, pos
+            return QValidator.State.Acceptable, text, pos
 
 
 class NonEmptyStringValidator(QValidator):
@@ -1379,6 +1423,6 @@ class NonEmptyStringValidator(QValidator):
 
     def validate(self, text, pos):
         if not text.strip():
-            return QValidator.Intermediate, text, pos
+            return QValidator.State.Intermediate, text, pos
 
-        return QValidator.Acceptable, text, pos
+        return QValidator.State.Acceptable, text, pos

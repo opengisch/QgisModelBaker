@@ -17,7 +17,7 @@
 """
 
 from qgis.core import QgsExpressionContextUtils, QgsProject
-from qgis.PyQt.QtCore import QSortFilterProxyModel, Qt
+from qgis.PyQt.QtCore import QT_VERSION_STR, QSortFilterProxyModel, Qt
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
@@ -36,7 +36,7 @@ from QgisModelBaker.utils.gui_utils import BasketSourceModel
 class DatasetSelector(QComboBox):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self.setToolTip(self.tr("Dataset used as default value in form"))
 
         self.db_simple_factory = DbSimpleFactory()
@@ -95,9 +95,14 @@ class DatasetSelector(QComboBox):
                     # let it pass, it will have no entries what is okay
                     pass
 
-        self.filtered_model.setFilterRegExp(
-            "|".join(self.current_schema_topic_identificators)
-        )
+        if QT_VERSION_STR < "5.12.0":
+            self.filtered_model.setFilterRegExp(
+                "|".join(self.current_schema_topic_identificators)
+            )
+        else:
+            self.filtered_model.setFilterRegularExpression(
+                "|".join(self.current_schema_topic_identificators)
+            )
 
         if self.filtered_model.rowCount():
             self._set_index(self.current_default_basket_topic)
@@ -119,7 +124,7 @@ class DatasetSelector(QComboBox):
             int(BasketSourceModel.Roles.BASKET_TID),
             current_basket_tid,
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             self.setCurrentIndex(matches[0].row())
@@ -145,7 +150,13 @@ class DatasetSelector(QComboBox):
             schema_topic_identificator = slugify(
                 f"{schema_identificator}_{model_topic}"
             )
-            self.filtered_model.setFilterRegExp(f"{schema_topic_identificator}")
+
+            if QT_VERSION_STR < "5.12.0":
+                self.filtered_model.setFilterRegExp(f"{schema_topic_identificator}")
+            else:
+                self.filtered_model.setFilterRegularExpression(
+                    f"{schema_topic_identificator}"
+                )
             first_index = self.model().index(0, 0)
             basket_tid = first_index.data(int(BasketSourceModel.Roles.BASKET_TID))
             QgsExpressionContextUtils.setProjectVariable(

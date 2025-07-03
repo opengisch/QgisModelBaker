@@ -193,7 +193,9 @@ class QuickVisualizer(QObject):
         configuration.tool = DbIliMode.ili2gpkg
         configuration.xtffile = single_file
         configuration.dbfile = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+            QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.TempLocation
+            ),
             "temp_db_{:%Y%m%d%H%M%S%f}.gpkg".format(datetime.datetime.now()),
         )
 

@@ -32,6 +32,53 @@ jobs:
       - name: Test on QGIS
         run: docker compose -f .docker/docker-compose.gh.yml run qgis /usr/src/.docker/run-docker-tests.sh
 
+  zip_comment:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt install qtbase5-dev qttools5-dev-tools
+          sudo pip install qgis-plugin-ci
+      - name: Package PyPI Packages
+        run: |
+          sudo ./scripts/package_pip_packages.sh
+      - name: Create Zip File
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          zip -r QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip QgisModelBaker
+      - name: Upload Zip as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QgisModelBaker_${{ github.event.pull_request.head.sha }}
+          path: QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip
+      - name: Get Artifact ID
+        id: get-artifact-id
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: 'opengisch',
+              repo: 'QgisModelBaker',
+              run_id: ${{github.run_id}},
+            });
+
+            const the_artifact = artifacts.data.artifacts[0];
+            if (the_artifact) {
+              core.setOutput('the_artifact-id', the_artifact.id);
+            }
+      - name: Create comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            🧁 Ta-daaa, find a test ZIP of ${{ github.event.pull_request.head.sha }} [here](https://github.com/opengisch/QgisModelBaker/actions/runs/${{github.run_id}}/artifacts/${{ steps.get-artifact-id.outputs.the_artifact-id }}).
+
   release:
     runs-on: ubuntu-22.04
     env:

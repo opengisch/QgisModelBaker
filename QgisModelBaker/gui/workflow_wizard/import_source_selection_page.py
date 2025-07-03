@@ -127,7 +127,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         if self.input_line_edit.hasFocus():
             if not self.input_line_edit.text():
                 self.input_line_edit.completer().setCompletionMode(
-                    QCompleter.UnfilteredPopupCompletion
+                    QCompleter.CompletionMode.UnfilteredPopupCompletion
                 )
                 self.input_line_edit.completer().complete()
             else:
@@ -136,15 +136,15 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                     .completionModel()
                     .match(
                         self.input_line_edit.completer().completionModel().index(0, 0),
-                        Qt.DisplayRole,
+                        Qt.ItemDataRole.DisplayRole,
                         self.input_line_edit.text(),
                         -1,
-                        Qt.MatchContains,
+                        Qt.MatchFlag.MatchContains,
                     )
                 )
                 if len(match_contains) > 1:
                     self.input_line_edit.completer().setCompletionMode(
-                        QCompleter.PopupCompletion
+                        QCompleter.CompletionMode.PopupCompletion
                     )
                     self.input_line_edit.completer().complete()
             self.input_line_edit.completer().popup().scrollToTop()
@@ -155,16 +155,16 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
             .completionModel()
             .match(
                 self.input_line_edit.completer().completionModel().index(0, 0),
-                Qt.DisplayRole,
+                Qt.ItemDataRole.DisplayRole,
                 self.input_line_edit.text(),
                 -1,
-                Qt.MatchExactly,
+                Qt.MatchFlag.MatchExactly,
             )
         )
         return (
             len(match_contains) == 1
             or self.fileValidator.validate(self.input_line_edit.text(), 0)[0]
-            == QValidator.Acceptable
+            == QValidator.State.Acceptable
         )
 
     def _valid_selection(self):
@@ -172,9 +172,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
 
     def update_models_completer(self):
         completer = QCompleter(self.ilicache.sorted_model, self.input_line_edit)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
-        completer.setFilterMode(Qt.MatchContains)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
 
@@ -192,7 +192,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.remove_button.setEnabled(self._valid_selection())
 
     def _clear_cache_button_clicked(self):
-        with OverrideCursor(Qt.WaitCursor):
+        with OverrideCursor(Qt.CursorShape.WaitCursor):
 
             try:
                 IliCache.clear_cache()

@@ -16,9 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QWidget
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QWidget
 
 from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnector
 from QgisModelBaker.utils import gui_utils
@@ -49,7 +48,9 @@ class EditBasketDialog(QDialog, DIALOG_UI):
             if not dataset_data["enabled"]:
                 model = self.cboDatasets.model()
                 item = model.item(self.cboDatasets.count() - 1)
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)  # Disable mirror item
+                item.setFlags(
+                    item.flags() & ~Qt.ItemFlag.ItemIsEnabled
+                )  # Disable mirror item
 
         # Select the current basket's dataset
         self.cboDatasets.setCurrentIndex(
@@ -99,5 +100,8 @@ class EditBasketDialog(QDialog, DIALOG_UI):
         res, msg = self.db_connector.edit_basket(basket_config)
         if not res:
             QMessageBox.warning(
-                self, self.tr("Edit Basket Failed"), msg, QMessageBox.Close
+                self,
+                self.tr("Edit Basket Failed"),
+                msg,
+                QMessageBox.StandardButton.Close,
             )

@@ -86,17 +86,17 @@ if Qgis.QGIS_VERSION_INT < 34000:
             self._checked_entries = {}
             for category_name in LayerStyleCategoriesModel.CATEGORY_MAP.keys():
                 self._checked_entries[category_name] = (
-                    Qt.Checked
+                    Qt.CheckState.Checked
                     if categories
                     & LayerStyleCategoriesModel.CATEGORY_MAP[category_name]
-                    else Qt.Unchecked
+                    else Qt.CheckState.Unchecked
                 )
             self.endResetModel()
 
         def categories(self):
             categories = 0
             for name in self._checked_entries.keys():
-                if self._checked_entries[name] == Qt.Checked:
+                if self._checked_entries[name] == Qt.CheckState.Checked:
                     categories |= LayerStyleCategoriesModel.CATEGORY_MAP[name]
             return categories
 
@@ -113,7 +113,9 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
                 self.style_categories_list_view.model().check
             )
         else:
-            self.model = QgsMapLayerStyleCategoriesModel(QgsMapLayer.VectorLayer)
+            self.model = QgsMapLayerStyleCategoriesModel(
+                QgsMapLayer.LayerType.VectorLayer
+            )
             self.style_categories_list_view.setModel(self.model)
             self.style_categories_list_view.setWordWrap(True)
             self.style_categories_list_view.setItemDelegate(
@@ -134,13 +136,15 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
 
     def select_all_items(self, state):
         if Qgis.QGIS_VERSION_INT < 34000:
-            self.model.check_all(Qt.Checked if state else Qt.Unchecked)
+            self.model.check_all(
+                Qt.CheckState.Checked if state else Qt.CheckState.Unchecked
+            )
         else:
             for i in range(self.model.rowCount()):
                 self.model.setData(
                     self.model.index(i, 0),
-                    Qt.Checked if state else Qt.Unchecked,
-                    Qt.CheckStateRole,
+                    Qt.CheckState.Checked if state else Qt.CheckState.Unchecked,
+                    Qt.ItemDataRole.CheckStateRole,
                 )
 
     def set_categories(self, categories: QgsMapLayer.StyleCategories):
