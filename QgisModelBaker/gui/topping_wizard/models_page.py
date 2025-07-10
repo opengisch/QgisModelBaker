@@ -87,7 +87,7 @@ class ModelsPage(QWizardPage, PAGE_UI):
         sources = set()
 
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 source_provider = layer.dataProvider()
                 if not source_provider:
                     continue

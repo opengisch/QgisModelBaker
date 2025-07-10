@@ -59,13 +59,13 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
         status, message = self.database_command(new_dataset_name)
         if not status:
             warning_box = QMessageBox(self)
-            warning_box.setIcon(QMessageBox.Critical)
+            warning_box.setIcon(QMessageBox.Icon.Critical)
             warning_title = (
                 self.tr("Rename Dataset") if self.tid else self.tr("Create Dataset")
             )
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(message)
-            warning_box.exec_()
+            warning_box.exec()
         self.close()
 
     def database_command(self, new_dataset_name):

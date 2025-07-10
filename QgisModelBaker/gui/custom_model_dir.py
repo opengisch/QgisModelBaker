@@ -75,7 +75,11 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
         )
 
     def set_flags(self, item):
-        item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled)
+        item.setFlags(
+            Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsEditable
+            | Qt.ItemFlag.ItemIsEnabled
+        )
 
     def on_selection_changed(self):
         enable = len(self.model_dir_list.selectedItems()) == 1

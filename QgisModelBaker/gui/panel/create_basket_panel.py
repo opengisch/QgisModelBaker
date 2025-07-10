@@ -57,13 +57,13 @@ class CreateBasketModel(QAbstractTableModel):
 
     def flags(self, index):
         if index.column() == CreateBasketModel.Columns.DO_CREATE:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         if index.column() in (
             CreateBasketModel.Columns.BID_VALUE,
             CreateBasketModel.Columns.ATTACHMENT_KEY,
         ):
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
         """
@@ -78,7 +78,10 @@ class CreateBasketModel(QAbstractTableModel):
         return index
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             if section == CreateBasketModel.Columns.DO_CREATE:
                 return self.tr("Create")
             if section == CreateBasketModel.Columns.TOPIC:
@@ -91,7 +94,9 @@ class CreateBasketModel(QAbstractTableModel):
                 return self.tr("Attachment key")
 
     def data(self, index, role):
-        if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.DisplayRole) or role == int(
+            Qt.ItemDataRole.EditRole
+        ):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == CreateBasketModel.Columns.DO_CREATE:
                 return self.basket_settings[key]["create"]
@@ -103,7 +108,7 @@ class CreateBasketModel(QAbstractTableModel):
                 return self.basket_settings[key]["bid_value"]
             if index.column() == CreateBasketModel.Columns.ATTACHMENT_KEY:
                 return self.basket_settings[key]["attachmentkey"]
-        elif role == int(Qt.ToolTipRole):
+        elif role == int(Qt.ItemDataRole.ToolTipRole):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == CreateBasketModel.Columns.DO_CREATE:
                 return self.tr("If this basket should be created")
@@ -147,7 +152,7 @@ class CreateBasketModel(QAbstractTableModel):
         return None
 
     def setData(self, index, data, role):
-        if role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.EditRole):
             key = list(self.basket_settings.keys())[index.row()]
             if index.column() == CreateBasketModel.Columns.BID_VALUE:
                 self.basket_settings[key]["bid_value"] = data
@@ -238,26 +243,28 @@ class CreateBasketPanel(QWidget, WIDGET_UI):
         self.basket_view.setModel(self.bid_model)
 
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.DO_CREATE, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.DO_CREATE, QHeaderView.ResizeMode.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.TOPIC, QHeaderView.Stretch
+            CreateBasketModel.Columns.TOPIC, QHeaderView.ResizeMode.Stretch
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.BID_DOMAIN,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.BID_VALUE, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.BID_VALUE, QHeaderView.ResizeMode.ResizeToContents
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.ATTACHMENT_KEY, QHeaderView.ResizeToContents
+            CreateBasketModel.Columns.ATTACHMENT_KEY,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
 
         self.basket_view.setItemDelegateForColumn(
             CreateBasketModel.Columns.DO_CREATE,
-            CheckDelegate(self, Qt.EditRole),
+            CheckDelegate(self, Qt.ItemDataRole.EditRole),
         )
-        self.basket_view.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.basket_view.setEditTriggers(QAbstractItemView.EditTrigger.AllEditTriggers)
 
     def load_basket_config(self, db_connector, dataset):
         self.bid_model.load_basket_config(db_connector, dataset)

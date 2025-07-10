@@ -19,7 +19,6 @@
 import logging
 import os
 
-from PyQt5.QtGui import QColor, QGuiApplication
 from qgis.core import (
     QgsApplication,
     QgsExpressionContextUtils,
@@ -31,6 +30,7 @@ from qgis.core import (
 )
 from qgis.gui import QgsGui
 from qgis.PyQt.QtCore import QStandardPaths, Qt, QTimer
+from qgis.PyQt.QtGui import QColor, QGuiApplication
 from qgis.PyQt.QtWidgets import (
     QAction,
     QApplication,
@@ -75,20 +75,20 @@ class ValidationResultTableModel(ValidationResultModel):
         self.setHorizontalHeaderLabels([role.name for role in self.roles])
 
     def flags(self, index):
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def data(self, index, role):
         item = self.item(index.row(), 0)
         if item:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return item.data(int(self.roles[index.column()]))
-            if role == Qt.DecorationRole:
+            if role == Qt.ItemDataRole.DecorationRole:
                 return (
                     QColor(gui_utils.SUCCESS_COLOR)
                     if item.data(int(ValidationResultModel.Roles.FIXED))
                     else QColor(gui_utils.ERROR_COLOR)
                 )
-            if role == Qt.ToolTipRole:
+            if role == Qt.ItemDataRole.ToolTipRole:
                 tooltip_text = "{type} at {tid} in {object}".format(
                     type=item.data(int(ValidationResultModel.Roles.TYPE)),
                     object=item.data(int(ValidationResultModel.Roles.OBJ_TAG)),
@@ -152,7 +152,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.run_button.clicked.connect(self._run)
         self.visibilityChanged.connect(self._visibility_changed)
 
-        self.result_table_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.result_table_view.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
         self.result_table_view.customContextMenuRequested.connect(
             self._table_context_menu_requested
         )
@@ -205,12 +207,16 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             ValidationResultTableModel(self.requested_roles)
         )
         self.result_table_view.horizontalHeader().setSectionResizeMode(
-            0, QHeaderView.Stretch
+            0, QHeaderView.ResizeMode.Stretch
         )
         self.result_table_view.verticalHeader().hide()
         self.result_table_view.horizontalHeader().hide()
-        self.result_table_view.setSelectionBehavior(QHeaderView.SelectRows)
-        self.result_table_view.setSelectionMode(QHeaderView.SingleSelection)
+        self.result_table_view.setSelectionBehavior(
+            QHeaderView.SelectionBehavior.SelectRows
+        )
+        self.result_table_view.setSelectionMode(
+            QHeaderView.SelectionMode.SingleSelection
+        )
 
         self.setDisabled(True)
 
@@ -245,11 +251,15 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if valid and mode:
             output_file_name = "{}.xtf".format(self.current_schema_identificator)
             self.current_configuration.xtflog = os.path.join(
-                QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+                QStandardPaths.writableLocation(
+                    QStandardPaths.StandardLocation.TempLocation
+                ),
                 output_file_name,
             )
             self.current_configuration.xtffile = os.path.join(
-                QStandardPaths.writableLocation(QStandardPaths.TempLocation),
+                QStandardPaths.writableLocation(
+                    QStandardPaths.StandardLocation.TempLocation
+                ),
                 f"dataexport_{output_file_name}",
             )
             if mode == DbIliMode.gpkg:
@@ -399,7 +409,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
         self.progress_bar.setValue(20)
         validation_result_state = False
-        with OverrideCursor(Qt.WaitCursor):
+        with OverrideCursor(Qt.CursorShape.WaitCursor):
             try:
                 self._validator_stdout(f"Run: {validator.command(True)}")
                 validation_result_state = (
@@ -442,7 +452,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         )
 
         self.result_table_view.setWordWrap(True)
-        self.result_table_view.setTextElideMode(Qt.ElideLeft)
+        self.result_table_view.setTextElideMode(Qt.TextElideMode.ElideLeft)
         self.result_table_view.resizeRowsToContents()
 
         if valid:
@@ -478,7 +488,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
         t_ili_tid = index.data(int(ValidationResultModel.Roles.TID))
         id = index.data(int(ValidationResultModel.Roles.ID))
-        text = index.data(Qt.DisplayRole)
+        text = index.data(Qt.ItemDataRole.DisplayRole)
 
         menu = QMenu()
         if coord_x and coord_y:
@@ -529,7 +539,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 lambda: QGuiApplication.clipboard().setText(text)
             )
             menu.addAction(action_copy)
-        menu.exec_(self.result_table_view.mapToGlobal(pos))
+        menu.exec(self.result_table_view.mapToGlobal(pos))
 
     def _table_clicked(self, index):
         if not index.isValid():
@@ -645,7 +655,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 schema_identificator
                 and schema_identificator == self.current_schema_identificator
             ):
-                if layer.type() == QgsMapLayer.VectorLayer:
+                if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                     idx = layer.fields().lookupField("t_ili_tid")
                     if idx < 0:
                         continue

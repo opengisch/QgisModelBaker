@@ -96,8 +96,10 @@ class TargetPage(QWizardPage, PAGE_UI):
                 or "Model Baker User"
             )
         )
-        publishing_date = self.publishingdate_date_edit.date().toString(Qt.ISODate)
-        version = self.version_date_edit.date().toString(Qt.ISODate)
+        publishing_date = self.publishingdate_date_edit.date().toString(
+            Qt.DateFormat.ISODate
+        )
+        version = self.version_date_edit.date().toString(Qt.DateFormat.ISODate)
 
         mainfolder = os.path.abspath(self.main_folder_line_edit.text())
         subfolder = self.sub_folder_line_edit.text()

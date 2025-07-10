@@ -133,7 +133,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)
-        dlg.exec_()
+        dlg.exec()
 
     def help_requested(self):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]

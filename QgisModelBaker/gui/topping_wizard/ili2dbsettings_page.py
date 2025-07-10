@@ -54,7 +54,7 @@ class ParametersModel(QAbstractItemModel):
         return len(self.parameters)
 
     def flags(self, index):
-        return Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsEnabled
 
     def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
         """
@@ -69,14 +69,19 @@ class ParametersModel(QAbstractItemModel):
         return index
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             if section == ParametersModel.Columns.NAME:
                 return self.tr("Name")
             if section == ParametersModel.Columns.VALUE:
                 return self.tr("Value")
 
     def data(self, index, role):
-        if role == int(Qt.DisplayRole) or role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.DisplayRole) or role == int(
+            Qt.ItemDataRole.EditRole
+        ):
             if index.column() == ParametersModel.Columns.NAME:
                 return list(self.parameters.keys())[index.row()]
             if index.column() == ParametersModel.Columns.VALUE:
@@ -86,7 +91,7 @@ class ParametersModel(QAbstractItemModel):
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
-        if role == int(Qt.EditRole):
+        if role == int(Qt.ItemDataRole.EditRole):
             if index.column() == ParametersModel.Columns.NAME:
                 key = list(self.parameters.keys())[index.row()]
                 self.parameters[key] = self.parameters.pop(key)
@@ -124,9 +129,11 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
         self.parameters_table_view.setModel(self.parameters_model)
         self.parameters_table_view.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
+            QHeaderView.ResizeMode.Stretch
         )
-        self.parameters_table_view.setSelectionMode(QTableView.SingleSelection)
+        self.parameters_table_view.setSelectionMode(
+            QTableView.SelectionMode.SingleSelection
+        )
 
         self.toml_file_browse_button.clicked.connect(
             make_file_selector(
@@ -253,7 +260,7 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
     def _refresh_combobox(self):
         self.schema_combobox.clear()
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 source_provider = layer.dataProvider()
                 if not source_provider:
                     continue
@@ -312,4 +319,6 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.topping_wizard.busy(self, False)
 
     def _log_on_export_metagonfig_error(self, log):
-        QgsMessageLog.logMessage(log, self.tr("Export metaConfig"), Qgis.Critical)
+        QgsMessageLog.logMessage(
+            log, self.tr("Export metaConfig"), Qgis.MessageLevel.Critical
+        )

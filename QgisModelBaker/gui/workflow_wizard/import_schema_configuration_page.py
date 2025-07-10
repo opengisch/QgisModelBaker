@@ -259,7 +259,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if not self.ili_metaconfig_line_edit.text():
             self._clean_metaconfig()
             self.ili_metaconfig_line_edit.completer().setCompletionMode(
-                QCompleter.UnfilteredPopupCompletion
+                QCompleter.CompletionMode.UnfilteredPopupCompletion
             )
             self.ili_metaconfig_line_edit.completer().complete()
         else:
@@ -270,15 +270,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.ili_metaconfig_line_edit.completer()
                     .completionModel()
                     .index(0, 0),
-                    Qt.DisplayRole,
+                    Qt.ItemDataRole.DisplayRole,
                     self.ili_metaconfig_line_edit.text(),
                     -1,
-                    Qt.MatchContains,
+                    Qt.MatchFlag.MatchContains,
                 )
             )
             if len(match_contains) > 1:
                 self.ili_metaconfig_line_edit.completer().setCompletionMode(
-                    QCompleter.PopupCompletion
+                    QCompleter.CompletionMode.PopupCompletion
                 )
                 self.ili_metaconfig_line_edit.completer().complete()
 
@@ -288,9 +288,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         completer = QCompleter(
             self.ilimetaconfigcache.sorted_model, self.ili_metaconfig_line_edit
         )
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
-        completer.setFilterMode(Qt.MatchContains)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
@@ -300,10 +300,10 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._clean_metaconfig()
         matches = self.ilimetaconfigcache.model.match(
             self.ilimetaconfigcache.model.index(0, 0),
-            Qt.DisplayRole,
+            Qt.ItemDataRole.DisplayRole,
             self.ili_metaconfig_line_edit.text(),
             1,
-            Qt.MatchExactly,
+            Qt.MatchFlag.MatchExactly,
         )
         if matches:
             model_index = matches[0]
@@ -318,7 +318,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 self.tr(
                     "<html><head/><body><p><b>Current Metaconfig File: {} ({})</b><br><i>{}</i></p></body></html>"
                 ).format(
-                    self.ilimetaconfigcache.model.data(model_index, Qt.DisplayRole),
+                    self.ilimetaconfigcache.model.data(
+                        model_index, Qt.ItemDataRole.DisplayRole
+                    ),
                     metaconfig_id,
                     self.ilimetaconfigcache.model.data(
                         model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
