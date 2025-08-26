@@ -147,7 +147,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
     def help_requested(self):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
-        if os_language in ["es", "fr", "it", "de"]:
+        if os_language in ["fr", "it", "de"]:
             webbrowser.open(
                 "https://opengisch.github.io/QgisModelBaker/{}/user_guide/plugin_configuration".format(
                     os_language
