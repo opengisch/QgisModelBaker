@@ -5,7 +5,7 @@ Go to menu *Database > Model Baker > Settings*.
 
 In keeping with aristotle, unnecessary settings are avoided. Still there are some.
 
-The *checkbox* is to avoid / enforce opening a popup when dropping XTF/ITF or ILI files in QGIS main window to ask if you want to handle them in the Model Baker or not.
+The first *checkbox* is to avoid / enforce opening a popup when dropping XTF/ITF or ILI files in QGIS main window to ask if you want to handle them in the Model Baker or not.
 
 The second is to skip the dialog asking you to import the file directly with Quick Viewer.
 
