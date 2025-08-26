@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="description_label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter your parameters passed to ili2db via a temporary file to &lt;span style=&quot; font-family:'monospace';&quot;&gt;--dbparams&lt;/span&gt;. These settings are used to create or update a database. They are not considered in the QGIS project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter your parameters passed to ili2db via a temporary file to &lt;span style=&quot; font-family:'monospace';&quot;&gt;--dbparams&lt;/span&gt;. These settings are used on every ili2pg command (including validation). They are not considered in the QGIS project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
