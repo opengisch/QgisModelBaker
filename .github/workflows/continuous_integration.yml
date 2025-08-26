@@ -51,7 +51,7 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           mkdir QgisModelBaker_${{ github.event.pull_request.head.sha }}
-          mv -r QgisModelBaker  QgisModelBaker_${{ github.event.pull_request.head.sha }}/
+          mv QgisModelBaker QgisModelBaker_${{ github.event.pull_request.head.sha }}/
       - name: Upload as ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
