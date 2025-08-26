@@ -21,11 +21,29 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QComboBox" name="pg_schema_combo_box"/>
+   <item row="1" column="0">
+    <widget class="QLabel" name="pg_host_label">
+     <property name="text">
+      <string>Host</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QCheckBox" name="pg_use_super_login">
+     <property name="text">
+      <string>Use logins from settings (superuser) for schema generation</string>
+     </property>
+    </widget>
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="pg_service_combo_box"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="pg_schema_label">
+     <property name="text">
+      <string>Schema</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="pg_port_label">
@@ -34,27 +52,10 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QgsAuthSettingsWidget" name="pg_auth_settings" native="true"/>
-   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Service</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="pg_database_line_edit">
-     <property name="placeholderText">
-      <string>Database Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="pg_database_label">
-     <property name="text">
-      <string>Database</string>
      </property>
     </widget>
    </item>
@@ -65,20 +66,16 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="pg_ssl_mode_label">
-     <property name="toolTip">
-      <string>This option determines whether or with what priority a secure SSL TCP/IP connection will be negotiated with the server.</string>
-     </property>
-     <property name="text">
-      <string>SSL Mode</string>
-     </property>
-    </widget>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="pg_schema_combo_box"/>
    </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QCheckBox" name="pg_use_super_login">
+   <item row="6" column="0" colspan="2">
+    <widget class="QgsAuthSettingsWidget" name="pg_auth_settings" native="true"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="pg_database_label">
      <property name="text">
-      <string>Use logins from settings (superuser) for schema generation</string>
+      <string>Database</string>
      </property>
     </widget>
    </item>
@@ -92,33 +89,20 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="pg_host_label">
-     <property name="text">
-      <string>Host</string>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="pg_database_line_edit">
+     <property name="placeholderText">
+      <string>Database Name</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="pg_schema_label">
-     <property name="text">
-      <string>Schema</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QToolButton" name="pg_dbparam_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="5" column="0">
+    <widget class="QLabel" name="pg_ssl_mode_label">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specific user defined parameters are passed to ili2db via a temporary file to &lt;span style=&quot; font-family:'monospace';&quot;&gt;--dbparams&lt;/span&gt;. These settings are used to create or update a database. They are not considered in the QGIS project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>This option determines whether or with what priority a secure SSL TCP/IP connection will be negotiated with the server.</string>
      </property>
      <property name="text">
-      <string>Specific custom parameters</string>
+      <string>SSL Mode</string>
      </property>
     </widget>
    </item>

@@ -396,7 +396,7 @@ class QgisModelBakerPlugin(QObject):
 
     def show_help_documentation(self):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
-        if os_language in ["es", "de"]:
+        if os_language in ["es", "fr", "it", "de"]:
             webbrowser.open(
                 "https://opengisch.github.io/QgisModelBaker/{}/".format(os_language)
             )

@@ -20,7 +20,6 @@ import logging
 from enum import IntEnum
 
 from qgis.PyQt.QtCore import QSettings, Qt, QThread, QTimer
-from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
@@ -179,9 +178,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             Qt.ItemDataRole.ToolTipRole,
         )
 
-        self.pg_param_map = {}
-        self.pg_dbparam_button.clicked.connect(self._dbparams_open)
-
         self._show_panel()
 
     def __del__(self):
@@ -228,7 +224,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.sslmode = self.pg_ssl_mode_combo_box.currentData()
 
         configuration.db_use_super_login = self.pg_use_super_login.isChecked()
-        configuration.dbparam_map = self.pg_param_map
 
     def set_fields(self, configuration):
 
@@ -325,8 +320,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
             self.pg_auth_settings.setConfigId(configuration.dbauthid)
             self.pg_use_super_login.setChecked(configuration.db_use_super_login)
-
-        self.pg_param_map = configuration.dbparam_map
 
     def is_valid(self):
         result = False
@@ -553,11 +546,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if currentTextIndex > -1:
             self.pg_schema_combo_box.setCurrentIndex(currentTextIndex)
 
-    def _dbparams_open(self):
-        db_params_dialog = DbParamsDialog(self, self.pg_param_map)
-        if db_params_dialog.exec() == QDialog.DialogCode.Accepted:
-            self.pg_param_map = db_params_dialog.param_map
-
 
 class ReadPgSchemasTask(QThread):
     def __init__(self, parent):
@@ -584,77 +572,3 @@ class ReadPgSchemasTask(QThread):
         except Exception as exception:
             logging.warning(f"Refresh schema list error: {exception}")
             self.schemas = []
-
-
-DIALOG_UI = gui_utils.get_ui_class("dbparam_map.ui")
-
-
-class DbParamsDialog(QDialog, DIALOG_UI):
-    def __init__(self, parent=None, param_map={}):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-
-        self.param_map = param_map
-
-        self.mappingtable.horizontalHeader().setSectionsClickable(True)
-        self.mappingtable.setSortingEnabled(True)
-
-        self.init()
-        self.buttonBox.accepted.connect(self.accepted)
-        self.mappingtable.cellChanged.connect(self._cell_changed)
-
-    def init(self):
-        """
-        Reads content from param_map
-        """
-        for key in self.param_map.keys():
-            row = self.mappingtable.rowCount()
-            self.mappingtable.insertRow(row)
-            key_item = QTableWidgetItem()
-            key_item.setData(Qt.ItemDataRole.DisplayRole, key)
-            value_item = QTableWidgetItem()
-            value_item.setData(Qt.ItemDataRole.DisplayRole, self.param_map[key])
-            self.mappingtable.setItem(row, 0, key_item)
-            self.mappingtable.setItem(row, 1, value_item)
-        self.mappingtable.insertRow(self.mappingtable.rowCount())
-
-    def accepted(self):
-        """
-        Stores content to param_map
-        """
-        self.param_map = {}
-        for row in range(self.mappingtable.rowCount()):
-            key_item = self.mappingtable.item(row, 0)
-            if key_item and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0:
-                value_item = self.mappingtable.item(row, 1)
-                if (
-                    value_item
-                    and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
-                ):
-                    self.param_map[
-                        str(key_item.data(Qt.ItemDataRole.DisplayRole))
-                    ] = str(value_item.data(Qt.ItemDataRole.DisplayRole))
-
-    def _cell_changed(self, row, column):
-        """
-        If one of the cells in this row has content and is the last row, add an additional row.
-        If none of the cells in this row has context and it's the second last row, remove the last row.
-        """
-        key_item = self.mappingtable.item(row, 0)
-        value_item = self.mappingtable.item(row, 1)
-        # if we did something the second last row and it's empty (means we cleared it), we remove the empty row at the end.
-        if row == self.mappingtable.rowCount() - 2 and not (
-            key_item
-            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
-            or value_item
-            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
-        ):
-            self.mappingtable.removeRow(row + 1)
-        # if we did something in the last row, and it's not empty, we add a fresh empty row at the end.
-        elif row == self.mappingtable.rowCount() - 1 and (
-            key_item
-            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
-            or value_item
-            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
-        ):
-            self.mappingtable.insertRow(row + 1)
