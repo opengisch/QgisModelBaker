@@ -202,6 +202,7 @@ class QuickVisualizer(QObject):
         # parameters to import the data "dirty" (without validation and constraints)
         configuration.inheritance = "smart2"
         configuration.disable_validation = True
+        configuration.skip_reference_errors = True
         configuration.with_schemaimport = True
 
         importer.configuration = configuration
