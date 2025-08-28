@@ -85,9 +85,11 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
         return result, message
 
     def set_tid_configuration(self):
-        result, message = self.set_sequence_panel.save_sequence()
-        # only set the project settings when the sequence part succeeds (or is not performed)
+        result = True
+        if self.sequence_panel.is_checked():
+            result, message = self.set_sequence_panel.save_sequence()
+        # only set the project settings when the sequence part succeeds (or is not performed) or is not required
         if result:
             self.layer_tids_panel.save_tid_config(self.qgis_project)
-            return True, message
-        return False, message
+            message = self.tr("Set OID configurations successfully")
+        return result, message
