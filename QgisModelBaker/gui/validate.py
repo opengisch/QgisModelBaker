@@ -39,6 +39,7 @@ from qgis.PyQt.QtWidgets import (
     QHeaderView,
     QMenu,
     QMessageBox,
+    QStyledItemDelegate,
 )
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -106,6 +107,17 @@ class ValidationResultTableModel(ValidationResultModel):
             )
 
 
+class FixedDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        item = index.model().itemFromIndex(index)
+        if item.data(int(ValidationResultModel.Roles.FIXED)):
+            font = option.font
+            font.setStrikeOut(True)
+            option.font = font
+            option.palette.setColor(option.palette.Text, QColor(Qt.gray))
+        super().paint(painter, option, index)
+
+
 class ValidateDock(QDockWidget, DIALOG_UI):
     class SchemaValidation:
         """
@@ -152,6 +164,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.run_button.clicked.connect(self._run)
         self.visibilityChanged.connect(self._visibility_changed)
 
+        self.result_table_view.setItemDelegate(FixedDelegate(self.result_table_view))
         self.result_table_view.setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu
         )
@@ -520,9 +533,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             menu.addAction(action_select_feature)
         if id:
             action_fix = QAction(
-                self.tr("Set to unfixed")
+                self.tr("Mark as unfixed")
                 if index.data(int(ValidationResultModel.Roles.FIXED))
-                else self.tr("Set to fixed"),
+                else self.tr("Mark as fixed"),
                 self,
             )
             action_fix.triggered.connect(
