@@ -713,9 +713,7 @@ class WorkflowWizard(QWizard):
     def append_dropped_files(self, dropped_files, dropped_ini_files):
         if dropped_files or dropped_ini_files:
             for dropped_file in dropped_files + dropped_ini_files:
-                self.add_source(
-                    dropped_file, self.tr("Added by user with drag'n'drop.")
-                )
+                self.add_source(dropped_file, self.tr("Added by user with drag'n'drop"))
 
         if dropped_ini_files:
             if len(dropped_ini_files) > 1:
