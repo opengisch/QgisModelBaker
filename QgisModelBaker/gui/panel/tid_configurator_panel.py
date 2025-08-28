@@ -86,7 +86,7 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
 
     def set_tid_configuration(self):
         result = True
-        if self.sequence_panel.is_checked():
+        if self.set_sequence_panel.is_checked():
             result, message = self.set_sequence_panel.save_sequence()
         # only set the project settings when the sequence part succeeds (or is not performed) or is not required
         if result:
