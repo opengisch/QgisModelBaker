@@ -182,8 +182,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_param_map = {}
         self.pg_dbparam_button.clicked.connect(self._dbparams_open)
 
-        self._show_panel()
-
     def __del__(self):
         # Make sure the refresh schemas task is finished to avoid crashes
         try:
