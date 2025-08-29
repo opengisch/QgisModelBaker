@@ -384,13 +384,16 @@ class SourceModel(QStandardItemModel):
     print_info = pyqtSignal([str], [str, str])
 
     class Roles(Enum):
+        # generally used
         NAME = Qt.ItemDataRole.UserRole + 1
         TYPE = Qt.ItemDataRole.UserRole + 2
         PATH = Qt.ItemDataRole.UserRole + 3
+        # data import
         DATASET_NAME = Qt.ItemDataRole.UserRole + 5
         IS_CATALOGUE = Qt.ItemDataRole.UserRole + 6
         ORIGIN_INFO = Qt.ItemDataRole.UserRole + 7
         DELETE_DATA = Qt.ItemDataRole.UserRole + 8
+        # generic (used for import models model)
         INFO = Qt.ItemDataRole.UserRole + 9
 
         def __int__(self):
@@ -523,7 +526,7 @@ class SourceModel(QStandardItemModel):
         return False
 
 
-class HTMLDelegate(QItemDelegate):
+class ImportModelsHtmlDelegate(QItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -894,25 +897,19 @@ class ImportModelsModel(SourceModel):
         sessions = {}
         for r in range(0, self.rowCount()):
             item = self.index(r, 0)
-            print(
-                f"model {model} and source {source} and {item.data(int(Qt.CheckState.Checked))}"
-            )
-            if item.data(int(Qt.CheckState.Checked)):
-                model = item.data(int(SourceModel.Roles.NAME))
-
-                self.index(r, SourceModel.Roles.INFO)
+            model = item.data(int(SourceModel.Roles.NAME))
+            if self._checked_models[model] == Qt.CheckState.Checked:
+                info = item.data(int(SourceModel.Roles.INFO))
                 type_path_tuples = [
                     (info_item["type"], info_item["path"]) for info_item in info
                 ]
 
-                print(f"model {model} and source {source}")
                 # when one type is ili, we take this path (because user selected file on purpose) otherwise repository
                 source = "repository"
                 for type, path in type_path_tuples:
                     if type == "ili":
                         source = path
                         break
-
                 models = []
                 if source in sessions:
                     models = sessions[source]["models"]

@@ -36,7 +36,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-from QgisModelBaker.utils.gui_utils import HTMLDelegate, get_text_color
+from QgisModelBaker.utils.gui_utils import ImportModelsHtmlDelegate, get_text_color
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
 
@@ -52,7 +52,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard = parent
         self.is_complete = True
 
-        self.model_list_view.setItemDelegate(HTMLDelegate())
+        self.model_list_view.setItemDelegate(ImportModelsHtmlDelegate())
 
         self.model_list_view.setModel(self.workflow_wizard.import_models_model)
         self.model_list_view.clicked.connect(
