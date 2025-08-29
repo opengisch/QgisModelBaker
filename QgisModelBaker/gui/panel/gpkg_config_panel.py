@@ -44,6 +44,8 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
 
+        self.logger = logging.getLogger("qgismodelbaker")
+
         # validators
         self.validators = gui_utils.Validators()
 
@@ -84,12 +86,12 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
                 file_filter=self.tr("GeoPackage Database (*.gpkg *.GPKG)"),
             )
         else:
-            logging.error(f"Unknown action type: {self._db_action_type}")
+            self.logger.error(f"Unknown action type: {self._db_action_type}")
 
         try:
             self.gpkg_file_browse_button.clicked.disconnect()
         except Exception as exception:
-            logging.error(
+            self.logger.error(
                 f"Can't disconnect gpkg_file_browse_button signal: {exception}"
             )
 

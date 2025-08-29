@@ -19,7 +19,6 @@
 
 import datetime
 import logging
-import logging.handlers
 import os
 import pathlib
 
@@ -48,6 +47,7 @@ class QuickVisualizer(QObject):
     def __init__(self, parent=None):
         super().__init__(parent.iface.mainWindow())
         self.parent = parent
+        self.logger = logging.getLogger("qgismodelbaker")
         self.message_bar = self.parent.iface.messageBar()
 
     def push_message_bar(
@@ -269,8 +269,8 @@ class QuickVisualizer(QObject):
     def log(self, message, level=Qgis.MessageLevel.Info):
         log_text = f"QuickVisualizer: {message}"
         if level == Qgis.MessageLevel.Warning:
-            logging.warning(message)
+            self.logger.warning(message)
         elif level == Qgis.MessageLevel.Critical:
-            logging.error(message)
+            self.logger.error(message)
         else:
-            logging.info(message)
+            self.logger.info(message)

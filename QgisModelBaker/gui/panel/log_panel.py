@@ -41,6 +41,7 @@ class LogPanel(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
+        self.logger = logging.getLogger("qgismodelbaker")
         self.txtStdout = QTextBrowser()
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -70,11 +71,11 @@ class LogPanel(QWidget):
         self.txtStdout.append(text)
 
         if level in (LogLevel.INFO, LogLevel.SUCCESS, LogLevel.TOPPING):
-            logging.info(text)
+            self.logger.info(text)
         elif level == LogLevel.WARNING:
-            logging.warning(text)
+            self.logger.warning(text)
         elif level == LogLevel.FAIL:
-            logging.error(text)
+            self.logger.error(text)
 
     def print_stdout_info(self, text):
         self.print_info(text, get_parsed_log_text_level(text))

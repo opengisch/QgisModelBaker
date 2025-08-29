@@ -80,6 +80,7 @@ class WorkflowWizard(QWizard):
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self, parent)
 
+        self.logger = logging.getLogger("qgismodelbaker")
         self.setWindowTitle(self.tr("QGIS Model Baker Wizard"))
         self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
         self.setOptions(
@@ -727,7 +728,7 @@ class WorkflowWizard(QWizard):
 
         if dropped_ini_files:
             if len(dropped_ini_files) > 1:
-                logging.warning(
+                self.logger.warning(
                     "Only one INI/TOML file is supported by drag&drop: {}".format(
                         dropped_ini_files
                     )
