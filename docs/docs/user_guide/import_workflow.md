@@ -74,6 +74,7 @@ You can check or uncheck the models you want to import to a physical schema.
 Choose a metaconfiguration file found on the [repositories](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
 
 ### Ili2db settings
+
 Since Model Baker uses ili2db, you can set advanced options that determine how your conceptual object-oriented model is mapped into a physical model.
 
 ![wizard ili2db options](../assets/workflow_wizard_ili2db_options.png)
@@ -111,7 +112,7 @@ A `toml` or `ini` file can contain values for [meta attributes](../../background
 
 ## 4. Run ili2db Sessions
 
-In the next step you can run all the sessions to create your physical model. If having multiple models selected that are received from the repositories, then they are passed in one command. You can run the commands one by one or all together.
+In the next step you can run all the sessions to create your physical model. In case a model is detected in an local ili-file (added by the user) *and* in the repositories, it takes the one from the local ili-file. If having multiple models that are received from the repositories, then they are passed in one command. You can run the commands one by one or all together.
 
 ![wizard schema import sessions](../assets/workflow_wizard_schema_session.png)
 
