@@ -18,8 +18,8 @@
 """
 import webbrowser
 
-from qgis.PyQt.QtCore import QLocale, QSettings
-from qgis.PyQt.QtWidgets import QDialog
+from qgis.PyQt.QtCore import QLocale, QSettings, Qt
+from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem
 
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
 from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
@@ -45,6 +45,9 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
         self.pg_user_line_edit.setText(configuration.super_pg_user)
         self.pg_password_line_edit.setText(configuration.super_pg_password)
+
+        self.pg_param_map = configuration.dbparam_map
+        self.pg_dbparam_button.clicked.connect(self._dbparams_open)
 
         self.custom_model_directories_line_edit.setText(
             configuration.custom_model_directories
@@ -122,6 +125,8 @@ class OptionsDialog(QDialog, DIALOG_UI):
         self.configuration.super_pg_user = self.pg_user_line_edit.text()
         self.configuration.super_pg_password = self.pg_password_line_edit.text()
 
+        self.configuration.dbparam_map = self.pg_param_map
+
         settings = QSettings()
         if not self.chk_dontask_to_handle_dropped_files.isChecked():
             settings.setValue("QgisModelBaker/drop_mode", DropMode.ASK.name)
@@ -131,13 +136,18 @@ class OptionsDialog(QDialog, DIALOG_UI):
             self.chk_open_always_wizard_to_handle_dropped_files.isChecked(),
         )
 
+    def _dbparams_open(self):
+        db_params_dialog = DbParamsDialog(self, self.pg_param_map)
+        if db_params_dialog.exec() == QDialog.DialogCode.Accepted:
+            self.pg_param_map = db_params_dialog.param_map
+
     def show_custom_model_dir(self):
         dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)
         dlg.exec()
 
     def help_requested(self):
         os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
-        if os_language in ["es", "de"]:
+        if os_language in ["fr", "it", "de"]:
             webbrowser.open(
                 "https://opengisch.github.io/QgisModelBaker/{}/user_guide/plugin_configuration".format(
                     os_language
@@ -165,3 +175,77 @@ class OptionsDialog(QDialog, DIALOG_UI):
         command = "\n  ".join([executable] + config.to_ili2db_args())
 
         self.ili2db_options_textedit.setText(command)
+
+
+DIALOG_UI = gui_utils.get_ui_class("dbparam_map.ui")
+
+
+class DbParamsDialog(QDialog, DIALOG_UI):
+    def __init__(self, parent=None, param_map={}):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+
+        self.param_map = param_map
+
+        self.mappingtable.horizontalHeader().setSectionsClickable(True)
+        self.mappingtable.setSortingEnabled(True)
+
+        self.init()
+        self.buttonBox.accepted.connect(self.accepted)
+        self.mappingtable.cellChanged.connect(self._cell_changed)
+
+    def init(self):
+        """
+        Reads content from param_map
+        """
+        for key in self.param_map.keys():
+            row = self.mappingtable.rowCount()
+            self.mappingtable.insertRow(row)
+            key_item = QTableWidgetItem()
+            key_item.setData(Qt.ItemDataRole.DisplayRole, key)
+            value_item = QTableWidgetItem()
+            value_item.setData(Qt.ItemDataRole.DisplayRole, self.param_map[key])
+            self.mappingtable.setItem(row, 0, key_item)
+            self.mappingtable.setItem(row, 1, value_item)
+        self.mappingtable.insertRow(self.mappingtable.rowCount())
+
+    def accepted(self):
+        """
+        Stores content to param_map
+        """
+        self.param_map = {}
+        for row in range(self.mappingtable.rowCount()):
+            key_item = self.mappingtable.item(row, 0)
+            if key_item and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0:
+                value_item = self.mappingtable.item(row, 1)
+                if (
+                    value_item
+                    and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+                ):
+                    self.param_map[
+                        str(key_item.data(Qt.ItemDataRole.DisplayRole))
+                    ] = str(value_item.data(Qt.ItemDataRole.DisplayRole))
+
+    def _cell_changed(self, row, column):
+        """
+        If one of the cells in this row has content and is the last row, add an additional row.
+        If none of the cells in this row has context and it's the second last row, remove the last row.
+        """
+        key_item = self.mappingtable.item(row, 0)
+        value_item = self.mappingtable.item(row, 1)
+        # if we did something the second last row and it's empty (means we cleared it), we remove the empty row at the end.
+        if row == self.mappingtable.rowCount() - 2 and not (
+            key_item
+            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+            or value_item
+            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+        ):
+            self.mappingtable.removeRow(row + 1)
+        # if we did something in the last row, and it's not empty, we add a fresh empty row at the end.
+        elif row == self.mappingtable.rowCount() - 1 and (
+            key_item
+            and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+            or value_item
+            and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+        ):
+            self.mappingtable.insertRow(row + 1)

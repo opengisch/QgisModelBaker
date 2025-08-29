@@ -47,15 +47,16 @@ jobs:
       - name: Package PyPI Packages
         run: |
           sudo ./scripts/package_pip_packages.sh
-      - name: Create Zip File
+      - name: Make dir
         run: |
           cd ${GITHUB_WORKSPACE}
-          zip -r QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip QgisModelBaker
-      - name: Upload Zip as Artifact
+          mkdir QgisModelBaker_${{ github.event.pull_request.head.sha }}
+          mv QgisModelBaker QgisModelBaker_${{ github.event.pull_request.head.sha }}/
+      - name: Upload as ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
           name: QgisModelBaker_${{ github.event.pull_request.head.sha }}
-          path: QgisModelBaker_${{ github.event.pull_request.head.sha }}.zip
+          path: QgisModelBaker_${{ github.event.pull_request.head.sha }}
       - name: Get Artifact ID
         id: get-artifact-id
         uses: actions/github-script@v3

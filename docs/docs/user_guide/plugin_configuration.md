@@ -5,11 +5,23 @@ Go to menu *Database > Model Baker > Settings*.
 
 In keeping with aristotle, unnecessary settings are avoided. Still there are some.
 
-In the *Database Login* you can set username and password to use it as superuser login to excecute data management tasks. The *checkbox* is to avoid / enforce opening a popup when dropping XTF/ITF or ILI files in QGIS main window to ask if you want to handle them in the Model Baker or not.
+The first *checkbox* is to avoid / enforce opening a popup when dropping XTF/ITF or ILI files in QGIS main window to ask if you want to handle them in the Model Baker or not.
+
+The second is to skip the dialog asking you to import the file directly with Quick Viewer.
+
+## Database Settings
+
+![db settings](../assets_db.png)
+
+In the *Database Login* you can set username and password to use it as superuser login to excecute data management tasks.
+
+The button *Generally used custom DB parameters* provides you a map to enter specific parameters passed to ili2db via a temporary file to `--dbparams`.
+These settings are used on every ili2pg command (including validation). They are not considered in the QGIS project. The possible parameters are described in the respective [JDBC driver](https://jdbc.postgresql.org/documentation/use/#connection-parameters).
 
 ## INTERLIS Settings
 
 ![interlis settings](../assets/settings_interlis.png)
+
 ### Custom Model Directories
 
 In this window you can set one or several paths to let ili2db where to find your INTERLIS models (ili files). Paths can be both local directories or URLs to remote model repositories. Several paths should be separated by semicolons.
@@ -28,4 +40,4 @@ By default, Model Baker searches for Java executable in `%JAVA_HOME` environment
 
 ![ili2db settings](../assets/settings_ili2db.png)
 
-This section is to show all the parameters set by the Model Baker on calling ili2db.
+This section is to show all the parameters set by the Model Baker Library per default on ili2db commands. In the plugin they are modified.
