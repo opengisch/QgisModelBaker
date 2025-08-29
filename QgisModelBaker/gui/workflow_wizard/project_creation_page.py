@@ -355,6 +355,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
     def _create_project(self):
         self.progress_bar.setValue(0)
 
+        if not self.db_connector:
+            self.workflow_wizard.log_panel.print_info(
+                self.tr("Cannot connect to the database…"), LogLevel.FAIL
+            )
+            return
+
         db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
 
         try:
@@ -445,6 +451,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         # ref layers are not needed to create data.
         coalesce_catalogue_used = False
         setting_records = self.db_connector.get_ili2db_settings()
+
         for setting_record in setting_records:
             if (
                 setting_record["tag"] == "ch.ehi.ili2db.catalogueRefTrafo"
@@ -703,6 +710,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
     def _datasource_metaconfig(self):
         metaconfig_id = None
+        if not self.db_connector:
+            return None
         setting_records = self.db_connector.get_ili2db_settings()
         for setting_record in setting_records:
             if setting_record["tag"] == "ch.ehi.ili2db.metaConfigFileName":
@@ -771,20 +780,22 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
     def _modelnames(self):
         modelnames = []
-        db_models = self.db_connector.get_models()
-        regex = re.compile(r"(?:\{[^\}]*\}|\s)")
-        for db_model in db_models:
-            for modelname in regex.split(db_model["modelname"]):
-                name = modelname.strip()
-                if name and name not in MODELS_BLACKLIST and name not in modelnames:
-                    modelnames.append(name)
+        if self.db_connector:
+            db_models = self.db_connector.get_models()
+            regex = re.compile(r"(?:\{[^\}]*\}|\s)")
+            for db_model in db_models:
+                for modelname in regex.split(db_model["modelname"]):
+                    name = modelname.strip()
+                    if name and name not in MODELS_BLACKLIST and name not in modelnames:
+                        modelnames.append(name)
         return modelnames
 
     def _inheritance(self):
-        setting_records = self.db_connector.get_ili2db_settings()
-        for setting_record in setting_records:
-            if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
-                return setting_record["setting"]
+        if self.db_connector:
+            setting_records = self.db_connector.get_ili2db_settings()
+            for setting_record in setting_records:
+                if setting_record["tag"] == "ch.ehi.ili2db.inheritanceTrafo":
+                    return setting_record["setting"]
 
     def _multigeom_gpkg(self):
         # this concerns only geopackage

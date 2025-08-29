@@ -260,7 +260,12 @@ class WorkflowWizard(QWizard):
                     if self.import_data_file_model.rowCount():
                         # when there are transfer files found, we go to the configuration page for data import
                         return PageIds.ImportDataConfiguration
-                    return PageIds.ProjectCreation
+                    if self._db_or_schema_exists(self.import_schema_configuration):
+                        return PageIds.ProjectCreation
+                    else:
+                        self.log_panel.print_info(
+                            self.tr("Database or schema not reachable.")
+                        )
 
             if self.current_id == PageIds.GenerateDatabaseSelection:
                 if self.generate_database_selection_page.is_valid():
@@ -395,7 +400,12 @@ class WorkflowWizard(QWizard):
                     self._update_configurations(self.data_configuration_page)
                     return PageIds.ImportDataExecution
                 else:
-                    return PageIds.ProjectCreation
+                    if self._db_or_schema_exists(self.import_schema_configuration):
+                        return PageIds.ProjectCreation
+                    else:
+                        self.log_panel.print_info(
+                            self.tr("Database or schema not reachable.")
+                        )
 
             if self.current_id == PageIds.ImportDataExecution:
                 return PageIds.ProjectCreation
