@@ -822,19 +822,18 @@ class ImportModelsModel(SourceModel):
             )
 
     def _description_text(self, info):
-        source_origins = [
+        source_origin_tuples = [
             (info_item["path"], info_item["origin_info"]) for info_item in info
         ]
 
-        if len(source_origins) == 1:
-            description_text += " from <i>{}</i> ({})".format(
-                source_origins[0][0], source_origins[0][1]
-            )
+        if len(source_origin_tuples) == 1:
+            source, origin = source_origins[0]
+            description_text += " from <i>{}</i> ({})".format(source, origin)
         else:
             description_text = self.tr(" from:<ul>")
-            for tuppel in source_origins:
+            for source, origin in source_origin_tuples:
                 description_text += "<li><i>{}</i> ({})</li>".format(
-                    tuppel[0] or "the repositories", tuppel[1]
+                    source or "the repositories", origin
                 )
             description_text += "</ul>"
         return description_text
@@ -894,25 +893,34 @@ class ImportModelsModel(SourceModel):
     def import_sessions(self):
         sessions = {}
         for r in range(0, self.rowCount()):
-            item = self.index(r, SourceModel.Columns.SOURCE)
+            item = self.index(r, 0)
+            print(
+                f"model {model} and source {source} and {item.data(int(Qt.CheckState.Checked))}"
+            )
             if item.data(int(Qt.CheckState.Checked)):
-                type = item.data(int(SourceModel.Roles.TYPE))
                 model = item.data(int(SourceModel.Roles.NAME))
-                source = (
-                    item.data(int(SourceModel.Roles.PATH))
-                    if type == "ili"
-                    else "repository"
-                )
 
-                if self._checked_models[model] == Qt.CheckState.Checked:
-                    models = []
-                    if source in sessions:
-                        models = sessions[source]["models"]
-                    else:
-                        sessions[source] = {}
-                    if model not in models:
-                        models.append(model)
-                    sessions[source]["models"] = models
+                self.index(r, SourceModel.Roles.INFO)
+                type_path_tuples = [
+                    (info_item["type"], info_item["path"]) for info_item in info
+                ]
+
+                print(f"model {model} and source {source}")
+                # when one type is ili, we take this path (because user selected file on purpose) otherwise repository
+                source = "repository"
+                for type, path in type_path_tuples:
+                    if type == "ili":
+                        source = path
+                        break
+
+                models = []
+                if source in sessions:
+                    models = sessions[source]["models"]
+                else:
+                    sessions[source] = {}
+                if model not in models:
+                    models.append(model)
+                sessions[source]["models"] = models
         return sessions
 
     def checked_models(self):
