@@ -402,7 +402,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
         if (
             self.workflow_wizard.add_source(
-                path, self.tr("Datafile referenced over ilidata repository.")
+                path, self.tr("Datafile referenced over ilidata repository")
             )
             and self.basket_handling
         ):

@@ -36,7 +36,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-from QgisModelBaker.utils.gui_utils import get_text_color
+from QgisModelBaker.utils.gui_utils import ImportModelsHtmlDelegate, get_text_color
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
 
@@ -51,6 +51,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard = parent
         self.is_complete = True
+
+        self.model_list_view.setItemDelegate(ImportModelsHtmlDelegate())
 
         self.model_list_view.setModel(self.workflow_wizard.import_models_model)
         self.model_list_view.clicked.connect(
@@ -425,7 +427,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 model_name,
                 "model",
                 None,
-                self.tr("Linked model referenced over ilidata repository."),
+                self.tr("Linked model referenced over ilidata repository"),
             ):
                 self.workflow_wizard.refresh_import_models()
 
@@ -470,7 +472,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         model,
                         "model",
                         None,
-                        self.tr("Model defined in metaconfigurationfile."),
+                        self.tr("Model defined in metaconfigurationfile"),
                     )
                 self.workflow_wizard.log_panel.print_info(
                     self.tr("- Loaded models"), LogLevel.TOPPING
@@ -571,9 +573,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             name,
                             type,
                             referencedata_file_path,
-                            self.tr(
-                                "Datafile referenced in the metaconfigurationfile."
-                            ),
+                            self.tr("Datafile referenced in the metaconfigurationfile"),
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(

@@ -178,8 +178,6 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             Qt.ItemDataRole.ToolTipRole,
         )
 
-        self._show_panel()
-
     def __del__(self):
         # Make sure the refresh schemas task is finished to avoid crashes
         try:

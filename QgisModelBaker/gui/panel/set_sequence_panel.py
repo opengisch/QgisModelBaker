@@ -36,6 +36,9 @@ class SetSequencePanel(QWidget, WIDGET_UI):
         self.last_loaded_sequence_value = None
         self.sequence_value_edit.setSpecialValueText("-")
 
+    def is_checked(self):
+        return self.sequence_group.isChecked()
+
     def set_configuration(self, configuration):
         self.configuration = configuration
         self.pg_use_super_login.setVisible(self.configuration.tool & DbIliMode.pg)

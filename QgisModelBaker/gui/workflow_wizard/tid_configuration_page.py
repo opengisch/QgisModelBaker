@@ -42,32 +42,33 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         self.tid_configurator_panel = TIDConfiguratorPanel(self.workflow_wizard)
         self.tid_configurator_layout.addWidget(self.tid_configurator_panel)
 
-        self.set_layer_tids_and_sequence_button.clicked.connect(
-            self._set_tid_configuration
-        )
-
         self.configuration = None
 
     def set_configuration(self, configuration):
         self.tid_configurator_panel.setup_dialog(QgsProject.instance(), configuration)
 
     def _set_tid_configuration(self):
-        self.progress_bar.setValue(0)
+        self.workflow_wizard.busy(
+            self,
+            True,
+            self.tr("Storing OID configurations"),
+        )
         # we store the settings to project and db
         result, message = self.tid_configurator_panel.set_tid_configuration()
         if result:
             self.workflow_wizard.log_panel.print_info(
-                self.tr("Stored OID configurations to current project")
+                self.tr("Stored OID configurations successfully.")
             )
-            self.workflow_wizard.log_panel.print_info(
-                self.tr("Stored the sequence value to current database")
-            )
-            self.progress_bar.setValue(100)
-            self.setStyleSheet(gui_utils.SUCCESS_STYLE)
+            self.workflow_wizard.busy(self, False)
+            return True
         else:
-            self.workflow_wizard.log_panel.print_info(message, LogLevel.WARNING)
-            self.progress_bar.setValue(100)
-            self.setStyleSheet(gui_utils.ERROR_STYLE)
+            self.workflow_wizard.log_panel.print_info(message, LogLevel.FAIL)
+            self.workflow_wizard.busy(self, False)
+        return False
+
+    def validatePage(self) -> bool:
+        return self._set_tid_configuration()
+        return super().validatePage()
 
     def help_text(self):
         logline = self.tr(

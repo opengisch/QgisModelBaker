@@ -51,7 +51,7 @@ With *right click* on the error a menu is opened with the following options:
 - Zoom to coordinates (if coordinates are provided) with an extend of 10 map units
 - Open in Feature Form (if a stable t_ili_tid is available)
 - Select in Attribute Table (if a stable t_ili_tid is available)
-- Set to fixed (marking the entry mark green to have organize the fixing process)
+- Mark as fixed (marking the entry mark green and crossed over to have organize the fixing process)
 - Copy (to copy the message text)
 
 Automatic pan, zoom and highlight features or coordinates are performed by clicking on the result tables entry.
