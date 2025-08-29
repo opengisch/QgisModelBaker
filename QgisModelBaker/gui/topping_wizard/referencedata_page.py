@@ -207,7 +207,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
 
     def _add_row(self):
         source = self.input_line_edit.text()
-        self.add_source(source, self.tr("Added by user over the wizard."))
+        self.add_source(source, self.tr("Added by user over the wizard"))
         self.input_line_edit.clearFocus()
         self.input_line_edit.clear()
 
@@ -219,9 +219,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
     def append_dropped_files(self, dropped_files):
         if dropped_files:
             for dropped_file in dropped_files:
-                self.add_source(
-                    dropped_file, self.tr("Added by user with drag'n'drop.")
-                )
+                self.add_source(dropped_file, self.tr("Added by user with drag'n'drop"))
 
     def add_source(self, source, origin_info):
         if os.path.isfile(source):

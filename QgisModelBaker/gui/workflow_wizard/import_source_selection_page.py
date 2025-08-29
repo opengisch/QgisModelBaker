@@ -181,7 +181,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
     def _add_row(self):
         source = self.input_line_edit.text()
         self.workflow_wizard.add_source(
-            source, self.tr("Added by user over the wizard.")
+            source, self.tr("Added by user over the wizard")
         )
         self.input_line_edit.clearFocus()
         self.input_line_edit.clear()
