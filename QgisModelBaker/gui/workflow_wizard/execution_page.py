@@ -19,7 +19,7 @@
 
 import copy
 
-from qgis.PyQt.QtCore import QCoreApplication, QEventLoop
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import (
     QSizePolicy,
     QSpacerItem,
@@ -171,12 +171,11 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.setComplete(not self.pending_sessions)
 
     def _run(self):
-        loop = QEventLoop()
         for session_widget in self.session_widget_list:
-            session_widget.on_done_or_skipped.connect(lambda: loop.quit())
-            # fall in a loop on fail untill the user skipped it or it has been successful
+            if session_widget.is_skipped_or_done:
+                continue
             if not session_widget.run():
-                loop.exec()
+                return
 
     def _on_process_started(self, command):
         self.workflow_wizard.log_panel.print_info(command, LogLevel.INFO)

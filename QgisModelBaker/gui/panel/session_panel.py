@@ -318,6 +318,7 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.run(edited_command)
 
     def run(self, edited_command=None):
+        self.is_skipped_or_done = False
         if self.is_running:
             # means this is called by "cancel" option
             self.print_info.emit(self.tr("Cancel session..."), LogLevel.INFO)
