@@ -60,6 +60,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
+        self.logger = logging.getLogger("qgismodelbaker")
 
         self._current_service = None
 
@@ -210,7 +211,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             )
             self.pg_use_super_login.setVisible(False)
         else:
-            logging.error(f"Unknown action type: {self._db_action_type}")
+            self.logger.error(f"Unknown action type: {self._db_action_type}")
 
     def get_fields(self, configuration):
 
@@ -232,7 +233,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         service_config, error = db_utils.get_service_config(configuration.dbservice)
         if error:
-            logging.warning(error)
+            self.logger.warning(error)
 
         # if no dbservice in the configuration or one is there but the servicefile is not available anymore
         if not service_config:
@@ -360,7 +361,7 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         service_config, error = db_utils.get_service_config(service)
         if error:
-            logging.warning(error)
+            self.logger.warning(error)
 
         if service_config:
             # QGIS cannot handle manually set hosts with service
@@ -573,14 +574,14 @@ class ReadPgSchemasTask(QThread):
         try:
             db_connector = db_utils.get_db_connector(self._configuration)
             if not db_connector:
-                logging.warning("Refresh schema list connection error")
+                self.logger.warning("Refresh schema list connection error")
                 self.schemas = []
                 return
 
             self.schemas = db_connector.get_schemas()
 
         except Exception as exception:
-            logging.warning(f"Refresh schema list error: {exception}")
+            self.logger.warning(f"Refresh schema list error: {exception}")
             self.schemas = []
 
 
