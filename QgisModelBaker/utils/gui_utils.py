@@ -860,10 +860,12 @@ class ImportModelsModel(SourceModel):
         if role == Qt.ItemDataRole.CheckStateRole:
             return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
         if role == Qt.ItemDataRole.DecorationRole:
+            info = self.data(index, int(SourceModel.Roles.INFO))
+            type, _ = self._relevant_type_source(info)
             return QIcon(
                 os.path.join(
                     os.path.dirname(__file__),
-                    "../images/file_types/model.png",
+                    f"../images/file_types/{type}.png",
                 )
             )
         return SourceModel.data(self, index, role)
@@ -895,6 +897,16 @@ class ImportModelsModel(SourceModel):
                     index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
                 )
 
+    def _relevant_type_source(self, info_list):
+        # when one type is ili, we take this path (because user selected file on purpose) otherwise repository
+        type_path_tuples = [
+            (info_item["type"], info_item["path"]) for info_item in info_list
+        ]
+        for type, path in type_path_tuples:
+            if type == "ili":
+                return type, path
+        return "model", "repository"
+
     def import_sessions(self):
         sessions = {}
         for r in range(0, self.rowCount()):
@@ -902,16 +914,8 @@ class ImportModelsModel(SourceModel):
             model = item.data(int(SourceModel.Roles.NAME))
             if self._checked_models[model] == Qt.CheckState.Checked:
                 info = item.data(int(SourceModel.Roles.INFO))
-                type_path_tuples = [
-                    (info_item["type"], info_item["path"]) for info_item in info
-                ]
+                _, source = self._relevant_type_source(info)
 
-                # when one type is ili, we take this path (because user selected file on purpose) otherwise repository
-                source = "repository"
-                for type, path in type_path_tuples:
-                    if type == "ili":
-                        source = path
-                        break
                 models = []
                 if source in sessions:
                     models = sessions[source]["models"]
