@@ -830,8 +830,10 @@ class ImportModelsModel(SourceModel):
         ]
 
         if len(source_origin_tuples) == 1:
-            source, origin = source_origins[0]
-            description_text += " from <i>{}</i> ({})".format(source, origin)
+            source, origin = source_origin_tuples[0]
+            description_text = " from <i>{}</i> ({})".format(
+                source or "the repositories", origin
+            )
         else:
             description_text = self.tr(" from:<ul>")
             for source, origin in source_origin_tuples:
