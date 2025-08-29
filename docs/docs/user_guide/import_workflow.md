@@ -64,6 +64,8 @@ When you only got a model name (like in all cases except the one of the local `i
 You can check or uncheck the models you want to import to a physical schema.
 
 !!! Note
+    Via tooltip you can find the information where the model comes from.
+    ![wizard schema tooltip](../assets/workflow_wizard_schema_import_tooltip.png)
     If our model requires (according to the ilidata.xml) a codelist and this codelist bases on a model that is not structurally linked (imported) to our model, it will appear here as well.
     ![linked model](../assets/workflow_wizard_schema_import_linked_models.png)
 
