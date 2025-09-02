@@ -109,17 +109,33 @@ class QgisModelBakerPlugin(QObject):
         settings.beginGroup("QgisModelBaker/ili2db")
         self.ili2db_configuration.restore(settings)
 
-        self.event_filter = DropFileFilter(self)
+        self.logsDirectory = "{}/logs".format(basepath)
+        self._initLogger()
+
+        self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
+        self.layerview_event_filter = DropFileFilter(self, self.iface.layerTreeView())
 
     def register_event_filter(self):
-        if not self.event_filter:
-            self.event_filter = DropFileFilter(self)
-        self.iface.mainWindow().installEventFilter(self.event_filter)
+        if not self.main_event_filter:
+            self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
+        self.iface.mainWindow().installEventFilter(self.main_event_filter)
+        if not self.layerview_event_filter:
+            self.layerview_event_filter = DropFileFilter(
+                self, self.iface.layerTreeView()
+            )
+        self.iface.layerTreeView().viewport().installEventFilter(
+            self.layerview_event_filter
+        )
 
     def unregister_event_filter(self):
-        if self.event_filter:
-            self.iface.mainWindow().removeEventFilter(self.event_filter)
-            self.event_filter.deleteLater()
+        if self.main_event_filter:
+            self.iface.mainWindow().removeEventFilter(self.main_event_filter)
+            self.main_event_filter.deleteLater()
+        if self.layerview_event_filter:
+            self.iface.layerTreeView().viewport().removeEventFilter(
+                self.layerview_event_filter
+            )
+            self.layerview_event_filter.deleteLater()
 
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
@@ -579,8 +595,8 @@ class QgisModelBakerPlugin(QObject):
 
 
 class DropFileFilter(QObject):
-    def __init__(self, parent=None):
-        super().__init__(parent.iface.mainWindow())
+    def __init__(self, parent, target=None):
+        super().__init__(target or parent.iface.mainWindow)
         self.parent = parent
 
     def _is_handling_requested(self, dropped_files):
