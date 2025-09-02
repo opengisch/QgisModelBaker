@@ -101,6 +101,9 @@ class QgisModelBakerPlugin(QObject):
         self.translator.load(qgis_locale, "QgisModelBaker", "_", locale_path)
         QCoreApplication.installTranslator(self.translator)
 
+        self.logsDirectory = "{}/logs".format(basepath)
+        self._init_logger()
+
         self.ili2db_configuration = BaseConfiguration()
         settings = QSettings()
         settings.beginGroup("QgisModelBaker/ili2db")
@@ -535,13 +538,13 @@ class QgisModelBakerPlugin(QObject):
         return True
 
     def visualize_dropped_files_quickly(self, data_files):
-        logging.info(
+        self.logger.info(
             f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
         )
         quick_visualizer = QuickVisualizer(self)
         success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
-        logging.info(f"Successfully imported: {success_files}")
-        logging.info(f"Not imported: {fail_files}")
+        self.logger.info(f"Successfully imported: {success_files}")
+        self.logger.info(f"Not imported: {fail_files}")
         return True
 
     def _set_dropped_file_configuration(self):
@@ -560,7 +563,7 @@ class QgisModelBakerPlugin(QObject):
             ),
         )
 
-    def _initLogger(self):
+    def _init_logger(self):
         directory = QDir(self.logsDirectory)
         if not directory.exists():
             directory.mkpath(self.logsDirectory)
@@ -568,24 +571,27 @@ class QgisModelBakerPlugin(QObject):
         if directory.exists():
             logfile = QFileInfo(directory, "ModelBaker.log")
 
-            # Handler for files rotation, create one log per day
-            rotationHandler = logging.handlers.TimedRotatingFileHandler(
-                logfile.filePath(), when="midnight", backupCount=10
-            )
+            self.logger = logging.getLogger("qgismodelbaker")
+            self.logger.setLevel(logging.DEBUG)
 
-            # Configure logging
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format="%(asctime)s %(levelname)-7s %(message)s",
-                handlers=[rotationHandler],
-            )
+            if not self.logger.handlers:
+                # If not yet exists, create handler for files rotation, create one log per day
+                rotationHandler = logging.handlers.TimedRotatingFileHandler(
+                    logfile.filePath(), when="midnight", backupCount=10
+                )
+                formatter = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s")
+                rotationHandler.setFormatter(formatter)
+                self.logger.addHandler(rotationHandler)
+
         else:
-            logging.error(
+            self.logger.error(
                 "Can't create log files directory '{}'.".format(self.logsDirectory)
             )
 
-        logging.info("")
-        logging.info("Starting Model Baker plugin version {}".format(self.__version__))
+        self.logger.info("")
+        self.logger.info(
+            "Starting Model Baker plugin version {}".format(self.__version__)
+        )
 
 
 class DropFileFilter(QObject):

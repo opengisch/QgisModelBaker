@@ -30,6 +30,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
     def __init__(self, parent, db_action_type):
         DbConfigPanel.__init__(self, parent, db_action_type)
         self.setupUi(self)
+        self.logger = logging.getLogger("qgismodelbaker")
 
         for item_odbc_driver in get_odbc_drivers():
             self.mssql_odbc_driver.addItem(item_odbc_driver)
@@ -82,7 +83,7 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
                 self.tr("[Enter a valid schema]")
             )
         else:
-            logging.error(f"Unknown action type: {self._db_action_type}")
+            self.logger.error(f"Unknown action type: {self._db_action_type}")
 
     def get_fields(self, configuration):
         configuration.dbhost = self.mssql_host_line_edit.text().strip()
