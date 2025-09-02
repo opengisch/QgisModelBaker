@@ -50,10 +50,12 @@ nav:
       - OID Generator: background_info/oid_tid_generator.md
       - UsabILIty Toppings:
           - Overview: background_info/usabilityhub/overview.md
-          - Model Baker Integration: background_info/usabilityhub/modelbaker_integration.md
+          - Model Baker Integration:
+              background_info/usabilityhub/modelbaker_integration.md
           - Technical Concept: background_info/usabilityhub/technical_concept.md
           #obsolete but keep it for info - User Guide: background_info/usabilityhub/user_guide.md
-      - Optimized Projects for Extended Models: background_info/extended_models_optimization.md
+      - Optimized Projects for Extended Models:
+          background_info/extended_models_optimization.md
       - Catalogues and their special cases: background_info/catalogues.md
       - Meta Attributes: background_info/meta_attributes.md
       - Migrate from ili2db 3 to 4: background_info/upgrade_3_to_4.md
@@ -76,13 +78,13 @@ plugins:
           default: true
           name: English
           site_name: QGIS Model Baker Documentation
-          site_description: Model Baker is a QGIS plugin to visualize, edit and manipulate
-            INTERLIS data in QGIS.
+          site_description: Model Baker is a QGIS plugin to visualize, edit and
+            manipulate INTERLIS data in QGIS.
         - locale: de
           name: Deutsch
           site_name: QGIS Model Baker Dokumentation
-          site_description: Model Baker is a QGIS plugin to visualize, edit and manipulate
-            INTERLIS data in QGIS.
+          site_description: Model Baker is a QGIS plugin to visualize, edit and
+            manipulate INTERLIS data in QGIS.
           nav_translations:
             Home: Home
             User Guide: Benutzerhandbuch
@@ -101,8 +103,8 @@ plugins:
             Overview: Übersicht
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
-            Optimized Projects for Extended Models: Optimierte Projekte für erweiterte
-              Modelle
+            Optimized Projects for Extended Models: Optimierte Projekte für
+              erweiterte Modelle
             Catalogues and their special cases: Kataloge und ihre Spezialfälle
             Meta Attributes: Metaattribute
             Migrate from ili2db 3 to 4: Migration von ili2db 3 zu 4
@@ -126,14 +128,14 @@ plugins:
         - locale: fr
           name: Français
           site_name: Documentation de QGIS Model Baker
-          site_description: Model Baker is a QGIS plugin to visualize, edit and manipulate
-            INTERLIS data in QGIS.
+          site_description: Model Baker is a QGIS plugin to visualize, edit and
+            manipulate INTERLIS data in QGIS.
           nav_translations:
             Home: Accueil
             User Guide: Guide de l'utilisateur
             Get Started: Premiers pas
-            Model and Data Import Workflow: Flux de travail d'importation de modèles
-              et de données
+            Model and Data Import Workflow: Flux de travail d'importation de
+              modèles et de données
             Export Data Workflow: Flux de travail d'exportation de données
             Validate Data: Validation des données
             Topping Exporter: Exportateur de Topping
@@ -141,16 +143,17 @@ plugins:
             Plugin Configuration: Configuration du plugin
             Tipps & Tricks: Trucs et astuces
             Repositories: Dépôts
-            Basket and Dataset Handling: Gestion des paniers (baskets) et des ensembles
-              (datasets)
+            Basket and Dataset Handling: Gestion des paniers (baskets) et des
+              ensembles (datasets)
             OID Generator: Générateur OID
             UsabILIty Toppings: Toppings UsabILIty
             Overview: Vue d'ensemble
             Model Baker Integration: Intégration de Model Baker
             Technical Concept: Concept technique
-            Optimized Projects for Extended Models: Projets optimisés pour les modèles
-              étendus
-            Catalogues and their special cases: Catalogues et leurs cas particuliers
+            Optimized Projects for Extended Models: Projets optimisés pour les
+              modèles étendus
+            Catalogues and their special cases: Catalogues et leurs cas
+              particuliers
             Meta Attributes: Méta-attributs
             Migrate from ili2db 3 to 4: Migration de ili2db 3 vers 4
             About: À propos
