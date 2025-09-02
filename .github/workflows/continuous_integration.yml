@@ -59,7 +59,7 @@ jobs:
           path: QgisModelBaker_${{ github.event.pull_request.head.sha }}
       - name: Get Artifact ID
         id: get-artifact-id
-        uses: actions/github-script@v3
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
