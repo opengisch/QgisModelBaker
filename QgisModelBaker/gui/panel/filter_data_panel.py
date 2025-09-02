@@ -65,9 +65,10 @@ class FilterDataPanel(QWidget, WIDGET_UI):
             self.filter_combobox.addItem(
                 self.tr("Datasets"), gui_utils.SchemaDataFilterMode.DATASET
             )
-            self.filter_combobox.addItem(
-                self.tr("Baskets"), gui_utils.SchemaDataFilterMode.BASKET
-            )
+            if self.parent.current_baskets_model.rowCount() > 0:
+                self.filter_combobox.addItem(
+                    self.tr("Baskets"), gui_utils.SchemaDataFilterMode.BASKET
+                )
         if self.filter_combobox.itemData(stored_index):
             self.filter_combobox.setCurrentIndex(stored_index)
             if (
