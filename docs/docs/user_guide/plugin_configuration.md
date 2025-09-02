@@ -11,7 +11,7 @@ The second is to skip the dialog asking you to import the file directly with Qui
 
 ## Database Settings
 
-![db settings](../assets_db.png)
+![db settings](../assets/settings_db.png)
 
 In the *Database Login* you can set username and password to use it as superuser login to excecute data management tasks.
 

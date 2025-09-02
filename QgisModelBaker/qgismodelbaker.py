@@ -101,6 +101,9 @@ class QgisModelBakerPlugin(QObject):
         self.translator.load(qgis_locale, "QgisModelBaker", "_", locale_path)
         QCoreApplication.installTranslator(self.translator)
 
+        self.logsDirectory = "{}/logs".format(basepath)
+        self._init_logger()
+
         self.ili2db_configuration = BaseConfiguration()
         settings = QSettings()
         settings.beginGroup("QgisModelBaker/ili2db")
@@ -109,17 +112,30 @@ class QgisModelBakerPlugin(QObject):
         self.logsDirectory = "{}/logs".format(basepath)
         self._initLogger()
 
-        self.event_filter = DropFileFilter(self)
+        self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
+        self.layerview_event_filter = DropFileFilter(self, self.iface.layerTreeView())
 
     def register_event_filter(self):
-        if not self.event_filter:
-            self.event_filter = DropFileFilter(self)
-        self.iface.mainWindow().installEventFilter(self.event_filter)
+        if not self.main_event_filter:
+            self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
+        self.iface.mainWindow().installEventFilter(self.main_event_filter)
+        if not self.layerview_event_filter:
+            self.layerview_event_filter = DropFileFilter(
+                self, self.iface.layerTreeView()
+            )
+        self.iface.layerTreeView().viewport().installEventFilter(
+            self.layerview_event_filter
+        )
 
     def unregister_event_filter(self):
-        if self.event_filter:
-            self.iface.mainWindow().removeEventFilter(self.event_filter)
-            self.event_filter.deleteLater()
+        if self.main_event_filter:
+            self.iface.mainWindow().removeEventFilter(self.main_event_filter)
+            self.main_event_filter.deleteLater()
+        if self.layerview_event_filter:
+            self.iface.layerTreeView().viewport().removeEventFilter(
+                self.layerview_event_filter
+            )
+            self.layerview_event_filter.deleteLater()
 
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
@@ -522,13 +538,13 @@ class QgisModelBakerPlugin(QObject):
         return True
 
     def visualize_dropped_files_quickly(self, data_files):
-        logging.info(
+        self.logger.info(
             f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
         )
         quick_visualizer = QuickVisualizer(self)
         success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
-        logging.info(f"Successfully imported: {success_files}")
-        logging.info(f"Not imported: {fail_files}")
+        self.logger.info(f"Successfully imported: {success_files}")
+        self.logger.info(f"Not imported: {fail_files}")
         return True
 
     def _set_dropped_file_configuration(self):
@@ -547,7 +563,7 @@ class QgisModelBakerPlugin(QObject):
             ),
         )
 
-    def _initLogger(self):
+    def _init_logger(self):
         directory = QDir(self.logsDirectory)
         if not directory.exists():
             directory.mkpath(self.logsDirectory)
@@ -555,29 +571,32 @@ class QgisModelBakerPlugin(QObject):
         if directory.exists():
             logfile = QFileInfo(directory, "ModelBaker.log")
 
-            # Handler for files rotation, create one log per day
-            rotationHandler = logging.handlers.TimedRotatingFileHandler(
-                logfile.filePath(), when="midnight", backupCount=10
-            )
+            self.logger = logging.getLogger("qgismodelbaker")
+            self.logger.setLevel(logging.DEBUG)
 
-            # Configure logging
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format="%(asctime)s %(levelname)-7s %(message)s",
-                handlers=[rotationHandler],
-            )
+            if not self.logger.handlers:
+                # If not yet exists, create handler for files rotation, create one log per day
+                rotationHandler = logging.handlers.TimedRotatingFileHandler(
+                    logfile.filePath(), when="midnight", backupCount=10
+                )
+                formatter = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s")
+                rotationHandler.setFormatter(formatter)
+                self.logger.addHandler(rotationHandler)
+
         else:
-            logging.error(
+            self.logger.error(
                 "Can't create log files directory '{}'.".format(self.logsDirectory)
             )
 
-        logging.info("")
-        logging.info("Starting Model Baker plugin version {}".format(self.__version__))
+        self.logger.info("")
+        self.logger.info(
+            "Starting Model Baker plugin version {}".format(self.__version__)
+        )
 
 
 class DropFileFilter(QObject):
-    def __init__(self, parent=None):
-        super().__init__(parent.iface.mainWindow())
+    def __init__(self, parent, target=None):
+        super().__init__(target or parent.iface.mainWindow)
         self.parent = parent
 
     def _is_handling_requested(self, dropped_files):

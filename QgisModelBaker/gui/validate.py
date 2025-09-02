@@ -137,6 +137,7 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.iface = iface
         self.base_config = base_config
         self.db_simple_factory = DbSimpleFactory()
+        self.logger = logging.getLogger("qgismodelbaker")
         QgsGui.instance().enableAutoGeometryRestore(self)
 
         self.schema_validations = {}
@@ -731,9 +732,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _validator_stdout(self, txt):
         lines = txt.strip().split("\n")
         for line in lines:
-            logging.info(line)
+            self.logger.info(line)
 
     def _validator_stderr(self, txt):
         lines = txt.strip().split("\n")
         for line in lines:
-            logging.error(line)
+            self.logger.error(line)
