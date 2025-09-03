@@ -109,9 +109,6 @@ class QgisModelBakerPlugin(QObject):
         settings.beginGroup("QgisModelBaker/ili2db")
         self.ili2db_configuration.restore(settings)
 
-        self.logsDirectory = "{}/logs".format(basepath)
-        self._initLogger()
-
         self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
         self.layerview_event_filter = DropFileFilter(self, self.iface.layerTreeView())
 
