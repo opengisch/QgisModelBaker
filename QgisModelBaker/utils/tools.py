@@ -410,8 +410,6 @@ class Ili2Pythonizer(QObject):
         )
 
         # parameters to import the data "dirty" (without validation and constraints)
-        configuration.o = "IMD16"
-
         compiler.configuration = configuration
 
         compiler.stdout.connect(self.on_ili_stdout)
@@ -420,8 +418,10 @@ class Ili2Pythonizer(QObject):
         compiler.process_finished.connect(self.on_ili_process_finished)
         result = True
 
+        print(compiler.configuration.imdfile)
         try:
             if compiler.run() != compiler.SUCCESS:
+                print("failed")
                 result = False
         except JavaNotFoundError as e:
             self.log(
