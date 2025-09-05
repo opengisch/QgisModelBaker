@@ -11,17 +11,18 @@
 
 import datetime
 import os
+from datetime import datetime
 from typing import Any, Optional
 
 from qgis.core import (
     QgsProcessing,
-    QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingOutputBoolean,
     QgsProcessingOutputString,
     QgsProcessingParameterDatabaseSchema,
+    QgsProcessingParameterDefinition,
     QgsProcessingParameterEnum,
     QgsProcessingParameterProviderConnection,
     QgsProcessingParameterVectorLayer,
@@ -31,27 +32,56 @@ from qgis.PyQt.QtCore import QCoreApplication, QStandardPaths
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
+from QgisModelBaker.processing_provider.ili2db_algorithm import Ili2dbAlgorithm
 
 
-class ModelBakerIli2dbValidatingAlgorithm(QgsProcessingAlgorithm):
+class ParameterConnectionSettings(QgsProcessingParameterDefinition):
+    def __init__(self, name="", description=""):
+        super().__init__(name, description)
+        self.setMetadata(
+            {
+                "widget_wrapper": "QgisModelBaker.processing_provider.gui.connection_settings_widget.ConnectionSettingsWidgetWrapper"
+            }
+        )
+
+    def type(self):
+        return "connection_settings"
+
+    def clone(self):
+        return ParameterConnectionSettings(self.name(), self.description())
+
+
+class ValidatingAlgorithm(Ili2dbAlgorithm):
     """
     This is an algorithm from Model Baker.
 
     It is meant for the data validation stored in a PostgreSQL database or a GeoPackage.
     """
 
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
-
+    # Connection
     SOURCELAYER = "SOURCELAYER"
+    DATABASE = "DATABASE"
+    SCHEMA = "SCHEMA"
+    CONNECTIONSETTINGS = "CONNECTIONSETTINGS"
+
+    # Filters
+    FILTER = "FILTER"
+    MODELS = "MODELS"
+    BASKETS = "BASKETS"
+    DATASETS = "DATASETS"
+
+    # Settings
+    EXPORTMODEL = "EXPORTMODEL"
+    SKIPGEOMETRYERRORS = "SKIPGEOMETRYERRORS"
+    VERBOSE = "VERBOSE"
+    VALIDATORCONFIGFILEPATH = "VALIDATORCONFIGFILEPATH"
+
+    # Result
     ISVALID = "ISVALID"
     XTFLOGPATH = "XTFLOGPATH"
 
-    DATABASE = "DATABASE"
-    SCHEMA = "SCHEMA"
-
-    MODELS = "MODELS"
+    def __init__(self):
+        super().__init__()
 
     def name(self) -> str:
         """
@@ -80,18 +110,6 @@ class ModelBakerIli2dbValidatingAlgorithm(QgsProcessingAlgorithm):
             "ili2pg",
         ]
 
-    def group(self) -> str:
-        """
-        Returns the name of the group this algorithm belongs to.
-        """
-        return "Model Baker"
-
-    def groupId(self) -> str:
-        """
-        Returns the unique ID of the group this algorithm belongs to.
-        """
-        return "modelbaker"
-
     def shortDescription(self) -> str:
         """
         Returns a short description string for the algorithm.
@@ -112,7 +130,8 @@ class ModelBakerIli2dbValidatingAlgorithm(QgsProcessingAlgorithm):
         """
         It receives the following inputs:
         INPUT layer, where the db-connection is emitted (optional)
-        INPUT db-settings (optional)
+        INPUT db-settings (optional) and schema
+
         INPUT filter
         INPUT exportmodel
         INPUT SkipGeometryErrors
@@ -123,11 +142,21 @@ class ModelBakerIli2dbValidatingAlgorithm(QgsProcessingAlgorithm):
         """
 
         # We add the input vector features source. From this the data connection can be read from.
+        sourcelayer_param = QgsProcessingParameterVectorLayer(
+            self.SOURCELAYER,
+            self.tr("Source layer"),
+            [QgsProcessing.SourceType.TypeVector],
+            self.tr("No source layer selected"),
+        )
+        sourcelayer_param.setHelp(
+            self.tr("Source layer to get database connection from.")
+        )
+
+        self.addParameter(sourcelayer_param)
+
         self.addParameter(
-            QgsProcessingParameterVectorLayer(
-                self.SOURCELAYER,
-                self.tr("Source layer"),
-                [QgsProcessing.SourceType.TypeVector],
+            ParameterConnectionSettings(
+                self.CONNECTIONSETTINGS, self.tr("Connection Settings")
             )
         )
 
@@ -149,9 +178,9 @@ class ModelBakerIli2dbValidatingAlgorithm(QgsProcessingAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.MODELS,
-                self.tr("Filter models"),
-                ["eins", "zwei", "polizei"],
+                self.FILTER,
+                self.tr("Filter"),
+                ["None", "Models", "Baskets", "Datasets"],
                 False,
             )
         )
