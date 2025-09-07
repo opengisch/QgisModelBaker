@@ -26,7 +26,7 @@ import re
 import xml.etree.ElementTree as CET
 
 from qgis.core import Qgis, QgsProject
-from qgis.PyQt.QtCore import QObject, QStandardPaths
+from qgis.PyQt.QtCore import QEventLoop, QObject, QStandardPaths, QTimer
 from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QWidget
 
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
@@ -38,6 +38,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliModelFileCache
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
@@ -363,8 +364,11 @@ class Ili2Pythonizer(QObject):
             self.push_message_bar(
                 self.tr(f"Found those models in file {modelnames}"), True
             )
+            print(modelnames)
+            transfermodel_files = self._get_model_files(modelnames)
+            model_files += transfermodel_files
 
-            # paths = download_model_files(modelnames)
+        print(model_files)
 
         for model_file in model_files:
             self.push_message_bar(self.tr("Import {}").format(model_file), True)
@@ -409,7 +413,6 @@ class Ili2Pythonizer(QObject):
             "temp_imd_{:%Y%m%d%H%M%S%f}.imd".format(datetime.datetime.now()),
         )
 
-        # parameters to import the data "dirty" (without validation and constraints)
         compiler.configuration = configuration
 
         compiler.stdout.connect(self.on_ili_stdout)
@@ -421,7 +424,6 @@ class Ili2Pythonizer(QObject):
         print(compiler.configuration.imdfile)
         try:
             if compiler.run() != compiler.SUCCESS:
-                print("failed")
                 result = False
         except JavaNotFoundError as e:
             self.log(
@@ -448,8 +450,7 @@ class Ili2Pythonizer(QObject):
             matches = re.findall(rb"MODL (.*)", s)
             if matches:
                 for match in matches:
-                    model = {}
-                    model["name"] = match.rstrip().decode()
+                    model = match.rstrip().decode()
                     models.append(model)
                 return models
 
@@ -478,12 +479,10 @@ class Ili2Pythonizer(QObject):
                             modelname = model_element.attrib["NAME"]
 
                     if modelname and modelname not in MODELS_BLACKLIST:
-                        model = {}
-                        model["name"] = modelname
-                        models.append(model)
+                        models.append(modelname)
 
         except CET.ParseError as e:
-            self.print_info.emit(
+            self.log(
                 self.tr(
                     "Could not parse transferfile file `{file}` ({exception})".format(
                         file=data_file_path, exception=str(e)
@@ -491,6 +490,43 @@ class Ili2Pythonizer(QObject):
                 )
             )
         return models
+
+    def _get_model_files(self, model_list):
+        print(model_list)
+        model_file_cache = IliModelFileCache(
+            self.parent.ili2db_configuration, model_list
+        )
+        # we wait for the download or we timeout after 30 seconds and we apply what we have
+        loop = QEventLoop()
+        model_file_cache.download_finished_and_model_fresh.connect(lambda: loop.quit())
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: loop.quit())
+        timer.start(30000)
+
+        model_file_cache.refresh()
+        self.log(self.tr("- - Downloading…"))
+
+        # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
+        loop.exec()
+
+        if len(model_file_cache.downloaded_files) == len(model_list):
+            self.log(self.tr("- - All topping files successfully downloaded"))
+        else:
+            missing_file_ids = model_list
+            for downloaded_file_id in model_file_cache.downloaded_files:
+                if downloaded_file_id in missing_file_ids:
+                    missing_file_ids.remove(downloaded_file_id)
+            try:
+                self.log(
+                    self.tr(
+                        "- - Some topping files where not successfully downloaded: {}"
+                    ).format(" ".join(missing_file_ids))
+                )
+            except Exception:
+                pass
+
+        return model_file_cache.ilifilelist
 
     def on_ili_stdout(self, message):
         lines = message.strip().split("\n")
