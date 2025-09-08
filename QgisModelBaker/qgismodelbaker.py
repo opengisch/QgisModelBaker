@@ -60,7 +60,7 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
-from QgisModelBaker.utils.tools import Ili2Pythonizer, QuickVisualizer
+from QgisModelBaker.utils.tools import QuickPythonizer, QuickVisualizer
 
 
 class QgisModelBakerPlugin(QObject):
@@ -548,7 +548,7 @@ class QgisModelBakerPlugin(QObject):
             )
             == QMessageBox.StandardButton.Yes
         ):
-            quick_visualizer = Ili2Pythonizer(self)
+            quick_visualizer = QuickPythonizer(self)
         success_files, fail_files, result_files = quick_visualizer.handle_dropped_files(
             data_files
         )

@@ -31,10 +31,9 @@ from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, 
 
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper import iliexecutable, iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
-    Ili2CCommandConfiguration,
     ImportDataConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
@@ -282,7 +281,7 @@ class QuickVisualizer(QObject):
             self.logger.info(message)
 
 
-class Ili2Pythonizer(QObject):
+class QuickPythonizer(QObject):
     def __init__(self, parent=None):
         super().__init__(parent.iface.mainWindow())
         self.parent = parent
@@ -331,6 +330,8 @@ class Ili2Pythonizer(QObject):
         Main function receiving the files process.
         """
 
+        # first we get all the ili files from the sources
+
         data_files = []
         model_files = []
 
@@ -349,7 +350,7 @@ class Ili2Pythonizer(QObject):
             self.log(f"Found model files: we use them as well.")
 
         self.push_message_bar(
-            self.tr("Pythonizing with Ili2Pythonizer starts..."), True
+            self.tr("Pythonizing with QuickPythonizer starts..."), True
         )
 
         transfer_model_names = []
@@ -369,6 +370,7 @@ class Ili2Pythonizer(QObject):
         )
         model_files += transfermodel_files
 
+        # second we create the imd files
         status_map = {}
         suc_files = set()
         failed_files = set()
@@ -377,7 +379,9 @@ class Ili2Pythonizer(QObject):
             self.push_message_bar(
                 self.tr("IMD creation for {}").format(model_file), True
             )
-            status, imd_file = self.create_imd(model_file)
+            status, imd_file = self.pythonizer.compile(
+                self.parent.ili2db_configuration, model_file
+            )
             status_map[model_file] = {}
             status_map[model_file]["status"] = status
             status_map[model_file]["imd_file"] = imd_file
@@ -409,41 +413,16 @@ class Ili2Pythonizer(QObject):
         for key in suc_files:
             self.log(self.tr("- {} ({})").format(status_map[key]["imd_file"], key))
 
+        # third, we create the libraries with ili2py
+        modelfile_binding_map = {}
+        for key in status_map.keys():
+            _, library = self.pythonizer.pythonize(status_map[key]["imd_file"])
+            modelfile_binding_map[key] = library
+
+        # modelfile_binding_map['test.xtf'].packages["modelname"].modules
+        print(modelfile_binding_map)
+
         return suc_files, failed_files, imd_files
-
-    def create_imd(self, single_file):
-        compiler = iliexecutable.IliCompiler()
-
-        configuration = Ili2CCommandConfiguration()
-        configuration.base_configuration = self.parent.ili2db_configuration
-        configuration.ilifile = single_file
-        configuration.imdfile = os.path.join(
-            QStandardPaths.writableLocation(
-                QStandardPaths.StandardLocation.TempLocation
-            ),
-            "temp_imd_{:%Y%m%d%H%M%S%f}.imd".format(datetime.datetime.now()),
-        )
-
-        compiler.configuration = configuration
-
-        compiler.stdout.connect(self.on_ili_stdout)
-        compiler.stderr.connect(self.on_ili_stderr)
-        compiler.process_started.connect(self.on_ili_process_started)
-        compiler.process_finished.connect(self.on_ili_process_finished)
-        result = True
-
-        try:
-            compiler_result = compiler.run()
-            if compiler_result != compiler.SUCCESS:
-                result = False
-        except JavaNotFoundError as e:
-            self.log(
-                self.tr("Java not found error: {}").format(e.error_string),
-                Qgis.MessageLevel.Warning,
-            )
-            result = False
-
-        return result, compiler.configuration.imdfile
 
     def _transfer_file_models(self, data_file_path):
         """
