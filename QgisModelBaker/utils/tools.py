@@ -186,7 +186,7 @@ class QuickVisualizer(QObject):
             15,
             bool(len(failed_files)),
         )
-        return suc_files, failed_files
+        return suc_files, failed_files, []
 
     def import_file(self, single_file, base_config):
         """
@@ -342,44 +342,50 @@ class Ili2Pythonizer(QObject):
                 else:
                     model_files.append(file)
 
-        # one GeoPackage per file
-        status_map = {}
-        suc_files = set()
-        failed_files = set()
-
         if len(data_files) == 0:
-            self.log(f"No data to import but we parse the models from it.")
+            self.log(f"Found data files: we parse the models from it.")
 
         if len(model_files):
-            self.log(f"Dropped model are used as well.")
+            self.log(f"Found model files: we use them as well.")
 
         self.push_message_bar(
             self.tr("Pythonizing with Ili2Pythonizer starts..."), True
         )
 
+        transfer_model_names = []
         for data_file in data_files:
-            self.push_message_bar(self.tr("Import {}").format(data_file), True)
-            modelnames = self._transfer_file_models(data_file)
-
             self.push_message_bar(
-                self.tr(f"Found those models in file {modelnames}"), True
+                self.tr("Gather models from datafile {}").format(data_file), True
             )
-            print(modelnames)
-            transfermodel_files = self._get_model_files(modelnames)
-            model_files += transfermodel_files
+            transfer_model_names += self._transfer_file_models(data_file)
+        unique_transfer_model_names = list(set(transfer_model_names))
 
-        print(model_files)
+        transfermodel_files = self._get_model_files(unique_transfer_model_names)
+        self.push_message_bar(
+            self.tr(
+                f"Found those models {transfer_model_names} and received those files {transfermodel_files}"
+            ),
+            True,
+        )
+        model_files += transfermodel_files
 
+        status_map = {}
+        suc_files = set()
+        failed_files = set()
+        imd_files = []
         for model_file in model_files:
-            self.push_message_bar(self.tr("Import {}").format(model_file), True)
+            self.push_message_bar(
+                self.tr("IMD creation for {}").format(model_file), True
+            )
             status, imd_file = self.create_imd(model_file)
-            status_map[file] = {}
-            status_map[file]["status"] = status
-            status_map[file]["imd_file"] = imd_file
+            status_map[model_file] = {}
+            status_map[model_file]["status"] = status
+            status_map[model_file]["imd_file"] = imd_file
             if status:
-                suc_files.add(file)
+                suc_files.add(model_file)
+                imd_files.append(imd_file)
             else:
-                failed_files.add(file)
+                failed_files.add(model_file)
 
         for key in suc_files:
             self.push_message_bar(
@@ -388,7 +394,7 @@ class Ili2Pythonizer(QObject):
             )
 
         self.push_message_bar(
-            self.tr("Import of {} successful and {} failed.").format(
+            self.tr("IMD creation of {} successful and {} failed.").format(
                 len(suc_files), len(failed_files)
             ),
             False,
@@ -398,7 +404,12 @@ class Ili2Pythonizer(QObject):
             15,
             bool(len(failed_files)),
         )
-        return suc_files, failed_files
+
+        self.log(self.tr("IMDs:"))
+        for key in suc_files:
+            self.log(self.tr("- {} ({})").format(status_map[key]["imd_file"], key))
+
+        return suc_files, failed_files, imd_files
 
     def create_imd(self, single_file):
         compiler = iliexecutable.IliCompiler()
@@ -421,9 +432,9 @@ class Ili2Pythonizer(QObject):
         compiler.process_finished.connect(self.on_ili_process_finished)
         result = True
 
-        print(compiler.configuration.imdfile)
         try:
-            if compiler.run() != compiler.SUCCESS:
+            compiler_result = compiler.run()
+            if compiler_result != compiler.SUCCESS:
                 result = False
         except JavaNotFoundError as e:
             self.log(
@@ -492,7 +503,6 @@ class Ili2Pythonizer(QObject):
         return models
 
     def _get_model_files(self, model_list):
-        print(model_list)
         model_file_cache = IliModelFileCache(
             self.parent.ili2db_configuration, model_list
         )
@@ -502,7 +512,7 @@ class Ili2Pythonizer(QObject):
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda: loop.quit())
-        timer.start(30000)
+        timer.start(5000)
 
         model_file_cache.refresh()
         self.log(self.tr("- - Downloading…"))
@@ -511,7 +521,7 @@ class Ili2Pythonizer(QObject):
         loop.exec()
 
         if len(model_file_cache.downloaded_files) == len(model_list):
-            self.log(self.tr("- - All topping files successfully downloaded"))
+            self.log(self.tr("- - All model files"))
         else:
             missing_file_ids = model_list
             for downloaded_file_id in model_file_cache.downloaded_files:
@@ -520,7 +530,7 @@ class Ili2Pythonizer(QObject):
             try:
                 self.log(
                     self.tr(
-                        "- - Some topping files where not successfully downloaded: {}"
+                        "- - Some model files where not successfully downloaded: {}"
                     ).format(" ".join(missing_file_ids))
                 )
             except Exception:
@@ -553,6 +563,7 @@ class Ili2Pythonizer(QObject):
             self.log(text, Qgis.MessageLevel.Critical)
 
     def log(self, message, level=Qgis.MessageLevel.Info):
+        print(message)
         log_text = f"QuickVisualizer: {message}"
         if level == Qgis.MessageLevel.Warning:
             self.logger.warning(message)

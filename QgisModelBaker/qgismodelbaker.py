@@ -549,7 +549,9 @@ class QgisModelBakerPlugin(QObject):
             == QMessageBox.StandardButton.Yes
         ):
             quick_visualizer = Ili2Pythonizer(self)
-        success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
+        success_files, fail_files, result_files = quick_visualizer.handle_dropped_files(
+            data_files
+        )
         self.logger.info(f"Successfully imported: {success_files}")
         self.logger.info(f"Not imported: {fail_files}")
         return True
