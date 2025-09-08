@@ -26,7 +26,7 @@ import re
 import xml.etree.ElementTree as CET
 
 from qgis.core import Qgis, QgsProject
-from qgis.PyQt.QtCore import QEventLoop, QObject, QStandardPaths, QTimer
+from qgis.PyQt.QtCore import QObject, QStandardPaths
 from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QWidget
 
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
@@ -37,7 +37,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
-from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliModelFileCache
+from QgisModelBaker.libs.modelbaker.pythonizer.pythonizer import Pythonizer
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
@@ -330,8 +330,9 @@ class QuickPythonizer(QObject):
         Main function receiving the files process.
         """
 
-        # first we get all the ili files from the sources
+        self.pythonizer = Pythonizer()
 
+        # first we get all the ili files from the sources
         data_files = []
         model_files = []
 
@@ -361,7 +362,9 @@ class QuickPythonizer(QObject):
             transfer_model_names += self._transfer_file_models(data_file)
         unique_transfer_model_names = list(set(transfer_model_names))
 
-        transfermodel_files = self._get_model_files(unique_transfer_model_names)
+        transfermodel_files = self.pythonizer.model_files(
+            self.parent.ili2db_configuration, unique_transfer_model_names
+        )
         self.push_message_bar(
             self.tr(
                 f"Found those models {transfer_model_names} and received those files {transfermodel_files}"
@@ -480,66 +483,6 @@ class QuickPythonizer(QObject):
                 )
             )
         return models
-
-    def _get_model_files(self, model_list):
-        model_file_cache = IliModelFileCache(
-            self.parent.ili2db_configuration, model_list
-        )
-        # we wait for the download or we timeout after 30 seconds and we apply what we have
-        loop = QEventLoop()
-        model_file_cache.download_finished_and_model_fresh.connect(lambda: loop.quit())
-        timer = QTimer()
-        timer.setSingleShot(True)
-        timer.timeout.connect(lambda: loop.quit())
-        timer.start(5000)
-
-        model_file_cache.refresh()
-        self.log(self.tr("- - Downloading…"))
-
-        # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
-        loop.exec()
-
-        if len(model_file_cache.downloaded_files) == len(model_list):
-            self.log(self.tr("- - All model files"))
-        else:
-            missing_file_ids = model_list
-            for downloaded_file_id in model_file_cache.downloaded_files:
-                if downloaded_file_id in missing_file_ids:
-                    missing_file_ids.remove(downloaded_file_id)
-            try:
-                self.log(
-                    self.tr(
-                        "- - Some model files where not successfully downloaded: {}"
-                    ).format(" ".join(missing_file_ids))
-                )
-            except Exception:
-                pass
-
-        return model_file_cache.ilifilelist
-
-    def on_ili_stdout(self, message):
-        lines = message.strip().split("\n")
-        for line in lines:
-            text = f"ili2db: {line}"
-            self.log(text, Qgis.MessageLevel.Info)
-
-    def on_ili_stderr(self, message):
-        lines = message.strip().split("\n")
-        for line in lines:
-            text = f"ili2db: {line}"
-            self.log(text, Qgis.MessageLevel.Critical)
-
-    def on_ili_process_started(self, command):
-        text = f"ili2db: {command}"
-        self.log(text, Qgis.MessageLevel.Info)
-
-    def on_ili_process_finished(self, exit_code, result):
-        if exit_code == 0:
-            text = f"ili2db: Successfully performed command."
-            self.log(text, Qgis.MessageLevel.Info)
-        else:
-            text = f"ili2db: Finished with errors: {result}"
-            self.log(text, Qgis.MessageLevel.Critical)
 
     def log(self, message, level=Qgis.MessageLevel.Info):
         print(message)
