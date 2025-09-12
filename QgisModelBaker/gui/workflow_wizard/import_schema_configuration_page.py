@@ -24,7 +24,7 @@ import re
 
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.PyQt.QtCore import QSettings, Qt
-from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
+from qgis.PyQt.QtWidgets import QCompleter, QMessageBox, QWizardPage
 
 from QgisModelBaker.gui.ili2db_options import Ili2dbOptionsDialog
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
@@ -33,6 +33,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataFileCompleterDelegate,
     IliDataItemModel,
 )
+from QgisModelBaker.libs.modelbaker.pythonizer.pythonizer import Pythonizer
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
@@ -122,6 +123,38 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._crs_changed()
         self._fill_toml_file_info_label()
         self._update_models_dependent_info()
+        self.workflow_wizard.busy(self, True)
+        # pythonizer
+        pythonizer = Pythonizer()
+        ilifiles = []
+        if self.workflow_wizard.import_schema_configuration.ilifile:
+            ilifiles.append(self.workflow_wizard.import_schema_configuration.ilifile)
+        else:
+            ili_files = pythonizer.model_files_from_repo(
+                self.workflow_wizard.import_schema_configuration.base_configuration,
+                self.workflow_wizard.import_models_model.checked_models(),
+            )
+        print(f"Received modelfiles {ili_files} for models")
+        if ili_files:
+            result, imd_file = pythonizer.compile(
+                self.workflow_wizard.import_schema_configuration.base_configuration,
+                ili_files[0],
+            )
+            if result:
+                print(f"Having a nice imd {imd_file}")
+                index, _ = pythonizer.pythonize(imd_file)
+                if index:
+                    print("Having a proper index")
+                if index.basket_oid_in_model.keys():
+                    QMessageBox.information(
+                        self,
+                        self.tr("Basket definition detected"),
+                        self.tr(
+                            f"You have to activate basket columns because of this:\n{index.basket_oid_in_model}"
+                        ),
+                        QMessageBox.StandardButton.Ok,
+                    )
+        self.workflow_wizard.busy(self, False)
 
     def update_configuration(self, configuration):
         # metaconfig settings
