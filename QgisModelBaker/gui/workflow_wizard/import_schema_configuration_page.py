@@ -123,7 +123,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._crs_changed()
         self._fill_toml_file_info_label()
         self._update_models_dependent_info()
-        self.workflow_wizard.busy(self, True)
+        self.workflow_wizard.busy(self, True, "Checking Model")
         # pythonizer
         pythonizer = Pythonizer()
         ilifiles = []
@@ -329,7 +329,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
         self.ili_metaconfig_line_edit.setEnabled(bool(rows))
-        self.workflow_wizard.busy(self, False)
+        # self.workflow_wizard.busy(self, False)
 
     def _on_metaconfig_completer_activated(self, text=None):
         self._clean_metaconfig()
@@ -617,7 +617,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                         )
             self.workflow_wizard.refresh_import_models()
 
-        self.workflow_wizard.busy(self, False)
+        # self.workflow_wizard.busy(self, False)
 
     def help_text(self):
         logline = self.tr(
