@@ -60,7 +60,7 @@ from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
-from QgisModelBaker.utils.tools import QuickVisualizer
+from QgisModelBaker.utils.tools import QuickPythonizer, QuickVisualizer
 
 
 class QgisModelBakerPlugin(QObject):
@@ -539,7 +539,19 @@ class QgisModelBakerPlugin(QObject):
             f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
         )
         quick_visualizer = QuickVisualizer(self)
-        success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
+        if (
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                self.tr("Ili2pythonize"),
+                self.tr("Do you want to ili2pythonize?"),
+                QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
+            quick_visualizer = QuickPythonizer(self)
+        success_files, fail_files, result_files = quick_visualizer.handle_dropped_files(
+            data_files
+        )
         self.logger.info(f"Successfully imported: {success_files}")
         self.logger.info(f"Not imported: {fail_files}")
         return True
