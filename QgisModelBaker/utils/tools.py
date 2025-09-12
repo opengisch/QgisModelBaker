@@ -362,7 +362,7 @@ class QuickPythonizer(QObject):
             transfer_model_names += self._transfer_file_models(data_file)
         unique_transfer_model_names = list(set(transfer_model_names))
 
-        transfermodel_files = self.pythonizer.model_files(
+        transfermodel_files = self.pythonizer.model_files_from_repo(
             self.parent.ili2db_configuration, unique_transfer_model_names
         )
         self.push_message_bar(
