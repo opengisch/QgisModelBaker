@@ -15,14 +15,12 @@ from datetime import datetime
 from typing import Any, Optional
 
 from qgis.core import (
-    QgsProcessing,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingOutputBoolean,
     QgsProcessingOutputString,
     QgsProcessingParameterEnum,
-    QgsProcessingParameterVectorLayer,
     QgsProject,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QStandardPaths
@@ -40,20 +38,8 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
     It is meant for the data validation stored in a PostgreSQL database or a GeoPackage.
     """
 
-    # Connection
-    SOURCELAYER = "SOURCELAYER"
-    SOURCETYPE = "SOURCETYPE"
-    SERVICE = "SERVICE"
-    DATABASE = "DATABASE"
-    PORT = "PORT"
-    USERNAME = "USERNAME"
-    PASSWORD = "PASSWORD"
-    AUTHCFG = "AUTHCFG"
-    SCHEMA = "SCHEMA"
-    SSLMODE = "SSLMODE"
-
     # Filters
-    FILTERTYPE = "FILTERTYPE"
+    FILTERTYPE = "FILTERTYPE"  # none, models, baskets or datasets
     FILTERS = "FILTERS"  # model, basket or dataset names
 
     # Settings
@@ -114,19 +100,7 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
 
     def initAlgorithm(self, config: Optional[dict[str, Any]] = None):
 
-        # If a sourcelayer is set, the connection settings are taken from it
-        sourcelayer_param = QgsProcessingParameterVectorLayer(
-            self.SOURCELAYER,
-            self.tr("Source layer"),
-            [QgsProcessing.SourceType.TypeVector],
-            self.tr("No source layer selected"),
-        )
-        sourcelayer_param.setHelp(
-            self.tr(
-                "Source layer to get database connection from. If set, it will be prefered over the other connection settings."
-            )
-        )
-        self.addParameter(sourcelayer_param)
+        self.addConnectionParams()
 
         filtertype_param = QgsProcessingParameterEnum(
             self.FILTERTYPE,
