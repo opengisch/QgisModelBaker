@@ -1,66 +1,70 @@
 import os
+from abc import abstractmethod
 
 from qgis.core import (
-    QgsProcessing,
     QgsProcessingAlgorithm,
+    QgsProcessingOutputNumber,
+    QgsProcessingOutputString,
     QgsProcessingParameterAuthConfig,
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
-    QgsProcessingParameterVectorLayer,
 )
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
+
+import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 
 
 class Ili2dbAlgorithm(QgsProcessingAlgorithm):
+    def __init__(self):
+        super().__init__()
 
-    # Connection
-    SOURCELAYER = "SOURCELAYER"
-    SOURCETYPE = "SOURCETYPE"
-    ## PG
+    def group(self):
+        return self.tr("ili2db")
+
+    def groupId(self):
+        return "ili2db"
+
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), "../images/interlis.png"))
+
+    def tr(self, string):
+        return QCoreApplication.translate("Processing", string)
+
+    def createInstance(self):
+        return self.__class__()
+
+    @abstractmethod
+    def get_db_settings(self, connection):
+        return False
+
+
+class Ili2pgAlgorithm(Ili2dbAlgorithm):
+
     SERVICE = "SERVICE"
     HOST = "HOST"
     DBNAME = "DBNAME"
     PORT = "PORT"
     USERNAME = "USERNAME"
     PASSWORD = "PASSWORD"
-    AUTHCFG = "AUTHCFG"
     SCHEMA = "SCHEMA"
     SSLMODE = "SSLMODE"
-    ## GPKG
-    DBPATH = "DBPATH"
+    AUTHCFG = "AUTHCFG"
 
     def __init__(self):
         super().__init__()
+
+    def group(self):
+        return self.tr("ili2db")
+
+    def groupId(self):
+        return "ili2db"
 
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), "../images/interlis.png"))
 
     def addConnectionParams(self):
-
-        # If a sourcelayer is set, the connection settings are taken from it
-        sourcelayer_param = QgsProcessingParameterVectorLayer(
-            self.SOURCELAYER,
-            self.tr("Source layer"),
-            [QgsProcessing.SourceType.TypeVector],
-            self.tr("No source layer selected"),
-        )
-        sourcelayer_param.setHelp(
-            self.tr(
-                "Source layer to get database connection from. If set, it will be prefered over the other connection settings."
-            )
-        )
-        self.addParameter(sourcelayer_param)
-
-        sourcetype_param = QgsProcessingParameterEnum(
-            self.SOURCETYPE,
-            self.tr("Source"),
-            ["GeoPackage", "PostGIS"],
-            defaultValue="PostGIS",
-            optional=False,
-        )
-        sourcetype_param.setHelp(self.tr("todo"))
-        self.addParameter(sourcetype_param)
 
         service_param = QgsProcessingParameterString(
             self.SERVICE,
@@ -87,6 +91,8 @@ class Ili2dbAlgorithm(QgsProcessingAlgorithm):
             defaultValue=5432,
             optional=True,
         )
+        port_param.setHelp(self.tr("todo"))
+        self.addParameter(port_param)
 
         dbname_param = QgsProcessingParameterString(
             self.DBNAME,
@@ -96,15 +102,6 @@ class Ili2dbAlgorithm(QgsProcessingAlgorithm):
         )
         dbname_param.setHelp(self.tr("todo"))
         self.addParameter(dbname_param)
-
-        schema_param = QgsProcessingParameterString(
-            self.SCHEMA,
-            self.tr("Schema"),
-            defaultValue=None,
-            optional=True,
-        )
-        schema_param.setHelp(self.tr("todo"))
-        self.addParameter(schema_param)
 
         username_param = QgsProcessingParameterString(
             self.USERNAME,
@@ -133,21 +130,116 @@ class Ili2dbAlgorithm(QgsProcessingAlgorithm):
         schema_param.setHelp(self.tr("todo"))
         self.addParameter(schema_param)
 
-        sourcetype_param = QgsProcessingParameterEnum(
-            self.SOURCETYPE,
-            self.tr("Source"),
-            ["GeoPackage", "PostGIS"],
-            defaultValue="PostGIS",
-            optional=False,
+        sslmode_param = QgsProcessingParameterEnum(
+            self.SSLMODE,
+            self.tr("SSL Mode"),
+            ["disable", "allow", "prefer", "require", "verify-ca", "verify-full"],
+            defaultValue=None,
+            optional=True,
         )
-        sourcetype_param.setHelp(self.tr("todo"))
-        self.addParameter(sourcetype_param)
+        sslmode_param.setHelp(self.tr("todo"))
+        self.addParameter(sslmode_param)
 
         authcfg_param = QgsProcessingParameterAuthConfig(
             self.AUTHCFG,
             self.tr("Authentification"),
-            None,
-            True,
+            defaultValue=None,
+            optional=True,
         )
         authcfg_param.setHelp(self.tr("todo"))
         self.addParameter(authcfg_param)
+
+        # outputs for pass through
+        self.addOutput(QgsProcessingOutputString(self.SERVICE, self.tr("Service")))
+        self.addOutput(QgsProcessingOutputString(self.HOST, self.tr("Host")))
+        self.addOutput(QgsProcessingOutputString(self.DBNAME, self.tr("Database Name")))
+        self.addOutput(QgsProcessingOutputNumber(self.PORT, self.tr("Port Number")))
+        self.addOutput(QgsProcessingOutputString(self.USERNAME, self.tr("Username")))
+        self.addOutput(QgsProcessingOutputString(self.PASSWORD, self.tr("Password")))
+        self.addOutput(QgsProcessingOutputString(self.SCHEMA, self.tr("Schema")))
+        # to do self.addOutput(QgsProcessingOutputString(self.SSLMODE, self.tr('SSL Mode')))
+        self.addOutput(
+            QgsProcessingOutputString(self.AUTHCFG, self.tr("Authentication"))
+        )
+
+    def get_db_settings(self, parameters, context, configuration):
+        """
+        Returns true if mandatory parameters are given
+        """
+
+        service = self.parameterAsString(parameters, self.SERVICE, context)
+        service_map, _ = db_utils.get_service_config(service)
+
+        if self.parameterAsString(parameters, self.AUTHCFG, context):
+            configuration.dbauthid = self.parameterAsString(
+                parameters, self.AUTHCFG, context
+            )  # needed for passthroug
+            authconfig_map = db_utils.get_authconfig_map(configuration.dbauthid)
+            configuration.dbusr = authconfig_map.get("username")
+            configuration.dbpwd = authconfig_map.get("password")
+        else:
+            configuration.dbusr = self.parameterAsString(
+                parameters, self.USERNAME, context
+            ) or service_map.get("user")
+            configuration.dbpwd = self.parameterAsString(
+                parameters, self.PASSWORD, context
+            ) or service_map.get("password")
+        configuration.dbhost = self.parameterAsString(
+            parameters, self.HOST, context
+        ) or service_map.get("host")
+        configuration.dbport = str(
+            self.parameterAsInt(parameters, self.PORT, context)
+        ) or service_map.get("port")
+        configuration.database = self.parameterAsString(
+            parameters, self.DBNAME, context
+        ) or service_map.get("dbname")
+        configuration.dbschema = self.parameterAsString(
+            parameters, self.SCHEMA, context
+        )
+        valid = bool(
+            configuration.dbhost and configuration.database and configuration.dbschema
+        )
+        return valid
+
+
+class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
+
+    DBPATH = "DBPATH"
+
+    def __init__(self):
+        super().__init__()
+
+    def group(self):
+        return self.tr("ili2db")
+
+    def groupId(self):
+        return "ili2db"
+
+    def icon(self):
+        return QIcon(os.path.join(os.path.dirname(__file__), "../images/interlis.png"))
+
+    def addConnectionParams(self):
+
+        dbpath_param = QgsProcessingParameterString(
+            self.DBPATH,
+            self.tr("Database File"),
+            defaultValue=None,
+            optional=True,
+        )
+        dbpath_param.setHelp(self.tr("todo"))
+        self.addParameter(dbpath_param)
+
+        self.addOutput(
+            QgsProcessingOutputString(self.DBPATH, self.tr("Databasefile Path"))
+        )
+
+    def get_db_settings(self, parameters, context, connection):
+        """
+        Returns true if mandatory parameters are given
+        """
+        valid = False
+        dbpath = self.parameterAsString(parameters, self.DBPATH, context)
+        if dbpath:
+            connection.db_file = dbpath
+            valid = True
+        return valid

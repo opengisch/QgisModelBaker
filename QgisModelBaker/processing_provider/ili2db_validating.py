@@ -9,7 +9,6 @@
 ***************************************************************************
 """
 
-import datetime
 import os
 from datetime import datetime
 from typing import Any, Optional
@@ -21,21 +20,21 @@ from qgis.core import (
     QgsProcessingOutputBoolean,
     QgsProcessingOutputString,
     QgsProcessingParameterEnum,
-    QgsProject,
 )
-from qgis.PyQt.QtCore import QCoreApplication, QStandardPaths
+from qgis.PyQt.QtCore import QStandardPaths
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
+from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
-from QgisModelBaker.processing_provider.ili2db_algorithm import Ili2dbAlgorithm
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.processing_provider.ili2db_algorithm import Ili2pgAlgorithm
 
 
-class ValidatingAlgorithm(Ili2dbAlgorithm):
+class ValidatingPGAlgorithm(Ili2pgAlgorithm):
     """
     This is an algorithm from Model Baker.
-
-    It is meant for the data validation stored in a PostgreSQL database or a GeoPackage.
+    It is meant for the data validation stored in a PostgreSQL database.
     """
 
     # Filters
@@ -59,14 +58,14 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
         """
         Returns the algorithm name, used for identifying the algorithm.
         """
-        return "modelbaker_ili2db_validator"
+        return "modelbaker_ili2pg_validator"
 
     def displayName(self) -> str:
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr("Validate with ili2db")
+        return self.tr("Validate with ili2pg (PostGIS)")
 
     def tags(self) -> list[str]:
 
@@ -78,7 +77,6 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
             "validate",
             "validation",
             "ili2db",
-            "ili2gpkg",
             "ili2pg",
         ]
 
@@ -86,17 +84,13 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
         """
         Returns a short description string for the algorithm.
         """
-        return self.tr(
-            "Validates data in a GeoPackage or a PostgreSQL schema with ili2db."
-        )
+        return self.tr("Validates data in a PostgreSQL schema with ili2db.")
 
     def shortHelpString(self) -> str:
         """
         Returns a short helper string for the algorithm.
         """
-        return self.tr(
-            "Validates data in a GeoPackage or a PostgreSQL schema with ili2db."
-        )
+        return self.tr("Validates data in a PostgreSQL schema with ili2db.")
 
     def initAlgorithm(self, config: Optional[dict[str, Any]] = None):
 
@@ -113,8 +107,8 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
         self.addParameter(filtertype_param)
 
         self.addOutput(QgsProcessingOutputBoolean(self.ISVALID, self.tr("is valid")))
-
-        self.addOutput(QgsProcessingOutputString(self.XTFLOGPATH))
+        self.addOutput(QgsProcessingOutputString(self.XTFLOGPATH, self.tr("xtflog")))
+        self.addOutput(QgsProcessingOutputString(self.FILTERTYPE, self.tr("filter")))
 
     def processAlgorithm(
         self,
@@ -126,27 +120,13 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
         Here is where the processing itself takes place.
         """
         configuration = ValidateConfiguration()
+        configuration.tool = DbIliMode.pg
 
-        source_layer = self.parameterAsVectorLayer(
-            parameters, self.SOURCELAYER, context
-        )
-        if not source_layer:
-            raise QgsProcessingException(
-                self.invalidSourceError(parameters, self.SOURCELAYER)
-            )
-            return {}
-
-        source_provider = source_layer.dataProvider()
-        valid, mode = db_utils.get_configuration_from_sourceprovider(
-            source_provider, configuration
-        )
-        if not (valid and mode):
-            # error
-            return {}
+        self.get_db_settings(parameters, context, configuration)
 
         output_file_name = (
             "modelbakerili2dbvalidatingalgorithm_xtflog_{:%Y%m%d%H%M%S%f}.xtf".format(
-                datetime.datetime.now()
+                datetime.now()
             )
         )
         configuration.xtflog = os.path.join(
@@ -160,7 +140,9 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
 
         # run
         validator = ilivalidator.Validator()
-        validator.tool = configuration.tool  # superuser finden? und auch dbparams?
+        validator.tool = configuration.tool
+
+        # to do superuser finden? und auch dpparams?
         validator.configuration = configuration
         validator.stdout.connect(feedback.pushInfo)
         validator.stderr.connect(feedback.pushWarning)
@@ -188,25 +170,3 @@ class ValidatingAlgorithm(Ili2dbAlgorithm):
         if db_connector:
             return db_connector.get_tid_handling()
         return False
-
-    def _get_models(self, name):
-        configuration = ValidateConfiguration()
-        source_layer_list = QgsProject.instance().mapLayersByName(name)
-        if not source_layer_list:
-            return []
-        source_provider = source_layer_list[0].dataProvider()
-        valid, mode = db_utils.get_configuration_from_sourceprovider(
-            source_provider, configuration
-        )
-        if not (valid and mode):
-            return []
-        db_connector = db_utils.get_db_connector(configuration)
-        if db_connector:
-            return db_connector.get_models()
-        return []
-
-    def tr(self, string):
-        return QCoreApplication.translate("Processing", string)
-
-    def createInstance(self):
-        return self.__class__()

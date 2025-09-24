@@ -4,13 +4,15 @@ from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
 from .ili2db_exporting import ExportingAlgorithm
-from .ili2db_validating import ValidatingAlgorithm
+from .ili2db_validating import ValidatingPGAlgorithm
+from .util_layerconnection import LayerConnectionAlgorithm
 
 
 class Provider(QgsProcessingProvider):
     def loadAlgorithms(self):
-        self.addAlgorithm(ValidatingAlgorithm())
+        self.addAlgorithm(ValidatingPGAlgorithm())
         self.addAlgorithm(ExportingAlgorithm())
+        self.addAlgorithm(LayerConnectionAlgorithm())
 
     def id(self) -> str:
         return "modelbaker"
