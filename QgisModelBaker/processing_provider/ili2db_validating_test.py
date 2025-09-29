@@ -51,7 +51,7 @@ class ParameterConnectionSettings(QgsProcessingParameterDefinition):
         return ParameterConnectionSettings(self.name(), self.description())
 
 
-class ValidatingAlgorithm(Ili2dbAlgorithm):
+class ValidatingTestAlgorithm(Ili2dbAlgorithm):
     """
     This is an algorithm from Model Baker.
 

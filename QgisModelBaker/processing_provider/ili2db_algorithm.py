@@ -64,7 +64,8 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), "../images/interlis.png"))
 
-    def addConnectionParams(self):
+    def connection_input_params(self):
+        params = []
 
         service_param = QgsProcessingParameterString(
             self.SERVICE,
@@ -73,7 +74,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         service_param.setHelp(self.tr("todo"))
-        self.addParameter(service_param)
+        params.append(service_param)
 
         host_param = QgsProcessingParameterString(
             self.HOST,
@@ -82,7 +83,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         host_param.setHelp(self.tr("todo"))
-        self.addParameter(host_param)
+        params.append(host_param)
 
         port_param = QgsProcessingParameterNumber(
             self.PORT,
@@ -92,7 +93,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         port_param.setHelp(self.tr("todo"))
-        self.addParameter(port_param)
+        params.append(port_param)
 
         dbname_param = QgsProcessingParameterString(
             self.DBNAME,
@@ -101,7 +102,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         dbname_param.setHelp(self.tr("todo"))
-        self.addParameter(dbname_param)
+        params.append(dbname_param)
 
         username_param = QgsProcessingParameterString(
             self.USERNAME,
@@ -110,7 +111,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         username_param.setHelp(self.tr("todo"))
-        self.addParameter(username_param)
+        params.append(username_param)
 
         password_param = QgsProcessingParameterString(
             self.PASSWORD,
@@ -119,7 +120,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         password_param.setHelp(self.tr("todo"))
-        self.addParameter(password_param)
+        params.append(password_param)
 
         schema_param = QgsProcessingParameterString(
             self.SCHEMA,
@@ -128,7 +129,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         schema_param.setHelp(self.tr("todo"))
-        self.addParameter(schema_param)
+        params.append(schema_param)
 
         sslmode_param = QgsProcessingParameterEnum(
             self.SSLMODE,
@@ -138,7 +139,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         sslmode_param.setHelp(self.tr("todo"))
-        self.addParameter(sslmode_param)
+        params.append(sslmode_param)
 
         authcfg_param = QgsProcessingParameterAuthConfig(
             self.AUTHCFG,
@@ -147,28 +148,37 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         authcfg_param.setHelp(self.tr("todo"))
-        self.addParameter(authcfg_param)
+        params.append(authcfg_param)
+
+        return params
+
+    def connection_output_params(self):
+        params = []
 
         # outputs for pass through
-        self.addOutput(QgsProcessingOutputString(self.SERVICE, self.tr("Service")))
-        self.addOutput(QgsProcessingOutputString(self.HOST, self.tr("Host")))
-        self.addOutput(QgsProcessingOutputString(self.DBNAME, self.tr("Database Name")))
-        self.addOutput(QgsProcessingOutputNumber(self.PORT, self.tr("Port Number")))
-        self.addOutput(QgsProcessingOutputString(self.USERNAME, self.tr("Username")))
-        self.addOutput(QgsProcessingOutputString(self.PASSWORD, self.tr("Password")))
-        self.addOutput(QgsProcessingOutputString(self.SCHEMA, self.tr("Schema")))
-        # to do self.addOutput(QgsProcessingOutputString(self.SSLMODE, self.tr('SSL Mode')))
-        self.addOutput(
+        params.append(QgsProcessingOutputString(self.SERVICE, self.tr("Service")))
+        params.append(QgsProcessingOutputString(self.HOST, self.tr("Host")))
+        params.append(QgsProcessingOutputString(self.DBNAME, self.tr("Database Name")))
+        params.append(QgsProcessingOutputNumber(self.PORT, self.tr("Port Number")))
+        params.append(QgsProcessingOutputString(self.USERNAME, self.tr("Username")))
+        params.append(QgsProcessingOutputString(self.PASSWORD, self.tr("Password")))
+        params.append(QgsProcessingOutputString(self.SCHEMA, self.tr("Schema")))
+        # to do params.append(QgsProcessingOutputString(self.SSLMODE, self.tr('SSL Mode')))
+        params.append(
             QgsProcessingOutputString(self.AUTHCFG, self.tr("Authentication"))
         )
 
-    def get_db_settings(self, parameters, context, configuration):
+        return params
+
+    def get_db_configuration_from_input(self, parameters, context, configuration):
         """
         Returns true if mandatory parameters are given
         """
 
-        service = self.parameterAsString(parameters, self.SERVICE, context)
-        service_map, _ = db_utils.get_service_config(service)
+        configuration.dbservice = self.parameterAsString(
+            parameters, self.SERVICE, context
+        )
+        service_map, _ = db_utils.get_service_config(configuration.dbservice)
 
         if self.parameterAsString(parameters, self.AUTHCFG, context):
             configuration.dbauthid = self.parameterAsString(
@@ -201,6 +211,24 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
         )
         return valid
 
+    def get_output_from_db_configuration(self, configuration):
+        """
+        Returns an output map
+        """
+
+        output_map = {
+            self.SERVICE: configuration.dbservice,
+            self.HOST: configuration.dbhost,
+            self.DBNAME: configuration.database,
+            self.PORT: configuration.dbport,
+            self.USERNAME: configuration.username,
+            self.PASSWORD: configuration.password,
+            self.SCHEMA: configuration.dbschema,
+            self.SSLMODE: configuration.sslmode,
+            self.AUTHCFG: configuration.dbauthid,
+        }
+        return output_map
+
 
 class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
 
@@ -218,7 +246,8 @@ class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(__file__), "../images/interlis.png"))
 
-    def addConnectionParams(self):
+    def connection_input_params(self):
+        params = []
 
         dbpath_param = QgsProcessingParameterString(
             self.DBPATH,
@@ -227,11 +256,18 @@ class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
             optional=True,
         )
         dbpath_param.setHelp(self.tr("todo"))
-        self.addParameter(dbpath_param)
+        params.append(dbpath_param)
 
-        self.addOutput(
+        return params
+
+    def connection_output_params(self):
+        params = []
+
+        params.append(
             QgsProcessingOutputString(self.DBPATH, self.tr("Databasefile Path"))
         )
+
+        return params
 
     def get_db_settings(self, parameters, context, connection):
         """
