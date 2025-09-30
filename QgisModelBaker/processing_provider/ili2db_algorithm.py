@@ -3,10 +3,12 @@ from abc import abstractmethod
 
 from qgis.core import (
     QgsProcessingAlgorithm,
+    QgsProcessingOutputFile,
     QgsProcessingOutputNumber,
     QgsProcessingOutputString,
     QgsProcessingParameterAuthConfig,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterFile,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
 )
@@ -36,8 +38,24 @@ class Ili2dbAlgorithm(QgsProcessingAlgorithm):
         return self.__class__()
 
     @abstractmethod
-    def get_db_settings(self, connection):
+    def connection_input_params(self):
+        return []
+
+    @abstractmethod
+    def connection_output_params(self):
+        return []
+
+    @abstractmethod
+    def get_db_configuration_from_input(self, parameters, context, configuration):
         return False
+
+    @abstractmethod
+    def get_output_from_db_configuration(self, configuration):
+        return {}
+
+    @abstractmethod
+    def get_settings_configuration_from_input(self, parameters, context, configuration):
+        return
 
 
 class Ili2pgAlgorithm(Ili2dbAlgorithm):
@@ -73,7 +91,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             None,
             optional=True,
         )
-        service_param.setHelp(self.tr("todo"))
+        service_param.setHelp(self.tr("The PostgreSQL service config file."))
         params.append(service_param)
 
         host_param = QgsProcessingParameterString(
@@ -82,7 +100,9 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             defaultValue="localhost",
             optional=True,
         )
-        host_param.setHelp(self.tr("todo"))
+        host_param.setHelp(
+            self.tr("The host of the database server. By default is localhost.")
+        )
         params.append(host_param)
 
         port_param = QgsProcessingParameterNumber(
@@ -92,7 +112,9 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             defaultValue=5432,
             optional=True,
         )
-        port_param.setHelp(self.tr("todo"))
+        port_param.setHelp(
+            self.tr("The port of the database server. By default is 5432.")
+        )
         params.append(port_param)
 
         dbname_param = QgsProcessingParameterString(
@@ -101,26 +123,8 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             defaultValue=None,
             optional=True,
         )
-        dbname_param.setHelp(self.tr("todo"))
+        dbname_param.setHelp(self.tr("The database name. The database should exist."))
         params.append(dbname_param)
-
-        username_param = QgsProcessingParameterString(
-            self.USERNAME,
-            self.tr("Username"),
-            defaultValue=None,
-            optional=True,
-        )
-        username_param.setHelp(self.tr("todo"))
-        params.append(username_param)
-
-        password_param = QgsProcessingParameterString(
-            self.PASSWORD,
-            self.tr("Password"),
-            defaultValue=None,
-            optional=True,
-        )
-        password_param.setHelp(self.tr("todo"))
-        params.append(password_param)
 
         schema_param = QgsProcessingParameterString(
             self.SCHEMA,
@@ -128,7 +132,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             defaultValue=None,
             optional=True,
         )
-        schema_param.setHelp(self.tr("todo"))
+        schema_param.setHelp(self.tr("The database schema."))
         params.append(schema_param)
 
         sslmode_param = QgsProcessingParameterEnum(
@@ -137,9 +141,27 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             ["disable", "allow", "prefer", "require", "verify-ca", "verify-full"],
             defaultValue=None,
             optional=True,
+            usesStaticStrings=True,
         )
-        sslmode_param.setHelp(self.tr("todo"))
+        sslmode_param.setHelp(self.tr("The SSL mode if needed."))
         params.append(sslmode_param)
+        username_param = QgsProcessingParameterString(
+            self.USERNAME,
+            self.tr("Username"),
+            defaultValue=None,
+            optional=True,
+        )
+        username_param.setHelp(self.tr("The username to access the database."))
+        params.append(username_param)
+
+        password_param = QgsProcessingParameterString(
+            self.PASSWORD,
+            self.tr("Password"),
+            defaultValue=None,
+            optional=True,
+        )
+        password_param.setHelp(self.tr("The password of the user."))
+        params.append(password_param)
 
         authcfg_param = QgsProcessingParameterAuthConfig(
             self.AUTHCFG,
@@ -147,7 +169,11 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             defaultValue=None,
             optional=True,
         )
-        authcfg_param.setHelp(self.tr("todo"))
+        authcfg_param.setHelp(
+            self.tr(
+                "When choosing a QGIS Autentification you don't need username and password."
+            )
+        )
         params.append(authcfg_param)
 
         return params
@@ -163,7 +189,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
         params.append(QgsProcessingOutputString(self.USERNAME, self.tr("Username")))
         params.append(QgsProcessingOutputString(self.PASSWORD, self.tr("Password")))
         params.append(QgsProcessingOutputString(self.SCHEMA, self.tr("Schema")))
-        # to do params.append(QgsProcessingOutputString(self.SSLMODE, self.tr('SSL Mode')))
+        params.append(QgsProcessingOutputString(self.SSLMODE, self.tr("SSL Mode")))
         params.append(
             QgsProcessingOutputString(self.AUTHCFG, self.tr("Authentication"))
         )
@@ -206,6 +232,7 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
         configuration.dbschema = self.parameterAsString(
             parameters, self.SCHEMA, context
         )
+        configuration.sslmode = self.parameterAsEnum(parameters, self.SSLMODE, context)
         valid = bool(
             configuration.dbhost and configuration.database and configuration.dbschema
         )
@@ -221,8 +248,8 @@ class Ili2pgAlgorithm(Ili2dbAlgorithm):
             self.HOST: configuration.dbhost,
             self.DBNAME: configuration.database,
             self.PORT: configuration.dbport,
-            self.USERNAME: configuration.username,
-            self.PASSWORD: configuration.password,
+            self.USERNAME: configuration.dbusr,
+            self.PASSWORD: configuration.dbpwd,
             self.SCHEMA: configuration.dbschema,
             self.SSLMODE: configuration.sslmode,
             self.AUTHCFG: configuration.dbauthid,
@@ -249,7 +276,7 @@ class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
     def connection_input_params(self):
         params = []
 
-        dbpath_param = QgsProcessingParameterString(
+        dbpath_param = QgsProcessingParameterFile(
             self.DBPATH,
             self.tr("Database File"),
             defaultValue=None,
@@ -264,18 +291,26 @@ class Ili2gpkgAlgorithm(Ili2dbAlgorithm):
         params = []
 
         params.append(
-            QgsProcessingOutputString(self.DBPATH, self.tr("Databasefile Path"))
+            QgsProcessingOutputFile(self.DBPATH, self.tr("Databasefile Path"))
         )
 
         return params
 
-    def get_db_settings(self, parameters, context, connection):
+    def get_db_configuration_from_input(self, parameters, context, configuration):
         """
         Returns true if mandatory parameters are given
         """
         valid = False
-        dbpath = self.parameterAsString(parameters, self.DBPATH, context)
-        if dbpath:
-            connection.db_file = dbpath
+        dbpath = self.parameterAsFile(parameters, self.DBPATH, context)
+        if dbpath and dbpath.endswith(".gpkg"):
+            configuration.dbfile = dbpath
             valid = True
         return valid
+
+    def get_output_from_db_configuration(self, configuration):
+        """
+        Returns an output map
+        """
+
+        output_map = {self.DBPATH: configuration.dbfile}
+        return output_map
