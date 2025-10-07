@@ -17,18 +17,20 @@ from qgis.core import (
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingOutputBoolean,
-    QgsProcessingOutputFile,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
-    QgsProcessingParameterFileDestination,
+    QgsProcessingParameterFile,
     QgsProcessingParameterString,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QObject
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
-from QgisModelBaker.libs.modelbaker.iliwrapper import iliexporter
+from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ExportConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    Ili2DbCommandConfiguration,
+    ImportDataConfiguration,
+    UpdateDataConfiguration,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
 from QgisModelBaker.processing_provider.ili2db_algorithm import (
     Ili2gpkgAlgorithm,
@@ -37,15 +39,12 @@ from QgisModelBaker.processing_provider.ili2db_algorithm import (
 from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
 
-class ProcessExporter(QObject):
-
-    # Filters
-    FILTERMODE = "FILTERMODE"  # none, models, baskets or datasets
-    FILTER = "FILTER"  # model, basket or dataset names
+class ProcessImporter(QObject):
 
     # Settings
-    EXPORTMODEL = "EXPORTMODEL"
     DISABLEVALIDATION = "DISABLEVALIDATION"
+    DATASET = "DATASET"
+    DELETEDATA = "DELETEDATA"
 
     XTFFILEPATH = "XTFFILEPATH"
 
@@ -56,59 +55,41 @@ class ProcessExporter(QObject):
         super().__init__()
         self.parent = parent
 
-    def export_input_params(self):
+    def import_input_params(self):
         params = []
 
-        xtffile_param = QgsProcessingParameterFileDestination(
+        xtffile_param = QgsProcessingParameterFile(
             self.XTFFILEPATH,
-            self.tr("Target Transferfile (XTF)"),
-            self.tr("INTERLIS Transferfile (*.xtf *.xml)"),
+            self.tr("Source Transferfile (XTF)"),
             defaultValue=None,
             optional=False,
         )
         xtffile_param.setHelp(
-            self.tr("The XTF File where the data should be exported to.")
+            self.tr("The XTF File where the data should be imported from.")
         )
         params.append(xtffile_param)
 
-        filtermode_param = QgsProcessingParameterEnum(
-            self.FILTERMODE,
-            self.tr("Filter Mode"),
-            ["Models", "Baskets", "Datasets"],
-            optional=True,
-            usesStaticStrings=True,
+        dataset_param = QgsProcessingParameterString(
+            self.DATASET, self.tr("Dataset name"), optional=True
         )
-        filtermode_param.setHelp(
+        dataset_param.setHelp(
             self.tr(
-                "Whether data should be filtered according to the models, baskets or datasets in which they are stored."
+                "The dataset the data should be connected to (works only when basket handling is active in the existing database)."
             )
         )
-        params.append(filtermode_param)
+        params.append(dataset_param)
 
-        filter_param = QgsProcessingParameterString(
-            self.FILTER, self.tr("Filter (semicolon-separated)"), optional=True
+        deletedata_param = QgsProcessingParameterBoolean(
+            self.DELETEDATA,
+            self.tr("Delete data first"),
+            defaultValue=False,
         )
-        filter_param.setHelp(
+        deletedata_param.setHelp(
             self.tr(
-                "A semicolon-separated list of the relevant models, baskets or datasets"
+                "Deletes previously existing data from the target database (when basket handling active it performs a --replace instead of an --update)"
             )
         )
-        params.append(filter_param)
-
-        exportmodel_param = QgsProcessingParameterString(
-            self.EXPORTMODEL,
-            self.tr("Export Models"),
-            optional=True,
-        )
-        exportmodel_param.setHelp(
-            self.tr(
-                """<html><head/><body>
-            <p>If your data is in the format of the cantonal model, but you want to export it in the format of the national model you need to define this here.</p>
-            <p>Usually, this is one single model. However, it is also possible to pass multiple models, which makes sense if there are multiple base models in the schema you want to export.</p>
-            </body></html>"""
-            )
-        )
-        params.append(exportmodel_param)
+        params.append(deletedata_param)
 
         disablevalidation_param = QgsProcessingParameterBoolean(
             self.DISABLEVALIDATION,
@@ -124,14 +105,11 @@ class ProcessExporter(QObject):
 
         return params
 
-    def export_output_params(self):
+    def import_output_params(self):
         params = []
 
         params.append(
-            QgsProcessingOutputBoolean(self.ISVALID, self.tr("Export Result"))
-        )
-        params.append(
-            QgsProcessingOutputFile(self.XTFFILEPATH, self.tr("Transferfile Path"))
+            QgsProcessingOutputBoolean(self.ISVALID, self.tr("Import Result"))
         )
 
         return params
@@ -142,31 +120,32 @@ class ProcessExporter(QObject):
         for connection_output_param in self.parent.connection_output_params():
             self.parent.addOutput(connection_output_param)
 
-        for export_input_param in self.export_input_params():
-            self.parent.addParameter(export_input_param)
-        for export_output_param in self.export_output_params():
-            self.parent.addOutput(export_output_param)
+        for import_input_param in self.import_input_params():
+            self.parent.addParameter(import_input_param)
+        for import_output_param in self.import_output_params():
+            self.parent.addOutput(import_output_param)
 
     def run(self, configuration, feedback):
+
         # run
-        exporter = iliexporter.Exporter(self)
-        exporter.tool = configuration.tool
+        importer = iliimporter.Importer(self)
+        importer.tool = configuration.tool
 
         # to do superuser finden? und auch dpparams?
-        exporter.configuration = configuration
-        exporter.stdout.connect(feedback.pushInfo)
-        exporter.stderr.connect(feedback.pushInfo)
+        importer.configuration = configuration
+        importer.stdout.connect(feedback.pushInfo)
+        importer.stderr.connect(feedback.pushInfo)
 
         if feedback.isCanceled():
             return {}
 
         try:
-            feedback.pushInfo(f"Run: {exporter.command(True)}")
-            result = exporter.run(None)
-            if result == iliexporter.Exporter.SUCCESS:
-                feedback.pushInfo(self.tr("... export succeeded"))
+            feedback.pushInfo(f"Run: {importer.command(True)}")
+            result = importer.run(None)
+            if result == iliimporter.Importer.SUCCESS:
+                feedback.pushInfo(self.tr("... import succeeded"))
             else:
-                feedback.pushWarning(self.tr("... export failed"))
+                feedback.pushWarning(self.tr("... import failed"))
             isvalid = result
         except JavaNotFoundError as e:
             raise QgsProcessingException(
@@ -177,7 +156,7 @@ class ProcessExporter(QObject):
 
     def get_configuration_from_input(self, parameters, context, tool):
 
-        configuration = ExportConfiguration()
+        configuration = Ili2DbCommandConfiguration()
         configuration.tool = tool
 
         # get database settings form the parent
@@ -187,28 +166,19 @@ class ProcessExporter(QObject):
             return None
 
         # get settings according to the db
-        configuration.with_exporttid = self._get_tid_handling(configuration)
+        if not self._basket_handling(configuration):
+            configuration = ImportDataConfiguration(configuration)
+        else:
+            configuration = UpdateDataConfiguration(configuration)
+            configuration.with_importbid = True
+        configuration.with_importtid = self._get_tid_handling(configuration)
 
         # get settings from the input
-        filtermode = self.parent.parameterAsString(parameters, self.FILTERMODE, context)
-        filters = self.parent.parameterAsString(parameters, self.FILTER, context)
-        if filtermode == "Models" and filters:
-            configuration.ilimodels = filters
-        elif filtermode == "Datasets" and filters:
-            configuration.dataset = filters
-        elif filtermode == "Baskets" and filters:
-            configuration.baskets = filters
-        else:
-            configuration.ilimodels = ";".join(self._get_model_names(configuration))
-
-        exportmodels = self.parent.parameterAsString(
-            parameters, self.EXPORTMODEL, context
-        )
-        if exportmodels:
-            configuration.iliexportmodels = exportmodels
-
         configuration.disable_validation = self.parent.parameterAsBool(
             parameters, self.DISABLEVALIDATION, context
+        )
+        configuration.delete_data = self.parent.parameterAsBool(
+            parameters, self.DELETEDATA, context
         )
 
         configuration.xtffile = self.parent.parameterAsFile(
@@ -221,6 +191,12 @@ class ProcessExporter(QObject):
         db_connector = db_utils.get_db_connector(configuration)
         if db_connector:
             return db_connector.get_tid_handling()
+        return False
+
+    def _basket_handling(self, configuration):
+        db_connector = db_utils.get_db_connector(configuration)
+        if db_connector:
+            return db_connector.get_basket_handling()
         return False
 
     def _get_model_names(self, configuration):
@@ -245,30 +221,30 @@ class ProcessExporter(QObject):
         return QCoreApplication.translate("Processing", string)
 
 
-class ExportingPGAlgorithm(Ili2pgAlgorithm):
+class ImportingPGAlgorithm(Ili2pgAlgorithm):
     """
     This is an algorithm from Model Baker.
-    It is meant for the data export from a PostgreSQL database.
+    It is meant for the data import to a PostgreSQL database.
     """
 
     def __init__(self):
         super().__init__()
 
-        # initialize the exporter with self as parent
-        self.exporter = ProcessExporter(self)
+        # initialize the importer with self as parent
+        self.importer = ProcessImporter(self)
 
     def name(self) -> str:
         """
         Returns the algorithm name, used for identifying the algorithm.
         """
-        return "modelbaker_ili2pg_exporter"
+        return "modelbaker_ili2pg_importer"
 
     def displayName(self) -> str:
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr("Export with ili2pg (PostGIS)")
+        return self.tr("Import with ili2pg (PostGIS)")
 
     def tags(self) -> list[str]:
 
@@ -277,7 +253,7 @@ class ExportingPGAlgorithm(Ili2pgAlgorithm):
             "interlis",
             "model",
             "baker",
-            "export",
+            "import",
             "transferfile",
             "xtf" "ili2db",
             "ili2pg",
@@ -289,16 +265,16 @@ class ExportingPGAlgorithm(Ili2pgAlgorithm):
         """
         Returns a short description string for the algorithm.
         """
-        return self.tr("Exports data from a PostgreSQL schema with ili2db.")
+        return self.tr("Imports data to a PostgreSQL schema with ili2db.")
 
     def shortHelpString(self) -> str:
         """
         Returns a short helper string for the algorithm.
         """
-        return self.tr("Exports data from a PostgreSQL schema with ili2db.")
+        return self.tr("Imports data to a PostgreSQL schema with ili2db.")
 
     def initAlgorithm(self, config: Optional[dict[str, Any]] = None):
-        self.exporter.initParameters()
+        self.importer.initParameters()
 
     def processAlgorithm(
         self,
@@ -315,38 +291,38 @@ class ExportingPGAlgorithm(Ili2pgAlgorithm):
         )
         if not configuration:
             raise QgsProcessingException(
-                self.tr("Invalid input parameters. Cannot start export")
+                self.tr("Invalid input parameters. Cannot start import")
             )
         else:
-            output_map.update(self.exporter.run(configuration, feedback))
+            output_map.update(self.importer.run(configuration, feedback))
             output_map.update(self.get_output_from_db_configuration(configuration))
         return output_map
 
 
-class ExportingGPKGAlgorithm(Ili2gpkgAlgorithm):
+class ImportingGPKGAlgorithm(Ili2gpkgAlgorithm):
     """
     This is an algorithm from Model Baker.
-    It is meant for the data export from a GeoPackage file.
+    It is meant for the data import to a GeoPackage file.
     """
 
     def __init__(self):
         super().__init__()
 
-        # initialize the exporter with self as parent
-        self.exporter = ProcessExporter(self)
+        # initialize the importer with self as parent
+        self.importer = ProcessImporter(self)
 
     def name(self) -> str:
         """
         Returns the algorithm name, used for identifying the algorithm.
         """
-        return "modelbaker_ili2gpkg_exporter"
+        return "modelbaker_ili2gpkg_importer"
 
     def displayName(self) -> str:
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr("Export with ili2gpkg (GeoPackage)")
+        return self.tr("Import with ili2gpkg (GeoPackage)")
 
     def tags(self) -> list[str]:
 
@@ -355,7 +331,7 @@ class ExportingGPKGAlgorithm(Ili2gpkgAlgorithm):
             "interlis",
             "model",
             "baker",
-            "export",
+            "import",
             "transferfile",
             "xtf",
             "ili2db",
@@ -368,16 +344,16 @@ class ExportingGPKGAlgorithm(Ili2gpkgAlgorithm):
         """
         Returns a short description string for the algorithm.
         """
-        return self.tr("Exports data from a GeoPackage file with ili2db.")
+        return self.tr("Imports data to a GeoPackage file with ili2db.")
 
     def shortHelpString(self) -> str:
         """
         Returns a short helper string for the algorithm.
         """
-        return self.tr("Exports data from a GeoPackage file with ili2db.")
+        return self.tr("Imports data to a GeoPackage file with ili2db.")
 
     def initAlgorithm(self, config: Optional[dict[str, Any]] = None):
-        self.exporter.initParameters()
+        self.importer.initParameters()
 
     def processAlgorithm(
         self,
@@ -389,14 +365,14 @@ class ExportingGPKGAlgorithm(Ili2gpkgAlgorithm):
         Here is where the processing itself takes place.
         """
         output_map = {}
-        configuration = self.exporter.get_configuration_from_input(
+        configuration = self.importer.get_configuration_from_input(
             parameters, context, DbIliMode.gpkg
         )
         if not configuration:
             raise QgsProcessingException(
-                self.tr("Invalid input parameters. Cannot start export")
+                self.tr("Invalid input parameters. Cannot start import")
             )
         else:
-            output_map.update(self.exporter.run(configuration, feedback))
+            output_map.update(self.importer.run(configuration, feedback))
             output_map.update(self.get_output_from_db_configuration(configuration))
         return output_map

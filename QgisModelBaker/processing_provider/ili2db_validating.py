@@ -36,9 +36,10 @@ from QgisModelBaker.processing_provider.ili2db_algorithm import (
     Ili2gpkgAlgorithm,
     Ili2pgAlgorithm,
 )
+from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
 
-class Validator(QObject):
+class ProcessValidator(QObject):
 
     # Filters
     FILTERMODE = "FILTERMODE"  # none, models, baskets or datasets
@@ -136,8 +137,12 @@ class Validator(QObject):
     def validation_output_params(self):
         params = []
 
-        params.append(QgsProcessingOutputBoolean(self.ISVALID, self.tr("is valid")))
-        params.append(QgsProcessingOutputString(self.XTFLOGPATH, self.tr("xtflog")))
+        params.append(
+            QgsProcessingOutputBoolean(self.ISVALID, self.tr("Validation Result"))
+        )
+        params.append(
+            QgsProcessingOutputString(self.XTFLOGPATH, self.tr("XTF Log File"))
+        )
 
         return params
 
@@ -153,19 +158,6 @@ class Validator(QObject):
             self.parent.addOutput(validation_output_param)
 
     def run(self, configuration, feedback):
-        output_file_name = (
-            "modelbakerili2dbvalidatingalgorithm_xtflog_{:%Y%m%d%H%M%S%f}.xtf".format(
-                datetime.now()
-            )
-        )
-        configuration.xtflog = os.path.join(
-            QStandardPaths.writableLocation(
-                QStandardPaths.StandardLocation.TempLocation
-            ),
-            output_file_name,
-        )
-        configuration.with_exporttid = self._get_tid_handling(configuration)
-
         # run
         validator = ilivalidator.Validator(self)
         validator.tool = configuration.tool
@@ -193,14 +185,34 @@ class Validator(QObject):
 
         return {self.ISVALID: isvalid, self.XTFLOGPATH: configuration.xtflog}
 
-    def get_configuration_from_input(self, parameters, context, configuration):
+    def get_configuration_from_input(self, parameters, context, tool):
+
+        configuration = ValidateConfiguration()
+        configuration.tool = DbIliMode.tool
 
         # get database settings form the parent
         if not self.parent.get_db_configuration_from_input(
             parameters, context, configuration
         ):
-            return False
+            return None
 
+        # get static
+        output_file_name = (
+            "modelbakerili2dbvalidatingalgorithm_xtflog_{:%Y%m%d%H%M%S%f}.xtf".format(
+                datetime.now()
+            )
+        )
+        configuration.xtflog = os.path.join(
+            QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.TempLocation
+            ),
+            output_file_name,
+        )
+
+        # get settings according to the db
+        configuration.with_exporttid = self._get_tid_handling(configuration)
+
+        # get settings from the input
         filtermode = self.parent.parameterAsString(parameters, self.FILTERMODE, context)
         filters = self.parent.parameterAsString(parameters, self.FILTER, context)
         if filtermode == "Models" and filters:
@@ -233,7 +245,7 @@ class Validator(QObject):
         if validatorconfigfile:
             configuration.valid_config = validatorconfigfile
 
-        return True
+        return configuration
 
     def _get_tid_handling(self, configuration):
         db_connector = db_utils.get_db_connector(configuration)
@@ -255,7 +267,7 @@ class Validator(QObject):
             for db_model in db_models:
                 for modelname in regex.split(db_model["modelname"]):
                     name = modelname.strip()
-                    if name and name not in modelnames:
+                    if name and name not in modelnames and name not in MODELS_BLACKLIST:
                         modelnames.append(name)
         return modelnames
 
@@ -273,7 +285,7 @@ class ValidatingPGAlgorithm(Ili2pgAlgorithm):
         super().__init__()
 
         # initialize the validator with self as parent
-        self.validator = Validator(self)
+        self.validator = ProcessValidator(self)
 
     def name(self) -> str:
         """
@@ -327,20 +339,17 @@ class ValidatingPGAlgorithm(Ili2pgAlgorithm):
         """
         Here is where the processing itself takes place.
         """
-        configuration = ValidateConfiguration()
-        configuration.tool = DbIliMode.pg
-
         output_map = {}
-        if not self.validator.get_configuration_from_input(
-            parameters, context, configuration
-        ):
-            feedback.pushWarning(
-                self.tr("Invalid input parameters. Cannot start validation.")
+        configuration = self.exporter.get_configuration_from_input(
+            parameters, context, DbIliMode.pg
+        )
+        if not configuration:
+            raise QgsProcessingException(
+                self.tr("Invalid input parameters. Cannot start validation")
             )
         else:
             output_map.update(self.validator.run(configuration, feedback))
-        output_map.update(self.get_output_from_db_configuration(configuration))
-
+            output_map.update(self.get_output_from_db_configuration(configuration))
         return output_map
 
 
@@ -354,7 +363,7 @@ class ValidatingGPKGAlgorithm(Ili2gpkgAlgorithm):
         super().__init__()
 
         # initialize the validator with self as parent
-        self.validator = Validator(self)
+        self.validator = ProcessValidator(self)
 
     def name(self) -> str:
         """
@@ -408,18 +417,15 @@ class ValidatingGPKGAlgorithm(Ili2gpkgAlgorithm):
         """
         Here is where the processing itself takes place.
         """
-        configuration = ValidateConfiguration()
-        configuration.tool = DbIliMode.gpkg
-
         output_map = {}
-        if not self.validator.get_configuration_from_input(
-            parameters, context, configuration
-        ):
-            feedback.pushWarning(
-                self.tr("Invalid input parameters. Cannot start validation.")
+        configuration = self.exporter.get_configuration_from_input(
+            parameters, context, DbIliMode.gpkg
+        )
+        if not configuration:
+            raise QgsProcessingException(
+                self.tr("Invalid input parameters. Cannot start validation")
             )
         else:
             output_map.update(self.validator.run(configuration, feedback))
-        output_map.update(self.get_output_from_db_configuration(configuration))
-
+            output_map.update(self.get_output_from_db_configuration(configuration))
         return output_map
