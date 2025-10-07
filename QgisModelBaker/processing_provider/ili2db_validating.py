@@ -32,11 +32,11 @@ from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.utils.globals import MODELS_BLACKLIST
 from QgisModelBaker.processing_provider.ili2db_algorithm import (
     Ili2gpkgAlgorithm,
     Ili2pgAlgorithm,
 )
-from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
 
 class ProcessValidator(QObject):
@@ -188,7 +188,8 @@ class ProcessValidator(QObject):
     def get_configuration_from_input(self, parameters, context, tool):
 
         configuration = ValidateConfiguration()
-        configuration.tool = DbIliMode.tool
+        configuration.base_configuration = self.parent.current_baseconfig()
+        configuration.tool = tool
 
         # get database settings form the parent
         if not self.parent.get_db_configuration_from_input(
@@ -340,7 +341,7 @@ class ValidatingPGAlgorithm(Ili2pgAlgorithm):
         Here is where the processing itself takes place.
         """
         output_map = {}
-        configuration = self.exporter.get_configuration_from_input(
+        configuration = self.validator.get_configuration_from_input(
             parameters, context, DbIliMode.pg
         )
         if not configuration:
@@ -418,7 +419,7 @@ class ValidatingGPKGAlgorithm(Ili2gpkgAlgorithm):
         Here is where the processing itself takes place.
         """
         output_map = {}
-        configuration = self.exporter.get_configuration_from_input(
+        configuration = self.validator.get_configuration_from_input(
             parameters, context, DbIliMode.gpkg
         )
         if not configuration:

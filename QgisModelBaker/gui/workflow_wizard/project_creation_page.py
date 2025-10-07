@@ -39,11 +39,14 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataItemModel,
     IliToppingFileItemModel,
 )
-from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
+from QgisModelBaker.libs.modelbaker.utils.globals import (
+    MODELS_BLACKLIST,
+    OptimizeStrategy,
+)
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, displayLanguages
-from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST, LogLevel
+from QgisModelBaker.utils.gui_utils import LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
 

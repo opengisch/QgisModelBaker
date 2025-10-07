@@ -12,9 +12,10 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
 )
-from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication, QSettings
 from qgis.PyQt.QtGui import QIcon
 
+import QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig as ili2dbconfig
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 
 
@@ -56,6 +57,13 @@ class Ili2dbAlgorithm(QgsProcessingAlgorithm):
     @abstractmethod
     def get_settings_configuration_from_input(self, parameters, context, configuration):
         return
+
+    def current_baseconfig(self):
+        baseconfig = ili2dbconfig.BaseConfiguration()
+        settings = QSettings()
+        settings.beginGroup("QgisModelBaker/ili2db")
+        baseconfig.restore(settings)
+        return baseconfig
 
 
 class Ili2pgAlgorithm(Ili2dbAlgorithm):

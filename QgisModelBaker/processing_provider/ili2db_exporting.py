@@ -30,11 +30,11 @@ from QgisModelBaker.libs.modelbaker.iliwrapper import iliexporter
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ExportConfiguration
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.utils.globals import MODELS_BLACKLIST
 from QgisModelBaker.processing_provider.ili2db_algorithm import (
     Ili2gpkgAlgorithm,
     Ili2pgAlgorithm,
 )
-from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST
 
 
 class ProcessExporter(QObject):
@@ -178,6 +178,7 @@ class ProcessExporter(QObject):
     def get_configuration_from_input(self, parameters, context, tool):
 
         configuration = ExportConfiguration()
+        configuration.base_configuration = self.parent.current_baseconfig()
         configuration.tool = tool
 
         # get database settings form the parent
