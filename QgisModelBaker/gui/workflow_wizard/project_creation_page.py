@@ -619,6 +619,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             auto_transaction=transaction_mode,
             context={"catalogue_datasetname": CATALOGUE_DATASETNAME},
             optimize_strategy=optimize_strategy,
+            pythonize_enums=bool(self.pythonize_enums_check.isChecked()),
+            models=self._modelnames(),
+            configuration=self.configuration,
             log_function=self.workflow_wizard.log_panel.print_info,
         )
         project.layers = available_layers
