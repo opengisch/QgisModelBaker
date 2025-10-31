@@ -508,12 +508,13 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _fields_modified(self):
+        print("modified")
         self._fill_schema_combo_box_timer.start(self.REFRESH_SCHEMAS_TIMEOUT_MS)
 
         self.notify_fields_modified.emit()
 
     def _fill_schema_combo_box(self):
-
+        print("fill it")
         if self._read_pg_schemas_task.isRunning():
             self._fill_schema_combo_box_timer.start()
             return
