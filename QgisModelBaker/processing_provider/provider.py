@@ -15,6 +15,9 @@ from QgisModelBaker.libs.modelbaker.processing.ili2db_validating import (
     ValidatingGPKGAlgorithm,
     ValidatingPGAlgorithm,
 )
+from QgisModelBaker.libs.modelbaker.processing.util_layersourceparsing import (
+    LayerSourceParsingAlgorithm
+)
 
 
 class Provider(QgsProcessingProvider):
@@ -25,6 +28,7 @@ class Provider(QgsProcessingProvider):
         self.addAlgorithm(ExportingGPKGAlgorithm())
         self.addAlgorithm(ValidatingPGAlgorithm())
         self.addAlgorithm(ValidatingGPKGAlgorithm())
+        self.addAlgorithm(LayerSourceParsingAlgorithm())
 
     def id(self) -> str:
         return "modelbaker"
