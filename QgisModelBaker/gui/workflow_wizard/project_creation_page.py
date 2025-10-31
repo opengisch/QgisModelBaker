@@ -252,6 +252,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     self.translation_combo.addItem(
                         displayLanguages.get(lang, lang), lang
                     )
+                translation_lang = self.db_connector.get_available_languages(
+                    MODELS_BLACKLIST, self.db_connector.get_translation_models()
+                )
+                if len(translation_lang) > 0:
+                    self.translation_combo.setCurrentText(
+                        displayLanguages.get(translation_lang[0], translation_lang[0])
+                    )
                 self.translation_combo.setEnabled(True)
             else:
                 self.translation_combo.setEnabled(False)
