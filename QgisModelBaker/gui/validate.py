@@ -49,7 +49,7 @@ from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimple
 from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError, get_ili2db_bin
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilivalidator import ValidationResultModel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
 from QgisModelBaker.utils import gui_utils
@@ -384,6 +384,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             ):
                 validator.configuration.dbusr = QgsApplication.userLoginName()
 
+        # if exists, we add a plugin dir located next to the jar-file - this might be configurable in future
+        plugins_dir = os.path.join(os.path.dirname(get_ili2db_bin(validator.tool, validator._get_ili2db_version(),self._validator_stdout,self._validator_stderr)), "plugins")
+        if os.path.exists(plugins_dir) and os.path.isdir(plugins_dir):
+            validator.configuration.plugins_dir = plugins_dir
         validator.configuration.ilimodels = ""
         validator.configuration.dataset = ""
         validator.configuration.baskets = []
