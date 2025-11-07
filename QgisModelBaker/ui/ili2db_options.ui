@@ -272,11 +272,10 @@ strategy. Concrete classes are mapped using a NewAndSubClass strategy.</string>
       <item row="0" column="0">
        <widget class="QLabel" name="namelang_label">
         <property name="toolTip">
-         <string>Several translations of the INTERLIS model are implemented in the database schema (TRANSLATION OF).
-Select the language in which the QGIS project is to be set up.</string>
+         <string>If the model is a translation (TRANSLATION OF) you can select the language in which the database objects like tables and fields are created.</string>
         </property>
         <property name="text">
-         <string>Language in which the database should be created</string>
+         <string>Language in which the database objects should be created</string>
         </property>
        </widget>
       </item>
