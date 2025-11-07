@@ -143,6 +143,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.ili2db_options.create_gpkg_multigeom()
         )
         configuration.stroke_arcs = self.ili2db_options.stroke_arcs()
+        configuration.name_lang = self.ili2db_options.name_lang()
         configuration.pre_script = self.ili2db_options.pre_script()
         configuration.post_script = self.ili2db_options.post_script()
         configuration.tomlfile = self.ili2db_options.toml_file()

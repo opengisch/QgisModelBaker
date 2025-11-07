@@ -276,7 +276,7 @@
 Select the language in which the QGIS project is to be set up.</string>
         </property>
         <property name="text">
-         <string>Preferred language for database objects like tables and fields</string>
+         <string>Preferred language for objects like layers and fields</string>
         </property>
        </widget>
       </item>
