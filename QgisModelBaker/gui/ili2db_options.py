@@ -26,8 +26,8 @@ from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.gui_utils import get_text_color
 from QgisModelBaker.utils.globals import displayLanguages
+from QgisModelBaker.utils.gui_utils import get_text_color
 
 DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
 
@@ -97,9 +97,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         # just provide all for the moment
         self.namelang_combo.clear()
         for key in displayLanguages.keys():
-            self.namelang_combo.addItem(
-                displayLanguages.get(key, key), key
-            )
+            self.namelang_combo.addItem(displayLanguages.get(key, key), key)
         self.namelang_combo.addItem(self.tr("Original model language"), "")
 
         self.restore_configuration()
@@ -237,7 +235,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def stroke_arcs(self):
         return self.stroke_arcs_checkbox.isChecked()
-    
+
     def name_lang(self):
         return self.namelang_combo.currentData()
 
@@ -277,9 +275,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         )
         stroke_arcs = settings.value(
             "QgisModelBaker/ili2db/stroke_arcs", defaultValue=True, type=bool
-        )        
+        )
         name_lang = settings.value(
-            "QgisModelBaker/ili2db/name_lang", defaultValue='', type=str
+            "QgisModelBaker/ili2db/name_lang", defaultValue="", type=str
         )
 
         self.create_basket_col_checkbox.setChecked(create_basket_col)
@@ -289,7 +287,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             self.create_gpkg_multigeom_checkbox.setChecked(False)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
-        self.namelang_combo.setCurrentText(displayLanguages.get(name_lang, "Original model language"))        
+        self.namelang_combo.setCurrentText(
+            displayLanguages.get(name_lang, "Original model language")
+        )
         self.toml_file_line_edit.setText(settings.value(self.toml_file_key))
 
     def load_metaconfig(self, metaconfig_ili2db):
@@ -320,7 +320,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     self.current_metaconfig_ili2db.getboolean("strokeArcs")
                 )
             if "nameLang" in self.current_metaconfig_ili2db:
-                self.namelang_combo.setCurrentText(displayLanguages.get(self.current_metaconfig_ili2db.get("nameLang", ''), "Original model language"))        
+                self.namelang_combo.setCurrentText(
+                    displayLanguages.get(
+                        self.current_metaconfig_ili2db.get("nameLang", ""),
+                        "Original model language",
+                    )
+                )
             self.save_configuration()
         self._restyle_concerning_metaconfig()
 
@@ -418,16 +423,12 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "nameLang" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.get('nameLang', '')
+                    self.current_metaconfig_ili2db.get("nameLang", "")
                     == self.namelang_combo.currentData()
                 ):
-                    self.namelang_label.setStyleSheet(
-                        f"color:{self.COLOR_TOPPING}"
-                    )
+                    self.namelang_label.setStyleSheet(f"color:{self.COLOR_TOPPING}")
                 else:
-                    self.namelang_label.setStyleSheet(
-                        f"color:{self.COLOR_WARNING}"
-                    )
+                    self.namelang_label.setStyleSheet(f"color:{self.COLOR_WARNING}")
             if self.current_metaconfig_toml_file_path:
                 if (
                     self.current_metaconfig_toml_file_path
