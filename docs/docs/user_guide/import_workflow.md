@@ -79,6 +79,7 @@ Since Model Baker uses ili2db, you can set advanced options that determine how y
 
 ![wizard ili2db options](../assets/workflow_wizard_ili2db_options.png)
 
+
 #### Inheritance type
 
 Ili2db allows you to use three types of inheritance mapping:
@@ -109,6 +110,10 @@ You can define `sql` scripts that runs before and after the (schema) import.
 ### Extra Meta Attribute File
 
 A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `qgis.modelbaker.dispExpression`) instead of having them directly in the `ili` file.
+
+### Translation
+
+When the imported model is a translation model (`TRANSLATION OF`) you can choose choose whether the database structure should be created using the translation language or the language of the original model.
 
 ## 4. Run ili2db Sessions
 
