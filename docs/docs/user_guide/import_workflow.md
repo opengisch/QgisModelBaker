@@ -113,7 +113,7 @@ A `toml` or `ini` file can contain values for [meta attributes](../../background
 
 ### Translation
 
-When the imported model is a translation model (`TRANSLATION OF`) you can choose choose whether the database structure should be created using the translation language or the language of the original model.
+When the imported model is a translation model (`TRANSLATION OF`) you can choose choose whether the database structure should be created using the translation language or the language of the original model. This setting controls the `--nameLang` parameter in the ili2db command.
 
 ## 4. Run ili2db Sessions
 
