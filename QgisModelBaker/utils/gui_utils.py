@@ -546,7 +546,7 @@ class ImportModelsHtmlDelegate(QItemDelegate):
 
     def sizeHint(self, option, index):
         label = QLabel()
-        display = index.model().data(index, Qt.DisplayRole)
+        display = index.model().data(index, Qt.ItemDataRole.DisplayRole)
         label.setText(display)
         label.setWordWrap(True)
         label.setFixedWidth(option.widget.size().width())
