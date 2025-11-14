@@ -28,7 +28,7 @@ It is recommended to place the files in one directory and name the following sub
 #### Local project generation
 Configure your folder as a [custom model directory](../../../user_guide/plugin_configuration/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
 
-![localrepo](../../assets/usabilityhub_localrepo.png)
+![localrepo](../../assets/toppings_localrepo.png)
 
 In order to test the INTERLIS models locally, they should also be placed in the local folder:
 ```
@@ -44,15 +44,15 @@ In order to test the INTERLIS models locally, they should also be placed in the 
 ```
 
 Now you can already generate the project locally:
-![raw_import](../../assets/usabilityhub_raw_import.png)
+![raw_import](../../assets/toppings_raw_import.png)
 
 Or with a ili2db metaattribute `toml`/`ini` file.
 
-![raw_import_toml](../../assets/usabilityhub_raw_import_toml.png)
+![raw_import_toml](../../assets/toppings_raw_import_toml.png)
 
-The metaatribute `toml` / `ini` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Meta Attribute File" and will also be included via the UsabILIty Toppings workflow in the following steps:
+The metaatribute `toml` / `ini` file was created for the Nutzungsplan project. This file is specified in the Model Baker under "Advanced Options" and "Extra Meta Attribute File" and will also be included via the Toppings workflow in the following steps:
 
-![toml_config](../../assets/usabilityhub_toml_config.png)
+![toml_config](../../assets/toppings_toml_config.png)
 
 #### Project Configuration in QGIS
 
@@ -60,7 +60,7 @@ In the created project, styles, forms, layer structures, etc. can now be configu
 
 If an implementation of this project already exists, this information can also be taken from it.
 
-![original_project](../../assets/usabilityhub_original_project.png)
+![original_project](../../assets/toppings_original_project.png)
 
 ### 2. Creating Toppingfiles
 
@@ -69,7 +69,7 @@ From the QGIS project, with already defined layer properties, first the `qml` fi
 
 *Layer properties > Style > Save layer style*
 
-![save_qml](../../assets/usabilityhub_save_qml.png)
+![save_qml](../../assets/toppings_save_qml.png)
 
 (or *Right-click on the layer > Export > Save as QGIS Layer Style File...*)
 
@@ -128,7 +128,7 @@ Definition possibilities are:
 
 Each entry can have additional `child-nodes`, so the `layertree` can have any number of layers.
 
-![legend_entry](../../assets/usabilityhub_legend_entry.png)
+![legend_entry](../../assets/toppings_legend_entry.png)
 
 ```yaml
   - "SEMP_NP_PUNKTE":

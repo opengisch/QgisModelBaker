@@ -46,7 +46,7 @@ Add it to the validation by selecting it via file browser.
 You can save this path to your project (to the project variables) with the ![run arrow_button](../assets/arrow_button.png) botton. Althoug it's saved relatively, it's passed to ili2db as an absolute path.
 
 !!! Note
-    You can also use a configuration file from the [ilidata repositories](../../background_info/usabilityhub/technical_concept). Just add the ilidata-key (like `ilidata:<key>`) as the path.
+    You can also use a configuration file from the [ilidata repositories](../../background_info/toppings/technical_concept). Just add the ilidata-key (like `ilidata:<key>`) as the path.
 
 ## Results
 
