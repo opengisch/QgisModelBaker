@@ -533,8 +533,8 @@ class ImportModelsHtmlDelegate(QItemDelegate):
     def drawDisplay(self, painter, option, rect, text):
         label = QLabel()
         label.setText(text)
-        label.setEnabled(option.state & QStyle.State_Enabled)
-        label.setAttribute(Qt.WA_TranslucentBackground)
+        label.setEnabled(bool(option.state & QStyle.StateFlag.State_Enabled))
+        label.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         label.setMargin(3)
         label.setWordWrap(True)
 
