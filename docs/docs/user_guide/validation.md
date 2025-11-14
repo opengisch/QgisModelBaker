@@ -29,6 +29,12 @@ When the checkbox is activated, geometry errors are ignored and the validation o
 !!! Note
     In the backend the parameters `--skipGeometryErrors` and `--disableAreaValidation` are set.
 
+## Verbose Mode
+
+![validation_skipgeometryerrors](../assets/validation_verbose.png)
+
+Activate verbose mode to get more (mostly technical) information in the error messages.
+
 ## Configuration File
 
 It's possible to enable/disable and name constraints of the current model via meta attributes. For the configuration of those, see the chapter [Set Meta Attributes in the Config File](#set-meta-attributes-in-the-config-file) below.
@@ -40,7 +46,7 @@ Add it to the validation by selecting it via file browser.
 You can save this path to your project (to the project variables) with the ![run arrow_button](../assets/arrow_button.png) botton. Althoug it's saved relatively, it's passed to ili2db as an absolute path.
 
 !!! Note
-    You can also use a configuration file from the [ilidata repositories](../../background_info/usabilityhub/technical_concept). Just add the ilidata-key (like `ilidata:<key>`) as the path.
+    You can also use a configuration file from the [ilidata repositories](../../background_info/toppings/technical_concept). Just add the ilidata-key (like `ilidata:<key>`) as the path.
 
 ## Results
 
@@ -181,3 +187,11 @@ See for all the global configurations the official [documentation of ilivalidato
 On running the validation `ili2db` is used in the background with the parameter `--validate`. This means no export of the data is needed. The output is parsed by Model Baker and provided in the result list.
 
 Entries of the type `Error` and `Warning` are listed.
+
+## ili2db with `--plugins` in the background
+
+In very special cases, ili2db plugins are used to validate with additional and non-native validation functions. If you have such plugins, you have to store them in your QGIS profile folder, next to the ili2db JAR file. E.g.:
+
+```
+...your-profile/python/plugins/QgisModelBaker/libs/modelbaker/iliwrapper/bin/ili2pg-5.4.0/
+```

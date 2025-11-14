@@ -2,7 +2,7 @@
 
 ... and how it's handled in Model Baker.
 
-### General Handling
+### The file
 
 ili2db configurations are defined in the *metaconfiguration file*.
 ```ini
@@ -13,28 +13,13 @@ strokeArcs = false
 importTid = true
 ```
 
-ili2db can be called like this:
-```
-ili2db --metaConfig ilidata:metconfigId --schemaimport --db....
-ili2db --metaConfig ilidata:metconfigId --import --db....
-ili2db --metaConfig ilidata:metconfigId --import --db....  data.xtf
-ili2db --metaConfig ilidata:metconfigId --export --db....  data.xtf
-```
-
-... or with a local *metakonfiguration file*:
-```
-ili2db --metaConfig localfile.ini --import --db....  data.xtf
-```
+It can be passed to ili2db with the parameter `--metaConfig`
 
 ### Implementation in the Model Baker
 
 Some parameters are automatically set in the background when ili2db is called by the Model Baker (like `--coalesceCatalogueRef --createEnumTabs --createNumChecks --createUnique --createFk --createFkIdx --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createGeomIdx --createMetaInfo --expandMultilingual --createTypeConstraint --createEnumTabsWithId --createTidCol --importTid`), and others can be configured by the user in the input mask of the Model Baker (like `--smart1Inheritance`/`--smart2Inheritance`, `--createBasketCol`, `--strokeArcs`, `--iliMetaAttrs` (for `ini`/`toml`), `--preScript` and `--postScript` or `--models`). In addition, the relevant *metaconfiguration file* is passed to ili2db. But parameters passed directly to ili2db ***override*** the configurations of the passed *metaconfiguration file*.
 
 The Model Baker reads the ili2db parameters from the *metaconfiguration file*. The parameters that can be set via the input mask of the Model Baker are loaded from the *metaconfiguration file* into the input mask. The user can now customize them. The Model Baker now passes the *metaconfiguration file* and the parameters from the input mask (whether customized or not) to ili2db. So if the parameters were listed in the *metaconfiguration file* but then disabled in the input mask, they will be passed to ili2db as `false`.
-
-Changes are marked visually in the input mask for *ili2db Options*:
-
-![uml](../../assets/usabilityhub_ili2dboptions.png)
 
 The parameters set by the Model Baker in the background are still set. But they can be overridden in the *metaconfiguration file*. However, if in the *metaconfiguration file* such parameters are not mentioned, then they are also not overridden with `false`.
 
@@ -50,6 +35,7 @@ When this parameter is set the *Advanced Options* and *CRS* settings are disable
     Be aware that the UsabILIty Toppings Repository (located at https://models.opengis.ch) is not found by ili2db when it's not passed additionally to it with `--modelDir`. Currently we do that automatically. Means when you choose a metaconfig file to pass, `--modelDir https://models.opengis.ch` is automatically added to the command. Concerning custom directory/repository, you have to add it manually in the [Model Baker Settings](../../../user_guide/plugin_configuration/#custom-model-directories).
 
 ### Refrencing other INTERLIS models
+
 Using the ili2db settings, it is possible to reference other models from *metaconfiguration files*. If the setting contains the value `models=KbS_LV95_v1_4;KbS_Basis`, then this is also adjusted in the Model Baker input mask. Of course, a search for possible *metaconfiguration files* on the Repositories will be started again, according to the currently set models. See also for that [Multiple Models and their Toppings](#multiple-models-and-their-toppings).
 
 ## Toppings
@@ -160,7 +146,7 @@ And one can define the source directly in the layers as well:
 
 The `yaml` file shown above results in a legend structure in *QGIS*.
 
-![uml](../../assets/usabilityhub_qgis_legend.png)
+![uml](../../assets/toppings_qgis_legend.png)
 
 ##### Renaming of layers
 
@@ -212,7 +198,7 @@ For layer properties like form configurations, symbology etc. `qml` files are lo
 
 *Right-click on the layer > Export > Save as QGIS Layer Style File...*
 
-![style](../../assets/usabilityhub_style.png)
+![style](../../assets/toppings_style.png)
 
 The `qml` topping files are assigned directly in the layertree of the *project topping file*.
 ```yaml
@@ -307,7 +293,7 @@ But already before the data import, the Model Baker checks the repositories for 
 ## Multiple Models and their Toppings
 
 Currently, a list of "LegendeEintrag_PlanGewaesserschutz_V1_1;KbS_LV95_V1_4;KbS_Basis_V1_4" lists the *metaconfiguration files* for all these models.
-![multimodels](../../assets/usabilityhub_multimodels.png)
+![multimodels](../../assets/toppings_multimodels.png)
 But then only one can be selected. If you want to select multiple *metaconfiguration files*, you have to import the models one after the other.
 
 ### Best Practice

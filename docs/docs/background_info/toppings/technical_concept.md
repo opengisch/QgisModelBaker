@@ -1,3 +1,5 @@
+*The concept of toppings is not only bound to Model Baker. This chapter here explains how the basics functionality work with the cross-repository search for additional information.*
+
 Just as we can now find INTERLIS models by searching the ilimodels.xml file from models.interlis.ch and the linked repositories, we can find additional information via the `ilidata.xml` file.
 
 !!! Note
@@ -5,7 +7,7 @@ Just as we can now find INTERLIS models by searching the ilimodels.xml file from
 
 Settings for tools (like ili2db or Model Baker) are configured in a metaconfiguration file, as well as links to topping files that contain information about GIS project (such as symbologies or legend structures). Thus, this additional information usually consists of a metaconfiguration and any number of toppings.
 
-![uml](../../assets/usabilityhub_uml.png)
+![uml](../../assets/toppings_uml.png)
 
 ## The ilidata.xml
 An *ilidata.xml* serves as an index for all required additional information. The file is based on the [`DatasetIdx16`](http://models.interlis.ch/core/DatasetIdx16.ili) model.
@@ -62,7 +64,7 @@ Additional servers/repositories can be linked via the `ilisite.xml`. The `Datase
 ```
 
 ### Filtering
-The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the UsabILIty Toppings, the following two categories are primarily used.
+The `categories` element in the `DatasetMetadata` contains a list of `Code_` elements. These can be used for filtering. In the context of the Toppings, the following two categories are primarily used.
 
 #### Model
 The category for the model is identified with the prefix http://codes.interlis.ch/model/ and contains the model name.
@@ -80,7 +82,7 @@ The category for the file type is identified with the prefix http://codes.interl
 </DatasetIdx16.Code_>
 ```
 
-In the UsabILIty Toppings implementation of the Model Baker, the following types are used:
+In the Toppings implementation of the Model Baker, the following types are used:
 - `metaconfig` to describe that it is a *metaconfiguration file*.
 - `metaattributes` to describe that it is a meta attribute file written in TOML or INI.
 - `sql` to describe that it is a SQL query file that can be used when creating the database
@@ -122,6 +124,7 @@ A *metaconfigurationfile* is an `ini` file that contains configurations for one 
 
 ### File References
 The files are either referenced by a cross-system-wide *DatasetMetadata-Id* or they can be referenced by a static file path.
+
 #### DatasetMetadata Id
 When a file is referenced by a *DatasetMetadata-Id*, it means that the `ilidata.xml` are parsed across repositories to find the linked file. This means that the *metaconfiguration* cannot only reference files on the same repository/server. Prefix for *DatasetMetadata-Ids* is `ilidata:`.
 
@@ -131,7 +134,6 @@ It is generally recommended to use the *DatasetMetadata-Id* for a reference to a
 Static file path links referenced with `file:` can be both absolute and relative. However, it may depend on the tool used to what the path is relative. Therefore this should only be used for testing purposes.
 
 > The Model Baker handles relative paths relative to itself. ili2db on the other hand relative to the directory where *ili2db* is started.
-
 
 ```ini
 [CONFIGURATION]
@@ -149,16 +151,9 @@ createTidCol = false
 models = KbS_Basis_V1_4
 preScript=ilidata:ch.opengis.config.KbS_LV95_V1_4_prescript
 iliMetaAttrs=ilidata:ch.opengis.config.KbS_LV95_V1_4_toml
-
-[qgis.modelbaker.qml]
-"Belasteter_Standort (Geo_Lage_Polygon)"=file:toppings_in_modelbakerdir/layerstyle/opengisch_KbS_LV95_V1_4_001_belasteterstandort_polygon.qml
-"Belasteter_Standort (Geo_Lage_Punkt)"=ilidata:ch.opengis.topping.opengisch_KbS_LV95_V1_4_001
-ZustaendigkeitKataster=ilidata:ch.opengis.configs.KbS_LV95_V1_4_0032
 ```
 
 For example, the id `ch.opengis.configs.KbS_LV95_V1_4_projecttopping` references a `DatasetMetadata` that contains a link to a `yaml` file where the project settings like the legend structure is defined. The id `ch.opengis.configs.KbS_LV95_V1_4_001` points to a `DatasetMetadata` element which contains a link to an `qml` file for QGIS style and form configurations.
-
-Whole sections can also be defined. The section `qgis.modelbaker.qml` contains besides the link also the mapping of layer names to `qml` files. The mapping in the metaconfigurationfile is deprecated. This should be done in the project topping file.
 
 ### Tool Prefix
 In the *metaconfiguration file* entries can be marked with a tool prefix. ili2db for example uses the prefix `ch.ehi.ili2db` and the Model Baker uses the prefix `qgis.modelbaker`. However, it is up to the tool which configurations it uses. The prefix `ch.interlis`, which is used with `ch.interlis.referenceData` for example for the reference to *data files* like catalogs or transfer data files, is used by ili2db as well as the Model Baker.

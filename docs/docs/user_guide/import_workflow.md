@@ -55,7 +55,7 @@ There are several ways the Model Baker wizard detects INTERLIS models to import.
 - Selected from the repositories.
 - Parsed from the selected transfer or catalogue files.
 - Depending model of a catalogue referenced in the ilidata.xml of the repositories.
-- Defined as ili2db attribute in the metaconfiguration received from the repositories. See [UsabILIty Toppings](../../background_info/usabilityhub/modelbaker_integration).
+- Defined as ili2db attribute in the metaconfiguration received from the repositories. See [Toppings](../../background_info/toppings/modelbaker_integration).
 
 When you only got a model name (like in all cases except the one of the local `ini` files) the models are searched in the [repositories](../../background_info/repositories) or [custom model directories](../plugin_configuration/#custom-model-directories). It's possible that the models are listed multiple times coming from different sources. It's up to you what source you choose.
 
@@ -71,13 +71,14 @@ You can check or uncheck the models you want to import to a physical schema.
 
 ### Metaconfiguration / Topping
 
-Choose a metaconfiguration file found on the [repositories](../../background_info/usabilityhub/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
+Choose a metaconfiguration file found on the [repositories](../../background_info/toppings/modelbaker_integration/) to load ili2db settings and styling properties to your QGIS project.
 
 ### Ili2db settings
 
 Since Model Baker uses ili2db, you can set advanced options that determine how your conceptual object-oriented model is mapped into a physical model.
 
 ![wizard ili2db options](../assets/workflow_wizard_ili2db_options.png)
+
 
 #### Inheritance type
 
@@ -98,6 +99,13 @@ When this option is checked, Model Baker passes `--createBasketCol` to the ili2d
 
 When the dataset and basket handling is enabled, a default Dataset called `Baseset` will be created and the [page for basket creation](#create_baskets) will appear after schema import.
 
+### Multiple Geometries per Table in Geometries
+
+If the INTERLIS model has classes that contain multiple geometries, tables with multiple geometry columns can be created in GeoPackage
+
+!!! Note
+    This function is not standardized and such tables with multiple geometries require GDAL version >= 3.8 to run in QGIS. And although your GDAL version is finde, others with lower 3.8 versions will not be able to read such tables in the created QGIS project. Most modern QGIS versions on Windows have a GDAL version >= 3.8 packaged.
+
 ### Stroke Arcs
 
 If this option is activated, circular arcs are stroked when importing the data.
@@ -109,6 +117,10 @@ You can define `sql` scripts that runs before and after the (schema) import.
 ### Extra Meta Attribute File
 
 A `toml` or `ini` file can contain values for [meta attributes](../../background_info/meta_attributes/) (like `qgis.modelbaker.dispExpression`) instead of having them directly in the `ili` file.
+
+### Translation
+
+When the imported model is a translation model (`TRANSLATION OF`) you can choose choose whether the database structure should be created using the translation language or the language of the original model. This setting controls the `--nameLang` parameter in the ili2db command.
 
 ## 4. Run ili2db Sessions
 
@@ -152,7 +164,7 @@ If the data to import is a catalogue, please select the checkbox for *catalogue*
 
 Not only meta data for ili2db and styling can be received over the ilidata.xml from the repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the ![plus button](../assets/plus_button.png) (the needed models have been suggested in the [INTERLIS model import](#import-of-interlis-model) already).
 
-Check more information about the catalogues on the repositories [here](../../background_info/usabilityhub/modelbaker_integration/#directly-referenced-catalogues).
+Check more information about the catalogues on the repositories [here](../../background_info/toppings/modelbaker_integration/#directly-referenced-catalogues).
 
 ### Delete data first
 
@@ -195,6 +207,10 @@ Choose your optimization strategy in the checkbox:
 
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
 
+### Preferred languagne for objects like layers and fields
+
+When the imported model is a translation model (`TRANSLATION OF`), you can choose whether the QGIS Project elements (such as layer names, field aliases, etc.) should be in the translation language or the language of the original model, independently of the language of the data source.
+
 ## 8. OID Values
 
 Often the models definition requires cross-system unique identificators. So called OIDs, what are represented in the physical database as the `t_ili_tid` column. Find a clear definition and more details about them in the [corresponding chapter](../../background_info/oid_tid_generator).
@@ -206,5 +222,7 @@ On creating a QGIS Project with Model Baker, there are preset default value expr
 Here you can use the QGIS Expression Dialog to edit the default value expression for the `t_ili_tid` field of each layer.
 
 If you need a counter in the expressions, you can use the `t_id` field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing `t_id`s in your project.
+
+In the database, the `t_ili_tid` is neither unique nor mandatory. This can be useful in case you first want to create your features and then generate the `t_ili_tid`, but normally you want to have these constraints. Otherwise you will encounter issues when splitting or duplicating features.
 
 This settings can be made on an existing QGIS Project as well. Find the [OID Manager](../../background_info/oid_tid_generator/#tid_(oid)_manager) via the *Database > Model Baker* menu.

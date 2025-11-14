@@ -12,35 +12,39 @@ This means that complex configurations can be made *once* and used *multiple tim
 
 ### Metaconfiguration
 
-The metaconfiguration can be found before creating the physical data model on the *Schema Import Configuration* page.
+The metaconfiguration can be found before creating the physical data model on the [Schema Import Configuration](import_workflow.md#3-import-of-interlis-model) page.
 
-![metaconfig](../../assets/usabilityhub-abstract-metaconfig.png)
+![metaconfig](../assets/toppings-abstract-metaconfig.png)
 
 The metaconfiguration can contain the ili2db settings as well as links to the required QGIS project configurations (toppings) and data files (referenced data).
 
-Find technical background and detailed information about the metaconfiguration [here](../modelbaker_integration/#metaconfiguration)
+Changes are marked visually in the input mask for *ili2db Options*:
+
+![uml](../assets/toppings_ili2dboptions.png)
+
+Find technical background and detailed information about the metaconfiguration [here](../background_info/toppings/modelbaker_integration/#metaconfiguration).
 
 ### Referenced data
 
-The referenced data required for a model, such as catalogs and codelists, can be found in the *Data Import Configuration*.
+The referenced data required for a model, such as catalogs and codelists, can be found in the [Data Import Configuration](import_workflow.md#6-import-of-interlis-data) page.
 
-![referenced data](../../assets/usabilityhub-abstract-referenceddata.png)
+![referenced data](../assets/toppings-abstract-referenceddata.png)
 
 They may already have been linked via the [metaconfiguration](#metaconfiguration) before as well.
 
-Find technical background and detailed information about the referenced data integration [here](../modelbaker_integration/#referenced-data).
+Find technical background and detailed information about the referenced data integration [here](../background_info/toppings/modelbaker_integration/#referenced-data).
 
 ### Toppings
 
-The QGIS project configurations or so called "toppings" can - if not already linked via the [metaconfiguration](#metaconfiguration) - be found each time on the *Project Generation* page via a "projecttopping" file.
+The QGIS project configurations or so called "toppings" can - if not already linked via the [metaconfiguration](#metaconfiguration) - be found each time on the [Project Generation](import_workflow.md#7-generate-the-qgis-project) page via a "projecttopping" file.
 
-![projecttopping](../../assets/usabilityhub-abstract-projecttopping.png)
+![projecttopping](../assets/toppings-abstract-projecttopping.png)
 
 The projecttopping defines general project configurations such as layertree, variables etc. and links to the required toppings such as layerstyle etc. which are then downloaded and applied when the project is generated.
 
-![topping download](../../assets/usabilityhub-abstract-toppingdownload.png)
+![topping download](../assets/toppings-abstract-toppingdownload.png)
 
-Find technical background and detailed information about the toppings [here](../modelbaker_integration/#toppings).
+Find technical background and detailed information about the toppings [here](../background_info/toppings/modelbaker_integration/#toppings).
 
 ## Where do those additional information come from?
 
@@ -48,13 +52,13 @@ Just as we can now find INTERLIS models by searching the ilimodels.xml files on 
 
 It filters the entries by the ***name*** of the used INTERLIS ***model***.
 
-More information about the technical background you can find [here](../../background_info/usabilityhub/technical_concept.md)
+More information about the technical background you can find [here](../../background_info/toppings/technical_concept.md)
 
 ## What are the Workflows?
 
 All these ***additional information*** are concernig a specific model. That's why they are found according to the selected model's name.
 
-![model selection](../../assets/usabilityhub-abstract-modelselection.png)
+![model selection](../assets/toppings-abstract-modelselection.png)
 
 ### On choosing a metaconfiguration
 
@@ -62,9 +66,9 @@ All these ***additional information*** are concernig a specific model. That's wh
 
 1. User enters the model name in the ***Source Selection***
 2. *ilidata.xml* is parsed for links to *metaconfiguration files* according to the model name
-3. User selects a *metaconfiguration*
+3. User selects a *metaconfiguration* on the [Schema Import Configuration](import_workflow.md#3-import-of-interlis-model) page.
 
-    ![metaconfig](../../assets/usabilityhub-abstract-metaconfig.png)
+    ![metaconfig](../assets/toppings-abstract-metaconfig.png)
 
 4. *Metaconfiguration file* is downloaded and the ili2db settings are read from the *metaconfiguration*
 5. ili2db settings are considered in the creation of the physical model
@@ -80,12 +84,12 @@ All these ***additional information*** are concernig a specific model. That's wh
 
 ### On choosing referenced data directly
 
-...from the repositories in the ***Data Import Configuration*** the steps are:
+...from the repositories in the [Data Import Configuration](import_workflow.md#6-import-of-interlis-data) page the steps are:
 
 1. *ilidata.xml* is parsed for links to the *referenced data* according to the model name.
 2. User selects *referenced data*
 
-    ![referenced data](../../assets/usabilityhub-abstract-referenceddata.png)
+    ![referenced data](../assets/toppings-abstract-referenceddata.png)
 
 3. *Referenced data files* are downloaded and imported
 
@@ -94,12 +98,12 @@ All these ***additional information*** are concernig a specific model. That's wh
 
 ### On choosing project topping directly
 
-... from the repositories in ***Project Generation*** the steps are:
+... from the repositories in [Project Generation](import_workflow.md#7-generate-the-qgis-project) the steps are:
 
 1. *ilidata.xml* is parsed for links to the *projecttoppings* according to the model name
 2. User selects a *projecttopping*
 
-    ![projecttopping](../../assets/usabilityhub-abstract-projecttopping.png)
+    ![projecttopping](../assets/toppings-abstract-projecttopping.png)
 
 3. *Projecttopping file* is downloaded and links to the *other toppings* (like layerstyles etc.) is read from the *projecttopping*
 4. *ilidata.xml* is parsed for links to the  *toppings*
@@ -109,6 +113,14 @@ All these ***additional information*** are concernig a specific model. That's wh
 !!! Note
     A *projecttopping* can be chosen from the local system as well.
 
-## How to make my own Toppings?
+## How to make my own toppings?
 
-This can be easily made with the [Model Baker Topping Exporter](../../user_guide/topping_exporter.md) from an exiting QGIS Project.
+This can be easily made with the [Model Baker Topping Exporter](../background_info/toppings/topping_exporter.md) from an exiting QGIS Project.
+
+## Using a local repository
+
+It can be useful for testing purposes to be able to use a local repository. This is configured as a [custom model directory](plugin_configuration.md/#custom-model-directories). `ilidata.xml` and `ilimodels.xml` are searched and parsed in it.
+
+## Technical Concept
+
+The concept of toppings is not only bound to Model Baker. [Here is described](../background_info/toppings/technical_concept.md) how the basics functionality work with the cross-repository search for additional information.
