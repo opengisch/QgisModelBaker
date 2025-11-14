@@ -826,6 +826,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
+            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: #FFC800;")
             self.create_project_button.setDisabled(True)
         else:
             self.gpkg_multigeometry_label.setText(
@@ -840,6 +841,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
+            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: lightgrey;")
         return True
 
     def help_text(self):
