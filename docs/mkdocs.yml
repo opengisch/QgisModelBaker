@@ -92,16 +92,15 @@ plugins:
             Model and Data Import Workflow: Modell und Daten Import Workflow
             Export Data Workflow: Daten Export Workflow
             Validate Data: Daten Validierung
-            Topping Exporter: Topping Exporter
+            Toppings: Toppings
             Quick Visualizer: Quick Visualizer
             Plugin Configuration: Plugin Konfiguration
             Tipps & Tricks: Tipps & Tricks
             Repositories: Repositories
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
-            Toppings: Toppings
-            Overview: Übersicht
-            Model Baker Integration: Model Baker Integration
+            Toppingfiles: Toppingfiles
+            Create your own Toppings: Create your own Toppings
             Technical Concept: Technisches Konzept
             Optimized Projects for Extended Models: Optimierte Projekte für
               erweiterte Modelle
@@ -138,7 +137,7 @@ plugins:
               modèles et de données
             Export Data Workflow: Flux de travail d'exportation de données
             Validate Data: Validation des données
-            Topping Exporter: Exportateur de Topping
+            Toppings: Toppings
             Quick Visualizer: Quick Visualizer
             Plugin Configuration: Configuration du plugin
             Tipps & Tricks: Trucs et astuces
@@ -146,9 +145,8 @@ plugins:
             Basket and Dataset Handling: Gestion des paniers (baskets) et des
               ensembles (datasets)
             OID Generator: Générateur OID
-            Toppings: Toppings
-            Overview: Vue d'ensemble
-            Model Baker Integration: Intégration de Model Baker
+            Toppingfiles: Toppingfiles
+            Create your own Toppings: Create your own Toppings
             Technical Concept: Concept technique
             Optimized Projects for Extended Models: Projets optimisés pour les
               modèles étendus
