@@ -99,7 +99,7 @@ plugins:
             Repositories: Repositories
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
-            UsabILIty Toppings: UsabILIty Toppings
+            Toppings: Toppings
             Overview: Übersicht
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
@@ -146,7 +146,7 @@ plugins:
             Basket and Dataset Handling: Gestion des paniers (baskets) et des
               ensembles (datasets)
             OID Generator: Générateur OID
-            UsabILIty Toppings: Toppings UsabILIty
+            Toppings: Toppings
             Overview: Vue d'ensemble
             Model Baker Integration: Intégration de Model Baker
             Technical Concept: Concept technique
