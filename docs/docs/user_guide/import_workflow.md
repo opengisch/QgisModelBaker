@@ -99,6 +99,13 @@ When this option is checked, Model Baker passes `--createBasketCol` to the ili2d
 
 When the dataset and basket handling is enabled, a default Dataset called `Baseset` will be created and the [page for basket creation](#create_baskets) will appear after schema import.
 
+### Multiple Geometries per Table in Geometries
+
+If the INTERLIS model has classes that contain multiple geometries, tables with multiple geometry columns can be created in GeoPackage
+
+!!! Note
+    This function is not standardized and such tables with multiple geometries require GDAL version >= 3.8 to run in QGIS. And although your GDAL version is finde, others with lower 3.8 versions will not be able to read such tables in the created QGIS project. Most modern QGIS versions on Windows have a GDAL version >= 3.8 packaged.
+
 ### Stroke Arcs
 
 If this option is activated, circular arcs are stroked when importing the data.
@@ -199,6 +206,10 @@ Choose your optimization strategy in the checkbox:
     As well you can optimize projects created with *smart1inheritance*. There it only appends the relevant type-values to the `t_type` dropdown box in the form, when ***Hide unused base class types*** is selected. A "grouping" optimization does not make sense for *smart1inheritance*.
 
 For more information about the optimization of extended models, see the [corresponding chapter](../../background_info/extended_models_optimization).
+
+### Preferred languagne for objects like layers and fields
+
+When the imported model is a translation model (`TRANSLATION OF`), you can choose whether the QGIS Project elements (such as layer names, field aliases, etc.) should be in the translation language or the language of the original model, independently of the language of the data source.
 
 ## 8. OID Values
 
