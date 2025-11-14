@@ -1,0 +1,1824 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Model Baker is a QGIS plugin to visualize, edit and manipulate INTERLIS data in QGIS.">
+      
+      
+      
+        <link rel="canonical" href="https://opengisch.github.io/QgisModelBaker/fr/user_guide/import_workflow/">
+      
+      
+        <link rel="prev" href="../get_started/">
+      
+      
+        <link rel="next" href="../export_workflow/">
+      
+      
+      <link rel="icon" href="../../../assets/modelbaker_icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Flux de travail d'importation de modèles et de données - Documentation de QGIS Model Baker</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-selection-des-sources" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../../" title="Documentation de QGIS Model Baker" class="md-header__button md-logo" aria-label="Documentation de QGIS Model Baker" data-md-component="logo">
+      
+  <img src="../../../assets/modelbaker_icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Documentation de QGIS Model Baker
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flux de travail d'importation de modèles et de données
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Sélectionner la langue">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../user_guide/import_workflow/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../../../de/user_guide/import_workflow/" hreflang="de" class="md-select__link">
+              Deutsch
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="fr" class="md-select__link">
+              Français
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/opengisch/QgisModelBaker" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengisch/QgisModelBaker
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../get_started/" class="md-tabs__link">
+          
+  
+  
+  Guide de l'utilisateur
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../background_info/repositories/" class="md-tabs__link">
+          
+  
+  
+  Trucs et astuces
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../about/development/" class="md-tabs__link">
+          
+  
+  
+  À propos
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="Documentation de QGIS Model Baker" class="md-nav__button md-logo" aria-label="Documentation de QGIS Model Baker" data-md-component="logo">
+      
+  <img src="../../../assets/modelbaker_icon.svg" alt="logo">
+
+    </a>
+    Documentation de QGIS Model Baker
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/opengisch/QgisModelBaker" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    opengisch/QgisModelBaker
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Accueil
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guide de l'utilisateur
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Guide de l'utilisateur
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../get_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Premiers pas
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Flux de travail d'importation de modèles et de données
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Flux de travail d'importation de modèles et de données
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-selection-des-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Sélection des sources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Sélection des sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modele-interlis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modèle INTERLIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fichiers-de-transfert-et-de-catalogue-fichiers-de-donnees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fichiers de transfert et de catalogue (fichiers de données)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-selection-de-la-base-de-donnees" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Sélection de la base de données
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-importation-du-modele-interlis" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Importation du modèle INTERLIS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Importation du modèle INTERLIS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selection-du-modele" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sélection du modèle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metaconfiguration-entete" class="md-nav__link">
+    <span class="md-ellipsis">
+      Métaconfiguration / Entête
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametres-ili2db" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paramètres Ili2db
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paramètres Ili2db">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-dheritage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type d'héritage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creer-une-colonne-dans-le-panier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Créer une colonne dans le panier
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-geometries-per-table-in-geometries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple Geometries per Table in Geometries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stroke-arcs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stroke Arcs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      SQL Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-meta-attribute-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extra Meta Attribute File
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Translation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-run-ili2db-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Run ili2db Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-create-baskets" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Create Baskets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-import-of-interlis-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Import of INTERLIS Data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Import of INTERLIS Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import order
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataset-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfer-data-from-the-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transfer Data from the repositories
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-data-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Delete data first
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-generate-the-qgis-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Generate the QGIS Project
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Generate the QGIS Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choose-a-project-topping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choose a Project Topping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimize-qgis-project-if-extended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optimize QGIS Project if extended
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preferred-languagne-for-objects-like-layers-and-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preferred languagne for objects like layers and fields
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-oid-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. OID Values
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export_workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Flux de travail d'exportation de données
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validation des données
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toppings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Toppings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_visualizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Visualizer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugin_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration du plugin
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Trucs et astuces
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Trucs et astuces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/repositories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dépôts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/basket_handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Gestion des paniers (baskets) et des ensembles (datasets)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/oid_tid_generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Générateur OID
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Toppings
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Toppings
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/toppings/modelbaker_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Toppingfiles
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/toppings/topping_exporter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create your own Toppings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/toppings/technical_concept/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Concept technique
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/extended_models_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Projets optimisés pour les modèles étendus
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/catalogues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Catalogues et leurs cas particuliers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/meta_attributes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Méta-attributs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../background_info/upgrade_3_to_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migration de ili2db 3 vers 4
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    À propos
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            À propos
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Développement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/translation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Traduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-selection-des-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Sélection des sources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Sélection des sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modele-interlis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modèle INTERLIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fichiers-de-transfert-et-de-catalogue-fichiers-de-donnees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fichiers de transfert et de catalogue (fichiers de données)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-selection-de-la-base-de-donnees" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Sélection de la base de données
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-importation-du-modele-interlis" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Importation du modèle INTERLIS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Importation du modèle INTERLIS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selection-du-modele" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sélection du modèle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metaconfiguration-entete" class="md-nav__link">
+    <span class="md-ellipsis">
+      Métaconfiguration / Entête
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametres-ili2db" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paramètres Ili2db
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paramètres Ili2db">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-dheritage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type d'héritage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creer-une-colonne-dans-le-panier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Créer une colonne dans le panier
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-geometries-per-table-in-geometries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple Geometries per Table in Geometries
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stroke-arcs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stroke Arcs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      SQL Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-meta-attribute-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Extra Meta Attribute File
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Translation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-run-ili2db-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Run ili2db Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-create-baskets" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Create Baskets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-import-of-interlis-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Import of INTERLIS Data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Import of INTERLIS Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import order
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataset-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfer-data-from-the-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transfer Data from the repositories
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-data-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Delete data first
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-generate-the-qgis-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Generate the QGIS Project
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Generate the QGIS Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choose-a-project-topping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choose a Project Topping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimize-qgis-project-if-extended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optimize QGIS Project if extended
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preferred-languagne-for-objects-like-layers-and-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preferred languagne for objects like layers and fields
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-oid-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. OID Values
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Flux de travail d'importation de modèles et de données</h1>
+
+<p>L'assistant est lancé à partir de l'icône de la barre d'outils ou de <em>Base de données &gt; Model Baker &gt; Assistant d'import/export</em>.</p>
+<p><img alt="wizard intro" src="../../../assets/workflow_wizard_intro.png" /></p>
+<p>Pour [choisir les fichiers de données et les modèles à importer ou générer une nouvelle base de données] (#source-selection), suivez la description ci-dessous. Pour <a href="#generate-the-qgis-project">générer un projet QGIS à partir d'une base de données existante</a>, allez au bas de ce guide. Pour <a href="../export_workflow/">exporter des données à partir d'une base de données existante</a> voir le guide pour cela.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>L'assistant s'ouvre également lorsque vous déposez dans QGIS un fichier portant l'extension <code>xtf</code>, <code>ili</code> ou <code>xml</code> (<code>xml</code> uniquement lorsqu'il est déposé avec un fichier portant l'une des autres extensions).</p>
+</div>
+<h2 id="1-selection-des-sources">1. Sélection des sources</h2>
+<p>La première page vous permet de sélectionner les sources à importer.</p>
+<p><img alt="assistant de sélection de la source" src="../../../assets/workflow_wizard_source_selection.png" /></p>
+<h3 id="modele-interlis">Modèle INTERLIS</h3>
+<p>Les sources peuvent être des modèles INTERLIS stockés dans des fichiers <code>ili</code> que vous sélectionnez sur votre système local (avec le navigateur de fichiers <img alt="file_browser" src="../../../assets/file_browser_button.png" /> ou par glisser-déposer).</p>
+<p>Vous pouvez également rechercher des modèles INTERLIS dans les [dépôts] (../../background_info/repositories) ou les [répertoires de modèles personnalisés] (../plugin_configuration/#custom-model-directories). Étant donné que les noms de modèles doivent être indiqués strictement tels qu'ils ont été orthographiés dans les fichiers INTERLIS, une fois que vous commencez à taper, l'autocomplétion vous aidera à découvrir les modèles disponibles avec leur orthographe correcte. Ajoutez-les avec le <img alt="bouton plus" src="../../../assets/plus_button.png" />.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Les modèles provenant des dépôts sont mis en cache localement. Si vous souhaitez effacer ce cache, utilisez le bouton <em>Effacer le cache</em>.</p>
+</div>
+<p>Cela vous conduit à un processus de création de la base de données physique dans <em>PostgreSQL</em>, <em>MSSQL</em> ou <em>GeoPackage</em>.</p>
+<h3 id="fichiers-de-transfert-et-de-catalogue-fichiers-de-donnees">Fichiers de transfert et de catalogue (fichiers de données)</h3>
+<p>Le <code>xtf</code> est un fichier de transfert INTERLIS, contenant des données spatiales et/ou alphanumériques stockées au format XML. Les catalogues ou les listes de codes sont techniquement les mêmes mais ont généralement l'extension <code>xml</code>.</p>
+<p>La sélection des fichiers de données vous conduit au processus d'importation des données dans une base de données physique.</p>
+<h2 id="2-selection-de-la-base-de-donnees">2. Sélection de la base de données</h2>
+<p>Dans tous les cas, il vous est demandé d'établir la connexion à votre base de données.</p>
+<p><img alt="assistant de configuration de la BD" src="../../../assets/workflow_wizard_db_configuration.png" /></p>
+<ul>
+<li><strong>Hôte de la base de données</strong> Définissez l'hôte du serveur de base de données. Par défaut, il s'agit de localhost.</li>
+<li><strong>Port de la base de données</strong> Définir le port du serveur de base de données. La valeur par défaut est 5432.</li>
+<li><strong>Nom de la base de données</strong> Définissez le nom de la base de données. La base de données doit déjà exister.</li>
+<li><strong>Schéma de la base de données</strong> Le schéma agit comme un dossier, il vous aide à organiser les objets de la base de données tels que les tables et les relations et à les isoler d'autres schémas. Définissez le schéma de base de données dans lequel vous souhaitez créer le modèle physique ou importer les données du fichier de transfert. Vous pouvez même choisir un schéma existant dans lequel vous créez un nouveau modèle physique. Cependant, vous avez intérêt à savoir ce que vous faites, car cela écrasera les configurations antérieures d'ili2db.</li>
+<li><strong>Utilisateur de la base de données</strong> Définir l'utilisateur pour accéder à la base de données.</li>
+<li><strong>Mot de passe de l'utilisateur</strong> Définir le mot de passe de l'utilisateur de la base de données.</li>
+<li><strong>Exécuter les tâches de gestion des données avec le login du superutilisateur à partir des paramètres</strong> Si cette option est cochée, elle utilise le login du superutilisateur (défini dans les <a href="../plugin_configuration/">configurations de l'extension</a> pour les tâches de gestion des données telles que la création du schéma, etc.</li>
+</ul>
+<h2 id="3-importation-du-modele-interlis">3. Importation du modèle INTERLIS</h2>
+<h3 id="selection-du-modele">Sélection du modèle</h3>
+<p>L'assistant Model Baker détecte les modèles INTERLIS à importer de différentes manières.</p>
+<ul>
+<li>Lecture du fichier <code>ini</code> local sélectionné.</li>
+<li>Sélectionné dans les dépôts.</li>
+<li>Analysé à partir des fichiers de transfert ou de catalogue sélectionnés.</li>
+<li>Modèle dépendant d'un catalogue référencé dans le ilidata.xml des dépôts.</li>
+<li>Defined as ili2db attribute in the metaconfiguration received from the repositories. See <a href="../../background_info/toppings/modelbaker_integration">Toppings</a>.</li>
+</ul>
+<p>Lorsque vous n'avez qu'un nom de modèle (comme dans tous les cas sauf celui des fichiers <code>ini</code> locaux), les modèles sont recherchés dans les <a href="../../background_info/repositories">dépôts</a> ou les <a href="../plugin_configuration/#custom-model-directories">répertoires de modèles personnalisés</a>. Il est possible que les modèles soient listés plusieurs fois et proviennent différentes sources. C'est à vous de choisir la source.</p>
+<p><img alt="assistant d'importation de schéma" src="../../../assets/workflow_wizard_schema_import.png" /></p>
+<p>Vous pouvez cocher ou décocher les modèles que vous souhaitez importer dans un schéma physique.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Via tooltip you can find the information where the model comes from.
+<img alt="wizard schema tooltip" src="../../../assets/workflow_wizard_schema_import_tooltip.png" />
+If our model requires (according to the ilidata.xml) a codelist and this codelist bases on a model that is not structurally linked (imported) to our model, it will appear here as well.
+<img alt="linked model" src="../../../assets/workflow_wizard_schema_import_linked_models.png" /></p>
+</div>
+<h3 id="metaconfiguration-entete">Métaconfiguration / Entête</h3>
+<p>Choose a metaconfiguration file found on the <a href="../../background_info/toppings/modelbaker_integration/">repositories</a> to load ili2db settings and styling properties to your QGIS project.</p>
+<h3 id="parametres-ili2db">Paramètres Ili2db</h3>
+<p>Comme Model Baker utilise ili2db, vous pouvez définir des options avancées qui déterminent la manière dont votre modèle conceptuel orienté objet est mappé dans un modèle physique.</p>
+<p><img alt="options de l'assistant ili2db" src="../../../assets/workflow_wizard_ili2db_options.png" /></p>
+<h4 id="type-dheritage">Type d'héritage</h4>
+<p>Ili2db vous permet d'utiliser trois types d'héritage :</p>
+<ul>
+<li><strong><em>noSmartMapping</em></strong> permet de mapper toutes les classes du modèle INTERLIS source dans le schéma de la base de données cible. Chaque classe conserve tous ses attributs. Model Baker ne propose pas cette option dans les paramètres.</li>
+<li><strong><em>smart1inheritance</em></strong> préfère créer des classes mères dans la base de données, à condition qu'elles remplissent certaines conditions spécifiques. Les attributs des classes enfants ne seront pas perdus, puisqu'ils sont transférés dans les classes parents.</li>
+<li><strong><em>smart2inheritance</em></strong> : préfère créer des classes enfants dans la base de données. Les attributs des classes mères ne seront pas perdus, puisqu'ils sont transférés dans les classes filles.</li>
+</ul>
+<h3 id="creer-une-colonne-dans-le-panier">Créer une colonne dans le panier</h3>
+<p>Cette option permet d'activer l'option <a href="../../background_info/basket_handling/">Dataset and Basket Handling</a> dans votre modèle physique.</p>
+<p>Lorsque cette option est cochée, Model Baker passe <code>--createBasketCol</code> à la commande ili2db. Ili2db crée une nouvelle colonne <code>T_basket</code> dans les tables de classes qui fait référence aux entrées de la table supplémentaire <code>t_ili2db_baskets</code>. La colonne <code>T_basket</code> doit être remplie avec le panier auquel un objet appartient.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Si <code>BASKET OID</code> est défini dans le modèle, il est nécessaire d'utiliser la gestion des paniers dans QGIS (nous devons créer le modèle physique avec le paramètre ili2db <code>--createBasketCol</code>). Ceci n'est actuellement pas détecté automatiquement par le Model Baker et doit être assuré par l'utilisateur.</p>
+</div>
+<p>Lorsque la gestion des ensembles de données et des paniers est activée, un ensemble de données par défaut appelé <code>Baseset</code> sera créé et la [page de création de paniers] (#create_baskets) apparaîtra après l'importation du schéma.</p>
+<h3 id="multiple-geometries-per-table-in-geometries">Multiple Geometries per Table in Geometries</h3>
+<p>If the INTERLIS model has classes that contain multiple geometries, tables with multiple geometry columns can be created in GeoPackage</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is not standardized and such tables with multiple geometries require GDAL version &gt;= 3.8 to run in QGIS. And although your GDAL version is finde, others with lower 3.8 versions will not be able to read such tables in the created QGIS project. Most modern QGIS versions on Windows have a GDAL version &gt;= 3.8 packaged.</p>
+</div>
+<h3 id="stroke-arcs">Stroke Arcs</h3>
+<p>If this option is activated, circular arcs are stroked when importing the data.</p>
+<h3 id="sql-scripts">SQL Scripts</h3>
+<p>You can define <code>sql</code> scripts that runs before and after the (schema) import.</p>
+<h3 id="extra-meta-attribute-file">Extra Meta Attribute File</h3>
+<p>A <code>toml</code> or <code>ini</code> file can contain values for <a href="../../background_info/meta_attributes/">meta attributes</a> (like <code>qgis.modelbaker.dispExpression</code>) instead of having them directly in the <code>ili</code> file.</p>
+<h3 id="translation">Translation</h3>
+<p>When the imported model is a translation model (<code>TRANSLATION OF</code>) you can choose choose whether the database structure should be created using the translation language or the language of the original model. This setting controls the <code>--nameLang</code> parameter in the ili2db command.</p>
+<h2 id="4-run-ili2db-sessions">4. Run ili2db Sessions</h2>
+<p>In the next step you can run all the sessions to create your physical model. In case a model is detected in an local ili-file (added by the user) <em>and</em> in the repositories, it takes the one from the local ili-file. If having multiple models that are received from the repositories, then they are passed in one command. You can run the commands one by one or all together.</p>
+<p><img alt="wizard schema import sessions" src="../../../assets/workflow_wizard_schema_session.png" /></p>
+<p>With the <img alt="run arrow_button" src="../../../assets/arrow_button.png" /> button next to <em>Run</em> the options are provided to run the command without checking constraints or to edit the command manually before running it.</p>
+<h2 id="5-create-baskets">5. Create Baskets</h2>
+<p>In case you don't have data to import into your default dataset and want to collect <strong><em>fresh</em></strong> data in QGIS, the baskets have to be created as well. It's up to you for what topics you want to create baskets. Model Baker suggests you what baskets should be created and reasonalbe values for the BID (value in the <code>t_ili_tid</code>) but you might need. to edit them.</p>
+<p><img alt="wizard basket page" src="../../../assets/workflow_wizard_default_baskets_page.png" /></p>
+<p>If you don't know what it is about, check more details <a href="../../background_info/basket_handling/#creation-of-baskets">here</a> or just press <em>Create baskets</em> and then <em>Next</em>.</p>
+<h2 id="6-import-of-interlis-data">6. Import of INTERLIS Data</h2>
+<p>After the physial model is generated or you selected an existing database to import your transfer or catalogue files to containing the models already, you will see the page to set up your data imports.</p>
+<p><img alt="wizard data import" src="../../../assets/workflow_wizard_data_import.png" /></p>
+<h3 id="import-order">Import order</h3>
+<p>While the order to import the INTERLIS models are not important (usually, see <a href="../../background_info/catalogues/#multiple-selection-with-bag-of">exceptions</a>), the data import often requires the correct order. Transfer data often depends on existing catalogue / codelist data. Drag and drop your files with <img alt="datafile arrow button" src="../../../assets/drag_arrows_button.png" /> to the right order.</p>
+<h3 id="dataset-handling">Dataset Handling</h3>
+<p>The <a href="../../background_info/basket_handling/">Dataset and Basket Handling</a> is only active, when the physical model has been created with <em>Create Basket Column</em> (<code>--createBasketCol</code>).</p>
+<p>If so, the data are imported with the ili2db parameter <code>--update</code>. This means that all the existing data in the same basket are updated (and removed if not existent in the transfer file).</p>
+<p>Select the dataset you want to import your data to by double-click the dataset field. If you want to create a new dataset, use the <a href="../../background_info/basket_handling/#dataset-manager">dataset manager</a>. The baskets are created during the import of the data.</p>
+<p><img alt="dataset manager" src="../../../assets/dataset_manager.png" /></p>
+<p>If the data to import is a catalogue, please select the checkbox for <em>catalogue</em> and it will be imported into a dataset made for catalogues (called <code>catalogueset</code>).</p>
+<h3 id="transfer-data-from-the-repositories">Transfer Data from the repositories</h3>
+<p>Not only meta data for ili2db and styling can be received over the ilidata.xml from the repositories. As well there can be found catalogue data referenced over the model name. This means Model Baker checks the repositories for all the models contained in the database schema. If it founds referenced catalogue data it provides them to you in the autocomplete widget. Add them with the <img alt="plus button" src="../../../assets/plus_button.png" /> (the needed models have been suggested in the <a href="#import-of-interlis-model">INTERLIS model import</a> already).</p>
+<p>Check more information about the catalogues on the repositories <a href="../../background_info/toppings/modelbaker_integration/#directly-referenced-catalogues">here</a>.</p>
+<h3 id="delete-data-first">Delete data first</h3>
+<p>If you want to delete the data in the database first, you can check the corresponding box. On using baskets, the ili2db parameter <code>--replace</code> is executed instead of <code>--update</code>. On not using baskets, the parameter <code>--deleteData</code> is added to the command. Note that on using baskets, only the data from the corresponding dataset is deleted, whereas on not using baskets all data from the schema is deleted.</p>
+<h2 id="7-generate-the-qgis-project">7. Generate the QGIS Project</h2>
+<p>In case you want to generate your project from an existing database, you will need to <a href="#database-selection">set the connection parameters</a> first.</p>
+<p>Then, with a simple click you generate your project. All the toppings received from the <em>repositories</em> are considered here.</p>
+<p><img alt="baked project" src="../../../assets/generated_project.png" /></p>
+<p>Easy as that. Still you can choose some more options.</p>
+<p><img alt="project generation" src="../../../assets/workflow_wizard_project_generation.png" /></p>
+<h3 id="choose-a-project-topping">Choose a Project Topping</h3>
+<p>If you have already selected a metaconfiguration file <a href="#metaconfiguration-topping">previously</a> and this metaconfiguration file refers to a project topping file (<code>YAML</code> file containing the layer tree and links to the layer style files), it is taken into account by default. If you create the project from an existing database, Model Baker checks whether this schema was created with a meta configuration file to consider here. If this is not the case, or if you simply want to select a different file, this option is also available. Get your project topping file from the repositories or from your local system.</p>
+<h3 id="optimize-qgis-project-if-extended">Optimize QGIS Project if extended</h3>
+<p>In case you gereate your project for an extended model structure that was created with <em>smart2inheritance</em>, then you can optimize it (hide or group unused layers and relations).</p>
+<p>Choose your optimization strategy in the checkbox:</p>
+<ul>
+<li><strong><em>Hide unused base class layers</em></strong>
+  Base class layers with same named extensions will be <em>hidden</em> and and base class layers with multiple extensions <em>as well</em>. Except if the extension is in the <em>same model</em>, then it's will <em>not</em> be <em>hidden</em> but <em>renamed</em>.</li>
+</ul>
+<p>Relations of hidden layers will <em>not</em> be <em>created</em> and with them <em>no</em> widgets</p>
+<ul>
+<li><strong><em>Group unused base class layers</em></strong>
+  Base class layers with same named extensions will be <em>collected in a group</em> and base class layers with multiple extensions <em>as well</em>. Except if the extension is in the <em>same model</em>, then it's will <em>not</em> be <em>grouped</em> but <em>renamed</em>.</li>
+</ul>
+<p>Relations of grouped layers will be <em>created</em> but the widgets are <em>not applied</em> to the form.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As well you can optimize projects created with <em>smart1inheritance</em>. There it only appends the relevant type-values to the <code>t_type</code> dropdown box in the form, when <strong><em>Hide unused base class types</em></strong> is selected. A "grouping" optimization does not make sense for <em>smart1inheritance</em>.</p>
+</div>
+<p>For more information about the optimization of extended models, see the <a href="../../background_info/extended_models_optimization">corresponding chapter</a>.</p>
+<h3 id="preferred-languagne-for-objects-like-layers-and-fields">Preferred languagne for objects like layers and fields</h3>
+<p>When the imported model is a translation model (<code>TRANSLATION OF</code>), you can choose whether the QGIS Project elements (such as layer names, field aliases, etc.) should be in the translation language or the language of the original model, independently of the language of the data source.</p>
+<h2 id="8-oid-values">8. OID Values</h2>
+<p>Often the models definition requires cross-system unique identificators. So called OIDs, what are represented in the physical database as the <code>t_ili_tid</code> column. Find a clear definition and more details about them in the <a href="../../background_info/oid_tid_generator">corresponding chapter</a>.</p>
+<p>On creating a QGIS Project with Model Baker, there are preset default value expression generated for the <code>t_ili_tid</code> field on the attribute form. But often those default value expressions need to be edited by the user (like e.g. the prefix in the <code>STANDARDOID</code>).</p>
+<p><img alt="tid generator" src="../../../assets/workflow_wizard_tid_generator_page.png" /></p>
+<p>Here you can use the QGIS Expression Dialog to edit the default value expression for the <code>t_ili_tid</code> field of each layer.</p>
+<p>If you need a counter in the expressions, you can use the <code>t_id</code> field, that has a schema-wide sequence counting up. This sequence can be reset as well by the user, but be careful not to set it lower than already existing <code>t_id</code>s in your project.</p>
+<p>In the database, the <code>t_ili_tid</code> is neither unique nor mandatory. This can be useful in case you first want to create your features and then generate the <code>t_ili_tid</code>, but normally you want to have these constraints. Otherwise you will encounter issues when splitting or duplicating features.</p>
+<p>This settings can be made on an existing QGIS Project as well. Find the <a href="../../background_info/oid_tid_generator/#tid_(oid)_manager">OID Manager</a> via the <em>Database &gt; Model Baker</em> menu.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
