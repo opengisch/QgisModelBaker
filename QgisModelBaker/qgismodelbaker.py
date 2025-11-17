@@ -23,6 +23,7 @@ import logging
 import logging.handlers
 import os
 import pathlib
+import sys
 import webbrowser
 
 import pyplugin_installer
@@ -269,6 +270,11 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.addAction(self.__datasetmanager_action)
         self.init_validate_dock()
         self.register_event_filter()
+
+        sys.path.append(
+            os.path.join(os.path.dirname(__file__), "libs", "modelbaker", "libs")
+        )
+        sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
     def unload(self):
         self.unregister_event_filter()
