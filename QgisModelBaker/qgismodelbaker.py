@@ -26,7 +26,7 @@ import pathlib
 import webbrowser
 
 import pyplugin_installer
-from qgis.core import QgsProject
+from qgis.core import QgsApplication, QgsProject
 from qgis.PyQt.QtCore import (
     QT_VERSION_STR,
     QCoreApplication,
@@ -59,6 +59,7 @@ from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDia
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.processing_provider.provider import Provider
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
 from QgisModelBaker.utils.tools import QuickVisualizer
 
@@ -68,6 +69,8 @@ class QgisModelBakerPlugin(QObject):
         QObject.__init__(self)
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
+
+        self.provider = None
 
         self.workflow_wizard_dlg = None
         self.datasetmanager_dlg = None
@@ -133,6 +136,13 @@ class QgisModelBakerPlugin(QObject):
                 self.layerview_event_filter
             )
             self.layerview_event_filter.deleteLater()
+
+    def init_processing(self):
+        self.provider = Provider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
+    def unload_processing(self):
+        QgsApplication.processingRegistry().removeProvider(self.provider)
 
     def initGui(self):
         pyplugin_installer.installer.initPluginInstaller()
@@ -268,10 +278,12 @@ class QgisModelBakerPlugin(QObject):
         )
         self.toolbar.addAction(self.__datasetmanager_action)
         self.init_validate_dock()
+        self.init_processing()
         self.register_event_filter()
 
     def unload(self):
         self.unregister_event_filter()
+        self.unload_processing()
         self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__datasetmanager_action
         )
