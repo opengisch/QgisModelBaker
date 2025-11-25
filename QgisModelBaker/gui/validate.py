@@ -393,8 +393,8 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 get_ili2db_bin(
                     validator.tool,
                     validator._get_ili2db_version(),
-                    self._validator_stdout,
-                    self._validator_stderr,
+                    validator.stdout,
+                    validator.stderr,
                 )
             ),
             "plugins",
