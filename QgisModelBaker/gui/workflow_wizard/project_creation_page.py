@@ -185,13 +185,17 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.topping_line_edit.setCompleter(completer)
 
     def _enable_topping_selection(self, state):
-        # doublecheck if meanwhile user checked box again
-        if state:
-            state = state and not self.existing_topping_checkbox.isChecked()
-        self.topping_file_browse_button.setEnabled(state)
-        self.topping_line_edit.setEnabled(state)
-        self.topping_line_label.setEnabled(state)
-        self.topping_info.setEnabled(state)
+        # doublecheck if meanwhile user checked box again, when it's true we have to disable everything here
+        disable_everything = (
+            self.existing_topping_checkbox.isVisible()
+            and self.existing_topping_checkbox.isChecked()
+        )
+        # set browse on repo option according to the state
+        self.topping_line_edit.setEnabled(state and not disable_everything)
+        # rest can be avalable when no result has been found
+        self.topping_file_browse_button.setEnabled(not disable_everything)
+        self.topping_line_label.setEnabled(not disable_everything)
+        self.topping_info.setEnabled(not disable_everything)
 
         self.workflow_wizard.busy(self, False)
 
