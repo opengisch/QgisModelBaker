@@ -16,7 +16,7 @@ from QgisModelBaker.libs.modelbaker.processing.ili2db_validating import (
     ValidatingPGAlgorithm,
 )
 from QgisModelBaker.libs.modelbaker.processing.util_layersourceparsing import (
-    LayerSourceParsingAlgorithm
+    LayerSourceParsingAlgorithm,
 )
 
 
