@@ -464,8 +464,8 @@ class ImportModelsHtmlDelegate(QItemDelegate):
     def drawDisplay(self, painter, option, rect, text):
         label = QLabel()
         label.setText(text)
-        label.setEnabled(option.state & QStyle.State_Enabled)
-        label.setAttribute(Qt.WA_TranslucentBackground)
+        label.setEnabled(bool(option.state & QStyle.StateFlag.State_Enabled))
+        label.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         label.setMargin(3)
         label.setWordWrap(True)
 
@@ -477,7 +477,7 @@ class ImportModelsHtmlDelegate(QItemDelegate):
 
     def sizeHint(self, option, index):
         label = QLabel()
-        display = index.model().data(index, Qt.DisplayRole)
+        display = index.model().data(index, Qt.ItemDataRole.DisplayRole)
         label.setText(display)
         label.setWordWrap(True)
         label.setFixedWidth(option.widget.size().width())

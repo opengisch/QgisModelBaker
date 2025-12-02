@@ -50,6 +50,7 @@ displayLanguages = {
     "de": QCoreApplication.translate("QgisModelBaker", "German"),
     "fr": QCoreApplication.translate("QgisModelBaker", "French"),
     "it": QCoreApplication.translate("QgisModelBaker", "Italian"),
+    "rm": QCoreApplication.translate("QgisModelBaker", "Romansh"),
 }
 
 

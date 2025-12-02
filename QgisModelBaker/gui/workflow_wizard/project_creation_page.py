@@ -185,13 +185,17 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             self.topping_line_edit.setCompleter(completer)
 
     def _enable_topping_selection(self, state):
-        # doublecheck if meanwhile user checked box again
-        if state:
-            state = state and not self.existing_topping_checkbox.isChecked()
-        self.topping_file_browse_button.setEnabled(state)
-        self.topping_line_edit.setEnabled(state)
-        self.topping_line_label.setEnabled(state)
-        self.topping_info.setEnabled(state)
+        # doublecheck if meanwhile user checked box again, when it's true we have to disable everything here
+        disable_everything = (
+            self.existing_topping_checkbox.isVisible()
+            and self.existing_topping_checkbox.isChecked()
+        )
+        # set browse on repo option according to the state
+        self.topping_line_edit.setEnabled(state and not disable_everything)
+        # rest can be avalable when no result has been found
+        self.topping_file_browse_button.setEnabled(not disable_everything)
+        self.topping_line_label.setEnabled(not disable_everything)
+        self.topping_info.setEnabled(not disable_everything)
 
         self.workflow_wizard.busy(self, False)
 
@@ -251,6 +255,13 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 for lang in available_languages:
                     self.translation_combo.addItem(
                         displayLanguages.get(lang, lang), lang
+                    )
+                translation_lang = self.db_connector.get_available_languages(
+                    MODELS_BLACKLIST, self.db_connector.get_translation_models()
+                )
+                if len(translation_lang) > 0:
+                    self.translation_combo.setCurrentText(
+                        displayLanguages.get(translation_lang[0], translation_lang[0])
                     )
                 self.translation_combo.setEnabled(True)
             else:
@@ -819,6 +830,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
+            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: #FFC800;")
             self.create_project_button.setDisabled(True)
         else:
             self.gpkg_multigeometry_label.setText(
@@ -833,6 +845,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
+            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: lightgrey;")
         return True
 
     def help_text(self):

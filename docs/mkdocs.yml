@@ -41,19 +41,19 @@ nav:
       - Model and Data Import Workflow: user_guide/import_workflow.md
       - Export Data Workflow: user_guide/export_workflow.md
       - Validate Data: user_guide/validation.md
-      - Topping Exporter: user_guide/topping_exporter.md
+      - Toppings: user_guide/toppings.md
       - Quick Visualizer: user_guide/quick_visualizer.md
       - Plugin Configuration: user_guide/plugin_configuration.md
   - Tipps & Tricks:
       - Repositories: background_info/repositories.md
       - Basket and Dataset Handling: background_info/basket_handling.md
       - OID Generator: background_info/oid_tid_generator.md
-      - UsabILIty Toppings:
-          - Overview: background_info/usabilityhub/overview.md
-          - Model Baker Integration:
-              background_info/usabilityhub/modelbaker_integration.md
-          - Technical Concept: background_info/usabilityhub/technical_concept.md
-          #obsolete but keep it for info - User Guide: background_info/usabilityhub/user_guide.md
+      - Toppings:
+          - Toppingfiles: background_info/toppings/modelbaker_integration.md
+          - Create your own Toppings:
+              background_info/toppings/topping_exporter.md
+          - Technical Concept: background_info/toppings/technical_concept.md
+          #deprecated but keep it for info - User Guide: background_info/toppings/user_guide.md
       - Optimized Projects for Extended Models:
           background_info/extended_models_optimization.md
       - Catalogues and their special cases: background_info/catalogues.md
@@ -99,7 +99,7 @@ plugins:
             Repositories: Repositories
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
-            UsabILIty Toppings: UsabILIty Toppings
+            Toppings: Toppings
             Overview: Übersicht
             Model Baker Integration: Model Baker Integration
             Technical Concept: Technisches Konzept
@@ -146,7 +146,7 @@ plugins:
             Basket and Dataset Handling: Gestion des paniers (baskets) et des
               ensembles (datasets)
             OID Generator: Générateur OID
-            UsabILIty Toppings: Toppings UsabILIty
+            Toppings: Toppings
             Overview: Vue d'ensemble
             Model Baker Integration: Intégration de Model Baker
             Technical Concept: Concept technique

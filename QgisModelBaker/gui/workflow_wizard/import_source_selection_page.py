@@ -61,7 +61,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                 self.input_line_edit,
                 title=self.tr("Open INTERLIS Model, Transfer or Catalogue File"),
                 file_filter=self.tr(
-                    "INTERLIS Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX)"
+                    "INTERLIS Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX *.ini *.INI *.toml *.TOML)"
                 ),
             )
         )
