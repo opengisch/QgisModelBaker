@@ -53,7 +53,7 @@ jobs:
           mkdir QgisModelBaker_${{ github.event.pull_request.head.sha }}
           mv QgisModelBaker QgisModelBaker_${{ github.event.pull_request.head.sha }}/
       - name: Upload as ZIP Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: QgisModelBaker_${{ github.event.pull_request.head.sha }}
           path: QgisModelBaker_${{ github.event.pull_request.head.sha }}
