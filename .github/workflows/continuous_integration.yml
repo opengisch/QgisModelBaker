@@ -102,7 +102,7 @@ jobs:
           sudo ./scripts/package_pip_packages.sh
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --qgis_token ${QGIS_TOKEN} --asset-path QgisModelBaker/libs
+          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --qgis-token ${QGIS_TOKEN} --asset-path QgisModelBaker/libs
 
   translations:
     runs-on: ubuntu-22.04
