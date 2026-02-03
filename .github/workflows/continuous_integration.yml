@@ -83,8 +83,7 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     env:
-      OSGEO_USERNAME: mkuhn
-      OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
+      QGIS_TOKEN: ${{ secrets.QGIS_ORG_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
       GITHUB_REF: ${{ github.ref }}
@@ -103,7 +102,7 @@ jobs:
           sudo ./scripts/package_pip_packages.sh
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD} --asset-path QgisModelBaker/libs
+          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --qgis_token ${QGIS_TOKEN} --asset-path QgisModelBaker/libs
 
   translations:
     runs-on: ubuntu-22.04
