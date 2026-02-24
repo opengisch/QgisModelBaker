@@ -45,6 +45,6 @@ With the ![run arrow_button](../assets/arrow_button.png) button next to *Run* th
 
 ### Data Validation
 
-If you did not choose *Run without constraints* on your export session, then the data are validated against their INTERLIS models. If this validation did not succeed, then the export will fail.
+If you did not choose *Run without validation* on your export session, then the data are validated against their INTERLIS models. If this validation did not succeed, then the export will fail.
 
 To check your data in advance against the INTERLIS model, use the [Model Baker Validator](../validation/).

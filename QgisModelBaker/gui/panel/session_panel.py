@@ -89,6 +89,14 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.set_button_to_create_without_constraints_action.triggered.connect(
             self.set_button_to_create_without_constraints
         )
+
+        self.set_button_to_create_without_not_null_action = QAction(
+            self.tr("Run without not null"), None
+        )
+        self.set_button_to_create_without_not_null_action.triggered.connect(
+            self.set_button_to_create_without_not_null
+        )
+
         self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
         self.edit_command_action.triggered.connect(self.edit_command)
 
@@ -98,6 +106,10 @@ class SessionPanel(QWidget, WIDGET_UI):
         self.create_tool_button.addAction(
             self.set_button_to_create_without_constraints_action
         )
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
+            self.create_tool_button.addAction(
+                self.set_button_to_create_without_not_null_action
+            )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
 
@@ -218,12 +230,23 @@ class SessionPanel(QWidget, WIDGET_UI):
         The buttons actions are changed to be able to switch the with-validation mode.
         """
         self.configuration.disable_validation = False
+        self.configuration.disable_mandatory = False
         self.create_tool_button.removeAction(self.set_button_to_create_action)
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_constraints_action
+        )
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_not_null_action
+        )
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.removeAction(self.skip_action)
         self.create_tool_button.addAction(
             self.set_button_to_create_without_constraints_action
         )
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
+            self.create_tool_button.addAction(
+                self.set_button_to_create_without_not_null_action
+            )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_text)
@@ -231,19 +254,54 @@ class SessionPanel(QWidget, WIDGET_UI):
     def set_button_to_create_without_constraints(self):
         """
         Changes the text of the button to create without validation and sets the validate_data to false.
-        So on clicking the button the creation will start without validation.
+        So on clicking the button the creation will start without setting constraints or without validating data.
         The buttons actions are changed to be able to switch the with-validation mode.
         """
         self.configuration.disable_validation = True
+        self.configuration.disable_mandatory = False
         self.create_tool_button.removeAction(
             self.set_button_to_create_without_constraints_action
         )
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_not_null_action
+        )
+        self.create_tool_button.removeAction(self.set_button_to_create_action)
         self.create_tool_button.removeAction(self.edit_command_action)
         self.create_tool_button.removeAction(self.skip_action)
         self.create_tool_button.addAction(self.set_button_to_create_action)
+        if self.db_action_type == DbActionType.SCHEMA_IMPORT:
+            self.create_tool_button.addAction(
+                self.set_button_to_create_without_not_null_action
+            )
         self.create_tool_button.addAction(self.edit_command_action)
         self.create_tool_button.addAction(self.skip_action)
         self.create_tool_button.setText(self.create_without_constraints_text)
+
+    def set_button_to_create_without_not_null(self):
+        """
+        Changes the text of the button to create without not null constraints and sets the disable_mandatory to true.
+        So on clicking the button the creation will start without setting not null constraints.
+        The buttons actions are changed to be able to switch the with-not-null-constraints mode.
+        """
+        self.configuration.disable_validation = False
+        self.configuration.disable_mandatory = True
+
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_not_null_action
+        )
+        self.create_tool_button.removeAction(
+            self.set_button_to_create_without_not_null_action
+        )
+        self.create_tool_button.removeAction(self.set_button_to_create_action)
+        self.create_tool_button.removeAction(self.edit_command_action)
+        self.create_tool_button.removeAction(self.skip_action)
+        self.create_tool_button.addAction(self.set_button_to_create_action)
+        self.create_tool_button.addAction(
+            self.set_button_to_create_without_constraints_action
+        )
+        self.create_tool_button.addAction(self.edit_command_action)
+        self.create_tool_button.addAction(self.skip_action)
+        self.create_tool_button.setText(self.tr("Run without not null"))
 
     def set_button_to_last_create_state(self):
         if self.configuration.disable_validation:
