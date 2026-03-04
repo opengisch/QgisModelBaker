@@ -128,7 +128,10 @@ In the next step you can run all the sessions to create your physical model. In 
 
 ![wizard schema import sessions](../assets/workflow_wizard_schema_session.png)
 
-With the ![run arrow_button](../assets/arrow_button.png) button next to *Run* the options are provided to run the command without checking constraints or to edit the command manually before running it.
+With the ![run arrow_button](../assets/arrow_button.png) button next to *Run* the options are provided to run the command without creating constraints or not null constraints or to edit the command manually before running it.
+
+!!! Note
+    When "Run without constraints" is selected, the parameters `--sqlEnableNull` and `--sqlColsAsText` are additionally passed to ili2db, while the parameters `--createNumChecks`, `--createUnique` and `--createFk` are removed. This results in a super-tolerant database that allows for lots of data inputs when fixing invalid data or performing a migration. When "Run without not null" is selected, only the additional parameter `--sqlEnableNull` is passed, and all other constraints and column types are still considered.
 
 ## 5. Create Baskets
 
