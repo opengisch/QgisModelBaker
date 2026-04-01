@@ -74,7 +74,7 @@ jobs:
               core.setOutput('the_artifact-id', the_artifact.id);
             }
       - name: Create comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
