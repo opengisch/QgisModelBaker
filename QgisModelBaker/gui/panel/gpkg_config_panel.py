@@ -61,13 +61,14 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
         self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.gpkg_file_browse_button.clicked.connect(self._start_file_seletor)
 
-    def _show_panel(self):
+    def _start_file_seletor(self):
+        file_selector = None
         if (
             self._db_action_type == DbActionType.SCHEMA_IMPORT
             or self._db_action_type == DbActionType.IMPORT_DATA
         ):
-            validator = self.gpkgSaveFileValidator
             file_selector = make_save_file_selector(
                 self.gpkg_file_line_edit,
                 title=self.tr("Open GeoPackage database file"),
@@ -79,7 +80,6 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
             self._db_action_type == DbActionType.EXPORT
             or self._db_action_type == DbActionType.GENERATE
         ):
-            validator = self.gpkgOpenFileValidator
             file_selector = make_file_selector(
                 self.gpkg_file_line_edit,
                 title=self.tr("Open GeoPackage database file"),
@@ -88,16 +88,25 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
         else:
             self.logger.error(f"Unknown action type: {self._db_action_type}")
 
-        try:
-            self.gpkg_file_browse_button.clicked.disconnect()
-        except Exception as exception:
-            self.logger.error(
-                f"Can't disconnect gpkg_file_browse_button signal: {exception}"
-            )
+        if file_selector:
+            file_selector()
 
-        self.gpkg_file_line_edit.setValidator(validator)
-        self.gpkg_file_line_edit.textChanged.emit(self.gpkg_file_line_edit.text())
-        self.gpkg_file_browse_button.clicked.connect(file_selector)
+    def _show_panel(self):
+        if (
+            self._db_action_type == DbActionType.SCHEMA_IMPORT
+            or self._db_action_type == DbActionType.IMPORT_DATA
+        ):
+            self.gpkg_file_line_edit.setValidator(self.gpkgSaveFileValidator)
+        elif (
+            self._db_action_type == DbActionType.EXPORT
+            or self._db_action_type == DbActionType.GENERATE
+        ):
+            self.gpkg_file_line_edit.setValidator(self.gpkgOpenFileValidator)
+        else:
+            self.logger.error(f"Unknown action type: {self._db_action_type}")
+
+        # trigger the validator
+        self.gpkg_file_line_edit.setText(self.gpkg_file_line_edit.text())
 
     def get_fields(self, configuration):
         configuration.dbfile = self.gpkg_file_line_edit.text().strip()
