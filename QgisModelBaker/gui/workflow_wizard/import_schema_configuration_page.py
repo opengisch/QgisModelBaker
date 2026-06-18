@@ -138,6 +138,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         # ili2db_options
         configuration.inheritance = self.ili2db_options.inheritance_type()
         configuration.create_basket_col = self.ili2db_options.create_basket_col()
+        configuration.enum_tabs = self.ili2db_options.enum_type()
         configuration.create_import_tid = self.ili2db_options.create_import_tid()
         configuration.create_gpkg_multigeom = (
             self.ili2db_options.create_gpkg_multigeom()
