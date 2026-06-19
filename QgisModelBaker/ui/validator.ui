@@ -65,7 +65,7 @@
          <item>
           <widget class="QToolButton" name="run_button">
            <property name="text">
-            <string>✔</string>
+            <string>Validate ✔</string>
            </property>
           </widget>
          </item>
