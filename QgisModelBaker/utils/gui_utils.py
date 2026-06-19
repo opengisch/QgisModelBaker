@@ -14,6 +14,7 @@ from qgis.PyQt.QtCore import (
     QModelIndex,
     QObject,
     QRect,
+    QRectF,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
@@ -22,9 +23,11 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtGui import (
     QColor,
     QIcon,
+    QPainter,
     QPalette,
     QStandardItem,
     QStandardItemModel,
+    QTextOption,
     QValidator,
 )
 from qgis.PyQt.QtWidgets import (
@@ -305,6 +308,25 @@ class FileDropListView(QListView):
                 dropped_ini_files.append(local_file)
 
         return dropped_interlis_files, dropped_xml_files, dropped_ini_files
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        if not self.model() or self.model().rowCount() == 0:
+            painter = QPainter(self.viewport())
+            # valid gray for all the themes
+            painter.setPen(Qt.GlobalColor.gray)
+
+            text_option = QTextOption(Qt.AlignmentFlag.AlignCenter)
+            text_option.setWrapMode(QTextOption.WrapMode.WordWrap)
+
+            painter.drawText(
+                QRectF(self.viewport().rect()),
+                self.tr(
+                    "Drag a file into this zone (.ili, .xtf, .itf, .xml, .ini, .toml)"
+                ),
+                text_option,
+            )
 
 
 class SourceModel(QStandardItemModel):
