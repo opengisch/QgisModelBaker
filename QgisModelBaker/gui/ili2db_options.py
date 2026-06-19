@@ -132,7 +132,15 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.create_basket_col_checkbox.toggled.connect(
             lambda: self._restyle_concerning_metaconfig()
         )
-
+        self.enum_tabswithid_radio_button.toggled.connect(
+            lambda: self._restyle_concerning_metaconfig()
+        )
+        self.enum_tabs_radio_button.toggled.connect(
+            lambda: self._restyle_concerning_metaconfig()
+        )
+        self.enum_singletab_radio_button.toggled.connect(
+            lambda: self._restyle_concerning_metaconfig()
+        )
         self.toml_file_line_edit.textChanged.connect(
             lambda: self._restyle_concerning_metaconfig()
         )
@@ -214,6 +222,14 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             return "smart2"
 
+    def enum_type(self):
+        if self.enum_tabs_radio_button.isChecked():
+            return "tabs"
+        elif self.enum_singletab_radio_button.isChecked():
+            return "singletab"
+        else:
+            return "tabsid"
+
     def set_toml_file_key(self, key_postfix):
         if key_postfix:
             self.toml_file_key = "QgisModelBaker/ili2db/tomlfile/" + key_postfix
@@ -246,6 +262,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         settings.setValue(
             "QgisModelBaker/ili2db/create_basket_col", self.create_basket_col()
         )
+        settings.setValue("QgisModelBaker/ili2db/enum_type", self.enum_type())
         settings.setValue(
             "QgisModelBaker/ili2db/create_import_tid", self.create_import_tid()
         )
@@ -265,6 +282,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         create_basket_col = settings.value(
             "QgisModelBaker/ili2db/create_basket_col", defaultValue=True, type=bool
         )
+        enum_type = settings.value("QgisModelBaker/ili2db/enum_type", "tabsid")
+        if enum_type == "tabs":
+            self.enum_tabs_radio_button.setChecked(True)
+        elif enum_type == "singletab":
+            self.enum_singletab_radio_button.setChecked(True)
+        else:
+            self.enum_tabswithid_radio_button.setChecked(True)
         create_import_tid = settings.value(
             "QgisModelBaker/ili2db/create_import_tid", defaultValue=True, type=bool
         )
@@ -306,6 +330,18 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             if "createBasketCol" in self.current_metaconfig_ili2db:
                 self.create_basket_col_checkbox.setChecked(
                     self.current_metaconfig_ili2db.getboolean("createBasketCol")
+                )
+            if "createEnumTabs" in self.current_metaconfig_ili2db:
+                self.enum_tabs_radio_button.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("createEnumTabs")
+                )
+            if "createSingleEnumTab" in self.current_metaconfig_ili2db:
+                self.enum_singletab_radio_button.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("createSingleEnumTab")
+                )
+            if "createEnumTabsWithId" in self.current_metaconfig_ili2db:
+                self.enum_tabswithid_radio_button.setChecked(
+                    self.current_metaconfig_ili2db.getboolean("createEnumTabsWithId")
                 )
             if "importTid" in self.current_metaconfig_ili2db:
                 self.create_import_tid_checkbox.setChecked(
@@ -383,6 +419,42 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
                 else:
                     self.create_basket_col_checkbox.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
+                    )
+            if "createEnumTabs" in self.current_metaconfig_ili2db:
+                if (
+                    self.current_metaconfig_ili2db.getboolean("createEnumTabs")
+                    == self.enum_tabs_radio_button.isChecked()
+                ):
+                    self.enum_tabs_radio_button.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
+                else:
+                    self.enum_tabs_radio_button.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
+                    )
+            if "createSingleEnumTab" in self.current_metaconfig_ili2db:
+                if (
+                    self.current_metaconfig_ili2db.getboolean("createSingleEnumTab")
+                    == self.enum_singletab_radio_button.isChecked()
+                ):
+                    self.enum_singletab_radio_button.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
+                else:
+                    self.enum_singletab_radio_button.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
+                    )
+            if "createEnumTabsWithId" in self.current_metaconfig_ili2db:
+                if (
+                    self.current_metaconfig_ili2db.getboolean("createEnumTabsWithId")
+                    == self.enum_tabswithid_radio_button.isChecked()
+                ):
+                    self.enum_tabswithid_radio_button.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
+                else:
+                    self.enum_tabswithid_radio_button.setStyleSheet(
                         f"color:{self.COLOR_WARNING}"
                     )
             if "importTid" in self.current_metaconfig_ili2db:
@@ -487,6 +559,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.smart1_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.smart2_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.create_basket_col_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.enum_tabs_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.enum_singletab_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.enum_tabswithid_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.create_import_tid_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.stroke_arcs_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.namelang_combo.setStyleSheet(f"color:{self.COLOR_INFO}")
