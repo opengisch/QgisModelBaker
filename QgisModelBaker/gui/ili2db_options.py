@@ -282,7 +282,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         create_basket_col = settings.value(
             "QgisModelBaker/ili2db/create_basket_col", defaultValue=True, type=bool
         )
-        enum_type = settings.value("QgisModelBaker/ili2db/enum_type", "smart2")
+        enum_type = settings.value("QgisModelBaker/ili2db/enum_type", "tabsid")
         if enum_type == "tabs":
             self.enum_tabs_radio_button.setChecked(True)
         elif enum_type == "singletab":
