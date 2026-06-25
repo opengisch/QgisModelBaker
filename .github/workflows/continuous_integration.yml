@@ -67,7 +67,7 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     env:
-      QGIS_TOKEN: ${{ secrets.QGIS_ORG_TOKEN }}
+      QGIS_TOKEN: ${{ secrets.QGIS_ORG_TOKEN_SIGNEDAV }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
       GITHUB_REF: ${{ github.ref }}
