@@ -44,10 +44,14 @@ class LogPanel(QWidget):
         self.logger = logging.getLogger("qgismodelbaker")
         self.txtStdout = QTextBrowser()
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.bar.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
+        )
         self.txtStdout.setLayout(QGridLayout())
         self.txtStdout.layout().setContentsMargins(0, 0, 0, 0)
-        self.txtStdout.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
+        self.txtStdout.layout().addWidget(
+            self.bar, 0, 0, Qt.AlignmentFlag.AlignTop
+        )
         self.scrollbar = self.txtStdout.verticalScrollBar()
 
         self.busy_bar = QProgressBar()
@@ -63,7 +67,8 @@ class LogPanel(QWidget):
 
     def sizeHint(self):
         return QSize(
-            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 10
+            self.fontMetrics().lineSpacing() * 48,
+            self.fontMetrics().lineSpacing() * 10,
         )
 
     def print_info(self, text, level=LogLevel.INFO):

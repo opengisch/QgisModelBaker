@@ -84,12 +84,14 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
         self.validators = gui_utils.Validators()
         self.file_validator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_empty=True,
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
         self.sql_file_validator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
+            pattern=["*." + ext for ext in self.SQLValidExtensions],
+            allow_empty=True,
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
         self.post_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -105,7 +107,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.toml_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
+        self.toml_file_line_edit.textChanged.emit(
+            self.toml_file_line_edit.text()
+        )
         self.pre_script_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
@@ -174,7 +178,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             )
 
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.bar.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
+        )
         self.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
 
     def accepted(self):
@@ -232,7 +238,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def set_toml_file_key(self, key_postfix):
         if key_postfix:
-            self.toml_file_key = "QgisModelBaker/ili2db/tomlfile/" + key_postfix
+            self.toml_file_key = (
+                "QgisModelBaker/ili2db/tomlfile/" + key_postfix
+            )
         else:
             self.toml_file_key = None
         self.restore_configuration()
@@ -257,7 +265,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
     def save_configuration(self):
         settings = QSettings()
-        settings.setValue("QgisModelBaker/ili2db/inheritance", self.inheritance_type())
+        settings.setValue(
+            "QgisModelBaker/ili2db/inheritance", self.inheritance_type()
+        )
         settings.setValue(self.toml_file_key, self.toml_file())
         settings.setValue(
             "QgisModelBaker/ili2db/create_basket_col", self.create_basket_col()
@@ -267,20 +277,27 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             "QgisModelBaker/ili2db/create_import_tid", self.create_import_tid()
         )
         settings.setValue(
-            "QgisModelBaker/ili2db/create_gpkg_multigeom", self.create_gpkg_multigeom()
+            "QgisModelBaker/ili2db/create_gpkg_multigeom",
+            self.create_gpkg_multigeom(),
         )
-        settings.setValue("QgisModelBaker/ili2db/stroke_arcs", self.stroke_arcs())
+        settings.setValue(
+            "QgisModelBaker/ili2db/stroke_arcs", self.stroke_arcs()
+        )
         settings.setValue("QgisModelBaker/ili2db/name_lang", self.name_lang())
 
     def restore_configuration(self):
         settings = QSettings()
-        inheritance = settings.value("QgisModelBaker/ili2db/inheritance", "smart2")
+        inheritance = settings.value(
+            "QgisModelBaker/ili2db/inheritance", "smart2"
+        )
         if inheritance == "smart1":
             self.smart1_radio_button.setChecked(True)
         else:
             self.smart2_radio_button.setChecked(True)
         create_basket_col = settings.value(
-            "QgisModelBaker/ili2db/create_basket_col", defaultValue=True, type=bool
+            "QgisModelBaker/ili2db/create_basket_col",
+            defaultValue=True,
+            type=bool,
         )
         enum_type = settings.value("QgisModelBaker/ili2db/enum_type", "tabsid")
         if enum_type == "tabs":
@@ -290,7 +307,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         else:
             self.enum_tabswithid_radio_button.setChecked(True)
         create_import_tid = settings.value(
-            "QgisModelBaker/ili2db/create_import_tid", defaultValue=True, type=bool
+            "QgisModelBaker/ili2db/create_import_tid",
+            defaultValue=True,
+            type=bool,
         )
         create_gpkg_multigeom = settings.value(
             "QgisModelBaker/ili2db/create_gpkg_multigeom",
@@ -307,7 +326,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.create_basket_col_checkbox.setChecked(create_basket_col)
         self.create_import_tid_checkbox.setChecked(create_import_tid)
         if int(gdal.VersionInfo("VERSION_NUM")) >= 3080000:
-            self.create_gpkg_multigeom_checkbox.setChecked(create_gpkg_multigeom)
+            self.create_gpkg_multigeom_checkbox.setChecked(
+                create_gpkg_multigeom
+            )
         else:
             self.create_gpkg_multigeom_checkbox.setChecked(False)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
@@ -321,15 +342,21 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         if self.current_metaconfig_ili2db:
             if "smart1Inheritance" in self.current_metaconfig_ili2db:
                 self.smart1_radio_button.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("smart1Inheritance")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "smart1Inheritance"
+                    )
                 )
             if "smart2Inheritance" in self.current_metaconfig_ili2db:
                 self.smart2_radio_button.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("smart2Inheritance")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "smart2Inheritance"
+                    )
                 )
             if "createBasketCol" in self.current_metaconfig_ili2db:
                 self.create_basket_col_checkbox.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("createBasketCol")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createBasketCol"
+                    )
                 )
             if "createEnumTabs" in self.current_metaconfig_ili2db:
                 self.enum_tabs_radio_button.setChecked(
@@ -337,11 +364,15 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                 )
             if "createSingleEnumTab" in self.current_metaconfig_ili2db:
                 self.enum_singletab_radio_button.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("createSingleEnumTab")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createSingleEnumTab"
+                    )
                 )
             if "createEnumTabsWithId" in self.current_metaconfig_ili2db:
                 self.enum_tabswithid_radio_button.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("createEnumTabsWithId")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createEnumTabsWithId"
+                    )
                 )
             if "importTid" in self.current_metaconfig_ili2db:
                 self.create_import_tid_checkbox.setChecked(
@@ -349,7 +380,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                 )
             if "gpkgMultiGeomPerTable" in self.current_metaconfig_ili2db:
                 self.create_gpkg_multigeom.setChecked(
-                    self.current_metaconfig_ili2db.getboolean("gpkgMultiGeomPerTable")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "gpkgMultiGeomPerTable"
+                    )
                 )
             if "strokeArcs" in self.current_metaconfig_ili2db:
                 self.stroke_arcs_checkbox.setChecked(
@@ -387,7 +420,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
 
             if "smart1Inheritance" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("smart1Inheritance")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "smart1Inheritance"
+                    )
                     == self.smart1_radio_button.isChecked()
                 ):
                     self.smart1_radio_button.setStyleSheet(
@@ -399,7 +434,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "smart2Inheritance" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("smart2Inheritance")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "smart2Inheritance"
+                    )
                     == self.smart2_radio_button.isChecked()
                 ):
                     self.smart2_radio_button.setStyleSheet(
@@ -411,7 +448,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "createBasketCol" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("createBasketCol")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createBasketCol"
+                    )
                     == self.create_basket_col_checkbox.isChecked()
                 ):
                     self.create_basket_col_checkbox.setStyleSheet(
@@ -435,7 +474,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "createSingleEnumTab" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("createSingleEnumTab")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createSingleEnumTab"
+                    )
                     == self.enum_singletab_radio_button.isChecked()
                 ):
                     self.enum_singletab_radio_button.setStyleSheet(
@@ -447,7 +488,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "createEnumTabsWithId" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("createEnumTabsWithId")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "createEnumTabsWithId"
+                    )
                     == self.enum_tabswithid_radio_button.isChecked()
                 ):
                     self.enum_tabswithid_radio_button.setStyleSheet(
@@ -471,7 +514,9 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     )
             if "gpkgMultiGeomPerTable" in self.current_metaconfig_ili2db:
                 if (
-                    self.current_metaconfig_ili2db.getboolean("gpkgMultiGeomPerTable")
+                    self.current_metaconfig_ili2db.getboolean(
+                        "gpkgMultiGeomPerTable"
+                    )
                     == self.create_gpkg_multigeom_checkbox.isChecked()
                 ):
                     self.create_gpkg_multigeom_checkbox.setStyleSheet(
@@ -498,9 +543,13 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     self.current_metaconfig_ili2db.get("nameLang", "")
                     == self.namelang_combo.currentData()
                 ):
-                    self.namelang_label.setStyleSheet(f"color:{self.COLOR_TOPPING}")
+                    self.namelang_label.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
                 else:
-                    self.namelang_label.setStyleSheet(f"color:{self.COLOR_WARNING}")
+                    self.namelang_label.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
+                    )
             if self.current_metaconfig_toml_file_path:
                 if (
                     self.current_metaconfig_toml_file_path
@@ -509,12 +558,16 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     self.toml_file_browse_button.setStyleSheet(
                         f"color:{self.COLOR_TOPPING}"
                     )
-                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_TOPPING}")
+                    self.toml_file_label.setStyleSheet(
+                        f"color:{self.COLOR_TOPPING}"
+                    )
                 else:
                     self.toml_file_browse_button.setStyleSheet(
                         f"color:{self.COLOR_WARNING}"
                     )
-                    self.toml_file_label.setStyleSheet(f"color:{self.COLOR_WARNING}")
+                    self.toml_file_label.setStyleSheet(
+                        f"color:{self.COLOR_WARNING}"
+                    )
 
             if self.current_metaconfig_post_script_path:
                 if (
@@ -558,20 +611,38 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             # reset all
             self.smart1_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.smart2_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.create_basket_col_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.enum_tabs_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.enum_singletab_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.enum_tabswithid_radio_button.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.create_import_tid_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.create_basket_col_checkbox.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.enum_tabs_radio_button.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.enum_singletab_radio_button.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.enum_tabswithid_radio_button.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.create_import_tid_checkbox.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
             self.stroke_arcs_checkbox.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.namelang_combo.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.toml_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.toml_file_browse_button.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
             self.toml_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
             self.post_script_file_browse_button.setStyleSheet(
                 f"color:{self.COLOR_INFO}"
             )
-            self.post_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.pre_script_file_browse_button.setStyleSheet(f"color:{self.COLOR_INFO}")
-            self.pre_script_file_label.setStyleSheet(f"color:{self.COLOR_INFO}")
+            self.post_script_file_label.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.pre_script_file_browse_button.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
+            self.pre_script_file_label.setStyleSheet(
+                f"color:{self.COLOR_INFO}"
+            )
 
             self.metaconfig_info_label.setVisible(False)

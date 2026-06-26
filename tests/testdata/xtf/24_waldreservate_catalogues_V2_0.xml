@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ili:transfer
+       xmlns:ili="http://www.interlis.ch/xtf/2.4/INTERLIS"
+       xmlns:geom="http://www.interlis.ch/geometry/1.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:Waldreservate_V2_0="http://www.interlis.ch/xtf/2.4/Waldreservate_V2_0"
+       xmlns:LocalisationCH_V2="http://www.interlis.ch/xtf/2.4/LocalisationCH_V2"
+       xmlns:Localisation_V2="http://www.interlis.ch/xtf/2.4/Localisation_V2"
+       xmlns:InternationalCodes_V2="http://www.interlis.ch/xtf/2.4/InternationalCodes_V2">
+  <ili:headersection>
+    <ili:models>
+      <ili:model>Waldreservate_V2_0</ili:model>
+      <ili:model>LocalisationCH_V2</ili:model>
+      <ili:model>Localisation_V2</ili:model>
+    </ili:models>
+    <ili:sender>ili2pg-5.1.0-58fc980cc6639b2c16a3cff8a0fa19ef1484b11c</ili:sender>
+  </ili:headersection>
+  <ili:datasection>
+    <Waldreservate_V2_0:Codelisten ili:bid="ch.admin.bafu.waldreservate_catalogues_v2_0">
+      <Waldreservate_V2_0:MCPFE_Class_Catalogue ili:tid="2001">
+        <Waldreservate_V2_0:Symbol>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Y0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAABdFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMi1jMDAwIDc5LmRlZTNhNzcwMywgMjAyMi8wOC8xOC0xNjo1MDozMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTA5LTMwVDE1OjA5OjA4KzAyOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0wOS0zMFQxNToxMTo0MSswMjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wOS0zMFQxNToxMTo0MSswMjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDY1OGU0ZDItMDUyYS00MGZhLWFkNDUtYzExMzMyZjE3YjVlIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6NTg3YzcxODEtZGI2NC1lZjQxLWJiYmEtN2M5MWEzNDhiYTZhIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NzUyOWMwZWUtMjQ5ZS00MWRjLTg3MDUtYWQ3NjQyMWU1OTJjIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo3NTI5YzBlZS0yNDllLTQxZGMtODcwNS1hZDc2NDIxZTU5MmMiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MDk6MDgrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NjU4ZTRkMi0wNTJhLTQwZmEtYWQ0NS1jMTEzMzJmMTdiNWUiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MTE6NDErMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PpuIRTwAAACvSURBVFiF7dlBagJBFEXR03a1SY+CTgMhq8ly3ZODBEFIgiBiE6xsoqT48s8K3h2/4WO3Wfhj8AgqI0+Uz8vPG1uW3puamDixp0yjV945997UxMyBL8rAwplL701NVK4MrHovuZcMiybDosmwaDIsmgyLJsOiybBoMiyaDIsmw6LJsGgyLJoMiybDoimViZnae0oTM2sqpd58M3LtvamJNb/cKJvp+cjhga7aFS/8A58VHgyd+ihaAAAAAElFTkSuQmCC</Waldreservate_V2_0:Symbol>
+        <Waldreservate_V2_0:Code>MCPFE1.1</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.1 Keine aktiven Eingriffe</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.1 Pas d’interventions actives</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.1 Nessun intervento attivo</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.1 No active intervention</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:MCPFE_Class_Catalogue>
+      <Waldreservate_V2_0:MCPFE_Class_Catalogue ili:tid="2002">
+        <Waldreservate_V2_0:Symbol>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Y0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAABdFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMi1jMDAwIDc5LmRlZTNhNzcwMywgMjAyMi8wOC8xOC0xNjo1MDozMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTA5LTMwVDE1OjA5OjA4KzAyOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0wOS0zMFQxNToxMToxOSswMjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wOS0zMFQxNToxMToxOSswMjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6ZDY1ZDE1OTktMjRkZS00YzY2LTg5MWYtMDExYTUwZGMyMmFhIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6NzQ3YmM3Y2EtN2RjOC0yYjRjLTg5YTctODY0MmViNDYyODc3IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NWQ4NzIyNjAtYWUxOS00NGFhLWFiZDYtMzE1N2NiOGEyZjBjIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo1ZDg3MjI2MC1hZTE5LTQ0YWEtYWJkNi0zMTU3Y2I4YTJmMGMiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MDk6MDgrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpkNjVkMTU5OS0yNGRlLTRjNjYtODkxZi0wMTFhNTBkYzIyYWEiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MTE6MTkrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtSyTkIAAADkSURBVFiF7dNNSgNBFEXhUz/pdCyFJoQMnJqJm1BwPS5RcQHqwEHGCU1AQaMJSWsUU+UGHBYUL7xvBfcMrrm+u7yZP5z4ylkOQEz0HKGPb9evo2F3cdZ136VH5TCoeFlxP8PHfT055eqct03pUTk0gemCxxneWb5+WG5ZfZYelUNMbHdYw0Ec6z8aJo2GSaNh0miYNBomjYZJo2HSaJg0GiaNhkmjYdJomDQaJo2GSeNjou7RBPax9JYcmiNCn5Twzv4+r3lq2exKj8ohVCzeSQY/Pg63bfWxtMaUHpVDAmcZ1vwBEoY3L6XLqt0AAAAASUVORK5CYII=</Waldreservate_V2_0:Symbol>
+        <Waldreservate_V2_0:Code>MCPFE1.2</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.2 Minimale Eingriffe</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.2 Interventions minimales</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.2 Interventi minimi</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.2 Minimum intervention</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:MCPFE_Class_Catalogue>
+      <Waldreservate_V2_0:MCPFE_Class_Catalogue ili:tid="2003">
+        <Waldreservate_V2_0:Symbol>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Y0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAABdFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMi1jMDAwIDc5LmRlZTNhNzcwMywgMjAyMi8wOC8xOC0xNjo1MDozMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTA5LTMwVDE1OjA5OjA4KzAyOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0wOS0zMFQxNToxMDo1NiswMjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wOS0zMFQxNToxMDo1NiswMjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MDBkMWNhMjktZTcwYi00MWI5LWJkZWQtODA1MDE3OTFmYzllIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZWM3Y2Y3ZjktNjZjMi0xMjQyLTkyMDktNTNhMmM4YjZhNjVmIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NzE3ZTgwMmQtZmQwOC00MDI2LWI5NjktZTQ3MDk3ZmE2ZjJhIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MTdlODAyZC1mZDA4LTQwMjYtYjk2OS1lNDcwOTdmYTZmMmEiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MDk6MDgrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowMGQxY2EyOS1lNzBiLTQxYjktYmRlZC04MDUwMTc5MWZjOWUiIHN0RXZ0OndoZW49IjIwMjQtMDktMzBUMTU6MTA6NTYrMDI6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pg3q90UAAAD9SURBVFiF7dmxagJBFIXhM5NZ1lUT48qWosTKRkgvpPEZQqq0qdLnjSzWWhAUEW3sop0aomkkaFiMIaJxXX2JCcOV+z3B+esjntuV+nvTsXBxxBk4CDgSbiKtJsGwlC3eFx4DLEyv0iAFd7Qe+IOa2oXbu+ztw81LgKnpVRq4yHc3vv9aU0pa39ufFT7mmJlepcEB4dfvpxSQppf8Fw6jhsOo4TBqOIwaDqOGw6jhMGo4jBoOo4bDqOEwajiMGg6jhsOoUWG0v7ST18jt8Wd6jAYe8um4Fx2hbOWMl2+dTHWBuelVGrjwhqu+FBBPrXJj1ruyz+SqjQBLImnHTuUuPXhgAYjeAAAAAElFTkSuQmCC</Waldreservate_V2_0:Symbol>
+        <Waldreservate_V2_0:Code>MCPFE1.3</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.3 Biodiversitätsförderung durch gezielte Eingriffe</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.3 Promotion de la biodiversité par des interventions ciblées</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.3 Promozione delle biodiversità per mezzo di interventi specifici</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>MCPFE1.3 Conservation through active management</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:MCPFE_Class_Catalogue>
+
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3001">
+        <Waldreservate_V2_0:Code>Prozessschutz</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Zulassen der natürlichen Waldentwicklung</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Laisser libre cours au développement naturel de la forêt</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3002">
+        <Waldreservate_V2_0:Code>LichteWaelder</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Lichte Wälder wiederherstellen und pflegen</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Restaurer et entretenir les forêts claires</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3003">
+        <Waldreservate_V2_0:Code>FeuchteWaelder</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Feuchte Wälder erhalten und wiederherstellen</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Maintenir et restaurer les forêts humides</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3004">
+        <Waldreservate_V2_0:Code>Bewirtschaftungsformen</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Besondere Bewirtschaftungsformen erhalten</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Maintenir les formes d’exploitation particulières</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3005">
+        <Waldreservate_V2_0:Code>AndereNPA/NPLAufwertung</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Erhaltung anderer seltener Waldgesellschaften oder national prioritärer Arten</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Maintenir d’autres associations forestières rares ou espèces prioritaires au niveau national</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+      <Waldreservate_V2_0:Schutzziel_Catalogue ili:tid="3006">
+        <Waldreservate_V2_0:Code>GenDiv</Waldreservate_V2_0:Code>
+        <Waldreservate_V2_0:Description>
+          <LocalisationCH_V2:MultilingualText>
+            <Localisation_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>de</Localisation_V2:Language>
+                <Localisation_V2:Text>Erhaltung der genetischen Vielfalt (Generhaltungsgebiete)</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>fr</Localisation_V2:Language>
+                <Localisation_V2:Text>Préserver la diversité génétique (aires de conservataion génétique)</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>it</Localisation_V2:Language>
+                <Localisation_V2:Text>IT</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+              <LocalisationCH_V2:LocalisedText>
+                <Localisation_V2:Language>en</Localisation_V2:Language>
+                <Localisation_V2:Text>EN</Localisation_V2:Text>
+              </LocalisationCH_V2:LocalisedText>
+            </Localisation_V2:LocalisedText>
+          </LocalisationCH_V2:MultilingualText>
+        </Waldreservate_V2_0:Description>
+      </Waldreservate_V2_0:Schutzziel_Catalogue>
+
+    </Waldreservate_V2_0:Codelisten>
+  </ili:datasection>
+</ili:transfer>

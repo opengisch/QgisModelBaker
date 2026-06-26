@@ -83,7 +83,9 @@ class LayerStyleWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
 
 
 class LayerModel(QgsLayerTreeModel):
@@ -101,7 +103,9 @@ class LayerModel(QgsLayerTreeModel):
         USE_DEFINITION = 2
         USE_SOURCE = 3
 
-    def __init__(self, layertree: QgsLayerTree, export_settings=ExportSettings()):
+    def __init__(
+        self, layertree: QgsLayerTree, export_settings=ExportSettings()
+    ):
         super().__init__(layertree)
         self.export_settings = export_settings
         self.use_style_nodes = {}
@@ -124,7 +128,9 @@ class LayerModel(QgsLayerTreeModel):
         else:
             node = self.index2node(index)
             if not QgsLayerTree.isGroup(node):
-                return Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled
+                return (
+                    Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled
+                )
             else:
                 return Qt.ItemFlag.NoItemFlags
 
@@ -343,11 +349,15 @@ class LayerModel(QgsLayerTreeModel):
                 == Qt.CheckState.Checked
             ):
                 self.setData(
-                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked
+                    index,
+                    Qt.ItemDataRole.CheckStateRole,
+                    Qt.CheckState.Unchecked,
                 )
             else:
                 self.setData(
-                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
+                    index,
+                    Qt.ItemDataRole.CheckStateRole,
+                    Qt.CheckState.Checked,
                 )
 
     def reload(self, load_defaults=False):
@@ -363,7 +373,9 @@ class LayerModel(QgsLayerTreeModel):
                 False,
             )
             self.setData(
-                self.index(child_row, LayerModel.Columns.USE_DEFINITION, parent),
+                self.index(
+                    child_row, LayerModel.Columns.USE_DEFINITION, parent
+                ),
                 Qt.ItemDataRole.CheckStateRole,
                 False,
             )
@@ -373,7 +385,9 @@ class LayerModel(QgsLayerTreeModel):
                 False,
             )
             self._disable_children(
-                self.index(child_row, LayerModel.Columns.USE_DEFINITION, parent)
+                self.index(
+                    child_row, LayerModel.Columns.USE_DEFINITION, parent
+                )
             )
 
     def _disable_parent_definition(self, index: QModelIndex):
@@ -385,7 +399,9 @@ class LayerModel(QgsLayerTreeModel):
             LayerModel.Columns.USE_DEFINITION,
             index.parent().parent(),
         )
-        self.setData(parent_definition_index, Qt.ItemDataRole.CheckStateRole, False)
+        self.setData(
+            parent_definition_index, Qt.ItemDataRole.CheckStateRole, False
+        )
         if index.parent() != QModelIndex():
             self._disable_parent_definition(index.parent())
 
@@ -425,15 +441,23 @@ class LayerModel(QgsLayerTreeModel):
                         and db_connector.db_or_schema_exists()
                         and db_connector.metadata_exists()
                     ):
-                        self.ili_schema_identificators.append(schema_identificator)
+                        self.ili_schema_identificators.append(
+                            schema_identificator
+                        )
 
     def _is_ili_schema(self, layer):
-        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
+        if (
+            not layer
+            or not layer.dataProvider()
+            or not layer.dataProvider().isValid()
+        ):
             return False
 
         source_provider = layer.dataProvider()
-        schema_identificator = db_utils.get_schema_identificator_from_sourceprovider(
-            source_provider
+        schema_identificator = (
+            db_utils.get_schema_identificator_from_sourceprovider(
+                source_provider
+            )
         )
         return schema_identificator in self.ili_schema_identificators
 
@@ -538,7 +562,8 @@ class StyleCatDelegate(QStyledItemDelegate):
         widget.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(
-            QPalette.ColorRole.Base, QColor(index.data(Qt.ItemDataRole.BackgroundRole))
+            QPalette.ColorRole.Base,
+            QColor(index.data(Qt.ItemDataRole.BackgroundRole)),
         )
         widget.setPalette(palette)
         widget.checkbox.stateChanged.connect(
@@ -546,7 +571,9 @@ class StyleCatDelegate(QStyledItemDelegate):
                 index, Qt.ItemDataRole.CheckStateRole, state
             )
         )
-        widget.settings_button.clicked.connect(lambda: self.button_clicked.emit(index))
+        widget.settings_button.clicked.connect(
+            lambda: self.button_clicked.emit(index)
+        )
         return widget
 
     def setEditorData(self, editor, index):
@@ -587,7 +614,9 @@ class LayersPage(QWizardPage, PAGE_UI):
         self.layer_table_view.header().setStretchLastSection(False)
 
         self.layer_table_view.expandAll()
-        self.layer_table_view.clicked.connect(self.layer_table_view.model().check)
+        self.layer_table_view.clicked.connect(
+            self.layer_table_view.model().check
+        )
 
         self.stylecat_delegate = StyleCatDelegate(self.layer_table_view)
         self.layer_table_view.setItemDelegateForColumn(
@@ -595,7 +624,9 @@ class LayersPage(QWizardPage, PAGE_UI):
         )
 
         self.categories_dialog = LayerStyleCategoriesDialog()
-        self.stylecat_delegate.button_clicked.connect(self.open_categories_dialog)
+        self.stylecat_delegate.button_clicked.connect(
+            self.open_categories_dialog
+        )
         self.reset_button.clicked.connect(self.reload_layermodel)
 
     def reload_layermodel(self):
@@ -621,7 +652,9 @@ class LayersPage(QWizardPage, PAGE_UI):
             )
 
     def initializePage(self) -> None:
-        self.layermodel.export_settings = self.topping_wizard.topping.export_settings
+        self.layermodel.export_settings = (
+            self.topping_wizard.topping.export_settings
+        )
         self.layermodel.reload()
         return super().initializePage()
 

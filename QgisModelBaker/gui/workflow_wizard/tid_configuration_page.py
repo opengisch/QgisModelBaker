@@ -21,7 +21,9 @@
 from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
-from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
+from QgisModelBaker.gui.panel.tid_configurator_panel import (
+    TIDConfiguratorPanel,
+)
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 
@@ -39,13 +41,17 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         self.setTitle(title)
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
-        self.tid_configurator_panel = TIDConfiguratorPanel(self.workflow_wizard)
+        self.tid_configurator_panel = TIDConfiguratorPanel(
+            self.workflow_wizard
+        )
         self.tid_configurator_layout.addWidget(self.tid_configurator_panel)
 
         self.configuration = None
 
     def set_configuration(self, configuration):
-        self.tid_configurator_panel.setup_dialog(QgsProject.instance(), configuration)
+        self.tid_configurator_panel.setup_dialog(
+            QgsProject.instance(), configuration
+        )
 
     def _set_tid_configuration(self):
         self.workflow_wizard.busy(

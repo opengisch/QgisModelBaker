@@ -39,10 +39,15 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataFileCompleterDelegate,
     IliDataItemModel,
 )
-from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, DEFAULT_DATASETNAME
+from QgisModelBaker.utils.globals import (
+    CATALOGUE_DATASETNAME,
+    DEFAULT_DATASETNAME,
+)
 from QgisModelBaker.utils.gui_utils import CheckDelegate, LogLevel
 
-PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_data_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class(
+    "workflow_wizard/import_data_configuration.ui"
+)
 
 
 class DatasetComboDelegate(QStyledItemDelegate):
@@ -72,7 +77,9 @@ class DatasetComboDelegate(QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         value = editor.currentText()
-        model.setData(index, value, int(gui_utils.SourceModel.Roles.DATASET_NAME))
+        model.setData(
+            index, value, int(gui_utils.SourceModel.Roles.DATASET_NAME)
+        )
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -145,8 +152,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             lambda: self.remove_button.setEnabled(self._valid_selection())
         )
 
-        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
-        self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.add_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyAdd.svg")
+        )
+        self.remove_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyRemove.svg")
+        )
 
         self.workflow_wizard.import_data_file_model.sourceModel().setHorizontalHeaderLabels(
             [
@@ -156,9 +167,12 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
                 self.tr("Dataset"),
             ]
         )
-        self.file_table_view.setModel(self.workflow_wizard.import_data_file_model)
+        self.file_table_view.setModel(
+            self.workflow_wizard.import_data_file_model
+        )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
-            gui_utils.SourceModel.Columns.SOURCE, QHeaderView.ResizeMode.Stretch
+            gui_utils.SourceModel.Columns.SOURCE,
+            QHeaderView.ResizeMode.Stretch,
         )
         self.file_table_view.horizontalHeader().setSectionResizeMode(
             gui_utils.SourceModel.Columns.DELETE_DATA,
@@ -190,7 +204,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
         self.datasetmanager_dlg = None
         self.datasetmanager_button.setCheckable(True)
-        self.datasetmanager_button.clicked.connect(self._show_datasetmanager_dialog)
+        self.datasetmanager_button.clicked.connect(
+            self._show_datasetmanager_dialog
+        )
         self.datasetmanager_button.setIcon(
             QIcon(
                 os.path.join(
@@ -220,9 +236,13 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def order_list(self):
         order_list = []
-        for visual_index in range(0, self.file_table_view.verticalHeader().count()):
+        for visual_index in range(
+            0, self.file_table_view.verticalHeader().count()
+        ):
             order_list.append(
-                self.file_table_view.verticalHeader().logicalIndex(visual_index)
+                self.file_table_view.verticalHeader().logicalIndex(
+                    visual_index
+                )
             )
         return order_list
 
@@ -286,7 +306,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.IS_CATALOGUE,
-                CheckDelegate(self, role=gui_utils.SourceModel.Roles.IS_CATALOGUE),
+                CheckDelegate(
+                    self, role=gui_utils.SourceModel.Roles.IS_CATALOGUE
+                ),
             )
             self.file_table_view.setItemDelegateForColumn(
                 gui_utils.SourceModel.Columns.DATASET,
@@ -346,7 +368,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.ilireferencedata_line_edit,
         )
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setModelSorting(
+            QCompleter.ModelSorting.CaseInsensitivelySortedModel
+        )
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.ilireferencedata_line_edit.setCompleter(completer)
@@ -395,9 +419,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
 
     def _on_referencedata_received(self, path):
         self.workflow_wizard.log_panel.print_info(
-            self.tr("Referenced transfer file successfully downloaded: {}").format(
-                path
-            ),
+            self.tr(
+                "Referenced transfer file successfully downloaded: {}"
+            ).format(path),
             LogLevel.TOPPING,
         )
         if (
@@ -444,7 +468,9 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             self.datasetmanager_dlg = DatasetManagerDialog(
                 self.workflow_wizard.iface, self, True
             )
-            self.datasetmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose
+            )
             self.datasetmanager_dlg.setWindowFlags(
                 self.datasetmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )

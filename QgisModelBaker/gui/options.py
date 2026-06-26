@@ -22,7 +22,9 @@ from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem
 
 from QgisModelBaker.gui.custom_model_dir import CustomModelDirDialog
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ExportConfiguration,
@@ -78,16 +80,22 @@ class OptionsDialog(QDialog, DIALOG_UI):
                 self.tr("Text files (*.txt)"),
             )
         )
-        self.ili2db_enable_debugging.setChecked(self.configuration.debugging_enabled)
+        self.ili2db_enable_debugging.setChecked(
+            self.configuration.debugging_enabled
+        )
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.helpRequested.connect(self.help_requested)
-        self.custom_models_dir_button.clicked.connect(self.show_custom_model_dir)
+        self.custom_models_dir_button.clicked.connect(
+            self.show_custom_model_dir
+        )
 
         for db_id in self.db_simple_factory.get_db_list(False):
             db_id |= DbIliMode.ili
             self.ili2db_tool_combobox.addItem(db_id.name, db_id)
 
-        self.ili2db_action_combobox.addItem(self.tr("Schema Import"), "schemaimport")
+        self.ili2db_action_combobox.addItem(
+            self.tr("Schema Import"), "schemaimport"
+        )
         self.ili2db_action_combobox.addItem(self.tr("Data Import"), "import")
         self.ili2db_action_combobox.addItem(self.tr("Data Export"), "export")
 
@@ -104,8 +112,12 @@ class OptionsDialog(QDialog, DIALOG_UI):
         drop_mode = DropMode[
             settings.value("QgisModelBaker/drop_mode", DropMode.ASK.name, str)
         ]
-        self.chk_dontask_to_handle_dropped_files.setEnabled(drop_mode != DropMode.ASK)
-        self.chk_dontask_to_handle_dropped_files.setChecked(drop_mode != DropMode.ASK)
+        self.chk_dontask_to_handle_dropped_files.setEnabled(
+            drop_mode != DropMode.ASK
+        )
+        self.chk_dontask_to_handle_dropped_files.setChecked(
+            drop_mode != DropMode.ASK
+        )
 
         self.chk_open_always_wizard_to_handle_dropped_files.setChecked(
             settings.value("QgisModelBaker/open_wizard_always", False, bool)
@@ -120,10 +132,14 @@ class OptionsDialog(QDialog, DIALOG_UI):
         )
         self.configuration.java_path = self.java_path_line_edit.text().strip()
         self.configuration.logfile_path = self.ili2db_logfile_path.text()
-        self.configuration.debugging_enabled = self.ili2db_enable_debugging.isChecked()
+        self.configuration.debugging_enabled = (
+            self.ili2db_enable_debugging.isChecked()
+        )
 
         self.configuration.super_pg_user = self.pg_user_line_edit.text()
-        self.configuration.super_pg_password = self.pg_password_line_edit.text()
+        self.configuration.super_pg_password = (
+            self.pg_password_line_edit.text()
+        )
 
         self.configuration.dbparam_map = self.pg_param_map
 
@@ -142,11 +158,15 @@ class OptionsDialog(QDialog, DIALOG_UI):
             self.pg_param_map = db_params_dialog.param_map
 
     def show_custom_model_dir(self):
-        dlg = CustomModelDirDialog(self.custom_model_directories_line_edit.text(), self)
+        dlg = CustomModelDirDialog(
+            self.custom_model_directories_line_edit.text(), self
+        )
         dlg.exec()
 
     def help_requested(self):
-        os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
+        os_language = QLocale(QSettings().value("locale/userLocale")).name()[
+            :2
+        ]
         if os_language in ["fr", "it", "de"]:
             webbrowser.open(
                 "https://opengisch.github.io/QgisModelBaker/{}/user_guide/plugin_configuration".format(
@@ -204,7 +224,9 @@ class DbParamsDialog(QDialog, DIALOG_UI):
             key_item = QTableWidgetItem()
             key_item.setData(Qt.ItemDataRole.DisplayRole, key)
             value_item = QTableWidgetItem()
-            value_item.setData(Qt.ItemDataRole.DisplayRole, self.param_map[key])
+            value_item.setData(
+                Qt.ItemDataRole.DisplayRole, self.param_map[key]
+            )
             self.mappingtable.setItem(row, 0, key_item)
             self.mappingtable.setItem(row, 1, value_item)
         self.mappingtable.insertRow(self.mappingtable.rowCount())
@@ -216,11 +238,15 @@ class DbParamsDialog(QDialog, DIALOG_UI):
         self.param_map = {}
         for row in range(self.mappingtable.rowCount()):
             key_item = self.mappingtable.item(row, 0)
-            if key_item and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0:
+            if (
+                key_item
+                and len(str(key_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+            ):
                 value_item = self.mappingtable.item(row, 1)
                 if (
                     value_item
-                    and len(str(value_item.data(Qt.ItemDataRole.DisplayRole))) > 0
+                    and len(str(value_item.data(Qt.ItemDataRole.DisplayRole)))
+                    > 0
                 ):
                     self.param_map[
                         str(key_item.data(Qt.ItemDataRole.DisplayRole))

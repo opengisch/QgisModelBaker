@@ -65,7 +65,9 @@ class CreateBasketModel(QAbstractTableModel):
             return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
+    def index(
+        self, row: int, column: int, parent: QModelIndex = ...
+    ) -> QModelIndex:
         """
         default override
         """
@@ -214,7 +216,9 @@ class CreateBasketModel(QAbstractTableModel):
                 dataset_tid = dataset_record["t_id"]
                 break
         if dataset_tid < 0:
-            feedbacks.append((False, self.tr("Dataset needs to be created first.")))
+            feedbacks.append(
+                (False, self.tr("Dataset needs to be created first."))
+            )
         else:
             for topic_key in self.basket_settings.keys():
                 basket_setting = self.basket_settings[topic_key]
@@ -243,7 +247,8 @@ class CreateBasketPanel(QWidget, WIDGET_UI):
         self.basket_view.setModel(self.bid_model)
 
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.DO_CREATE, QHeaderView.ResizeMode.ResizeToContents
+            CreateBasketModel.Columns.DO_CREATE,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
             CreateBasketModel.Columns.TOPIC, QHeaderView.ResizeMode.Stretch
@@ -253,7 +258,8 @@ class CreateBasketPanel(QWidget, WIDGET_UI):
             QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            CreateBasketModel.Columns.BID_VALUE, QHeaderView.ResizeMode.ResizeToContents
+            CreateBasketModel.Columns.BID_VALUE,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
             CreateBasketModel.Columns.ATTACHMENT_KEY,
@@ -264,7 +270,9 @@ class CreateBasketPanel(QWidget, WIDGET_UI):
             CreateBasketModel.Columns.DO_CREATE,
             CheckDelegate(self, Qt.ItemDataRole.EditRole),
         )
-        self.basket_view.setEditTriggers(QAbstractItemView.EditTrigger.AllEditTriggers)
+        self.basket_view.setEditTriggers(
+            QAbstractItemView.EditTrigger.AllEditTriggers
+        )
 
     def load_basket_config(self, db_connector, dataset):
         self.bid_model.load_basket_config(db_connector, dataset)

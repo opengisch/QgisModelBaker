@@ -46,7 +46,9 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_host_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.mssql_host_line_edit.textChanged.emit(self.mssql_host_line_edit.text())
+        self.mssql_host_line_edit.textChanged.emit(
+            self.mssql_host_line_edit.text()
+        )
         self.mssql_database_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
@@ -56,15 +58,31 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         self.mssql_user_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.mssql_user_line_edit.textChanged.emit(self.mssql_user_line_edit.text())
+        self.mssql_user_line_edit.textChanged.emit(
+            self.mssql_user_line_edit.text()
+        )
 
-        self.mssql_host_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_instance_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_port_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_database_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_schema_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_user_line_edit.textChanged.connect(self.notify_fields_modified)
-        self.mssql_password_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.mssql_host_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_instance_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_port_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_database_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_schema_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_user_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
+        self.mssql_password_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
 
     def _show_panel(self):
         if self._db_action_type == DbActionType.SCHEMA_IMPORT:
@@ -91,7 +109,9 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.dbport = self.mssql_port_line_edit.text().strip()
         configuration.dbusr = self.mssql_user_line_edit.text().strip()
         configuration.database = self.mssql_database_line_edit.text().strip()
-        configuration.dbschema = self.mssql_schema_line_edit.text().strip().lower()
+        configuration.dbschema = (
+            self.mssql_schema_line_edit.text().strip().lower()
+        )
         configuration.dbpwd = self.mssql_password_line_edit.text()
         configuration.db_odbc_driver = self.mssql_odbc_driver.currentText()
 
@@ -115,13 +135,19 @@ class MssqlConfigPanel(DbConfigPanel, WIDGET_UI):
             message = self.tr("Please set a host before creating the project.")
             self.mssql_host_line_edit.setFocus()
         elif not "{}".format(self.mssql_database_line_edit.text().strip()):
-            message = self.tr("Please set a database before creating the project.")
+            message = self.tr(
+                "Please set a database before creating the project."
+            )
             self.mssql_database_line_edit.setFocus()
         elif not self.mssql_user_line_edit.text().strip():
-            message = self.tr("Please set a database user before creating the project.")
+            message = self.tr(
+                "Please set a database user before creating the project."
+            )
             self.mssql_user_line_edit.setFocus()
         elif not self.mssql_odbc_driver.currentText():
-            message = self.tr("Please set a odbc driver before creating the project.")
+            message = self.tr(
+                "Please set a odbc driver before creating the project."
+            )
         else:
             result = True
 

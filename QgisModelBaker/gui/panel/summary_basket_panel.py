@@ -53,7 +53,9 @@ class BasketModel(QAbstractTableModel):
     def flags(self, index):
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
+    def index(
+        self, row: int, column: int, parent: QModelIndex = ...
+    ) -> QModelIndex:
         """
         default override
         """
@@ -160,17 +162,29 @@ class BasketModel(QAbstractTableModel):
                     basket_record["datasetname"] == dataset
                     and topic_key == basket_record["topic"]
                 ):
-                    basket_setting["bid_value"] = basket_record["basket_t_ili_tid"]
-                    basket_setting["attachmentkey"] = basket_record["attachmentkey"]
-                    basket_setting["datasetname"] = basket_record["datasetname"]
+                    basket_setting["bid_value"] = basket_record[
+                        "basket_t_ili_tid"
+                    ]
+                    basket_setting["attachmentkey"] = basket_record[
+                        "attachmentkey"
+                    ]
+                    basket_setting["datasetname"] = basket_record[
+                        "datasetname"
+                    ]
                     basket_setting["bid_domain"] = topic_record["bid_domain"]
 
                     # Additional basket info, not displayed by the view, but useful
                     # in other operations (e.g., edit) to fully identify baskets
-                    basket_setting["basket_t_id"] = basket_record["basket_t_id"]
-                    basket_setting["dataset_t_id"] = basket_record["dataset_t_id"]
+                    basket_setting["basket_t_id"] = basket_record[
+                        "basket_t_id"
+                    ]
+                    basket_setting["dataset_t_id"] = basket_record[
+                        "dataset_t_id"
+                    ]
                     basket_setting["topic"] = basket_record["topic"]
-                    self.basket_settings[basket_record["topic"]] = basket_setting
+                    self.basket_settings[
+                        basket_record["topic"]
+                    ] = basket_setting
                     break  # Go to next topic
 
         self.endResetModel()
@@ -185,19 +199,23 @@ class SummaryBasketPanel(QWidget, WIDGET_UI):
         self.basket_view.setModel(self.bid_model)
 
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.DATASET, QHeaderView.ResizeMode.ResizeToContents
+            BasketModel.Columns.DATASET,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
             BasketModel.Columns.TOPIC, QHeaderView.ResizeMode.Stretch
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_DOMAIN, QHeaderView.ResizeMode.ResizeToContents
+            BasketModel.Columns.BID_DOMAIN,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.BID_VALUE, QHeaderView.ResizeMode.ResizeToContents
+            BasketModel.Columns.BID_VALUE,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.basket_view.horizontalHeader().setSectionResizeMode(
-            BasketModel.Columns.ATTACHMENT_KEY, QHeaderView.ResizeMode.ResizeToContents
+            BasketModel.Columns.ATTACHMENT_KEY,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
 
     def load_basket_config(self, db_connector, dataset):

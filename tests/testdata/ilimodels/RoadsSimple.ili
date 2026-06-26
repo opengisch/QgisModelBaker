@@ -1,0 +1,65 @@
+
+INTERLIS 2.3;
+
+MODEL RoadsSimple (en) AT "http://www.interlis.ch/models"
+  VERSION "2016-08-11" =
+
+  UNIT
+    Angle_Degree = 180 / PI [INTERLIS.rad];
+
+  DOMAIN
+    Point2D = COORD
+      0.000 .. 200.000 [INTERLIS.m], !! Min_East  Max_East
+      0.000 .. 200.000 [INTERLIS.m], !! Min_North Max_North
+      ROTATION 2 -> 1;
+    Orientation = 0.0 .. 359.9 CIRCULAR [Angle_Degree];
+
+
+  TOPIC Roads =
+
+    CLASS LandCover =
+      Type: MANDATORY (
+        building,
+        street,
+        water,
+        other);
+      Geometry: MANDATORY SURFACE WITH (STRAIGHTS)
+        VERTEX Point2D WITHOUT OVERLAPS > 0.100;
+    END LandCover;
+
+    CLASS Street =
+      Name: MANDATORY TEXT*32;
+    END Street;
+
+    CLASS StreetAxis =
+      Geometry: MANDATORY POLYLINE WITH (STRAIGHTS)
+        VERTEX Point2D;
+    END StreetAxis;
+
+    ASSOCIATION StreetAxisAssoc =
+      Street -- {1} Street;
+      StreetAxis -- StreetAxis;
+    END StreetAxisAssoc;
+
+    CLASS StreetNamePosition =
+      NamPos: MANDATORY Point2D;
+      NamOri: MANDATORY Orientation;
+    END StreetNamePosition;
+
+    ASSOCIATION StreetNamePositionAssoc =
+      Street -- {0..1} Street;
+      StreetNamePosition -- StreetNamePosition;
+    END StreetNamePositionAssoc;
+
+    CLASS RoadSign =
+      Type: MANDATORY (
+        prohibition,
+        indication,
+        danger,
+        velocity);
+      Position: MANDATORY Point2D;
+    END RoadSign;
+
+  END Roads; !! of TOPIC
+
+END RoadsSimple. !! of MODEL

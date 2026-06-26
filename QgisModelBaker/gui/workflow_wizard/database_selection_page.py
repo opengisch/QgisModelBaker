@@ -22,7 +22,9 @@ from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.gui.panel import db_panel_utils
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
@@ -66,7 +68,9 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             self.type_combo_box.addItem(displayDbIliMode[db_id], db_id)
-            item_panel = db_panel_utils.get_config_panel(db_id, self, db_action_type)
+            item_panel = db_panel_utils.get_config_panel(
+                db_id, self, db_action_type
+            )
             self._lst_panel[db_id] = item_panel
             self.db_layout.addWidget(item_panel)
 
@@ -86,7 +90,9 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
             if is_current_panel_selected:
                 value._show_panel()
 
-    def restore_configuration(self, configuration, get_config_from_project=False):
+    def restore_configuration(
+        self, configuration, get_config_from_project=False
+    ):
         valid = False
         mode = None
         layer_configuration = Ili2DbCommandConfiguration()
@@ -105,12 +111,18 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
 
         for db_id in self.db_simple_factory.get_db_list(False):
             db_factory = self.db_simple_factory.create_factory(db_id)
-            config_manager = db_factory.get_db_command_config_manager(configuration)
+            config_manager = db_factory.get_db_command_config_manager(
+                configuration
+            )
             config_manager.load_config_from_qsettings()
             self._lst_panel[db_id].set_fields(configuration)
 
         mode = settings.value("QgisModelBaker/importtype")
-        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+        mode = (
+            DbIliMode[mode]
+            if mode
+            else self.db_simple_factory.default_database
+        )
         mode = mode & ~DbIliMode.ili
 
         if valid and mode:
@@ -136,7 +148,9 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         )
         mode = self.type_combo_box.currentData()
         db_factory = self.db_simple_factory.create_factory(mode)
-        config_manager = db_factory.get_db_command_config_manager(updated_configuration)
+        config_manager = db_factory.get_db_command_config_manager(
+            updated_configuration
+        )
         config_manager.save_config_in_qsettings()
 
     def _relevant_layer(self):
@@ -145,7 +159,11 @@ class DatabaseSelectionPage(QWizardPage, PAGE_UI):
         for layer in [self.workflow_wizard.iface.activeLayer()] + list(
             QgsProject.instance().mapLayers().values()
         ):
-            if layer and layer.dataProvider() and layer.dataProvider().isValid():
+            if (
+                layer
+                and layer.dataProvider()
+                and layer.dataProvider().isValid()
+            ):
                 return layer
 
     def is_valid(self):

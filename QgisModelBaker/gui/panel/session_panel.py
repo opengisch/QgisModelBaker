@@ -26,13 +26,17 @@ from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox, QWidget
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.edit_command import EditCommandDialog
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper import (
     iliexecutable,
     iliexporter,
     iliimporter,
 )
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
+    JavaNotFoundError,
+)
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType, LogLevel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
 from QgisModelBaker.utils.globals import DEFAULT_DATASETNAME, DbIliMode
@@ -76,13 +80,19 @@ class SessionPanel(QWidget, WIDGET_UI):
         # set up the gui
         self.create_text = self.tr("Run")
         self.set_button_to_create_action = QAction(self.create_text, None)
-        self.set_button_to_create_action.triggered.connect(self.set_button_to_create)
+        self.set_button_to_create_action.triggered.connect(
+            self.set_button_to_create
+        )
 
         self.db_action_type = db_action_type
         if self.db_action_type == DbActionType.SCHEMA_IMPORT:
-            self.create_without_constraints_text = self.tr("Run without constraints")
+            self.create_without_constraints_text = self.tr(
+                "Run without constraints"
+            )
         else:
-            self.create_without_constraints_text = self.tr("Run without validation")
+            self.create_without_constraints_text = self.tr(
+                "Run without validation"
+            )
         self.set_button_to_create_without_constraints_action = QAction(
             self.create_without_constraints_text, None
         )
@@ -97,7 +107,9 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.set_button_to_create_without_not_null
         )
 
-        self.edit_command_action = QAction(self.tr("Edit ili2db command"), None)
+        self.edit_command_action = QAction(
+            self.tr("Edit ili2db command"), None
+        )
         self.edit_command_action.triggered.connect(self.edit_command)
 
         self.skip_action = QAction(self.tr("Skip"), None)
@@ -179,7 +191,9 @@ class SessionPanel(QWidget, WIDGET_UI):
                     )
                 )
 
-            self.configuration.dataset = self.datasets[0] if self.datasets else None
+            self.configuration.dataset = (
+                self.datasets[0] if self.datasets else None
+            )
             self.configuration.delete_data = self.delete_data
         elif self.db_action_type == DbActionType.EXPORT:
             self.configuration.xtffile = self.file
@@ -220,7 +234,9 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.models,
             self.datasets,
             self.baskets,
-            db_utils.get_schema_identificator_from_configuration(self.configuration),
+            db_utils.get_schema_identificator_from_configuration(
+                self.configuration
+            ),
         )
 
     def set_button_to_create(self):
@@ -355,7 +371,9 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def _pre_generate_project(self):
         # create schema with superuser
-        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
+        db_factory = self.db_simple_factory.create_factory(
+            self.configuration.tool
+        )
         res, message = db_factory.pre_generate_project(self.configuration)
         if not res:
             self.print_info.emit(
@@ -406,7 +424,10 @@ class SessionPanel(QWidget, WIDGET_UI):
 
             self.progress_bar.setValue(20)
             try:
-                if porter.run(edited_command) != iliexecutable.IliExecutable.SUCCESS:
+                if (
+                    porter.run(edited_command)
+                    != iliexecutable.IliExecutable.SUCCESS
+                ):
                     self.progress_bar.setValue(0)
                     if not self.db_action_type == DbActionType.SCHEMA_IMPORT:
                         self.set_button_to_create_without_constraints()
@@ -449,7 +470,9 @@ class SessionPanel(QWidget, WIDGET_UI):
 
     def _create_default_dataset(self):
         self.print_info.emit(
-            self.tr("Create the default dataset {}").format(DEFAULT_DATASETNAME),
+            self.tr("Create the default dataset {}").format(
+                DEFAULT_DATASETNAME
+            ),
             LogLevel.INFO,
         )
         db_connector = db_utils.get_db_connector(self.configuration)

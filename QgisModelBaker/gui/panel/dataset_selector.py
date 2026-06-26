@@ -20,7 +20,9 @@ from qgis.core import QgsExpressionContextUtils, QgsProject
 from qgis.PyQt.QtCore import QT_VERSION_STR, QSortFilterProxyModel, Qt
 from qgis.PyQt.QtWidgets import QComboBox, QWidget
 
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
@@ -54,7 +56,11 @@ class DatasetSelector(QComboBox):
             self.currentIndexChanged.disconnect(self._store_basket_tid)
             self.setEnabled(False)
 
-        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
+        if (
+            not layer
+            or not layer.dataProvider()
+            or not layer.dataProvider().isValid()
+        ):
             return
 
         source_provider = layer.dataProvider()
@@ -64,7 +70,10 @@ class DatasetSelector(QComboBox):
         if not schema_identificator:
             return
         layer_model_topic_names = (
-            QgsExpressionContextUtils.layerScope(layer).variable("interlis_topic") or ""
+            QgsExpressionContextUtils.layerScope(layer).variable(
+                "interlis_topic"
+            )
+            or ""
         )
 
         # set the filter of the model according the current uri_identificator
@@ -133,32 +142,40 @@ class DatasetSelector(QComboBox):
         model_index = self.model().index(index, 0)
         basket_tid = model_index.data(int(BasketSourceModel.Roles.BASKET_TID))
         QgsExpressionContextUtils.setProjectVariable(
-            QgsProject.instance(), self.current_default_basket_topic, basket_tid
+            QgsProject.instance(),
+            self.current_default_basket_topic,
+            basket_tid,
         )
 
     def set_default_project_variables(self, schema_identificator):
-        for model_topic in self.basket_model.model_topics(schema_identificator):
+        for model_topic in self.basket_model.model_topics(
+            schema_identificator
+        ):
             self._store_default_basket_tid(schema_identificator, model_topic)
 
     def _store_default_basket_tid(self, schema_identificator, model_topic):
         default_basket_topic = slugify(
             f"default_basket{'_' if model_topic else ''}{model_topic}"
         )
-        if not QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(
-            default_basket_topic
-        ):
+        if not QgsExpressionContextUtils.projectScope(
+            QgsProject.instance()
+        ).variable(default_basket_topic):
             schema_topic_identificator = slugify(
                 f"{schema_identificator}_{model_topic}"
             )
 
             if QT_VERSION_STR < "5.12.0":
-                self.filtered_model.setFilterRegExp(f"{schema_topic_identificator}")
+                self.filtered_model.setFilterRegExp(
+                    f"{schema_topic_identificator}"
+                )
             else:
                 self.filtered_model.setFilterRegularExpression(
                     f"{schema_topic_identificator}"
                 )
             first_index = self.model().index(0, 0)
-            basket_tid = first_index.data(int(BasketSourceModel.Roles.BASKET_TID))
+            basket_tid = first_index.data(
+                int(BasketSourceModel.Roles.BASKET_TID)
+            )
             QgsExpressionContextUtils.setProjectVariable(
                 QgsProject.instance(), default_basket_topic, basket_tid
             )

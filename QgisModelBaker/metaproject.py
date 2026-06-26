@@ -32,7 +32,9 @@ def main(argv):
         "Generate QGIS projects or QGIS dataobjects yaml templates."
     )
     parser.add_argument(
-        "--generator", type=str, help="The generator to use. (Example: postgres)"
+        "--generator",
+        type=str,
+        help="The generator to use. (Example: postgres)",
     )
     parser.add_argument(
         "--uri",
@@ -54,7 +56,9 @@ def main(argv):
     def debug_log_message(message, tag, level):
         print("{}({}): {}".format(tag, level, message))
 
-    QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
+    QgsApplication.instance().messageLog().messageReceived.connect(
+        debug_log_message
+    )
 
     generator_module = importlib.import_module("generator." + args.generator)
 

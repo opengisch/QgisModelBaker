@@ -65,10 +65,14 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self._fill_schema_combo_box_timer = QTimer()
         self._fill_schema_combo_box_timer.setSingleShot(True)
-        self._fill_schema_combo_box_timer.timeout.connect(self._fill_schema_combo_box)
+        self._fill_schema_combo_box_timer.timeout.connect(
+            self._fill_schema_combo_box
+        )
 
         self._read_pg_schemas_task = ReadPgSchemasTask(self)
-        self._read_pg_schemas_task.finished.connect(self._read_pg_schemas_task_finished)
+        self._read_pg_schemas_task.finished.connect(
+            self._read_pg_schemas_task_finished
+        )
 
         self.base_config = BaseConfiguration()
         settings = QSettings()
@@ -97,12 +101,16 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_schema_combo_box.setEditable(True)
 
-        self.pg_host_line_edit.textChanged.connect(self.validators.validate_line_edits)
+        self.pg_host_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
         self.pg_host_line_edit.textChanged.emit(self.pg_host_line_edit.text())
         self.pg_database_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.pg_database_line_edit.textChanged.emit(self.pg_database_line_edit.text())
+        self.pg_database_line_edit.textChanged.emit(
+            self.pg_database_line_edit.text()
+        )
         self.pg_schema_combo_box.lineEdit().textChanged.connect(
             self.validators.validate_line_edits
         )
@@ -110,7 +118,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_host_line_edit.textChanged.connect(self._fields_modified)
         self.pg_port_line_edit.textChanged.connect(self._fields_modified)
         self.pg_database_line_edit.textChanged.connect(self._fields_modified)
-        self.pg_schema_combo_box.currentTextChanged.connect(self.notify_fields_modified)
+        self.pg_schema_combo_box.currentTextChanged.connect(
+            self.notify_fields_modified
+        )
 
         self.pg_auth_settings.usernameChanged.connect(self._fields_modified)
         self.pg_auth_settings.passwordChanged.connect(self._fields_modified)
@@ -138,10 +148,14 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_ssl_mode_combo_box.addItem("verify-full", "verify-full")
 
         self.pg_ssl_mode_combo_box.setItemData(
-            0, self.tr("Do not set the sslmode parameter"), Qt.ItemDataRole.ToolTipRole
+            0,
+            self.tr("Do not set the sslmode parameter"),
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
-            1, self.tr("Only try a non-SSL connection"), Qt.ItemDataRole.ToolTipRole
+            1,
+            self.tr("Only try a non-SSL connection"),
+            Qt.ItemDataRole.ToolTipRole,
         )
         self.pg_ssl_mode_combo_box.setItemData(
             2,
@@ -216,7 +230,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         configuration.dbport = self.pg_port_line_edit.text().strip()
         configuration.dbusr = self.pg_auth_settings.username()
         configuration.database = self.pg_database_line_edit.text().strip()
-        configuration.dbschema = self.pg_schema_combo_box.currentText().strip().lower()
+        configuration.dbschema = (
+            self.pg_schema_combo_box.currentText().strip().lower()
+        )
         configuration.dbpwd = self.pg_auth_settings.password()
         configuration.dbauthid = self.pg_auth_settings.configId()
 
@@ -226,7 +242,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
     def set_fields(self, configuration):
 
-        service_config, error = db_utils.get_service_config(configuration.dbservice)
+        service_config, error = db_utils.get_service_config(
+            configuration.dbservice
+        )
         if error:
             self.logger.warning(error)
 
@@ -288,7 +306,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
             self.pg_ssl_mode_combo_box.setCurrentIndex(index)
 
-            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+            self.pg_use_super_login.setChecked(
+                configuration.db_use_super_login
+            )
         else:
             index = self.pg_service_combo_box.findData(configuration.dbservice)
             self.pg_service_combo_box.setCurrentIndex(index)
@@ -311,14 +331,18 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
                 self.pg_auth_settings.setPassword(configuration.dbpwd)
 
             if not service_config.get("sslmode"):
-                index = self.pg_ssl_mode_combo_box.findData(configuration.sslmode)
+                index = self.pg_ssl_mode_combo_box.findData(
+                    configuration.sslmode
+                )
                 self.pg_ssl_mode_combo_box.setCurrentIndex(index)
 
             # On the contrary, next settings will never be stored
             # in PG service, so always take them from QSettings
             self.pg_schema_combo_box.setCurrentText(configuration.dbschema)
             self.pg_auth_settings.setConfigId(configuration.dbauthid)
-            self.pg_use_super_login.setChecked(configuration.db_use_super_login)
+            self.pg_use_super_login.setChecked(
+                configuration.db_use_super_login
+            )
 
     def is_valid(self):
         result = False
@@ -327,7 +351,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
             message = self.tr("Please set a host before creating the project.")
             self.pg_host_line_edit.setFocus()
         elif not self.pg_database_line_edit.text().strip():
-            message = self.tr("Please set a database before creating the project.")
+            message = self.tr(
+                "Please set a database before creating the project."
+            )
             self.pg_database_line_edit.setFocus()
         elif (
             self.pg_auth_settings.configId()
@@ -359,13 +385,19 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         if service_config:
             # QGIS cannot handle manually set hosts with service
             # So it needs to have a host defined in service conf or it takes localhost
-            self.pg_host_line_edit.setText(service_config.get("host", "localhost"))
+            self.pg_host_line_edit.setText(
+                service_config.get("host", "localhost")
+            )
 
             self.pg_port_line_edit.setText(service_config.get("port", ""))
             self.pg_auth_settings.setUsername(service_config.get("user", ""))
-            self.pg_database_line_edit.setText(service_config.get("dbname", ""))
+            self.pg_database_line_edit.setText(
+                service_config.get("dbname", "")
+            )
             self.pg_schema_combo_box.setCurrentText("")
-            self.pg_auth_settings.setPassword(service_config.get("password", ""))
+            self.pg_auth_settings.setPassword(
+                service_config.get("password", "")
+            )
             self.pg_auth_settings.setConfigId("")
 
             ssl_mode_index = self.pg_ssl_mode_combo_box.findData(
@@ -444,7 +476,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         self.pg_auth_settings.setEnabled(
             service is None
             or not (
-                self.pg_auth_settings.password() and self.pg_auth_settings.username()
+                self.pg_auth_settings.password()
+                and self.pg_auth_settings.username()
             )
         )
 
@@ -508,7 +541,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         )
 
     def _fields_modified(self):
-        self._fill_schema_combo_box_timer.start(self.REFRESH_SCHEMAS_TIMEOUT_MS)
+        self._fill_schema_combo_box_timer.start(
+            self.REFRESH_SCHEMAS_TIMEOUT_MS
+        )
 
         self.notify_fields_modified.emit()
 
@@ -536,7 +571,9 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
         index_to_remove = self.pg_schema_combo_box.findData(AUTO_ADDED_SCHEMA)
         while index_to_remove > -1:
             self.pg_schema_combo_box.removeItem(index_to_remove)
-            index_to_remove = self.pg_schema_combo_box.findData(AUTO_ADDED_SCHEMA)
+            index_to_remove = self.pg_schema_combo_box.findData(
+                AUTO_ADDED_SCHEMA
+            )
 
         for schema in schemas:
             self.pg_schema_combo_box.addItem(schema, AUTO_ADDED_SCHEMA)

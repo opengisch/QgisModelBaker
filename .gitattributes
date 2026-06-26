@@ -5,5 +5,4 @@
 QgisModelBaker.zip export-ignore
 *.sh export-ignore
 */__pycache__ export-ignore
-QgisModelBaker/tests export-ignore
 QgisModelBaker/metadata.txt eol=lf

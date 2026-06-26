@@ -30,7 +30,8 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
-from QgisModelBaker.tests.utils import testdata_path
+
+from .utils import testdata_path
 
 start_app()
 
@@ -40,7 +41,9 @@ class TestPgservice(unittest.TestCase):
     def setUpClass(cls):
         """Run before all tests."""
         cls.pgservicefile = os.environ.get("PGSERVICEFILE", None)
-        os.environ["PGSERVICEFILE"] = testdata_path("pgservice/pg_service.conf")
+        os.environ["PGSERVICEFILE"] = testdata_path(
+            "pgservice/pg_service.conf"
+        )
 
     def test_pgservice_pg_config_panel(self):
 
@@ -74,7 +77,9 @@ class TestPgservice(unittest.TestCase):
 
         # Select the pg service and check additional fields' default values
         # e.g., schema
-        pg_config_panel.pg_service_combo_box.setCurrentIndex(index_postgis_test)
+        pg_config_panel.pg_service_combo_box.setCurrentIndex(
+            index_postgis_test
+        )
         self.assertEqual(pg_config_panel.pg_schema_combo_box.currentText(), "")
 
         # Save to QSettings
@@ -98,16 +103,22 @@ class TestPgservice(unittest.TestCase):
         self.assertEqual(
             pg_config_panel.pg_service_combo_box.currentData(), "postgis_test"
         )
-        self.assertEqual(pg_config_panel.pg_host_line_edit.text(), "db.test.com")
+        self.assertEqual(
+            pg_config_panel.pg_host_line_edit.text(), "db.test.com"
+        )
         self.assertEqual(pg_config_panel.pg_port_line_edit.text(), "5433")
-        self.assertEqual(pg_config_panel.pg_database_line_edit.text(), "postgres")
+        self.assertEqual(
+            pg_config_panel.pg_database_line_edit.text(), "postgres"
+        )
 
         self.assertEqual(pg_config_panel.pg_schema_combo_box.currentText(), "")
         self.assertEqual(
             pg_config_panel.pg_ssl_mode_combo_box.currentText(), "verify-ca"
         )
         self.assertEqual(pg_config_panel.pg_auth_settings.password(), "secret")
-        self.assertEqual(pg_config_panel.pg_auth_settings.username(), "postgres")
+        self.assertEqual(
+            pg_config_panel.pg_auth_settings.username(), "postgres"
+        )
 
     def test_pgservice_modified_settings_remembered(self):
         # Switch to a copy pg_service.conf
@@ -115,7 +126,9 @@ class TestPgservice(unittest.TestCase):
             testdata_path("pgservice/pg_service.conf"),
             testdata_path("pgservice/pg_service_mod.conf"),
         )
-        os.environ["PGSERVICEFILE"] = testdata_path("pgservice/pg_service_mod.conf")
+        os.environ["PGSERVICEFILE"] = testdata_path(
+            "pgservice/pg_service_mod.conf"
+        )
 
         # Remove password setting from the copied pg_service.conf
         config = pgserviceparser.full_config()
@@ -133,7 +146,9 @@ class TestPgservice(unittest.TestCase):
 
         # Select the pg service and check additional fields' default values
         # e.g., schema
-        pg_config_panel.pg_service_combo_box.setCurrentIndex(index_postgis_test)
+        pg_config_panel.pg_service_combo_box.setCurrentIndex(
+            index_postgis_test
+        )
         self.assertEqual(pg_config_panel.pg_schema_combo_box.currentText(), "")
 
         # This time, set a schema, ssl-mode and password by hand.
@@ -144,7 +159,9 @@ class TestPgservice(unittest.TestCase):
         pg_config_panel.pg_schema_combo_box.setCurrentText("my_schema")
         index = pg_config_panel.pg_ssl_mode_combo_box.findData("require")
         pg_config_panel.pg_ssl_mode_combo_box.setCurrentIndex(index)
-        self.assertEqual(pg_config_panel.pg_ssl_mode_combo_box.currentData(), "require")
+        self.assertEqual(
+            pg_config_panel.pg_ssl_mode_combo_box.currentData(), "require"
+        )
         pg_config_panel.pg_auth_settings.setPassword("new_secret")
 
         # Save to QSettings
@@ -168,18 +185,30 @@ class TestPgservice(unittest.TestCase):
         self.assertEqual(
             pg_config_panel.pg_service_combo_box.currentData(), "postgis_test"
         )
-        self.assertEqual(pg_config_panel.pg_host_line_edit.text(), "db.test.com")
+        self.assertEqual(
+            pg_config_panel.pg_host_line_edit.text(), "db.test.com"
+        )
         self.assertEqual(pg_config_panel.pg_port_line_edit.text(), "5433")
-        self.assertEqual(pg_config_panel.pg_database_line_edit.text(), "postgres")
+        self.assertEqual(
+            pg_config_panel.pg_database_line_edit.text(), "postgres"
+        )
 
-        self.assertEqual(pg_config_panel.pg_schema_combo_box.currentText(), "my_schema")
+        self.assertEqual(
+            pg_config_panel.pg_schema_combo_box.currentText(), "my_schema"
+        )
         self.assertEqual(
             pg_config_panel.pg_ssl_mode_combo_box.currentText(), "verify-ca"
         )
-        self.assertEqual(pg_config_panel.pg_auth_settings.password(), "new_secret")
-        self.assertEqual(pg_config_panel.pg_auth_settings.username(), "postgres")
+        self.assertEqual(
+            pg_config_panel.pg_auth_settings.password(), "new_secret"
+        )
+        self.assertEqual(
+            pg_config_panel.pg_auth_settings.username(), "postgres"
+        )
 
-        os.environ["PGSERVICEFILE"] = testdata_path("pgservice/pg_service.conf")
+        os.environ["PGSERVICEFILE"] = testdata_path(
+            "pgservice/pg_service.conf"
+        )
 
     @classmethod
     def tearDownClass(cls):

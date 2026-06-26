@@ -22,7 +22,7 @@ class YamlInheritanceTest(unittest.TestCase):
             extra: 7
         """
 
-        data = yaml.load(document, Loader=InheritanceLoader)
+        data = yaml.save_load(document, Loader=InheritanceLoader)
         expected = {
             "base": 4,
             "extra": 7,

@@ -1,4 +1,7 @@
-from QgisModelBaker.gui.panel.db_config_panel import DbActionType, DbConfigPanel
+from QgisModelBaker.gui.panel.db_config_panel import (
+    DbActionType,
+    DbConfigPanel,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 
 available_database_config_panels = dict()
@@ -18,12 +21,16 @@ except ModuleNotFoundError:
 try:
     from QgisModelBaker.gui.panel.mssql_config_panel import MssqlConfigPanel
 
-    available_database_config_panels.update({DbIliMode.mssql: MssqlConfigPanel})
+    available_database_config_panels.update(
+        {DbIliMode.mssql: MssqlConfigPanel}
+    )
 except ModuleNotFoundError:
     pass
 
 # Get panel depending on DB
-def get_config_panel(tool, parent, db_action_type: DbActionType) -> DbConfigPanel:
+def get_config_panel(
+    tool, parent, db_action_type: DbActionType
+) -> DbConfigPanel:
     """Returns an instance of a panel where users to fill out connection parameters to database.
     :param parent: The parent of this widget.
     :param db_action_type: The action type of QgisModelBaker that will be executed.

@@ -41,7 +41,9 @@ class SetSequencePanel(QWidget, WIDGET_UI):
 
     def set_configuration(self, configuration):
         self.configuration = configuration
-        self.pg_use_super_login.setVisible(self.configuration.tool & DbIliMode.pg)
+        self.pg_use_super_login.setVisible(
+            self.configuration.tool & DbIliMode.pg
+        )
 
     def _set_superuser(self, state):
         if self.configuration:
@@ -59,7 +61,9 @@ class SetSequencePanel(QWidget, WIDGET_UI):
         # not loaded is 0
         self.sequence_value_edit.setValue(self.last_loaded_sequence_value)
         if self.last_loaded_sequence_value == 0:
-            return False, self.tr("Could not load T_Id. Maybe wrong credentials.")
+            return False, self.tr(
+                "Could not load T_Id. Maybe wrong credentials."
+            )
         else:
             return True, self.tr("T_Id loaded.")
 
@@ -67,7 +71,8 @@ class SetSequencePanel(QWidget, WIDGET_UI):
         if (
             self.sequence_value_edit.value()
             != self.sequence_value_edit.minimum()  # what is used for "NULL"
-            and self.sequence_value_edit.value() != self.last_loaded_sequence_value
+            and self.sequence_value_edit.value()
+            != self.last_loaded_sequence_value
         ):
             # only if it changed
             if self.sequence_group.isChecked():

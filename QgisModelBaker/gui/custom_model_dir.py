@@ -35,11 +35,15 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
         self.parent = parent
 
         paths = current_paths.split(";")
-        self.model_dir_list.addItems([path for path in paths if path.strip()] or [""])
+        self.model_dir_list.addItems(
+            [path for path in paths if path.strip()] or [""]
+        )
         for i in range(self.model_dir_list.count()):
             self.set_flags(self.model_dir_list.item(i))
 
-        self.model_dir_list.itemSelectionChanged.connect(self.on_selection_changed)
+        self.model_dir_list.itemSelectionChanged.connect(
+            self.on_selection_changed
+        )
         self.on_selection_changed()
 
         self.add_button.clicked.connect(self.add_model_dir)
@@ -60,9 +64,12 @@ class CustomModelDirDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         items = [
-            self.model_dir_list.item(x) for x in range(self.model_dir_list.count())
+            self.model_dir_list.item(x)
+            for x in range(self.model_dir_list.count())
         ]
-        new_paths = ";".join([i.text().strip() for i in items if i.text().strip()])
+        new_paths = ";".join(
+            [i.text().strip() for i in items if i.text().strip()]
+        )
         self.parent.custom_model_directories_line_edit.setText(new_paths)
 
     def browse_dir(self):

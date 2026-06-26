@@ -122,8 +122,12 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
                 QgsCategoryDisplayLabelDelegate(self)
             )
 
-        self.selectall_button.clicked.connect(lambda: self.select_all_items(True))
-        self.deselectall_button.clicked.connect(lambda: self.select_all_items(False))
+        self.selectall_button.clicked.connect(
+            lambda: self.select_all_items(True)
+        )
+        self.deselectall_button.clicked.connect(
+            lambda: self.select_all_items(False)
+        )
 
         self.ok_button.clicked.connect(self.accept)
 
@@ -143,7 +147,9 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
             for i in range(self.model.rowCount()):
                 self.model.setData(
                     self.model.index(i, 0),
-                    Qt.CheckState.Checked if state else Qt.CheckState.Unchecked,
+                    Qt.CheckState.Checked
+                    if state
+                    else Qt.CheckState.Unchecked,
                     Qt.ItemDataRole.CheckStateRole,
                 )
 
