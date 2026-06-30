@@ -32,7 +32,9 @@ CATALOGUE_DATASETNAME = "Catalogueset"
 displayDbIliMode = {
     DbIliMode.pg: QCoreApplication.translate("QgisModelBaker", "PostGIS"),
     DbIliMode.gpkg: QCoreApplication.translate("QgisModelBaker", "GeoPackage"),
-    DbIliMode.mssql: QCoreApplication.translate("QgisModelBaker", "SQL Server"),
+    DbIliMode.mssql: QCoreApplication.translate(
+        "QgisModelBaker", "SQL Server"
+    ),
     DbIliMode.ili: QCoreApplication.translate("QgisModelBaker", "INTERLIS"),
     DbIliMode.ili2pg: QCoreApplication.translate(
         "QgisModelBaker", "INTERLIS (use PostGIS)"
