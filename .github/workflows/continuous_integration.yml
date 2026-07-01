@@ -70,7 +70,7 @@ jobs:
       QGIS_TOKEN: ${{ secrets.QGIS_ORG_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
-      GITHUB_REF: ${{ github.ref }}
+      RELEASE_VERSION: ${{ github.event.release.tag_name }}
     if: ${{ github.event_name == 'release' }}
     steps:
       - name: Checkout
@@ -86,7 +86,7 @@ jobs:
           sudo ./scripts/package_pip_packages.sh
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --qgis-token ${QGIS_TOKEN} --asset-path QgisModelBaker/libs
+          qgis-plugin-ci release ${RELEASE_VERSION} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --qgis-token ${QGIS_TOKEN} --asset-path QgisModelBaker/libs
 
   translations:
     runs-on: ubuntu-22.04
