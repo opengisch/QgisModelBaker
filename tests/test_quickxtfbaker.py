@@ -18,9 +18,11 @@
 
 from qgis.testing import mocked, start_app, unittest
 
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
-from QgisModelBaker.tests.utils import testdata_path
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    BaseConfiguration,
+)
 from QgisModelBaker.utils.tools import QuickVisualizer
+from tests.utils import testdata_path
 
 start_app()
 
@@ -32,7 +34,9 @@ class TestQuickVisualizer(unittest.TestCase):
         cls.iface = mocked.get_iface()
         cls.ili2db_configuration = BaseConfiguration()
         cls.ili2db_configuration.custom_model_directories_enabled = True
-        cls.ili2db_configuration.custom_model_directories = testdata_path("ilimodels")
+        cls.ili2db_configuration.custom_model_directories = testdata_path(
+            "ilimodels"
+        )
 
     def show_logs_folder(cls):
         # dummy function available in parent
@@ -46,7 +50,9 @@ class TestQuickVisualizer(unittest.TestCase):
         dropped_files = [testdata_path("xtf/24_waldreservate_V2_0.xtf")]
 
         quick_visualizer = QuickVisualizer(self)
-        suc_files, failed_files = quick_visualizer.handle_dropped_files(dropped_files)
+        suc_files, failed_files = quick_visualizer.handle_dropped_files(
+            dropped_files
+        )
         assert len(suc_files) == 1
 
     def test_xtf_drop_23_only(self):
@@ -57,7 +63,9 @@ class TestQuickVisualizer(unittest.TestCase):
         dropped_files = [testdata_path("xtf/23_roads_simple.xtf")]
 
         quick_visualizer = QuickVisualizer(self)
-        suc_files, failed_files = quick_visualizer.handle_dropped_files(dropped_files)
+        suc_files, failed_files = quick_visualizer.handle_dropped_files(
+            dropped_files
+        )
         assert len(suc_files) == 1
 
     def test_xtf_drop_1_only(self):
@@ -68,7 +76,9 @@ class TestQuickVisualizer(unittest.TestCase):
         dropped_files = [testdata_path("xtf/1_beispiel.itf")]
 
         quick_visualizer = QuickVisualizer(self)
-        suc_files, failed_files = quick_visualizer.handle_dropped_files(dropped_files)
+        suc_files, failed_files = quick_visualizer.handle_dropped_files(
+            dropped_files
+        )
         assert len(suc_files) == 1
 
     def test_xtf_drop(self):
@@ -85,7 +95,9 @@ class TestQuickVisualizer(unittest.TestCase):
         ]
 
         quick_visualizer = QuickVisualizer(self)
-        suc_files, failed_files = quick_visualizer.handle_dropped_files(dropped_files)
+        suc_files, failed_files = quick_visualizer.handle_dropped_files(
+            dropped_files
+        )
         assert len(suc_files) == 3
 
     def test_xtf_with_fallback(self):
@@ -97,5 +109,7 @@ class TestQuickVisualizer(unittest.TestCase):
         dropped_files = [testdata_path("xtf/23_roads_simple_2.xtf")]
 
         quick_visualizer = QuickVisualizer(self)
-        suc_files, failed_files = quick_visualizer.handle_dropped_files(dropped_files)
+        suc_files, failed_files = quick_visualizer.handle_dropped_files(
+            dropped_files
+        )
         assert len(suc_files) == 1

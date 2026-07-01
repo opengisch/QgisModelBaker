@@ -16,7 +16,13 @@
  ***************************************************************************/
 """
 
-from qgis.core import Qgis, QgsApplication, QgsMapLayer, QgsMessageLog, QgsProject
+from qgis.core import (
+    Qgis,
+    QgsApplication,
+    QgsMapLayer,
+    QgsMessageLog,
+    QgsProject,
+)
 from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import QSettings, Qt
 from qgis.PyQt.QtWidgets import (
@@ -30,7 +36,9 @@ from qgis.PyQt.QtWidgets import (
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.basket_manager import BasketManagerDialog
 from QgisModelBaker.gui.edit_dataset_name import EditDatasetDialog
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     Ili2DbCommandConfiguration,
@@ -53,7 +61,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         self.setupUi(self)
         self.buttonBox.accepted.connect(self._accepted)
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.bar.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
         self.info_layout.addWidget(self.bar, 0, Qt.AlignmentFlag.AlignTop)
 
         self.db_simple_factory = DbSimpleFactory()
@@ -82,11 +92,19 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             # will create a new basket for the chosen dataset.
             self.basket_manager_button.setVisible(False)
         else:
-            self.basket_manager_button.clicked.connect(self._open_basket_manager)
+            self.basket_manager_button.clicked.connect(
+                self._open_basket_manager
+            )
 
-        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
-        self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
-        self.delete_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.add_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyAdd.svg")
+        )
+        self.edit_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyEdit.svg")
+        )
+        self.delete_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyRemove.svg")
+        )
 
         self.configuration = self._evaluated_configuration()
         self._refresh_datasets()
@@ -107,7 +125,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
             warning_box.setText(
                 self.tr(
                     "You still have layers in edit mode.\nIn case you modify datasets on the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
-                ).format("\n - ".join([layer.name() for layer in editable_layers]))
+                ).format(
+                    "\n - ".join([layer.name() for layer in editable_layers])
+                )
             )
             warning_box.exec()
 
@@ -160,10 +180,14 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                         int(DatasetModel.Roles.DATASETNAME)
                     ),
                 )
-                edit_dataset_dialog = EditDatasetDialog(self, db_connector, dataset)
+                edit_dataset_dialog = EditDatasetDialog(
+                    self, db_connector, dataset
+                )
                 edit_dataset_dialog.exec()
                 self._refresh_datasets()
-                self._jump_to_entry(edit_dataset_dialog.dataset_line_edit.text())
+                self._jump_to_entry(
+                    edit_dataset_dialog.dataset_line_edit.text()
+                )
 
     def _delete_dataset(self):
         if self._valid_selection():
@@ -186,7 +210,8 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Deleting a Dataset will also delete children baskets and all the data they contain. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),
-                    QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
+                    QMessageBox.StandardButton.No
+                    | QMessageBox.StandardButton.Yes,
                 )
                 == QMessageBox.StandardButton.Yes
             ):
@@ -194,8 +219,12 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     int(DatasetModel.Roles.DATASETNAME)
                 )
                 ili2db_utils = Ili2DbUtils()
-                ili2db_utils.log_on_error.connect(self._log_on_delete_dataset_error)
-                res, msg = ili2db_utils.delete_dataset(dataset, self.configuration)
+                ili2db_utils.log_on_error.connect(
+                    self._log_on_delete_dataset_error
+                )
+                res, msg = ili2db_utils.delete_dataset(
+                    dataset, self.configuration
+                )
                 if res:
                     # After deletion, make sure canvas is refreshed
                     self._refresh_map_layers()
@@ -205,7 +234,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
 
                 warning_box = QMessageBox(self)
                 warning_box.setIcon(
-                    QMessageBox.Icon.Information if res else QMessageBox.Icon.Warning
+                    QMessageBox.Icon.Information
+                    if res
+                    else QMessageBox.Icon.Warning
                 )
                 warning_box.setWindowTitle(self.tr("Delete Dataset"))
                 warning_box.setText(msg)
@@ -232,7 +263,11 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     int(DatasetModel.Roles.DATASETNAME)
                 )
                 basket_manager_dialog = BasketManagerDialog(
-                    self.iface, self, db_connector, datasetname, self.configuration
+                    self.iface,
+                    self,
+                    db_connector,
+                    datasetname,
+                    self.configuration,
                 )
                 basket_manager_dialog.exec()
 
@@ -289,7 +324,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         """<html><head/><body><p><b>Modify datasets and baskets in the schema <span style=" font-family:'monospace'; color:'#9BCADE';">{}</span> at the PostgreSQL database <span style=" font-family:'monospace'; color:'#9BCADE';">{}</span></b></p>{}</body></html>"""
                     ).format(
-                        configuration.dbschema, configuration.database, source_info_text
+                        configuration.dbschema,
+                        configuration.database,
+                        source_info_text,
                     )
                 )
             else:
@@ -307,17 +344,27 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         for layer in [self.iface.activeLayer()] + list(
             QgsProject.instance().mapLayers().values()
         ):
-            if layer and layer.dataProvider() and layer.dataProvider().isValid():
+            if (
+                layer
+                and layer.dataProvider()
+                and layer.dataProvider().isValid()
+            ):
                 return layer
 
     def _restored_configuration(self):
         settings = QSettings()
         configuration = Ili2DbCommandConfiguration()
         mode = settings.value("QgisModelBaker/importtype")
-        mode = DbIliMode[mode] if mode else self.db_simple_factory.default_database
+        mode = (
+            DbIliMode[mode]
+            if mode
+            else self.db_simple_factory.default_database
+        )
         mode = mode & ~DbIliMode.ili
         db_factory = self.db_simple_factory.create_factory(mode)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager = db_factory.get_db_command_config_manager(
+            configuration
+        )
         config_manager.load_config_from_qsettings()
         configuration.tool = mode
         return configuration
@@ -327,7 +374,9 @@ class DatasetManagerDialog(QDialog, DIALOG_UI):
         settings.setValue("QgisModelBaker/importtype", configuration.tool.name)
         mode = configuration.tool
         db_factory = self.db_simple_factory.create_factory(mode)
-        config_manager = db_factory.get_db_command_config_manager(configuration)
+        config_manager = db_factory.get_db_command_config_manager(
+            configuration
+        )
         config_manager.save_config_in_qsettings()
 
     def _accepted(self):

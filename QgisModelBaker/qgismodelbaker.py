@@ -53,12 +53,18 @@ from QgisModelBaker.gui.drop_message import (
 from QgisModelBaker.gui.options import OptionsDialog
 from QgisModelBaker.gui.panel.dataset_selector import DatasetSelector
 from QgisModelBaker.gui.tid_manager import TIDManagerDialog
-from QgisModelBaker.gui.topping_wizard.topping_wizard import ToppingWizardDialog
+from QgisModelBaker.gui.topping_wizard.topping_wizard import (
+    ToppingWizardDialog,
+)
 from QgisModelBaker.gui.validate import ValidateDock
-from QgisModelBaker.gui.workflow_wizard.workflow_wizard import WorkflowWizardDialog
+from QgisModelBaker.gui.workflow_wizard.workflow_wizard import (
+    WorkflowWizardDialog,
+)
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import BaseConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    BaseConfiguration,
+)
 from QgisModelBaker.processing_provider.provider import Provider
 from QgisModelBaker.utils.gui_utils import DropMode, FileDropListView
 from QgisModelBaker.utils.tools import QuickVisualizer
@@ -113,11 +119,15 @@ class QgisModelBakerPlugin(QObject):
         self.ili2db_configuration.restore(settings)
 
         self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
-        self.layerview_event_filter = DropFileFilter(self, self.iface.layerTreeView())
+        self.layerview_event_filter = DropFileFilter(
+            self, self.iface.layerTreeView()
+        )
 
     def register_event_filter(self):
         if not self.main_event_filter:
-            self.main_event_filter = DropFileFilter(self, self.iface.mainWindow())
+            self.main_event_filter = DropFileFilter(
+                self, self.iface.mainWindow()
+            )
         self.iface.mainWindow().installEventFilter(self.main_event_filter)
         if not self.layerview_event_filter:
             self.layerview_event_filter = DropFileFilter(
@@ -185,7 +195,8 @@ class QgisModelBakerPlugin(QObject):
         self.__workflow_wizard_action = QAction(
             QIcon(
                 os.path.join(
-                    os.path.dirname(__file__), "images/QgisModelBaker-wizard.svg"
+                    os.path.dirname(__file__),
+                    "images/QgisModelBaker-wizard.svg",
                 )
             ),
             self.tr("Import/Export Wizard"),
@@ -194,7 +205,8 @@ class QgisModelBakerPlugin(QObject):
         self.__topping_wizard_action = QAction(
             QIcon(
                 os.path.join(
-                    os.path.dirname(__file__), "images/QgisModelBaker-topping-icon.svg"
+                    os.path.dirname(__file__),
+                    "images/QgisModelBaker-topping-icon.svg",
                 )
             ),
             self.tr("Topping Exporter"),
@@ -206,7 +218,9 @@ class QgisModelBakerPlugin(QObject):
         self.__configure_action = QAction(self.tr("Settings"), None)
         self.__infoseparator = QAction(None)
         self.__infoseparator.setSeparator(True)
-        self.__show_logs_folder_action = QAction(self.tr("Show log folder"), None)
+        self.__show_logs_folder_action = QAction(
+            self.tr("Show log folder"), None
+        )
         self.__help_action = QAction(self.tr("Help"), None)
         self.__about_action = QAction(self.tr("About"), None)
 
@@ -218,13 +232,17 @@ class QgisModelBakerPlugin(QObject):
         self.__topping_wizard_action.setCheckable(True)
 
         self.__configure_action.triggered.connect(self.show_options_dialog)
-        self.__datasetmanager_action.triggered.connect(self.show_datasetmanager_dialog)
+        self.__datasetmanager_action.triggered.connect(
+            self.show_datasetmanager_dialog
+        )
         self.__tidmanager_action.triggered.connect(self.show_tidmanager_dialog)
         self.__validate_action.triggered.connect(self.show_validate_dock)
         self.__workflow_wizard_action.triggered.connect(
             self.show_workflow_wizard_dialog
         )
-        self.__topping_wizard_action.triggered.connect(self.show_topping_wizard_dialog)
+        self.__topping_wizard_action.triggered.connect(
+            self.show_topping_wizard_dialog
+        )
         self.__show_logs_folder_action.triggered.connect(self.show_logs_folder)
         self.__help_action.triggered.connect(self.show_help_documentation)
         self.__about_action.triggered.connect(self.show_about_dialog)
@@ -250,14 +268,22 @@ class QgisModelBakerPlugin(QObject):
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
         )
-        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__infoseparator)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__infoseparator
+        )
         self.iface.addPluginToDatabaseMenu(
             self.tr("Model Baker"), self.__show_logs_folder_action
         )
-        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__help_action)
-        self.iface.addPluginToDatabaseMenu(self.tr("Model Baker"), self.__about_action)
+        self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__help_action
+        )
+        self.iface.addPluginToDatabaseMenu(
+            self.tr("Model Baker"), self.__about_action
+        )
 
-        menu_mb = self.iface.mainWindow().getDatabaseMenu(self.tr("Model Baker"))
+        menu_mb = self.iface.mainWindow().getDatabaseMenu(
+            self.tr("Model Baker")
+        )
         menu_mb.setIcon(
             QIcon(
                 os.path.join(
@@ -271,7 +297,9 @@ class QgisModelBakerPlugin(QObject):
         self.toolbar.setToolTip(self.tr("Model Baker Toolbar"))
         self.toolbar.addAction(self.__workflow_wizard_action)
         self.__dataset_selector = DatasetSelector()
-        self.__dataset_selector_action = self.toolbar.addWidget(self.__dataset_selector)
+        self.__dataset_selector_action = self.toolbar.addWidget(
+            self.__dataset_selector
+        )
         # connect trigger to refresh model of dataset combobox when layer changed
         self.iface.layerTreeView().currentLayerChanged.connect(
             self.__dataset_selector.set_current_layer
@@ -296,8 +324,12 @@ class QgisModelBakerPlugin(QObject):
         self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__configure_action
         )
-        self.iface.removePluginDatabaseMenu(self.tr("Model Baker"), self.__help_action)
-        self.iface.removePluginDatabaseMenu(self.tr("Model Baker"), self.__about_action)
+        self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__help_action
+        )
+        self.iface.removePluginDatabaseMenu(
+            self.tr("Model Baker"), self.__about_action
+        )
         self.iface.removePluginDatabaseMenu(
             self.tr("Model Baker"), self.__show_logs_folder_action
         )
@@ -327,9 +359,14 @@ class QgisModelBakerPlugin(QObject):
             self.workflow_wizard_dlg.reject()
         else:
             self.workflow_wizard_dlg = WorkflowWizardDialog(
-                self.iface, self.ili2db_configuration, self.iface.mainWindow(), self
+                self.iface,
+                self.ili2db_configuration,
+                self.iface.mainWindow(),
+                self,
             )
-            self.workflow_wizard_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.workflow_wizard_dlg.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose
+            )
             self.workflow_wizard_dlg.setWindowFlags(
                 self.workflow_wizard_dlg.windowFlags() | Qt.WindowType.Tool
             )
@@ -350,7 +387,9 @@ class QgisModelBakerPlugin(QObject):
             self.topping_wizard_dlg = ToppingWizardDialog(
                 self.iface, self.ili2db_configuration, self.iface.mainWindow()
             )
-            self.topping_wizard_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.topping_wizard_dlg.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose
+            )
             self.topping_wizard_dlg.setWindowFlags(
                 self.topping_wizard_dlg.windowFlags() | Qt.WindowType.Tool
             )
@@ -371,7 +410,9 @@ class QgisModelBakerPlugin(QObject):
             self.datasetmanager_dlg = DatasetManagerDialog(
                 self.iface, self.iface.mainWindow()
             )
-            self.datasetmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.datasetmanager_dlg.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose
+            )
             self.datasetmanager_dlg.setWindowFlags(
                 self.datasetmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )
@@ -382,7 +423,9 @@ class QgisModelBakerPlugin(QObject):
             self.__datasetmanager_action.setChecked(True)
 
     def datasetmanager_dialog_finished(self):
-        self.__dataset_selector.reset_model(self.iface.layerTreeView().currentLayer())
+        self.__dataset_selector.reset_model(
+            self.iface.layerTreeView().currentLayer()
+        )
         self.__validate_dock.set_current_layer(self.iface.activeLayer(), True)
         self.__datasetmanager_action.setChecked(False)
         self.datasetmanager_dlg = None
@@ -394,12 +437,16 @@ class QgisModelBakerPlugin(QObject):
             self.tidmanager_dlg = TIDManagerDialog(
                 self.iface, self.iface.mainWindow(), self.ili2db_configuration
             )
-            self.tidmanager_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.tidmanager_dlg.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose
+            )
             self.tidmanager_dlg.setWindowFlags(
                 self.tidmanager_dlg.windowFlags() | Qt.WindowType.Tool
             )
             self.tidmanager_dlg.show()
-            self.tidmanager_dlg.finished.connect(self.tidmanager_dialog_finished)
+            self.tidmanager_dlg.finished.connect(
+                self.tidmanager_dialog_finished
+            )
             self.__tidmanager_action.setChecked(True)
 
     def tidmanager_dialog_finished(self):
@@ -420,10 +467,14 @@ class QgisModelBakerPlugin(QObject):
         QDesktopServices.openUrl(QUrl.fromLocalFile(self.logsDirectory))
 
     def show_help_documentation(self):
-        os_language = QLocale(QSettings().value("locale/userLocale")).name()[:2]
+        os_language = QLocale(QSettings().value("locale/userLocale")).name()[
+            :2
+        ]
         if os_language in ["fr", "it", "de"]:
             webbrowser.open(
-                "https://opengisch.github.io/QgisModelBaker/{}/".format(os_language)
+                "https://opengisch.github.io/QgisModelBaker/{}/".format(
+                    os_language
+                )
             )
         else:
             webbrowser.open("https://opengisch.github.io/QgisModelBaker")
@@ -431,7 +482,9 @@ class QgisModelBakerPlugin(QObject):
     def show_about_dialog(self):
         self.msg = QMessageBox()
         pixmap = QPixmap(
-            os.path.join(os.path.dirname(__file__), "images/QgisModelBaker-icon.svg")
+            os.path.join(
+                os.path.dirname(__file__), "images/QgisModelBaker-icon.svg"
+            )
         ).scaled(
             int(self.msg.fontMetrics().lineSpacing() * 4.5),
             self.msg.fontMetrics().lineSpacing() * 5,
@@ -446,7 +499,9 @@ class QgisModelBakerPlugin(QObject):
         <p align="justify">{p2}</p>
         <p align="justify">{p3}</p>""".format(
                 title=self.tr("QGIS Model Baker"),
-                version=self.tr("Version {version}").format(version=self.__version__),
+                version=self.tr("Version {version}").format(
+                    version=self.__version__
+                ),
                 p1=self.tr(
                     "Configuring QGIS layers and forms manually is a tedious and error prone process. This plugin loads database schemas with various meta information to preconfigure the layer tree, widget configuration, relations and more."
                 ),
@@ -463,7 +518,9 @@ class QgisModelBakerPlugin(QObject):
 
     def init_validate_dock(self):
         settings = QSettings()
-        self.__validate_dock = ValidateDock(self.ili2db_configuration, self.iface)
+        self.__validate_dock = ValidateDock(
+            self.ili2db_configuration, self.iface
+        )
         self.iface.addDockWidget(
             Qt.DockWidgetArea(
                 settings.value(
@@ -478,7 +535,9 @@ class QgisModelBakerPlugin(QObject):
             self.__validate_action.setChecked
         )
         self.__validate_dock.setVisible(
-            settings.value("QgisModelBaker/validate_dock/isVisible", False, type=bool)
+            settings.value(
+                "QgisModelBaker/validate_dock/isVisible", False, type=bool
+            )
         )
         self.iface.layerTreeView().currentLayerChanged.connect(
             self.__validate_dock.set_current_layer
@@ -490,10 +549,13 @@ class QgisModelBakerPlugin(QObject):
             "QgisModelBaker/validate_dock/area",
             self.iface.mainWindow().dockWidgetArea(self.__validate_dock)
             if QT_VERSION_STR < "6.0.0"
-            else self.iface.mainWindow().dockWidgetArea(self.__validate_dock).value,
+            else self.iface.mainWindow()
+            .dockWidgetArea(self.__validate_dock)
+            .value,
         )
         settings.setValue(
-            "QgisModelBaker/validate_dock/isVisible", self.__validate_dock.isVisible()
+            "QgisModelBaker/validate_dock/isVisible",
+            self.__validate_dock.isVisible(),
         )
         self.__validate_dock.setVisible(False)
         self.iface.removeDockWidget(self.__validate_dock)
@@ -543,7 +605,9 @@ class QgisModelBakerPlugin(QObject):
         if not self.workflow_wizard_dlg:
             self._set_dropped_file_configuration()
             self.show_workflow_wizard_dialog()
-        self.workflow_wizard_dlg.append_dropped_files(dropped_files, dropped_ini_files)
+        self.workflow_wizard_dlg.append_dropped_files(
+            dropped_files, dropped_ini_files
+        )
         return True
 
     def visualize_dropped_files_quickly(self, data_files):
@@ -551,7 +615,9 @@ class QgisModelBakerPlugin(QObject):
             f"Handle dropped files with QuickVisualizer to import the data in temporary layers"
         )
         quick_visualizer = QuickVisualizer(self)
-        success_files, fail_files = quick_visualizer.handle_dropped_files(data_files)
+        success_files, fail_files = quick_visualizer.handle_dropped_files(
+            data_files
+        )
         self.logger.info(f"Successfully imported: {success_files}")
         self.logger.info(f"Not imported: {fail_files}")
         return True
@@ -588,13 +654,17 @@ class QgisModelBakerPlugin(QObject):
                 rotationHandler = logging.handlers.TimedRotatingFileHandler(
                     logfile.filePath(), when="midnight", backupCount=10
                 )
-                formatter = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s")
+                formatter = logging.Formatter(
+                    "%(asctime)s %(levelname)-7s %(message)s"
+                )
                 rotationHandler.setFormatter(formatter)
                 self.logger.addHandler(rotationHandler)
 
         else:
             self.logger.error(
-                "Can't create log files directory '{}'.".format(self.logsDirectory)
+                "Can't create log files directory '{}'.".format(
+                    self.logsDirectory
+                )
             )
 
         self.logger.info("")
@@ -620,7 +690,9 @@ class DropFileFilter(QObject):
 
     def _is_quick_visualization_requested(self, dropped_files):
         settings = QSettings()
-        wizard_always = settings.value("QgisModelBaker/open_wizard_always", False, bool)
+        wizard_always = settings.value(
+            "QgisModelBaker/open_wizard_always", False, bool
+        )
         if not wizard_always:
             drop_quick_dialog = DropMessageQuickDialog(dropped_files)
             return drop_quick_dialog.exec()
@@ -640,9 +712,13 @@ class DropFileFilter(QObject):
             # Outside wizard, accept drops only for "real" interlis files, as xml and ini are too generic to assume must be handled by MB
             if dropped_files:
                 dropped_files.extend(dropped_xml_files)
-                if self._is_handling_requested(dropped_files + dropped_ini_files):
+                if self._is_handling_requested(
+                    dropped_files + dropped_ini_files
+                ):
                     if self._is_quick_visualization_requested(dropped_files):
-                        if self.parent.visualize_dropped_files_quickly(dropped_files):
+                        if self.parent.visualize_dropped_files_quickly(
+                            dropped_files
+                        ):
                             return True
                     elif self.parent.handle_dropped_files(
                         dropped_files, dropped_ini_files

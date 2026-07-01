@@ -45,14 +45,21 @@ class FilterDataPanel(QWidget, WIDGET_UI):
 
             self._refresh_filter_combobox(basket_handling)
 
-            self.filter_combobox.currentIndexChanged.connect(self._filter_changed)
+            self.filter_combobox.currentIndexChanged.connect(
+                self._filter_changed
+            )
 
-        if self.parent.current_filter_mode == gui_utils.SchemaDataFilterMode.NO_FILTER:
+        if (
+            self.parent.current_filter_mode
+            == gui_utils.SchemaDataFilterMode.NO_FILTER
+        ):
             self.items_view.setHidden(True)
             self.select_all_checkbox.setHidden(True)
 
     def _refresh_filter_combobox(self, basket_handling):
-        stored_index = self.filter_combobox.findData(self.parent.current_filter_mode)
+        stored_index = self.filter_combobox.findData(
+            self.parent.current_filter_mode
+        )
         self.filter_combobox.clear()
         self.filter_combobox.addItem(
             self.tr("No filter (all models)"),
@@ -104,13 +111,21 @@ class FilterDataPanel(QWidget, WIDGET_UI):
             self.items_view.setVisible(True)
             self.select_all_checkbox.setVisible(True)
             if filter == gui_utils.SchemaDataFilterMode.MODEL:
-                self._set_export_filter_view_model(self.parent.current_models_model)
+                self._set_export_filter_view_model(
+                    self.parent.current_models_model
+                )
                 self.select_all_checkbox.setText(self.tr("Select all models"))
             if filter == gui_utils.SchemaDataFilterMode.DATASET:
-                self._set_export_filter_view_model(self.parent.current_datasets_model)
-                self.select_all_checkbox.setText(self.tr("Select all datasets"))
+                self._set_export_filter_view_model(
+                    self.parent.current_datasets_model
+                )
+                self.select_all_checkbox.setText(
+                    self.tr("Select all datasets")
+                )
             if filter == gui_utils.SchemaDataFilterMode.BASKET:
-                self._set_export_filter_view_model(self.parent.current_baskets_model)
+                self._set_export_filter_view_model(
+                    self.parent.current_baskets_model
+                )
                 self.select_all_checkbox.setText(self.tr("Select all baskets"))
             self._set_select_all_checkbox()
         self.parent.current_filter_mode = filter

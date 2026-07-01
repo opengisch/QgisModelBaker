@@ -23,7 +23,10 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWizardPage
 
 from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliTarget
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_folder_selector, slugify
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    make_folder_selector,
+    slugify,
+)
 from QgisModelBaker.utils import gui_utils
 
 PAGE_UI = gui_utils.get_ui_class("topping_wizard/target.ui")
@@ -66,18 +69,24 @@ class TargetPage(QWizardPage, PAGE_UI):
         self.main_folder_browse_button.clicked.connect(
             make_folder_selector(
                 self.main_folder_line_edit,
-                title=self.tr("Target Folder Selection", "Open Main Target Folder"),
+                title=self.tr(
+                    "Target Folder Selection", "Open Main Target Folder"
+                ),
                 parent=None,
             )
         )
 
         self.validators = gui_utils.Validators()
-        self.folder_validator = gui_utils.FileValidator(allow_non_existing=True)
+        self.folder_validator = gui_utils.FileValidator(
+            allow_non_existing=True
+        )
         self.main_folder_line_edit.setValidator(self.folder_validator)
         self.main_folder_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.main_folder_line_edit.textChanged.emit(self.main_folder_line_edit.text())
+        self.main_folder_line_edit.textChanged.emit(
+            self.main_folder_line_edit.text()
+        )
 
         self.projectname_line_edit.textChanged.connect(self._update_info_box)
         self.main_folder_line_edit.textChanged.connect(self._update_info_box)
@@ -92,7 +101,9 @@ class TargetPage(QWizardPage, PAGE_UI):
         )
         owner = self.owner_line_edit.text() or "mailto:{}".format(
             slugify(
-                QgsExpressionContextUtils.globalScope().variable("user_account_name")
+                QgsExpressionContextUtils.globalScope().variable(
+                    "user_account_name"
+                )
                 or "Model Baker User"
             )
         )
@@ -111,7 +122,13 @@ class TargetPage(QWizardPage, PAGE_UI):
             )
             return False
         self.topping_wizard.topping.target = IliTarget(
-            projectname, mainfolder, subfolder, None, owner, publishing_date, version
+            projectname,
+            mainfolder,
+            subfolder,
+            None,
+            owner,
+            publishing_date,
+            version,
         )
         self.topping_wizard.log_panel.print_info(
             self.tr("Target Object created."),

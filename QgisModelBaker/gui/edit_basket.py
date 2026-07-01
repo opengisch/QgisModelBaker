@@ -27,7 +27,10 @@ DIALOG_UI = gui_utils.get_ui_class("edit_basket.ui")
 
 class EditBasketDialog(QDialog, DIALOG_UI):
     def __init__(
-        self, parent: QWidget, db_connector: DBConnector, basket_configuration: dict
+        self,
+        parent: QWidget,
+        db_connector: DBConnector,
+        basket_configuration: dict,
     ) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -60,7 +63,9 @@ class EditBasketDialog(QDialog, DIALOG_UI):
     def _get_filtered_datasets(self) -> dict:
         # Returns datasets info, marking as disabled those that
         # already have a basket for the editing basket's topic.
-        filtered_datasets = {}  # {dataset_id1: {'datasetname': name, 'enabled': True}}
+        filtered_datasets = (
+            {}
+        )  # {dataset_id1: {'datasetname': name, 'enabled': True}}
 
         # Obtain DB datasets
         for record in self.db_connector.get_datasets_info():

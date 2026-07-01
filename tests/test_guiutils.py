@@ -19,8 +19,8 @@ import pathlib
 
 from qgis.testing import start_app, unittest
 
-from QgisModelBaker.tests.utils import testdata_path
 from QgisModelBaker.utils.gui_utils import ImportModelsModel, SourceModel
+from tests.utils import testdata_path
 
 start_app()
 

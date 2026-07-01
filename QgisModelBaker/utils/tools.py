@@ -24,7 +24,13 @@ import pathlib
 
 from qgis.core import Qgis, QgsProject
 from qgis.PyQt.QtCore import QObject, QStandardPaths
-from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QWidget
+from qgis.PyQt.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QWidget,
+)
 
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
@@ -33,7 +39,9 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
 )
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import JavaNotFoundError
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
+    JavaNotFoundError,
+)
 from QgisModelBaker.utils import gui_utils
 
 
@@ -99,7 +107,10 @@ class QuickVisualizer(QObject):
         # separate data files from ini files
         for file in dropped_files:
             if os.path.isfile(file):
-                if pathlib.Path(file).suffix[1:] in gui_utils.TransferExtensions:
+                if (
+                    pathlib.Path(file).suffix[1:]
+                    in gui_utils.TransferExtensions
+                ):
                     data_files.append(file)
                 else:
                     model_files.append(file)
@@ -126,12 +137,15 @@ class QuickVisualizer(QObject):
             )
 
         self.push_message_bar(
-            self.tr("Quick'n'dirty XTF import with QuickVisualizer starts..."), True
+            self.tr("Quick'n'dirty XTF import with QuickVisualizer starts..."),
+            True,
         )
 
         for file in data_files:
             self.push_message_bar(self.tr("Import {}").format(file), True)
-            status, db_file = self.import_file(file, self.parent.ili2db_configuration)
+            status, db_file = self.import_file(
+                file, self.parent.ili2db_configuration
+            )
             status_map[file] = {}
             status_map[file]["status"] = status
             status_map[file]["db_file"] = db_file
@@ -156,7 +170,9 @@ class QuickVisualizer(QObject):
             for file in failed_files_to_handle:
                 status, db_file = self.import_file(file, base_config)
                 if status:
-                    self.log(f"Succeeded to import {file} with model in directory")
+                    self.log(
+                        f"Succeeded to import {file} with model in directory"
+                    )
                     status_map[file]["status"] = status
                     status_map[file]["db_file"] = db_file
                     failed_files.remove(file)
@@ -164,7 +180,9 @@ class QuickVisualizer(QObject):
 
         for key in suc_files:
             self.push_message_bar(
-                self.tr("Generate layers of {}").format(status_map[key]["db_file"]),
+                self.tr("Generate layers of {}").format(
+                    status_map[key]["db_file"]
+                ),
                 True,
             )
             self.generate_project(status_map[key]["db_file"])

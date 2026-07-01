@@ -60,7 +60,9 @@ class GpkgConfigPanel(DbConfigPanel, WIDGET_UI):
             self.validators.validate_line_edits
         )
 
-        self.gpkg_file_line_edit.textChanged.connect(self.notify_fields_modified)
+        self.gpkg_file_line_edit.textChanged.connect(
+            self.notify_fields_modified
+        )
         self.gpkg_file_browse_button.clicked.connect(self._start_file_seletor)
 
     def _start_file_seletor(self):

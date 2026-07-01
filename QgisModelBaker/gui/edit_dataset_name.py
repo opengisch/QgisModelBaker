@@ -61,7 +61,9 @@ class EditDatasetDialog(QDialog, DIALOG_UI):
             warning_box = QMessageBox(self)
             warning_box.setIcon(QMessageBox.Icon.Critical)
             warning_title = (
-                self.tr("Rename Dataset") if self.tid else self.tr("Create Dataset")
+                self.tr("Rename Dataset")
+                if self.tid
+                else self.tr("Create Dataset")
             )
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(message)

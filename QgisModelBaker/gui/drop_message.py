@@ -26,7 +26,9 @@ from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import DropMode
 
 
-class DopMessageModelBakerDialog(QDialog, gui_utils.get_ui_class("drop_message.ui")):
+class DopMessageModelBakerDialog(
+    QDialog, gui_utils.get_ui_class("drop_message.ui")
+):
     def __init__(self, dropped_files, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -42,15 +44,21 @@ class DopMessageModelBakerDialog(QDialog, gui_utils.get_ui_class("drop_message.u
             self.tr(
                 "Do you want to use the Model Baker plugin to handle the following {}?\n- {} {}"
             ).format(
-                self.tr("files") if len(dropped_files) > 1 else self.tr("file"),
+                self.tr("files")
+                if len(dropped_files) > 1
+                else self.tr("file"),
                 file_list,
                 self.tr("\nand {} more...").format(len(dropped_files) - 10)
                 if len(dropped_files) > 10
                 else "",
             )
         )
-        self.accepted.connect(lambda: self.handle_dropped_file_configuration(True))
-        self.rejected.connect(lambda: self.handle_dropped_file_configuration(False))
+        self.accepted.connect(
+            lambda: self.handle_dropped_file_configuration(True)
+        )
+        self.rejected.connect(
+            lambda: self.handle_dropped_file_configuration(False)
+        )
 
     def handle_dropped_file_configuration(self, handle_dropped):
         settings = QSettings()
@@ -62,7 +70,9 @@ class DopMessageModelBakerDialog(QDialog, gui_utils.get_ui_class("drop_message.u
             settings.setValue("QgisModelBaker/drop_mode", DropMode.NO.name)
 
 
-class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message.ui")):
+class DropMessageQuickDialog(
+    QDialog, gui_utils.get_ui_class("drop_quick_message.ui")
+):
     def __init__(self, dropped_files, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -70,10 +80,12 @@ class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message
         QgsGui.instance().enableAutoGeometryRestore(self)
 
         quick_button = self.button_box.addButton(
-            self.tr("Quickly visualize"), QDialogButtonBox.ButtonRole.ActionRole
+            self.tr("Quickly visualize"),
+            QDialogButtonBox.ButtonRole.ActionRole,
         )
         wizard_button = self.button_box.addButton(
-            self.tr("Go to Model Baker Wizard"), QDialogButtonBox.ButtonRole.ActionRole
+            self.tr("Go to Model Baker Wizard"),
+            QDialogButtonBox.ButtonRole.ActionRole,
         )
 
         file_list = "\n- ".join(
@@ -106,5 +118,6 @@ class DropMessageQuickDialog(QDialog, gui_utils.get_ui_class("drop_quick_message
     def handle_dropped_file_quick_configuration(self):
         settings = QSettings()
         settings.setValue(
-            "QgisModelBaker/open_wizard_always", self.chk_alwayswizard.isChecked()
+            "QgisModelBaker/open_wizard_always",
+            self.chk_alwayswizard.isChecked(),
         )

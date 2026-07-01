@@ -36,9 +36,14 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import CRS_PATTERNS
-from QgisModelBaker.utils.gui_utils import ImportModelsHtmlDelegate, get_text_color
+from QgisModelBaker.utils.gui_utils import (
+    ImportModelsHtmlDelegate,
+    get_text_color,
+)
 
-PAGE_UI = gui_utils.get_ui_class("workflow_wizard/import_schema_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class(
+    "workflow_wizard/import_schema_configuration.ui"
+)
 
 
 class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
@@ -127,7 +132,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         # metaconfig settings
         configuration.metaconfig = self.metaconfig
         if self.current_metaconfig_id:
-            configuration.metaconfig_id = f"ilidata:{self.current_metaconfig_id}"
+            configuration.metaconfig_id = (
+                f"ilidata:{self.current_metaconfig_id}"
+            )
         if "CONFIGURATION" in self.metaconfig.sections():
             configuration.metaconfig_params_only = self.metaconfig[
                 "CONFIGURATION"
@@ -137,9 +144,13 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         configuration.srs_code = self.srs_code
         # ili2db_options
         configuration.inheritance = self.ili2db_options.inheritance_type()
-        configuration.create_basket_col = self.ili2db_options.create_basket_col()
+        configuration.create_basket_col = (
+            self.ili2db_options.create_basket_col()
+        )
         configuration.enum_tabs = self.ili2db_options.enum_type()
-        configuration.create_import_tid = self.ili2db_options.create_import_tid()
+        configuration.create_import_tid = (
+            self.ili2db_options.create_import_tid()
+        )
         configuration.create_gpkg_multigeom = (
             self.ili2db_options.create_gpkg_multigeom()
         )
@@ -181,19 +192,29 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.import_schema_configuration.base_configuration,
             models=";".join(self.model_list_view.model().checked_models()),
             datasources=["pg"]
-            if (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.pg)
+            if (
+                self.workflow_wizard.import_schema_configuration.tool
+                & DbIliMode.pg
+            )
             else ["gpkg"]
-            if (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.gpkg)
+            if (
+                self.workflow_wizard.import_schema_configuration.tool
+                & DbIliMode.gpkg
+            )
             else None,
         )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self._on_metaconfig_received(path)
         )
-        self.ilimetaconfigcache.file_download_failed.connect(self._on_metaconfig_failed)
+        self.ilimetaconfigcache.file_download_failed.connect(
+            self._on_metaconfig_failed
+        )
         self.ilimetaconfigcache.model_refreshed.connect(
             self._update_metaconfig_completer
         )
-        self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
+        self.workflow_wizard.busy(
+            self, True, self.tr("Refresh repository data...")
+        )
         self._refresh_ili_metaconfig_cache()
 
     def _update_ilireferencedatacache(self):
@@ -293,7 +314,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.ilimetaconfigcache.sorted_model, self.ili_metaconfig_line_edit
         )
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setModelSorting(
+            QCompleter.ModelSorting.CaseInsensitivelySortedModel
+        )
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.metaconfig_delegate)
         self.ili_metaconfig_line_edit.setCompleter(completer)
@@ -327,7 +350,8 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     ),
                     metaconfig_id,
                     self.ilimetaconfigcache.model.data(
-                        model_index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
+                        model_index,
+                        int(IliDataItemModel.Roles.SHORT_DESCRIPTION),
                     )
                     or "",
                 )
@@ -350,12 +374,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             # disable the next buttton
             self.setComplete(False)
             if path:
-                self.ilimetaconfigcache.download_file(repository, url, path, dataset_id)
+                self.ilimetaconfigcache.download_file(
+                    repository, url, path, dataset_id
+                )
             else:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("File not specified for metaconfig with id {}.").format(
-                        dataset_id
-                    ),
+                    self.tr(
+                        "File not specified for metaconfig with id {}."
+                    ).format(dataset_id),
                     LogLevel.TOPPING,
                 )
 
@@ -382,7 +408,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _on_metaconfig_received(self, path):
         self.workflow_wizard.log_panel.print_info(
-            self.tr("Metaconfig file successfully downloaded: {}").format(path),
+            self.tr("Metaconfig file successfully downloaded: {}").format(
+                path
+            ),
             LogLevel.TOPPING,
         )
         # parse metaconfig
@@ -399,7 +427,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _on_metaconfig_failed(self, dataset_id, error_msg):
         self.workflow_wizard.log_panel.print_info(
-            self.tr("Download of metaconfig file failed: {}.").format(error_msg),
+            self.tr("Download of metaconfig file failed: {}.").format(
+                error_msg
+            ),
             LogLevel.TOPPING,
         )
         # enable the next buttton
@@ -408,7 +438,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
     def _update_linked_models(self):
         linked_models = []
 
-        for r in range(self.workflow_wizard.ilireferencedatacache.model.rowCount()):
+        for r in range(
+            self.workflow_wizard.ilireferencedatacache.model.rowCount()
+        ):
             if self.workflow_wizard.ilireferencedatacache.model.item(r).data(
                 int(IliDataItemModel.Roles.MODEL_LINKS)
             ):
@@ -469,7 +501,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 )
 
             if "models" in ili2db_metaconfig:
-                for model in ili2db_metaconfig.get("models").strip().split(";"):
+                for model in (
+                    ili2db_metaconfig.get("models").strip().split(";")
+                ):
                     self.workflow_wizard.source_model.add_source(
                         model,
                         "model",
@@ -486,9 +520,13 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr("- Seek for iliMetaAttrs (toml) files:"),
                     LogLevel.TOPPING,
                 )
-                ili_meta_attrs_list = ili2db_metaconfig.get("iliMetaAttrs").split(";")
+                ili_meta_attrs_list = ili2db_metaconfig.get(
+                    "iliMetaAttrs"
+                ).split(";")
                 ili_meta_attrs_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(ili_meta_attrs_list)
+                    self.workflow_wizard.get_topping_file_list(
+                        ili_meta_attrs_list
+                    )
                 )
                 self.ili2db_options.load_toml_file_path(
                     ";".join(self.model_list_view.model().checked_models()),
@@ -502,11 +540,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             # get prescript (sql)
             if "preScript" in ili2db_metaconfig:
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Seek for prescript (sql) files:"), LogLevel.TOPPING
+                    self.tr("- Seek for prescript (sql) files:"),
+                    LogLevel.TOPPING,
                 )
                 prescript_list = ili2db_metaconfig.get("prescript").split(";")
-                prescript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    prescript_list
+                prescript_file_path_list = (
+                    self.workflow_wizard.get_topping_file_list(prescript_list)
                 )
                 self.ili2db_options.load_pre_script_path(
                     ";".join(prescript_file_path_list)
@@ -521,15 +560,18 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     self.tr("- Seek for postscript (sql) files:"),
                     LogLevel.TOPPING,
                 )
-                postscript_list = ili2db_metaconfig.get("postscript").split(";")
-                postscript_file_path_list = self.workflow_wizard.get_topping_file_list(
-                    postscript_list
+                postscript_list = ili2db_metaconfig.get("postscript").split(
+                    ";"
+                )
+                postscript_file_path_list = (
+                    self.workflow_wizard.get_topping_file_list(postscript_list)
                 )
                 self.ili2db_options.load_post_script_path(
                     ";".join(postscript_file_path_list)
                 )
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Loaded postscript (sql) files"), LogLevel.TOPPING
+                    self.tr("- Loaded postscript (sql) files"),
+                    LogLevel.TOPPING,
                 )
 
             self.ili2db_options.load_metaconfig(ili2db_metaconfig)
@@ -559,7 +601,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     "ch.interlis.referenceData"
                 ].split(";")
                 referencedata_file_path_list = (
-                    self.workflow_wizard.get_topping_file_list(reference_data_list)
+                    self.workflow_wizard.get_topping_file_list(
+                        reference_data_list
+                    )
                 )
                 for referencedata_file_path in referencedata_file_path_list:
                     if os.path.isfile(referencedata_file_path):
@@ -575,13 +619,15 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                             name,
                             type,
                             referencedata_file_path,
-                            self.tr("Datafile referenced in the metaconfigurationfile"),
+                            self.tr(
+                                "Datafile referenced in the metaconfigurationfile"
+                            ),
                         )
                     else:
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Could not append referenced data file {}…").format(
-                                referencedata_file_path
-                            ),
+                            self.tr(
+                                "Could not append referenced data file {}…"
+                            ).format(referencedata_file_path),
                             LogLevel.TOPPING,
                         )
             self.workflow_wizard.refresh_import_models()

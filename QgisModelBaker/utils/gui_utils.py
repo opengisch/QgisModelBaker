@@ -4,7 +4,7 @@ import os
 import pathlib
 import re
 import warnings
-import xml.etree.ElementTree as CET
+import xml.etree.ElementTree as CET  # nosec
 from enum import Enum, IntEnum
 
 from qgis.core import QgsApplication
@@ -44,7 +44,10 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.uic import loadUiType
 
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import IliCache
-from QgisModelBaker.libs.modelbaker.utils.globals import MODELS_BLACKLIST, LogLevel
+from QgisModelBaker.libs.modelbaker.utils.globals import (
+    MODELS_BLACKLIST,
+    LogLevel,
+)
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import slugify
 from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME
 
@@ -280,9 +283,11 @@ class FileDropListView(QListView):
                 break
 
     def dropEvent(self, event):
-        dropped_files, dropped_xml_files, dropped_ini_files = self.extractDroppedFiles(
-            event.mimeData().urls()
-        )
+        (
+            dropped_files,
+            dropped_xml_files,
+            dropped_ini_files,
+        ) = self.extractDroppedFiles(event.mimeData().urls())
 
         dropped_files.extend(dropped_xml_files)
         self.files_dropped.emit(dropped_files, dropped_ini_files)
@@ -385,9 +390,9 @@ class SourceModel(QStandardItemModel):
                         else "",
                     )
                 if index.column() == SourceModel.Columns.DATASET:
-                    if self.index(index.row(), SourceModel.Columns.IS_CATALOGUE).data(
-                        int(SourceModel.Roles.IS_CATALOGUE)
-                    ):
+                    if self.index(
+                        index.row(), SourceModel.Columns.IS_CATALOGUE
+                    ).data(int(SourceModel.Roles.IS_CATALOGUE)):
                         return "---"
                     else:
                         return item.data(int(SourceModel.Roles.DATASET_NAME))
@@ -535,17 +540,25 @@ class ImportModelsModel(SourceModel):
             filtered_source_model_index = filtered_source_model.index(
                 r, SourceModel.Columns.SOURCE
             )
-            modelname = filtered_source_model_index.data(int(SourceModel.Roles.NAME))
+            modelname = filtered_source_model_index.data(
+                int(SourceModel.Roles.NAME)
+            )
             if modelname:
                 enabled = modelname not in db_modelnames
                 self.add_source(
                     modelname,
-                    filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
-                    filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                    filtered_source_model_index.data(
+                        int(SourceModel.Roles.TYPE)
+                    ),
+                    filtered_source_model_index.data(
+                        int(SourceModel.Roles.PATH)
+                    ),
                     filtered_source_model_index.data(
                         int(SourceModel.Roles.ORIGIN_INFO)
                     ),
-                    previously_checked_models.get(modelname, Qt.CheckState.Checked)
+                    previously_checked_models.get(
+                        modelname, Qt.CheckState.Checked
+                    )
                     if enabled
                     and self._LV95_equivalent_name(modelname)
                     not in self.checked_models()
@@ -578,8 +591,12 @@ class ImportModelsModel(SourceModel):
                     enabled = model["name"] not in db_modelnames
                     self.add_source(
                         model["name"],
-                        filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
-                        filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.TYPE)
+                        ),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.PATH)
+                        ),
                         filtered_source_model_index.data(
                             int(SourceModel.Roles.ORIGIN_INFO)
                         ),
@@ -596,7 +613,9 @@ class ImportModelsModel(SourceModel):
                     )
                     if not silent:
                         self.print_info.emit(
-                            self.tr("- Append (file) model {}{} from {}").format(
+                            self.tr(
+                                "- Append (file) model {}{} from {}"
+                            ).format(
                                 model["name"],
                                 " (inactive because it already exists in the database)"
                                 if not enabled
@@ -625,8 +644,12 @@ class ImportModelsModel(SourceModel):
                     enabled = model["name"] not in db_modelnames
                     self.add_source(
                         model["name"],
-                        filtered_source_model_index.data(int(SourceModel.Roles.TYPE)),
-                        filtered_source_model_index.data(int(SourceModel.Roles.PATH)),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.TYPE)
+                        ),
+                        filtered_source_model_index.data(
+                            int(SourceModel.Roles.PATH)
+                        ),
                         filtered_source_model_index.data(
                             int(SourceModel.Roles.ORIGIN_INFO)
                         ),
@@ -642,7 +665,9 @@ class ImportModelsModel(SourceModel):
                     )
                     if not silent:
                         self.print_info.emit(
-                            self.tr("- Append (xtf file) model {}{} from {}").format(
+                            self.tr(
+                                "- Append (xtf file) model {}{} from {}"
+                            ).format(
                                 model["name"],
                                 " (inactive because it already exists in the database)"
                                 if not enabled
@@ -675,7 +700,9 @@ class ImportModelsModel(SourceModel):
 
         try:
             models_element = None
-            for event, elem in CET.iterparse(data_file_path, events=("end",)):
+            for event, elem in CET.iterparse(
+                data_file_path, events=("end",)
+            ):  # nosec
                 ns = elem.tag.split("}")[0].strip("{")
                 name = elem.tag.split("}")[1]
                 if name.lower() == "models":
@@ -691,10 +718,16 @@ class ImportModelsModel(SourceModel):
                         "http://www.interlis.ch/xtf/2.4/INTERLIS",
                         "https://www.interlis.ch/xtf/2.4/INTERLIS",
                     ]:
-                        if tagname == "model" and model_element.text is not None:
+                        if (
+                            tagname == "model"
+                            and model_element.text is not None
+                        ):
                             modelname = model_element.text
                     else:
-                        if tagname == "MODEL" and "NAME" in model_element.attrib:
+                        if (
+                            tagname == "MODEL"
+                            and "NAME" in model_element.attrib
+                        ):
                             modelname = model_element.attrib["NAME"]
 
                     if modelname and modelname not in MODELS_BLACKLIST:
@@ -702,7 +735,7 @@ class ImportModelsModel(SourceModel):
                         model["name"] = modelname
                         models.append(model)
 
-        except CET.ParseError as e:
+        except CET.ParseError as e:  # nosec
             self.print_info.emit(
                 self.tr(
                     "Could not parse transferfile file `{file}` ({exception})".format(
@@ -715,7 +748,10 @@ class ImportModelsModel(SourceModel):
     def _db_modelnames(self, db_connector=None):
         modelnames = list()
         if db_connector:
-            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
+            if (
+                db_connector.db_or_schema_exists()
+                and db_connector.metadata_exists()
+            ):
                 db_models = db_connector.get_models()
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
@@ -803,15 +839,21 @@ class ImportModelsModel(SourceModel):
                 if index.flags() & Qt.ItemFlag.ItemIsEnabled
                 else self.tr("Already in the database: "),
                 self.data(index, int(SourceModel.Roles.NAME)),
-                self._title_text(self.data(index, int(SourceModel.Roles.INFO))),
+                self._title_text(
+                    self.data(index, int(SourceModel.Roles.INFO))
+                ),
             )
         if role == Qt.ItemDataRole.ToolTipRole:
             return "<p><b>{}</b>{}</p>".format(
                 self.data(index, int(SourceModel.Roles.NAME)),
-                self._description_text(self.data(index, int(SourceModel.Roles.INFO))),
+                self._description_text(
+                    self.data(index, int(SourceModel.Roles.INFO))
+                ),
             )
         if role == Qt.ItemDataRole.CheckStateRole:
-            return self._checked_models[self.data(index, int(SourceModel.Roles.NAME))]
+            return self._checked_models[
+                self.data(index, int(SourceModel.Roles.NAME))
+            ]
         if role == Qt.ItemDataRole.DecorationRole:
             info = self.data(index, int(SourceModel.Roles.INFO))
             type, _ = self._relevant_type_source(info)
@@ -827,7 +869,9 @@ class ImportModelsModel(SourceModel):
     def setData(self, index, role, data):
         if role == Qt.ItemDataRole.CheckStateRole:
             self.beginResetModel()
-            self._checked_models[self.data(index, int(SourceModel.Roles.NAME))] = data
+            self._checked_models[
+                self.data(index, int(SourceModel.Roles.NAME))
+            ] = data
             self.endResetModel()
 
     def flags(self, index):
@@ -843,11 +887,15 @@ class ImportModelsModel(SourceModel):
                 == Qt.CheckState.Checked
             ):
                 self.setData(
-                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked
+                    index,
+                    Qt.ItemDataRole.CheckStateRole,
+                    Qt.CheckState.Unchecked,
                 )
             else:
                 self.setData(
-                    index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
+                    index,
+                    Qt.ItemDataRole.CheckStateRole,
+                    Qt.CheckState.Checked,
                 )
 
     def _relevant_type_source(self, info_list):
@@ -921,9 +969,9 @@ class ImportDataModel(QSortFilterProxyModel):
             delete_data = self.index(r, SourceModel.Columns.DELETE_DATA).data(
                 int(SourceModel.Roles.DELETE_DATA)
             )
-            is_catalogue = self.index(r, SourceModel.Columns.IS_CATALOGUE).data(
-                int(SourceModel.Roles.IS_CATALOGUE)
-            )
+            is_catalogue = self.index(
+                r, SourceModel.Columns.IS_CATALOGUE
+            ).data(int(SourceModel.Roles.IS_CATALOGUE))
             dataset = (
                 self.index(r, SourceModel.Columns.DATASET).data(
                     int(SourceModel.Roles.DATASET_NAME)
@@ -981,7 +1029,10 @@ class CheckEntriesModel(QStringListModel):
 
     def data(self, index, role):
         if role == Qt.ItemDataRole.CheckStateRole:
-            if self.data(index, Qt.ItemDataRole.DisplayRole) in self._checked_entries:
+            if (
+                self.data(index, Qt.ItemDataRole.DisplayRole)
+                in self._checked_entries
+            ):
                 return self._checked_entries[
                     self.data(index, Qt.ItemDataRole.DisplayRole)
                 ]
@@ -993,15 +1044,24 @@ class CheckEntriesModel(QStringListModel):
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == Qt.ItemDataRole.CheckStateRole:
-            self._checked_entries[self.data(index, Qt.ItemDataRole.DisplayRole)] = data
+            self._checked_entries[
+                self.data(index, Qt.ItemDataRole.DisplayRole)
+            ] = data
         else:
             QStringListModel.setData(self, index, data, role)
 
     def check(self, index):
-        if self.data(index, Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked:
-            self.setData(index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked)
+        if (
+            self.data(index, Qt.ItemDataRole.CheckStateRole)
+            == Qt.CheckState.Checked
+        ):
+            self.setData(
+                index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Unchecked
+            )
         else:
-            self.setData(index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked)
+            self.setData(
+                index, Qt.ItemDataRole.CheckStateRole, Qt.CheckState.Checked
+            )
         self._emit_data_changed()
 
     def check_all(self, state):
@@ -1079,16 +1139,22 @@ class SchemaModelsModel(CheckEntriesModel):
                     <p><b>{}</b> is an extension of <b>{}</b></p>
                     </body></html>
                     """
-                ).format(model_name, ", ".join(self._parent_models[model_name]))
+                ).format(
+                    model_name, ", ".join(self._parent_models[model_name])
+                )
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
-            return self._parent_models[self.data(index, Qt.ItemDataRole.DisplayRole)]
+            return self._parent_models[
+                self.data(index, Qt.ItemDataRole.DisplayRole)
+            ]
         else:
             return CheckEntriesModel.data(self, index, role)
 
     # this is unusual that it's not first data and then role (could be changed)
     def setData(self, index, role, data):
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):
-            self._parent_models[self.data(index, Qt.ItemDataRole.DisplayRole)] = data
+            self._parent_models[
+                self.data(index, Qt.ItemDataRole.DisplayRole)
+            ] = data
         else:
             CheckEntriesModel.setData(self, index, role, data)
 
@@ -1216,8 +1282,12 @@ class DatasetModel(QStandardItemModel):
                 if record["datasetname"] == CATALOGUE_DATASETNAME:
                     continue
                 item = QStandardItem()
-                item.setData(record["datasetname"], int(Qt.ItemDataRole.DisplayRole))
-                item.setData(record["datasetname"], int(DatasetModel.Roles.DATASETNAME))
+                item.setData(
+                    record["datasetname"], int(Qt.ItemDataRole.DisplayRole)
+                )
+                item.setData(
+                    record["datasetname"], int(DatasetModel.Roles.DATASETNAME)
+                )
                 item.setData(record["t_id"], int(DatasetModel.Roles.TID))
                 self.appendRow(item)
         self.endResetModel()
@@ -1250,13 +1320,19 @@ class BasketSourceModel(QStandardItemModel):
         for schema_identificator in self.schema_baskets.keys():
             for basket in self.schema_baskets[schema_identificator]:
                 item = QStandardItem()
-                item.setData(basket["datasetname"], int(Qt.ItemDataRole.DisplayRole))
                 item.setData(
-                    basket["datasetname"], int(BasketSourceModel.Roles.DATASETNAME)
+                    basket["datasetname"], int(Qt.ItemDataRole.DisplayRole)
                 )
-                item.setData(basket["topic"], int(BasketSourceModel.Roles.MODEL_TOPIC))
                 item.setData(
-                    basket["basket_t_id"], int(BasketSourceModel.Roles.BASKET_TID)
+                    basket["datasetname"],
+                    int(BasketSourceModel.Roles.DATASETNAME),
+                )
+                item.setData(
+                    basket["topic"], int(BasketSourceModel.Roles.MODEL_TOPIC)
+                )
+                item.setData(
+                    basket["basket_t_id"],
+                    int(BasketSourceModel.Roles.BASKET_TID),
                 )
                 item.setData(
                     f"{schema_identificator}_{slugify(basket['topic'])}",
@@ -1336,7 +1412,9 @@ class CheckDelegate(QStyledItemDelegate):
         opt.rect = checkbox_rect
 
         value = index.data(int(self.role)) or False
-        opt.state |= QStyle.StateFlag.State_On if value else QStyle.StateFlag.State_Off
+        opt.state |= (
+            QStyle.StateFlag.State_On if value else QStyle.StateFlag.State_Off
+        )
         QApplication.style().drawControl(
             QStyle.ControlElement.CE_CheckBox, opt, painter
         )
@@ -1367,7 +1445,9 @@ class Validators(QObject):
                 color = "#ffd356"  # Light orange
             else:
                 color = "#f6989d"  # Red
-        senderObj.setStyleSheet("QLineEdit {{ background-color: {} }}".format(color))
+        senderObj.setStyleSheet(
+            "QLineEdit {{ background-color: {} }}".format(color)
+        )
 
 
 class FileValidator(QValidator):
@@ -1415,7 +1495,9 @@ class FileValidator(QValidator):
             )
         else:
             raise TypeError(
-                "pattern must be str or list, not {}".format(type(self.pattern))
+                "pattern must be str or list, not {}".format(
+                    type(self.pattern)
+                )
             )
 
         if not text:

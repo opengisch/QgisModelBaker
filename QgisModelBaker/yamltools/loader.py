@@ -119,10 +119,14 @@ class InheritanceLoader(yaml.Loader):
                             a[key] = b[key]
                 else:
                     raise YamlReaderError(
-                        'Cannot merge non-dict "{}" into dict "{}"'.format(b, a)
+                        'Cannot merge non-dict "{}" into dict "{}"'.format(
+                            b, a
+                        )
                     )
             else:
-                raise YamlReaderError('NOT IMPLEMENTED "{}" into "{}"'.format(b, a))
+                raise YamlReaderError(
+                    'NOT IMPLEMENTED "{}" into "{}"'.format(b, a)
+                )
         except TypeError as e:
             raise YamlReaderError(
                 'TypeError "%s" in key "%s" when merging "%s" into "%s"'

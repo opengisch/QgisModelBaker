@@ -56,7 +56,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         self.baskets_layout.addWidget(self.baskets_panel)
         self.baskets_panel.basket_view.doubleClicked.connect(self._edit_basket)
 
-        self.baskets_panel.load_basket_config(self.db_connector, self.datasetname)
+        self.baskets_panel.load_basket_config(
+            self.db_connector, self.datasetname
+        )
 
         self.add_button.clicked.connect(self._add_basket)
         self.edit_button.clicked.connect(self._edit_basket)
@@ -65,9 +67,15 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             lambda: self._enable_basket_handling(True)
         )
 
-        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
-        self.edit_button.setIcon(QgsApplication.getThemeIcon("/symbologyEdit.svg"))
-        self.delete_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.add_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyAdd.svg")
+        )
+        self.edit_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyEdit.svg")
+        )
+        self.delete_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyRemove.svg")
+        )
 
         self._enable_basket_handling(True)  # Initial widget status
 
@@ -110,7 +118,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
 
     def _edit_basket(self) -> None:
         if self._valid_selection():
-            selected_basket_settings = self.baskets_panel.selected_basket_settings()
+            selected_basket_settings = (
+                self.baskets_panel.selected_basket_settings()
+            )
             edit_basket_dialog = EditBasketDialog(
                 self, self.db_connector, selected_basket_settings
             )
@@ -139,7 +149,8 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
                     self.tr(
                         "Deleting a Basket will also delete all the data it contains. This operation cannot be reverted.\n\nAre you sure you want to proceed?"
                     ),
-                    QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
+                    QMessageBox.StandardButton.No
+                    | QMessageBox.StandardButton.Yes,
                 )
                 == QMessageBox.StandardButton.Yes
             ):
@@ -155,7 +166,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
 
                 warning_box = QMessageBox(self)
                 warning_box.setIcon(
-                    QMessageBox.Icon.Information if res else QMessageBox.Icon.Warning
+                    QMessageBox.Icon.Information
+                    if res
+                    else QMessageBox.Icon.Warning
                 )
                 warning_box.setWindowTitle(self.tr("Delete Basket"))
                 warning_box.setText(msg)
@@ -200,7 +213,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
         # Remove temporary dataset
         ili2db_utils = Ili2DbUtils()
         ili2db_utils.log_on_error.connect(self._log_on_delete_dataset_error)
-        res, msg = ili2db_utils.delete_dataset(tmp_dataset_name, self.configuration)
+        res, msg = ili2db_utils.delete_dataset(
+            tmp_dataset_name, self.configuration
+        )
 
         # If anything went bad, leave everything as the original status,
         # i.e., move the basket to its original dataset
@@ -213,9 +228,9 @@ class BasketManagerDialog(QDialog, DIALOG_UI):
             _res, _msg = self.db_connector.edit_basket(basket_config)
             if not _res:
                 # We shouldn't reach this, the basket is in another dataset!
-                msg = self.tr("The basket (t_id: {}) couldn't be deleted!").format(
-                    basket_config["basket_t_id"]
-                )
+                msg = self.tr(
+                    "The basket (t_id: {}) couldn't be deleted!"
+                ).format(basket_config["basket_t_id"])
         else:
             msg = self.tr("Basket (t_id: {}) successfully deleted!").format(
                 basket_config["basket_t_id"]

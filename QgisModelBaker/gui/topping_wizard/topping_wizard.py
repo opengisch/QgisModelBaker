@@ -24,10 +24,14 @@ from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.topping_wizard.additives_page import AdditivesPage
 from QgisModelBaker.gui.topping_wizard.generation_page import GenerationPage
-from QgisModelBaker.gui.topping_wizard.ili2dbsettings_page import Ili2dbSettingsPage
+from QgisModelBaker.gui.topping_wizard.ili2dbsettings_page import (
+    Ili2dbSettingsPage,
+)
 from QgisModelBaker.gui.topping_wizard.layers_page import LayersPage
 from QgisModelBaker.gui.topping_wizard.models_page import ModelsPage
-from QgisModelBaker.gui.topping_wizard.referencedata_page import ReferencedataPage
+from QgisModelBaker.gui.topping_wizard.referencedata_page import (
+    ReferencedataPage,
+)
 from QgisModelBaker.gui.topping_wizard.target_page import TargetPage
 from QgisModelBaker.libs.modelbaker.ilitoppingmaker import IliProjectTopping
 from QgisModelBaker.utils.gui_utils import ToppingWizardPageIds
@@ -77,22 +81,29 @@ class ToppingWizard(QWizard):
         self.setPage(ToppingWizardPageIds.Models, self.models_page)
         self.setPage(ToppingWizardPageIds.Layers, self.layers_page)
         self.setPage(ToppingWizardPageIds.Additives, self.additives_page)
-        self.setPage(ToppingWizardPageIds.ReferenceData, self.referencedata_page)
-        self.setPage(ToppingWizardPageIds.Ili2dbSettings, self.ili2dbsettings_page)
+        self.setPage(
+            ToppingWizardPageIds.ReferenceData, self.referencedata_page
+        )
+        self.setPage(
+            ToppingWizardPageIds.Ili2dbSettings, self.ili2dbsettings_page
+        )
         self.setPage(ToppingWizardPageIds.Generation, self.generation_page)
 
         self.currentIdChanged.connect(self.id_changed)
 
     def sizeHint(self):
         return QSize(
-            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 48
+            self.fontMetrics().lineSpacing() * 48,
+            self.fontMetrics().lineSpacing() * 48,
         )
 
     def id_changed(self, new_id):
         self.current_id = new_id
 
         self.log_panel.print_info(
-            self.tr(f" > ---------- {self._current_page_title(self.current_id)}")
+            self.tr(
+                f" > ---------- {self._current_page_title(self.current_id)}"
+            )
         )
 
     def busy(self, page, busy, text="Busy..."):
@@ -101,7 +112,9 @@ class ToppingWizard(QWizard):
         if busy:
             self.log_panel.busy_bar.setFormat(text)
         else:
-            self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
+            self.log_panel.scrollbar.setValue(
+                self.log_panel.scrollbar.maximum()
+            )
 
     def _current_page_title(self, id):
         if id == ToppingWizardPageIds.Target:

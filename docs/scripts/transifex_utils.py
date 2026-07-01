@@ -28,7 +28,9 @@ def create_transifex_config():
 
         if os.path.isfile(f"{root}/mkdocs_tx.yml"):
             print(f"Found mkdocs config translated content")
-            f.write(f"[o:{TX_ORGANIZATION}:p:{TX_PROJECT}:r:site_navigation]\n")
+            f.write(
+                f"[o:{TX_ORGANIZATION}:p:{TX_PROJECT}:r:site_navigation]\n"
+            )
             f.write("resource_name = site navigation\n")
             f.write("file_filter = mkdocs_tx.<lang>.yml\n")
             f.write(f"source_file = mkdocs_tx.yml\n")
@@ -37,7 +39,9 @@ def create_transifex_config():
         else:
             print("No translation of mkdocs config found")
 
-        for file in glob.iglob(current_dir + "/../docs/**/*.md", recursive=True):
+        for file in glob.iglob(
+            current_dir + "/../docs/**/*.md", recursive=True
+        ):
             # Get relative path of file
             relative_path = os.path.relpath(file, start=root)
 
@@ -46,7 +50,9 @@ def create_transifex_config():
             if (
                 tx_slug and relative_path.count(".") == 1
             ):  # if no dots defining language (to filter out the indes.de.md etc.)
-                print(f"Found file with tx_slug defined: {relative_path}, {tx_slug}")
+                print(
+                    f"Found file with tx_slug defined: {relative_path}, {tx_slug}"
+                )
                 f.write(f"[o:{TX_ORGANIZATION}:p:{TX_PROJECT}:r:{tx_slug}]\n")
                 f.write(
                     f"file_filter = {os.path.splitext(relative_path)[0]}.<lang>.md\n"

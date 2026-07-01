@@ -44,7 +44,9 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
         self.set_sequence_panel = SetSequencePanel(self.parent)
         self.set_sequence_layout.addWidget(self.set_sequence_panel)
 
-        self.reset_layer_tids_button.clicked.connect(self._reset_tid_configuration)
+        self.reset_layer_tids_button.clicked.connect(
+            self._reset_tid_configuration
+        )
 
         self.qgis_project = None
         self.configuration = None
@@ -63,7 +65,10 @@ class TIDConfiguratorPanel(QWidget, WIDGET_UI):
                     self.configuration = Ili2DbCommandConfiguration()
                     self.configuration.base_configuration = self.base_config
                     source_provider = first_tree_layer.layer().dataProvider()
-                    valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    (
+                        valid,
+                        mode,
+                    ) = db_utils.get_configuration_from_sourceprovider(
                         source_provider, self.configuration
                     )
                     if not valid:

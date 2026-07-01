@@ -19,6 +19,7 @@
 set -e
 
 pushd /usr/src
+
 DEFAULT_PARAMS='-v'
 xvfb-run python -m pytest ${@:-`echo $DEFAULT_PARAMS`} $1 $2
 popd

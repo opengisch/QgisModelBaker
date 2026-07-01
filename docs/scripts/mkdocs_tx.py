@@ -118,12 +118,16 @@ def update_config(config_path, source_path, source_language):
                         print("No site description in translation")
 
                     try:
-                        lang_info["palette"] = copy.deepcopy(config["theme"]["palette"])
+                        lang_info["palette"] = copy.deepcopy(
+                            config["theme"]["palette"]
+                        )
                         i = 0
                         for palette in tx["theme"]["palette"]:
                             _name = (
                                 palette["toggle"]["name"]
-                                or config["theme"]["palette"][i]["toggle"]["name"]
+                                or config["theme"]["palette"][i]["toggle"][
+                                    "name"
+                                ]
                             )
                             lang_info["palette"][i]["toggle"]["name"] = _name
                             i += 1
@@ -141,10 +145,16 @@ def update_config(config_path, source_path, source_language):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-c", "--config_path", default="mkdocs.yml", help="mkdocs.yml complete path"
+        "-c",
+        "--config_path",
+        default="mkdocs.yml",
+        help="mkdocs.yml complete path",
     )
     parser.add_argument(
-        "-s", "--source_language", default="en", help="source language of the config"
+        "-s",
+        "--source_language",
+        default="en",
+        help="source language of the config",
     )
     parser.add_argument(
         "-t",

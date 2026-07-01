@@ -41,7 +41,9 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         self.create_baskets_panel = CreateBasketPanel(self)
         self.baskets_layout.addWidget(self.create_baskets_panel)
 
-        self.create_default_baskets_button.clicked.connect(self._create_default_baskets)
+        self.create_default_baskets_button.clicked.connect(
+            self._create_default_baskets
+        )
         self.skip_button.clicked.connect(self._skip)
 
         self.db_connector = None
@@ -73,10 +75,14 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         for feedback in feedbacks:
             if feedback[0]:
                 # positive
-                self.workflow_wizard.log_panel.print_info(feedback[1], LogLevel.INFO)
+                self.workflow_wizard.log_panel.print_info(
+                    feedback[1], LogLevel.INFO
+                )
             else:
                 # negative
-                self.workflow_wizard.log_panel.print_info(feedback[1], LogLevel.FAIL)
+                self.workflow_wizard.log_panel.print_info(
+                    feedback[1], LogLevel.FAIL
+                )
                 success = False
 
         if success:

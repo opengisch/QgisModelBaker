@@ -52,7 +52,9 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        self.topping_wizard.topping.models = self.models_model.checked_entries()
+        self.topping_wizard.topping.models = (
+            self.models_model.checked_entries()
+        )
         if self.topping_wizard.topping.models:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
@@ -73,7 +75,9 @@ class ModelsPage(QWizardPage, PAGE_UI):
         return super().validatePage()
 
     def _refresh(self):
-        self.topping_wizard.busy(self, True, self.tr("Refresh model information..."))
+        self.topping_wizard.busy(
+            self, True, self.tr("Refresh model information...")
+        )
         self._load_available_models_and_sources()
         self.models_model.check_entries(self.topping_wizard.topping.models)
         self.topping_wizard.busy(self, False)
@@ -102,11 +106,16 @@ class ModelsPage(QWizardPage, PAGE_UI):
                 else:
                     checked_identificators.append(schema_identificator)
                     current_configuration = Ili2DbCommandConfiguration()
-                    valid, mode = db_utils.get_configuration_from_sourceprovider(
+                    (
+                        valid,
+                        mode,
+                    ) = db_utils.get_configuration_from_sourceprovider(
                         source_provider, current_configuration
                     )
                     if valid and mode:
-                        db_connector = db_utils.get_db_connector(current_configuration)
+                        db_connector = db_utils.get_db_connector(
+                            current_configuration
+                        )
                         if db_connector:
                             db_connectors.append(db_connector)
         self.models_model.refresh_model(db_connectors)

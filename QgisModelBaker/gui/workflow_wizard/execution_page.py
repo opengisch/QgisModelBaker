@@ -89,18 +89,28 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         new_sessions = []
 
         for key in sessions:
-            models = sessions[key]["models"] if "models" in sessions[key] else []
-            datasets = (
-                sessions[key]["datasets"] if "datasets" in sessions[key] else None
+            models = (
+                sessions[key]["models"] if "models" in sessions[key] else []
             )
-            baskets = sessions[key]["baskets"] if "baskets" in sessions[key] else None
+            datasets = (
+                sessions[key]["datasets"]
+                if "datasets" in sessions[key]
+                else None
+            )
+            baskets = (
+                sessions[key]["baskets"]
+                if "baskets" in sessions[key]
+                else None
+            )
             export_models = (
                 sessions[key]["export_models"]
                 if "export_models" in sessions[key]
                 else None
             )
             delete_data = (
-                sessions[key]["delete_data"] if "delete_data" in sessions[key] else None
+                sessions[key]["delete_data"]
+                if "delete_data" in sessions[key]
+                else None
             )
 
             skipped_session_widget = self._find_skipped_session_widget(
@@ -110,7 +120,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     datasets,
                     baskets,
                     export_models,
-                    db_utils.get_schema_identificator_from_configuration(configuration),
+                    db_utils.get_schema_identificator_from_configuration(
+                        configuration
+                    ),
                     delete_data,
                 )
             )
@@ -127,8 +139,12 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     self.db_action_type,
                     delete_data,
                 )
-                session.on_done_or_skipped.connect(self._on_done_or_skipped_received)
-                session.print_info.connect(self.workflow_wizard.log_panel.print_info)
+                session.on_done_or_skipped.connect(
+                    self._on_done_or_skipped_received
+                )
+                session.print_info.connect(
+                    self.workflow_wizard.log_panel.print_info
+                )
                 session.on_stdout.connect(
                     self.workflow_wizard.log_panel.print_stdout_info
                 )
@@ -144,7 +160,10 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             session_layout.addWidget(session_widget)
         session_layout.addSpacerItem(
             QSpacerItem(
-                40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+                40,
+                20,
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Expanding,
             )
         )
         content.setLayout(session_layout)
@@ -194,7 +213,9 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     "Transfer data successfully imported into the database!"
                 )
             elif self.db_action_type == DbActionType.EXPORT:
-                message = self.tr("Data successfully exported into transfer file!")
+                message = self.tr(
+                    "Data successfully exported into transfer file!"
+                )
         else:
             level = LogLevel.FAIL
             message = self.tr("Finished with errors!")

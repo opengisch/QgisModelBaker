@@ -29,8 +29,12 @@ from qgis.PyQt.QtWidgets import QCompleter, QWizardPage
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
-from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import DBConnectorError
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
+from QgisModelBaker.libs.modelbaker.dbconnector.db_connector import (
+    DBConnectorError,
+)
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
@@ -42,7 +46,10 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
 from QgisModelBaker.libs.modelbaker.utils.globals import OptimizeStrategy
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.globals import CATALOGUE_DATASETNAME, displayLanguages
+from QgisModelBaker.utils.globals import (
+    CATALOGUE_DATASETNAME,
+    displayLanguages,
+)
 from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST, LogLevel
 
 PAGE_UI = gui_utils.get_ui_class("workflow_wizard/project_creation.ui")
@@ -80,12 +87,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.ilitoppingcache = IliDataCache(None)
         self.ilitopping_delegate = IliDataFileCompleterDelegate()
         self.topping_line_edit.setPlaceholderText(
-            self.tr("[Search project toppings on the repositories or the local system]")
+            self.tr(
+                "[Search project toppings on the repositories or the local system]"
+            )
         )
         self.topping_line_edit.textChanged.connect(self._complete_completer)
         self.topping_line_edit.punched.connect(self._complete_completer)
         self.topping_line_edit.textChanged.emit(self.topping_line_edit.text())
-        self.topping_line_edit.textChanged.connect(self._on_completer_activated)
+        self.topping_line_edit.textChanged.connect(
+            self._on_completer_activated
+        )
         self.topping_file_browse_button.clicked.connect(
             make_file_selector(
                 self.topping_line_edit,
@@ -94,7 +105,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             )
         )
         self.fileValidator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_empty=False,
         )
         self.gpkg_multigeometry_frame.setVisible(False)
 
@@ -110,7 +122,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.busy(
             self,
             True,
-            self.tr("Restoring configuration and check existing metaconfigfile..."),
+            self.tr(
+                "Restoring configuration and check existing metaconfigfile..."
+            ),
         )
         self.configuration = configuration
         self.db_connector = db_utils.get_db_connector(self.configuration)
@@ -154,7 +168,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 models=";".join(self._modelnames()),
                 datasources=["pg"]
                 if (
-                    self.workflow_wizard.import_schema_configuration.tool & DbIliMode.pg
+                    self.workflow_wizard.import_schema_configuration.tool
+                    & DbIliMode.pg
                 )
                 else ["gpkg"]
                 if (
@@ -167,8 +182,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.workflow_wizard.log_panel.show_message
             )
             # wait before activating until end of refreshment
-            self.workflow_wizard.busy(self, True, self.tr("Refresh repository data..."))
-            self.ilitoppingcache.model_refreshed.connect(self._enable_topping_selection)
+            self.workflow_wizard.busy(
+                self, True, self.tr("Refresh repository data...")
+            )
+            self.ilitoppingcache.model_refreshed.connect(
+                self._enable_topping_selection
+            )
             self._enable_optimize_combo(True)
             self.ilitoppingcache.refresh()
 
@@ -211,7 +230,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.tr("Hide unused base class layers"), OptimizeStrategy.HIDE
             )
             self.optimize_combo.addItem(
-                self.tr("Group unused base class layers"), OptimizeStrategy.GROUP
+                self.tr("Group unused base class layers"),
+                OptimizeStrategy.GROUP,
             )
             self.optimize_combo.setToolTip(
                 self.tr(
@@ -241,7 +261,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             """
                 )
             )
-        self.optimize_combo.addItem(self.tr("No optimization"), OptimizeStrategy.NONE)
+        self.optimize_combo.addItem(
+            self.tr("No optimization"), OptimizeStrategy.NONE
+        )
         self.optimize_combo.setCurrentIndex(index)
 
     def _update_translation_combo(self):
@@ -257,23 +279,33 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         displayLanguages.get(lang, lang), lang
                     )
                 translation_lang = self.db_connector.get_available_languages(
-                    MODELS_BLACKLIST, self.db_connector.get_translation_models()
+                    MODELS_BLACKLIST,
+                    self.db_connector.get_translation_models(),
                 )
                 if len(translation_lang) > 0:
                     self.translation_combo.setCurrentText(
-                        displayLanguages.get(translation_lang[0], translation_lang[0])
+                        displayLanguages.get(
+                            translation_lang[0], translation_lang[0]
+                        )
                     )
                 self.translation_combo.setEnabled(True)
             else:
                 self.translation_combo.setEnabled(False)
 
-        self.translation_combo.addItem(self.tr("Original model language"), "__")
+        self.translation_combo.addItem(
+            self.tr("Original model language"), "__"
+        )
 
         # Synchronize length of both comboboxes
-        self.translation_combo.setMinimumSize(self.optimize_combo.minimumSizeHint())
+        self.translation_combo.setMinimumSize(
+            self.optimize_combo.minimumSizeHint()
+        )
 
     def _complete_completer(self):
-        if self.topping_line_edit.hasFocus() and self.topping_line_edit.completer():
+        if (
+            self.topping_line_edit.hasFocus()
+            and self.topping_line_edit.completer()
+        ):
             if not self.topping_line_edit.text():
                 self.topping_line_edit.completer().setCompletionMode(
                     QCompleter.CompletionMode.UnfilteredPopupCompletion
@@ -337,13 +369,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         "Project topping received according to the id found in the database or selected previously"
                     )
                 else:
-                    info = self.tr("Project topping received according selection")
+                    info = self.tr(
+                        "Project topping received according selection"
+                    )
                 self.topping_info.setText(
                     "<html><head/><body><p><b>{} ({})</b><br><i><b>{}</b></i></p></body></html>".format(
                         info,
                         self.projecttopping_id,
                         self.ilitoppingcache.model.data(
-                            index, int(IliDataItemModel.Roles.SHORT_DESCRIPTION)
+                            index,
+                            int(IliDataItemModel.Roles.SHORT_DESCRIPTION),
                         )
                         or "",
                     )
@@ -372,7 +407,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             )
             return
 
-        db_factory = self.db_simple_factory.create_factory(self.configuration.tool)
+        db_factory = self.db_simple_factory.create_factory(
+            self.configuration.tool
+        )
 
         try:
             config_manager = db_factory.get_db_command_config_manager(
@@ -394,7 +431,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 preferred_language=self.translation_combo.currentData(),
             )
             generator.stdout.connect(self.workflow_wizard.log_panel.print_info)
-            generator.new_message.connect(self.workflow_wizard.log_panel.show_message)
+            generator.new_message.connect(
+                self.workflow_wizard.log_panel.show_message
+            )
             self.progress_bar.setValue(30)
         except DBConnectorError as db_connector_error:
             self.workflow_wizard.log_panel.txtStdout.setText(
@@ -474,7 +513,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         if coalesce_catalogue_used:
             layer_count_before = len(available_layers)
             relation_count_before = len(relations)
-            available_layers, relations = generator.suppress_catalogue_reference_layers(
+            (
+                available_layers,
+                relations,
+            ) = generator.suppress_catalogue_reference_layers(
                 available_layers, relations, bags_of_enum
             )
             if layer_count_before - len(available_layers) > 0:
@@ -530,9 +572,12 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         if layertree_key in projecttopping_data:
                             legend = generator.legend(
                                 available_layers,
-                                layertree_structure=projecttopping_data[layertree_key],
+                                layertree_structure=projecttopping_data[
+                                    layertree_key
+                                ],
                                 path_resolver=lambda path: self.ilidata_path_resolver(
-                                    os.path.dirname(projecttopping_file_path), path
+                                    os.path.dirname(projecttopping_file_path),
+                                    path,
                                 )
                                 if path
                                 else None,
@@ -557,7 +602,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             resolved_layouts = generator.resolved_layouts(
                                 projecttopping_data["layouts"],
                                 path_resolver=lambda path: self.ilidata_path_resolver(
-                                    os.path.dirname(projecttopping_file_path), path
+                                    os.path.dirname(projecttopping_file_path),
+                                    path,
                                 )
                                 if path
                                 else None,
@@ -575,15 +621,21 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
                     except yaml.YAMLError as exc:
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Unable to parse project topping: {}").format(exc),
+                            self.tr(
+                                "Unable to parse project topping: {}"
+                            ).format(exc),
                             LogLevel.TOPPING,
                         )
 
         self.progress_bar.setValue(55)
 
-        self.workflow_wizard.log_panel.print_info(self.tr("Set transaction mode…"))
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Set transaction mode…")
+        )
         # override transaction mode if given by topping
-        transaction_mode = custom_project_properties.get("transaction_mode", None)
+        transaction_mode = custom_project_properties.get(
+            "transaction_mode", None
+        )
 
         if Qgis.QGIS_VERSION_INT < 32600:
             # For backwards compatibility, we support booleans,
@@ -603,7 +655,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             else:
                 # in case the topping used True/False value we need to convert
                 if transaction_mode is True:
-                    transaction_mode = Qgis.TransactionMode.AutomaticGroups.name
+                    transaction_mode = (
+                        Qgis.TransactionMode.AutomaticGroups.name
+                    )
                 if transaction_mode is False:
                     transaction_mode = Qgis.TransactionMode.Disabled.name
                 # otherwise it's already a string and could be everything
@@ -615,7 +669,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         )
 
         # override optimize strategy if give n by topic
-        optimize_strategy = custom_project_properties.get("ili_optimize_strategy", None)
+        optimize_strategy = custom_project_properties.get(
+            "ili_optimize_strategy", None
+        )
 
         if optimize_strategy == "HIDE":
             optimize_strategy = OptimizeStrategy.HIDE
@@ -650,12 +706,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         qgis_project = QgsProject.instance()
 
-        self.workflow_wizard.log_panel.print_info(self.tr("Generate QGIS project…"))
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Generate QGIS project…")
+        )
         project.create(None, qgis_project)
 
         self.progress_bar.setValue(75)
 
-        self.workflow_wizard.log_panel.print_info(self.tr("Set map canvas extent..."))
+        self.workflow_wizard.log_panel.print_info(
+            self.tr("Set map canvas extent...")
+        )
 
         # Set the extent of the mapCanvas from the first layer extent found
         for layer in project.layers:
@@ -670,7 +730,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         # This configuration is legacy (should be in project topping instead), but it's still supported
         if (
             self.configuration.metaconfig
-            and "qgis.modelbaker.qml" in self.configuration.metaconfig.sections()
+            and "qgis.modelbaker.qml"
+            in self.configuration.metaconfig.sections()
         ):
             self.workflow_wizard.log_panel.print_info(
                 self.tr(
@@ -678,7 +739,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 ),
                 LogLevel.TOPPING,
             )
-            qml_section = dict(self.configuration.metaconfig["qgis.modelbaker.qml"])
+            qml_section = dict(
+                self.configuration.metaconfig["qgis.modelbaker.qml"]
+            )
             qml_file_model = self.workflow_wizard.get_topping_file_model(
                 list(qml_section.values())
             )
@@ -686,7 +749,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 if layer.alias:
                     if any(layer.alias.lower() == s for s in qml_section):
                         layer_qml = layer.alias.lower()
-                    elif any(f'"{layer.alias.lower()}"' == s for s in qml_section):
+                    elif any(
+                        f'"{layer.alias.lower()}"' == s for s in qml_section
+                    ):
                         layer_qml = f'"{layer.alias.lower()}"'
                     else:
                         continue
@@ -701,9 +766,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                             int(IliToppingFileItemModel.Roles.LOCALFILEPATH)
                         )
                         self.workflow_wizard.log_panel.print_info(
-                            self.tr("Apply QML topping on layer {}:{}…").format(
-                                layer.alias, style_file_path
-                            ),
+                            self.tr(
+                                "Apply QML topping on layer {}:{}…"
+                            ).format(layer.alias, style_file_path),
                             LogLevel.TOPPING,
                         )
                         layer.layer.loadNamedStyle(style_file_path)
@@ -715,7 +780,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
     def ilidata_path_resolver(self, base_path, path):
         if "ilidata:" in path or "file:" in path:
-            data_file_path_list = self.workflow_wizard.get_topping_file_list([path])
+            data_file_path_list = self.workflow_wizard.get_topping_file_list(
+                [path]
+            )
             return data_file_path_list[0] if data_file_path_list else None
         return os.path.join(base_path, path)
 
@@ -729,8 +796,8 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 metaconfig_id = setting_record["setting"]
                 break
         if metaconfig_id:
-            metaconfig_file_path_list = self.workflow_wizard.get_topping_file_list(
-                [metaconfig_id]
+            metaconfig_file_path_list = (
+                self.workflow_wizard.get_topping_file_list([metaconfig_id])
             )
 
             if not metaconfig_file_path_list:
@@ -797,7 +864,11 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             for db_model in db_models:
                 for modelname in regex.split(db_model["modelname"]):
                     name = modelname.strip()
-                    if name and name not in MODELS_BLACKLIST and name not in modelnames:
+                    if (
+                        name
+                        and name not in MODELS_BLACKLIST
+                        and name not in modelnames
+                    ):
                         modelnames.append(name)
         return modelnames
 
@@ -810,7 +881,10 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
     def _multigeom_gpkg(self):
         # this concerns only geopackage
-        if not (self.workflow_wizard.import_schema_configuration.tool & DbIliMode.gpkg):
+        if not (
+            self.workflow_wizard.import_schema_configuration.tool
+            & DbIliMode.gpkg
+        ):
             return False
 
         # and when this geopackage has multiple geometry columns in a table
@@ -830,7 +904,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
-            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: #FFC800;")
+            self.gpkg_multigeometry_frame.setStyleSheet(
+                f"background-color: #FFC800;"
+            )
             self.create_project_button.setDisabled(True)
         else:
             self.gpkg_multigeometry_label.setText(
@@ -845,7 +921,9 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
-            self.gpkg_multigeometry_frame.setStyleSheet(f"background-color: lightgrey;")
+            self.gpkg_multigeometry_frame.setStyleSheet(
+                f"background-color: lightgrey;"
+            )
         return True
 
     def help_text(self):

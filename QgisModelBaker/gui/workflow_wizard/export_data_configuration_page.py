@@ -24,9 +24,13 @@ from qgis.PyQt.QtWidgets import QWizardPage
 import QgisModelBaker.utils.gui_utils as gui_utils
 from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_save_file_selector
+from QgisModelBaker.libs.modelbaker.utils.qt_utils import (
+    make_save_file_selector,
+)
 
-PAGE_UI = gui_utils.get_ui_class("workflow_wizard/export_data_configuration.ui")
+PAGE_UI = gui_utils.get_ui_class(
+    "workflow_wizard/export_data_configuration.ui"
+)
 
 
 class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
@@ -67,9 +71,15 @@ class ExportDataConfigurationPage(QWizardPage, PAGE_UI):
         )
 
         self.xtf_file_line_edit.setValidator(fileValidator)
-        self.xtf_file_line_edit.textChanged.connect(self.validators.validate_line_edits)
-        self.xtf_file_line_edit.textChanged.connect(self._set_current_export_target)
-        self.xtf_file_line_edit.textChanged.emit(self.xtf_file_line_edit.text())
+        self.xtf_file_line_edit.textChanged.connect(
+            self.validators.validate_line_edits
+        )
+        self.xtf_file_line_edit.textChanged.connect(
+            self._set_current_export_target
+        )
+        self.xtf_file_line_edit.textChanged.emit(
+            self.xtf_file_line_edit.text()
+        )
 
     def isComplete(self):
         return self.is_complete

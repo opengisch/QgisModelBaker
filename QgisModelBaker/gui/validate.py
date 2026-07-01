@@ -45,15 +45,21 @@ from qgis.PyQt.QtWidgets import (
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.export_models_panel import ExportModelsPanel
 from QgisModelBaker.gui.panel.filter_data_panel import FilterDataPanel
-from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import DbSimpleFactory
+from QgisModelBaker.libs.modelbaker.db_factory.db_simple_factory import (
+    DbSimpleFactory,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper import ilivalidator
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
-from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import ValidateConfiguration
+from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
+    ValidateConfiguration,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbutils import (
     JavaNotFoundError,
     get_ili2db_bin,
 )
-from QgisModelBaker.libs.modelbaker.iliwrapper.ilivalidator import ValidationResultModel
+from QgisModelBaker.libs.modelbaker.iliwrapper.ilivalidator import (
+    ValidationResultModel,
+)
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import OverrideCursor
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.gui_utils import (
@@ -157,18 +163,24 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.current_export_models_active = False
 
         self.filter_data_panel = FilterDataPanel(self)
-        self.filter_data_panel.setMaximumHeight(self.fontMetrics().lineSpacing() * 10)
+        self.filter_data_panel.setMaximumHeight(
+            self.fontMetrics().lineSpacing() * 10
+        )
         self.filter_layout.addWidget(self.filter_data_panel)
 
         self.export_models_panel = ExportModelsPanel(self)
-        self.export_models_panel.setMaximumHeight(self.fontMetrics().lineSpacing() * 10)
+        self.export_models_panel.setMaximumHeight(
+            self.fontMetrics().lineSpacing() * 10
+        )
         self.export_models_layout.addWidget(self.export_models_panel)
         self._reset_gui()
 
         self.run_button.clicked.connect(self._run)
         self.visibilityChanged.connect(self._visibility_changed)
 
-        self.result_table_view.setItemDelegate(FixedDelegate(self.result_table_view))
+        self.result_table_view.setItemDelegate(
+            FixedDelegate(self.result_table_view)
+        )
         self.result_table_view.setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu
         )
@@ -180,8 +192,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         self.flash_button.setIcon(
             QgsApplication.getThemeIcon("/mActionHighlightFeature.svg")
         )
-        self.auto_pan_button.setIcon(QgsApplication.getThemeIcon("/mActionPanTo.svg"))
-        self.auto_zoom_button.setIcon(QgsApplication.getThemeIcon("/mActionZoomTo.svg"))
+        self.auto_pan_button.setIcon(
+            QgsApplication.getThemeIcon("/mActionPanTo.svg")
+        )
+        self.auto_zoom_button.setIcon(
+            QgsApplication.getThemeIcon("/mActionZoomTo.svg")
+        )
 
         self.auto_pan_button.clicked.connect(self._auto_pan_button_clicked)
         self.auto_zoom_button.clicked.connect(self._auto_zoom_button_clicked)
@@ -191,14 +207,18 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             self.tr("Save config file path to project..."),
             self,
         )
-        save_config_file_path_action.triggered.connect(self._save_config_file_path)
+        save_config_file_path_action.triggered.connect(
+            self._save_config_file_path
+        )
         self.config_file_tool_button.addAction(save_config_file_path_action)
         load_config_file_path_action = QAction(
             QgsApplication.getThemeIcon("/mActionFileOpen.svg"),
             self.tr("Load config file path from project..."),
             self,
         )
-        load_config_file_path_action.triggered.connect(self._load_config_file_path)
+        load_config_file_path_action.triggered.connect(
+            self._load_config_file_path
+        )
         self.config_file_tool_button.addAction(load_config_file_path_action)
         self.config_file_tool_button.clicked.connect(self._select_config_file)
 
@@ -241,13 +261,19 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if self.isHidden():
             return
 
-        if not layer or not layer.dataProvider() or not layer.dataProvider().isValid():
+        if (
+            not layer
+            or not layer.dataProvider()
+            or not layer.dataProvider().isValid()
+        ):
             self.setDisabled(True)
             return
 
         source_provider = layer.dataProvider()
-        schema_identificator = db_utils.get_schema_identificator_from_sourceprovider(
-            source_provider
+        schema_identificator = (
+            db_utils.get_schema_identificator_from_sourceprovider(
+                source_provider
+            )
         )
         if not schema_identificator:
             self.setDisabled(True)
@@ -266,7 +292,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             source_provider, self.current_configuration
         )
         if valid and mode:
-            output_file_name = "{}.xtf".format(self.current_schema_identificator)
+            output_file_name = "{}.xtf".format(
+                self.current_schema_identificator
+            )
             self.current_configuration.xtflog = os.path.join(
                 QStandardPaths.writableLocation(
                     QStandardPaths.StandardLocation.TempLocation
@@ -295,7 +323,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                     )
                 )
 
-            self.current_configuration.with_exporttid = self._get_tid_handling()
+            self.current_configuration.with_exporttid = (
+                self._get_tid_handling()
+            )
 
             if self.schema_validations.get(self.current_schema_identificator):
                 # don't set result if never got a validation (empty ValidateDock.SchemaValidation)
@@ -444,11 +474,14 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             try:
                 self._validator_stdout(f"Run: {validator.command(True)}")
                 validation_result_state = (
-                    validator.run(edited_command) == ilivalidator.Validator.SUCCESS
+                    validator.run(edited_command)
+                    == ilivalidator.Validator.SUCCESS
                 )
             except JavaNotFoundError as e:
                 self.progress_bar.setValue(0)
-                self.progress_bar.setFormat(self.tr("Ili2db validation problems"))
+                self.progress_bar.setFormat(
+                    self.tr("Ili2db validation problems")
+                )
                 self.progress_bar.setTextVisible(True)
                 self._disable_controls(False)
 
@@ -479,7 +512,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
 
     def _set_result(self, valid):
         self.result_table_view.setModel(
-            self.schema_validations[self.current_schema_identificator].result_model
+            self.schema_validations[
+                self.current_schema_identificator
+            ].result_model
         )
 
         self.result_table_view.setWordWrap(True)
@@ -512,8 +547,12 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if not self.result_table_view.indexAt(pos).isValid():
             self.result_table_view.clearSelection()
             return
-        selection_index = self.result_table_view.selectionModel().currentIndex()
-        index = selection_index.sibling(selection_index.row(), selection_index.column())
+        selection_index = (
+            self.result_table_view.selectionModel().currentIndex()
+        )
+        index = selection_index.sibling(
+            selection_index.row(), selection_index.column()
+        )
 
         coord_x = index.data(int(ValidationResultModel.Roles.COORD_X))
         coord_y = index.data(int(ValidationResultModel.Roles.COORD_Y))
@@ -538,7 +577,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                 self.tr("Open in Feature Form"),
                 self,
             )
-            action_open_form.triggered.connect(lambda: self._open_form(t_ili_tid))
+            action_open_form.triggered.connect(
+                lambda: self._open_form(t_ili_tid)
+            )
             menu.addAction(action_open_form)
             action_select_feature = QAction(
                 QgsApplication.getThemeIcon("/mActionOpenTableSelected.svg"),
@@ -590,7 +631,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         if self.auto_pan_button.isChecked():
             if valid_coords:
                 # prefering coordinates when having both
-                QTimer.singleShot(1, lambda: self._pan_to_coordinate(coord_x, coord_y))
+                QTimer.singleShot(
+                    1, lambda: self._pan_to_coordinate(coord_x, coord_y)
+                )
 
             else:
                 # otherwise it has a valid feature
@@ -647,7 +690,10 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _set_extend(self, x, y):
         scale = 5
         rect = QgsRectangle(
-            float(x) - scale, float(y) - scale, float(x) + scale, float(y) + scale
+            float(x) - scale,
+            float(y) - scale,
+            float(x) + scale,
+            float(y) + scale,
         )
         self.iface.mapCanvas().setExtent(rect)
         self.iface.mapCanvas().refresh()
@@ -680,7 +726,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
         for layer in QgsProject.instance().mapLayers().values():
             source_provider = layer.dataProvider()
             schema_identificator = (
-                db_utils.get_schema_identificator_from_sourceprovider(source_provider)
+                db_utils.get_schema_identificator_from_sourceprovider(
+                    source_provider
+                )
             )
             if (
                 schema_identificator
@@ -740,7 +788,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
     def _absolute_path(self, path):
         if QgsProject.instance().homePath() and not os.path.isabs(path):
             # if it's a saved project and the path is not absolute
-            absolute_path = os.path.join(path, QgsProject.instance().homePath(), path)
+            absolute_path = os.path.join(
+                path, QgsProject.instance().homePath(), path
+            )
             if os.path.isfile(absolute_path):
                 return absolute_path
         # otherwise most possibly it's an ilidata link

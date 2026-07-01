@@ -94,7 +94,9 @@ class TIDModel(QAbstractTableModel):
             return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
+    def index(
+        self, row: int, column: int, parent: QModelIndex = ...
+    ) -> QModelIndex:
         """
         default override
         """
@@ -285,10 +287,12 @@ class LayerTIDsPanel(QWidget, WIDGET_UI):
             TIDModel.Columns.NAME, QHeaderView.ResizeMode.Stretch
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.OID_DOMAIN, QHeaderView.ResizeMode.ResizeToContents
+            TIDModel.Columns.OID_DOMAIN,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
-            TIDModel.Columns.DEFAULT_VALUE, QHeaderView.ResizeMode.ResizeToContents
+            TIDModel.Columns.DEFAULT_VALUE,
+            QHeaderView.ResizeMode.ResizeToContents,
         )
         self.layer_tids_view.horizontalHeader().setSectionResizeMode(
             TIDModel.Columns.IN_FORM, QHeaderView.ResizeMode.ResizeToContents

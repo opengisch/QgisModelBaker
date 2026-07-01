@@ -30,7 +30,9 @@ from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.workflow_wizard.database_selection_page import (
     DatabaseSelectionPage,
 )
-from QgisModelBaker.gui.workflow_wizard.default_baskets_page import DefaultBasketsPage
+from QgisModelBaker.gui.workflow_wizard.default_baskets_page import (
+    DefaultBasketsPage,
+)
 from QgisModelBaker.gui.workflow_wizard.execution_page import ExecutionPage
 from QgisModelBaker.gui.workflow_wizard.export_data_configuration_page import (
     ExportDataConfigurationPage,
@@ -45,7 +47,9 @@ from QgisModelBaker.gui.workflow_wizard.import_source_selection_page import (
     ImportSourceSelectionPage,
 )
 from QgisModelBaker.gui.workflow_wizard.intro_page import IntroPage
-from QgisModelBaker.gui.workflow_wizard.project_creation_page import ProjectCreationPage
+from QgisModelBaker.gui.workflow_wizard.project_creation_page import (
+    ProjectCreationPage,
+)
 from QgisModelBaker.gui.workflow_wizard.tid_configuration_page import (
     TIDConfigurationPage,
 )
@@ -118,11 +122,15 @@ class WorkflowWizard(QWizard):
 
         # the import_data_file_model keeps the filtered out transfer files (from source model) and functions to get ordered import sessions
         self.import_data_file_model = ImportDataModel()
-        self.import_data_file_model.print_info.connect(self.log_panel.print_info)
+        self.import_data_file_model.print_info.connect(
+            self.log_panel.print_info
+        )
         self.import_data_file_model.setSourceModel(self.source_model)
         self.import_data_file_model.setFilterRole(int(SourceModel.Roles.TYPE))
         if QT_VERSION_STR < "5.12.0":
-            self.import_data_file_model.setFilterRegExp("|".join(TransferExtensions))
+            self.import_data_file_model.setFilterRegExp(
+                "|".join(TransferExtensions)
+            )
         else:
             self.import_data_file_model.setFilterRegularExpression(
                 "|".join(TransferExtensions)
@@ -131,7 +139,9 @@ class WorkflowWizard(QWizard):
             self.import_schema_configuration.base_configuration,
             "referenceData",
         )
-        self.ilireferencedatacache.new_message.connect(self.log_panel.show_message)
+        self.ilireferencedatacache.new_message.connect(
+            self.log_panel.show_message
+        )
 
         # the current_models_model keeps every single model found in the current database and keeps the selected models
         self.current_models_model = SchemaModelsModel()
@@ -149,7 +159,9 @@ class WorkflowWizard(QWizard):
         self.current_export_models_active = False
 
         # pages setup
-        self.intro_page = IntroPage(self, self._current_page_title(PageIds.Intro))
+        self.intro_page = IntroPage(
+            self, self._current_page_title(PageIds.Intro)
+        )
         self.source_selection_page = ImportSourceSelectionPage(
             self, self._current_page_title(PageIds.ImportSourceSelection)
         )
@@ -204,25 +216,39 @@ class WorkflowWizard(QWizard):
         self.setPage(PageIds.Intro, self.intro_page)
         self.setPage(PageIds.ImportSourceSelection, self.source_selection_page)
         self.setPage(
-            PageIds.ImportDatabaseSelection, self.import_database_selection_page
+            PageIds.ImportDatabaseSelection,
+            self.import_database_selection_page,
         )
-        self.setPage(PageIds.ImportSchemaConfiguration, self.schema_configuration_page)
-        self.setPage(PageIds.ImportSchemaExecution, self.import_schema_execution_page)
+        self.setPage(
+            PageIds.ImportSchemaConfiguration, self.schema_configuration_page
+        )
+        self.setPage(
+            PageIds.ImportSchemaExecution, self.import_schema_execution_page
+        )
         self.setPage(PageIds.DefaultBaskets, self.default_baskets_page)
-        self.setPage(PageIds.ImportDataConfiguration, self.data_configuration_page)
-        self.setPage(PageIds.ImportDataExecution, self.import_data_execution_page)
+        self.setPage(
+            PageIds.ImportDataConfiguration, self.data_configuration_page
+        )
+        self.setPage(
+            PageIds.ImportDataExecution, self.import_data_execution_page
+        )
         self.setPage(PageIds.ProjectCreation, self.project_creation_page)
         self.setPage(PageIds.TIDConfiguration, self.tid_configuration_page)
         self.setPage(
-            PageIds.GenerateDatabaseSelection, self.generate_database_selection_page
+            PageIds.GenerateDatabaseSelection,
+            self.generate_database_selection_page,
         )
         self.setPage(
-            PageIds.ExportDatabaseSelection, self.export_database_selection_page
+            PageIds.ExportDatabaseSelection,
+            self.export_database_selection_page,
         )
         self.setPage(
-            PageIds.ExportDataConfiguration, self.export_data_configuration_page
+            PageIds.ExportDataConfiguration,
+            self.export_data_configuration_page,
         )
-        self.setPage(PageIds.ExportDataExecution, self.export_data_execution_page)
+        self.setPage(
+            PageIds.ExportDataExecution, self.export_data_execution_page
+        )
 
         self.currentIdChanged.connect(self.id_changed)
 
@@ -234,11 +260,14 @@ class WorkflowWizard(QWizard):
         )
 
     def gather_files_and_leave_to_quick_visualizer(self):
-        self.wizard_dialog.prefer_quickvisualizer(self.import_data_file_model.sources())
+        self.wizard_dialog.prefer_quickvisualizer(
+            self.import_data_file_model.sources()
+        )
 
     def sizeHint(self):
         return QSize(
-            self.fontMetrics().lineSpacing() * 48, self.fontMetrics().lineSpacing() * 48
+            self.fontMetrics().lineSpacing() * 48,
+            self.fontMetrics().lineSpacing() * 48,
         )
 
     def next_id(self):
@@ -254,14 +283,18 @@ class WorkflowWizard(QWizard):
 
             if self.current_id == PageIds.ImportDatabaseSelection:
                 if self.import_database_selection_page.is_valid():
-                    self._update_configurations(self.import_database_selection_page)
+                    self._update_configurations(
+                        self.import_database_selection_page
+                    )
                     if self.refresh_import_models(True):
                         # when there are models to import, we go to the configuration page for schema import
                         return PageIds.ImportSchemaConfiguration
                     if self.import_data_file_model.rowCount():
                         # when there are transfer files found, we go to the configuration page for data import
                         return PageIds.ImportDataConfiguration
-                    if self._db_or_schema_exists(self.import_schema_configuration):
+                    if self._db_or_schema_exists(
+                        self.import_schema_configuration
+                    ):
                         return PageIds.ProjectCreation
                     else:
                         self.log_panel.print_info(
@@ -270,8 +303,12 @@ class WorkflowWizard(QWizard):
 
             if self.current_id == PageIds.GenerateDatabaseSelection:
                 if self.generate_database_selection_page.is_valid():
-                    self._update_configurations(self.generate_database_selection_page)
-                    if self._db_or_schema_exists(self.import_schema_configuration):
+                    self._update_configurations(
+                        self.generate_database_selection_page
+                    )
+                    if self._db_or_schema_exists(
+                        self.import_schema_configuration
+                    ):
                         return PageIds.ProjectCreation
                     else:
                         self.log_panel.print_info(
@@ -280,8 +317,12 @@ class WorkflowWizard(QWizard):
 
             if self.current_id == PageIds.ExportDatabaseSelection:
                 if self.export_database_selection_page.is_valid():
-                    self._update_configurations(self.export_database_selection_page)
-                    if self._db_or_schema_exists(self.export_data_configuration):
+                    self._update_configurations(
+                        self.export_database_selection_page
+                    )
+                    if self._db_or_schema_exists(
+                        self.export_data_configuration
+                    ):
                         self.refresh_export_models()
                         return PageIds.ExportDataConfiguration
                     else:
@@ -401,7 +442,9 @@ class WorkflowWizard(QWizard):
                     self._update_configurations(self.data_configuration_page)
                     return PageIds.ImportDataExecution
                 else:
-                    if self._db_or_schema_exists(self.import_schema_configuration):
+                    if self._db_or_schema_exists(
+                        self.import_schema_configuration
+                    ):
                         return PageIds.ProjectCreation
                     else:
                         self.log_panel.print_info(
@@ -423,7 +466,9 @@ class WorkflowWizard(QWizard):
         self.current_id = new_id
 
         self.log_panel.print_info(
-            self.tr(f" > ---------- {self._current_page_title(self.current_id)}")
+            self.tr(
+                f" > ---------- {self._current_page_title(self.current_id)}"
+            )
         )
 
         if self.current_id == PageIds.ImportSourceSelection:
@@ -536,12 +581,16 @@ class WorkflowWizard(QWizard):
                 models = self.current_models_model.stringList()
 
             if self.current_export_models_active:
-                export_models = self.current_export_models_model.checked_entries()
+                export_models = (
+                    self.current_export_models_model.checked_entries()
+                )
 
             sessions[self.current_export_target]["models"] = models
             sessions[self.current_export_target]["datasets"] = datasets
             sessions[self.current_export_target]["baskets"] = baskets
-            sessions[self.current_export_target]["export_models"] = export_models
+            sessions[self.current_export_target][
+                "export_models"
+            ] = export_models
 
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
@@ -599,7 +648,9 @@ class WorkflowWizard(QWizard):
         return False
 
     def refresh_export_models(self):
-        db_connector = db_utils.get_db_connector(self.export_data_configuration)
+        db_connector = db_utils.get_db_connector(
+            self.export_data_configuration
+        )
         self.current_models_model.refresh_model([db_connector])
         self.current_datasets_model.refresh_model(db_connector)
         self.current_baskets_model.refresh_model(db_connector)
@@ -607,7 +658,9 @@ class WorkflowWizard(QWizard):
         return
 
     def refresh_import_models(self, silent=False):
-        db_connector = db_utils.get_db_connector(self.import_schema_configuration)
+        db_connector = db_utils.get_db_connector(
+            self.import_schema_configuration
+        )
         return self.import_models_model.refresh_model(
             self.source_model, db_connector, silent
         )
@@ -618,12 +671,18 @@ class WorkflowWizard(QWizard):
 
         for file_id in id_list:
             matches = topping_file_model.match(
-                topping_file_model.index(0, 0), Qt.ItemDataRole.DisplayRole, file_id, 1
+                topping_file_model.index(0, 0),
+                Qt.ItemDataRole.DisplayRole,
+                file_id,
+                1,
             )
             if matches:
-                file_path = matches[0].data(int(topping_file_model.Roles.LOCALFILEPATH))
+                file_path = matches[0].data(
+                    int(topping_file_model.Roles.LOCALFILEPATH)
+                )
                 self.log_panel.print_info(
-                    self.tr("- - Got file {}").format(file_path), LogLevel.TOPPING
+                    self.tr("- - Got file {}").format(file_path),
+                    LogLevel.TOPPING,
                 )
                 file_path_list.append(file_path)
         return file_path_list
@@ -644,7 +703,9 @@ class WorkflowWizard(QWizard):
         timer.start(30000)
 
         topping_file_cache.refresh()
-        self.log_panel.print_info(self.tr("- - Downloading…"), LogLevel.TOPPING)
+        self.log_panel.print_info(
+            self.tr("- - Downloading…"), LogLevel.TOPPING
+        )
 
         # we wait for the download_finished_and_model_fresh signal, because even when the files are local, it should only continue when both is ready
         loop.exec()
@@ -693,7 +754,10 @@ class WorkflowWizard(QWizard):
         db_connector = db_utils.get_db_connector(configuration)
         modelnames = list()
         if db_connector:
-            if db_connector.db_or_schema_exists() and db_connector.metadata_exists():
+            if (
+                db_connector.db_or_schema_exists()
+                and db_connector.metadata_exists()
+            ):
                 db_models = db_connector.get_models()
                 regex = re.compile(r"(?:\{[^\}]*\}|\s)")
                 for db_model in db_models:
@@ -724,7 +788,9 @@ class WorkflowWizard(QWizard):
     def append_dropped_files(self, dropped_files, dropped_ini_files):
         if dropped_files or dropped_ini_files:
             for dropped_file in dropped_files + dropped_ini_files:
-                self.add_source(dropped_file, self.tr("Added by user with drag'n'drop"))
+                self.add_source(
+                    dropped_file, self.tr("Added by user with drag'n'drop")
+                )
 
         if dropped_ini_files:
             if len(dropped_ini_files) > 1:
@@ -740,7 +806,9 @@ class WorkflowWizard(QWizard):
 
     def _show_help(self):
         current_id = self.currentId()
-        title = self.tr("Help at {}".format(self._current_page_title(current_id)))
+        title = self.tr(
+            "Help at {}".format(self._current_page_title(current_id))
+        )
         logline, help_paragraphs, docutext = self.currentPage().help_text()
         text = """<hr>
         {help_paragraphs}
@@ -760,7 +828,9 @@ class WorkflowWizard(QWizard):
                 github='<a href="https://github.com/opengisch/QgisModelBaker/issues">GitHub</a>',
             ),
         )
-        log_paragraph = f'<p align="justify"><b><code>&lt; {logline}</code></b></p>'
+        log_paragraph = (
+            f'<p align="justify"><b><code>&lt; {logline}</code></b></p>'
+        )
 
         self.help_dlg = HelpDialog(self, title, log_paragraph, text)
         self.help_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -772,7 +842,9 @@ class WorkflowWizard(QWizard):
         if busy:
             self.log_panel.busy_bar.setFormat(text)
         else:
-            self.log_panel.scrollbar.setValue(self.log_panel.scrollbar.maximum())
+            self.log_panel.scrollbar.setValue(
+                self.log_panel.scrollbar.maximum()
+            )
 
 
 class WorkflowWizardDialog(QDialog):
@@ -785,7 +857,9 @@ class WorkflowWizardDialog(QDialog):
 
         self.setWindowTitle(self.tr("Model Baker - Workflow Wizard"))
         self.log_panel = LogPanel()
-        self.workflow_wizard = WorkflowWizard(self.iface, self.base_config, self)
+        self.workflow_wizard = WorkflowWizard(
+            self.iface, self.base_config, self
+        )
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.WindowType.Widget)
         self.workflow_wizard.show()
@@ -805,7 +879,9 @@ class WorkflowWizardDialog(QDialog):
         Appends the files, restarts the wizard and jumps to the next page (what is ImportSourceSelection)
         """
         self.dropped_files = dropped_files
-        self.workflow_wizard.append_dropped_files(dropped_files, dropped_ini_files)
+        self.workflow_wizard.append_dropped_files(
+            dropped_files, dropped_ini_files
+        )
         self.workflow_wizard.restart()
         self.workflow_wizard.next()
 
@@ -828,7 +904,8 @@ class HelpDialog(QDialog, gui_utils.get_ui_class("help_dialog.ui")):
         self.setWindowTitle(title)
         scaled_pixmap = QPixmap(
             os.path.join(
-                os.path.dirname(__file__), "../../images/QgisModelBaker-icon.svg"
+                os.path.dirname(__file__),
+                "../../images/QgisModelBaker-icon.svg",
             )
         ).scaled(
             int(self.fontMetrics().lineSpacing() * 4.5),

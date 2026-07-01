@@ -56,7 +56,9 @@ class ParametersModel(QAbstractItemModel):
     def flags(self, index):
         return Qt.ItemFlag.ItemIsEnabled
 
-    def index(self, row: int, column: int, parent: QModelIndex = ...) -> QModelIndex:
+    def index(
+        self, row: int, column: int, parent: QModelIndex = ...
+    ) -> QModelIndex:
         """
         default override
         """
@@ -160,12 +162,14 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         )
         self.validators = gui_utils.Validators()
         self.file_validator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=True
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_empty=True,
         )
         self.toml_file_line_edit.setValidator(self.file_validator)
 
         self.sql_file_validator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.SQLValidExtensions], allow_empty=True
+            pattern=["*." + ext for ext in self.SQLValidExtensions],
+            allow_empty=True,
         )
         self.pre_script_file_line_edit.setValidator(self.sql_file_validator)
         self.post_script_file_line_edit.setValidator(self.sql_file_validator)
@@ -173,7 +177,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
         self.toml_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
-        self.toml_file_line_edit.textChanged.emit(self.toml_file_line_edit.text())
+        self.toml_file_line_edit.textChanged.emit(
+            self.toml_file_line_edit.text()
+        )
         self.pre_script_file_line_edit.textChanged.connect(
             self.validators.validate_line_edits
         )
@@ -221,7 +227,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
             ),
             gui_utils.LogLevel.SUCCESS,
         )
-        if self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path:
+        if (
+            self.topping_wizard.topping.metaconfig.ili2db_settings.prescript_path
+        ):
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "Pre-script: {path}".format(
@@ -230,7 +238,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                 ),
                 gui_utils.LogLevel.SUCCESS,
             )
-        if self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path:
+        if (
+            self.topping_wizard.topping.metaconfig.ili2db_settings.postscript_path
+        ):
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "Post-script: {path}".format(
@@ -239,7 +249,9 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
                 ),
                 gui_utils.LogLevel.SUCCESS,
             )
-        if self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path:
+        if (
+            self.topping_wizard.topping.metaconfig.ili2db_settings.metaattr_path
+        ):
             self.topping_wizard.log_panel.print_info(
                 self.tr(
                     "Extra Meta Attribute File: {path}".format(
@@ -305,14 +317,20 @@ class Ili2dbSettingsPage(QWizardPage, PAGE_UI):
             _, tmp_ini_file = tempfile.mkstemp(".ini")
 
             ili2db_utils = Ili2DbUtils()
-            ili2db_utils.log_on_error.connect(self._log_on_export_metagonfig_error)
-            res, msg = ili2db_utils.export_metaconfig(tmp_ini_file, configuration)
+            ili2db_utils.log_on_error.connect(
+                self._log_on_export_metagonfig_error
+            )
+            res, msg = ili2db_utils.export_metaconfig(
+                tmp_ini_file, configuration
+            )
             if res:
                 parsed_from_file = self.topping_wizard.topping.metaconfig.ili2db_settings.parse_parameters_from_ini_file(
                     tmp_ini_file
                 )
         if not parsed_from_file:
-            self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = {}
+            self.topping_wizard.topping.metaconfig.ili2db_settings.parameters = (
+                {}
+            )
         self.parameters_model.refresh_model(
             self.topping_wizard.topping.metaconfig.ili2db_settings.parameters
         )

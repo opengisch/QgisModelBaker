@@ -44,19 +44,27 @@ class AdditivesPage(QWizardPage, PAGE_UI):
         self.mapthemes_model = CheckEntriesModel()
         self.mapthemes_view.setModel(self.mapthemes_model)
         self.mapthemes_view.clicked.connect(self.mapthemes_view.model().check)
-        self.mapthemes_view.space_pressed.connect(self.mapthemes_view.model().check)
+        self.mapthemes_view.space_pressed.connect(
+            self.mapthemes_view.model().check
+        )
         self.variables_model = CheckEntriesModel()
         self.variables_view.setModel(self.variables_model)
         self.variables_view.clicked.connect(self.variables_view.model().check)
-        self.variables_view.space_pressed.connect(self.variables_view.model().check)
+        self.variables_view.space_pressed.connect(
+            self.variables_view.model().check
+        )
         self.layouts_model = CheckEntriesModel()
         self.layouts_view.setModel(self.layouts_model)
         self.layouts_view.clicked.connect(self.layouts_view.model().check)
-        self.layouts_view.space_pressed.connect(self.layouts_view.model().check)
+        self.layouts_view.space_pressed.connect(
+            self.layouts_view.model().check
+        )
 
     def initializePage(self) -> None:
         maptheme_collection = QgsProject.instance().mapThemeCollection()
-        self.mapthemes_model.refresh_stringlist(maptheme_collection.mapThemes())
+        self.mapthemes_model.refresh_stringlist(
+            maptheme_collection.mapThemes()
+        )
         self.mapthemes_view.setVisible(self.mapthemes_model.rowCount())
         self.mapthemes_label.setVisible(self.mapthemes_model.rowCount())
 
@@ -81,7 +89,9 @@ class AdditivesPage(QWizardPage, PAGE_UI):
             self.validatortopping_checkbox.setChecked(False)
 
         layout_manager = QgsProject.instance().layoutManager()
-        layout_names = [layout.name() for layout in layout_manager.printLayouts()]
+        layout_names = [
+            layout.name() for layout in layout_manager.printLayouts()
+        ]
         self.layouts_model.refresh_stringlist(layout_names)
         self.layouts_view.setVisible(self.layouts_model.rowCount())
         self.layouts_label.setVisible(self.layouts_model.rowCount())

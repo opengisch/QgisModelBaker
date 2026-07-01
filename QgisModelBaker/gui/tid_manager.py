@@ -21,7 +21,9 @@ from qgis.gui import QgsMessageBar
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QSizePolicy
 
-from QgisModelBaker.gui.panel.tid_configurator_panel import TIDConfiguratorPanel
+from QgisModelBaker.gui.panel.tid_configurator_panel import (
+    TIDConfiguratorPanel,
+)
 from QgisModelBaker.utils import gui_utils
 
 DIALOG_UI = gui_utils.get_ui_class("tid_manager.ui")
@@ -49,7 +51,9 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
         self.setStyleSheet(gui_utils.DEFAULT_STYLE)
 
         self.bar = QgsMessageBar()
-        self.bar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.bar.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
+        )
         self.layout().addWidget(self.bar, 0, 0, Qt.AlignmentFlag.AlignTop)
 
         result, message = self.tid_configurator_panel.setup_dialog(
@@ -75,7 +79,9 @@ class TIDManagerDialog(QDialog, DIALOG_UI):
             warning_box.setText(
                 self.tr(
                     "You still have layers in edit mode.\nIn case you modify the sequence in the database of those layers, it could lead to database locks.\nEditable layers are:\n - {}"
-                ).format("\n - ".join([layer.name() for layer in editable_layers]))
+                ).format(
+                    "\n - ".join([layer.name() for layer in editable_layers])
+                )
             )
             warning_box.exec()
 

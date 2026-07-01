@@ -59,7 +59,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.file_browse_button.clicked.connect(
             make_file_selector(
                 self.input_line_edit,
-                title=self.tr("Open INTERLIS Model, Transfer or Catalogue File"),
+                title=self.tr(
+                    "Open INTERLIS Model, Transfer or Catalogue File"
+                ),
                 file_filter=self.tr(
                     "INTERLIS Model / Transfer / Catalogue File (*.ili *.xtf *.itf *.XTF *.ITF *.xml *.XML *.xls *.XLS *.xlsx *.XLSX *.ini *.INI *.toml *.TOML)"
                 ),
@@ -67,7 +69,8 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         )
 
         self.fileValidator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_empty=False,
         )
 
         self.ilicache = IliCache(
@@ -79,7 +82,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         )
 
         # very unhappy about this behavior, but okay for prototype
-        self.input_line_edit.textChanged.connect(self._complete_models_completer)
+        self.input_line_edit.textChanged.connect(
+            self._complete_models_completer
+        )
         self.input_line_edit.punched.connect(self._complete_models_completer)
 
         self.source_list_view.setModel(self.workflow_wizard.source_model)
@@ -94,14 +99,20 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.source_list_view.clicked.connect(
             lambda: self.remove_button.setEnabled(self._valid_selection())
         )
-        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
-        self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.add_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyAdd.svg")
+        )
+        self.remove_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyRemove.svg")
+        )
         self.source_list_view.files_dropped.connect(
             self.workflow_wizard.append_dropped_files
         )
 
         self.clear_cache_button = QPushButton(self.tr("Clear ilicache"), self)
-        self.clear_cache_button.clicked.connect(self._clear_cache_button_clicked)
+        self.clear_cache_button.clicked.connect(
+            self._clear_cache_button_clicked
+        )
 
         self.quick_visualize_button = QPushButton(
             self.tr("Just visualize it quickly"), self
@@ -119,7 +130,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self._refresh_ili_models_cache()
 
     def _refresh_ili_models_cache(self):
-        self.ilicache.new_message.connect(self.workflow_wizard.log_panel.show_message)
+        self.ilicache.new_message.connect(
+            self.workflow_wizard.log_panel.show_message
+        )
         self.ilicache.refresh()
         self.update_models_completer()
 
@@ -135,7 +148,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                     self.input_line_edit.completer()
                     .completionModel()
                     .match(
-                        self.input_line_edit.completer().completionModel().index(0, 0),
+                        self.input_line_edit.completer()
+                        .completionModel()
+                        .index(0, 0),
                         Qt.ItemDataRole.DisplayRole,
                         self.input_line_edit.text(),
                         -1,
@@ -171,9 +186,13 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         return bool(self.source_list_view.selectedIndexes())
 
     def update_models_completer(self):
-        completer = QCompleter(self.ilicache.sorted_model, self.input_line_edit)
+        completer = QCompleter(
+            self.ilicache.sorted_model, self.input_line_edit
+        )
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setModelSorting(
+            QCompleter.ModelSorting.CaseInsensitivelySortedModel
+        )
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)

@@ -61,7 +61,8 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         )
 
         self.fileValidator = gui_utils.FileValidator(
-            pattern=["*." + ext for ext in self.ValidExtensions], allow_empty=False
+            pattern=["*." + ext for ext in self.ValidExtensions],
+            allow_empty=False,
         )
 
         self.ilireferencedatacache = IliDataCache(
@@ -74,19 +75,27 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
 
         self.ilireferencedata_delegate = IliDataFileCompleterDelegate()
         self.input_line_edit.setPlaceholderText(
-            self.tr("[Search referenced data files from Repositories or Local System]")
+            self.tr(
+                "[Search referenced data files from Repositories or Local System]"
+            )
         )
         completer = QCompleter(
             self.ilireferencedatacache.sorted_model,
             self.input_line_edit,
         )
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setModelSorting(
+            QCompleter.ModelSorting.CaseInsensitivelySortedModel
+        )
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.ilireferencedata_delegate)
         self.input_line_edit.setCompleter(completer)
-        self.input_line_edit.textChanged.connect(self._complete_referencedata_completer)
-        self.input_line_edit.punched.connect(self._complete_referencedata_completer)
+        self.input_line_edit.textChanged.connect(
+            self._complete_referencedata_completer
+        )
+        self.input_line_edit.punched.connect(
+            self._complete_referencedata_completer
+        )
         self.input_line_edit.textChanged.emit(self.input_line_edit.text())
 
         self.source_model = SourceModel()
@@ -104,8 +113,12 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             lambda: self.remove_button.setEnabled(self._valid_selection())
         )
 
-        self.add_button.setIcon(QgsApplication.getThemeIcon("/symbologyAdd.svg"))
-        self.remove_button.setIcon(QgsApplication.getThemeIcon("/symbologyRemove.svg"))
+        self.add_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyAdd.svg")
+        )
+        self.remove_button.setIcon(
+            QgsApplication.getThemeIcon("/symbologyRemove.svg")
+        )
         self.source_list_view.files_dropped.connect(self.append_dropped_files)
 
     def initializePage(self) -> None:
@@ -115,7 +128,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return super().initializePage()
 
     def validatePage(self) -> bool:
-        self.topping_wizard.topping.referencedata_paths = self._all_paths_from_model()
+        self.topping_wizard.topping.referencedata_paths = (
+            self._all_paths_from_model()
+        )
         if self.topping_wizard.topping.referencedata_paths:
             self.topping_wizard.log_panel.print_info(
                 self.tr(
@@ -139,7 +154,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         self.topping_wizard.busy(
             self,
             True,
-            self.tr("Search for available reference data in the repositories..."),
+            self.tr(
+                "Search for available reference data in the repositories..."
+            ),
         )
         loop = QEventLoop()
         self.ilireferencedatacache.model_refreshed.connect(lambda: loop.quit())
@@ -153,7 +170,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         return self.ilireferencedatacache.model
 
     def refresh_referencedata_cache(self, filter_models, type):
-        self.ilireferencedatacache.base_configuration = self.topping_wizard.base_config
+        self.ilireferencedatacache.base_configuration = (
+            self.topping_wizard.base_config
+        )
         self.ilireferencedatacache.filter_models = filter_models
         self.ilireferencedatacache.type = type
         self.ilireferencedatacache.refresh()
@@ -170,7 +189,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
                     self.input_line_edit.completer()
                     .completionModel()
                     .match(
-                        self.input_line_edit.completer().completionModel().index(0, 0),
+                        self.input_line_edit.completer()
+                        .completionModel()
+                        .index(0, 0),
                         Qt.ItemDataRole.DisplayRole,
                         self.input_line_edit.text(),
                         -1,
@@ -219,7 +240,9 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
     def append_dropped_files(self, dropped_files):
         if dropped_files:
             for dropped_file in dropped_files:
-                self.add_source(dropped_file, self.tr("Added by user with drag'n'drop"))
+                self.add_source(
+                    dropped_file, self.tr("Added by user with drag'n'drop")
+                )
 
     def add_source(self, source, origin_info):
         if os.path.isfile(source):
@@ -250,6 +273,8 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         paths = []
         for row in range(self.source_model.rowCount()):
             paths.append(
-                self.source_model.index(row, 0).data(int(SourceModel.Roles.PATH))
+                self.source_model.index(row, 0).data(
+                    int(SourceModel.Roles.PATH)
+                )
             )
         return paths

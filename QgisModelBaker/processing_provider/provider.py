@@ -38,5 +38,7 @@ class Provider(QgsProcessingProvider):
 
     def icon(self) -> QIcon:
         return QIcon(
-            os.path.join(os.path.dirname(__file__), "../images/QgisModelBaker-icon.svg")
+            os.path.join(
+                os.path.dirname(__file__), "../images/QgisModelBaker-icon.svg"
+            )
         )

@@ -40,7 +40,9 @@ class CreateBasketDialog(QDialog, DIALOG_UI):
         self.baskets_panel = CreateBasketPanel(self)
         self.baskets_layout.addWidget(self.baskets_panel)
 
-        self.baskets_panel.load_basket_config(self.db_connector, self.datasetname)
+        self.baskets_panel.load_basket_config(
+            self.db_connector, self.datasetname
+        )
 
     def baskets_can_be_created(self):
         # Check if any (non-existing) basket was added, otherwise
@@ -61,7 +63,9 @@ class CreateBasketDialog(QDialog, DIALOG_UI):
             warning_box.setWindowTitle(warning_title)
             warning_box.setText(
                 "{}{}".format(
-                    "\n".join([feedback[1] for feedback in negative_feedbacks]),
+                    "\n".join(
+                        [feedback[1] for feedback in negative_feedbacks]
+                    ),
                     "\n(The problem is often an incorrectly formatted BID)",
                 )
             )
