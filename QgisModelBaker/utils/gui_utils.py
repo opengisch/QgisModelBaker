@@ -927,6 +927,17 @@ class ImportModelsModel(SourceModel):
                 sessions[source]["models"] = models
         return sessions
 
+    def checked_models_with_source(self):
+        models_with_source = {}
+        for r in range(0, self.rowCount()):
+            item = self.index(r, 0)
+            model = item.data(int(SourceModel.Roles.NAME))
+            if self._checked_models[model] == Qt.CheckState.Checked:
+                info = item.data(int(SourceModel.Roles.INFO))
+                type, source = self._relevant_type_source(info)
+                models_with_source[model] = {"type": type, "source": source}
+        return models_with_source
+
     def checked_models(self):
         # return a list of the model names
         return [

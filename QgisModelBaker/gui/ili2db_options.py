@@ -398,6 +398,42 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.save_configuration()
         self._restyle_concerning_metaconfig()
 
+    def load_prophethy_settings(self, settings_prophet):
+        # basket column
+        if settings_prophet.needs_basket_column():
+            self.create_basket_col_checkbox.setChecked(True)
+            self.create_basket_groupbox.setVisible(False)
+        else:
+            self.create_basket_groupbox.setVisible(True)
+        # multiple geometries per table
+        if settings_prophet.contains_multiple_geometry_columns():
+            self.create_gpkg_multigeom_groupbox.setVisible(True)
+        else:
+            self.create_gpkg_multigeom_groupbox.setVisible(False)
+        # stroke arcs
+        if settings_prophet.contains_arcs():
+            self.stroke_arcs_groupbox.setVisible(True)
+        else:
+            self.stroke_arcs_groupbox.setVisible(False)
+        # enum
+        if settings_prophet.contains_enumerations():
+            self.enumeration_groupbox.setVisible(True)
+        else:
+            self.enumeration_groupbox.setVisible(False)
+        # language - here we have an original language option, so we don't need the preferred language
+        is_translation, languages, _ = settings_prophet.language_infos()
+        if is_translation:
+            self.translation_groupbox.setVisible(True)
+        else:
+            self.translation_groupbox.setVisible(False)
+        self._update_translation_combo(languages)
+
+    def _update_translation_combo(self, languages):
+        self.namelang_combo.clear()
+        for key in languages:
+            self.namelang_combo.addItem(displayLanguages.get(key, key), key)
+        self.namelang_combo.addItem(self.tr("Original model language"), "")
+
     def load_toml_file_path(self, key_postfix, toml_file_path):
         self.current_metaconfig_toml_file_path = toml_file_path
         self.set_toml_file_key(key_postfix)

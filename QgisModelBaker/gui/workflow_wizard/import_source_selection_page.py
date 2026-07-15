@@ -76,6 +76,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self.ilicache = IliCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
+        self.workflow_wizard.ilicache_basemodel = self.ilicache.model
         self.model_delegate = ModelCompleterDelegate()
         self.input_line_edit.setPlaceholderText(
             self.tr("[Browse for file or search model from repositories]")
