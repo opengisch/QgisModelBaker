@@ -123,7 +123,9 @@ class FixedDelegate(QStyledItemDelegate):
             font = option.font
             font.setStrikeOut(True)
             option.font = font
-            option.palette.setColor(option.palette.Text, QColor(Qt.gray))
+            option.palette.setColor(
+                option.palette.Text, QColor(Qt.GlobalColor.gray)
+            )
         super().paint(painter, option, index)
 
 
