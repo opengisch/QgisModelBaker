@@ -34,7 +34,10 @@ from qgis.PyQt.QtWidgets import (
 
 from QgisModelBaker.libs.modelbaker.dataobjects.project import Project
 from QgisModelBaker.libs.modelbaker.generator.generator import Generator
-from QgisModelBaker.libs.modelbaker.iliwrapper import iliimporter
+from QgisModelBaker.libs.modelbaker.iliwrapper import (
+    iliexecutable,
+    iliimporter,
+)
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     ImportDataConfiguration,
@@ -233,7 +236,7 @@ class QuickVisualizer(QObject):
         result = True
 
         try:
-            if importer.run() != iliimporter.IliExecutable.SUCCESS:
+            if importer.run() != iliexecutable.IliExecutable.SUCCESS:
                 result = False
         except JavaNotFoundError as e:
             self.log(
