@@ -21,6 +21,7 @@ import configparser
 import os
 import pathlib
 import re
+import urllib
 
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.PyQt.QtCore import QSettings, Qt
@@ -31,10 +32,12 @@ from QgisModelBaker.libs.modelbaker.ili2pytools.prophets import SettingsProphet
 from QgisModelBaker.libs.modelbaker.ili2pytools.pythonizer import BakerPyIndex
 from QgisModelBaker.libs.modelbaker.iliwrapper.globals import DbIliMode
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
+    IliCache,
     IliDataCache,
     IliDataFileCompleterDelegate,
     IliDataItemModel,
 )
+from QgisModelBaker.libs.modelbaker.utils import qt_utils
 from QgisModelBaker.libs.modelbaker.utils.globals import (
     MODELS_BLACKLIST,
     LogLevel,
@@ -182,6 +185,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         - Checks all checked models for CRS_PATTERNS (takes first match)
         - Calls update of ilimetaconfig cache to provide metaconfigurations
         - Calls update of ilireferencedata cache to load referenced
+        - Calls update of prophety settings to provide a good default for the ili2db options
         """
         model_list = self.model_list_view.model().checked_models()
         self.current_models = model_list
@@ -480,16 +484,28 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.refresh_import_models()
 
     def _update_prophety_settings(self):
+        """
+        Prophety the ili2db settings according to the checked models.
+        1. Get the checked models with their source (local or repository)
+        2. For each model, get the local file path (download if necessary)
+        3. For each model, compile the model to get the imd file (if not already cached)
+        4. For each model, create a BakerPyIndex from the imd file
+        5. Create a SettingsProphet with the model indexes and the MODELS_BLACKLIST
+        6. Load the prophety settings into the ili2db_options
+        """
         checked_models = (
             self.workflow_wizard.import_models_model.checked_models_with_source()
         )
+        if checked_models is None:
+            return
 
         self.workflow_wizard.log_panel.print_info(
-            self.tr("Prophety the settings according the models: {}").format(
-                ", ".join(checked_models.keys())
-            ),
+            self.tr(
+                "Enable/disable the ili2db options according the models: {}"
+            ).format(", ".join(checked_models.keys())),
             LogLevel.INFO,
         )
+
         # multiple iteration through the (not many) models to keep the workflow structured
         model_files = {}
         for model in checked_models.keys():
@@ -509,14 +525,12 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                     ).format(model),
                     LogLevel.INFO,
                 )
-                repo, file = self.workflow_wizard.get_filepath_from_ilicache(
-                    model
-                )
+                repo, url, file = self._get_filepath_from_ilicache(model)
                 if file:
                     (
                         local_file,
                         message,
-                    ) = self.workflow_wizard.download_ilifile(repo, file)
+                    ) = self._download_ilifile(repo, url, file)
                     if local_file:
                         self.workflow_wizard.log_panel.print_info(
                             message,
@@ -538,7 +552,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         if not model_files:
             self.workflow_wizard.log_panel.print_info(
-                self.tr("No model files found to prophety the settings..."),
+                self.tr(
+                    "No model files found to control the ili2db options..."
+                ),
                 LogLevel.INFO,
             )
             return
@@ -550,7 +566,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             )
             if os.path.exists(imd_file):
                 self.workflow_wizard.log_panel.print_info(
-                    self.tr("- Metamodel for Model {} found in cache.").format(
+                    self.tr("- Metamodel for model {} found in cache.").format(
                         model
                     ),
                     LogLevel.INFO,
@@ -559,7 +575,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 continue
             self.workflow_wizard.log_panel.print_info(
                 self.tr(
-                    "- Metamodel for Model {} needs to be compiled..."
+                    "- Metamodel for model {} needs to be compiled..."
                 ).format(model),
                 LogLevel.INFO,
             )
@@ -576,14 +592,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             else:
                 self.workflow_wizard.log_panel.print_info(
                     self.tr(
-                        "  ...metamodel for Model {} successfully compiled."
+                        "  ...metamodel for model {} successfully compiled."
                     ).format(model),
                     LogLevel.INFO,
                 )
                 imd_files[model] = imd_file
         if not imd_files:
             self.workflow_wizard.log_panel.print_info(
-                self.tr("No imds found to prophety the settings..."),
+                self.tr("No imds found to control the ili2db options..."),
                 LogLevel.INFO,
             )
             return
@@ -593,7 +609,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             model_indexes[model] = BakerPyIndex.from_imd(imd_files[model])
         if not model_indexes:
             self.workflow_wizard.log_panel.print_info(
-                self.tr("No indexes found to prophety the settings..."),
+                self.tr("No indexes found to control the ili2db options..."),
                 LogLevel.INFO,
             )
             return
@@ -602,9 +618,86 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         if settings_prophet is not None:
             self.ili2db_options.load_prophethy_settings(settings_prophet)
         self.workflow_wizard.log_panel.print_info(
-            self.tr("Prophety the settings according the models finished."),
+            self.tr(
+                "Enable/disable the ili2db options according the models finished."
+            ),
             LogLevel.INFO,
         )
+
+    def _get_filepath_from_ilicache(self, model_name):
+        """
+        Check the workflow_wizard's ilicache model for the file path of the given model.
+        """
+        if self.workflow_wizard.ilicache_basemodel.rowCount() > 0:
+            indexes = self.workflow_wizard.ilicache_basemodel.match(
+                self.workflow_wizard.ilicache_basemodel.index(0, 0),
+                int(Qt.ItemDataRole.EditRole),
+                model_name,
+                1,
+                Qt.MatchFlag.MatchExactly,
+            )
+            if indexes:
+                # falsch
+                repo = indexes[0].data(
+                    int(self.workflow_wizard.ilicache_basemodel.Roles.ILIREPO)
+                )
+                file = indexes[0].data(
+                    int(self.workflow_wizard.ilicache_basemodel.Roles.FILE)
+                )
+                url = indexes[0].data(
+                    int(self.workflow_wizard.ilicache_basemodel.Roles.URL)
+                )
+                return repo, url, file
+        return None, None, None
+
+    def _download_ilifile(self, netloc, url, file):
+        if url is None:
+            file_url = file
+        elif os.path.isdir(url):
+            file_url = os.path.join(url, file)
+        else:
+            file_url = urllib.parse.urljoin(url + "/", file)
+
+        if url is None or os.path.isdir(url):
+            file_path = os.path.normpath(file_url)
+            # continue with the local file
+            if os.path.exists(file_path):
+                return file_path, self.tr(
+                    "  ...successfully found the ili file in the local repository."
+                )
+            else:
+                return None, self.tr(
+                    "  ...failed to find the ili file in the local repository."
+                )
+        else:
+            file_dir = os.path.normpath(
+                os.path.join(
+                    IliCache.CACHE_PATH, netloc, os.path.dirname(file)
+                )
+            )
+            os.makedirs(file_dir, exist_ok=True)
+
+            target_file_path = os.path.join(file_dir, os.path.basename(file))
+            if os.path.exists(target_file_path):
+                return target_file_path, self.tr(
+                    "  ...successfully found the ili file in the cache."
+                )
+
+        # in case there are backslashes in the url, remove them
+        file_url = file_url.replace("\\", "/")
+        # download ilimodels.xml
+        try:
+            qt_utils.download_file(
+                file_url,
+                target_file_path,
+            )
+            return target_file_path, self.tr(
+                "  ...successfully downloaded the ili file."
+            )
+        except Exception as e:
+            return None, self.tr(
+                "  ...failed to download the ili file. {}"
+            ).format(str(e))
 
     def _load_crs_from_metaconfig(self, ili2db_metaconfig):
         srs_auth = self.srs_auth

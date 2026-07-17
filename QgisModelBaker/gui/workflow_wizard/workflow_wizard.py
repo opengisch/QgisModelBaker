@@ -20,14 +20,12 @@ import logging
 import os
 import pathlib
 import re
-import urllib
 
 from qgis.PyQt.QtCore import QT_VERSION_STR, QEventLoop, QSize, Qt, QTimer
 from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
-import QgisModelBaker.libs.modelbaker.utils.qt_utils as qt_utils
 from QgisModelBaker.gui.panel.log_panel import LogPanel
 from QgisModelBaker.gui.workflow_wizard.database_selection_page import (
     DatabaseSelectionPage,
@@ -62,7 +60,6 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
     UpdateDataConfiguration,
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
-    IliCache,
     IliDataCache,
     IliModelItemModel,
     IliToppingFileCache,
@@ -671,54 +668,6 @@ class WorkflowWizard(QWizard):
         return self.import_models_model.refresh_model(
             self.source_model, db_connector, silent
         )
-
-    def get_filepath_from_ilicache(self, model_name):
-        if self.ilicache_basemodel.rowCount() > 0:
-            indexes = self.ilicache_basemodel.match(
-                self.ilicache_basemodel.index(0, 0),
-                int(Qt.ItemDataRole.EditRole),
-                model_name,
-                1,
-                Qt.MatchFlag.MatchExactly,
-            )
-            if indexes:
-                # falsch
-                repo = indexes[0].data(
-                    int(self.ilicache_basemodel.Roles.ILIREPO)
-                )
-                file = indexes[0].data(int(self.ilicache_basemodel.Roles.FILE))
-                return repo, file
-        return None, None
-
-    def download_ilifile(self, repo, file):
-        # this does not handle local repositories.
-        # For that we have to check maybe the ilidatacache download function. Let's see.
-        # To add the http statically is not supernice neither, but for now it works. We can refactor later.
-        source_url = urllib.parse.urljoin("http://" + repo + "/", file)
-        netloc_dir = os.path.join(
-            IliCache.CACHE_PATH, repo, os.path.dirname(file)
-        )
-        os.makedirs(netloc_dir, exist_ok=True)
-        target_file_path = os.path.join(netloc_dir, os.path.basename(file))
-        if os.path.exists(target_file_path):
-            return target_file_path, self.tr(
-                "  ...successfully found the ili file in the cache."
-            )
-
-        # download ilimodels.xml
-        try:
-            qt_utils.download_file(
-                source_url,
-                target_file_path,
-            )
-            return target_file_path, self.tr(
-                "  ...successfully downloaded the ili file."
-            )
-
-        except Exception as e:
-            return None, self.tr(
-                "  ...failed to download the ili file. {}"
-            ).format(str(e))
 
     def get_topping_file_list(self, id_list):
         topping_file_model = self.get_topping_file_model(id_list)

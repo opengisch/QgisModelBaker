@@ -56,6 +56,10 @@ displayLanguages = {
     "es": QCoreApplication.translate("QgisModelBaker", "Spanish"),
 }
 
+ORIGINAL_MODEL_LANGUAGE = QCoreApplication.translate(
+    "QgisModelBaker", "Original model language"
+)
+
 
 class AdministrativeDBActionTypes(Enum):
     """Defines constants for modelbaker actions that require superuser login"""
