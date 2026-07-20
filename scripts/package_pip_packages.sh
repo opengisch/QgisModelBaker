@@ -1,12 +1,10 @@
 #!/bin/bash
 LIBS_DIR="QgisModelBaker/libs"
 
-MODELBAKER_LIBRARY=("modelbaker" "3.2.0")
-PACKAGING=("packaging" "21.3")
+MODELBAKER_LIBRARY=("modelbaker" "3.2.1")
 
 PACKAGES=(
   MODELBAKER_LIBRARY[@]
-  PACKAGING[@]
 )
 
 #create lib folder
