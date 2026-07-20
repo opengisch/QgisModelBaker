@@ -41,7 +41,8 @@ class ExportModelsPanel(QWidget, WIDGET_UI):
                 self.items_view.clicked.disconnect()
                 self.items_view.space_pressed.disconnect()
             except Exception:
-                pass
+                # let it pass when having no connections
+                pass  # nosec
 
             self.items_view.setModel(self.parent.current_export_models_model)
             self.items_view.clicked.connect(self.items_view.model().check)

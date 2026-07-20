@@ -720,15 +720,13 @@ class WorkflowWizard(QWizard):
             for downloaded_file_id in topping_file_cache.downloaded_files:
                 if downloaded_file_id in missing_file_ids:
                     missing_file_ids.remove(downloaded_file_id)
-            try:
-                self.log_panel.print_info(
-                    self.tr(
-                        "- - Some topping files where not successfully downloaded: {}"
-                    ).format(" ".join(missing_file_ids)),
-                    LogLevel.TOPPING,
-                )
-            except Exception:
-                pass
+
+            self.log_panel.print_info(
+                self.tr(
+                    "- - Some topping files where not successfully downloaded: {}"
+                ).format(" ".join(missing_file_ids)),
+                LogLevel.TOPPING,
+            )
 
         return topping_file_cache.model
 

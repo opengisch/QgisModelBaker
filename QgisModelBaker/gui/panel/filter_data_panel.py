@@ -41,7 +41,8 @@ class FilterDataPanel(QWidget, WIDGET_UI):
             try:
                 self.filter_combobox.currentIndexChanged.disconnect()
             except Exception:
-                pass
+                # let it pass when having no connections
+                pass  # nosec
 
             self._refresh_filter_combobox(basket_handling)
 
@@ -93,7 +94,8 @@ class FilterDataPanel(QWidget, WIDGET_UI):
             self.items_view.space_pressed.disconnect()
             self.items_view.model().dataChanged.disconnect()
         except Exception:
-            pass
+            # let it pass when having no connections
+            pass  # nosec
 
         self.items_view.setModel(model)
         self.items_view.clicked.connect(self.items_view.model().check)

@@ -102,7 +102,7 @@ class DatasetSelector(QComboBox):
                     self.set_default_project_variables(schema_identificator)
                 except:
                     # let it pass, it will have no entries what is okay
-                    pass
+                    pass  # nosec
 
         if QT_VERSION_STR < "5.12.0":
             self.filtered_model.setFilterRegExp(
