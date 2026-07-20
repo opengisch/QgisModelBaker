@@ -518,6 +518,8 @@ class ImportModelsModel(SourceModel):
     Inherits SourceModel to use functions and signals like print_info etc.
     """
 
+    model_refreshed = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self._checked_models = {}
@@ -675,6 +677,7 @@ class ImportModelsModel(SourceModel):
                                 data_file_path,
                             )
                         )
+        self.model_refreshed.emit()
         return self.rowCount()
 
     def _transfer_file_models(self, data_file_path):
@@ -897,6 +900,7 @@ class ImportModelsModel(SourceModel):
                     Qt.ItemDataRole.CheckStateRole,
                     Qt.CheckState.Checked,
                 )
+        self.model_refreshed.emit()
 
     def _relevant_type_source(self, info_list):
         # when one type is ili, we take this path (because user selected file on purpose) otherwise repository

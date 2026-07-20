@@ -409,7 +409,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.save_configuration()
         self._restyle_concerning_metaconfig()
 
-    def load_prophethy_settings(self, settings_prophet):
+    def load_prophecy_settings(self, settings_prophet):
         # basket column
         if settings_prophet.needs_basket_column():
             self.create_basket_col_checkbox.setChecked(True)
