@@ -539,7 +539,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
         self.workflow_wizard.log_panel.print_info(
             self.tr(
-                "Enable/disable the ili2db options according the models: {}"
+                "Enable/disable the ili2db options according to the models: {}"
             ).format(", ".join(checked_models.keys())),
             LogLevel.INFO,
         )
@@ -657,7 +657,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
             self.ili2db_options.load_prophecy_settings(settings_prophet)
         self.workflow_wizard.log_panel.print_info(
             self.tr(
-                "Enable/disable the ili2db options according the models finished."
+                "Successfully enabled/disabled the ili2db options according to the models."
             ),
             LogLevel.INFO,
         )
