@@ -11,6 +11,10 @@ from QgisModelBaker.libs.modelbaker.processing.ili2db_importing import (
     ImportingGPKGAlgorithm,
     ImportingPGAlgorithm,
 )
+from QgisModelBaker.libs.modelbaker.processing.ili2db_schema_importing import (
+    SchemaImportingGPKGAlgorithm,
+    SchemaImportingPGAlgorithm,
+)
 from QgisModelBaker.libs.modelbaker.processing.ili2db_validating import (
     ValidatingGPKGAlgorithm,
     ValidatingPGAlgorithm,
@@ -22,6 +26,8 @@ from QgisModelBaker.libs.modelbaker.processing.util_layersourceparsing import (
 
 class Provider(QgsProcessingProvider):
     def loadAlgorithms(self):
+        self.addAlgorithm(SchemaImportingPGAlgorithm())
+        self.addAlgorithm(SchemaImportingGPKGAlgorithm())
         self.addAlgorithm(ImportingPGAlgorithm())
         self.addAlgorithm(ImportingGPKGAlgorithm())
         self.addAlgorithm(ExportingPGAlgorithm())
