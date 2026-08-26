@@ -103,7 +103,7 @@
       <item row="0" column="0">
        <widget class="QCheckBox" name="stroke_arcs_checkbox">
         <property name="toolTip">
-         <string>If this option is activated, circular arcs are stroked when importing the data</string>
+         <string>Replaces any curved geometry column by its linear equivalent (e.g., arcs by straight lines or surfaces by polygons).</string>
         </property>
         <property name="text">
          <string>Stroke Arcs</string>
