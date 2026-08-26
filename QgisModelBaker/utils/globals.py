@@ -53,7 +53,12 @@ displayLanguages = {
     "fr": QCoreApplication.translate("QgisModelBaker", "French"),
     "it": QCoreApplication.translate("QgisModelBaker", "Italian"),
     "rm": QCoreApplication.translate("QgisModelBaker", "Romansh"),
+    "es": QCoreApplication.translate("QgisModelBaker", "Spanish"),
 }
+
+ORIGINAL_MODEL_LANGUAGE = QCoreApplication.translate(
+    "QgisModelBaker", "Original model language"
+)
 
 
 class AdministrativeDBActionTypes(Enum):
