@@ -98,7 +98,7 @@ But...
 - You must check both
 - The AI workflow takes more effort because of downloading and uploading
 - You need an AI subscription (which not all contributors have)
-- Claude AI will not translate it because it is public (Gemini AI will)
+- Claude AI will not translate the Model Baker documentation files because it's matched public code (Gemini AI will)
 
 ### Conclusion:
 
