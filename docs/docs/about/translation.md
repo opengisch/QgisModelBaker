@@ -65,6 +65,7 @@ You can take the original Markdown file from the repository or download it from 
     > Do not add or remove any information. Keep it as literal as possible.
     > Use INTERLIS documentation style.
     > Address users as "du" and use a colon for gender-neutral language.
+    > For parts that are already translated, do not change the wording. Only fix typos, etc.
     > Thank you.
 
     Some AI models do not edit published content in place, but others do.
