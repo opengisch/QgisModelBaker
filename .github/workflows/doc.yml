@@ -53,7 +53,6 @@ jobs:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
       - name: Push source files to Transifex
-        if: ${{ github.event_name != 'pull_request' }}
         run: ./tx push
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
