@@ -12,7 +12,7 @@ First export your data to an XTF file.
 
 ![upgrade_export_data](../assets/upgrade_export_data.png)
 
-It's exported with ili2db 4, but with the paramter `--export3`, enabling the export of the databases created with ili2db 3.
+It's exported with ili2db 5, but with the paramter `--export3`, enabling the export of the databases created with ili2db 3.
 
 ## 2. Create Database
 
@@ -20,7 +20,7 @@ Create your database according to the selected models.
 
 ![upgrade_import_schema](../assets/upgrade_import_schema.png)
 
-It's imported with ili2db 4. Your database is now on the current state of version 4.
+It's imported with ili2db 5. Your database is now on the current state of version 5.
 
 ## 3. Import Data
 

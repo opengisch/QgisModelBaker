@@ -20,7 +20,8 @@ defaults:
     working-directory: docs
 
 jobs:
-  deploy:
+  upload-to-transifex:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     env:
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
@@ -56,6 +57,30 @@ jobs:
         run: ./tx push
         env:
           TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    env:
+      TX_TOKEN: ${{ secrets.TX_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Checkout Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python requirements
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Install Transifex client
+        run: |
+          curl -OL https://github.com/transifex/cli/releases/download/v1.6.10/tx-linux-amd64.tar.gz
+          tar -xvzf tx-linux-amd64.tar.gz
 
       - name: Pull translations from Transifex
         if: contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) || ${{ github.event_name == 'pull_request' && github.repository == 'opengisch/QgisModelBaker' }}
