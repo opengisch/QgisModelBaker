@@ -23,7 +23,7 @@ As well you can search for INTERLIS models in the [repositories](../../backgroun
 !!! Note
     The models from the repositories are cached locally. If you want to clear this cache, use the button *Clear ilicache*.
 
-This leads you to a process to create the physical database in *PostgreSQL*, *MSSQL* or *GeoPackage*.
+This leads you to a process to create the physical database in *PostgreSQL* or *GeoPackage*.
 
 ### Transfer and Catalogue Files (Data Files)
 

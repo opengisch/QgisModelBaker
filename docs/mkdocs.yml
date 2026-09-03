@@ -83,8 +83,8 @@ plugins:
         - locale: de
           name: Deutsch
           site_name: QGIS Model Baker Dokumentation
-          site_description: Model Baker is a QGIS plugin to visualize, edit and
-            manipulate INTERLIS data in QGIS.
+          site_description: Model Baker ist ein QGIS-Plugin zur Visualisierung,
+            Bearbeitung und Manipulation von INTERLIS-Daten in QGIS.
           nav_translations:
             Home: Home
             User Guide: Benutzerhandbuch
@@ -100,7 +100,7 @@ plugins:
             Basket and Dataset Handling: Dataset und Basket Handling
             OID Generator: OID Generator
             Toppingfiles: Toppingfiles
-            Create your own Toppings: Create your own Toppings
+            Create your own Toppings: Stell dir deine eigenen Toppings zusammen
             Technical Concept: Technisches Konzept
             Optimized Projects for Extended Models: Optimierte Projekte für
               erweiterte Modelle

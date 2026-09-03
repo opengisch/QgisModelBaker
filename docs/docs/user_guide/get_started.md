@@ -1,6 +1,6 @@
 ## Installation
 
-1. [Install QGIS 3](https://qgis.org/en/site/forusers/download.html)
+1. [Install QGIS](https://qgis.org/en/site/forusers/download.html)
 
 2. Use the plugin manager to install the "Model Baker" plugin.
 
