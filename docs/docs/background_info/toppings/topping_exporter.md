@@ -14,9 +14,9 @@ Since you don't want to make these settings again and share your work with other
 
 So, find the **Topping Exporter** in the menu *Database > Model Baker > Topping Exporter*
 
-## 1. General information about the topic
+## 1. General information about the topping
 
-First you need to enter some general information about your topic. This will be in the index file (ilidata.xml) and defines the folder structure.
+First you need to enter some general information about your topping. This will be in the index file (ilidata.xml) and defines the folder structure.
 
 ![target](../../assets/toppings-exporter-target.png)
 

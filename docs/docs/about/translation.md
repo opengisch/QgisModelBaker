@@ -66,6 +66,8 @@ You can take the original Markdown file from the repository or download it from 
     > Use INTERLIS documentation style.
     > Address users as "du" and use a colon for gender-neutral language.
     > For parts that are already translated, do not change the wording. Only fix typos, etc.
+    > And don't use the "sharp s" (ß) and keep the english quotes.
+    > "!!!Note" is a MkDocs keyword and should not be translated.
     > Thank you.
 
     Some AI models do not edit published content in place, but others do.
