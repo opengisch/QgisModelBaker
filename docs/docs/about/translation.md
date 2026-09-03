@@ -77,21 +77,21 @@ You can take the original Markdown file from the repository or download it from 
 
 5. Review the translation. Do not trust the AI completely.
 
-### Comparison:
+### Comparison
 
 Here is an example what MT or AI translated
 
-#### Original:
+#### Original
 > If a model or topic contains extended classes, the physical database implements the inclusive base classes. Users only want to see what is relevant to them, and they mostly work on the most extended instance of the topics or classes. Model Baker detects ***irrelevant*** tables and offers optimization strategies.
 
 
-#### MT:
+#### Result with MT
 > Wenn ein Modell oder ein Thema erweiterte Klassen enthält, werden die übergeordneten Basisklassen in der physischen Datenbank implementiert. Die Nutzer wollen nur das sehen, was für sie relevant ist, und arbeiten meist mit der am stärksten erweiterten Instanz der Themen/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und schlägt Optimierungsstrategien vor.
 
-#### AI:
+#### Result with AI
 > Wenn ein Modell oder Topic erweiterte Klassen enthält, werden die inklusiven Basisklassen in der physischen Datenbank implementiert. Die User:innen wollen nur sehen, was für sie relevant ist, und arbeiten meist auf der am stärksten erweiterten Instanz der Topics/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und bietet Optimierungsstrategien an.
 
-### Pros and cons of AI:
+### Pros and cons of AI
 
 - AI translates better (more literal and follows INTERLIS, "du" and gendered rules) than MT
 - AI is more efficient for an entire file
@@ -103,6 +103,6 @@ But...
 - You need an AI subscription (which not all contributors have)
 - Claude AI will not translate the Model Baker documentation files because it's matched public code (Gemini AI will)
 
-### Conclusion:
+### Conclusion
 
 MT is more efficient for single strings, while AI is more efficient for entire files.
