@@ -82,14 +82,14 @@ You can take the original Markdown file from the repository or download it from 
 Here is an example what MT or AI translated
 
 #### Original
-> If a model or topic contains extended classes, the physical database implements the inclusive base classes. Users only want to see what is relevant to them, and they mostly work on the most extended instance of the topics or classes. Model Baker detects ***irrelevant*** tables and offers optimization strategies.
+> If a model or topic contains extended classes, the physical database implements the inclusive base classes. Users only want to see what is relevant to them, and they mostly work on the most extended instance of the topics or classes. Model Baker detects ***irrelevant*** tables and offers optimization strategies. Baskets and Datasets are not affected by the optimization strategies.
 
 
 #### Result with MT
-> Wenn ein Modell oder ein Thema erweiterte Klassen enthält, werden die übergeordneten Basisklassen in der physischen Datenbank implementiert. Die Nutzer wollen nur das sehen, was für sie relevant ist, und arbeiten meist mit der am stärksten erweiterten Instanz der Themen/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und schlägt Optimierungsstrategien vor.
+> Wenn ein Modell oder ein Thema erweiterte Klassen enthält, werden die inklusiven Basisklassen in der physischen Datenbank implementiert. Die Benutzer wollen nur das sehen, was für sie relevant ist, und arbeiten meist mit der am stärksten erweiterten Instanz der Themen/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und schlägt Optimierungsstrategien vor. Körbe und Datensätze sind von den Optimierungsstrategien nicht betroffen.
 
 #### Result with AI
-> Wenn ein Modell oder Topic erweiterte Klassen enthält, werden die inklusiven Basisklassen in der physischen Datenbank implementiert. Die User:innen wollen nur sehen, was für sie relevant ist, und arbeiten meist auf der am stärksten erweiterten Instanz der Topics/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und bietet Optimierungsstrategien an.
+> Wenn ein Modell oder Topic erweiterte Klassen enthält, werden die übergeordneten Basisklassen in der physischen Datenbank implementiert. Die Benutzer:innen wollen nur sehen, was für sie relevant ist, und arbeiten meist auf der am stärksten erweiterten Instanz der Topics/Klassen. Model Baker erkennt die ***irrelevanten*** Tabellen und bietet Optimierungsstrategien an. Behälter und Datasets sind von den Optimierungsstrategien nicht betroffen.
 
 ### Pros and cons of AI
 
