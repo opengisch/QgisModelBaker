@@ -36,7 +36,7 @@ Transifex offers AI features, but they require an enterprise account.
 
 However, you can use other options to use the little helpers.
 
-1. Machine Translation (like DeepL etc) translates without the full context.
+1. Machine Translation (like DeepL before it was able to learn) translates without the full context.
 2. Translate documentation in VS Code with Copilot and Claude, then upload it again.
 
 ### Machine Translation (MT)
