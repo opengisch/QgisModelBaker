@@ -39,7 +39,7 @@ However, you can use other options to use the little helpers.
 1. Machine Translation (like DeepL etc) translates without the full context.
 2. Translate documentation in VS Code with Copilot and Claude, then upload it again.
 
-### Machine Translation
+### Machine Translation (MT)
 
 When you want to have your text translated by Machine Translation, klick on the MT button:
 
@@ -100,7 +100,7 @@ But...
 
 - You must check both
 - The AI workflow takes more effort because of downloading and uploading
-- You need an AI subscription (which not all contributors have)
+- You may need an AI subscription (which not all contributors have)
 - Claude AI will not translate the Model Baker documentation files because it's matched public code (Gemini AI will)
 
 ### Conclusion
