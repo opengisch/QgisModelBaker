@@ -81,6 +81,14 @@ jobs:
           curl -OL https://github.com/transifex/cli/releases/download/v1.6.10/tx-linux-amd64.tar.gz
           tar -xvzf tx-linux-amd64.tar.gz
 
+      - name: Extract translatable content from mkdocs.yml config
+        run: ./scripts/mkdocs_tx.py create_source
+
+      - name: Configure Transifex
+        run: scripts/transifex_utils.py
+        env:
+          TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
       - name: Pull translations from Transifex
         if: contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) || ${{ github.event_name == 'pull_request' && github.repository == 'opengisch/QgisModelBaker' }}
         run: |
