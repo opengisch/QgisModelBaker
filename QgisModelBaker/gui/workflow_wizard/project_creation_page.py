@@ -493,7 +493,11 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         self.workflow_wizard.log_panel.print_info(
             self.tr("Obtaining relations from the database…")
         )
-        relations, bags_of_enum = generator.relations(available_layers)
+        relation_values = generator.relations(available_layers)
+        relations = relation_values.relations
+        bags_of_enum = relation_values.bags_of_enum
+        irrelevant_fk_fields = relation_values.irrelevant_fk_fields
+
         self.progress_bar.setValue(45)
 
         # If coalesceCatalogueRef was used, suppress any catalogue
@@ -690,6 +694,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         )
         project.layers = available_layers
         project.relations = relations
+        project.irrelevant_fk_fields = irrelevant_fk_fields
         project.bags_of_enum = bags_of_enum
         project.legend = legend
         project.custom_layer_order_structure = custom_layer_order_structure
