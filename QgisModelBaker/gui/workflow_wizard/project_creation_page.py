@@ -48,6 +48,7 @@ from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
 from QgisModelBaker.utils.globals import (
     CATALOGUE_DATASETNAME,
+    ORIGINAL_MODEL_LANGUAGE,
     displayLanguages,
 )
 from QgisModelBaker.utils.gui_utils import MODELS_BLACKLIST, LogLevel
@@ -292,9 +293,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
             else:
                 self.translation_combo.setEnabled(False)
 
-        self.translation_combo.addItem(
-            self.tr("Original model language"), "__"
-        )
+        self.translation_combo.addItem(ORIGINAL_MODEL_LANGUAGE, "__")
 
         # Synchronize length of both comboboxes
         self.translation_combo.setMinimumSize(

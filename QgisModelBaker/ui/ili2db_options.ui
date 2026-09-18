@@ -17,6 +17,9 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <item row="4" column="1">
     <widget class="QGroupBox" name="create_gpkg_multigeom_groupbox">
      <property name="title">
@@ -37,7 +40,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="create_basket_groupbox">
      <property name="title">
       <string>Create Basket Column</string>
      </property>
@@ -56,7 +59,7 @@
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="toml_frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -95,7 +98,7 @@
     </widget>
    </item>
    <item row="5" column="1">
-    <widget class="QGroupBox" name="groupBox_3">
+    <widget class="QGroupBox" name="stroke_arcs_groupbox">
      <property name="title">
       <string>Stroke arcs</string>
      </property>
@@ -114,7 +117,7 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QGroupBox" name="groupBox_4">
+    <widget class="QGroupBox" name="script_groupbbox">
      <property name="title">
       <string>SQL scripts</string>
      </property>
@@ -280,7 +283,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QGroupBox" name="enumeration_group_box">
+    <widget class="QGroupBox" name="enumeration_groupbox">
      <property name="title">
       <string>Enumeration Handling</string>
      </property>
@@ -322,7 +325,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QGroupBox" name="inheritance_group_box">
+    <widget class="QGroupBox" name="inheritance_groupbox">
      <property name="title">
       <string>Inheritance type</string>
      </property>
