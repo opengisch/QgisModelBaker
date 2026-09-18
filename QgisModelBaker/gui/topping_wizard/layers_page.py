@@ -452,6 +452,16 @@ class LayerModel(QgsLayerTreeModel):
             or not layer.dataProvider().isValid()
         ):
             return False
+        if (
+            layer.providerType() != "postgres"
+            and layer.providerType() != "mssql"
+            and layer.providerType() != "ogr"
+        ):
+            # layer with unsupported provider cannot be properly matched to the interlis base
+            return False
+        if layer.subsetString() and layer.subsetString() != "":
+            # layer with subset string cannot be properly matched to the interlis base
+            return False
 
         source_provider = layer.dataProvider()
         schema_identificator = (
