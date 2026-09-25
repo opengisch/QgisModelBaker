@@ -562,6 +562,7 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__validate_dock.set_current_layer
         )
+        self.__validate_dock.setParent(None)
         del self.__validate_dock
 
     def get_generator(self):
