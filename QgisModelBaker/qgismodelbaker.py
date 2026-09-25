@@ -76,6 +76,7 @@ class QgisModelBakerPlugin(QObject):
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
 
+        self.logger = None
         self.provider = None
 
         self.workflow_wizard_dlg = None
@@ -310,6 +311,13 @@ class QgisModelBakerPlugin(QObject):
         self.register_event_filter()
 
     def unload(self):
+        # remove handlers from logger
+        if self.logger:
+            for handler in self.logger.handlers[:]:
+                handler.close()
+                self.logger.removeHandler(handler)
+        self.logger = None
+
         self.unregister_event_filter()
         self.unload_processing()
         self.iface.removePluginDatabaseMenu(
@@ -562,6 +570,7 @@ class QgisModelBakerPlugin(QObject):
         self.iface.layerTreeView().currentLayerChanged.disconnect(
             self.__validate_dock.set_current_layer
         )
+        self.__validate_dock.setParent(None)
         del self.__validate_dock
 
     def get_generator(self):
