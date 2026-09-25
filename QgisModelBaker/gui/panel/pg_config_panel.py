@@ -589,6 +589,7 @@ class ReadPgSchemasTask(QThread):
 
         self.schemas = []
         self._configuration = None
+        self.logger = logging.getLogger("qgismodelbaker")
 
     def configuration_changed(self, configuration):
         self._configuration = configuration
