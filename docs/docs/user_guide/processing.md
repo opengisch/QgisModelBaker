@@ -113,7 +113,7 @@ For that we need the algorithm **Create Schema with ili2gpkg (GeoPackage)**.
 
 - We name it `Create source GeoPackage`
 - As *Enumeration handling* we choose `tabs`. This makes data migration easier because it stores the enumeration values directly in the field
-- As *Model* we enter `Gewaesserraum_V1_1`. This will find the model in the repositories.
+- As *Model* we enter `Gewaesserraum_V1_1`. This will find the model in the official or configured repositories.
 
 #### 2. Import the Data
 
@@ -167,7 +167,7 @@ Again we take the algorithm **Create Schema with ili2gpkg (GeoPackage)**.
 
 - We name it `Create target GeoPackage`
 - As *Enumeration handling* we choose `tabs`. This makes data migration easier because it stores the enumeration values directly in the field
-- As *Model* we enter `Gewaesserraum_V1_1`. This will find the model in the repositories.
+- As *Model* we enter `Gewaesserraum_V1_1`. This will find the model in the official or configured repositories.
 
 #### 5. Create the baskets
 
@@ -257,7 +257,7 @@ And this is how it finally looks.
 - Validate and Export the subset
 - Done
 
-Amd as a layer it looks like this.
+And as a layer it looks like this.
 
 ![alt text](../assets/processing-result-2.png)
 
