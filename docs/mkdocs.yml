@@ -94,7 +94,7 @@ plugins:
             Export Data Workflow: Daten Export Workflow
             Validate Data: Daten Validierung
             Toppings: Toppings
-            Processing Algorithms: Verarbeitungsalgorithmen
+            Processing Algorithms: Processing Algorithms
             Quick Visualizer: Quick Visualizer
             Plugin Configuration: Plugin Konfiguration
             Tipps & Tricks: Tipps & Tricks
@@ -140,8 +140,8 @@ plugins:
             Export Data Workflow: Flux de travail d'exportation de données
             Validate Data: Validation des données
             Toppings: Toppings
+            Processing Algorithms: Processing Algorithms
             Quick Visualizer: Quick Visualizer
-            Processing Algorithms: Algorithmes de traitement
             Plugin Configuration: Configuration du plugin
             Tipps & Tricks: Trucs et astuces
             Repositories: Dépôts
