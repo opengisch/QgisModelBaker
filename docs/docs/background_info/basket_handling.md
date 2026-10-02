@@ -11,7 +11,7 @@ Let's say we have two melted twin cities "Beźel" and "Ul Qoma". We want to impo
 
 ### INTERLIS Model
 
-Here we have a simple model representing a city with constructions (buildings and streets) and nature (parks).
+Here we have a [simple model](../data/TheCityAndTheCity_V1.ili) representing a city with constructions (buildings and streets) and nature (parks).
 
 ```
 INTERLIS 2.3;
@@ -70,7 +70,7 @@ The model defines `BASKET OID` this means it requires stable basket ids and here
 
 ### Data of Ul Qoma
 
-And here are the data from one of the cities (Ul Qoma):
+And here are the [data](../data/TheCity_V1-ulqoma.xtf) from one of the cities (Ul Qoma):
 ```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
 <HEADERSECTION SENDER="ili2pg-4.6.1-63db90def1260a503f0f2d4cb846686cd4851184" VERSION="2.3"><MODELS><MODEL NAME="City_V1" VERSION="2020-06-22" URI="https://modelbaker.ch"></MODEL></MODELS></HEADERSECTION>
@@ -177,7 +177,7 @@ When we check out the data now, we see that they are referencing the baskets (wh
 
 ### Datasets and Data of "Ul Qoma" and "Besźel"
 
-It looks more interesting when we import the data of "Besźel" as well.
+It looks more interesting when we import the [data](../data/TheCity_V1-beszel.xtf) of "Besźel" as well.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
