@@ -26,7 +26,10 @@ from qgis.PyQt.QtWidgets import QDialog, QSizePolicy
 from QgisModelBaker.libs.modelbaker.utils.globals import LogLevel
 from QgisModelBaker.libs.modelbaker.utils.qt_utils import make_file_selector
 from QgisModelBaker.utils import gui_utils
-from QgisModelBaker.utils.globals import displayLanguages
+from QgisModelBaker.utils.globals import (
+    ORIGINAL_MODEL_LANGUAGE,
+    displayLanguages,
+)
 from QgisModelBaker.utils.gui_utils import get_text_color
 
 DIALOG_UI = gui_utils.get_ui_class("ili2db_options.ui")
@@ -100,7 +103,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.namelang_combo.clear()
         for key in displayLanguages.keys():
             self.namelang_combo.addItem(displayLanguages.get(key, key), key)
-        self.namelang_combo.addItem(self.tr("Original model language"), "")
+        self.namelang_combo.addItem(ORIGINAL_MODEL_LANGUAGE, "")
 
         self.restore_configuration()
 
@@ -157,7 +160,6 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
         self.namelang_combo.currentIndexChanged.connect(
             lambda: self._restyle_concerning_metaconfig()
         )
-
         self.metaconfig_info_label.setVisible(False)
 
         self.create_import_tid_groupbox.setHidden(remove_create_tid_group)
@@ -176,6 +178,15 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                     gdal_version=gdal.VersionInfo("RELEASE_NAME"),
                 )
             )
+
+        # current status set by the prophet, if the prophet is not used, this will be false
+        self.model_contains_extended_enumerations = False
+        self.smart1_radio_button.toggled.connect(
+            lambda: self._update_enums_according_to_inheritance()
+        )
+        self.smart2_radio_button.toggled.connect(
+            lambda: self._update_enums_according_to_inheritance()
+        )
 
         self.bar = QgsMessageBar()
         self.bar.setSizePolicy(
@@ -333,7 +344,7 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
             self.create_gpkg_multigeom_checkbox.setChecked(False)
         self.stroke_arcs_checkbox.setChecked(stroke_arcs)
         self.namelang_combo.setCurrentText(
-            displayLanguages.get(name_lang, "Original model language")
+            displayLanguages.get(name_lang, ORIGINAL_MODEL_LANGUAGE)
         )
         self.toml_file_line_edit.setText(settings.value(self.toml_file_key))
 
@@ -392,11 +403,71 @@ class Ili2dbOptionsDialog(QDialog, DIALOG_UI):
                 self.namelang_combo.setCurrentText(
                     displayLanguages.get(
                         self.current_metaconfig_ili2db.get("nameLang", ""),
-                        "Original model language",
+                        ORIGINAL_MODEL_LANGUAGE,
                     )
                 )
             self.save_configuration()
         self._restyle_concerning_metaconfig()
+
+    def load_prophecy_settings(self, settings_prophet):
+        # basket column
+        if settings_prophet.needs_basket_column():
+            self.create_basket_col_checkbox.setChecked(True)
+            self.create_basket_groupbox.setVisible(False)
+        else:
+            self.create_basket_groupbox.setVisible(True)
+        # multiple geometries per table
+        if settings_prophet.contains_multiple_geometry_columns():
+            self.create_gpkg_multigeom_groupbox.setVisible(True)
+        else:
+            self.create_gpkg_multigeom_groupbox.setVisible(False)
+        # stroke arcs
+        if settings_prophet.contains_arcs():
+            self.stroke_arcs_groupbox.setVisible(True)
+        else:
+            self.stroke_arcs_groupbox.setVisible(False)
+        # enum
+        if settings_prophet.contains_enumerations():
+            self.enumeration_groupbox.setVisible(True)
+            if settings_prophet.contains_extended_enumerations():
+                self.model_contains_extended_enumerations = True
+                self._update_enums_according_to_inheritance()
+        else:
+            self.enumeration_groupbox.setVisible(False)
+        # language - here we have an original language option, so we don't need the preferred language
+        is_translation, languages, _ = settings_prophet.language_infos()
+        if is_translation:
+            self.translation_groupbox.setVisible(True)
+        else:
+            self.translation_groupbox.setVisible(False)
+        self._update_translation_combo(languages)
+        self.save_configuration()
+        self._restyle_concerning_metaconfig()
+
+    def _update_translation_combo(self, languages):
+        current_lang = self.namelang_combo.currentData()
+        self.namelang_combo.clear()
+        for key in languages:
+            self.namelang_combo.addItem(displayLanguages.get(key, key), key)
+        self.namelang_combo.addItem(ORIGINAL_MODEL_LANGUAGE, "")
+        # if the current language is still in the list, keep it selected, otherwise select the original model language
+        if current_lang in languages:
+            self.namelang_combo.setCurrentText(
+                displayLanguages.get(current_lang, ORIGINAL_MODEL_LANGUAGE)
+            )
+        else:
+            self.namelang_combo.setCurrentText(ORIGINAL_MODEL_LANGUAGE)
+
+    def _update_enums_according_to_inheritance(self):
+        if (
+            self.model_contains_extended_enumerations
+            and self.smart1_radio_button.isChecked()
+        ):
+            if self.enum_tabs_radio_button.isChecked():
+                self.enum_singletab_radio_button.setChecked(True)
+            self.enum_tabs_radio_button.setVisible(False)
+        else:
+            self.enum_tabs_radio_button.setVisible(True)
 
     def load_toml_file_path(self, key_postfix, toml_file_path):
         self.current_metaconfig_toml_file_path = toml_file_path

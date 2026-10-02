@@ -61,6 +61,7 @@ from QgisModelBaker.libs.modelbaker.iliwrapper.ili2dbconfig import (
 )
 from QgisModelBaker.libs.modelbaker.iliwrapper.ilicache import (
     IliDataCache,
+    IliModelItemModel,
     IliToppingFileCache,
 )
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType
@@ -112,14 +113,15 @@ class WorkflowWizard(QWizard):
         self.export_data_configuration.base_configuration = self.base_config
 
         # data models are keeped on top level because sometimes they need to be accessed to evaluate the wizard workflow
+        # the ilicache_basemodel keeps the nested indexes with all the model informaiton.
+        # IliCache.model is referenced on the source selection page init
+        self.ilicache_basemodel = IliModelItemModel()
         # the source_model keeps all the sources (files or repositories) used and the dataset property
         self.source_model = SourceModel()
         self.source_model.print_info.connect(self.log_panel.print_info)
-
         # the import_models_model keeps every single model as entry and a checked state
         self.import_models_model = ImportModelsModel()
         self.import_models_model.print_info.connect(self.log_panel.print_info)
-
         # the import_data_file_model keeps the filtered out transfer files (from source model) and functions to get ordered import sessions
         self.import_data_file_model = ImportDataModel()
         self.import_data_file_model.print_info.connect(
@@ -463,6 +465,7 @@ class WorkflowWizard(QWizard):
         return self.current_id
 
     def id_changed(self, new_id):
+        self.busy(self, True, self.tr("Loading page..."))
         self.current_id = new_id
 
         self.log_panel.print_info(
@@ -595,6 +598,7 @@ class WorkflowWizard(QWizard):
             self.export_data_execution_page.setup_sessions(
                 self.export_data_configuration, sessions
             )
+        self.busy(self, False)
 
     def _update_configurations(self, page):
         # update all configurations to have the same settings for all of them
