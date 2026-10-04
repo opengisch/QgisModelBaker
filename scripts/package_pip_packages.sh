@@ -1,7 +1,7 @@
 #!/bin/bash
 LIBS_DIR="QgisModelBaker/libs"
 
-MODELBAKER_LIBRARY=("modelbaker" "3.4.0")
+MODELBAKER_LIBRARY=("modelbaker" "3.4.1")
 
 PACKAGES=(
   MODELBAKER_LIBRARY[@]
