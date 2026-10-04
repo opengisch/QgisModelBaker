@@ -675,7 +675,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 Qt.MatchFlag.MatchExactly,
             )
             if indexes:
-                # falsch
                 repo = indexes[0].data(
                     int(self.workflow_wizard.ilicache_basemodel.Roles.ILIREPO)
                 )
@@ -689,14 +688,14 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         return None, None, None
 
     def _download_ilifile(self, netloc, url, file):
-        if url is None:
+        if url is None or url == "":
             file_url = file
         elif os.path.isdir(url):
             file_url = os.path.join(url, file)
         else:
             file_url = urllib.parse.urljoin(url + "/", file)
 
-        if url is None or os.path.isdir(url):
+        if url is None or url == "" or os.path.isdir(url):
             file_path = os.path.normpath(file_url)
             # continue with the local file
             if os.path.exists(file_path):
