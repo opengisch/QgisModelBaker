@@ -836,7 +836,7 @@ class WorkflowWizard(QWizard):
 
         self.help_dlg = HelpDialog(self, title, log_paragraph, text)
         self.help_dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        self.help_dlg.show()
+        self.help_dlg.exec()
 
     def busy(self, page, busy, text="Busy..."):
         page.setEnabled(not busy)

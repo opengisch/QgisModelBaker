@@ -464,8 +464,10 @@ class QgisModelBakerPlugin(QObject):
     def show_validate_dock(self):
         self.__validate_dock.setVisible(not self.__validate_dock.isVisible())
 
-    def show_options_dialog(self):
-        dlg = OptionsDialog(self.ili2db_configuration)
+    def show_options_dialog(self, parent=None):
+        if parent is None:
+            parent = self.iface.mainWindow()
+        dlg = OptionsDialog(self.ili2db_configuration, parent)
         if dlg.exec():
             settings = QSettings()
             settings.beginGroup("QgisModelBaker/ili2db")
