@@ -91,13 +91,33 @@ class WorkflowWizard(QWizard):
         self.setOptions(
             QWizard.WizardOption.NoCancelButtonOnLastPage
             | QWizard.WizardOption.HaveHelpButton
+            | QWizard.WizardOption.HaveCustomButton2
         )
-
-        self.current_id = 0
 
         self.iface = iface
         self.log_panel = parent.log_panel
         self.wizard_dialog = parent
+
+        # current id to evaluate next step
+        self.current_id = 0
+
+        # settings button
+        self.setButtonText(
+            QWizard.WizardButton.CustomButton1, self.tr("Settings")
+        )
+        self.custombutton1_layout = [
+            QWizard.WizardButton.HelpButton,
+            QWizard.WizardButton.CustomButton1,
+            QWizard.WizardButton.Stretch,
+            QWizard.WizardButton.BackButton,
+            QWizard.WizardButton.NextButton,
+            QWizard.WizardButton.CancelButton,
+            QWizard.WizardButton.FinishButton,
+        ]
+        self.setButtonLayout(self.custombutton1_layout)
+        self.button(QWizard.WizardButton.CustomButton1).clicked.connect(
+            self._show_settings
+        )
 
         # configuration objects are keeped on top level to be able to access them from individual pages
         self.base_config = base_config
@@ -477,31 +497,47 @@ class WorkflowWizard(QWizard):
         if self.current_id == PageIds.ImportSourceSelection:
             # Add extra buttons
             # Clear cache
-            self.setOption(QWizard.WizardOption.HaveCustomButton1, True)
-            self.setButton(
-                QWizard.WizardButton.CustomButton1,
-                self.source_selection_page.quick_visualize_button,
-            )
-            # Quick import
             self.setOption(QWizard.WizardOption.HaveCustomButton2, True)
             self.setButton(
                 QWizard.WizardButton.CustomButton2,
+                self.source_selection_page.quick_visualize_button,
+            )
+            # Quick import
+            self.setOption(QWizard.WizardOption.HaveCustomButton3, True)
+            self.setButton(
+                QWizard.WizardButton.CustomButton3,
                 self.source_selection_page.clear_cache_button,
+            )
+            # set layout including button 2 and 3
+            self.setButtonLayout(
+                [
+                    QWizard.WizardButton.HelpButton,
+                    QWizard.WizardButton.CustomButton1,
+                    QWizard.WizardButton.Stretch,
+                    QWizard.WizardButton.CustomButton2,
+                    QWizard.WizardButton.CustomButton3,
+                    QWizard.WizardButton.BackButton,
+                    QWizard.WizardButton.NextButton,
+                    QWizard.WizardButton.CancelButton,
+                    QWizard.WizardButton.FinishButton,
+                ]
             )
         else:
             # Remove extra buttons
             # Clear cache
             if (
-                self.button(QWizard.WizardButton.CustomButton1)
+                self.button(QWizard.WizardButton.CustomButton2)
                 == self.source_selection_page.quick_visualize_button
             ):
-                self.setOption(QWizard.WizardOption.HaveCustomButton1, False)
+                self.setOption(QWizard.WizardOption.HaveCustomButton2, False)
             # Quick import
             if (
-                self.button(QWizard.WizardButton.CustomButton2)
+                self.button(QWizard.WizardButton.CustomButton3)
                 == self.source_selection_page.clear_cache_button
             ):
-                self.setOption(QWizard.WizardOption.HaveCustomButton2, False)
+                self.setOption(QWizard.WizardOption.HaveCustomButton3, False)
+            # reset layout to only button 1
+            self.setButtonLayout(self.custombutton1_layout)
 
         if self.current_id == PageIds.ImportDatabaseSelection:
             # use schema config to restore
@@ -805,6 +841,12 @@ class WorkflowWizard(QWizard):
             self.schema_configuration_page.ili2db_options.set_toml_file(
                 dropped_ini_files[0]
             )
+
+    def _show_settings(self):
+        self.wizard_dialog.parent.show_options_dialog(self)
+        # update base config now
+        self.base_config = self.wizard_dialog.parent.ili2db_configuration
+        # here it need to refresh everything
 
     def _show_help(self):
         current_id = self.currentId()
