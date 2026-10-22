@@ -132,6 +132,23 @@ class SessionPanel(QWidget, WIDGET_UI):
 
         # set up the values
         self.configuration = general_configuration
+        self.setup_session_values()
+
+        self.is_skipped_or_done = False
+
+    @property
+    def id(self):
+        return (
+            self.file,
+            self.models,
+            self.datasets,
+            self.baskets,
+            db_utils.get_schema_identificator_from_configuration(
+                self.configuration
+            ),
+        )
+
+    def setup_session_values(self):
         if self.configuration.tool & DbIliMode.pg:
             # on pg we should consider the user account name as fallback
             if (
@@ -224,20 +241,6 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.ilimodels = ";".join(self.models)
             self.configuration.dataset = ";".join(self.datasets)
             self.configuration.baskets = self.baskets
-
-        self.is_skipped_or_done = False
-
-    @property
-    def id(self):
-        return (
-            self.file,
-            self.models,
-            self.datasets,
-            self.baskets,
-            db_utils.get_schema_identificator_from_configuration(
-                self.configuration
-            ),
-        )
 
     def set_button_to_create(self):
         """

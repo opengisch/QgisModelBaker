@@ -37,11 +37,12 @@ PAGE_UI = gui_utils.get_ui_class("workflow_wizard/execution.ui")
 
 
 class ExecutionPage(QWizardPage, PAGE_UI):
-    def __init__(self, parent, title, db_action_type):
+    def __init__(self, parent, title, db_action_type, configuration):
         QWizardPage.__init__(self, parent)
 
         self.workflow_wizard = parent
         self.db_action_type = db_action_type
+        self.configuration = configuration
 
         self.setupUi(self)
         self.setTitle(title)
@@ -72,6 +73,11 @@ class ExecutionPage(QWizardPage, PAGE_UI):
         self.is_complete = False
         self.pending_sessions = []
 
+        # connect signal after settings changed on workflow wizard
+        self.workflow_wizard.settings_changed.connect(
+            self.update_session_values
+        )
+
     def isComplete(self):
         return self.is_complete
 
@@ -85,7 +91,10 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             return -1
         return self.workflow_wizard.next_id()
 
-    def setup_sessions(self, configuration, sessions):
+    def setup_sessions(self, sessions, configuration=None):
+        if configuration is not None:
+            self.configuration = configuration
+
         new_sessions = []
 
         for key in sessions:
@@ -121,7 +130,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                     baskets,
                     export_models,
                     db_utils.get_schema_identificator_from_configuration(
-                        configuration
+                        self.configuration
                     ),
                     delete_data,
                 )
@@ -130,7 +139,7 @@ class ExecutionPage(QWizardPage, PAGE_UI):
                 new_sessions.append(skipped_session_widget)
             else:
                 session = SessionPanel(
-                    copy.deepcopy(configuration),
+                    copy.deepcopy(self.configuration),
                     key,
                     models,
                     datasets,
@@ -175,6 +184,13 @@ class ExecutionPage(QWizardPage, PAGE_UI):
             if not session.is_skipped_or_done
         ]
         self.setComplete(not self.pending_sessions)
+
+    def update_session_values(self):
+        for session in self.session_widget_list:
+            if session.is_skipped_or_done:
+                continue
+            session.configuration = self.configuration
+            session.setup_session_values()
 
     def _find_skipped_session_widget(self, id):
         for session_widget in self.session_widget_list:

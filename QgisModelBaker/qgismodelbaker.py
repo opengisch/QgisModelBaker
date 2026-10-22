@@ -472,6 +472,8 @@ class QgisModelBakerPlugin(QObject):
             settings = QSettings()
             settings.beginGroup("QgisModelBaker/ili2db")
             self.ili2db_configuration.save(settings)
+            return True
+        return False
 
     def show_logs_folder(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile(self.logsDirectory))

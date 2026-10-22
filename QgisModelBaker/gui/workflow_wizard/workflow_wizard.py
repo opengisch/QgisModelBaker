@@ -21,7 +21,14 @@ import os
 import pathlib
 import re
 
-from qgis.PyQt.QtCore import QT_VERSION_STR, QEventLoop, QSize, Qt, QTimer
+from qgis.PyQt.QtCore import (
+    QT_VERSION_STR,
+    QEventLoop,
+    QSize,
+    Qt,
+    QTimer,
+    pyqtSignal,
+)
 from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 
@@ -82,6 +89,9 @@ from QgisModelBaker.utils.gui_utils import (
 
 
 class WorkflowWizard(QWizard):
+
+    settings_changed = pyqtSignal()
+
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self, parent)
 
@@ -134,7 +144,7 @@ class WorkflowWizard(QWizard):
 
         # data models are keeped on top level because sometimes they need to be accessed to evaluate the wizard workflow
         # the ilicache_basemodel keeps the nested indexes with all the model informaiton.
-        # IliCache.model is referenced on the source selection page init
+        # IliCache.model is referenced on the source selection page init and used later in the schema configuration
         self.ilicache_basemodel = IliModelItemModel()
         # the source_model keeps all the sources (files or repositories) used and the dataset property
         self.source_model = SourceModel()
@@ -158,12 +168,15 @@ class WorkflowWizard(QWizard):
                 "|".join(TransferExtensions)
             )
         self.ilireferencedatacache = IliDataCache(
-            self.import_schema_configuration.base_configuration,
+            self.base_config,
             "referenceData",
         )
         self.ilireferencedatacache.new_message.connect(
             self.log_panel.show_message
         )
+
+        # connect signal after settings changed on workflow wizard
+        self.settings_changed.connect(self.update_referecedata_cache_model)
 
         # the current_models_model keeps every single model found in the current database and keeps the selected models
         self.current_models_model = SchemaModelsModel()
@@ -199,6 +212,7 @@ class WorkflowWizard(QWizard):
             self,
             self._current_page_title(PageIds.ImportSchemaExecution),
             DbActionType.SCHEMA_IMPORT,
+            self.import_schema_configuration,
         )
         self.default_baskets_page = DefaultBasketsPage(
             self, self._current_page_title(PageIds.DefaultBaskets)
@@ -210,6 +224,7 @@ class WorkflowWizard(QWizard):
             self,
             self._current_page_title(PageIds.ImportDataExecution),
             DbActionType.IMPORT_DATA,
+            self.import_data_configuration,
         )
         self.project_creation_page = ProjectCreationPage(
             self, self._current_page_title(PageIds.ProjectCreation)
@@ -234,6 +249,7 @@ class WorkflowWizard(QWizard):
             self,
             self._current_page_title(PageIds.ExportDataExecution),
             DbActionType.EXPORT,
+            self.export_data_configuration,
         )
         self.setPage(PageIds.Intro, self.intro_page)
         self.setPage(PageIds.ImportSourceSelection, self.source_selection_page)
@@ -560,7 +576,6 @@ class WorkflowWizard(QWizard):
 
         if self.current_id == PageIds.ImportSchemaExecution:
             self.import_schema_execution_page.setup_sessions(
-                self.import_schema_configuration,
                 self.import_models_model.import_sessions(),
             )
 
@@ -591,10 +606,10 @@ class WorkflowWizard(QWizard):
                 else self.update_data_configuration
             )
             self.import_data_execution_page.setup_sessions(
-                configuration,
                 self.import_data_file_model.import_sessions(
                     self.data_configuration_page.order_list()
                 ),
+                configuration,
             )
 
         if self.current_id == PageIds.ExportDataConfiguration:
@@ -631,10 +646,9 @@ class WorkflowWizard(QWizard):
                 "export_models"
             ] = export_models
 
-            self.export_data_execution_page.setup_sessions(
-                self.export_data_configuration, sessions
-            )
+            self.export_data_execution_page.setup_sessions(sessions)
         self.busy(self, False)
+        print("done")
 
     def _update_configurations(self, page):
         # update all configurations to have the same settings for all of them
@@ -770,7 +784,7 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
-    def update_referecedata_cache_model(self, filter_models, type):
+    def update_referecedata_cache_model(self, filter_models=None, type=None):
         # updates the model and waits for the end
         loop = QEventLoop()
         self.ilireferencedatacache.model_refreshed.connect(lambda: loop.quit())
@@ -784,8 +798,10 @@ class WorkflowWizard(QWizard):
 
     def refresh_referencedata_cache(self, filter_models, type):
         self.ilireferencedatacache.base_configuration = self.base_config
-        self.ilireferencedatacache.filter_models = filter_models
-        self.ilireferencedatacache.type = type
+        if filter_models:
+            self.ilireferencedatacache.filter_models = filter_models
+        if type:
+            self.ilireferencedatacache.type = type
         self.ilireferencedatacache.refresh()
 
     def _db_modelnames(self, configuration):
@@ -843,10 +859,25 @@ class WorkflowWizard(QWizard):
             )
 
     def _show_settings(self):
-        self.wizard_dialog.parent.show_options_dialog(self)
-        # update base config now
-        self.base_config = self.wizard_dialog.parent.ili2db_configuration
-        # here it need to refresh everything
+        if self.wizard_dialog.parent.show_options_dialog(self):
+            # update base config now
+            self.base_config = self.wizard_dialog.parent.ili2db_configuration
+            # update all the configurations
+            self.import_schema_configuration.base_configuration = (
+                self.base_config
+            )
+            self.import_data_configuration.base_configuration = (
+                self.base_config
+            )
+            self.update_data_configuration.base_configuration = (
+                self.base_config
+            )
+            self.export_data_configuration.base_configuration = (
+                self.base_config
+            )
+
+            # trigger signal to update dependencies in the single pages
+            self.settings_changed.emit()
 
     def _show_help(self):
         current_id = self.currentId()
