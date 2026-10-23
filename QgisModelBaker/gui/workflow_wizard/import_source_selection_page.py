@@ -175,7 +175,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                         QCompleter.CompletionMode.PopupCompletion
                     )
                     self.input_line_edit.completer().complete()
-            self.input_line_edit.completer().popup().scrollToTop()
+
+            if self.input_line_edit.completer():
+                self.input_line_edit.completer().popup().scrollToTop()
 
     def _valid_source(self):
         match_contains = (
