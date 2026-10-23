@@ -124,6 +124,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
         )
 
     def accepted(self):
+        # function relevant options are stored to the configuration
         self.configuration.custom_model_directories = (
             self.custom_model_directories_line_edit.text()
         )
@@ -143,6 +144,7 @@ class OptionsDialog(QDialog, DIALOG_UI):
 
         self.configuration.dbparam_map = self.pg_param_map
 
+        # plugin behavior options are stored to the settings
         settings = QSettings()
         if not self.chk_dontask_to_handle_dropped_files.isChecked():
             settings.setValue("QgisModelBaker/drop_mode", DropMode.ASK.name)
