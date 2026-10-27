@@ -282,7 +282,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _update_ilireferencedatacache(self):
         self._linked_model_busy(True)
-        self.workflow_wizard.update_referecedata_cache_model(
+        self.workflow_wizard.update_referencedata_cache_model(
             self.workflow_wizard.import_models_model.checked_models(),
             "referenceData",
         )

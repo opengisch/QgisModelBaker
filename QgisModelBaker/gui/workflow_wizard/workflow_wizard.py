@@ -176,7 +176,7 @@ class WorkflowWizard(QWizard):
         )
 
         # connect signal after settings changed on workflow wizard
-        self.settings_changed.connect(self.update_referecedata_cache_model)
+        self.settings_changed.connect(self.update_referencedata_cache_model)
 
         # the current_models_model keeps every single model found in the current database and keeps the selected models
         self.current_models_model = SchemaModelsModel()
@@ -385,7 +385,7 @@ class WorkflowWizard(QWizard):
                 self.schema_configuration_page.setComplete(False)
                 if (
                     self.import_data_file_model.rowCount()
-                    or self.update_referecedata_cache_model(
+                    or self.update_referencedata_cache_model(
                         self._db_modelnames(self.import_data_configuration),
                         "referenceData",
                     ).rowCount()
@@ -426,7 +426,7 @@ class WorkflowWizard(QWizard):
                     self.tr("Checking for potential referenced data..."),
                 )
                 self.import_schema_execution_page.setComplete(False)
-                if self.update_referecedata_cache_model(
+                if self.update_referencedata_cache_model(
                     self._db_modelnames(self.import_data_configuration),
                     "referenceData",
                 ).rowCount():
@@ -459,7 +459,7 @@ class WorkflowWizard(QWizard):
                     True,
                     self.tr("Checking for potential referenced data..."),
                 )
-                if self.update_referecedata_cache_model(
+                if self.update_referencedata_cache_model(
                     self._db_modelnames(self.import_data_configuration),
                     "referenceData",
                 ).rowCount():
@@ -784,7 +784,7 @@ class WorkflowWizard(QWizard):
 
         return topping_file_cache.model
 
-    def update_referecedata_cache_model(self, filter_models=None, type=None):
+    def update_referencedata_cache_model(self, filter_models=None, type=None):
         # updates the model and waits for the end
         loop = QEventLoop()
         self.ilireferencedatacache.model_refreshed.connect(lambda: loop.quit())
