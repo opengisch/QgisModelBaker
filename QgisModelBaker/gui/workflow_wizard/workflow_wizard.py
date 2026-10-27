@@ -648,7 +648,6 @@ class WorkflowWizard(QWizard):
 
             self.export_data_execution_page.setup_sessions(sessions)
         self.busy(self, False)
-        print("done")
 
     def _update_configurations(self, page):
         # update all configurations to have the same settings for all of them
