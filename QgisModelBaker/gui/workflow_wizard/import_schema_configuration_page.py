@@ -89,6 +89,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.ilimetaconfigcache = IliDataCache(
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
+        self.ilimetaconfigcache.new_message.connect(
+            self.workflow_wizard.log_panel.show_message
+        )
         self.ilimetaconfigcache.file_download_succeeded.connect(
             lambda dataset_id, path: self._on_metaconfig_received(path)
         )
@@ -149,6 +152,18 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self._update_crs_info()
         self._crs_changed()
         self._fill_toml_file_info_label()
+
+        # connect signal after settings changed on workflow wizard
+        try:
+            self.workflow_wizard.settings_changed.connect(
+                self._on_settings_changed, Qt.ConnectionType.UniqueConnection
+            )
+        except TypeError:
+            pass  # Connection already exists
+
+    def _on_settings_changed(self):
+        self._update_ilimetaconfigcache()
+        self._update_ilireferencedatacache()
 
     def update_configuration(self, configuration):
         # metaconfig settings
@@ -244,6 +259,9 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _update_ilimetaconfigcache(self):
         self._update_metaconfig_completer_busy(True)
+        self.ilimetaconfigcache.base_configuration = (
+            self.workflow_wizard.base_config
+        )
         self.ilimetaconfigcache.filter_models = (
             self.workflow_wizard.import_models_model.checked_models()
         )
@@ -260,11 +278,11 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
                 else None
             )
         )
-        self._refresh_ili_metaconfig_cache()
+        self.ilimetaconfigcache.refresh()
 
     def _update_ilireferencedatacache(self):
         self._linked_model_busy(True)
-        self.workflow_wizard.update_referecedata_cache_model(
+        self.workflow_wizard.update_referencedata_cache_model(
             self.workflow_wizard.import_models_model.checked_models(),
             "referenceData",
         )
@@ -320,12 +338,6 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         self.crsSelector.setDisabled(disable)
         self.crs_label.setDisabled(disable)
         self.ili2db_options_button.setDisabled(disable)
-
-    def _refresh_ili_metaconfig_cache(self):
-        self.ilimetaconfigcache.new_message.connect(
-            self.workflow_wizard.log_panel.show_message
-        )
-        self.ilimetaconfigcache.refresh()
 
     def _complete_metaconfig_completer(self):
         if not self.ili_metaconfig_line_edit.text():
@@ -689,7 +701,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
 
     def _download_ilifile(self, netloc, url, file):
         if url is None or url == "":
-            file_url = file
+            file_url = netloc
         elif os.path.isdir(url):
             file_url = os.path.join(url, file)
         else:

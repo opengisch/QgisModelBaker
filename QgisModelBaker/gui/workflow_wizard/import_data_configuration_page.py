@@ -216,6 +216,10 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             )
         )
 
+        self.workflow_wizard.ilireferencedatacache.model_refreshed.connect(
+            self._update_referencedata_completer
+        )
+
     def isComplete(self):
         return self.is_complete
 
@@ -267,7 +271,6 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
             gui_utils.SourceModel.Columns.DELETE_DATA,
             CheckDelegate(self, role=gui_utils.SourceModel.Roles.DELETE_DATA),
         )
-        self._update_referencedata_completer()
 
     def _set_basket_defaults(self):
         for row in range(self.workflow_wizard.source_model.rowCount()):

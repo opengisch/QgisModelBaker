@@ -77,12 +77,15 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
             self.workflow_wizard.import_schema_configuration.base_configuration
         )
         self.workflow_wizard.ilicache_basemodel = self.ilicache.model
+        self.ilicache.new_message.connect(
+            self.workflow_wizard.log_panel.show_message
+        )
+        self.ilicache.model_refreshed.connect(self.update_models_completer)
+
         self.model_delegate = ModelCompleterDelegate()
         self.input_line_edit.setPlaceholderText(
             self.tr("[Browse for file or search model from repositories]")
         )
-
-        # very unhappy about this behavior, but okay for prototype
         self.input_line_edit.textChanged.connect(
             self._complete_models_completer
         )
@@ -123,6 +126,16 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                 "Create a temporary GeoPackage without constraints to visualize the data quickly."
             )
         )
+        # connect signal after settings changed on workflow wizard - here it's no risk to connect already on init
+        try:
+            self.workflow_wizard.settings_changed.connect(
+                self._on_settings_changed, Qt.ConnectionType.UniqueConnection
+            )
+        except TypeError:
+            pass  # Connection already exists
+
+    def _on_settings_changed(self):
+        self._refresh_ili_models_cache()
 
     def nextId(self):
         return self.workflow_wizard.next_id()
@@ -131,19 +144,18 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         self._refresh_ili_models_cache()
 
     def _refresh_ili_models_cache(self):
-        self.ilicache.new_message.connect(
-            self.workflow_wizard.log_panel.show_message
-        )
+        self.workflow_wizard.busy(self, True)
+        self.ilicache.base_configuration = self.workflow_wizard.base_config
         self.ilicache.refresh()
-        self.update_models_completer()
 
     def _complete_models_completer(self):
         if self.input_line_edit.hasFocus():
             if not self.input_line_edit.text():
-                self.input_line_edit.completer().setCompletionMode(
-                    QCompleter.CompletionMode.UnfilteredPopupCompletion
-                )
-                self.input_line_edit.completer().complete()
+                if self.input_line_edit.completer():
+                    self.input_line_edit.completer().setCompletionMode(
+                        QCompleter.CompletionMode.UnfilteredPopupCompletion
+                    )
+                    self.input_line_edit.completer().complete()
             else:
                 match_contains = (
                     self.input_line_edit.completer()
@@ -163,7 +175,9 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
                         QCompleter.CompletionMode.PopupCompletion
                     )
                     self.input_line_edit.completer().complete()
-            self.input_line_edit.completer().popup().scrollToTop()
+
+            if self.input_line_edit.completer():
+                self.input_line_edit.completer().popup().scrollToTop()
 
     def _valid_source(self):
         match_contains = (
@@ -197,6 +211,7 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setItemDelegate(self.model_delegate)
         self.input_line_edit.setCompleter(completer)
+        self.workflow_wizard.busy(self, False)
 
     def _add_row(self):
         source = self.input_line_edit.text()

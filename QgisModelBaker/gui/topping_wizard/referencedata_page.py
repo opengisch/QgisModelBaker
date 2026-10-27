@@ -122,7 +122,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
         self.source_list_view.files_dropped.connect(self.append_dropped_files)
 
     def initializePage(self) -> None:
-        self.update_referecedata_cache_model(
+        self.update_referencedata_cache_model(
             self.topping_wizard.topping.models, "referenceData"
         )
         return super().initializePage()
@@ -149,7 +149,7 @@ class ReferencedataPage(QWizardPage, PAGE_UI):
             )
         return super().validatePage()
 
-    def update_referecedata_cache_model(self, filter_models, type):
+    def update_referencedata_cache_model(self, filter_models, type):
         # updates the model and waits for the end
         self.topping_wizard.busy(
             self,

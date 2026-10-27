@@ -81,8 +81,8 @@ class PgConfigPanel(DbConfigPanel, WIDGET_UI):
 
         self.pg_use_super_login.setText(
             self.tr(
-                "Execute data management tasks with superuser login from settings ({})"
-            ).format(self.base_config.super_pg_user)
+                "Execute data management tasks with superuser login from settings"
+            )
         )
 
         self.pg_use_super_login.setToolTip(

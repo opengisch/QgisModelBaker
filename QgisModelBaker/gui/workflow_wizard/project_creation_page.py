@@ -149,7 +149,19 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
 
         self.gpkg_multigeometry_frame.setVisible(self._multigeom_gpkg())
 
+        # connect signal after settings changed on workflow wizard
+        try:
+            self.workflow_wizard.settings_changed.connect(
+                self._on_settings_changed, Qt.ConnectionType.UniqueConnection
+            )
+        except TypeError:
+            pass  # Connection already exists
+
         self.workflow_wizard.busy(self, False)
+
+    def _on_settings_changed(self):
+        # we restore the whole configuration because the cache is nested into the other functionality
+        self.restore_configuration(self.configuration)
 
     def _use_existing(self, state):
         # triggered by checked state.
@@ -164,7 +176,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         else:
             self._clean_topping()
             self.ilitoppingcache = IliDataCache(
-                self.configuration.base_configuration,
+                self.workflow_wizard.base_config,
                 type="projecttopping",
                 models=";".join(self._modelnames()),
                 datasources=["pg"]
