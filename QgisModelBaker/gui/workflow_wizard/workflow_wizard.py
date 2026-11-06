@@ -30,7 +30,14 @@ from qgis.PyQt.QtCore import (
     pyqtSignal,
 )
 from qgis.PyQt.QtGui import QPixmap
-from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QSplitter,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+    QWizard,
+)
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
 from QgisModelBaker.gui.panel.log_panel import LogPanel
@@ -87,6 +94,94 @@ from QgisModelBaker.utils.gui_utils import (
     TransferExtensions,
 )
 
+BREADCRUMBS = {
+    PageIds.Intro: [],
+    PageIds.ImportSourceSelection: [PageIds.ImportDatabaseSelection],
+    PageIds.ImportDatabaseSelection: [],
+    PageIds.GenerateDatabaseSelection: [PageIds.ProjectCreation],
+    PageIds.ImportSchemaConfiguration: [PageIds.ImportSchemaExecution],
+    PageIds.ImportSchemaExecution: [PageIds.DefaultBaskets],
+    PageIds.DefaultBaskets: [],
+    PageIds.ImportDataConfiguration: [PageIds.ImportDataExecution],
+    PageIds.ImportDataExecution: [PageIds.ProjectCreation],
+    PageIds.ExportDatabaseSelection: [PageIds.ExportDataConfiguration],
+    PageIds.ExportDataConfiguration: [PageIds.ExportDataExecution],
+    PageIds.ExportDataExecution: [],
+    PageIds.ProjectCreation: [PageIds.TIDConfiguration],
+    PageIds.TIDConfiguration: [],
+}
+
+
+class SideWidget(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self._prefix = r"\> "
+        self._newline = "<br/><br/>"
+        self._breadcrumps = QTextEdit()
+        self._breadcrumps.setReadOnly(True)
+
+        side_layout = QVBoxLayout()
+        side_layout.addWidget(self._breadcrumps)
+        side_layout.setContentsMargins(0, 0, 0, 9)  # l, t, r, b
+        self.setLayout(side_layout)
+        self.setMinimumWidth(self.fontMetrics().lineSpacing() * 10)
+
+    def set_path(self, new_path: list):
+        print("set_path() called with path --> ", new_path)
+        if not new_path:
+            return
+
+        new_path = new_path.copy()
+
+        md = "<br/>"
+        current_page_id = new_path.pop()
+        for page_id in new_path:
+            md += self._prefix + self._page_text(page_id) + self._newline
+
+        # Special style for the current page
+        md += "**" + self._prefix + self._page_text(current_page_id) + "**"
+
+        # Now print next pages, when it makes sense
+        next_pages = BREADCRUMBS.get(current_page_id, [])
+        while next_pages:
+            next_page = next_pages[0]
+            md += self._newline + self._prefix + self._page_text(next_page)
+            next_pages = BREADCRUMBS.get(next_page, None)
+
+        self._breadcrumps.setMarkdown(md)
+
+    def _page_text(self, id: PageIds):
+        if id == PageIds.Intro:
+            return self.tr("Intro Page")
+        elif id == PageIds.ImportSourceSelection:
+            return self.tr("Source Selection")
+        elif id == PageIds.ImportDatabaseSelection:
+            return self.tr("DB Settings for Data or Schema Import")
+        elif id == PageIds.GenerateDatabaseSelection:
+            return self.tr("DB Settings for Project Creation")
+        elif id == PageIds.ImportSchemaConfiguration:
+            return self.tr("Schema Import Configuration")
+        elif id == PageIds.ImportSchemaExecution:
+            return self.tr("Schema Import Sessions")
+        elif id == PageIds.DefaultBaskets:
+            return self.tr("Create Baskets for Default Dataset")
+        elif id == PageIds.ImportDataConfiguration:
+            return self.tr("Data Import Configuration")
+        elif id == PageIds.ImportDataExecution:
+            return self.tr("Data Import Sessions")
+        elif id == PageIds.ExportDatabaseSelection:
+            return self.tr("DB Settings for Data Export")
+        elif id == PageIds.ExportDataConfiguration:
+            return self.tr("Data Export Configuration")
+        elif id == PageIds.ExportDataExecution:
+            return self.tr("Data Export Sessions")
+        elif id == PageIds.ProjectCreation:
+            return self.tr("Generate a QGIS Project")
+        elif id == PageIds.TIDConfiguration:
+            return self.tr("Configure OID Generation")
+        else:
+            return ""
+
 
 class WorkflowWizard(QWizard):
 
@@ -104,12 +199,13 @@ class WorkflowWizard(QWizard):
             | QWizard.WizardOption.HaveCustomButton2
         )
 
+        # current id to evaluate next step
+        self.current_id = 0
+        self._page_history = []  # Used for the breadcrumps in the side widget
+
         self.iface = iface
         self.log_panel = parent.log_panel
         self.wizard_dialog = parent
-
-        # current id to evaluate next step
-        self.current_id = 0
 
         # settings button
         self.setButtonText(
@@ -296,6 +392,9 @@ class WorkflowWizard(QWizard):
         self.source_selection_page.quick_visualize_button.clicked.connect(
             self.gather_files_and_leave_to_quick_visualizer
         )
+
+        self._side_widget = SideWidget()
+        self.setSideWidget(self._side_widget)
 
     def gather_files_and_leave_to_quick_visualizer(self):
         self.wizard_dialog.prefer_quickvisualizer(
@@ -502,7 +601,10 @@ class WorkflowWizard(QWizard):
 
     def id_changed(self, new_id):
         self.busy(self, True, self.tr("Loading page..."))
+        self._update_page_history(self.currentId())
         self.current_id = new_id
+
+        self._side_widget.set_path(self._page_history)
 
         self.log_panel.print_info(
             self.tr(
@@ -919,6 +1021,19 @@ class WorkflowWizard(QWizard):
             self.log_panel.scrollbar.setValue(
                 self.log_panel.scrollbar.maximum()
             )
+
+    def _update_page_history(self, page_id):
+        if self._page_history and page_id in self._page_history:
+            # When clicking on the Back button, the page_id is
+            # already the new page id, so, the history has
+            # at least a single page id after the new page id.
+            # Remove from page_id till the end of the list, but
+            # leave the new (i.e., current) page id in the list.
+            del self._page_history[
+                self._page_history.index(page_id) + 1 : len(self._page_history)
+            ]
+        else:
+            self._page_history.append(page_id)
 
 
 class WorkflowWizardDialog(QDialog):
