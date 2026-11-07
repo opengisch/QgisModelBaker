@@ -135,11 +135,11 @@ class SideWidget(QWidget):
         QWidget.__init__(self)
         self._prefix = r"\> "
         self._newline = "<br/><br/>"
-        self._breadcrumps = QTextEdit()
-        self._breadcrumps.setReadOnly(True)
+        self._breadcrumbs = QTextEdit()
+        self._breadcrumbs.setReadOnly(True)
 
         side_layout = QVBoxLayout()
-        side_layout.addWidget(self._breadcrumps)
+        side_layout.addWidget(self._breadcrumbs)
         side_layout.setContentsMargins(0, 0, 0, 9)  # l, t, r, b
         self.setLayout(side_layout)
         self.setMinimumWidth(self.fontMetrics().lineSpacing() * 10)
@@ -163,7 +163,7 @@ class SideWidget(QWidget):
             if page_id != new_path[-1]:
                 md += self._newline
 
-        self._breadcrumps.setMarkdown(md)
+        self._breadcrumbs.setMarkdown(md)
 
     def _page_text(self, id: PageIds):
         if id == PageIds.Intro:
@@ -216,7 +216,7 @@ class WorkflowWizard(QWizard):
 
         # current id to evaluate next step
         self.current_id = 0
-        self._page_history = []  # Used for the breadcrumps in the side widget
+        self._page_history = []  # Used for the breadcrumbs in the side widget
 
         self.iface = iface
         self.log_panel = parent.log_panel
@@ -408,9 +408,6 @@ class WorkflowWizard(QWizard):
             self.gather_files_and_leave_to_quick_visualizer
         )
 
-        self._side_widget = SideWidget()
-        self.setSideWidget(self._side_widget)
-
     def gather_files_and_leave_to_quick_visualizer(self):
         self.wizard_dialog.prefer_quickvisualizer(
             self.import_data_file_model.sources()
@@ -551,9 +548,14 @@ class WorkflowWizard(QWizard):
         self.busy(self, True, self.tr("Loading page..."))
         # Update the breadcrumbs in the side widget
         self._update_page_history(self.currentId())
-        self._side_widget.set_path(
-            self._get_full_page_navigation(), self.currentId()
-        )
+
+        if self.currentId() == PageIds.Intro:
+            self.setSideWidget(None)  # Hide side widget
+        else:
+            self.setSideWidget(SideWidget())
+            self.sideWidget().set_path(
+                self._get_full_page_navigation(), self.currentId()
+            )
 
         self.current_id = new_id
 
