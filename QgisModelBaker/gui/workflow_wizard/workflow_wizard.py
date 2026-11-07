@@ -95,14 +95,32 @@ from QgisModelBaker.utils.gui_utils import (
 )
 
 BREADCRUMBS = {
-    PageIds.Intro: [],
+    PageIds.Intro: [
+        PageIds.ImportSourceSelection,
+        PageIds.GenerateDatabaseSelection,
+        PageIds.ExportDatabaseSelection,
+    ],
     PageIds.ImportSourceSelection: [PageIds.ImportDatabaseSelection],
-    PageIds.ImportDatabaseSelection: [],
+    PageIds.ImportDatabaseSelection: [
+        PageIds.ImportSchemaConfiguration,
+        PageIds.ImportDataConfiguration,
+        PageIds.ProjectCreation,
+    ],
     PageIds.GenerateDatabaseSelection: [PageIds.ProjectCreation],
     PageIds.ImportSchemaConfiguration: [PageIds.ImportSchemaExecution],
-    PageIds.ImportSchemaExecution: [PageIds.DefaultBaskets],
-    PageIds.DefaultBaskets: [],
-    PageIds.ImportDataConfiguration: [PageIds.ImportDataExecution],
+    PageIds.ImportSchemaExecution: [
+        PageIds.DefaultBaskets,
+        PageIds.ImportDataConfiguration,
+        PageIds.ProjectCreation,
+    ],
+    PageIds.DefaultBaskets: [
+        PageIds.ImportDataConfiguration,
+        PageIds.ProjectCreation,
+    ],
+    PageIds.ImportDataConfiguration: [
+        PageIds.ImportDataExecution,
+        PageIds.ProjectCreation,
+    ],
     PageIds.ImportDataExecution: [PageIds.ProjectCreation],
     PageIds.ExportDatabaseSelection: [PageIds.ExportDataConfiguration],
     PageIds.ExportDataConfiguration: [PageIds.ExportDataExecution],
@@ -126,27 +144,24 @@ class SideWidget(QWidget):
         self.setLayout(side_layout)
         self.setMinimumWidth(self.fontMetrics().lineSpacing() * 10)
 
-    def set_path(self, new_path: list):
-        print("set_path() called with path --> ", new_path)
+    def set_path(self, new_path: list[PageIds], current_page_id: PageIds):
         if not new_path:
             return
 
-        new_path = new_path.copy()
-
         md = "<br/>"
-        current_page_id = new_path.pop()
         for page_id in new_path:
-            md += self._prefix + self._page_text(page_id) + self._newline
+            if page_id == current_page_id:
+                md += (
+                    "**"
+                    + self._prefix
+                    + self._page_text(current_page_id)
+                    + "**"
+                )
+            else:
+                md += self._prefix + self._page_text(page_id)
 
-        # Special style for the current page
-        md += "**" + self._prefix + self._page_text(current_page_id) + "**"
-
-        # Now print next pages, when it makes sense
-        next_pages = BREADCRUMBS.get(current_page_id, [])
-        while next_pages:
-            next_page = next_pages[0]
-            md += self._newline + self._prefix + self._page_text(next_page)
-            next_pages = BREADCRUMBS.get(next_page, None)
+            if page_id != new_path[-1]:
+                md += self._newline
 
         self._breadcrumps.setMarkdown(md)
 
@@ -505,88 +520,21 @@ class WorkflowWizard(QWizard):
                     self.busy(self.schema_configuration_page, False)
 
             if self.current_id == PageIds.ImportSchemaExecution:
-                # if basket handling active, go to the create basket
-                if self._basket_handling(self.import_schema_configuration):
-                    return PageIds.DefaultBaskets
-
-                # if transfer files available, then go to data import
-                if self.import_data_file_model.rowCount():
-                    return PageIds.ImportDataConfiguration
-
-                # if transfer file are possible (by getting via Repositories), go to the data import
-                self.log_panel.print_info(
-                    self.tr(
-                        "Checking for potential referenced data on the repositories (might take a while)..."
-                    )
+                next_page = self._get_next_page_hint(
+                    PageIds.ImportSchemaExecution, full_scan=True
                 )
-                self.busy(
-                    self.import_schema_execution_page,
-                    True,
-                    self.tr("Checking for potential referenced data..."),
-                )
-                self.import_schema_execution_page.setComplete(False)
-                if self.update_referencedata_cache_model(
-                    self._db_modelnames(self.import_data_configuration),
-                    "referenceData",
-                ).rowCount():
-                    self.log_panel.print_info(
-                        self.tr("Potential referenced data found.")
-                    )
-                    self.import_schema_execution_page.setComplete(True)
-                    self.busy(self.import_schema_execution_page, False)
-                    return PageIds.ImportDataConfiguration
-                self.import_schema_execution_page.setComplete(True)
-                self.busy(self.import_schema_execution_page, False)
-
-                # otherwise, go to project create
-                return PageIds.ProjectCreation
 
             if self.current_id == PageIds.DefaultBaskets:
-                # if transfer files available, then go to data import
-                if self.import_data_file_model.rowCount():
-                    return PageIds.ImportDataConfiguration
-
-                # if transfer file are possible (by getting via Repositories), go to the data import
-                self.log_panel.print_info(
-                    self.tr(
-                        "Checking for potential referenced data on the repositories (might take a while)..."
-                    )
+                next_page = self._get_next_page_hint(
+                    PageIds.DefaultBaskets, full_scan=True
                 )
-                self.default_baskets_page.setComplete(False)
-                self.busy(
-                    self.default_baskets_page,
-                    True,
-                    self.tr("Checking for potential referenced data..."),
-                )
-                if self.update_referencedata_cache_model(
-                    self._db_modelnames(self.import_data_configuration),
-                    "referenceData",
-                ).rowCount():
-                    self.log_panel.print_info(
-                        self.tr("Potential referenced data found.")
-                    )
-                    self.default_baskets_page.setComplete(True)
-                    self.busy(self.default_baskets_page, False)
-                    return PageIds.ImportDataConfiguration
-                self.default_baskets_page.setComplete(True)
-                self.busy(self.default_baskets_page, False)
-
-                # otherwise, go to project create
-                return PageIds.ProjectCreation
 
             if self.current_id == PageIds.ImportDataConfiguration:
-                if self.import_data_file_model.rowCount():
-                    self._update_configurations(self.data_configuration_page)
-                    return PageIds.ImportDataExecution
-                else:
-                    if self._db_or_schema_exists(
-                        self.import_schema_configuration
-                    ):
-                        return PageIds.ProjectCreation
-                    else:
-                        self.log_panel.print_info(
-                            self.tr("Database or schema not reachable.")
-                        )
+                next_page = self._get_next_page_hint(
+                    PageIds.ImportDataConfiguration, full_scan=True
+                )
+                if next_page:
+                    return next_page
 
             if self.current_id == PageIds.ImportDataExecution:
                 return PageIds.ProjectCreation
@@ -601,10 +549,13 @@ class WorkflowWizard(QWizard):
 
     def id_changed(self, new_id):
         self.busy(self, True, self.tr("Loading page..."))
+        # Update the breadcrumbs in the side widget
         self._update_page_history(self.currentId())
-        self.current_id = new_id
+        self._side_widget.set_path(
+            self._get_full_page_navigation(), self.currentId()
+        )
 
-        self._side_widget.set_path(self._page_history)
+        self.current_id = new_id
 
         self.log_panel.print_info(
             self.tr(
@@ -1034,6 +985,130 @@ class WorkflowWizard(QWizard):
             ]
         else:
             self._page_history.append(page_id)
+
+    def _get_full_page_navigation(self) -> list[PageIds]:
+        """
+        Based on the current page history, this method attempts
+        to build a whole roadmap depending on data provided by
+        the user in prior steps.
+        """
+        full_path = self._page_history.copy()
+
+        # Attempt to guess next pages, when it makes sense
+        next_pages = BREADCRUMBS.get(full_path[-1], [])
+        while next_pages:
+            if len(next_pages) == 1:
+                # Single next page case
+                next_page = next_pages[0]
+                full_path.append(next_page)
+                next_pages = BREADCRUMBS.get(next_page, [])
+            elif len(next_pages) > 1:
+                # Decision to make, do we have any hint?
+                hint = self._get_next_page_hint(full_path[-1])
+                if hint is None:
+                    next_pages = []
+                else:
+                    full_path.append(hint)
+                    next_pages = BREADCRUMBS.get(hint, [])
+
+        return full_path
+
+    def _get_next_page_hint(self, page_id, full_scan=False) -> PageIds | None:
+        """
+        Evaluate decisions made or data added by the user in
+        prior steps to get what page should be next, if any.
+
+        If full_scan is True, both log messages and long processes
+        are enabled. Otherwise, they are disabled to avoid noise and
+        performance penalties.
+        """
+
+        if page_id == PageIds.ImportSchemaExecution:
+            # if basket handling active, go to the create basket
+            if self._basket_handling(self.import_schema_configuration):
+                return PageIds.DefaultBaskets
+
+            # if transfer files available, then go to data import
+            if self.import_data_file_model.rowCount():
+                return PageIds.ImportDataConfiguration
+
+            if full_scan:
+                # if transfer file are possible (by getting via Repositories), go to the data import
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                self.busy(
+                    self.import_schema_execution_page,
+                    True,
+                    self.tr("Checking for potential referenced data..."),
+                )
+                self.import_schema_execution_page.setComplete(False)
+                if self.update_referencedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
+                    self.import_schema_execution_page.setComplete(True)
+                    self.busy(self.import_schema_execution_page, False)
+                    return PageIds.ImportDataConfiguration
+                self.import_schema_execution_page.setComplete(True)
+                self.busy(self.import_schema_execution_page, False)
+
+            # otherwise, go to project create
+            return PageIds.ProjectCreation
+
+        elif page_id == PageIds.DefaultBaskets:
+            # if transfer files available, then go to data import
+            if self.import_data_file_model.rowCount():
+                return PageIds.ImportDataConfiguration
+
+            if full_scan:
+                # if transfer file are possible (by getting via Repositories), go to the data import
+                self.log_panel.print_info(
+                    self.tr(
+                        "Checking for potential referenced data on the repositories (might take a while)..."
+                    )
+                )
+                self.default_baskets_page.setComplete(False)
+                self.busy(
+                    self.default_baskets_page,
+                    True,
+                    self.tr("Checking for potential referenced data..."),
+                )
+                if self.update_referencedata_cache_model(
+                    self._db_modelnames(self.import_data_configuration),
+                    "referenceData",
+                ).rowCount():
+                    self.log_panel.print_info(
+                        self.tr("Potential referenced data found.")
+                    )
+                    self.default_baskets_page.setComplete(True)
+                    self.busy(self.default_baskets_page, False)
+                    return PageIds.ImportDataConfiguration
+                self.default_baskets_page.setComplete(True)
+                self.busy(self.default_baskets_page, False)
+
+            # otherwise, go to project create
+            return PageIds.ProjectCreation
+
+        elif page_id == PageIds.ImportDataConfiguration:
+            if self.import_data_file_model.rowCount():
+                self._update_configurations(self.data_configuration_page)
+                return PageIds.ImportDataExecution
+            else:
+                if self._db_or_schema_exists(self.import_schema_configuration):
+                    return PageIds.ProjectCreation
+                else:
+                    if full_scan:
+                        self.log_panel.print_info(
+                            self.tr("Database or schema not reachable.")
+                        )
+
+        return None
 
 
 class WorkflowWizardDialog(QDialog):
