@@ -140,7 +140,7 @@ class SideWidget(QWidget):
 
         side_layout = QVBoxLayout()
         side_layout.addWidget(self._breadcrumbs)
-        side_layout.setContentsMargins(0, 0, 0, 9)  # l, t, r, b
+        side_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(side_layout)
         self.setMinimumWidth(self.fontMetrics().lineSpacing() * 10)
 
@@ -408,6 +408,8 @@ class WorkflowWizard(QWizard):
             self.gather_files_and_leave_to_quick_visualizer
         )
 
+        self.setSideWidget(SideWidget())
+
     def gather_files_and_leave_to_quick_visualizer(self):
         self.wizard_dialog.prefer_quickvisualizer(
             self.import_data_file_model.sources()
@@ -548,14 +550,9 @@ class WorkflowWizard(QWizard):
         self.busy(self, True, self.tr("Loading page..."))
         # Update the breadcrumbs in the side widget
         self._update_page_history(self.currentId())
-
-        if self.currentId() == PageIds.Intro:
-            self.setSideWidget(None)  # Hide side widget
-        else:
-            self.setSideWidget(SideWidget())
-            self.sideWidget().set_path(
-                self._get_full_page_navigation(), self.currentId()
-            )
+        self.sideWidget().set_path(
+            self._get_full_page_navigation(), self.currentId()
+        )
 
         self.current_id = new_id
 
