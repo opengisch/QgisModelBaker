@@ -973,6 +973,10 @@ class WorkflowWizard(QWizard):
             )
 
     def _update_page_history(self, page_id):
+        if page_id == -1:  # Cancel was pressed, reset navigation
+            self._page_history = []
+            return
+
         if self._page_history and page_id in self._page_history:
             # When clicking on the Back button, the page_id is
             # already the new page id, so, the history has
@@ -991,6 +995,9 @@ class WorkflowWizard(QWizard):
         to build a whole roadmap depending on data provided by
         the user in prior steps.
         """
+        if not self._page_history:
+            return []
+
         full_path = self._page_history.copy()
 
         # Attempt to guess next pages, when it makes sense
