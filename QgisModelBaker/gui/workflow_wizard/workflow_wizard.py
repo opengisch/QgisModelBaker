@@ -133,8 +133,9 @@ BREADCRUMBS = {
 class SideWidget(QWidget):
     def __init__(self):
         QWidget.__init__(self)
-        self._prefix = r"\> "
-        self._newline = "<br/><br/>"
+        self._prefix = "├─ "
+        self._end_prefix = "└─ "
+        self._newline = "<br/>│<br/>"
         self._breadcrumbs = QTextEdit()
         self._breadcrumbs.setReadOnly(True)
 
@@ -150,18 +151,28 @@ class SideWidget(QWidget):
 
         md = "<br/>"
         for page_id in new_path:
+            more_pages = len(BREADCRUMBS.get(page_id, [])) > 1
+            if page_id == new_path[-1] and not more_pages:
+                current_prefix = self._end_prefix
+            else:
+                current_prefix = self._prefix
+
             if page_id == current_page_id:
                 md += (
-                    "**"
-                    + self._prefix
+                    current_prefix
+                    + "**"
                     + self._page_text(current_page_id)
                     + "**"
                 )
             else:
-                md += self._prefix + self._page_text(page_id)
+                md += current_prefix + self._page_text(page_id)
 
             if page_id != new_path[-1]:
                 md += self._newline
+            else:
+                if more_pages:
+                    # Multiple options that depend on a decision
+                    md += self._newline + self._end_prefix + "…"
 
         self._breadcrumbs.setMarkdown(md)
 
