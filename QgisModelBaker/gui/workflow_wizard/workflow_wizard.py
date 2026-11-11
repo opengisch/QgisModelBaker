@@ -95,6 +95,13 @@ from QgisModelBaker.utils.gui_utils import (
     TransferExtensions,
 )
 
+# The dict below is a static navigation precedence for the wizard.
+# All pages should be mapped here. Each page can have zero, one,
+# or several related next pages.
+#
+# WARNING: If you alter the dict below, make sure to also
+# reflect changes either in the Wizard._get_next_page_hint()
+# or in the Wizard.next_id() methods!
 BREADCRUMBS = {
     PageIds.Intro: [
         PageIds.ImportSourceSelection,
@@ -410,6 +417,9 @@ class WorkflowWizard(QWizard):
         """
         This is called on the nextId overrides of the pages - so after the next-button is pressed.
         It finalizes the edits on the current page and returns the evaluated id of the next page.
+
+        WARNING: If you alter this method, make sure to also reflect
+        changes in the BREADCRUMBS dictionary!
         """
 
         # This function is called multiple times. As well it's called on pressing "Back". It's not really clear why. That's why it checks if the current page is the one the last current_id has been stored for, to be sure it only proceeds on pressing "Next".
@@ -507,11 +517,15 @@ class WorkflowWizard(QWizard):
                 next_page = self._get_next_page_hint(
                     PageIds.ImportSchemaExecution, full_scan=True
                 )
+                if next_page:
+                    return next_page
 
             if self.current_id == PageIds.DefaultBaskets:
                 next_page = self._get_next_page_hint(
                     PageIds.DefaultBaskets, full_scan=True
                 )
+                if next_page:
+                    return next_page
 
             if self.current_id == PageIds.ImportDataConfiguration:
                 next_page = self._get_next_page_hint(
@@ -1012,6 +1026,16 @@ class WorkflowWizard(QWizard):
         If full_scan is True, both log messages and long processes
         are enabled. Otherwise, they are disabled to avoid noise and
         performance penalties.
+
+        NOTE: Logic for getting next pages lives either here or in
+        next_id(). As a rule of thumbs, test if it makes sense to
+        get a hint for a given page, in order to move its logic here.
+        For instance, for page 3 it's too early to get a hint, since
+        there's not enough information, so its logic is in next_id()
+        instead, and won't be called for breadcrumbs.
+
+        WARNING: If you alter this method, make sure to also reflect
+        changes in the BREADCRUMBS dictionary!
         """
 
         if page_id == PageIds.ImportSchemaExecution:
