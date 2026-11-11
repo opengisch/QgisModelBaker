@@ -60,6 +60,7 @@ class LogPanel(QWidget):
         self.busy_bar.setVisible(False)
 
         layout = QGridLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.txtStdout)
         layout.addWidget(self.busy_bar)
 

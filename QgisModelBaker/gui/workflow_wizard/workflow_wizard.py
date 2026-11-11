@@ -32,6 +32,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtWidgets import (
     QDialog,
+    QHBoxLayout,
     QSplitter,
     QTextEdit,
     QVBoxLayout,
@@ -133,7 +134,7 @@ BREADCRUMBS = {
 class SideWidget(QWidget):
     def __init__(self, parent: QWidget):
         QWidget.__init__(self, parent)
-        self._parent = parent
+        self._wizard = parent.workflow_wizard
         self._prefix = "├─ "
         self._end_prefix = "└─ "
         self._newline = "<br/>│<br/>"
@@ -144,7 +145,12 @@ class SideWidget(QWidget):
         side_layout.addWidget(self._breadcrumbs)
         side_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(side_layout)
-        self.setMinimumWidth(self.fontMetrics().lineSpacing() * 10)
+
+    def sizeHint(self):
+        return QSize(
+            self.fontMetrics().lineSpacing() * 10,
+            self.fontMetrics().lineSpacing() * 48,
+        )
 
     def set_path(self, new_path: list[PageIds], current_page_id: PageIds):
         if not new_path:
@@ -162,11 +168,11 @@ class SideWidget(QWidget):
                 md += (
                     current_prefix
                     + "**"
-                    + self._parent.current_page_title(current_page_id)
+                    + self._wizard.current_page_title(current_page_id)
                     + "**"
                 )
             else:
-                md += current_prefix + self._parent.current_page_title(page_id)
+                md += current_prefix + self._wizard.current_page_title(page_id)
 
             if page_id != new_path[-1]:
                 md += self._newline
@@ -181,6 +187,7 @@ class SideWidget(QWidget):
 class WorkflowWizard(QWizard):
 
     settings_changed = pyqtSignal()
+    navigation_updated = pyqtSignal(list, int)
 
     def __init__(self, iface, base_config, parent):
         QWizard.__init__(self, parent)
@@ -388,8 +395,6 @@ class WorkflowWizard(QWizard):
             self.gather_files_and_leave_to_quick_visualizer
         )
 
-        self.setSideWidget(SideWidget(self))
-
     def gather_files_and_leave_to_quick_visualizer(self):
         self.wizard_dialog.prefer_quickvisualizer(
             self.import_data_file_model.sources()
@@ -530,7 +535,7 @@ class WorkflowWizard(QWizard):
         self.busy(self, True, self.tr("Loading page..."))
         # Update the breadcrumbs in the side widget
         self._update_page_history(self.currentId())
-        self.sideWidget().set_path(
+        self.navigation_updated.emit(
             self._get_full_page_navigation(), self.currentId()
         )
 
@@ -1110,6 +1115,12 @@ class WorkflowWizardDialog(QDialog):
         self.workflow_wizard = WorkflowWizard(
             self.iface, self.base_config, self
         )
+
+        self.side_widget = SideWidget(self)
+        self.workflow_wizard.navigation_updated.connect(
+            self.side_widget.set_path
+        )
+
         self.workflow_wizard.setStartId(PageIds.Intro)
         self.workflow_wizard.setWindowFlags(Qt.WindowType.Widget)
         self.workflow_wizard.show()
@@ -1117,12 +1128,20 @@ class WorkflowWizardDialog(QDialog):
 
         self.dropped_files = []
 
-        layout = QVBoxLayout()
-        splitter = QSplitter(Qt.Orientation.Vertical)
-        splitter.addWidget(self.workflow_wizard)
-        splitter.addWidget(self.log_panel)
-        layout.addWidget(splitter)
-        self.setLayout(layout)
+        vertical_layout = QVBoxLayout()
+        vertical_splitter = QSplitter(Qt.Orientation.Vertical)
+        vertical_splitter.addWidget(self.workflow_wizard)
+        vertical_splitter.addWidget(self.log_panel)
+        vertical_splitter.setHandleWidth(9)
+        vertical_layout.addWidget(vertical_splitter)
+
+        horizontal_layout = QHBoxLayout()
+        horizontal_splitter = QSplitter(Qt.Orientation.Horizontal)
+        horizontal_splitter.addWidget(self.side_widget)
+        horizontal_splitter.addWidget(vertical_splitter)
+        horizontal_layout.addWidget(horizontal_splitter)
+        horizontal_splitter.setHandleWidth(9)
+        self.setLayout(horizontal_layout)
 
     def append_dropped_files(self, dropped_files, dropped_ini_files):
         """
