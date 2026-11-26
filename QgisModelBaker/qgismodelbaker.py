@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import configparser
 import datetime
 import locale
@@ -562,11 +563,13 @@ class QgisModelBakerPlugin(QObject):
         settings = QSettings()
         settings.setValue(
             "QgisModelBaker/validate_dock/area",
-            self.iface.mainWindow().dockWidgetArea(self.__validate_dock)
-            if QT_VERSION_STR < "6.0.0"
-            else self.iface.mainWindow()
-            .dockWidgetArea(self.__validate_dock)
-            .value,
+            (
+                self.iface.mainWindow().dockWidgetArea(self.__validate_dock)
+                if QT_VERSION_STR < "6.0.0"
+                else self.iface.mainWindow()
+                .dockWidgetArea(self.__validate_dock)
+                .value
+            ),
         )
         settings.setValue(
             "QgisModelBaker/validate_dock/isVisible",
