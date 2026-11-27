@@ -925,8 +925,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "Now the given models are detected. You may not need all of 'em..."
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <p align="justify">There are several ways the Model Baker wizard detects INTERLIS models:
         <ul>
         <li>Read from the selected local ini file.</li>
@@ -939,8 +938,7 @@ class ImportSchemaConfigurationPage(QWizardPage, PAGE_UI):
         <p align="justify">As well you can select a <b>Metaconfiguration</b> file from the repositories to load ili2db settings and styling properties into QGIS project.<br />
         More information about those metaconfigurations in the <a href="https://opengisch.github.io/QgisModelBaker/background_info/usabilityhub/modelbaker_integration/">documentation</a>.</p>
         <p align="justify">The <b>Advanced Options</b> allow you to edit the most important <b>ili2db settings</b></p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#3-import-of-interlis-model">documentation</a>...'
         )

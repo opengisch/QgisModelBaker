@@ -495,8 +495,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "Now you can see all the datafiles to import into your database..."
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <h4>The list</h4>
         <p align="justify">Those are the datafiles you've chosen for import or were detected automatically. If one shouldn't be there, you can remove it with <code><b>-</b></code>.</p>
         <p align="justify">Maybe you want to add <b>referenced data</b> file from the repositories (ilidata.xml).</p>
@@ -505,8 +504,7 @@ class ImportDataConfigurationPage(QWizardPage, PAGE_UI):
         <p align="justify">If you choose to delete, the existing data will be deleted before the new data is imported.<br />Usually this makes no difference when using baskets, as an update will also replace the data.</p>
         <h4>Dataset</h4>
         <p align="justify">Choose the dataset. If you need another, then create a new one via the <b>Dataset manager</b>.</p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about this page in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#6-import-of-interlis-data">documentation</a> and about baskets and datasets in general <a href="https://opengisch.github.io/QgisModelBaker/background_info/basket_handling/">here</a> ...'
         )

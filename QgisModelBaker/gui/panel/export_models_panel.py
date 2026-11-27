@@ -67,16 +67,14 @@ class ExportModelsPanel(QWidget, WIDGET_UI):
             ).format(verb="Validate" if validation else "Export")
         )
         self.export_models_checkbox.setToolTip(
-            self.tr(
-                """
+            self.tr("""
             <html><head/><body>
             <p>If your data is in the format of the cantonal model, but you want to {verb} it in the format of the national model.</p>
             <p>The data that cannot be {pastverb} in the selected model is {pastverb} in the model it is stored.</p>
             <p>Usually, this is one single model. However, it is also possible to pass multiple models, which makes sense if there are multiple base models in the schema you want to {verb}.</p>
             <p>This is the value passed to <span style=" font-family:'monospace';">--exportModels</span></p>
             </body></html>
-            """
-            ).format(
+            """).format(
                 verb="validate" if validation else "export",
                 pastverb="validated" if validation else "exported",
             )
