@@ -15,6 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import logging
 
 from QgisModelBaker.libs.modelbaker.utils.globals import DbActionType

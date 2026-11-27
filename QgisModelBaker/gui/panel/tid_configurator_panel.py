@@ -17,7 +17,6 @@
  ***************************************************************************/
 """
 
-
 from qgis.PyQt.QtWidgets import QWidget
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils

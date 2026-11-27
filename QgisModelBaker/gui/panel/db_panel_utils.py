@@ -27,6 +27,7 @@ try:
 except ModuleNotFoundError:
     pass
 
+
 # Get panel depending on DB
 def get_config_panel(
     tool, parent, db_action_type: DbActionType

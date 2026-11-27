@@ -15,6 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import pathlib
 
 from qgis.testing import start_app, unittest

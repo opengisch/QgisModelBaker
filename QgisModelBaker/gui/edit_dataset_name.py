@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from enum import Enum
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox

@@ -97,9 +97,7 @@ SUCCESS_STYLE = """
         border-radius: 5px;
         text-align: center;
     }}
-    """.format(
-    SUCCESS_PROGRESSBAR_BG_COLOR
-)
+    """.format(SUCCESS_PROGRESSBAR_BG_COLOR)
 
 ERROR_COLOR = RED
 
@@ -110,9 +108,7 @@ ERROR_STYLE = """
         border-radius: 5px;
         text-align: center;
     }}
-    """.format(
-    ERROR_COLOR
-)
+    """.format(ERROR_COLOR)
 
 DEFAULT_PROGRESSBAR_BG_COLOR = (
     "#d7801a" if QgsApplication.themeName() == "Night Mapping" else BLUE
@@ -124,9 +120,7 @@ DEFAULT_STYLE = """
         border-radius: 5px;
         text-align: center;
     }}
-    """.format(
-    DEFAULT_PROGRESSBAR_BG_COLOR
-)
+    """.format(DEFAULT_PROGRESSBAR_BG_COLOR)
 
 INACTIVE_STYLE = """
     QProgressBar {border: 2px solid grey;border-radius: 5px;}
@@ -385,9 +379,12 @@ class SourceModel(QStandardItemModel):
                 if index.column() == SourceModel.Columns.SOURCE:
                     return "{}{}".format(
                         item.data(int(Qt.ItemDataRole.DisplayRole)),
-                        f" ({item.data(int(SourceModel.Roles.PATH))})"
-                        if item.data(int(SourceModel.Roles.TYPE)) != "model"
-                        else "",
+                        (
+                            f" ({item.data(int(SourceModel.Roles.PATH))})"
+                            if item.data(int(SourceModel.Roles.TYPE))
+                            != "model"
+                            else ""
+                        ),
                     )
                 if index.column() == SourceModel.Columns.DATASET:
                     if self.index(
@@ -558,22 +555,26 @@ class ImportModelsModel(SourceModel):
                     filtered_source_model_index.data(
                         int(SourceModel.Roles.ORIGIN_INFO)
                     ),
-                    previously_checked_models.get(
-                        modelname, Qt.CheckState.Checked
-                    )
-                    if enabled
-                    and self._LV95_equivalent_name(modelname)
-                    not in self.checked_models()
-                    else Qt.CheckState.Unchecked,
+                    (
+                        previously_checked_models.get(
+                            modelname, Qt.CheckState.Checked
+                        )
+                        if enabled
+                        and self._LV95_equivalent_name(modelname)
+                        not in self.checked_models()
+                        else Qt.CheckState.Unchecked
+                    ),
                     enabled,
                 )
                 if not silent:
                     self.print_info.emit(
                         self.tr("- Append (repository) model {}{}").format(
                             modelname,
-                            " (inactive because it already exists in the database)"
-                            if not enabled
-                            else "",
+                            (
+                                " (inactive because it already exists in the database)"
+                                if not enabled
+                                else ""
+                            ),
                         )
                     )
 
@@ -604,12 +605,14 @@ class ImportModelsModel(SourceModel):
                         ),
                         previously_checked_models.get(
                             model["name"],
-                            Qt.CheckState.Checked
-                            if model is models[-1]
-                            and enabled
-                            and self._LV95_equivalent_name(model["name"])
-                            not in self.checked_models()
-                            else Qt.CheckState.Unchecked,
+                            (
+                                Qt.CheckState.Checked
+                                if model is models[-1]
+                                and enabled
+                                and self._LV95_equivalent_name(model["name"])
+                                not in self.checked_models()
+                                else Qt.CheckState.Unchecked
+                            ),
                         ),
                         enabled,
                     )
@@ -619,9 +622,11 @@ class ImportModelsModel(SourceModel):
                                 "- Append (file) model {}{} from {}"
                             ).format(
                                 model["name"],
-                                " (inactive because it already exists in the database)"
-                                if not enabled
-                                else "",
+                                (
+                                    " (inactive because it already exists in the database)"
+                                    if not enabled
+                                    else ""
+                                ),
                                 ili_file_path,
                             )
                         )
@@ -657,11 +662,13 @@ class ImportModelsModel(SourceModel):
                         ),
                         previously_checked_models.get(
                             model["name"],
-                            Qt.CheckState.Checked
-                            if enabled
-                            and self._LV95_equivalent_name(model["name"])
-                            not in self.checked_models()
-                            else Qt.CheckState.Unchecked,
+                            (
+                                Qt.CheckState.Checked
+                                if enabled
+                                and self._LV95_equivalent_name(model["name"])
+                                not in self.checked_models()
+                                else Qt.CheckState.Unchecked
+                            ),
                         ),
                         enabled,
                     )
@@ -671,9 +678,11 @@ class ImportModelsModel(SourceModel):
                                 "- Append (xtf file) model {}{} from {}"
                             ).format(
                                 model["name"],
-                                " (inactive because it already exists in the database)"
-                                if not enabled
-                                else "",
+                                (
+                                    " (inactive because it already exists in the database)"
+                                    if not enabled
+                                    else ""
+                                ),
                                 data_file_path,
                             )
                         )
@@ -838,9 +847,11 @@ class ImportModelsModel(SourceModel):
     def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
             return "<p><b>{}{}</b><br/><span style='color:gray;'>{}</span></p>".format(
-                ""
-                if index.flags() & Qt.ItemFlag.ItemIsEnabled
-                else self.tr("Already in the database: "),
+                (
+                    ""
+                    if index.flags() & Qt.ItemFlag.ItemIsEnabled
+                    else self.tr("Already in the database: ")
+                ),
                 self.data(index, int(SourceModel.Roles.NAME)),
                 self._title_text(
                     self.data(index, int(SourceModel.Roles.INFO))
@@ -1148,13 +1159,11 @@ class SchemaModelsModel(CheckEntriesModel):
         if role == Qt.ItemDataRole.ToolTipRole:
             model_name = self.data(index, Qt.ItemDataRole.DisplayRole)
             if self._parent_models[model_name]:
-                return self.tr(
-                    """
+                return self.tr("""
                     <html><head/><body>
                     <p><b>{}</b> is an extension of <b>{}</b></p>
                     </body></html>
-                    """
-                ).format(
+                    """).format(
                     model_name, ", ".join(self._parent_models[model_name])
                 )
         if role == int(SchemaModelsModel.Roles.PARENT_MODELS):

@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import webbrowser
 
 from qgis.PyQt.QtCore import QLocale, QSettings, Qt

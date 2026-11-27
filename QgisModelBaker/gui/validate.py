@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import logging
 import os
 
@@ -340,9 +341,9 @@ class ValidateDock(QDockWidget, DIALOG_UI):
                         ].result_model.valid
                     )
             else:
-                self.schema_validations[
-                    self.current_schema_identificator
-                ] = ValidateDock.SchemaValidation()
+                self.schema_validations[self.current_schema_identificator] = (
+                    ValidateDock.SchemaValidation()
+                )
 
             self._refresh_schemadata_models()
             self.current_models_model = self.schema_validations[
@@ -594,9 +595,11 @@ class ValidateDock(QDockWidget, DIALOG_UI):
             menu.addAction(action_select_feature)
         if id:
             action_fix = QAction(
-                self.tr("Mark as unfixed")
-                if index.data(int(ValidationResultModel.Roles.FIXED))
-                else self.tr("Mark as fixed"),
+                (
+                    self.tr("Mark as unfixed")
+                    if index.data(int(ValidationResultModel.Roles.FIXED))
+                    else self.tr("Mark as fixed")
+                ),
                 self,
             )
             action_fix.triggered.connect(

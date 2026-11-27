@@ -98,7 +98,6 @@ class QuickVisualizer(QObject):
         self.log(f"Push to message bar: {message}", level)
 
     def handle_dropped_files(self, dropped_files):
-
         """
         Main function receiving the files and trigger import to single GeoPackages.
         After that it generates the layer via modelbaker generator.
@@ -195,9 +194,11 @@ class QuickVisualizer(QObject):
                 len(suc_files), len(failed_files)
             ),
             False,
-            Qgis.MessageLevel.Warning
-            if len(failed_files) > 0
-            else Qgis.MessageLevel.Success,
+            (
+                Qgis.MessageLevel.Warning
+                if len(failed_files) > 0
+                else Qgis.MessageLevel.Success
+            ),
             15,
             bool(len(failed_files)),
         )

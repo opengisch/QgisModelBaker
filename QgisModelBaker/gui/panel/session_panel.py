@@ -161,15 +161,11 @@ class SessionPanel(QWidget, WIDGET_UI):
             if os.path.isfile(self.file):
                 self.configuration.ilifile = self.file
             self.configuration.ilimodels = ";".join(self.models)
-            self.info_label.setText(
-                self.tr(
-                    """
+            self.info_label.setText(self.tr("""
                     <html><head/><body>
                     <p>Import <b>{models}</b></p>
                     </body></html>
-                    """
-                ).format(models=", ".join(self.models))
-            )
+                    """).format(models=", ".join(self.models)))
         elif self.db_action_type == DbActionType.IMPORT_DATA:
             self.configuration.xtffile = self.file
             self.configuration.ilimodels = ";".join(self.models)
@@ -177,33 +173,33 @@ class SessionPanel(QWidget, WIDGET_UI):
             if self.datasets:
 
                 self.info_label.setText(
-                    self.tr(
-                        """
+                    self.tr("""
                         <html><head/><body>
                         <p>{update_word} the data in dataset <b>{dataset}</b></p>
                         <p>with the data from <i>{file}</i></p>
                         </body></html>
-                        """
-                    ).format(
-                        update_word=self.tr("Update")
-                        if not self.delete_data
-                        else self.tr("Replace"),
+                        """).format(
+                        update_word=(
+                            self.tr("Update")
+                            if not self.delete_data
+                            else self.tr("Replace")
+                        ),
                         dataset=self.datasets[0],
                         file=self.file,
                     )
                 )
             else:
                 self.info_label.setText(
-                    self.tr(
-                        """
+                    self.tr("""
                         <html><head/><body>
                         <p>{import_word} the data from <i>{file}</i></p>
                         </body></html>
-                        """
-                    ).format(
-                        import_word=self.tr("Import")
-                        if not self.delete_data
-                        else self.tr("Delete existing data and import"),
+                        """).format(
+                        import_word=(
+                            self.tr("Import")
+                            if not self.delete_data
+                            else self.tr("Delete existing data and import")
+                        ),
                         file=self.file,
                     )
                 )
@@ -217,23 +213,23 @@ class SessionPanel(QWidget, WIDGET_UI):
             self.configuration.with_exporttid = self._get_tid_handling()
             self.configuration.iliexportmodels = ";".join(self.export_models)
             self.info_label.setText(
-                self.tr(
-                    """
+                self.tr("""
                     <html><head/><body>
                     <p>Export the data of <b>{filtered_data}</b></p>
                     {export_model_part}
                     <p>to file <i>{file}</i></p>
                     </body></html>
-                    """
-                ).format(
+                    """).format(
                     filtered_data=", ".join(self.models)
                     or ", ".join(self.datasets)
                     or ", ".join(self.baskets),
-                    export_model_part=self.tr(
-                        "<p>in the format of <b>{export_models}</b></p>"
-                    ).format(export_models=", ".join(self.export_models))
-                    if self.export_models
-                    else "",
+                    export_model_part=(
+                        self.tr(
+                            "<p>in the format of <b>{export_models}</b></p>"
+                        ).format(export_models=", ".join(self.export_models))
+                        if self.export_models
+                        else ""
+                    ),
                     file=self.file,
                 )
             )

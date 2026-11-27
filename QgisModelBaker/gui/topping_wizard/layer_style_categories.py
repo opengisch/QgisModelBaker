@@ -147,9 +147,11 @@ class LayerStyleCategoriesDialog(QDialog, DIALOG_UI):
             for i in range(self.model.rowCount()):
                 self.model.setData(
                     self.model.index(i, 0),
-                    Qt.CheckState.Checked
-                    if state
-                    else Qt.CheckState.Unchecked,
+                    (
+                        Qt.CheckState.Checked
+                        if state
+                        else Qt.CheckState.Unchecked
+                    ),
                     Qt.ItemDataRole.CheckStateRole,
                 )
 

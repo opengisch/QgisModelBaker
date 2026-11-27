@@ -88,7 +88,8 @@ class InheritanceLoader(yaml.Loader):
     def data_merge(cls, a, b):
         """merges b into a and return merged result
 
-        NOTE: tuples and arbitrary objects are not handled as it is totally ambiguous what should happen"""
+        NOTE: tuples and arbitrary objects are not handled as it is totally ambiguous what should happen
+        """
         key = None
         # ## debug output
         # sys.stderr.write("DEBUG: %s to %s\n" %(b,a))
