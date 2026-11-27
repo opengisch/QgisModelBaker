@@ -2,7 +2,7 @@
 repos:
   # Fix end of files
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -23,7 +23,7 @@ repos:
 
   # Sort imports
   - repo: https://github.com/pycqa/isort
-    rev: "5.11.5"
+    rev: 9.0.2
     hooks:
       - id: isort
         args:
@@ -33,7 +33,7 @@ repos:
 
   # Black formatting
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 26.10.1
     hooks:
       - id: black
         args:
@@ -41,6 +41,6 @@ repos:
 
   # Automatically upgrade syntax for newer versions
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.22.0
     hooks:
       - id: pyupgrade
