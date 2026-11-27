@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import logging
 import os
 import pathlib
@@ -891,12 +892,10 @@ class WorkflowWizard(QWizard):
         """.format(
             help_paragraphs=help_paragraphs,
             docutext=docutext,
-            docu_and_community_paragraphs=self.tr(
-                """
+            docu_and_community_paragraphs=self.tr("""
             <p align="justify">{docutext}</p>
             <p align="justify">...or get community help at {forum} or at {github}</p>
-            """
-            ).format(
+            """).format(
                 docutext=docutext,
                 forum='<a href="https://interlis.discourse.group/c/interlis-werkzeuge/qgis-model-baker">Model Baker @ INTERLIS Forum</a>',
                 github='<a href="https://github.com/opengisch/QgisModelBaker/issues">GitHub</a>',

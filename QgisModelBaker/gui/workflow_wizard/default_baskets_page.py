@@ -16,7 +16,6 @@
  ***************************************************************************/
 """
 
-
 from qgis.PyQt.QtWidgets import QWizardPage
 
 import QgisModelBaker.libs.modelbaker.utils.db_utils as db_utils
@@ -118,13 +117,11 @@ class DefaultBasketsPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "Honestly, I don't know if you want to create the baskets or skip this step.<br />See below..."
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <p align="justify">If you plan to <b>import data later</b> (from <code>xtf</code> or <code>xml</code>), the necessary baskets will be created on import anyway.</p>
         <p align="justify">However, if you have no data to import and want to <b>collect the data fresh</b>, you may need to create the baskets.</p>
         <p align="justify">The checked baskets are those that Model Baker has identified as <i>relevant</i> according to the recognised <a href="https://opengisch.github.io/QgisModelBaker/background_info/extended_models_optimization/#basket-handling">inheritance</a>.</p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about this in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#5-create-baskets">documentation</a> and about baskets and datasets in general <a href="https://opengisch.github.io/QgisModelBaker/background_info/basket_handling/">here</a>...'
         )

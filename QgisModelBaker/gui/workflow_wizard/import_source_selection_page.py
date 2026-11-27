@@ -17,7 +17,6 @@
  ***************************************************************************/
 """
 
-
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QValidator
@@ -269,12 +268,10 @@ class ImportSourceSelectionPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "Here you need to add the models and/or files you want to use..."
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <p align="justify">You can select a model from the <b>repository</b> and add it with the <code><b>+</b></code>.</p>
         <p align="justify">You can add <b>local files</b> (<code>ili</code>, <code>xtf</code>, <code>xml</code>, <code>toml</code> etc.) via the file browser or with <b>drag and drop</b>.</p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about the <b>source selection</b> in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#1-source-selection">documentation</a>...'
         )

@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from qgis.gui import QgsGui
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 

@@ -179,17 +179,21 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.workflow_wizard.base_config,
                 type="projecttopping",
                 models=";".join(self._modelnames()),
-                datasources=["pg"]
-                if (
-                    self.workflow_wizard.import_schema_configuration.tool
-                    & DbIliMode.pg
-                )
-                else ["gpkg"]
-                if (
-                    self.workflow_wizard.import_schema_configuration.tool
-                    & DbIliMode.gpkg
-                )
-                else None,
+                datasources=(
+                    ["pg"]
+                    if (
+                        self.workflow_wizard.import_schema_configuration.tool
+                        & DbIliMode.pg
+                    )
+                    else (
+                        ["gpkg"]
+                        if (
+                            self.workflow_wizard.import_schema_configuration.tool
+                            & DbIliMode.gpkg
+                        )
+                        else None
+                    )
+                ),
             )
             self.ilitoppingcache.new_message.connect(
                 self.workflow_wizard.log_panel.show_message
@@ -246,9 +250,7 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                 self.tr("Group unused base class layers"),
                 OptimizeStrategy.GROUP,
             )
-            self.optimize_combo.setToolTip(
-                self.tr(
-                    """
+            self.optimize_combo.setToolTip(self.tr("""
                 <html><head/><body>
                     <p><b>Hide unused base class layers:</b></p>
                     <p>- Base class layers with same named extensions will be <i>hidden</i> and and base class layers with multiple extensions as well. Except if the extension is in the same model, then it's will <i>not</i> be <i>hidden</i> but <i>renamed</i>.</p>
@@ -257,23 +259,17 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                     <p>- Base class layers with same named extensions will be <i>collected in a group</i> and base class layers with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>grouped</i> but <i>renamed</i>.</p>
                     <p>- Relations of grouped layers will be <i>created</i> but the widgets <i>not applied</i> to the form.</p>
                 </body></html>
-            """
-                )
-            )
+            """))
         else:
             self.optimize_combo.addItem(
                 self.tr("Hide unused base class types"), OptimizeStrategy.HIDE
             )
-            self.optimize_combo.setToolTip(
-                self.tr(
-                    """
+            self.optimize_combo.setToolTip(self.tr("""
                 <html><head/><body>
                     <p><b>Hide unused base class types:</b></p>
                     <p>- Base class tables with same named extensions will be <i>hidden</i> in the <code>t_type</code> dropdown and and base class tables with multiple extensions as well. Except if the extension is in the same model, then it will <i>not</i> be <i>hidden</i>.</p>
                 </body></html>
-            """
-                )
-            )
+            """))
         self.optimize_combo.addItem(
             self.tr("No optimization"), OptimizeStrategy.NONE
         )
@@ -590,12 +586,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                                 layertree_structure=projecttopping_data[
                                     layertree_key
                                 ],
-                                path_resolver=lambda path: self.ilidata_path_resolver(
-                                    os.path.dirname(projecttopping_file_path),
-                                    path,
-                                )
-                                if path
-                                else None,
+                                path_resolver=lambda path: (
+                                    self.ilidata_path_resolver(
+                                        os.path.dirname(
+                                            projecttopping_file_path
+                                        ),
+                                        path,
+                                    )
+                                    if path
+                                    else None
+                                ),
                             )
 
                         # layer order
@@ -616,12 +616,16 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
                         if "layouts" in projecttopping_data:
                             resolved_layouts = generator.resolved_layouts(
                                 projecttopping_data["layouts"],
-                                path_resolver=lambda path: self.ilidata_path_resolver(
-                                    os.path.dirname(projecttopping_file_path),
-                                    path,
-                                )
-                                if path
-                                else None,
+                                path_resolver=lambda path: (
+                                    self.ilidata_path_resolver(
+                                        os.path.dirname(
+                                            projecttopping_file_path
+                                        ),
+                                        path,
+                                    )
+                                    if path
+                                    else None
+                                ),
                             )
 
                         # variables
@@ -946,16 +950,14 @@ class ProjectCreationPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "Most of the time you won't need to change anything here.<br />Just press Generate :-)"
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <h4>Project Topping</h4>
         <p align="justify">If your database was created using a <b>metaconfiguration</b> (you'd know this), it will now be recognised.</p>
         <p align="justify">If not, you may still be able to choose a <b>project topping</b> from the repositories.</p>
         <h4>Project Optimization</h4>
         <p align="justify">The project is optimized depending on the inheritance structure of the INTERLIS model on which it is based.<br />
         Means it hides unused layers etc. Read more about optimization strategies <a href="https://opengisch.github.io/QgisModelBaker/background_info/extended_models_optimization/">here</a>.</p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about this page in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#7-generate-the-qgis-project">documentation</a>...'
         )

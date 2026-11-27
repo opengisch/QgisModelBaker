@@ -17,7 +17,6 @@
  ***************************************************************************/
 """
 
-
 from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QWizardPage
 
@@ -80,15 +79,13 @@ class TIDConfigurationPage(QWizardPage, PAGE_UI):
         logline = self.tr(
             "OIDs can be a pain to fill up - let Model Baker do it for you..."
         )
-        help_paragraphs = self.tr(
-            """
+        help_paragraphs = self.tr("""
         <p align="justify">Model Baker recognized the OID Type according to the model and proposed <b>default expressions</b>.</p>
         <p align="justify">You still can change them. In case of <b><code>STANDARDOID</code></b> you have to set your own prefix.</p>
         <h4>Reset the <code>t_id</code> value</h4>
         <p align="justify">When using <code>STANDARDOID</code> or <code>I32OID</code> we need a sequence. Here we take the one from the <code>t_id</code>.<br />
         When you change it here, be aware that you don't set it lower than a currently used <code>t_id</code>.</p>
-        """
-        )
+        """)
         docutext = self.tr(
             'Find more information about this page in the <a href="https://opengisch.github.io/QgisModelBaker/user_guide/import_workflow/#8-oid-values">documentation</a> and about OID settings in general <a href="https://opengisch.github.io/QgisModelBaker/background_info/oid_tid_generator/#tid_(oid)_manager">here</a>'
         )

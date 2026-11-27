@@ -114,8 +114,7 @@ class BasketModel(QAbstractTableModel):
                         "<html><head/><body><p>The OID should be an Universally Unique Identifier (OID TEXT*36).</p></body></html>"
                     )
                 elif oid_domain[-11:] == "STANDARDOID":
-                    message = self.tr(
-                        """<html>
+                    message = self.tr("""<html>
                         <body>
                         <p>
                         The OID format requireds an 8 char prefix and 8 char postfix.
@@ -124,8 +123,7 @@ class BasketModel(QAbstractTableModel):
                         </p><p><b>Postfix (8 chars):</b> Sequence (numeric or alphanumeric) of your system as 'local' identification part.</p>
                         </body>
                         </html>
-                """
-                    )
+                """)
                 elif oid_domain[-6:] == "I32OID":
                     message = self.tr(
                         "<html><head/><body><p>The OID must be an integer value (OID 0 .. 2147483647).</p></body></html>"
@@ -182,9 +180,9 @@ class BasketModel(QAbstractTableModel):
                         "dataset_t_id"
                     ]
                     basket_setting["topic"] = basket_record["topic"]
-                    self.basket_settings[
-                        basket_record["topic"]
-                    ] = basket_setting
+                    self.basket_settings[basket_record["topic"]] = (
+                        basket_setting
+                    )
                     break  # Go to next topic
 
         self.endResetModel()

@@ -17,7 +17,6 @@
  ***************************************************************************/
 """
 
-
 from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtWidgets import QDialog, QSplitter, QVBoxLayout, QWizard
 

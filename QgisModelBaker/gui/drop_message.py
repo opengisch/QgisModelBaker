@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os
 
 from qgis.gui import QgsGui
@@ -44,13 +45,17 @@ class DopMessageModelBakerDialog(
             self.tr(
                 "Do you want to use the Model Baker plugin to handle the following {}?\n- {} {}"
             ).format(
-                self.tr("files")
-                if len(dropped_files) > 1
-                else self.tr("file"),
+                (
+                    self.tr("files")
+                    if len(dropped_files) > 1
+                    else self.tr("file")
+                ),
                 file_list,
-                self.tr("\nand {} more...").format(len(dropped_files) - 10)
-                if len(dropped_files) > 10
-                else "",
+                (
+                    self.tr("\nand {} more...").format(len(dropped_files) - 10)
+                    if len(dropped_files) > 10
+                    else ""
+                ),
             )
         )
         self.accepted.connect(
@@ -97,13 +102,17 @@ class DropMessageQuickDialog(
             self.tr(
                 "Would you like to quickly visualize {}, or would you prefer to create a structured database using the Model Baker Wizard?\n- {} {}"
             ).format(
-                self.tr("these files")
-                if len(dropped_files) > 1
-                else self.tr("this file"),
+                (
+                    self.tr("these files")
+                    if len(dropped_files) > 1
+                    else self.tr("this file")
+                ),
                 file_list,
-                self.tr("\nand {} more...").format(len(dropped_files) - 10)
-                if len(dropped_files) > 10
-                else "",
+                (
+                    self.tr("\nand {} more...").format(len(dropped_files) - 10)
+                    if len(dropped_files) > 10
+                    else ""
+                ),
             )
         )
         quick_button.clicked.connect(self.accept)

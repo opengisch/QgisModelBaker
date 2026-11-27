@@ -15,6 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import logging
 
 from qgis.PyQt.QtGui import QValidator

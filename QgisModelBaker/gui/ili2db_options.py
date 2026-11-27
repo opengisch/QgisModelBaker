@@ -16,6 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 from osgeo import gdal
 from qgis.core import Qgis
 from qgis.gui import QgsGui, QgsMessageBar
